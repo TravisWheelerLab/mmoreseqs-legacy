@@ -293,25 +293,25 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    edgebounds_Save(edg_bck, "output/myversion.edgebounds_bck_diag.tsv");
    printf("=== CLOUD BACKWARD (Quadratic) -> END ===\n\n");
 
-   /* cloud forward */
-   printf("=== CLOUD FORWARD (Linear) -> START ===\n");
-   cloud_forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_vals.tsv");
-   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_diag.tsv");
-   edgebounds_Save(edg_fwd, "output/myversion.edgebounds_fwd_diag.tsv");
-   printf("=== CLOUD FORWARD (Linear) -> END ===\n\n");
+   // /* cloud forward */
+   // printf("=== CLOUD FORWARD (Linear) -> START ===\n");
+   // cloud_forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_vals.tsv");
+   // dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   // cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_diag.tsv");
+   // edgebounds_Save(edg_fwd, "output/myversion.edgebounds_fwd_diag.tsv");
+   // printf("=== CLOUD FORWARD (Linear) -> END ===\n\n");
 
-   /* cloud backward */
-   printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
-   cloud_backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_vals.tsv");
-   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_diag.tsv");
-   edgebounds_Save(edg_bck, "output/myversion.edgebounds_bck_diag.tsv");
-   printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
+   // /* cloud backward */
+   // printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
+   // cloud_backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_vals.tsv");
+   // dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   // cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_diag.tsv");
+   // edgebounds_Save(edg_bck, "output/myversion.edgebounds_bck_diag.tsv");
+   // printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD -> START ===\n");
