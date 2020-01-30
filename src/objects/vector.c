@@ -1,8 +1,8 @@
 /*******************************************************************************
  *  @file vector.c
- *  @brief OOP Vectors 
+ *  @brief Generic OOP Vectors 
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
@@ -16,13 +16,15 @@
 #include <ctype.h>
 
 /* macros */
-#define DATATYPE float
-#define DEFAULT_SIZE 8
+#define DATATYPE      float
+#define DEFAULT_SIZE  8
+#define GROWTH_RATE   2
 
 /* macros for concatenating tokens into single token */
 #define M_CONC(A, B) M_CONC_(A, B)
 #define M_CONC_(A, B) A ## B
 
+/* generate function name tokens by data type and method */
 #define FUNCTION_NAME(operation) M_CONC(STRUCT_NAME, M_CONC(_, operation))
 #define STRUCT_NAME M_CONC(DATATYPE, Vec)
 
@@ -57,7 +59,7 @@ void FUNCTION_NAME(pushback) ( STRUCT_NAME *ptr, DATATYPE val )
 
    /* if array is full, resize */
    if (ptr->N >= ptr->alloc - 1) {
-      FUNCTION_NAME(resize) ( ptr, ptr->alloc * 2 );
+      FUNCTION_NAME(resize) ( ptr, ptr->alloc * GROWTH_RATE );
    }
 }
 

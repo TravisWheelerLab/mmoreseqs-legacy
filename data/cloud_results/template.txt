@@ -1,8 +1,0 @@
-name        length
-
-viterbi     score
-forward     score
-backward    score
-
-alpha       score
-

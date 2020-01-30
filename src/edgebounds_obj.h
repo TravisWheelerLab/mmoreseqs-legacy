@@ -2,7 +2,7 @@
  *  @file edgebounds_obj.h
  *  @brief EDGEBOUNDS Object functions.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

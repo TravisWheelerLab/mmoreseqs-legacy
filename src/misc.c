@@ -2,7 +2,7 @@
  *  @file misc.h
  *  @brief Miscellaneous Helper Functions.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

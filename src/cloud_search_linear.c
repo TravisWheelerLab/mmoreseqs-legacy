@@ -4,7 +4,7 @@
  *
  *  @synopsis
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
@@ -33,9 +33,9 @@
 #define min(x,y) (((x) < (y)) ? (x) : (y))
 
 // NOTE: HOW TO CONVERT row-coords to diag-coords
-//  *       MMX(i-1,j-1) => MMX3(d_2, )
-//  *       MMX(i,  j-1) => MMX3(, )
-//  *       MMX(i,  j  ) => MMX3(, d_1)
+//  *       MMX(i-1,j-1) => MMX3(d_2, i-1)
+//  *       MMX(i,  j-1) => MMX3(d_1, )
+//  *       MMX(i-1,j  ) => MMX3(d_1, )
 
 
 /*  
@@ -112,17 +112,24 @@ void cloud_forward_Run3(const SEQ* query,
    /* --------------------------------------------------------------------------------- */
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
-   /* INIT ANTI-DIAGS */
-   /* test coords */
+   /* get start and end points of viterbi alignment */
    start = tr->first_m;
    end = tr->last_m;
+
+   /* NOTE: We don't want to start on the left edge and risk out-of-bounds (go to next match state) */
+   if (start.i == 0) {
+      start.i += 1;
+      start.j += 1;
+   }
 
    /* diag index at corners of dp matrix */
    d_st = 0;
    d_end = Q + T;
 
    /* diag index of different start points, creating submatrix */
+
    d_st = start.i + start.j;
    // d_end = end.i + end.j;
 
@@ -168,7 +175,6 @@ void cloud_forward_Run3(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-
          lb_new = VERY_SMALL;
          rb_new = VERY_SMALL;
 
@@ -385,7 +391,7 @@ void cloud_backward_Run3(const SEQ* query,
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
 
-   /* INIT ANTI-DIAGS */
+   /* get start and end points of viterbi alignment */
    start = tr->first_m;
    end = tr->last_m;
 

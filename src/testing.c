@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *  @file cloud_search.h
+ *  @brief Testing for navigating through the matrices.
+ *
+ *  @author Dave Rich
+ *  @bug Lots.
+ *******************************************************************************/
+
 // imports
 #include <stdio.h>
 #include <unistd.h>
@@ -124,6 +132,7 @@ void fwd_test_cycle(int Q, int T,
          // printf("(%d,%d)->", i, j);
 
          MMX(i,j) += 2;
+         IMX(i,j) += k;
          // MMX(i, j) = i;
          // IMX(i, j) = j;
          // DMX(i, j) = total_cnt;

@@ -2,7 +2,7 @@
  *  @file structs.h
  *  @brief All Data Structures used by Cloud Search.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
@@ -82,6 +82,11 @@ typedef enum {
    MODE_QUAD   = 1,
    MODE_NAIVE  = 2
 } FWDBCK_MODE;
+
+typedef enum {
+   MODE_OVERWRITE = 0,
+   MODE_APPEND    = 1,
+} WRITE_MODE;
 
 typedef enum {
    AMINO, DNA

@@ -2,7 +2,7 @@
  *  @file bounded_fwdbck_linear.c
  *  @brief Cloud Forward-Backward Algorithm (Linear Space Implementation)
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

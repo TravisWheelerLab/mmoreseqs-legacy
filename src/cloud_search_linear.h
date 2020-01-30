@@ -1,8 +1,10 @@
 /*******************************************************************************
- *  @file cloud_search3.h
- *  @brief The "Cloud Search" Algorithm for the heuristic Forward-Backward.
+ *  @file cloud_search_linear.h
+ *  @brief Cloud Search for Forward-Backward Pruning Alg. (LINEAR SPACE)
  *
- *  @author Dave Rich (devrek)
+ *  @synopsis
+ *
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

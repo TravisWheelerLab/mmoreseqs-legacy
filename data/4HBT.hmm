@@ -1,5 +1,8 @@
 HMMER3/f [3.1b1 | May 2013]
 NAME  4HBT
+NAME  4HBT
+ACC   PF03061.15
+DESC  Thioesterase superfamily
 LENG  78
 ALPH  amino
 RF    no
@@ -11,10 +14,13 @@ DATE  Tue Nov 11 14:49:25 2014
 NSEQ  96
 EFFN  11.663086
 CKSUM 3107963938
+GA    20.60 20.60
+TC    20.60 20.60
+NC    20.50 20.50
 STATS LOCAL MSV       -8.9273  0.71859
 STATS LOCAL VITERBI   -9.3517  0.71859
 STATS LOCAL FORWARD   -4.0501  0.71859
-HMM          A        C        D        E        F        G        H        I        K        L        M        N        P        Q        R        S        T        V        W        Y
+HMM          A        C        D        E        F        G        H        I        K        L        M        N        P        Q        R        S        T        V        W        Y   
             m->m     m->i     m->d     i->m     i->i     d->m     d->d
   COMPO   2.30913  4.13156  3.08867  2.84532  3.40268  2.45742  3.52752  2.78556  3.00454  2.45884  3.53341  3.36367  3.71843  3.40065  2.90802  2.69358  2.69810  2.39107  4.83707  3.67477
           2.68618  4.42225  2.77519  2.73123  3.46354  2.40513  3.72494  3.29354  2.67741  2.69355  4.24690  2.90347  2.73739  3.18146  2.89801  2.37887  2.77519  2.98518  4.58477  3.61503

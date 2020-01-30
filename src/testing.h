@@ -2,7 +2,7 @@
  *  @file cloud_search.h
  *  @brief Testing for navigating through the matrices.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

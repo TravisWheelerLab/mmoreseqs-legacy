@@ -2,7 +2,7 @@
  *  @file parser.h
  *  @brief Parses .hmm and .fasta files
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

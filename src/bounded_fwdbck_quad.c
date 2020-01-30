@@ -4,7 +4,7 @@
  *
  *  @synopsis
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

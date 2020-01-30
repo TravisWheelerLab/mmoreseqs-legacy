@@ -8,7 +8,7 @@
  *       MMX3(i,  j-1) => MMX3(, d_1)
  *       MMX3(i,  j  ) => MMX3(, d_1)
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
- *  @file structs.h
- *  @brief Structures used in file parser.c and forward_backward.c
+ *  @file structs.c
+ *  @brief Data Structures for Cloud Search.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

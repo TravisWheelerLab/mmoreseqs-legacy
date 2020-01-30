@@ -2,7 +2,7 @@
  *  @file cloud_search.h
  *  @brief Bounded Forward-Backward Algorithm (QUADRATIC SPACE)
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

@@ -4,7 +4,7 @@
  *
  *  @synopsis
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
@@ -107,10 +107,15 @@ void cloud_forward_Run(const SEQ* query,
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
 
-   /* INIT ANTI-DIAGS */
-   /* test coords */
+   /* get start and end points of viterbi alignment */
    start = tr->first_m;
    end = tr->last_m;
+
+   /* NOTE: We don't want to start on the left edge and risk out-of-bounds (go to next match state) */
+   if (start.i == 0) {
+      start.i += 1;
+      start.j += 1;
+   }
 
    /* diag index at corners of dp matrix */
    d_st = 0;
@@ -378,7 +383,7 @@ void cloud_backward_Run(const SEQ* query,
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
 
-   /* INIT ANTI-DIAGS */
+   /* get start and end points of viterbi alignment */
    start = tr->first_m;
    end = tr->last_m;
 

@@ -2,7 +2,7 @@
  *  @file parser.c
  *  @brief Parses .hmm, .fasta, and .submat files
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

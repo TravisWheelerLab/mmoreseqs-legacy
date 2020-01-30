@@ -2,7 +2,7 @@
  *  @file structs.h
  *  @brief All Macro Definitions used by Cloud Search.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

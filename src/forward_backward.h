@@ -2,7 +2,7 @@
  *  @file forward_backward.h
  *  @brief Function prototypes for the Forward-Backward algorithm.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

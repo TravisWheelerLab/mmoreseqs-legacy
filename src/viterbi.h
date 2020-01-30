@@ -1,8 +1,8 @@
 /*******************************************************************************
  *  @file viterbi.h
- *  @brief The Viterbi Algorithm for Sequence Alignment Search.
+ *  @brief The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

@@ -2,7 +2,7 @@
  *  @file bounded.c
  *  @brief Bounded Forward-Backward Algorithm for Cloud Search (NAIVE).
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

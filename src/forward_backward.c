@@ -2,7 +2,7 @@
  *  @file forward_backward.c
  *  @brief The Forward-Backward Algorithm for Sequence Alignment Search.
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
  *  @file main.c
- *  @brief Parses files, 
+ *  @brief Main Method, Argument Parser, Unit Tests. 
  *
- *  @author Dave Rich (devrek)
+ *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
@@ -61,7 +61,7 @@ int main (int argc, char *argv[])
    args->alpha = 20.0f;
    args->beta = 5;
    args->search_mode = MODE_NAIVE;
-   args->outfile_name = "scripts/cloud_stats.tsv";
+   args->outfile_name = "stats/cloud_stats.tsv";
    // args->outfile = stdout;
 
    printf("parsing args...\n");
@@ -215,10 +215,10 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    EDGEBOUNDS *edg_bck = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
    EDGEBOUNDS *edg = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
 
-   /* allocate memory for quadratic algs (for testing) */
+   /* allocate memory for quadratic algs (for DEBUGGING) */
    float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    float *sp_MX = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
-   /* allocate memory for cloud matrices (for testing) */
+   /* allocate memory for cloud matrices (for DEBUGGING) */
    float *st_MX_cloud = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    float *sp_MX_cloud = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
    /* allocate memory for linear algs */
@@ -269,8 +269,9 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("=== TEST -> START ===\n");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    fwd_test_cycle(Q, T, st_MX, sp_MX, tr);
-   bck_test_cycle(Q, T, st_MX, sp_MX, tr);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_fwd.tsv");
+   bck_test_cycle(Q, T, st_MX, sp_MX, tr);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_bck.tsv");
    printf("=== TEST -> END ===\n\n");
 
    /* cloud forward */
@@ -380,6 +381,7 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("Writing results to: '%s'\n", fileout);
    FILE *fp = fopen(fileout, "a+");
    fprintf(fp, "%s\t", hmm_file);
+   fprintf(fp, "%s\t", fasta_file);
    fprintf(fp, "%f\t", scores->viterbi_sc);
    fprintf(fp, "%f\t", scores->fwd_sc);
    fprintf(fp, "%f\t", scores->bck_sc);
