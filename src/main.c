@@ -55,7 +55,7 @@ int main (int argc, char *argv[])
    char *arg;
    int  i, j;
 
-   /* DEFAULTS */
+   /* DEFAULT TESTS */
    args->target_hmm_file = "data/test1_2.hmm";
    args->query_fasta_file = "data/test1_1.fa";
    args->alpha = 20.0f;
@@ -77,6 +77,7 @@ void parse_args (int argc, char *argv[], ARGS *args)
 {
    int i, len;
    int num_main_args, max_main_args;
+   char *arg_tmp;
    
    num_main_args = 0;
    max_main_args = 2;
@@ -136,7 +137,7 @@ void parse_args (int argc, char *argv[], ARGS *args)
             // case 'm':   /* mode */
             //    i++;
             //    if (i < argc) {
-            //       args->search_mode = atoi(argv[i]);
+            //       arg_tmp = argv[i];
             //    } else {
             //       fprintf(stderr, "Error: -m flag requires argument.\n");
             //    }  
@@ -218,15 +219,19 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    /* allocate memory for quadratic algs (for DEBUGGING) */
    float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    float *sp_MX = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
+   /* allocate memory for comparing quadratic algs (for DEBUGGING) */
+   float *st_MX_tmp = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    /* allocate memory for cloud matrices (for DEBUGGING) */
    float *st_MX_cloud = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    float *sp_MX_cloud = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
    /* allocate memory for linear algs */
    float *st_MX3 = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (T+1) * 3) );
 
+   bool test;
+
    /* run viterbi algorithm */
    printf("=== VITERBI -> START ===\n");
-   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, res, tr);
+   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
    printf("Viterbi Score: %f\n", sc);
    scores->viterbi_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
@@ -250,7 +255,7 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
 
    printf("=== FORWARD -> START ===\n");
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   sc = forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, res);
+   sc = forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX);
    printf("Forward Score: %f\n", sc);
    scores->fwd_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
@@ -258,7 +263,7 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("=== FORWARD -> END ===\n\n");
 
    printf("=== BACKWARD -> START ===\n");
-   sc = backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, res);
+   sc = backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX);
    printf("Backward Score: %f\n", sc);
    scores->bck_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
@@ -266,42 +271,46 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("=== BACKWARD -> END ===\n\n");
 
    /* TEST */
-   printf("=== TEST -> START ===\n");
-   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   fwd_test_cycle(Q, T, st_MX, sp_MX, tr);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_fwd.tsv");
-   bck_test_cycle(Q, T, st_MX, sp_MX, tr);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_bck.tsv");
-   printf("=== TEST -> END ===\n\n");
+   // printf("=== TEST -> START ===\n");
+   // dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   // fwd_test_cycle(Q, T, st_MX, sp_MX, tr);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_fwd.quad.tsv");
+   // bck_test_cycle(Q, T, st_MX, sp_MX, tr);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_bck.quad.tsv");
+   // fwd_test_cycle3(Q, T, st_MX, st_MX3, sp_MX, tr);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.test_fwd.lin.tsv");
+   // printf("=== TEST -> END ===\n\n");
 
    /* cloud forward */
    printf("=== CLOUD FORWARD (Quadratic) -> START ===\n");
    cloud_forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_vals.tsv");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_vals.quad.tsv");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_diag.tsv");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_diag.quad.tsv");
    edgebounds_Save(edg_fwd, "output/myversion.edgebounds_fwd_diag.tsv");
    printf("=== CLOUD FORWARD (Quadratic) -> END ===\n\n");
 
    /* cloud backward */
    printf("=== CLOUD BACKWARD (Quadratic) -> START ===\n");
    cloud_backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_vals.tsv");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_vals.quad.tsv");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_diag.tsv");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_bck_diag.quad.tsv");
    edgebounds_Save(edg_bck, "output/myversion.edgebounds_bck_diag.tsv");
    printf("=== CLOUD BACKWARD (Quadratic) -> END ===\n\n");
 
-   // /* cloud forward */
+   /* cloud forward */
    // printf("=== CLOUD FORWARD (Linear) -> START ===\n");
-   // cloud_forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta);
-   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_vals.tsv");
-   // dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   // cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
-   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.cloud_fwd_diag.tsv");
+   // cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX_tmp, st_MX3, sp_MX, tr, edg_fwd, alpha, beta);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/myversion.cloud_fwd_vals.lin.tsv");
+   // dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
+   // cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_fwd, 1, MODE_DIAG);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/myversion.cloud_fwd_diag.lin.tsv");
    // edgebounds_Save(edg_fwd, "output/myversion.edgebounds_fwd_diag.tsv");
+   // test = dp_matrix_Compare(Q, T, st_MX, sp_MX, st_MX_tmp, sp_MX);
+   // printf("Cloud Forward Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
    // printf("=== CLOUD FORWARD (Linear) -> END ===\n\n");
 
    // /* cloud backward */
@@ -345,17 +354,17 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("Bounded Forward Score (Naive): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_fwd.naive.tsv");
    
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   forward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
-   printf("Bounded Forward Score (Quadratic): %f\n", sc);
-   scores->cloud_fwd_sc = sc;
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_fwd.quadratic.tsv");
+   // dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   // forward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
+   // printf("Bounded Forward Score (Quadratic): %f\n", sc);
+   // scores->cloud_fwd_sc = sc;
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_fwd.quadratic.tsv");
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
-   printf("Bound Forward Score (Linear): %f\n", sc);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_fwd.linear.tsv");
-   printf("=== BOUNDED FORWARD -> END ===\n\n");
+   // dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   // forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
+   // printf("Bound Forward Score (Linear): %f\n", sc);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_fwd.linear.tsv");
+   // printf("=== BOUNDED FORWARD -> END ===\n\n");
 
    /* bounded backward */
    printf("=== BOUNDED BACKWARD -> START ===\n");
@@ -365,16 +374,16 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    scores->cloud_bck_sc = sc;
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_bck.naive.tsv");
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   backward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
-   printf("Bounded Backward Score (Quadratic): %f\n", sc);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_bck.quadratic.tsv");
+   // dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   // backward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
+   // printf("Bounded Backward Score (Quadratic): %f\n", sc);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_bck.quadratic.tsv");
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
-   printf("Bound Backward Score (Linear): %f\n", sc);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_bck.linear.tsv");
-   printf("=== BOUNDED BACKWARD -> END ===\n\n");
+   // dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   // backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
+   // printf("Bound Backward Score (Linear): %f\n", sc);
+   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/myversion.bounded_bck.linear.tsv");
+   // printf("=== BOUNDED BACKWARD -> END ===\n\n");
 
    /* sample stats */
    char *fileout = args->outfile_name;
@@ -393,7 +402,7 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    fprintf(fp, "%f\n", scores->perc_window);
    fclose(fp);
 
-   /* TODO: free memory! */
+   /* TODO: fix free memory! */
    free(res);
    free(tr);
    free(edg_fwd);
@@ -442,18 +451,51 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    /* allocate memory for linear algs */
    float *st_MX3 = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (T+1) * 3) ); 
 
+   /* viterbi / traceback */
+   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   scores->viterbi_sc = sc;
+   traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+
+   /* forward-backward */
+   sc = forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX);
+   scores->fwd_sc = sc;
+   sc = backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX);
+   scores->bck_sc = sc;
+
    /* cloud forward-backward */
    cloud_forward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta);
    cloud_backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta);
    /* merge edgebounds */
    edgebounds_Merge_Reorient_Cloud(edg_fwd, edg_bck, edg, Q, T, st_MX, sp_MX);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg, 1, MODE_ROW);
+   int num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
+   int window_cells = (tr->last_m.i - tr->first_m.i) * (tr->last_m.j - tr->first_m.j);
+   int tot_cells = (Q + 1) * (T + 1);
+   scores->perc_cells = (float)num_cells/(float)tot_cells;
+   scores->perc_window = (float)num_cells/(float)window_cells;
    /* bound forward-backward */
-   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
+   forward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
    scores->cloud_fwd_sc = sc;
-   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg, &sc);
+   backward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg, &sc);
    scores->cloud_bck_sc = sc;
 
-   fprintf(stdout, "cloud_fwd: %f\tcloud_bck: %f\n", scores->cloud_fwd_sc, scores->cloud_bck_sc);
+   /* sample stats */
+   char *fileout = args->outfile_name;
+   printf("Writing results to: '%s'\n", fileout);
+   FILE *fp = fopen(fileout, "a+");
+   fprintf(fp, "%s\t", hmm_file);
+   fprintf(fp, "%s\t", fasta_file);
+   fprintf(fp, "%f\t", scores->viterbi_sc);
+   fprintf(fp, "%f\t", scores->fwd_sc);
+   fprintf(fp, "%f\t", scores->bck_sc);
+   fprintf(fp, "%f\t", scores->cloud_fwd_sc);
+   fprintf(fp, "%f\t", scores->cloud_bck_sc);
+   fprintf(fp, "%f\t", alpha);
+   fprintf(fp, "%d\t", beta);
+   fprintf(fp, "%f\t", scores->perc_cells);
+   fprintf(fp, "%f\n", scores->perc_window);
+   fclose(fp);
 }
 
 

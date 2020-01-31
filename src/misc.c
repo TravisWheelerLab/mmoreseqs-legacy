@@ -311,7 +311,7 @@ int dp_matrix_Compare (const int Q, const int T,
       {
          for (st = 0; st < NUM_NORMAL_STATES; st++) 
          {
-            if ( ST_MX(st_MX_1, st, i, j) != ST_MX(st_MX_1, st, i, j) ) 
+            if ( ST_MX(st_MX_1, st, i, j) != ST_MX(st_MX_2, st, i, j) ) 
             {
                return false;
             } 

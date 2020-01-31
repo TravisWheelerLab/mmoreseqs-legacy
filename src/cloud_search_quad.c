@@ -25,7 +25,7 @@
 // macros
 // #define getName(var) #var
 // #define SCALE_FACTOR 1000
-# define VERY_SMALL -10000.f
+#define INT_MIN -2147483648
 
 // macro functions
 // NOTE: wrap all macro vars in parens!!
@@ -111,8 +111,8 @@ void cloud_forward_Run(const SEQ* query,
    start = tr->first_m;
    end = tr->last_m;
 
-   /* NOTE: We don't want to start on the left edge and risk out-of-bounds (go to next match state) */
-   if (start.i == 0) {
+   /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
+   if (start.i == 0 || start.j == 0) {
       start.i += 1;
       start.j += 1;
    }
@@ -168,8 +168,8 @@ void cloud_forward_Run(const SEQ* query,
       if (beta < d_cnt)
       {
 
-         lb_new = VERY_SMALL;
-         rb_new = VERY_SMALL;
+         lb_new = INT_MIN;
+         rb_new = INT_MIN;
 
          /* Traverse current bounds to find diag_max, max for the current diag */
          diag_max = -INF;
@@ -209,7 +209,7 @@ void cloud_forward_Run(const SEQ* query,
          }
 
          /* If no boundary edges are found on diag, then branch is pruned entirely and we are done */
-         if (lb_new == VERY_SMALL)
+         if (lb_new == INT_MIN)
             break;
 
          /* Find the first cell from the right which passes above threshold */
@@ -284,8 +284,7 @@ void cloud_forward_Run(const SEQ* query,
          /* best-to-match */
          prev_sum = calc_Logsum( 
                         calc_Logsum( prev_mat, prev_ins ),
-                        calc_Logsum( prev_del, prev_beg )
-                     );
+                        calc_Logsum( prev_del, prev_beg ) );
          MMX(i,j) = prev_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -387,6 +386,12 @@ void cloud_backward_Run(const SEQ* query,
    start = tr->first_m;
    end = tr->last_m;
 
+   /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
+   if (start.i == Q+1 || start.j == T+1) {
+      start.i -= 1;
+      start.j -= 1;
+   }
+
    /* diag index at corners of dp matrix */
    d_st = 0;
    d_end = Q + T;
@@ -439,8 +444,8 @@ void cloud_backward_Run(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-         lb_new = VERY_SMALL; /* impossible state */
-         rb_new = VERY_SMALL; /* impossible state */
+         lb_new = INT_MIN; /* impossible state */
+         rb_new = INT_MIN; /* impossible state */
 
          /* Traverse current bounds to find max score on diag */
          diag_max = -INF;
@@ -473,15 +478,14 @@ void cloud_backward_Run(const SEQ* query,
                            calc_Max( IMX(i,j), DMX(i,j) ) );
             // printf("> TEST(%d,%d)=%.2f\n", i, j, cell_max);
 
-            if( cell_max >= total_limit )
-            {
+            if( cell_max >= total_limit ) {
                lb_new = i;
                break;
             }
          }
 
          /* If no boundary edges are found on diag, then branch is pruned entirely and we are done */
-         if (lb_new == VERY_SMALL)
+         if (lb_new == INT_MIN)
             break;
 
          /* Find the first cell from the right which passes above threshold */
@@ -493,8 +497,7 @@ void cloud_backward_Run(const SEQ* query,
                            calc_Max( IMX(i,j),   DMX(i,j) ) );
             // printf("< TEST(%d,%d)=%.2f\n", i, j, cell_max);
 
-            if( cell_max >= total_limit )
-            {
+            if( cell_max >= total_limit ) {
                rb_new = (i + 1);
                break;
             }

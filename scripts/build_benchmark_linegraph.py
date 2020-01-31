@@ -8,25 +8,30 @@
  #  @bug Lots.
  ###############################################################################
 
-import sys
+import sys, os
 import numpy as np
 import cv2 as cv
 from PIL import Image
 import matplotlib
 import matplotlib.pyplot as plt
 
+# parse commandline args
+pwd = os.getcwd()
+out_folder = "data-vis/alpha-linegraphs/"
 filenames = []
 eval = ""
 if len(sys.argv) >= 2:
-   filenames.append(sys.argv[1])
+   i = 1
+   while (i < len(sys.argv)):
+      if sys.argv[i] == "-o":
+         i += 1;
+         out_folder = sys.argv[i]
+      else:
+         filenames.append(sys.argv[i])
+      i += 1
 else:
-   print("Usage: <results_filename1> <results_filename2> ...")
+   print("Usage: <results_filename1> <results_filename2> ... -o <out_folder>")
    sys.exit(0)
-
-if len(sys.argv) >= 3:
-   e_val = int(sys.argv[2])
-   qlen = int(sys.argv[3])
-   tlen = int(sys.argv[4])
 
 # read in file
 for filename in filenames:
@@ -62,9 +67,9 @@ for filename in filenames:
          cloud_bck.append( float(line[6]) )
          alpha.append( float(line[7]) )
          beta.append( int(line[8]) )
-         perc_cells.append( float(line[9]) * 100 )
-         perc_wind.append( float(line[10]) * 100 )
-         perc_tot.append( 100 )
+         perc_cells.append( np.log10( float(line[9]) ) )
+         perc_wind.append( np.log10( float(line[10]) ) )
+         perc_tot.append( np.log10( 1 ) )
 
          line_cnt += 1
          print(line_cnt)
@@ -80,14 +85,26 @@ for filename in filenames:
    plt.plot(alpha, cloud_fwd, 'g.', label="cloud-fwd score")
    plt.plot(alpha, cloud_bck, 'g--', label="cloud-bck score")
    plt.ylabel("score")
+   plt.xticks(alpha)
 
    plt.subplot(2,1,2)
    plt.plot(alpha, perc_cells, 'k--', label="percent cells computed")
    plt.plot(alpha, perc_tot, 'k-', label="total percent")
    plt.ylabel("percent of cells computed")
+   y_ticks = list(range(0,-4,-1))
+   y_vals  = [pow(10,y) for y in y_ticks]
+   plt.yticks(y_ticks, y_vals)
+   plt.xticks(alpha)
 
+   fasta_name = fasta_name[0].split(".")
+   out_file = ""
+   for i in range(len(fasta_name)-1):
+      out_file += fasta_name[i]
    plt.xlabel('alpha pruning threshold')
-   plt.savefig("data-vis/{}.jpg".format(fasta_name[0]))
+
+   out_dest = "{}/{}/{}.jpg".format(pwd, out_folder, out_file)
+   print("saving figure to: '{}'... ", out_dest)
+   plt.savefig(out_dest)
    # plt.show()
 
 

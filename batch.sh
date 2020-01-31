@@ -3,6 +3,7 @@
 BATCH="bash /Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/scripts/batch_benchmarks.sh"
 TEST_DIR="/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data/test_list"
 BENCH_DIR="/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner"
+DOMTBLOUT="/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/phmmer_001.domtblout"
 
 PWD=$(pwd)
 
@@ -22,7 +23,7 @@ do
    do 
       echo "$BATCH $HMM $FA"
 
-      # TODO:check if file already exists!!
+      # TODO:check if output file already exists!!
 
       $BATCH $HMM $FA
    done

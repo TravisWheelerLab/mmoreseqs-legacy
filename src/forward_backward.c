@@ -37,53 +37,8 @@ void fwdbck_Run (const SEQ* query,
                   const HMM_PROFILE* target,
                   int Q, int T, 
                   float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                  float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ], 
-                  RESULTS* res)
+                  float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ])
 {
-   init_Logsum();
-
-   /* allocate DP matrix */
-
-   /* NORMAL STATE (MATCH, INSERT, DELETE) MATRIX */
-   float st_MX2[ NUM_NORMAL_STATES * (Q+1) * (T+1) ]; 
-   /* SPECIAL STATES MATRIX */
-   float sp_MX2[ NUM_SPECIAL_STATES * (Q+1) ];
-
-   /* NORMAL STATE (MATCH, INSERT, DELETE) MATRIX */
-   float st_MX3[ NUM_NORMAL_STATES * (Q+1) * (T+1) ]; 
-   /* SPECIAL STATES MATRIX */
-   float sp_MX3[ NUM_SPECIAL_STATES * (Q+1) ];
-
-   for (int i = 0; i <= Q; i++)
-   {
-      for (int j = 0; j <= T; j++)
-      {
-         ST_MX(st_MX,MAT_ST,i,j)  = ST_MX(st_MX,INS_ST,i,j)  = ST_MX(st_MX,DEL_ST,i,j)  = -INF;
-         ST_MX(st_MX2,MAT_ST,i,j) = ST_MX(st_MX2,INS_ST,i,j) = ST_MX(st_MX2,DEL_ST,i,j) = -INF;
-         ST_MX(st_MX3,MAT_ST,i,j) = ST_MX(st_MX3,INS_ST,i,j) = ST_MX(st_MX3,DEL_ST,i,j) = -INF;
-      }
-
-      for (int j = 0; j < NUM_SPECIAL_STATES; j++)
-      {
-         SP_MX(sp_MX,j,i) = -INF;
-         SP_MX(sp_MX2,j,i) = -INF;
-         SP_MX(sp_MX3,j,i) = -INF;
-      }
-   }
-
-	forward_Run(query, target, Q, T, st_MX, sp_MX, res);
-   backward_Run(query, target, Q, T, st_MX2, sp_MX2, res);
-
-   int i,j;
-   for (i = 0; i < Q; i++)
-   {
-      for (j = 0; j < T; j++)
-      {
-         ST_MX(st_MX3,MAT_ST,i,j) = ST_MX(st_MX,MAT_ST,i,j) + ST_MX(st_MX2,MAT_ST,i,j);
-         ST_MX(st_MX3,INS_ST,i,j) = ST_MX(st_MX,INS_ST,i,j) + ST_MX(st_MX2,INS_ST,i,j);
-         ST_MX(st_MX3,DEL_ST,i,j) = ST_MX(st_MX,DEL_ST,i,j) + ST_MX(st_MX2,DEL_ST,i,j);
-      }
-   }
 }
 
 /*  
@@ -106,8 +61,7 @@ float forward_Run (const SEQ* query,
                    const HMM_PROFILE* target, 
                    int Q, int T, 
                    float st_MX[ NUM_NORMAL_STATES * (Q+1) * 3 ], 
-                   float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ], 
-                   RESULTS* res)
+                   float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ])
 {
    init_Logsum();
 
@@ -275,8 +229,7 @@ float backward_Run (const SEQ* query,
                     const HMM_PROFILE* target, 
                     int Q, int T, 
                     float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                    float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ], 
-                    RESULTS* res)
+                    float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ])
 {
    init_Logsum();
 

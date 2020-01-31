@@ -20,6 +20,12 @@ void bck_test_cycle(int Q, int T,
                     float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],
                     TRACEBACK *tr);
 
+void fwd_test_cycle3(int Q, int T, 
+                     float* st_MX, 
+                     float* st_MX3,
+                     float* sp_MX, 
+                     TRACEBACK* tr );
+
 int cloud_Fill(int Q, int T,
                 float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
                 float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],

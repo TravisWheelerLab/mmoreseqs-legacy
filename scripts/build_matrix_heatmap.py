@@ -350,7 +350,8 @@ if (len(sys.argv) == 1):
    print("Usage: <tsv_matrix_1>");
    sys.exit(0);
 else:
-   for i in range(1, len(sys.argv)):
+   i = 1
+   while (i < len(sys.argv) ):
       arg = sys.argv[i];
       # apply options
       if (arg.startswith("-")):
@@ -358,6 +359,7 @@ else:
             opts[arg] = True;
       else:
          tsv_matrix.append(sys.argv[i]);
+      i += 1
 
 print(opts)
 print(tsv_matrix)

@@ -25,7 +25,7 @@
 // macros
 // #define getName(var) #var
 // #define SCALE_FACTOR 1000
-#define VERY_SMALL -10000.f
+#define INT_MIN -2147483648
 
 // macro functions
 // NOTE: wrap all macro vars in parens!!
@@ -101,7 +101,7 @@ void cloud_forward_Run3(const SEQ* query,
    bool   is_local = target->isLocal;
    float  sc_E = (is_local) ? 0 : -INF;
 
-   /* INIT EDGEBOUND DATA STRUCT */
+   /* INITIALIZE EDGEBOUND DATA STRUCT */
    int min_size = 128;
    edg->size = min_size;
    edg->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
@@ -118,8 +118,8 @@ void cloud_forward_Run3(const SEQ* query,
    start = tr->first_m;
    end = tr->last_m;
 
-   /* NOTE: We don't want to start on the left edge and risk out-of-bounds (go to next match state) */
-   if (start.i == 0) {
+   /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
+   if (start.i == 0 || start.j == 0) {
       start.i += 1;
       start.j += 1;
    }
@@ -175,18 +175,20 @@ void cloud_forward_Run3(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-         lb_new = VERY_SMALL;
-         rb_new = VERY_SMALL;
+         /* impossible state */
+         lb_new = INT_MIN;    
+         rb_new = INT_MIN;
 
-         /* Traverse current bounds to find diag_max, max for the current diag */
+         /* FIND MAX SCORE ON CURRENT DIAGONAL */
          diag_max = -INF;
          for (k = lb; k < rb; k++)
          {
+            /* coords for quadratic matrix */
             i = k;
             j = d_1 - i;    /* back one diag */
             diag_max = calc_Max( 
-                           calc_Max( diag_max, MMX(i,j) ),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+                           calc_Max( diag_max, MMX3(d1,k) ),
+                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
          }
 
          /* Total max records largest cell score seen so far */
@@ -199,27 +201,26 @@ void cloud_forward_Run3(const SEQ* query,
          total_limit = total_max - alpha;
          // printf("total_max: %.2f\t total_limit: %.2f\t diag_max: %.2f\t diag_limit: %.2f\n", total_max, total_limit, diag_max, diag_limit);
 
-         /* Find the first cell from the left which passes above threshold */
+         /* FIND FIRST SCORE TO EXCEED FROM THE LEFT */
          for (k = lb; k < rb; k++)
          {
             i = k;
             j = d_1 - i; /* looking back one diag */
-            cell_max = calc_Max( MMX(i,j),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+            cell_max = calc_Max( MMX(d1,k),
+                           calc_Max( IMX(d1,k), DMX(d1,k) ) );
 
             /* prune in left edgebound */
-            if( cell_max >= total_limit )
-            {
+            if( cell_max >= total_limit ) {
                lb_new = i;
                break;
             }
          }
 
          /* If no boundary edges are found on diag, then branch is pruned entirely and we are done */
-         if (lb_new == VERY_SMALL)
+         if (lb_new == INT_MIN)
             break;
 
-         /* Find the first cell from the right which passes above threshold */
+         /* FIND FIRST SCORE TO EXCEED FROM THE RIGHT */
          for (k = rb - 1; k >= lb; k--)
          {
             i = k;
@@ -252,7 +253,7 @@ void cloud_forward_Run3(const SEQ* query,
       le = max(start.i, d - T);
       re = le + num_cells;
 
-      /* Update bounds */
+      /* Check that they dont exceed edges of matrix */
       if (lb < le)
          lb = le;
       if (rb > re)
@@ -275,6 +276,7 @@ void cloud_forward_Run3(const SEQ* query,
       /* ITERATE THROUGH CELLS OF NEXT ANTI-DIAGONAL */
       for (k = lb; k < rb; k++, total_cnt++)
       {
+         /* quadratic coords */
          i = k;
          j = d - i;
 
@@ -283,33 +285,55 @@ void cloud_forward_Run3(const SEQ* query,
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-         prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-         prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+         /* NOTE: (i-1,j-1) => (d-2,k-1) */ 
+         prev_mat = MMX3(d2,k-1)  + TSC(j-1,M2M);
+         prev_ins = IMX3(d2,k-1)  + TSC(j-1,I2M);
+         prev_del = DMX3(d2,k-1)  + TSC(j-1,D2M);
          // prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
          prev_beg = 0;
          /* best-to-match */
          prev_sum = calc_Logsum( 
                         calc_Logsum( prev_mat, prev_ins ),
-                        calc_Logsum( prev_del, prev_beg )
-                     );
-         MMX(i,j) = prev_sum + MSC(j,A);
+                        calc_Logsum( prev_del, prev_beg ) );
+         MMX3(d0,k) = prev_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX(i-1,j) + TSC(j,M2I);
-         prev_ins = IMX(i-1,j) + TSC(j,I2I);
+         /* NOTE: (i-1,j) => (d-1,k-1) */
+         prev_mat = MMX3(d1,k-1) + TSC(j,M2I);
+         prev_ins = IMX3(d1,k-1) + TSC(j,I2I);
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
-         IMX(i,j) = prev_sum + ISC(j,A);
+         IMX3(d0,k) = prev_sum + ISC(j,A);
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX(i,j-1) + TSC(j-1,M2D);
-         prev_del = DMX(i,j-1) + TSC(j-1,D2D);
+         /* NOTE: (i,j-1) => (d-1, k) */
+         prev_mat = MMX3(d1,k) + TSC(j-1,M2D);
+         prev_del = DMX3(d1,k) + TSC(j-1,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum(prev_mat, prev_del);
-         DMX(i,j) = prev_sum;
+         DMX3(d0,k) = prev_sum;
+      }
+
+      /* SCRUB 2-BACK ANTIDIAGONAL */
+
+
+      /* NAIVE SCRUB */
+      for (k = 0; k <= T+1; k++) {
+         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      }
+
+      /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
+      for (k = le; k <= re; k++) {
+         i = k;
+         j = d_0 - i;
+
+         MMX(i,j) = MMX3(d0,k);
+         IMX(i,j) = IMX3(d0,k);
+         DMX(i,j) = DMX3(d0,k);
+
+         printf("MMX(%d,%d) = MMX3(%d=%d,%d) = %f\n", i,j,d0,d_0,k, MMX3(d0,k));
       }
    }
 }
@@ -395,6 +419,12 @@ void cloud_backward_Run3(const SEQ* query,
    start = tr->first_m;
    end = tr->last_m;
 
+   /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
+   if (start.i == Q+1 || start.j == T+1) {
+      start.i -= 1;
+      start.j -= 1;
+   }
+
    /* diag index at corners of dp matrix */
    d_st = 0;
    d_end = Q + T;
@@ -447,8 +477,9 @@ void cloud_backward_Run3(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-         lb_new = VERY_SMALL; /* impossible state */
-         rb_new = VERY_SMALL; /* impossible state */
+         /* impossible state */
+         lb_new = INT_MIN; 
+         rb_new = INT_MIN;
 
          /* Traverse current bounds to find max score on diag */
          diag_max = -INF;
@@ -487,7 +518,7 @@ void cloud_backward_Run3(const SEQ* query,
          }
 
          /* If no boundary edges are found on diag, then branch is pruned entirely and we are done */
-         if (lb_new == VERY_SMALL)
+         if (lb_new == INT_MIN)
             break;
 
          /* Find the first cell from the right which passes above threshold */
@@ -582,6 +613,21 @@ void cloud_backward_Run3(const SEQ* query,
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );
          DMX(i,j) = prev_sum;
+      }
+
+      /* NAIVE SCRUB */
+      for (k = 0; k <= T+1; k++) {
+         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      }
+
+      /* Embed New Row into Quadratic Array - FOR DEBUGGING */
+      for (k = le; k <= re; k++) {
+         i = k;
+         j = d_0 - i;
+
+         MMX(i,j) = MMX3(d0,k);
+         IMX(i,j) = IMX3(d0,k);
+         DMX(i,j) = DMX3(d0,k);
       }
    }
 

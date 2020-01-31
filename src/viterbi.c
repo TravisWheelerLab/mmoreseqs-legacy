@@ -42,7 +42,6 @@ float viterbi_Run (const SEQ* query,
                    int Q, int T,
                    float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
                    float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
-                   RESULTS* res,
                    TRACEBACK* tr)
 {
    char   a;           /* store current character in sequence */
