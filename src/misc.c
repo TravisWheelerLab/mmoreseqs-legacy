@@ -261,7 +261,7 @@ void dp_matrix_Clear (const int Q, const int T,
 /* Clear all matrix values to -INF. (for testing) */
 void dp_matrix_Clear3 (const int Q, const int T,
                       float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                      float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ])
+                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ])
 {
    for (int i = 0; i <= Q; i++)
    {
@@ -271,7 +271,7 @@ void dp_matrix_Clear3 (const int Q, const int T,
    }
 
    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j <= T; j++) {
+      for (int j = 0; j < (T+1)+(Q+1); j++) {
          MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = -INF;
       }
    }
@@ -296,6 +296,27 @@ void dp_matrix_Clear_X (const int Q, const int T,
 }
 
 
+/* Clear all matrix values to -INF. (for testing) */
+void dp_matrix_Clear_X3 (const int Q, const int T,
+                      float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ],
+                      int val)
+{
+   for (int i = 0; i <= Q; i++)
+   {
+      for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
+         XMX(j, i) = val;
+      }
+   }
+
+   for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < (T+1)+(Q+1); j++) {
+         MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = val;
+      }
+   }
+}
+
+
 /* Set all matrix values to val */
 int dp_matrix_Compare (const int Q, const int T,
                         float st_MX_1[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
@@ -313,6 +334,9 @@ int dp_matrix_Compare (const int Q, const int T,
          {
             if ( ST_MX(st_MX_1, st, i, j) != ST_MX(st_MX_2, st, i, j) ) 
             {
+               float val1 = ST_MX(st_MX_1, st, i, j);
+               float val2 = ST_MX(st_MX_2, st, i, j);
+               printf("MATRIX NOT EQUAL at (%d,%d): %f vs %f\n", i, j, val1, val2);
                return false;
             } 
          }
@@ -322,6 +346,7 @@ int dp_matrix_Compare (const int Q, const int T,
       {
          if ( SP_MX(sp_MX_1, st, i) != SP_MX(sp_MX_2, st, i) ) 
          {
+            printf("MATRIX NOT EQUAL IN SPECIAL at (%d)\n", i);
             return false;
          }
       }

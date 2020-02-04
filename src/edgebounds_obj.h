@@ -10,7 +10,9 @@
 #ifndef _EDGEBOUNDS_OBJ_H
 #define _EDGEBOUNDS_OBJ_H
 
-void edgebounds_Create(EDGEBOUNDS *edg);
+EDGEBOUNDS *edgbounds_Create();
+
+void edgebounds_Init(EDGEBOUNDS **edg);
 
 void edgebounds_Destroy(EDGEBOUNDS *edg);
 
@@ -20,6 +22,8 @@ void edgebounds_Print(EDGEBOUNDS *edg);
 
 void edgebounds_Save(EDGEBOUNDS *edg,
                      const char *_filename_);
+
+void edgbounds_Sort(EDGEBOUNDS *edg);
 
 void edgebounds_Merge(EDGEBOUNDS *edg_fwd,
                      EDGEBOUNDS *edg_bck,

@@ -42,6 +42,10 @@ void dp_matrix_Clear_X (const int Q, const int T,
                        float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
                        float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],
                        float val);
+void dp_matrix_Clear_X3 (const int Q, const int T,
+                         float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                         float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ],
+                         int val);
 void dp_matrix_Save (const int Q, const int T, 
                      const float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
                      const float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],

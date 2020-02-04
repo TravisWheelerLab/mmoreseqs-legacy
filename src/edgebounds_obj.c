@@ -34,10 +34,9 @@
 #define max(x,y) (((x) > (y)) ? (x) : (y))
 #define min(x,y) (((x) < (y)) ? (x) : (y))
 
-
 /*
- *  FUNCTION: edgebounds_Create()
- *  SYNOPSIS: Create new edgebounds object.
+ *  FUNCTION: edgebounds_Init()
+ *  SYNOPSIS: Initialize new edgebounds object.
  *
  *  PURPOSE:
  *
@@ -45,13 +44,34 @@
  *
  *  RETURN:
  */
-void edgebounds_Create(EDGEBOUNDS *edg)
+EDGEBOUNDS *edgebounds_Create()
 {
-   static int min_size = 128;
+   EDGEBOUNDS *edg;
+   const int min_size = 128;
    edg = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
    edg->N = 0;
    edg->size = min_size;
    edg->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
+   return edg;
+}
+
+/*
+ *  FUNCTION: edgebounds_Init()
+ *  SYNOPSIS: Initialize new edgebounds object.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <edg>      Edgebounds Object
+ *
+ *  RETURN:
+ */
+void edgebounds_Init(EDGEBOUNDS **edg)
+{
+   const int min_size = 128;
+   (*edg) = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
+   (*edg)->N = 0;
+   (*edg)->size = min_size;
+   (*edg)->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
 }
 
 /*
@@ -163,8 +183,8 @@ void edgebounds_Save(EDGEBOUNDS *edg,
  *
  *  PURPOSE:
  *
- *  ARGS:      <edg_fwd>      Forward Edgebounds (sorted by diag ascending),
- *             <edg_bck>      Backward Edgebounds (sorted by diag ascending),
+ *  ARGS:      <edg_fwd>      Forward Edgebounds  (by-diag, sorted ascending),
+ *             <edg_bck>      Backward Edgebounds (by-diag, sorted ascending),
  *             <edg_res>      Result Edgebounds
  *
  *  RETURN:
@@ -179,12 +199,12 @@ void edgebounds_Merge(EDGEBOUNDS *edg_fwd,
    static int tol = 0;       /* if clouds are within tolerance range, clouds are merged */
 
    /* allocate new edgebounds */
-   int min_size = 128;
-   edg_new = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   edg_new->size = min_size;
-   edg_new->N = 0;
-   edg_new->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
-   // edgebounds_Create(edg_new);
+   // int min_size = 128;
+   // edg_new = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
+   // edg_new->size = min_size;
+   // edg_new->N = 0;
+   // edg_new->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
+   edgebounds_Create(&edg_new);
 
    /* temp edgebound for merging current diagonal */
    EDGEBOUNDS *edg_tmp;
@@ -286,20 +306,28 @@ void edgebounds_Merge(EDGEBOUNDS *edg_fwd,
  *
  *  PURPOSE:
  *
- *  ARGS:      <edg_diag>      Edgebounds (by-diag)
- *             <edg_row>       Edgebounds (by-row)
+ *  ARGS:      <Q>       
+ *             <edg_diag>      Edgebounds (by-diag) (SOURCE)
+ *             <edg_row>       Edgebounds (by-row)  (DESTINATION)
  *
  *  RETURN:
  */
-void edgebounds_Reorient(EDGEBOUNDS *edg_src,
-                         EDGEBOUNDS *edg_dest)
+void edgebounds_Reorient(int Q, int T,
+                         EDGEBOUNDS *edg_diag,
+                         EDGEBOUNDS *edg_row)
 {
-   int i,j;
-   edgebounds_Create(edg_dest);
+   int i,j,k;
+   int d,lb,rb;
+
+   edgebounds_Init(&edg_dest);
 
    /* convert edgebounds from (diag, leftbound, rightbound) to {(x1,y1),(x2,y2)} coords */
    for (i = 0; i < edg_src->N; ++i)
    {
+      d = edg_diag->bounds[i].d;
+      lb = edg_diag->bounds[i].lb;
+      rb = edg_diag->bounds[i].rb;
+
 
    }
 }
@@ -325,7 +353,6 @@ int edgebounds_Merge_Reorient_Cloud(EDGEBOUNDS*edg_fwd,
                                   float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
                                   float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ])
 {
-
    /* merge edgebounds */
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
@@ -564,7 +591,41 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
    // printf("TEST: [0].diag = %d\n", edg->bounds[0].diag);
 }
 
+/*
+ *  FUNCTION: bounds_Compare()
+ *  SYNOPSIS: Compare two Bounds, first by diag, then by lb, then by rb
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <a>        Bound,
+ *             <b>        Bound
+ *
+ *  RETURN:    1 if (a > b), 0 if equal, -1 if (a < b)
+ */
+int bounds_Compare(BOUND a, BOUND b)
+{
+   if (a.diag > b.diag) {
+      return 1;
+   } else 
+   if (a.diag < b.diag) {
+      return -1;
+   }
 
+   if (a.lb > b.lb) {
+      return 1;
+   } else
+   if (a.lb < b.lb) {
+      return -1;
+   }
 
+   if (a.rb > b.rb) {
+      return 1;
+   } else
+   if (a.rb < b.rb) {
+      return -1;
+   }
+   
+   return 0;
+}
 
 

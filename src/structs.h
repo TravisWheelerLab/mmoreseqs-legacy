@@ -16,16 +16,18 @@ extern int AA2_REV[];
 extern float BG_MODEL[];
 extern float BG_MODEL_log[];
 
-/* MATCH, INSERT, DELETE, SPECIAL DP MATRIX ACCESS MACROS */
-#define ST_MX(mx,st,i,j)   (   mx[ (    st*(Q+1)*(T+1)) + ((i)*(T+1)) + (j) ])
-#define MMX(i,j)           (st_MX[ (MAT_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j) ])
-#define IMX(i,j)           (st_MX[ (INS_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j) ])
-#define DMX(i,j)           (st_MX[ (DEL_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j) ])
-/* MATCH, INSERT, DELETE, SPECIAL ANTI-DIAG ACCESS MACROS (d = diag, i = offset) */
-#define MMX3(i,j)          (st_MX3[ (MAT_ST*3*(T+1)) + ((i)*(T+1)) + (j) ])
-#define IMX3(i,j)          (st_MX3[ (INS_ST*3*(T+1)) + ((i)*(T+1)) + (j) ])
-#define DMX3(i,j)          (st_MX3[ (DEL_ST*3*(T+1)) + ((i)*(T+1)) + (j) ])
 
+
+/* MATCH, INSERT, DELETE, SPECIAL DP MATRIX ACCESS MACROS */
+#define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
+#define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j)
+#define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j)
+#define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j)
+/* MATCH, INSERT, DELETE, SPECIAL ANTI-DIAG ACCESS MACROS (d = diag, i = offset) */
+#define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
+#define MMX3(i,j)          ST_MX3( st_MX3, MAT_ST, i, j)
+#define IMX3(i,j)          ST_MX3( st_MX3, INS_ST, i, j)
+#define DMX3(i,j)          ST_MX3( st_MX3, DEL_ST, i, j)
 
 /* SPECIAL STATE MATRIX MACROS */
 #define SP_MX(mx,sp,i)     (mx[ ((sp)*(Q+1)) + (i) ])
@@ -45,8 +47,8 @@ extern float BG_MODEL_log[];
 #define getName(var) #var
 
 /* BASIC FUNCTION MACROS */
-#define MAX(i,j)     (( (i) > (j) ? (i) : (j) ))
-#define MIN(i,j)     (( (i) < (j) ? (i) : (j) ))
+#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
+#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define ABS(i)       (( (i) > (0) ? (i) : (-i) ))
 /* check if two value are equal within tolerance */
 #define CMP_TOL(i,j) (( fabs( (i) - (j) ) < tol ? 1 : 0 )) 
@@ -55,6 +57,7 @@ extern float BG_MODEL_log[];
 #define CONST_LOG2 0.69314718055994529
 #define SCALE_FACTOR 1000
 #define INF INFINITY
+#define INT_MIN -2147483648
 
 /* max ASCII value of x - 'A' for alphabet */
 #define ALPHA_MAX 26
@@ -98,29 +101,9 @@ typedef struct {
 } RANGE;
 
 typedef struct {
-   float param1;
-   float param2;
-} DIST_PARAM;
-
-typedef struct {
    int i; /* row index */
    int j; /* col index */
 } COORDS;
-
-/* for debugging */
-// const char* STATE_NAMES[] = {
-//    "M_ST",
-//    "I_ST",
-//    "D_ST",
-//    "E_ST",
-//    "N_ST",
-//    "J_ST",
-//    "C_ST",
-//    "B_ST",
-//    "S_ST",
-//    "T_ST",
-//    "X_ST",
-// };
 
 typedef enum {
    M_ST = 0,
@@ -213,21 +196,21 @@ typedef enum {
 #define NUM_SPECIAL_STATES 5
 
 typedef struct {
-   float match[NUM_AMINO];/* match emission probabilities for each amino acid */
-   float insert[NUM_AMINO]; /* insert emission probabilities for each amino acid */
+   float match[NUM_AMINO];          /* match emission probabilities for each amino acid */
+   float insert[NUM_AMINO];         /* insert emission probabilities for each amino acid */
    /* [0]A  [1]C  [2]D  [3]E  [4]F  [5]G  [6]H  [7]I  [8]K  [9]L
       [10]M [11]N [12]P [13]Q [14]R [15]S [16]T [17]V [18]W [19]Y */
-   float trans[NUM_TRANS_STATES]; /* transition state probabilities (default same as COMPO) */
+   float trans[NUM_TRANS_STATES];   /* transition state probabilities (default same as COMPO) */
    /* [0]m->m [1]m->i [2]m->d [3]i->m [4]i->i [5]d->m [6]d->d [7]b->m */
 } HMM_NODE;
 
 typedef struct {
-   float freq[NUM_AMINO];    /* hard-coded background residue frequencies for each amino acid */
-   float compo[NUM_AMINO];   /* background residue frequencies of the given hmm model */
-   float insert[NUM_AMINO];  /* insert emission probabilities for each amino acid (uniform across positions) */
+   float freq[NUM_AMINO];           /* hard-coded background residue frequencies for each amino acid */
+   float compo[NUM_AMINO];          /* background residue frequencies of the given hmm model */
+   float insert[NUM_AMINO];         /* insert emission probabilities for each amino acid (uniform across positions) */
    /* [0]A  [1]C  [2]D  [3]E  [4]F  [5]G  [6]H  [7]I  [8]K  [9]L
       [10]M [11]N [12]P [13]Q [14]R [15]S [16]T [17]V [18]W [19]Y */
-   float trans[NUM_TRANS_STATES]; /* transition state probabilities (default same as COMPO) */
+   float trans[NUM_TRANS_STATES];   /* transition state probabilities (default same as COMPO) */
    /* [0]m->m [1]m->i [2]m->d [3]i->m [4]i->i [5]d->m [6]d->d [7]b->m */
 
    /* special state transitions probabilities */
@@ -239,18 +222,18 @@ typedef struct {
 
 typedef struct {
    char *filename;
-   char *name, *acc, *desc; /* meta data */
-   int leng; /* sequence length */
+   char *name, *acc, *desc;      /* meta data */
+   int leng;                     /* sequence length */
 
-   char *alph; /* ordering of alphabet */
-   int alph_leng; /* alphabet length: AMINO = 20, DNA = 4 */
+   char *alph;                   /* ordering of alphabet */
+   int alph_leng;                /* alphabet length: AMINO = 20, DNA = 4 */
 
    DIST_PARAM *msv_dist, *viterbi_dist, *forward_dist; /* distribution parameters for scoring */
 
-   HMM_BG *bg_model; /* background composition */
-   HMM_NODE *hmm_model; /* array of position specific probabilities */
+   HMM_BG *bg_model;             /* background composition */
+   HMM_NODE *hmm_model;          /* array of position specific probabilities */
 
-   int isLocal, isMultihit; /* profile settings */
+   int isLocal, isMultihit;      /* profile settings */
 } HMM_PROFILE;
 
 typedef struct {
@@ -304,8 +287,8 @@ typedef struct {
 
 typedef struct {
    char *filename;
-   int N;        /* current length */
-   int size;     /* allocated length */
+   int N;                     /* current length */
+   int size;                  /* allocated length */
    HIT *hits;
 } RESULTS;
 

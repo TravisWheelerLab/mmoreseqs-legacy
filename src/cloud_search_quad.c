@@ -22,15 +22,16 @@
 #include "hmm_parser.h"
 #include "cloud_search_quad.h"
 
-// macros
-// #define getName(var) #var
-// #define SCALE_FACTOR 1000
-#define INT_MIN -2147483648
-
-// macro functions
-// NOTE: wrap all macro vars in parens!!
-#define max(x,y) (((x) > (y)) ? (x) : (y))
-#define min(x,y) (((x) < (y)) ? (x) : (y))
+/* 
+ *       NOTE: CONVERSION - row-coords => diag-coords
+ *       MX(i-1, j-1) => MX3(d_2, k-1)
+ *       MX(i  , j-1) => MX3(d_1, k  ) 
+ *       MX(i-1, j  ) => MX3(d_1, k-1)
+ *
+ *       MX(i+1, j+1) => MX3(d_2, k+1)
+ *       MX(i  , j+1) => MX3(d_1, k  )
+ *       MX(i+1, j  ) => MX3(d_1, k+1)
+ */
 
 
 /*  
@@ -120,6 +121,7 @@ void cloud_forward_Run(const SEQ* query,
    /* diag index at corners of dp matrix */
    d_st = 0;
    d_end = Q + T;
+   d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
    d_st = start.i + start.j;
@@ -131,8 +133,8 @@ void cloud_forward_Run(const SEQ* query,
    dim_T = T - start.j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   dim_min = min(d_st + dim_Q, d_st + dim_T);
-   dim_max = max(d_st + dim_Q, d_st + dim_T);
+   dim_min = MIN(d_st + dim_Q, d_st + dim_T);
+   dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    /* set bounds using starting cell */
    lb = start.i;
@@ -167,11 +169,11 @@ void cloud_forward_Run(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-
+         /* impossible state */
          lb_new = INT_MIN;
          rb_new = INT_MIN;
 
-         /* Traverse current bounds to find diag_max, max for the current diag */
+         /* FIND MAX SCORE ON CURRENT DIAGONAL */
          diag_max = -INF;
          for (k = lb; k < rb; k++)
          {
@@ -183,9 +185,7 @@ void cloud_forward_Run(const SEQ* query,
          }
 
          /* Total max records largest cell score seen so far */
-         if (diag_max > total_max) {
-            total_max = diag_max;
-         }
+         total_max = MAX(total_max, diag_max);
 
          /* Set score threshold for pruning */
          diag_limit = diag_max - alpha;
@@ -197,6 +197,7 @@ void cloud_forward_Run(const SEQ* query,
          {
             i = k;
             j = d_1 - i; /* looking back one diag */
+
             cell_max = calc_Max( MMX(i,j),
                            calc_Max( IMX(i,j), DMX(i,j) ) );
 
@@ -216,7 +217,8 @@ void cloud_forward_Run(const SEQ* query,
          for (k = rb - 1; k >= lb; k--)
          {
             i = k;
-            j = (d - 1) - i;
+            j = d_1 - i;
+
             cell_max = calc_Max( MMX(i,j),
                            calc_Max( IMX(i,j),   DMX(i,j) ) );
 
@@ -242,14 +244,12 @@ void cloud_forward_Run(const SEQ* query,
       // rb = rb + 1;
 
       /* Edge-checks: find if diag cells that are inside matrix bounds */
-      le = max(start.i, d - T);
+      le = MAX(start.i, d - T);
       re = le + num_cells;
 
       /* Update bounds */
-      if (lb < le)
-         lb = le;
-      if (rb > re)
-         rb = re;
+      lb = MAX(lb, le);
+      rb = MIN(rb, re);
 
       /* ADD NEW ANTI-DIAG TO EDGEBOUNDS */
       edg->bounds[edg->N].lb = lb;
@@ -279,8 +279,8 @@ void cloud_forward_Run(const SEQ* query,
          prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
          prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
          prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
-         // prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
-         prev_beg = 0;
+         /* free to begin match state (new alignment) */
+         // prev_beg = 0; /* assigned once at start */
          /* best-to-match */
          prev_sum = calc_Logsum( 
                         calc_Logsum( prev_mat, prev_ins ),
@@ -406,8 +406,8 @@ void cloud_backward_Run(const SEQ* query,
    dim_T = end.j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   dim_min = min(end.i, end.j);
-   dim_max = max(end.i, end.j);
+   dim_min = MIN(end.i, end.j);
+   dim_max = MAX(end.i, end.j);
 
    /* set bounds using starting cell */
    lb = end.i;
@@ -444,8 +444,9 @@ void cloud_backward_Run(const SEQ* query,
       /* if free passes are complete (beta < d), prune and set new edgebounds */
       if (beta < d_cnt)
       {
-         lb_new = INT_MIN; /* impossible state */
-         rb_new = INT_MIN; /* impossible state */
+         /* impossible state */
+         lb_new = INT_MIN; 
+         rb_new = INT_MIN; 
 
          /* Traverse current bounds to find max score on diag */
          diag_max = -INF;
@@ -456,18 +457,14 @@ void cloud_backward_Run(const SEQ* query,
             diag_max = calc_Max( 
                            calc_Max( diag_max, MMX(i,j) ),
                            calc_Max( IMX(i,j), DMX(i,j) ) );
-            // printf("diag_max(%d,%d) = %.2f \n", i,j,diag_max);
          }
 
          /* total max records largest cell score see so far */
-         if (diag_max > total_max)
-            total_max = diag_max;
+         total_max = MAX(total_max, diag_max);
 
          /* set score threshold for pruning */
          diag_limit = diag_max - alpha;
          total_limit = total_max - alpha;
-
-         // printf("total_max: %.2f diag_max: %.2f diag_limit: %.2f, alph=%.1f\n", total_max, diag_max, diag_limit, alpha);
 
          /* Find the first cell from the left which passes above threshold */
          for (k = lb; k < rb; k++)
@@ -476,7 +473,6 @@ void cloud_backward_Run(const SEQ* query,
             j = d_1 - i;
             cell_max = calc_Max( MMX(i,j),
                            calc_Max( IMX(i,j), DMX(i,j) ) );
-            // printf("> TEST(%d,%d)=%.2f\n", i, j, cell_max);
 
             if( cell_max >= total_limit ) {
                lb_new = i;
@@ -495,7 +491,6 @@ void cloud_backward_Run(const SEQ* query,
             j = d_1 - i;
             cell_max = calc_Max( MMX(i,j),
                            calc_Max( IMX(i,j),   DMX(i,j) ) );
-            // printf("< TEST(%d,%d)=%.2f\n", i, j, cell_max);
 
             if( cell_max >= total_limit ) {
                rb_new = (i + 1);
@@ -518,13 +513,11 @@ void cloud_backward_Run(const SEQ* query,
 
 
       /* Edge-check: find diag cells that are inside matrix bounds */
-      le = max(end.i - (d_end - d) + 1, 0);
+      le = MAX(end.i - (d_end - d) + 1, 0);
       re = le + num_cells;
 
-      if (lb < le)
-         lb = le;
-      if (rb > re)
-         rb = re;
+      lb = MAX(lb, le);
+      rb = MIN(rb, re);
 
       /* ADD NEW ANTI-DIAG TO EDGEBOUNDS */
       edg->bounds[edg->N].lb = lb;
@@ -574,7 +567,7 @@ void cloud_backward_Run(const SEQ* query,
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
          prev_mat = MMX(i+1,j+1) + TSC(j,D2M) + sc_M;
          prev_del = DMX(i,j+1)   + TSC(j,D2D);
-         prev_end = XMX(SP_E,i)  + sc_E;
+         // prev_end = XMX(SP_E,i)  + sc_E;
          /* best-to-delete */
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );

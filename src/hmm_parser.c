@@ -35,7 +35,7 @@ void hmmprofile_Create(HMM_PROFILE *prof, char *_filename_)
    char *line_buf = NULL;
    size_t line_buf_size = 0;
    int line_count = 0;
-   ssize_t line_size;
+   size_t line_size;
 
    HMM_NODE *curr_node;
 
@@ -62,7 +62,7 @@ void hmmprofile_Create(HMM_PROFILE *prof, char *_filename_)
       token = strtok ( line_buf, " \n" );
       header = token;
 
-      /* write the line */
+      /* write the line - FOR DEBUGGING */
       // printf ("[%d] %zd: %s \n", line_count, line_size, token );
 
       /* header - field */

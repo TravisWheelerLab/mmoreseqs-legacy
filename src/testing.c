@@ -178,8 +178,8 @@ void fwd_test_cycle3(int Q, int T,
 
    /* --------------------------------------------------------------------------------- */
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   dp_matrix_Clear_X3(Q, T, st_MX3, sp_MX, 0);
 
    /* get start and end points of viterbi alignment */
    start = tr->first_m;
@@ -208,8 +208,6 @@ void fwd_test_cycle3(int Q, int T,
    /* diag index where num cells reaches highest point and begins diminishing */
    dim_min = min(d_st + dim_Q, d_st + dim_T);
    dim_max = max(d_st + dim_Q, d_st + dim_T);
-
-   printf("LIN: dim_min: %d, dim_max: %d\n", dim_min, dim_max);
 
    /* set bounds using starting cell */
    lb = start.i;
@@ -248,8 +246,6 @@ void fwd_test_cycle3(int Q, int T,
       le = max(start.i, d - T);
       re = le + num_cells;
 
-      printf("lb=%d\trb=%d,\tle=%d\tre=%d\n", lb,rb,le,re);
-
       /* Check that they dont exceed edges of matrix */
       if (lb < le)
          lb = le;
@@ -263,30 +259,31 @@ void fwd_test_cycle3(int Q, int T,
          /* quadratic coords */
          i = k;
          j = d - i;
-         /* linear offset (to keep in bounds) */
-         x = k - le;
-
-         printf("d=%d\tk=%d\tx=%d\n", d, k, x);
+         /* linear/antidiag coords */
+         /* NOTE: For embedding in (T+1) length array, need to offset to keep in bounds. */
+         /* NOTE: But this requires changing the coords of lookback antidiags at dim_min point */
+         /* ex. x = k - le */
+         x = k;
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: (i-1,j-1) => (d-2,k-1) */ 
-         MMX3(d0,x) = k;
+         MMX3(d0,x) = MMX3(d2,k-1) + 1;
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i-1,j) => (d-1,k-1) */
-         IMX3(d0,x) = d_0;
+         IMX3(d0,x) = IMX3(d1,k-1) + 1;
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i,j-1) => (d-1, k) */
-         DMX3(d0,x) = j;
+         DMX3(d0,x) = DMX3(d1,k) + j;
       }
 
       /* NAIVE SCRUB */
-      for (k = 0; k <= T+1; k++) {
-         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      for (k = 0; k < ((T+1)+(Q+1)); k++) {
+         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = 0;
       }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
@@ -294,14 +291,12 @@ void fwd_test_cycle3(int Q, int T,
          /* quadratic coords */
          i = k;
          j = d_0 - i;
-         /* linear offset */
-         x = k - le;
+         /* linear coords */
+         x = k;
 
          MMX(i,j) = MMX3(d0,x);
          IMX(i,j) = IMX3(d0,x);
          DMX(i,j) = DMX3(d0,x);
-
-         printf("MMX(%d,%d) = MMX3(%d=%d,%d) = %f\n", i,j,d0,d_0,k, MMX3(d0,k));
       }
    }
 }

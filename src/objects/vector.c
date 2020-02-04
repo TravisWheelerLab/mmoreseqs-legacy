@@ -96,6 +96,22 @@ void FUNCTION_NAME(destroy) ( STRUCT_NAME *ptr )
    free(ptr);
 }
 
+/* equality test */
+bool FUNCTION_NAME(equal) (STRUCT_NAME *ptr1, STRUCT_NAME *ptr2)
+{
+   if (ptr1->N != ptr2->N) {
+      return false;
+   }
+
+   for (int i = 0; i < ptr1->N; i++) {
+      if ( ptr1->data[i] != ptr2->data[i] ) {
+         return false;
+      }
+   }
+
+   return true;
+}
+
 // int main() 
 // {
 //    STRUCT_NAME *vec;
