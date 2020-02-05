@@ -101,6 +101,11 @@ typedef struct {
 } RANGE;
 
 typedef struct {
+   float param1;
+   float param2;
+} DIST_PARAM;
+
+typedef struct {
    int i; /* row index */
    int j; /* col index */
 } COORDS;

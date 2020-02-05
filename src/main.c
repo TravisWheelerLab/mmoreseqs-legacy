@@ -44,6 +44,7 @@ void parse_args(int argc, char *argv[], ARGS *args);
 void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta);
 void test_barrage(char *hmm_file, char *fasta_file);
 void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta);
+void other_test();
 
 /* MAIN */
 int main (int argc, char *argv[])
@@ -70,6 +71,7 @@ int main (int argc, char *argv[])
    printf("begin test...\n");
    test(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
    // cloud_search_pipeline(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
+   // other_test();
 }
 
 /* Parses Arguments from the command line */
@@ -211,11 +213,13 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    int num_cells, window_cells; 
    int tot_cells = (Q + 1) * (T + 1);
    TRACEBACK *tr = (TRACEBACK *)malloc( sizeof(TRACEBACK) );
-   EDGEBOUNDS *edg_fwd = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   EDGEBOUNDS *edg_bck = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   EDGEBOUNDS *edg = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   EDGEBOUNDS *edg_fwd_tmp = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   EDGEBOUNDS *edg_bck_tmp = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
+   EDGEBOUNDS *edg_fwd = edgebounds_Create();
+   EDGEBOUNDS *edg_bck = edgebounds_Create();
+   EDGEBOUNDS *edg = edgebounds_Create();
+   EDGEBOUNDS *edg_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_fwd_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_bck_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_row = edgebounds_Create();
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
    float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
@@ -326,21 +330,43 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("Cloud Backward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
    printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
 
+
+
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
-   printf("=== MERGE & REORIENT CLOUD -> START ===\n");
-   edgebounds_Merge_Reorient_Cloud(edg_fwd, edg_bck, edg, Q, T, st_MX, sp_MX);
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.diags.mx");
+   printf("=== MERGE & REORIENT CLOUD (Quadratic) -> START ===\n");
+   edgebounds_Merge_Reorient_Cloud(edg_fwd, edg_bck, edg_tmp, Q, T, st_MX, sp_MX);
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg, 1, MODE_ROW);
-   edgebounds_Save(edg, "output/my.cloud.rows.edg");
-   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.rows.mx");
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_tmp, 1, MODE_ROW);
+   edgebounds_Save(edg_tmp, "output/my.cloud.quad.rows.edg");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.quad.rows.mx");
    num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
    scores->perc_cells = (float)num_cells/(float)tot_cells;
    printf("Perc. Total Cells Computed = %d/%d = %f\n", num_cells, tot_cells, scores->perc_cells);
    scores->perc_window = (float)num_cells/(float)window_cells;
    printf("Perc. Window Cells Computed = %d/%d = %f\n", num_cells, window_cells, scores->perc_window);
    dp_matrix_Copy(Q, T, st_MX, sp_MX, st_MX_cloud, sp_MX_cloud);
-   printf("=== MERGE & REORIENT CLOUD -> END ===\n\n");
+   printf("=== MERGE & REORIENT CLOUD (Quadratic) -> END ===\n\n");
+
+   /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
+   printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.naive.diags.mx");
+
+   edgebounds_Merge(Q, T, edg_fwd, edg_bck, edg);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.diags.mx");
+   edgebounds_Save(edg, "output/my.cloud.lin.diags.edg");
+
+   edgebounds_Reorient(Q, T, edg, edg_row);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_row, 1, MODE_ROW);
+   dp_matrix_Copy(Q, T, st_MX, sp_MX, st_MX_cloud, sp_MX_cloud);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.rows.mx");
+   edgebounds_Save(edg_row, "output/my.cloud.lin.rows.edg");
+   printf("=== MERGE & REORIENT CLOUD (Linear) -> END ===\n\n");
 
    /* create cloud that covers entire matrix (full fwd/bck) */
    // printf("=== TEST CLOUD -> START ===\n");
@@ -505,4 +531,24 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
 void test_barrage(char *hmm_file, char *fasta_file)
 {
    int alpha = 5;
+}
+
+void other_test()
+{
+   EDGEBOUNDS *edg_1;
+   edgebounds_Init(&edg_1);
+
+   EDGEBOUNDS *edg_2 = edgebounds_Create();
+   BOUND bnd;
+
+   for (int i = 0; i < 32; i++) {
+      bnd = (BOUND){i,i%2,i+2};
+      edgebounds_Add(edg_1, bnd);
+      bnd = (BOUND){i,i-2,i%2};
+      edgebounds_Add(edg_2, bnd);
+   }
+   
+
+   edgebounds_Print(edg_1);
+   edgebounds_Print(edg_2);
 }

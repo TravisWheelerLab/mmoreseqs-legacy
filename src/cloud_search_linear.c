@@ -128,7 +128,6 @@ void cloud_forward_Run3(const SEQ* query,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-
    d_st = start.i + start.j;
    // d_end = end.i + end.j;
 

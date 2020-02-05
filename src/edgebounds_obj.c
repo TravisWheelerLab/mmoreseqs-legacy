@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  @file forward_backward.c
+ *  @file edgebounds_obj.c
  *  @brief Functions for EDGEBOUNDS object.
  *
  *  @synopsis
@@ -25,29 +25,20 @@
 #include "testing.h"
 #include "edgebounds_obj.h"
 
-// macros
-#define getName(var) #var
-#define SCALE_FACTOR 1000
-
-// macro functions
-// NOTE: wrap all macro vars in parens!!
-#define max(x,y) (((x) > (y)) ? (x) : (y))
-#define min(x,y) (((x) < (y)) ? (x) : (y))
-
 /*
- *  FUNCTION: edgebounds_Init()
- *  SYNOPSIS: Initialize new edgebounds object.
+ *  FUNCTION: edgebounds_Create()
+ *  SYNOPSIS: Create new edgebounds object and return pointer.
  *
- *  PURPOSE:
+ *  PURPOSE:   
  *
- *  ARGS:      <edg>      Edgebounds Object
+ *  ARGS:      
  *
- *  RETURN:
+ *  RETURN:    <edg>      Edgebounds Object
  */
 EDGEBOUNDS *edgebounds_Create()
 {
    EDGEBOUNDS *edg;
-   const int min_size = 128;
+   const int min_size = 16;
    edg = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
    edg->N = 0;
    edg->size = min_size;
@@ -57,7 +48,7 @@ EDGEBOUNDS *edgebounds_Create()
 
 /*
  *  FUNCTION: edgebounds_Init()
- *  SYNOPSIS: Initialize new edgebounds object.
+ *  SYNOPSIS: Initialize new edgebounds object pointer.
  *
  *  PURPOSE:
  *
@@ -67,7 +58,7 @@ EDGEBOUNDS *edgebounds_Create()
  */
 void edgebounds_Init(EDGEBOUNDS **edg)
 {
-   const int min_size = 128;
+   const int min_size = 16;
    (*edg) = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
    (*edg)->N = 0;
    (*edg)->size = min_size;
@@ -93,7 +84,7 @@ void edgebounds_Destroy(EDGEBOUNDS *edg)
 
 /*
  *  FUNCTION: edgebounds_Add()
- *  SYNOPSIS: Add bound to Edgebound
+ *  SYNOPSIS: Add bound to Edgebound list.
  *
  *  PURPOSE:
  *
@@ -103,15 +94,15 @@ void edgebounds_Destroy(EDGEBOUNDS *edg)
  *  RETURN:
  */
 void edgebounds_Add(EDGEBOUNDS *edg,
-                    BOUND *bnd)
+                    BOUND bnd)
 {
-   edg->N++;
+   /* resize if necessary */
+   edg->N += 1;
+   if (edg->N >= edg->size) edgebounds_Resize(edg);
 
-   if (edg->N == edg->size) {
-      edg->bounds = (BOUND *)realloc(edg->bounds, edg->size * 2);
-   }
-
-   edg->bounds[edg->N] = *bnd;
+   edg->bounds[edg->N-1].diag = bnd.diag;
+   edg->bounds[edg->N-1].lb = bnd.lb;
+   edg->bounds[edg->N-1].rb = bnd.rb;
 }
 
 
@@ -127,14 +118,37 @@ void edgebounds_Add(EDGEBOUNDS *edg,
  */
 void edgebounds_Resize(EDGEBOUNDS *edg)
 {
-   int size = edg->size * 2;
-   edg->bounds = (BOUND *)realloc(edg->bounds, size * sizeof(BOUND));
+   const int growth_factor = 2;
+   edg->size *= growth_factor;
+   edg->bounds = (BOUND *)realloc(edg->bounds, edg->size * sizeof(BOUND));
 }
 
 
 /*
  *  FUNCTION: edgebounds_Print()
- *  SYNOPSIS: Print edgebound object.
+ *  SYNOPSIS: Print EDGEBOUND object.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <edg>      Edgebounds Object
+ *
+ *  RETURN:
+ */
+void edgebounds_Print(EDGEBOUNDS *edg)
+{
+   printf("printing edgebounds...\n");
+   printf("N: %d, Nalloc: %d\n", edg->N, edg->size);
+   for (unsigned int i = 0; i < edg->N; ++i)
+   {
+      printf("[%d] ", i);
+      bound_Print(edg->bounds[i]);
+   }
+}
+
+
+/*
+ *  FUNCTION: bound_Print()
+ *  SYNOPSIS: Print BOUND object.
  *
  *  PURPOSE:
  *
@@ -142,13 +156,9 @@ void edgebounds_Resize(EDGEBOUNDS *edg)
  *
  *  RETURN:
  */
-void edgebounds_Print(EDGEBOUNDS *edg)
+void bound_Print(BOUND bnd)
 {
-   printf("printing edgebounds...\n");
-   for (unsigned int i = 0; i < edg->N; ++i)
-   {
-      printf("[%d] d: %d, lb: %d, rb: %d\n", i, edg->bounds[i].diag, edg->bounds[i].lb, edg->bounds[i].rb);
-   }
+   printf("d: %d, lb: %d, rb: %d\n", bnd.diag, bnd.lb, bnd.rb);
 }
 
 
@@ -189,153 +199,152 @@ void edgebounds_Save(EDGEBOUNDS *edg,
  *
  *  RETURN:
  */
-void edgebounds_Merge(EDGEBOUNDS *edg_fwd,
-                      EDGEBOUNDS *edg_bck,
+void edgebounds_Merge(int Q, int T,
+                      EDGEBOUNDS *edg_1,
+                      EDGEBOUNDS *edg_2,
                       EDGEBOUNDS *edg_new)
 {
-   int i, j, k, x;
-   bool not_merged;          /* checks whether to merge or add bounds */
-   int diag_cur;             /* currently examined diagonal */
-   static int tol = 0;       /* if clouds are within tolerance range, clouds are merged */
+   int i, x, y, d, lb, rb, d_max;
+   int st_x, end_x, st_y, end_y;
+   bool is_merged;                  /* checks whether to merge or add bounds */
+   const int tol = 0;               /* if clouds are within tolerance range, clouds are merged */
+   const int num_input = 2;
+   EDGEBOUNDS *edg;
+   EDGEBOUNDS *edg_in[] = {edg_1, edg_2};
+   int starts[] = {0,0};
+   BOUND bnd_in = (BOUND){0,0,0};
+   BOUND bnd_out = (BOUND){0,0,0};
 
-   /* allocate new edgebounds */
-   // int min_size = 128;
-   // edg_new = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   // edg_new->size = min_size;
-   // edg_new->N = 0;
-   // edg_new->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
-   edgebounds_Create(&edg_new);
-
-   /* temp edgebound for merging current diagonal */
-   EDGEBOUNDS *edg_tmp;
-   edg_tmp = (EDGEBOUNDS *)malloc( sizeof(EDGEBOUNDS) );
-   edg_tmp->size = min_size;
-   edg_tmp->N = 0;
-   edg_tmp->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
-   // edgebounds_Create(edg_tmp);
-
-   printf("FORWARD:\n");
-   edgebounds_Print(edg_fwd);
-   printf("BACKWARD:\n");
-   edgebounds_Print(edg_bck);
-
-   BOUND bound_cur;
-
-   /* begin with minimum diagonal */
-   diag_cur = min(edg_fwd->bounds[0].diag, edg_bck->bounds[0].diag);
-
-   printf("TOTALS: fwd: %d, bck: %d\n", edg_fwd->N, edg_bck->N);
-
-   /* iterate over all bounds */
-   i = 0; j = 0; k = 0;
-   while (i < edg_fwd->N || j < edg_bck->N)
+   /* iterate over all diags */
+   st_y = 0;
+   d_max = (Q+1)+(T+1);
+   for (d = 0; d < d_max; d++) 
    {
-      printf("diag_cur: %d, diag_fwd: %d, diag_bck: %d\n", diag_cur, edg_fwd->bounds[i].diag, edg_bck->bounds[j].diag);
+      end_y = st_y;
 
-      printf("edg_tmp(k): %d, edg_fwd(i): %d, edg_bck(j): %d\n", k, i, j);
-
-      /* merge all forward bounds from current diagonal */
-      while (i < edg_fwd->N && edg_fwd->bounds[i].diag == diag_cur)
+      /* iterate over input edgebounds */
+      for (i = 0; i < num_input; i++) 
       {
-         /* merge bounds if applicable */
-         bound_cur = edg_fwd->bounds[i];
-         not_merged = true;
-         for (x = 0; x < k; ++x)
+         edg = edg_in[i];
+         st_x = starts[i];
+
+         /* find all in edg in current diag */
+         for (x = st_x; x < edg->N; x++) 
          {
-            /* if bounds overlap, merge it into and break from loop */
-            if ( !(bound_cur.rb - edg_tmp->bounds[x].lb <= tol || bound_cur.lb - edg_tmp->bounds[x].rb >= tol ) )
-            {
-               printf("merge fwd (%d)...\n", i);
-               not_merged = false;
-               edg_tmp->bounds[x].lb = min(bound_cur.lb, edg_tmp->bounds[x].lb);
-               edg_tmp->bounds[x].rb = max(bound_cur.rb, edg_tmp->bounds[x].rb);
+            if (edg->bounds[x].diag != d) {
                break;
             }
          }
-         /* if bounds don't overlap with any previous, add new bounds  */
-         if (not_merged)
-         {
-            printf("add fwd (%d)...\n", i);
-            edg_tmp->bounds[k] = edg_fwd->bounds[i];
-            edg_tmp->N++;
-            ++k;
-         }
-         ++i;
-      }
+         end_x = x;
 
-      printf("edg_tmp(k): %d, edg_fwd(i): %d, edg_bck(j): %d\n", k, i, j);
-      /* merge all backward bounds from current diagonal */
-      while (j < edg_bck->N && edg_bck->bounds[i].diag == diag_cur)
-      {
-         /* get next bound */
-         bound_cur = edg_bck->bounds[i];
-         not_merged = true;
-         /* compare against every other  */
-         for (x = 0; x < k; ++x)
+         /* integrate bounds from edg into edg_new */
+         for (x = st_x; x < end_x; x++) 
          {
-            /* if bounds overlap, merge it into */
-            if ( !(bound_cur.rb - edg_tmp->bounds[x].lb <= tol || bound_cur.lb - edg_tmp->bounds[x].rb >= tol ) )
+            bnd_in = edg->bounds[x];
+
+            is_merged = false;
+            for (y = st_y; y < edg_new->N; y++) 
             {
-               printf("merge bck (%d)...\n", j);
-               not_merged = false;
-               edg_tmp->bounds[x].lb = min(bound_cur.lb, edg_tmp->bounds[x].lb);
-               edg_tmp->bounds[x].rb = max(bound_cur.rb, edg_tmp->bounds[x].rb);
-               break;
+               bnd_out = edg_new->bounds[y];
+               /* if bounds intersect, then merge */
+               if ( (bnd_in.lb <= bnd_out.rb) && (bnd_out.lb <= bnd_in.rb) ) 
+               {
+                  lb = MIN(bnd_in.lb, bnd_out.lb);
+                  rb = MAX(bnd_in.rb, bnd_out.rb);
+                  edg_new->bounds[y] = (BOUND){d,lb,rb};
+                  is_merged = true;
+               }
+            } 
+
+            /* if there were no bounds to merge into, add it separately */
+            if (!is_merged) {
+               edgebounds_Add(edg_new, bnd_in);
+               end_y++;
             }
          }
-         /* if bounds don't overlap with any previous, add new bounds  */
-         if (not_merged)
-         {
-            printf("add bck (%d)...\n", j);
-            edg_tmp->bounds[k] = edg_bck->bounds[j];
-            edg_tmp->N++;
-            ++k;
-         }
-         ++j;
+         starts[i] = end_x;
       }
-
-      int curr_diag = min(edg_fwd->bounds[i].diag, edg_bck->bounds[j].diag);
-      exit(0);
+      st_y = end_y;
    }
 }
 
 
 /*
  *  FUNCTION: edgebounds_Reorient()
- *  SYNOPSIS: Change edgebounds from by-diagonal to by-row.
+ *  SYNOPSIS: Change edgebounds coords from by-diagonal to by-row.
  *
  *  PURPOSE:
  *
  *  ARGS:      <Q>       
- *             <edg_diag>      Edgebounds (by-diag) (SOURCE)
- *             <edg_row>       Edgebounds (by-row)  (DESTINATION)
+ *             <edg_in>      Edgebounds (by-diag, sorted ascending) (INPUT)
+ *             <edg_out>     Edgebounds (by-row)                    (OUTPUT)
  *
  *  RETURN:
  */
 void edgebounds_Reorient(int Q, int T,
-                         EDGEBOUNDS *edg_diag,
-                         EDGEBOUNDS *edg_row)
+                         EDGEBOUNDS *edg_in,
+                         EDGEBOUNDS *edg_out)
 {
+   int x,y;
    int i,j,k;
-   int d,lb,rb;
+   int d,lb_1,rb_1,lb_2,rb_2;
+   BOUND bnd_in = (BOUND){0,0,0}; 
+   BOUND bnd_out = (BOUND){0,0,0};
+   bool merged = false;
+   bool in_cloud = false;     
+   const int tol = 1;         /* max distance between two forks before merging */
 
-   edgebounds_Init(&edg_dest);
-
-   /* convert edgebounds from (diag, leftbound, rightbound) to {(x1,y1),(x2,y2)} coords */
-   for (i = 0; i < edg_src->N; ++i)
+   /* for each row */
+   for (x = 0; x < (Q+1); x++)
    {
-      d = edg_diag->bounds[i].d;
-      lb = edg_diag->bounds[i].lb;
-      rb = edg_diag->bounds[i].rb;
+      in_cloud = false;
+      for (y = 0; y < edg_in->N; y++)
+      {
+         bnd_in = edg_in->bounds[y];
+         /* cartesian coords */
+         i = x;
+         j = bnd_in.diag - i;
 
+         /* check if cell is covered by anti-diag... */
+         if (j >= bnd_in.lb && j < bnd_in.rb) {
+            /* if in cloud, update bounds */
+            if (in_cloud) {
+               bnd_out.rb = j+1;
+            }
+            /* if not, create new cloud and bound */
+            else 
+            {
+               bnd_out.diag = i;
+               bnd_out.lb = j;
+               bnd_out.rb = j+1;
+               in_cloud = true;
+            }
+         } 
+         /* if cell not covered by anti-diag */
+         else 
+         {
+            /* if current antidiag doesn't contain next cell, we're at the end of current cloud */
+            d = bnd_out.diag + bnd_out.rb;   /* antidiag containing current cell */
+            if (in_cloud && bnd_in.diag > d ) 
+            {
+               edgebounds_Add(edg_out, bnd_out);
+               in_cloud = false;
+            }
+         }
+      }
 
+      /* if the end of the row is reached and still in cloud */
+      if (in_cloud) {
+         edgebounds_Add(edg_out, bnd_out);
+         in_cloud = false;
+      }
    }
 }
 
 
 /*
  *  FUNCTION: edgebounds_Merge_Reorient()
- *  SYNOPSIS: Merge and Reorient edgebounds from Matrix Cloud.
+ *  SYNOPSIS: Merge and Reorient edgebounds from Matrix Cloud (NAIVE).
  *
  *  PURPOSE:
  *
@@ -458,19 +467,15 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
    int num_cells;
 
    /* initialize new edgebound */
-   static int min_size = 128;
-   edg->N = 0;
-   edg->size = min_size;
-   edg->mode = mode;
-   edg->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
+   edgebounds_Init(&edg);
    
    /* create edgebound in antidiagonal-wise order */
    if (mode == MODE_DIAG) 
    {
       d_st = 0;
-      d_end = Q + T + 1;
-      dim_min = min(Q,T);
-      dim_max = max(Q,T);
+      d_end = (Q+1) + (T+1) - 1;
+      dim_min = MIN(Q,T);
+      dim_max = MAX(Q,T);
 
       /* iterate through diags */
       for (d = d_st; d <= d_end; d++)
@@ -482,7 +487,7 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
             num_cells--;
 
          /* find diag cells that are inside matrix bounds */
-         le = max(0, d - T);
+         le = MAX(0, d - T);
          re = le + num_cells;
 
          /* iterate through cells of diag */

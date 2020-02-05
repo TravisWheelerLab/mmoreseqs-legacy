@@ -429,9 +429,12 @@ int cloud_Fill(int Q, int T,
             i = k;
             j = d - i;
 
-            MMX(i, j) += 1;
-            IMX(i, j) = 1;
-            DMX(i, j) += val;
+            if (i > Q || j > T ) 
+               printf("OVER MAX: MAX=(Q=%d,T=%d) -> (%d,%d)\n", Q, T, i, j);
+
+            MMX(i,j) += 1;
+            IMX(i,j) = 1;
+            DMX(i,j) += val;
             num_cells++;
          }
       }
@@ -451,11 +454,11 @@ int cloud_Fill(int Q, int T,
             IDX = (DEL_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j);
 
             if (IDX > MAX)
-               printf("OVER MAX: (%d,%d) -> (%d,%d)\n", Q, T, i, j);
+               printf("OVER MAX: MAX=(%d,%d) -> (%d,%d)\n", Q, T, i, j);
 
-            MMX(i, j) += 1;
-            IMX(i, j) = 1;
-            DMX(i, j) += val;
+            MMX(i,j) += 1;
+            IMX(i,j) = 1;
+            DMX(i,j) += val;
             num_cells++;
          }
       }
