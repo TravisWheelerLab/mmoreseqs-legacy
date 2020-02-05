@@ -33,6 +33,13 @@ int cloud_Fill(int Q, int T,
                 float val, 
                 int mode);
 
+int cloud_Solid_Fill(int Q, int T,
+                   float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                   float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],
+                   EDGEBOUNDS* edg,
+                   float val, 
+                   int mode);
+
 int cloud_Cell_Count(int Q, int T,
                    float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
                    float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ]);

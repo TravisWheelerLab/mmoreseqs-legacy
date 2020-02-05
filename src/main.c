@@ -44,7 +44,7 @@ void parse_args(int argc, char *argv[], ARGS *args);
 void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta);
 void test_barrage(char *hmm_file, char *fasta_file);
 void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta);
-void other_test();
+void test2(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta);
 
 /* MAIN */
 int main (int argc, char *argv[])
@@ -330,13 +330,12 @@ void test(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
    printf("Cloud Backward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
    printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
 
-
-
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Quadratic) -> START ===\n");
    edgebounds_Merge_Reorient_Cloud(edg_fwd, edg_bck, edg_tmp, Q, T, st_MX, sp_MX);
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_tmp, 1, MODE_ROW);
+   edgebounds_Print(edg_tmp);
    edgebounds_Save(edg_tmp, "output/my.cloud.quad.rows.edg");
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.quad.rows.mx");
    num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
@@ -533,22 +532,187 @@ void test_barrage(char *hmm_file, char *fasta_file)
    int alpha = 5;
 }
 
-void other_test()
+void test2(ARGS *args, char *hmm_file, char *fasta_file, float alpha, int beta)
 {
-   EDGEBOUNDS *edg_1;
-   edgebounds_Init(&edg_1);
+   /* PRINT ARGS */
+   printf("HMM_FILENAME: %s\n", hmm_file);
+   printf("FASTA_FILENAME: %s\n", fasta_file);
+   printf("ALPHA: %f\n", alpha);
+   printf("BETA: %d\n\n", beta);
+   SCORES *scores = (SCORES*)malloc( sizeof(SCORES) );
 
-   EDGEBOUNDS *edg_2 = edgebounds_Create();
-   BOUND bnd;
+   printf("building hmm profile...\n");
+   /* get target profile */
+   HMM_PROFILE *target_prof = (HMM_PROFILE *)malloc( sizeof(HMM_PROFILE) );
+   hmmprofile_Create(target_prof, hmm_file);
+   // hmmprofile_Display(target_prof);
+   hmmprofile_Save(target_prof, "output/my.pre-profile.tsv");
 
-   for (int i = 0; i < 32; i++) {
-      bnd = (BOUND){i,i%2,i+2};
-      edgebounds_Add(edg_1, bnd);
-      bnd = (BOUND){i,i-2,i%2};
-      edgebounds_Add(edg_2, bnd);
-   }
-   
+   printf("configuring...\n");
+   /* mode choices: MODE_NONE, MODE_MULTILOCAL, MODE_MULTIGLOCAL, MODE_UNILOCAL, MODE_UNIGLOCAL */
+   char* modes[] = { "None", "Multi-local", "Multi-glocal", "Uni-local", "Uni-glocal" }; 
+   int mode; 
+   // mode = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
+   mode = MODE_UNILOCAL;   /* Cloud mode (prohibiits jumps) */
+   printf("MODE: %s\n", modes[mode]);
+   hmmprofile_Config(target_prof, mode);
+   // hmmprofile_Display(target_prof);
+   hmmprofile_Save(target_prof, "output/my.post-profile.tsv");
+   int T = target_prof->leng;
 
-   edgebounds_Print(edg_1);
-   edgebounds_Print(edg_2);
+   printf("building query sequence...\n");
+   /* get query sequence */
+   SEQ *query_seq = (SEQ *)malloc( sizeof(SEQ) );
+   seq_Create(query_seq, fasta_file);
+   seq_Display(query_seq);
+   int Q = query_seq->leng;
+
+   printf("I/O was successful!\n\n");
+
+   /* allocate memory to store results */
+   float sc, perc_cells;
+   int num_cells, window_cells; 
+   int tot_cells = (Q + 1) * (T + 1);
+   TRACEBACK *tr = (TRACEBACK *)malloc( sizeof(TRACEBACK) );
+   EDGEBOUNDS *edg_fwd = edgebounds_Create();
+   EDGEBOUNDS *edg_bck = edgebounds_Create();
+   EDGEBOUNDS *edg = edgebounds_Create();
+   EDGEBOUNDS *edg_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_fwd_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_bck_tmp = edgebounds_Create();
+   EDGEBOUNDS *edg_row = edgebounds_Create();
+
+   /* allocate memory for quadratic algs (for DEBUGGING) */
+   float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
+   float *sp_MX = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
+   /* allocate memory for comparing quadratic algs (for DEBUGGING) */
+   float *st_MX_tmp = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
+   /* allocate memory for cloud matrices (for DEBUGGING) */
+   float *st_MX_cloud = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
+   float *sp_MX_cloud = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
+   /* allocate memory for linear algs */
+   float *st_MX3 = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * ((T+1)+(Q+1)) * 3) );
+
+   bool test;
+
+   /* run viterbi algorithm */
+   printf("=== VITERBI -> START ===\n");
+   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   printf("Viterbi Score: %f\n", sc);
+   scores->viterbi_sc = sc;
+   // dp_matrix_Print(Q, T, st_MX, sp_MX);
+   dp_matrix_Save(Q, T, st_MX, sp_MX, "output/my.viterbi.mx");
+   printf("=== VITERBI -> END ===\n\n");
+
+   /* run traceback of viterbi */
+   printf("=== TRACEBACK -> START ===\n");
+   traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   // traceback_Print(tr);
+   traceback_Save(tr, "output/my.traceback_list.tsv");
+   dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   traceback_Show(Q, T, st_MX, sp_MX, tr);
+   printf("START: (%d,%d) -> END: (%d,%d)\n", tr->first_m.i, tr->first_m.j, tr->last_m.i, tr->last_m.j);
+   window_cells = (tr->last_m.i - tr->first_m.i) * (tr->last_m.j - tr->first_m.j);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.traceback.mx");
+   printf("=== TRACEBACK -> END ===\n\n");
+
+   /* run forward/backward algorithms */
+   init_Logsum();
+
+   /* cloud forward (linear) */
+   printf("=== CLOUD FORWARD (Linear) -> START ===\n");
+   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_fwd_vals.lin.mx");
+
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_fwd.lin.mx");
+
+   edgebounds_Save(edg_fwd, "output/my.cloud_fwd.lin.diags.edg");
+   test = dp_matrix_Compare(Q, T, st_MX, sp_MX, st_MX_tmp, sp_MX);
+   printf("Cloud Forward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
+   printf("=== CLOUD FORWARD (Linear) -> END ===\n\n");
+
+   /* cloud backward (linear) */
+   printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
+   cloud_backward_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_bck_vals.lin.mx");
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_bck.lin.mx");
+   edgebounds_Save(edg_bck, "output/my.cloud_bck.lin.diags.edg");
+   test = dp_matrix_Compare(Q, T, st_MX, sp_MX, st_MX_tmp, sp_MX);
+   printf("Cloud Backward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
+   printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
+
+   /* merge naive */
+   printf("=== MERGE & REORIENT CLOUD (Naive) -> START ===\n");
+   printf("=== MERGE & REORIENT CLOUD (Naive) -> END ===\n");
+
+   /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
+   printf("=== MERGE & REORIENT CLOUD (Quadratic) -> START ===\n");
+   edgebounds_Merge_Reorient_Cloud(edg_fwd, edg_bck, edg_tmp, Q, T, st_MX, sp_MX);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Solid_Fill(Q, T, st_MX, sp_MX, edg_tmp, 1, MODE_ROW);
+   edgebounds_Print(edg_tmp);
+   edgebounds_Save(edg_tmp, "output/my.cloud.quad.rows.edg");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.quad.rows.mx");
+   num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
+   scores->perc_cells = (float)num_cells/(float)tot_cells;
+   printf("Perc. Total Cells Computed = %d/%d = %f\n", num_cells, tot_cells, scores->perc_cells);
+   scores->perc_window = (float)num_cells/(float)window_cells;
+   printf("Perc. Window Cells Computed = %d/%d = %f\n", num_cells, window_cells, scores->perc_window);
+   dp_matrix_Copy(Q, T, st_MX, sp_MX, st_MX_cloud, sp_MX_cloud);
+   printf("=== MERGE & REORIENT CLOUD (Quadratic) -> END ===\n\n");
+
+   /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
+   printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.naive.diags.mx");
+
+   edgebounds_Merge(Q, T, edg_fwd, edg_bck, edg);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg, 1, MODE_DIAG);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.diags.mx");
+   edgebounds_Save(edg, "output/my.cloud.lin.diags.edg");
+
+   edgebounds_Reorient(Q, T, edg, edg_row);
+   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_row, 1, MODE_ROW);
+   dp_matrix_Copy(Q, T, st_MX, sp_MX, st_MX_cloud, sp_MX_cloud);
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.rows.mx");
+   edgebounds_Save(edg_row, "output/my.cloud.lin.rows.edg");
+   printf("=== MERGE & REORIENT CLOUD (Linear) -> END ===\n\n");
+
+   /* sample stats */
+   char *fileout = args->outfile_name;
+   printf("Writing results to: '%s'\n", fileout);
+   FILE *fp = fopen(fileout, "a+");
+   fprintf(fp, "%s\t", hmm_file);
+   fprintf(fp, "%s\t", fasta_file);
+   fprintf(fp, "%f\t", scores->viterbi_sc);
+   fprintf(fp, "%f\t", scores->fwd_sc);
+   fprintf(fp, "%f\t", scores->bck_sc);
+   fprintf(fp, "%f\t", scores->cloud_fwd_sc);
+   fprintf(fp, "%f\t", scores->cloud_bck_sc);
+   fprintf(fp, "%f\t", alpha);
+   fprintf(fp, "%d\t", beta);
+   fprintf(fp, "%f\t", scores->perc_cells);
+   fprintf(fp, "%f\n", scores->perc_window);
+   fclose(fp);
+
+   /* TODO: fix free memory! */
+   free(tr);
+   free(edg_fwd);
+   free(edg_bck);
+   free(edg);
+   free(st_MX);
+   free(sp_MX);
+   free(st_MX_cloud);
+   free(sp_MX_cloud);
+   free(st_MX3);
+
+   printf("...test finished. \n");
 }

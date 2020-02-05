@@ -366,6 +366,7 @@ int edgebounds_Merge_Reorient_Cloud(EDGEBOUNDS*edg_fwd,
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   
    /* reorient from diag to row-wise */
    edgebounds_Build_From_Cloud(edg_new, Q, T, st_MX, MODE_ROW);
    int num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
@@ -393,13 +394,6 @@ void edgebounds_Reorient_Cloud( EDGEBOUNDS*edg_old,
                                float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ], 
                                int old_mode, int new_mode)
 {
-   /* initialize new edgebound */
-   static int min_size = 128;
-   edg_new->N = 0;
-   edg_new->size = min_size;
-   edg_new->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
-
-   /* merge edgebounds */
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_old, 1, old_mode);
    edgebounds_Build_From_Cloud(edg_new, Q, T, st_MX, new_mode);
@@ -447,13 +441,13 @@ void edgebounds_Merge_Cloud( EDGEBOUNDS*edg_1,
  *
  *  PURPOSE:
  *
- *  ARGS:      <edg_1>        Edgebound,
+ *  ARGS:      <edg>        Edgebound,
  *             <st_MX>        State Matrix
  *             <mode>         Diagonal or Row-wise Edgebound
  *
  *  RETURN:
  */
-void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
+void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
                                  int Q, int T,
                                  float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
                                  int mode)
@@ -465,9 +459,6 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
    int le, re;                         
    bool in_cloud;
    int num_cells;
-
-   /* initialize new edgebound */
-   edgebounds_Init(&edg);
    
    /* create edgebound in antidiagonal-wise order */
    if (mode == MODE_DIAG) 
@@ -593,7 +584,6 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
          }
       }
    }
-   // printf("TEST: [0].diag = %d\n", edg->bounds[0].diag);
 }
 
 /*

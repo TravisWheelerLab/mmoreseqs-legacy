@@ -149,8 +149,7 @@ void fwd_test_cycle3(int Q, int T,
    int d,i,j,k,x;                  /* diagonal, row, column indices */
    /* NOTE: all left inclusive, right exclusive indexing!! */
    int lb, rb, le, re;           /* right/left bounds and edges */
-   int lb_new, rb_new;           /* tmp for new right/left bounds */
-   int *lb_list, rb_list;        /* tmp for forking right/left bounds */
+   int lb_new, rb_new;           /* tmp for new right/left bounds */\
    int num_cells;                /* number of cells in diagonal */
    int d_st, d_end, d_cnt;       /* starting and ending diagonal indices */
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
@@ -399,6 +398,8 @@ void bck_test_cycle(int Q, int T,
    }
 }
 
+
+
 /* test to show the cloud area, fill with value, return number of used cells  */
 int cloud_Fill(int Q, int T,
                 float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
@@ -433,6 +434,9 @@ int cloud_Fill(int Q, int T,
                printf("OVER MAX: MAX=(Q=%d,T=%d) -> (%d,%d)\n", Q, T, i, j);
 
             MMX(i,j) += 1;
+            if (MMX(i,j) > 1)
+               printf("DOUBLE HIT!  MAX=(Q=%d,T=%d) -> d:(%d,%d) = r:(%d,%d)\n", Q, T, d, k, i, j);
+
             IMX(i,j) = 1;
             DMX(i,j) += val;
             num_cells++;
@@ -459,6 +463,74 @@ int cloud_Fill(int Q, int T,
             MMX(i,j) += 1;
             IMX(i,j) = 1;
             DMX(i,j) += val;
+            num_cells++;
+         }
+      }
+   }
+   return num_cells;
+}
+
+
+/* test to show the cloud area, fill with value, return number of used cells  */
+int cloud_Solid_Fill(int Q, int T,
+                   float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                   float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],
+                   EDGEBOUNDS* edg,
+                   float val, 
+                   int mode)
+{
+   int x, d, i, j, k;
+   int rb, lb;
+   int num_cells = 0;
+   int N = edg->N;
+   int MAX = (DEL_ST*(Q+1)*(T+1)) + ((Q)*(T+1)) + (T);
+   int IDX;
+
+   if (mode == MODE_DIAG)
+   {
+      /* iterate over all bounds in edgebound list */
+      for (x = 0; x < N; x++)
+      {
+         d  = edg->bounds[x].diag;
+         lb = edg->bounds[x].lb;
+         rb = edg->bounds[x].rb;
+
+         /* insert value across diag in range */
+         for (k = lb; k < rb; k++)
+         {
+            i = k;
+            j = d - i;
+
+            if (i > Q || j > T ) 
+               printf("OVER MAX: MAX=(Q=%d,T=%d) -> (%d,%d)\n", Q, T, i, j);
+
+            MMX(i,j) = 1;
+            IMX(i,j) = 1;
+            DMX(i,j) = val;
+            num_cells++;
+         }
+      }
+   }
+   else if (mode == MODE_ROW)
+   {
+      /* iterate over all bounds in edgebound list */
+      for (x = 0; x < N; x++)
+      {
+         i  = edg->bounds[x].diag;
+         lb = edg->bounds[x].lb;
+         rb = edg->bounds[x].rb;
+
+         /* insert value across row in range */
+         for (j = lb; j < rb; j++)
+         {
+            IDX = (DEL_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j);
+
+            if (IDX > MAX)
+               printf("OVER MAX: MAX=(%d,%d) -> (%d,%d)\n", Q, T, i, j);
+
+            MMX(i,j) = 1;
+            IMX(i,j) = 1;
+            DMX(i,j) = val;
             num_cells++;
          }
       }

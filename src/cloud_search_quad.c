@@ -20,6 +20,7 @@
 #include "structs.h"
 #include "misc.h"
 #include "hmm_parser.h"
+#include "edgebounds_obj.h"
 #include "cloud_search_quad.h"
 
 /* 
@@ -95,11 +96,6 @@ void cloud_forward_Run(const SEQ* query,
    /* local or global? (multiple alignments) */
    bool   is_local = target->isLocal;
    float  sc_E = (is_local) ? 0 : -INF;
-
-   /* INIT EDGEBOUND DATA STRUCT */
-   int min_size = 128;
-   edg->size = min_size;
-   edg->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
 
    /* track number of cells computed */
    int cpu_num = 0;
@@ -252,17 +248,7 @@ void cloud_forward_Run(const SEQ* query,
       rb = MIN(rb, re);
 
       /* ADD NEW ANTI-DIAG TO EDGEBOUNDS */
-      edg->bounds[edg->N].lb = lb;
-      edg->bounds[edg->N].rb = rb;
-      edg->bounds[edg->N].diag = d;
-      edg->N += 1;
-
-      /* resize edgebounds if needed */
-      if (edg->N >= edg->size) {
-         printf("realloc...\n");
-         edg->size *= 2;
-         edg->bounds = realloc(edg->bounds, edg->size * sizeof(BOUND) );
-      }
+      edgebounds_Add(edg, (BOUND){d,lb,rb});
 
       /* MAIN RECURSION */
       /* ITERATE THROUGH CELLS OF NEXT ANTI-DIAGONAL */
@@ -370,11 +356,6 @@ void cloud_backward_Run(const SEQ* query,
    bool   is_local = target->isLocal;
    float  sc_E = (is_local) ? 0 : -INF;
 
-   /* INIT EDGEBOUND DATA STRUCT */
-   int min_size = 128;
-   edg->size = min_size;
-   edg->bounds = (BOUND *)malloc( min_size * sizeof(BOUND) );
-
    /* track number of cells computed */
    int cpu_num = 0;
 
@@ -413,12 +394,6 @@ void cloud_backward_Run(const SEQ* query,
    lb = end.i;
    rb = end.i + 1;
    num_cells = 0;
-
-   /* resize if needed */
-   if (edg->N >= edg->size) {
-      edg->size *= 2;
-      edg->bounds = realloc(edg->bounds, edg->size * sizeof(BOUND) );
-   }
 
    /* end state starts at 0 */
    prev_end = 0;
@@ -520,16 +495,7 @@ void cloud_backward_Run(const SEQ* query,
       rb = MIN(rb, re);
 
       /* ADD NEW ANTI-DIAG TO EDGEBOUNDS */
-      edg->bounds[edg->N].lb = lb;
-      edg->bounds[edg->N].rb = rb;
-      edg->bounds[edg->N].diag = d;
-      edg->N += 1;
-      /* resize if needed */
-      if (edg->N >= edg->size) {
-         printf("resizing bounds...\n");
-         edg->size *= 2;
-         edg->bounds = (BOUND *)realloc(edg->bounds, edg->size * sizeof(BOUND) );
-      }
+      edgebounds_Add(edg, (BOUND){d,lb,rb});
 
       /* MAIN RECURSION */
       /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
