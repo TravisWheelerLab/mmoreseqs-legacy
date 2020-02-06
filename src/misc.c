@@ -218,7 +218,7 @@ void test_matrix_Print (const int Q, const int T,
                         const float test_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ])
 {
    /* PRINT resulting dp matrix */
-   printf("\n\n==== TEST MATRIX BEGIN ==== \n");
+   printf("\n\n==== TEST MATRIX BEGIN ====\n");
    /* Header */
    printf("\t");
    for (int i = 0; i <= T; i++)
@@ -237,8 +237,7 @@ void test_matrix_Print (const int Q, const int T,
       }
       printf("\n");
    }
-
-   printf("==== TEST MATRIX END ==== \n\n");
+   printf("==== TEST MATRIX END ====\n\n");
 }
 
 /* Clear all matrix values to -INF. (for testing) */
