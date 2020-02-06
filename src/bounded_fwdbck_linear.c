@@ -23,17 +23,7 @@
 // local imports (after struct declarations)
 #include "structs.h"
 #include "misc.h"
-#include "forward_backward.h"
 #include "bounded_fwdbck_linear.h"
-
-// macros
-// #define getName(var) #var
-// #define SCALE_FACTOR 1000
-
-// macro functions
-// NOTE: wrap all macro vars in parens!!
-#define max(x,y) (((x) > (y)) ? (x) : (y))
-#define min(x,y) (((x) < (y)) ? (x) : (y))
 
 
 /*  
@@ -60,7 +50,8 @@ float forward_bounded_Run3(const SEQ* query,
                            float* st_MX,
                            float* sp_MX, 
                            EDGEBOUNDS* edg,
-                           float *sc_final )
+                           float *sc_final,
+                           bool test )
 {
    char   a;                              /* store current character in sequence */
    int    A;                              /* store int value of character */
@@ -92,6 +83,7 @@ float forward_bounded_Run3(const SEQ* query,
    /* --------------------------------------------------------------------------------- */
 
    /* clear all pre-existing data from matrix */
+   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* Clear top-row (0th row) */
@@ -154,10 +146,10 @@ float forward_bounded_Run3(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          x = edg->bounds[i].diag;               /* NOTE: this is always the same as cur_row, x_0 */
-         y1 = max(1, edg->bounds[i].lb);        /* can't overflow the left edge */
+         y1 = MAX(1, edg->bounds[i].lb);        /* can't overflow the left edge */
          y2 = edg->bounds[i].rb;
          y2_re = (y2 > T);                      /* check if cloud touches right edge */
-         y2 = min(y2, T);                       /* can't overflow the right edge */
+         y2 = MIN(y2, T);                       /* can't overflow the right edge */
          
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
@@ -273,8 +265,8 @@ float forward_bounded_Run3(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          // x  = edg->bounds[i].diag;
-         y1 = max(0, edg->bounds[i].lb);     /* can't overflow the left edge */
-         y2 = min(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+         y1 = MAX(0, edg->bounds[i].lb);     /* can't overflow the left edge */
+         y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
 
          for (j = y1; j <= y2; j++) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
@@ -287,10 +279,12 @@ float forward_bounded_Run3(const SEQ* query,
       // }
 
       /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-      for (j = 0; j <= T; j++) {
-         MMX(x_0,j) = MMX3(r_0,j);
-         IMX(x_0,j) = IMX3(r_0,j);
-         DMX(x_0,j) = DMX3(r_0,j);
+      if (test) {
+         for (j = 0; j <= T; j++) {
+            MMX(x_0,j) = MMX3(r_0,j);
+            IMX(x_0,j) = IMX3(r_0,j);
+            DMX(x_0,j) = DMX3(r_0,j);
+         }
       }
 
       /* set curr rows to prv rows */
@@ -338,7 +332,8 @@ float backward_bounded_Run3(const SEQ* query,
                            float* st_MX,
                            float* sp_MX, 
                            EDGEBOUNDS* edg,
-                           float *sc_final )
+                           float *sc_final,
+                           bool test )
 {
    char   a;                              /* store current character in sequence */
    int    A;                              /* store int value of character */
@@ -367,6 +362,7 @@ float backward_bounded_Run3(const SEQ* query,
    /* --------------------------------------------------------------------------------- */
 
    /* clear all pre-existing data from matrix */
+   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* Initialize the Q row. */
@@ -467,8 +463,8 @@ float backward_bounded_Run3(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          // x_0  = edg->bounds[i].diag;
-         y1 = max(1, edg->bounds[i].lb);     /* can't overflow the left edge */
-         y2 = min(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+         y1 = MAX(1, edg->bounds[i].lb);     /* can't overflow the left edge */
+         y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
 
          /* FOR every position in TARGET profile */
          for (j = y2-1; j >= y1; --j)
@@ -515,8 +511,8 @@ float backward_bounded_Run3(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          // x  = edg->bounds[i].diag;
-         y1 = max(0, edg->bounds[i].lb);     /* can't overflow the left edge */
-         y2 = min(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+         y1 = MAX(0, edg->bounds[i].lb);     /* can't overflow the left edge */
+         y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
 
          for (j = y1-1; j >= y2; --j) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
@@ -578,10 +574,12 @@ float backward_bounded_Run3(const SEQ* query,
    fprintf(tfp, "a=%d, A=%d, MSC=%f\n", a, A, MSC(1,A) );
 
    /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-   for (j = 0; j <= T; j++) {
-      MMX(x_0,j) = MMX3(r_0,j);
-      IMX(x_0,j) = IMX3(r_0,j);
-      DMX(x_0,j) = DMX3(r_0,j);
+   if (test) {
+      for (j = 0; j <= T; j++) {
+         MMX(x_0,j) = MMX3(r_0,j);
+         IMX(x_0,j) = IMX3(r_0,j);
+         DMX(x_0,j) = DMX3(r_0,j);
+      }
    }
 
    sc_best = XMX(SP_N,0);

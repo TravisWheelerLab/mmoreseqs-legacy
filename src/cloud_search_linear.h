@@ -20,7 +20,8 @@ void cloud_forward_Run3(const SEQ* query,
                      float* sp_MX, 
                      TRACEBACK* tr,
                      EDGEBOUNDS* edg,
-                     float alpha, int beta );
+                     float alpha, int beta,
+                     bool test );
 
 void cloud_backward_Run3(const SEQ* query, 
                         const HMM_PROFILE* target,
@@ -30,7 +31,8 @@ void cloud_backward_Run3(const SEQ* query,
                         float* sp_MX, 
                         TRACEBACK* tr,
                         EDGEBOUNDS* edg,
-                        float alpha, int beta );
+                        float alpha, int beta,
+                        bool test );
 
 
 #endif /* _CLOUD_SEARCH_LINEAR_H */

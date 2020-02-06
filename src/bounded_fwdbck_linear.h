@@ -17,7 +17,8 @@ float forward_bounded_Run3(const SEQ* query,
                            float* st_MX,
                            float* sp_MX, 
                            EDGEBOUNDS* edg,
-                           float *sc_final );
+                           float *sc_final,
+                           bool test );
 
 float backward_bounded_Run3(const SEQ* query, 
                            const HMM_PROFILE* target,
@@ -26,7 +27,8 @@ float backward_bounded_Run3(const SEQ* query,
                            float* st_MX,
                            float* sp_MX, 
                            EDGEBOUNDS* edg,
-                           float *sc_final );
+                           float *sc_final,
+                           bool test );
 
 
 #endif /* _BOUNDED_FWDBCK_LINEAR_H */

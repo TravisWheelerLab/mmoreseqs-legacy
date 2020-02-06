@@ -8,3 +8,19 @@
  *  @bug Lots.
  *******************************************************************************/
 
+
+#ifndef _MERGE_REORIENT_LINEAR_H
+#define _MERGE_REORIENT_LINEAR_H
+
+void edgebounds_Reflect(EDGEBOUNDS *edg);
+
+void edgebounds_Merge(int Q, int T,
+                     EDGEBOUNDS *edg_fwd,
+                     EDGEBOUNDS *edg_bck,
+                     EDGEBOUNDS *edg_new);
+
+void edgebounds_Reorient(int Q, int T,
+                         EDGEBOUNDS *edg_diag,
+                         EDGEBOUNDS *edg_row);
+
+#endif /* _MERGE_REORIENT_LINEAR_H */

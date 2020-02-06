@@ -21,15 +21,6 @@
 #include "misc.h"
 #include "hmm_parser.h"
 
-// macros
-// #define getName(var) #var
-// #define SCALE_FACTOR 1000
-
-// macro functions
-// NOTE: wrap all macro vars in parens!!
-#define max(x,y) (((x) > (y)) ? (x) : (y))
-#define min(x,y) (((x) < (y)) ? (x) : (y))
-
 
 /*  
  *  FUNCTION: forward_bounded_Run()
@@ -148,10 +139,10 @@ float forward_bounded_Run(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          x = edg->bounds[i].diag;               /* NOTE: this is always the same as cur_row, x_0 */
-         y1 = max(1, edg->bounds[i].lb);        /* can't overflow the left edge */
+         y1 = MAX(1, edg->bounds[i].lb);        /* can't overflow the left edge */
          y2 = edg->bounds[i].rb;
          y2_re = (y2 > T);                      /* check if cloud touches right edge */
-         y2 = min(y2, T);                       /* can't overflow the right edge */
+         y2 = MIN(y2, T);                       /* can't overflow the right edge */
          
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
@@ -429,8 +420,8 @@ float backward_bounded_Run(const SEQ* query,
       {
          /* in this context, "diag" represents the "row" */
          // x_0  = edg->bounds[i].diag;
-         y1 = max(1, edg->bounds[i].lb);     /* can't overflow the left edge */
-         y2 = min(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+         y1 = MAX(1, edg->bounds[i].lb);     /* can't overflow the left edge */
+         y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
 
          /* FOR every position in TARGET profile */
          for (j = y2-1; j >= y1; --j)

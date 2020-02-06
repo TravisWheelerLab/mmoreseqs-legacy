@@ -20,7 +20,7 @@
 #include "structs.h"
 #include "misc.h"
 #include "hmm_parser.h"
-#include "edgebounds_obj.h"
+#include "objects/edgebound.h"
 #include "cloud_search_linear.h"
 
 /* 
@@ -36,7 +36,7 @@
 
 
 /*  
- *  FUNCTION: cloud_forward_Run()
+ *  FUNCTION: cloud_forward_Run3()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
  *
  *  PURPOSE:
@@ -64,7 +64,8 @@ void cloud_forward_Run3(const SEQ* query,
                         float* sp_MX, 
                         TRACEBACK* tr,
                         EDGEBOUNDS* edg,
-                        float alpha, int beta )
+                        float alpha, int beta,
+                        bool test )
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column indices */
@@ -105,7 +106,7 @@ void cloud_forward_Run3(const SEQ* query,
 
    /* --------------------------------------------------------------------------------- */
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* get start and end points of viterbi alignment */
@@ -318,21 +319,22 @@ void cloud_forward_Run3(const SEQ* query,
       // }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
-      for (k = le; k <= re; k++) {
-         i = k;
-         j = d_0 - i;
+      if (test) {
+         for (k = le; k <= re; k++) {
+            i = k;
+            j = d_0 - i;
 
-         MMX(i,j) = MMX3(d0,k);
-         IMX(i,j) = IMX3(d0,k);
-         DMX(i,j) = DMX3(d0,k);
+            MMX(i,j) = MMX3(d0,k);
+            IMX(i,j) = IMX3(d0,k);
+            DMX(i,j) = DMX3(d0,k);
+         }
       }
-
    }
 }
 
 
 /*  
- *  FUNCTION: cloud_backward_Run()
+ *  FUNCTION: cloud_backward_Run3()
  *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm (Quadratic Space Implementation).
  *
  *  PURPOSE:
@@ -362,7 +364,8 @@ void cloud_backward_Run3(const SEQ* query,
                         float* sp_MX, 
                         TRACEBACK* tr,
                         EDGEBOUNDS* edg,
-                        float alpha, int beta )
+                        float alpha, int beta,
+                        bool test )
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column, ... indices */
@@ -401,7 +404,8 @@ void cloud_backward_Run3(const SEQ* query,
 
    /* --------------------------------------------------------------------------------- */
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* get start and end points of viterbi alignment */
    start = tr->first_m;
@@ -420,7 +424,7 @@ void cloud_backward_Run3(const SEQ* query,
 
    /* diag index of different start points, creating submatrix */
    // d_st = start.i + start.j;
-   d_end = end.i + end.j + 1;
+   d_end = end.i + end.j;
 
    /* dimension of submatrix */
    dim_Q = end.i;
@@ -439,7 +443,7 @@ void cloud_backward_Run3(const SEQ* query,
    prev_end = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
-   for (d = d_end; d >= d_st; d--, d_cnt++)
+   for (d = d_end; d >= d_st; d--)
    {
       d_0 = d;       /* current diagonal */
       d_1 = (d+1);   /* look back 1 diagonal */
@@ -539,7 +543,7 @@ void cloud_backward_Run3(const SEQ* query,
 
 
       /* Edge-check: find diag cells that are inside matrix bounds */
-      le = MAX(end.i - (d_end - d) + 1, 0);
+      le = MAX(end.i - (d_end - d), 0);
       re = le + num_cells;
 
       lb = MAX(lb, le);
@@ -612,24 +616,20 @@ void cloud_backward_Run3(const SEQ* query,
       // }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
-      for (k = le; k <= re; k++) {
-         i = k;
-         j = d_0 - i;
+      if (test) {
+         for (k = le; k <= re; k++) {
+            i = k;
+            j = d_0 - i;
 
-         MMX(i,j) = MMX3(d0,k);
-         IMX(i,j) = IMX3(d0,k);
-         DMX(i,j) = DMX3(d0,k);
+            MMX(i,j) = MMX3(d0,k);
+            IMX(i,j) = IMX3(d0,k);
+            DMX(i,j) = DMX3(d0,k);
+         }
       }
    }
 
    /* reverse order of diagonals */
-   BOUND tmp;
-   for (i = 0; i < (edg->N / 2); ++i)
-   {
-      tmp = edg->bounds[i];
-      edg->bounds[i] = edg->bounds[edg->N-i];
-      edg->bounds[edg->N-i] = tmp;
-   }
+   edgebounds_Reverse(edg);
 }  
 
 

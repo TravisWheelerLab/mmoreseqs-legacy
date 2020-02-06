@@ -18,7 +18,6 @@
 #include "structs.h"
 #include "misc.h"
 #include "hmm_parser.h"
-#include "viterbi.h"
 #include "forward_backward.h"
 
 /*  

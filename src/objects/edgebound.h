@@ -6,27 +6,36 @@
  *  @bug Lots.
  *******************************************************************************/
 
-#ifndef _EDGEBOUNDS_H
-#define _EDGEBOUNDS_H
+#ifndef _EDGEBOUND_H
+#define _EDGEBOUND_H
 
-// EDGEBOUNDS *edgebounds_Create();
+EDGEBOUNDS *edgebounds_Create();
 
-// void edgebounds_Init(EDGEBOUNDS **edg);
+void edgebounds_Init(EDGEBOUNDS **edg);
 
-// void edgebounds_Destroy(EDGEBOUNDS *edg);
+void edgebounds_Destroy(EDGEBOUNDS *edg);
 
-// void edgebounds_Add(EDGEBOUNDS *edg,
-//                     BOUND bnd);
+void edgebounds_Add(EDGEBOUNDS *edg,
+                    BOUND bnd);
 
-// void edgebounds_Resize(EDGEBOUNDS *edg);
+void edgebounds_Insert(EDGEBOUNDS *edg,
+                       BOUND bnd,
+                       int i);
 
-// void edgebounds_Print(EDGEBOUNDS *edg);
-// void bound_Print(BOUND bnd);
+void edgebounds_Delete(EDGEBOUNDS *edg,
+                       BOUND bnd,
+                       int i);
 
-// void edgebounds_Save(EDGEBOUNDS *edg,
-//                      const char *_filename_);
+void edgebounds_Resize(EDGEBOUNDS *edg);
 
-// int bounds_Compare(BOUND a, 
-//                    BOUND b);
+void edgebounds_Reverse(EDGEBOUNDS *edg);
 
-#endif /* _EDGEBOUNDS_H */
+void edgebounds_Print(EDGEBOUNDS *edg);
+void bound_Print(BOUND bnd);
+
+void edgebounds_Save(EDGEBOUNDS *edg,
+                     const char *_filename_);
+
+void edgbounds_Sort(EDGEBOUNDS *edg);
+
+#endif /* _EDGEBOUND_H */

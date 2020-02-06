@@ -20,7 +20,7 @@
 #include "structs.h"
 #include "misc.h"
 #include "hmm_parser.h"
-#include "edgebounds_obj.h"
+#include "objects/edgebound.h"
 #include "cloud_search_quad.h"
 
 /* 
@@ -380,7 +380,7 @@ void cloud_backward_Run(const SEQ* query,
 
    /* diag index of different start points, creating submatrix */
    // d_st = start.i + start.j;
-   d_end = end.i + end.j + 1;
+   d_end = end.i + end.j;
 
    /* dimension of submatrix */
    dim_Q = end.i;
@@ -488,7 +488,7 @@ void cloud_backward_Run(const SEQ* query,
 
 
       /* Edge-check: find diag cells that are inside matrix bounds */
-      le = MAX(end.i - (d_end - d) + 1, 0);
+      le = MAX(end.i - (d_end - d), 0);
       re = le + num_cells;
 
       lb = MAX(lb, le);
@@ -542,11 +542,5 @@ void cloud_backward_Run(const SEQ* query,
    }
 
    /* reverse order of diagonals */
-   BOUND tmp;
-   for (i = 0; i < (edg->N / 2); ++i)
-   {
-      tmp = edg->bounds[i];
-      edg->bounds[i] = edg->bounds[edg->N-i];
-      edg->bounds[edg->N-i] = tmp;
-   }
+   edgebounds_Reverse(edg);
 }  

@@ -6,20 +6,11 @@
  *  @bug Lots.
  *******************************************************************************/
 
-/* imports */
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-
-/* local imports */
-#include "../structs.h"
-#include "traceback.h"
+#ifndef _TRACEBACK_H
+#define _TRACEBACK_H
 
 
-TRACEBACK* traceback_Create()
-{
-   
-}
+TRACEBACK* traceback_Create();
+
+
+#endif /* _TRACEBACK_H */
