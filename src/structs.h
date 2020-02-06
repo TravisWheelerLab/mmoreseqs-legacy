@@ -17,7 +17,6 @@ extern float BG_MODEL[];
 extern float BG_MODEL_log[];
 
 
-
 /* MATCH, INSERT, DELETE, SPECIAL DP MATRIX ACCESS MACROS */
 #define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
 #define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j)
@@ -273,6 +272,7 @@ typedef struct {
    char *target_hmm_file, *query_fasta_file;
    RANGE *range_query, *range_target;
    char *outfile_name;
+   int test;
    // FILE *outfile;
 } ARGS;
 

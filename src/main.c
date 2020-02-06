@@ -14,6 +14,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include <time.h>
 
 /* data structures and file parsers */
 #include "structs.h"
@@ -64,15 +65,21 @@ int main (int argc, char *argv[])
    args->beta = 5;
    args->search_mode = MODE_NAIVE;
    args->outfile_name = "stats/cloud_stats.tsv";
+   args->test = false;
    // args->outfile = stdout;
 
    printf("parsing args...\n");
    parse_args(argc, argv, args);
 
-   printf("begin test...\n");
-   test(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
-   // cloud_search_pipeline(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
-   // other_test();
+   if (args->test) {
+      printf("running test...\n");
+      // test(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
+   }
+   else
+   {
+      printf("running main pipeline...\n");
+      cloud_search_pipeline(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
+   }
 }
 
 
@@ -146,6 +153,10 @@ void parse_args (int argc, char *argv[], ARGS *args)
             //       fprintf(stderr, "Error: -m flag requires argument.\n");
             //    }  
             //    break; 
+            case '+':   /* run test */
+               i++;
+               args->test = true; 
+               break;
             default:
                fprintf(stderr, "Error: -%c is not a valid flag.\n", argv[i][1]);
                exit(1);
@@ -463,6 +474,7 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    printf("BETA: %d\n\n", beta);
    SCORES *scores = (SCORES*)malloc( sizeof(SCORES) );
    float sc;
+   clock_t time_st, time_end, duration;
 
    HMM_PROFILE *target_prof = (HMM_PROFILE *)malloc( sizeof(HMM_PROFILE) );
    SEQ *query_seq = (SEQ *)malloc( sizeof(SEQ) );
@@ -489,31 +501,59 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    EDGEBOUNDS *edg_row = edgebounds_Create();
 
    /* run viterbi algorithm */
-   printf("=== VITERBI -> START ===\n");
+   printf("=== VITERBI/TRACE -> START ===\n");
+   time_st = clock();
    sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
    scores->viterbi_sc = sc;
-   printf("=== VITERBI -> END ===\n\n");
-
-   /* run traceback of viterbi */
-   printf("=== TRACEBACK -> START ===\n");
    traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
-   printf("=== TRACEBACK -> END ===\n\n");
+   time_end = clock();
+   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
+   printf("VITERBI/TRACE took %d ms\n", duration);
+   printf("=== VITERBI/TRACE -> END ===\n\n");
 
    /* cloud forward/backward (linear) */
    printf("=== CLOUD FORWARD/BACKWARD (Linear) -> START ===\n");
+   time_st = clock();
+   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
    cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, false);
    cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck, alpha, beta, false);
-   printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
+   time_end = clock();
+   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
+   printf("CLOUD FWD/BCK took %d ms\n", duration);
+   printf("=== CLOUD FORWARD/BACKWARD (Linear) -> END ===\n\n");
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
+   time_st = clock();
    edgebounds_Merge(Q, T, edg_fwd, edg_bck, edg_diag);
    edgebounds_Reorient(Q, T, edg_diag, edg_row);
+   time_end = clock();
+   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
+   printf("MERGE/REORIENT took %d ms\n", duration);
    printf("=== MERGE & REORIENT CLOUD (Linear) -> END ===\n\n");
 
    /* bounded forward/backward */
    printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> START ===\n"); 
+   time_st = clock();
    forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
+   scores->cloud_fwd_sc = sc;
    backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
+   scores->cloud_bck_sc = sc;
+   time_end = clock();
+   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
+   printf("MERGE/REORIENT took %d ms\n", duration);
    printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> END ===\n\n");   
+
+   printf("Cloud Forward: %f\n", scores->cloud_fwd_sc);
+   printf("Cloud Backward: %f\n", scores->cloud_bck_sc);
+
+   edgebounds_Destroy(edg_fwd);
+   edgebounds_Destroy(edg_bck);
+   edgebounds_Destroy(edg_diag);
+   edgebounds_Destroy(edg_row);
+   free(st_MX);
+   free(st_MX3);
+   free(sp_MX);
+   free(tr);
+   free(scores);
 }

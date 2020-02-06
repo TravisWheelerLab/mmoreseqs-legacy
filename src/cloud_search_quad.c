@@ -441,7 +441,7 @@ void cloud_backward_Run(const SEQ* query,
          diag_limit = diag_max - alpha;
          total_limit = total_max - alpha;
 
-         /* Find the first cell from the left which passes above threshold */
+         /* FIND FIRST SCORE TO EXCEED THRESHOLD FROM THE LEFT */
          for (k = lb; k < rb; k++)
          {
             i = k;
@@ -459,7 +459,7 @@ void cloud_backward_Run(const SEQ* query,
          if (lb_new == INT_MIN)
             break;
 
-         /* Find the first cell from the right which passes above threshold */
+         /* FIND FIRST SCORE TO EXCEED THRESHOLD FROM THE RIGHT */
          for (k = rb - 1; k >= lb; k--)
          {
             i = k;
@@ -485,7 +485,6 @@ void cloud_backward_Run(const SEQ* query,
       // /* NOTE: TESTING - THiS REMOVES ALL PRUNING */
       // lb = lb - 1;
       // rb = rb;
-
 
       /* Edge-check: find diag cells that are inside matrix bounds */
       le = MAX(end.i - (d_end - d), 0);
@@ -533,7 +532,6 @@ void cloud_backward_Run(const SEQ* query,
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
          prev_mat = MMX(i+1,j+1) + TSC(j,D2M) + sc_M;
          prev_del = DMX(i,j+1)   + TSC(j,D2D);
-         // prev_end = XMX(SP_E,i)  + sc_E;
          /* best-to-delete */
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );

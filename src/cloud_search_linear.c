@@ -443,7 +443,7 @@ void cloud_backward_Run3(const SEQ* query,
    prev_end = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
-   for (d = d_end; d >= d_st; d--)
+   for (d = d_end; d >= d_st; d--, d_cnt++)
    {
       d_0 = d;       /* current diagonal */
       d_1 = (d+1);   /* look back 1 diagonal */
@@ -472,7 +472,7 @@ void cloud_backward_Run3(const SEQ* query,
          diag_max = -INF;
          for (k = lb_1; k < rb_1; k++)
          {
-            /* coords for quadratic matrix */
+            /* cartesian coords */
             i = k;
             j = d_1 - i;    /* back one diag */
 
@@ -487,7 +487,6 @@ void cloud_backward_Run3(const SEQ* query,
          /* Set score threshold for pruning */
          diag_limit = diag_max - alpha;
          total_limit = total_max - alpha;
-         // printf("total_max: %.2f\t total_limit: %.2f\t diag_max: %.2f\t diag_limit: %.2f\n", total_max, total_limit, diag_max, diag_limit);
 
          /* FIND FIRST SCORE TO EXCEED THRESHOLD FROM THE LEFT */
          for (k = lb_1; k < rb_1; k++)
@@ -541,7 +540,6 @@ void cloud_backward_Run3(const SEQ* query,
       // lb = lb - 1;
       // rb = rb;
 
-
       /* Edge-check: find diag cells that are inside matrix bounds */
       le = MAX(end.i - (d_end - d), 0);
       re = le + num_cells;
@@ -585,16 +583,15 @@ void cloud_backward_Run3(const SEQ* query,
          MMX3(d0,k) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-         prev_mat = MMX(d2,k+1) + TSC(j,I2M) + sc_M;
-         prev_ins = IMX(d1,k+1) + TSC(j,I2I) + sc_I;
+         prev_mat = MMX3(d2,k+1) + TSC(j,I2M) + sc_M;
+         prev_ins = IMX3(d1,k+1) + TSC(j,I2I) + sc_I;
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
          IMX3(d0,k) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prev_mat = MMX(d2,k+1) + TSC(j,D2M) + sc_M;
-         prev_del = DMX(d1,k  ) + TSC(j,D2D);
-         // prev_end = XMX(SP_E,i) + sc_E;
+         prev_mat = MMX3(d2,k+1) + TSC(j,D2M) + sc_M;
+         prev_del = DMX3(d1,k  ) + TSC(j,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );
@@ -627,7 +624,6 @@ void cloud_backward_Run3(const SEQ* query,
          }
       }
    }
-
    /* reverse order of diagonals */
    edgebounds_Reverse(edg);
 }  
