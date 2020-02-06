@@ -249,3 +249,10 @@ data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	
 data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	3.318817	3.318810	3.318812	20.000000	5	0.061862	2.944630
 data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	3.318817	3.318810	3.318812	20.000000	5	0.061862	2.944630
 data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	3.318817	3.318810	3.318812	20.000000	5	0.000000	0.000000
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	3.318817	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	3.318817	3.318817	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	0.000000	0.000000	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	0.000000	0.000000	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	0.000000	0.000000	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	0.000000	0.000000	0.000000	0.000000	20.000000	5	0.059648	2.839259
+data/test_list/AA_kinase.hmm	data/test_list/AA_kinase.180.fa	-0.112986	0.000000	0.000000	0.000000	0.000000	20.000000	5	0.059648	2.839259

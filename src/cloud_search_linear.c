@@ -106,6 +106,7 @@ void cloud_forward_Run3(const SEQ* query,
 
    /* --------------------------------------------------------------------------------- */
 
+   /* clear residual data */
    if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
@@ -404,6 +405,7 @@ void cloud_backward_Run3(const SEQ* query,
 
    /* --------------------------------------------------------------------------------- */
 
+   /* clear residual data */
    if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
