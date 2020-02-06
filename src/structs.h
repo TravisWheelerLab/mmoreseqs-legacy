@@ -279,6 +279,8 @@ typedef struct {
 typedef struct {
    float viterbi_sc;
    float fwd_sc, bck_sc;
+   float cloud_fwd_naive_sc, cloud_bck_naive_sc;
+   float cloud_fwd_quad_sc, cloud_bck_quad_sc;
    float cloud_fwd_sc, cloud_bck_sc;
    float perc_cells, perc_window;  
 } SCORES;

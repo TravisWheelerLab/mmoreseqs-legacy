@@ -23,6 +23,7 @@
 
 /* objects */
 #include "objects/edgebound.h"
+#include "objects/clock.h"
 
 /* viterbi & fwdbck (quadratic) */
 #include "viterbi.h"
@@ -75,12 +76,12 @@ int main (int argc, char *argv[])
    parse_args(argc, argv, args);
 
    if (args->test) {
-      printf("running test...\n");
+      printf("running test...\n\n");
       test_pipeline(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
    }
    else
    {
-      printf("running main pipeline...\n");
+      printf("running main pipeline...\n\n");
       cloud_search_pipeline(args, args->target_hmm_file, args->query_fasta_file, args->alpha, args->beta);
    }
 }
@@ -201,6 +202,7 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    printf("ALPHA: %f\n", alpha);
    printf("BETA: %d\n\n", beta);
    SCORES *scores = (SCORES*)malloc( sizeof(SCORES) );
+   bool is_testing = false;
 
    printf("building hmm profile...\n");
    /* get target profile */
@@ -235,17 +237,16 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    int num_cells, window_cells; 
    int tot_cells = (Q + 1) * (T + 1);
    TRACEBACK *tr = (TRACEBACK *)malloc( sizeof(TRACEBACK) );
-   EDGEBOUNDS *edg_fwd = edgebounds_Create();
-   EDGEBOUNDS *edg_bck = edgebounds_Create();
-   EDGEBOUNDS *edg = edgebounds_Create();
-   EDGEBOUNDS *edg_tmp = edgebounds_Create();
-   EDGEBOUNDS *edg_fwd_tmp = edgebounds_Create();
-   EDGEBOUNDS *edg_bck_tmp = edgebounds_Create();
-   EDGEBOUNDS *edg_row = edgebounds_Create();
-   EDGEBOUNDS *edg_quad_row = edgebounds_Create();
-   EDGEBOUNDS *edg_quad_diag = edgebounds_Create();
-   EDGEBOUNDS *edg_lin_row = edgebounds_Create();
-   EDGEBOUNDS *edg_lin_diag = edgebounds_Create();
+
+   EDGEBOUNDS *edg_fwd_lin = edgebounds_Create();
+   EDGEBOUNDS *edg_bck_lin = edgebounds_Create();
+   EDGEBOUNDS *edg_row_lin = edgebounds_Create();
+   EDGEBOUNDS *edg_diag_lin = edgebounds_Create();
+
+   EDGEBOUNDS *edg_fwd_quad = edgebounds_Create();
+   EDGEBOUNDS *edg_bck_quad = edgebounds_Create();
+   EDGEBOUNDS *edg_row_quad = edgebounds_Create();
+   EDGEBOUNDS *edg_diag_quad = edgebounds_Create();
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
    float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
@@ -273,7 +274,7 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    printf("=== TRACEBACK -> START ===\n");
    traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
    // traceback_Print(tr);
-   traceback_Save(tr, "output/my.traceback_list.tsv");
+   traceback_Save(tr, "output/my.traceback.tsv");
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
    traceback_Show(Q, T, st_MX, sp_MX, tr);
    printf("START: (%d,%d) -> END: (%d,%d)\n", tr->first_m.i, tr->first_m.j, tr->last_m.i, tr->last_m.j);
@@ -314,59 +315,59 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    printf("=== TEST -> END ===\n\n");
 
    /* cloud forward (quadratic) */
-   printf("=== CLOUD FORWARD (Quadratic) -> START ===\n");
-   cloud_forward_Run(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_fwd_tmp, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_fwd_vals.quad.mx");
-   dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_fwd_tmp, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_fwd.quad.mx");
-   edgebounds_Save(edg_fwd_tmp, "output/my.cloud_fwd.quad.diags.edg");
-   printf("=== CLOUD FORWARD (Quadratic) -> END ===\n\n");
+   // printf("=== CLOUD FORWARD (Quadratic) -> START ===\n");
+   // cloud_forward_Run(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_fwd_quad, alpha, beta);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_fwd_vals.quad.mx");
+   // dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
+   // cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_fwd_quad, 1, MODE_DIAG);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_fwd.quad.mx");
+   // edgebounds_Save(edg_fwd_quad, "output/my.cloud_fwd.quad.diags.edg");
+   // printf("=== CLOUD FORWARD (Quadratic) -> END ===\n\n");
 
    /* cloud forward (linear) */
    printf("=== CLOUD FORWARD (Linear) -> START ===\n");
-   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, true);
+   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_fwd_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd_lin, 1, MODE_DIAG);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_fwd.lin.mx");
-   edgebounds_Save(edg_fwd, "output/my.cloud_fwd.lin.diags.edg");
+   edgebounds_Save(edg_fwd_lin, "output/my.cloud_fwd.lin.diags.edg");
    test = dp_matrix_Compare(Q, T, st_MX, sp_MX, st_MX_tmp, sp_MX);
    printf("Cloud Forward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
    printf("=== CLOUD FORWARD (Linear) -> END ===\n\n");
 
    /* cloud backward (quadratic) */
-   printf("=== CLOUD BACKWARD (Quadratic) -> START ===\n");
-   cloud_backward_Run(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_bck_tmp, alpha, beta);
-   dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_bck_vals.quad.mx");
-   dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_bck_tmp, 1, MODE_DIAG);
-   dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_bck.quad.mx");
-   edgebounds_Save(edg_bck_tmp, "output/my.cloud_bck.quad.diags.edg");
-   printf("=== CLOUD BACKWARD (Quadratic) -> END ===\n\n");
+   // printf("=== CLOUD BACKWARD (Quadratic) -> START ===\n");
+   // cloud_backward_Run(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_bck_quad, alpha, beta);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_bck_vals.quad.mx");
+   // dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
+   // cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_bck_quad, 1, MODE_DIAG);
+   // dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_bck.quad.mx");
+   // edgebounds_Save(edg_bck_quad, "output/my.cloud_bck.quad.diags.edg");
+   // printf("=== CLOUD BACKWARD (Quadratic) -> END ===\n\n");
 
    /* cloud backward (linear) */
    printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
-   cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck, alpha, beta, true);
+   cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_bck_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck_lin, 1, MODE_DIAG);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_bck.lin.mx");
-   edgebounds_Save(edg_bck, "output/my.cloud_bck.lin.diags.edg");
+   edgebounds_Save(edg_bck_lin, "output/my.cloud_bck.lin.diags.edg");
    test = dp_matrix_Compare(Q, T, st_MX, sp_MX, st_MX_tmp, sp_MX);
    printf("Cloud Backward - Lin vs Quad? %s\n", test ? "TRUE" : "FALSE" );
    printf("=== CLOUD BACKWARD (Linear) -> END ===\n\n");
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Naive) -> START ===\n");
-   edgebounds_Merge_Reorient_Naive(edg_fwd, edg_bck, edg_quad_diag, edg_quad_row, Q, T, st_MX, sp_MX);
+   edgebounds_Merge_Reorient_Naive(edg_fwd_quad, edg_bck_quad, edg_diag_quad, edg_row_quad, Q, T, st_MX, sp_MX);
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_quad_diag, 1, MODE_DIAG);
-   edgebounds_Save(edg_quad_diag, "output/my.cloud.quad.diags.edg");
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_diag_quad, 1, MODE_DIAG);
+   edgebounds_Save(edg_diag_quad, "output/my.cloud.quad.diags.edg");
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.quad.diags.mx");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_quad_row, 1, MODE_ROW);
-   edgebounds_Save(edg_quad_row, "output/my.cloud.quad.rows.edg");
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_row_quad, 1, MODE_ROW);
+   edgebounds_Save(edg_row_quad, "output/my.cloud.quad.rows.edg");
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.quad.rows.mx");
    dp_matrix_Copy(Q, T, st_MX, sp_MX, st_MX_cloud, sp_MX_cloud);
    printf("=== MERGE & REORIENT CLOUD (Naive) -> END ===\n\n");
@@ -380,16 +381,16 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
-   edgebounds_Merge(Q, T, edg_fwd, edg_bck, edg_lin_diag);
+   edgebounds_Merge(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_lin_diag, 1, MODE_DIAG);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_diag_lin, 1, MODE_DIAG);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.diags.mx");
-   edgebounds_Save(edg_lin_diag, "output/my.cloud.lin.diags.edg");
-   edgebounds_Reorient(Q, T, edg_lin_diag, edg_lin_row);
+   edgebounds_Save(edg_diag_lin, "output/my.cloud.lin.diags.edg");
+   edgebounds_Reorient(Q, T, edg_diag_lin, edg_row_lin);
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_lin_row, 1, MODE_ROW);
+   cloud_Fill(Q, T, st_MX, sp_MX, edg_row_lin, 1, MODE_ROW);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud.lin.rows.mx");
-   edgebounds_Save(edg_lin_row, "output/my.cloud.lin.rows.edg");
+   edgebounds_Save(edg_row_lin, "output/my.cloud.lin.rows.edg");
    printf("=== MERGE & REORIENT CLOUD (Linear) -> END ===\n\n");
 
    /* create cloud that covers entire matrix (full fwd/bck) */
@@ -400,26 +401,31 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    // dp_matrix_trace_Save(Q, T, st_MX_cloud, sp_MX_cloud, tr, "output/my.cloud.full_fwdbck.mx");
    // printf("=== TEST CLOUD -> END ===\n\n");
 
-   /* bounded forward */
-   printf("=== BOUNDED FORWARD -> START ===\n");
+   /* fill cloud for naive algs */
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear_X(Q, T, st_MX_cloud, sp_MX_cloud, 0);
-   cloud_Fill(Q, T, st_MX_cloud, sp_MX_cloud, edg_quad_row, 1, MODE_ROW);
+   cloud_Fill(Q, T, st_MX_cloud, sp_MX_cloud, edg_row_lin, 1, MODE_ROW);
+
+   /* bounded forward */
+   printf("=== BOUNDED FORWARD -> START ===\n");
    forward_Bounded_Naive_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, st_MX_cloud, &sc);
    printf("Bounded Forward Score (Naive): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.naive.mx");
+   sc = 0;
    
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   forward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg_quad_row, &sc);
+   forward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg_row_lin, &sc);
    printf("Bounded Forward Score (Quadratic): %f\n", sc);
    scores->cloud_fwd_sc = sc;
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.quad.mx");
+   sc = 0;
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_quad_row, &sc, true);
+   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, &sc, is_testing);
    printf("Bound Forward Score (Linear): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.lin.mx");
    printf("=== BOUNDED FORWARD -> END ===\n\n");
+   sc = 0;
 
    /* bounded backward */
    printf("=== BOUNDED BACKWARD -> START ===\n");
@@ -428,16 +434,19 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
    printf("Bounded Backward Score (Naive): %f\n", sc);
    scores->cloud_bck_sc = sc;
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.naive.mx");
+   sc = 0;
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   backward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg_quad_row, &sc);
+   backward_bounded_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, edg_row_lin, &sc);
    printf("Bounded Backward Score (Quadratic): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.quad.mx");
+   sc = 0;
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_quad_row, &sc, true);
+   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, &sc, is_testing);
    printf("Bound Backward Score (Linear): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.lin.mx");
+   sc = 0;
    printf("=== BOUNDED BACKWARD -> END ===\n\n");
 
    /* sample stats */
@@ -459,11 +468,20 @@ void test_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float alpha, in
 
    /* TODO: fix free memory! */
    free(tr);
-   free(edg_fwd);
-   free(edg_bck);
-   free(edg);
+
+   free(edg_fwd_quad);
+   free(edg_bck_quad);
+   free(edg_diag_quad);
+   free(edg_row_quad);
+
+   free(edg_fwd_lin);
+   free(edg_bck_lin);
+   free(edg_diag_lin);
+   free(edg_row_lin);
+
    free(st_MX);
    free(sp_MX);
+   free(st_MX_tmp);
    free(st_MX_cloud);
    free(sp_MX_cloud);
    free(st_MX3);
@@ -482,24 +500,22 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    printf("BETA: %d\n\n", beta);
    SCORES *scores = (SCORES*)malloc( sizeof(SCORES) );
    float sc;
-   clock_t time_st, time_end;
-   float duration;
+   time_t time_st, time_end, duration;
+   CLOCK *cl;
+   bool is_testing = false;
 
    HMM_PROFILE *target_prof = (HMM_PROFILE *)malloc( sizeof(HMM_PROFILE) );
    SEQ *query_seq = (SEQ *)malloc( sizeof(SEQ) );
    TRACEBACK *tr = (TRACEBACK *)malloc( sizeof(TRACEBACK) );
 
-   printf("building hmm profile...\n");
+   printf("=== BUILD HMM_PROFILE/QUERY -> START ===\n");
    int mode = MODE_UNILOCAL;   /* Cloud mode (prohibiits jumps) */
    hmmprofile_Create(target_prof, hmm_file);
    hmmprofile_Config(target_prof, mode);
    int T = target_prof->leng;
-
-   printf("building query sequence...\n");
-   /* get query sequence */
    seq_Create(query_seq, fasta_file);
-   seq_Display(query_seq);
    int Q = query_seq->leng;
+   printf("=== BUILDING HMM_PROFILE/QUERY -> END ===\n\n");
 
    float *st_MX = (float *) malloc( sizeof(float) * (NUM_NORMAL_STATES * (Q+1) * (T+1)) );
    float *sp_MX = (float *) malloc( sizeof(float) * (NUM_SPECIAL_STATES * (Q+1)) );
@@ -516,20 +532,29 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    scores->viterbi_sc = sc;
    traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
    time_end = clock();
-   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
-   printf("VITERBI/TRACE took %f ms\n", duration);
+   duration = (time_end - time_st);
+   printf("VITERBI/TRACE took %d ms\n", duration);
    printf("=== VITERBI/TRACE -> END ===\n\n");
+
+   traceback_Save(tr, "output/my.pipeline.tr.tsv");
 
    /* cloud forward/backward (linear) */
    printf("=== CLOUD FORWARD/BACKWARD (Linear) -> START ===\n");
    time_st = clock();
-   sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
-   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, false);
-   cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck, alpha, beta, false);
+
+   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, is_testing);
+   if (is_testing) dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.pipeline.cloud_fwd.mx");
+
+   cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck, alpha, beta, is_testing);
+   if (is_testing) dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.pipeline.cloud_bck.mx");
+
    time_end = clock();
-   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
-   printf("CLOUD FWD/BCK took %f ms\n", duration);
+   duration = (time_end - time_st);
+   printf("CLOUD FWD/BCK took %d ms\n", duration);
    printf("=== CLOUD FORWARD/BACKWARD (Linear) -> END ===\n\n");
+
+   edgebounds_Save(edg_fwd, "output/my.pipeline.fwd.edg");
+   edgebounds_Save(edg_bck, "output/my.pipeline.bck.edg");
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
@@ -537,20 +562,28 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    edgebounds_Merge(Q, T, edg_fwd, edg_bck, edg_diag);
    edgebounds_Reorient(Q, T, edg_diag, edg_row);
    time_end = clock();
-   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
-   printf("MERGE/REORIENT took %f ms\n", duration);
+   duration = (time_end - time_st);
+   printf("MERGE/REORIENT took %d ms\n", duration);
    printf("=== MERGE & REORIENT CLOUD (Linear) -> END ===\n\n");
+
+   edgebounds_Save(edg_row, "output/my.pipeline.diag.edg");
+   edgebounds_Save(edg_row, "output/my.pipeline.row.edg");
 
    /* bounded forward/backward */
    printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> START ===\n"); 
    time_st = clock();
-   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
+
+   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, is_testing);
+   if (is_testing) dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.pipeline.bound_fwd.mx");
    scores->cloud_fwd_sc = sc;
-   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
+
+   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, is_testing);
+   if (is_testing) dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.pipeline.bound_bck.mx");
    scores->cloud_bck_sc = sc;
+
    time_end = clock();
-   duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
-   printf("MERGE/REORIENT took %f ms\n", duration);
+   duration = (time_end - time_st);
+   printf("MERGE/REORIENT took %d ms\n", duration);
    printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> END ===\n\n");   
 
    printf("Cloud Forward: %f\n", scores->cloud_fwd_sc);
