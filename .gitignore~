@@ -1,3 +1,5 @@
 *.sublime-project
 *.sublime-workspace
-output/*
+output/
+test_output/
+build/

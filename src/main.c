@@ -61,7 +61,7 @@ int main (int argc, char *argv[])
    char *arg;
    int  i, j;
 
-   /* DEFAULT TESTS */
+   /* DEFAULT ARGUMENTS */
    args->target_hmm_file = "data/test1_2.hmm";
    args->query_fasta_file = "data/test1_1.fa";
    args->alpha = 20.0f;
@@ -95,6 +95,11 @@ void parse_args (int argc, char *argv[], ARGS *args)
    
    num_main_args = 0;
    max_main_args = 2;
+
+   if (argc == 1) {
+      printf("Usage: <hmm_file> <fasta_file>\n");
+      printf("Opts: -a <alpha>, -b <beta>, -o <output_file>, -T\n");
+   }
 
    for (i = 1; i < argc; ++i)
    {
@@ -519,8 +524,8 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    printf("=== CLOUD FORWARD/BACKWARD (Linear) -> START ===\n");
    time_st = clock();
    sc = viterbi_Run(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
-   cloud_forward_Run3(query_seq, target_prof, Q, T, NULL, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, false);
-   cloud_backward_Run3(query_seq, target_prof, Q, T, NULL, st_MX3, sp_MX, tr, edg_bck, alpha, beta, false);
+   cloud_forward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd, alpha, beta, false);
+   cloud_backward_Run3(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck, alpha, beta, false);
    time_end = clock();
    duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
    printf("CLOUD FWD/BCK took %f ms\n", duration);
@@ -539,9 +544,9 @@ void cloud_search_pipeline(ARGS *args, char *hmm_file, char *fasta_file, float a
    /* bounded forward/backward */
    printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> START ===\n"); 
    time_st = clock();
-   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, NULL, sp_MX, edg_row, &sc, false);
+   forward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
    scores->cloud_fwd_sc = sc;
-   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, NULL, sp_MX, edg_row, &sc, false);
+   backward_bounded_Run3(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, &sc, false);
    scores->cloud_bck_sc = sc;
    time_end = clock();
    duration = (time_end - time_st) * 1000 / CLOCKS_PER_SEC;
