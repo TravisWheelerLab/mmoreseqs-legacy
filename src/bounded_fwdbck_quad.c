@@ -34,18 +34,19 @@
  *             <T>         target length,
  *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
  *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <bnd>       Bounds Data (row-wise)
+ *             <edg>       Bounds Data (row-wise)
  *             <sc_final>  Final Score
  *
  *  RETURN: 
  */
-float forward_bounded_Run(const SEQ* query, 
-                        const HMM_PROFILE* target,
-                        int Q, int T, 
-                        float* st_MX, 
-                        float* sp_MX, 
-                        EDGEBOUNDS* edg,
-                        float *sc_final )
+float forward_bounded_Run(const SEQ*           query, 
+                          const HMM_PROFILE*   target,
+                          int                  Q, 
+                          int                  T, 
+                          float*               st_MX, 
+                          float*               sp_MX, 
+                          EDGEBOUNDS*          edg,
+                          float*               sc_final )
 {
    char   a;                              /* store current character in sequence */
    int    A;                              /* store int value of character */

@@ -17,8 +17,14 @@ typedef struct {
 
 CLOCK* clock_Create();
 
-time_t clock_Start(CLOCK* cl);
+void clock_Destroy(CLOCK*cl);
 
-time_t clock_Stop(CLOCK* cl);
+time_t clock_Start(CLOCK*cl);
+
+time_t clock_Stop(CLOCK*cl);
+
+time_t clock_pTicks(CLOCK*cl, char*str);
+
+float ticks_to_msec(time_t t);
 
 #endif /* _CLOCK_H */

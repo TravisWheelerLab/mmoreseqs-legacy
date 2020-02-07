@@ -21,5 +21,8 @@
 
 TRACEBACK* traceback_Create()
 {
-   
+   const int min_size = 16;
+   TRACEBACK*tr = (TRACEBACK*) malloc( sizeof(TRACEBACK) );
+   tr->traces = (TRACE*) malloc( sizeof(TRACE) * min_size );
 }
+

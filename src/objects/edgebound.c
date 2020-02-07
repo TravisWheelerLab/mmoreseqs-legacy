@@ -87,7 +87,7 @@ void edgebounds_Destroy(EDGEBOUNDS *edg)
  *  RETURN:
  */
 void edgebounds_Add(EDGEBOUNDS *edg,
-                    BOUND bnd)
+                        BOUND bnd)
 {
    edg->bounds[edg->N].diag = bnd.diag;
    edg->bounds[edg->N].lb = bnd.lb;
@@ -289,4 +289,25 @@ int bounds_Compare(BOUND a, BOUND b)
    }
    
    return 0;
+}
+
+
+/*
+ *  FUNCTION: edgebounds_Count()
+ *  SYNOPSIS: Count the number of cells in edgebound.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <edg>      Edgebounds Object
+ *
+ *  RETURN:
+ */
+int edgebounds_Count(EDGEBOUNDS *edg)
+{
+   int sum = 0;
+   for (int i = 0; i < edg->N; i++)
+   {
+      sum += edg->bounds[i].rb - edg->bounds[i].lb;
+   }
+   return sum;
 }

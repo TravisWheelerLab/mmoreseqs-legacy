@@ -38,4 +38,6 @@ void edgebounds_Save(EDGEBOUNDS *edg,
 
 void edgbounds_Sort(EDGEBOUNDS *edg);
 
+int edgebounds_Count(EDGEBOUNDS *edg);
+
 #endif /* _EDGEBOUND_H */

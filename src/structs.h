@@ -16,7 +16,6 @@ extern int AA2_REV[];
 extern float BG_MODEL[];
 extern float BG_MODEL_log[];
 
-
 /* MATCH, INSERT, DELETE, SPECIAL DP MATRIX ACCESS MACROS */
 #define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
 #define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j)
@@ -308,11 +307,9 @@ typedef struct {
 typedef struct {
    int N;                     /* current length */
    int size;                  /* allocated length */
-   int L,W;                   /* length, width dimensions of query/target window */
    COORDS first_m, last_m;    /* (i,j) position of the last match found */
-   float sc_last_m;
    int start, end;            /* position in trace for first/last MID state */
-   float sc_max;              /* max alignment score in Viterbi */
+   float sc_last_m, sc_max;
    TRACE *traces;
 } TRACEBACK;
 
