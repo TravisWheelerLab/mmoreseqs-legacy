@@ -1,8 +1,30 @@
 build/./src/bounded_fwdbck_naive.c.o: src/bounded_fwdbck_naive.c \
- src/structs.h src/misc.h src/bounded_fwdbck_naive.h
+ src/objects/structs.h src/objects/edgebound.h src/objects/structs.h \
+ src/objects/vectors/vector_int.h src/objects/vectors/../structs.h \
+ src/objects/vectors/vector_bound.h src/objects/structs.h \
+ src/objects/hmm_profile.h src/objects/sequence.h src/utility.h \
+ src/testing.h src/bounded_fwdbck_naive.h
 
-src/structs.h:
+src/objects/structs.h:
 
-src/misc.h:
+src/objects/edgebound.h:
+
+src/objects/structs.h:
+
+src/objects/vectors/vector_int.h:
+
+src/objects/vectors/../structs.h:
+
+src/objects/vectors/vector_bound.h:
+
+src/objects/structs.h:
+
+src/objects/hmm_profile.h:
+
+src/objects/sequence.h:
+
+src/utility.h:
+
+src/testing.h:
 
 src/bounded_fwdbck_naive.h:

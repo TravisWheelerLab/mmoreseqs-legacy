@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file edgebound.c
- *  @brief Edgebounds Datatype
+ *  FILE:      edgebound.c
+ *  PURPOSE:   EDGEBOUNDS Object
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -15,60 +15,65 @@
 #include <math.h>
 
 /* local imports */
-#include "../structs.h"
+#include "structs.h"
+#include "vector_bound.h"
+#include "bound.h"
+
+/* header */
 #include "edgebound.h"
 
 /*
- *  FUNCTION: edgebounds_Create()
- *  SYNOPSIS: Create new edgebounds object and return pointer.
+ *  FUNCTION: EDGEBOUNDS_Create()
+ *  SYNOPSIS: Create new EDGEBOUNDS object and returns pointer.
  *
- *  PURPOSE:   
- *
- *  ARGS:      
+ *  ARGS:      None.
  *
  *  RETURN:    <edg>      Edgebounds Object
  */
-EDGEBOUNDS *edgebounds_Create()
+EDGEBOUNDS* EDGEBOUNDS_Create()
 {
+   const int min_size = 8;
    EDGEBOUNDS *edg;
-   const int min_size = 16;
-   edg = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
-   edg->N = 0;
-   edg->size = min_size;
-   edg->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
+   edg = (EDGEBOUNDS*)malloc(sizeof(EDGEBOUNDS));
+   if (edg == NULL) {
+      fprintf(stderr, "ERROR: Unable to malloc for EDGEBOUNDS.\n");
+   }
+
+   edg->N      = 0;
+   edg->Nalloc = min_size;
+   edg->ids    = VECTOR_INT_Create();
+   edg->heads  = VECTOR_INT_Create();
+
+   edg->bounds = (BOUND*)malloc(min_size * sizeof(BOUND));
+   if (edg == NULL) {
+      fprintf(stderr, "ERROR: Unable to malloc BOUNDS for EDGEBOUNDS.\n");
+   }
    return edg;
 }
 
+
 /*
- *  FUNCTION: edgebounds_Init()
- *  SYNOPSIS: Initialize new edgebounds object pointer.
+ *  FUNCTION: EDGEBOUNDS_Create()
+ *  SYNOPSIS: Create new EDGEBOUNDS object and returns pointer.
  *
- *  PURPOSE:
+ *  ARGS:      None.
  *
- *  ARGS:      <edg>      Edgebounds Object
- *
- *  RETURN:
+ *  RETURN:    <edg>      Edgebounds Object
  */
-void edgebounds_Init(EDGEBOUNDS **edg)
+void EDGEBOUNDS_Init(EDGEBOUNDS **edg)
 {
-   const int min_size = 16;
-   (*edg) = (EDGEBOUNDS *)malloc(sizeof(EDGEBOUNDS));
-   (*edg)->N = 0;
-   (*edg)->size = min_size;
-   (*edg)->bounds = (BOUND *)malloc(min_size * sizeof(BOUND));
+   *edg = EDGEBOUNDS_Create();
 }
 
 /*
- *  FUNCTION: edgebounds_Destroy()
- *  SYNOPSIS: Destroy edgebounds object.
+ *  FUNCTION: EDGEBOUNDS_Destroy()
+ *  SYNOPSIS: Frees all memory from EDGEBOUNDS object.
  *
- *  PURPOSE:
+ *  ARGS:     <edg>      Edgebounds Object
  *
- *  ARGS:      <edg>      Edgebounds Object
- *
- *  RETURN:
+ *  RETURN:   None.
  */
-void edgebounds_Destroy(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Destroy(EDGEBOUNDS*  edg)
 {
    free(edg->bounds);
    free(edg);
@@ -76,123 +81,152 @@ void edgebounds_Destroy(EDGEBOUNDS *edg)
 
 
 /*
- *  FUNCTION: edgebounds_Push()
+ *  FUNCTION: EDGEBOUNDS_Pushback()
  *  SYNOPSIS: Add bound to Edgebound list.
- *
- *  PURPOSE:
  *
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound
  *
  *  RETURN:
  */
-void edgebounds_Add(EDGEBOUNDS *edg,
-                        BOUND bnd)
+void EDGEBOUNDS_Pushback(EDGEBOUNDS*  edg,
+                         BOUND        bnd)
 {
-   edg->bounds[edg->N].diag = bnd.diag;
-   edg->bounds[edg->N].lb = bnd.lb;
-   edg->bounds[edg->N].rb = bnd.rb;
-
    /* resize if necessary */
-   edg->N += 1;
-   if (edg->N >= edg->size) 
-      edgebounds_Resize(edg);
+   if (edg->N >= edg->Nalloc - 1) 
+      EDGEBOUNDS_Resize(edg);
+
+   edg->bounds[edg->N] = bnd;
+   edg->N++;
 }
 
 
 /*
- *  FUNCTION: edgebounds_Insert()
- *  SYNOPSIS: Insert bound into i-index of Edgebound list.
+ *  FUNCTION: EDGEBOUNDS_Pushback_Head()
+ *  SYNOPSIS: Add head index and row/diag id to Head list.
  *
- *  PURPOSE:
+ *  ARGS:      <edg>       Edgebounds,
+ *             <id>        id for row/diag,
+ *             <head>      head index for id in row/diag
+ *
+ *  RETURN:
+ */
+void EDGEBOUNDS_Pushback_Head(EDGEBOUNDS* edg,
+                              int         id,
+                              int         head)
+{
+   VECTOR_INT_Pushback(edg->ids, id);
+   VECTOR_INT_Pushback(edg->heads, head);
+}
+
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Insert()
+ *  SYNOPSIS: Insert/Overwrite bound into i-index of Edgebound list.
  *
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound,
  *             <i>         int Index
  *  RETURN:
  */
-void edgebounds_Insert(EDGEBOUNDS *edg,
-                       BOUND bnd,
-                       int i)
+void EDGEBOUNDS_Insert(EDGEBOUNDS*  edg,
+                       BOUND        bnd,
+                       int          i)
 {
-   edg->bounds[i].diag = bnd.diag;
-   edg->bounds[i].lb = bnd.lb;
-   edg->bounds[i].rb = bnd.rb;
+   edg->bounds[i] = bnd;
 }
 
 
 /*
- *  FUNCTION: edgebounds_Delete()
+ *  FUNCTION: EDGEBOUNDS_Delete()
  *  SYNOPSIS: Delete bound at i-index and fill from end of list.
  *
- *  PURPOSE:
- *
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound,
  *             <i>         int Index
  *  RETURN:
  */
-void edgebounds_Delete(EDGEBOUNDS *edg,
-                       BOUND bnd,
-                       int i)
+void EDGEBOUNDS_Delete(EDGEBOUNDS*  edg,
+                       BOUND        bnd,
+                       int          i)
 {
    int N = edg->N;
-   edg->bounds[i].diag = edg->bounds[N].diag;
+   edg->bounds[i].id = edg->bounds[N].id;
    edg->bounds[i].lb = edg->bounds[N].lb;
    edg->bounds[i].rb = edg->bounds[N].rb;
    edg->N -= 1;
 }
 
 /*
- *  FUNCTION: edgebounds_Resize()
+ *  FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of bounds in edgebound object.
  *
- *  PURPOSE:
- *
  *  ARGS:      <edg>      Edgebounds Object
  *
  *  RETURN:
  */
-void edgebounds_Resize(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Resize(EDGEBOUNDS *edg)
 {
    const int growth_factor = 2;
-   edg->size *= growth_factor;
-   edg->bounds = (BOUND *)realloc(edg->bounds, edg->size * sizeof(BOUND));
+   edg->Nalloc *= growth_factor;
+   edg->bounds = (BOUND *)realloc(edg->bounds, edg->Nalloc * sizeof(BOUND));
 }
 
-
 /*
- *  FUNCTION: edgebounds_Reverse()
+ *  FUNCTION: EDGEBOUNDS_Reverse()
  *  SYNOPSIS: Reverse order of edgebound list.
- *
- *  PURPOSE:
  *
  *  ARGS:      <edg>      Edgebounds Object
  *
  *  RETURN:
  */
-void edgebounds_Reverse(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
 {
    BOUND tmp;
    for (int i = 0; i <= (edg->N / 2); ++i)
    {
-      tmp.diag = edg->bounds[i].diag;
+      tmp.id = edg->bounds[i].id;
       tmp.lb = edg->bounds[i].lb;
       tmp.rb = edg->bounds[i].rb;
 
-      edg->bounds[i].diag = edg->bounds[edg->N-i].diag;
+      edg->bounds[i].id = edg->bounds[edg->N-i].id;
       edg->bounds[i].lb = edg->bounds[edg->N-i].lb;
       edg->bounds[i].rb = edg->bounds[edg->N-i].rb;
 
-      edg->bounds[edg->N-i].diag = tmp.diag;
+      edg->bounds[edg->N-i].id = tmp.id;
       edg->bounds[edg->N-i].lb = tmp.lb;
       edg->bounds[edg->N-i].rb = tmp.rb;
    }
 }
 
+/*
+ *  FUNCTION: EDGEBOUNDS_SetHeads()
+ *  SYNOPSIS: Traverse Bounds and Find Heads of Each Row (Boundaries)
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <edg>      Edgebounds Object
+ *
+ *  RETURN:
+ */
+void EDGEBOUNDS_SetHeads(EDGEBOUNDS *edg)
+{
+   int id;
+   id = edg->bounds[0].id;
+   VECTOR_INT_Pushback(edg->ids, id);
+   VECTOR_INT_Pushback(edg->heads, 0);
+
+   for (int i = 1; i < edg->N; i++) {
+      if (edg->bounds[i-1].id != edg->bounds[i].id) {
+         id = edg->bounds[i].id;
+         VECTOR_INT_Pushback(edg->ids, id);
+         VECTOR_INT_Pushback(edg->heads, i);
+      }
+   }
+}
 
 /*
- *  FUNCTION: edgebounds_Print()
+ *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object.
  *
  *  PURPOSE:
@@ -201,99 +235,48 @@ void edgebounds_Reverse(EDGEBOUNDS *edg)
  *
  *  RETURN:
  */
-void edgebounds_Print(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Dump(EDGEBOUNDS* edg,
+                     FILE*       fp)
 {
-   printf("printing edgebounds...\n");
-   printf("N: %d, Nalloc: %d\n", edg->N, edg->size);
+   /* test for bad file pointer */
+   if (fp == NULL) {
+      const char* obj_name = "EDGEBOUNDS";
+      fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
+      exit(EXIT_FAILURE);
+      return;
+   }
+   printf("printing edgebound...\n");
+   fprintf(fp, "N: %d, Nalloc: %d\n", edg->N, edg->Nalloc);
    for (unsigned int i = 0; i < edg->N; ++i)
    {
-      printf("[%d] ", i);
-      bound_Print(edg->bounds[i]);
+      BOUND bnd = edg->bounds[i];
+      fprintf(fp, "[%d] ", i);
+      fprintf(fp, "{ id: %d, lb: %d, rb: %d }\n", bnd.id, bnd.lb, bnd.rb);
    }
 }
 
-
 /*
- *  FUNCTION: bound_Print()
- *  SYNOPSIS: Print BOUND object.
- *
- *  PURPOSE:
- *
- *  ARGS:      <bnd>      Bounds Object
- *
- *  RETURN:
- */
-void bound_Print(BOUND bnd)
-{
-   printf("{ d: %d, lb: %d, rb: %d }\n", bnd.diag, bnd.lb, bnd.rb);
-}
-
-
-/*
- *  FUNCTION: edgebounds_Save()
+ *  FUNCTION: EDGEBOUNDS_Dump()
  *  SYNOPSIS: Save edgebound printout to file.
- *
- *  PURPOSE:
  *
  *  ARGS:      <bnd>      Bounds Object
  *             <f>        Filename
  *
  *  RETURN:
  */
-void edgebounds_Save(EDGEBOUNDS *edg,
-                      const char *_filename_)
+void EDGEBOUNDS_Save(EDGEBOUNDS*  edg,
+                     const char*  _filename_)
 {
    FILE *fp;
    fp = fopen(_filename_, "w");
-
-   for (unsigned int i = 0; i < edg->N; ++i)
-   {
-      fprintf(fp, "[%d] x: %d\t y: (%d, %d)\n", i, edg->bounds[i].diag, edg->bounds[i].lb, edg->bounds[i].rb);
-   }
+   EDGEBOUNDS_Dump(edg, fp);
    fclose(fp);
 }
 
 
-/*
- *  FUNCTION: bounds_Compare()
- *  SYNOPSIS: Compare two Bounds, first by diag, then by lb, then by rb
- *
- *  PURPOSE:
- *
- *  ARGS:      <a>        Bound,
- *             <b>        Bound
- *
- *  RETURN:    1 if (a > b), 0 if equal, -1 if (a < b)
- */
-int bounds_Compare(BOUND a, BOUND b)
-{
-   if (a.diag > b.diag) {
-      return 1;
-   } else 
-   if (a.diag < b.diag) {
-      return -1;
-   }
-
-   if (a.lb > b.lb) {
-      return 1;
-   } else
-   if (a.lb < b.lb) {
-      return -1;
-   }
-
-   if (a.rb > b.rb) {
-      return 1;
-   } else
-   if (a.rb < b.rb) {
-      return -1;
-   }
-   
-   return 0;
-}
-
 
 /*
- *  FUNCTION: edgebounds_Count()
+ *  FUNCTION: EDGEBOUNDS_Count()
  *  SYNOPSIS: Count the number of cells in edgebound.
  *
  *  PURPOSE:
@@ -302,7 +285,7 @@ int bounds_Compare(BOUND a, BOUND b)
  *
  *  RETURN:
  */
-int edgebounds_Count(EDGEBOUNDS *edg)
+int EDGEBOUNDS_Count(EDGEBOUNDS *edg)
 {
    int sum = 0;
    for (int i = 0; i < edg->N; i++)

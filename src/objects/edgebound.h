@@ -1,43 +1,75 @@
 /*******************************************************************************
- *  @file edgebound.h
- *  @brief Edgebounds Datatype
+ *  FILE:      edgebound.c
+ *  PURPOSE:   EDGEBOUNDS Object
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _EDGEBOUND_H
 #define _EDGEBOUND_H
 
-EDGEBOUNDS *edgebounds_Create();
+/* === INLCUDES === */
+#include "structs.h"
+#include "vectors/vector_int.h"
+#include "vectors/vector_bound.h"
 
-void edgebounds_Init(EDGEBOUNDS **edg);
+/* === OBJECTS === */
+// typedef struct {
+//    int      id;                    /* current anti-diagonal OR row */
+//    int      lb;                    /* bottom-left (lower) edge-bound */
+//    int      rb;                    /* top-right (upper) edge-bound */
+// } BOUND;
 
-void edgebounds_Destroy(EDGEBOUNDS *edg);
+// typedef struct {
+//    int            N;                   
+//    int            Nalloc;            /*  */
+//    VECTOR_INT     *ids;              /* identity of each row/diag */
+//    VECTOR_INT     *heads;            /* indexes the heads of each row/diag */
+//    BOUND          *bounds;           /* list of bounded ranges along a row/diag */
+// } EDGEBOUNDS;
 
-void edgebounds_Add(EDGEBOUNDS *edg,
-                    BOUND bnd);
+/* === FUNCTIONS === */
+/* constructor */
+EDGEBOUNDS* EDGEBOUNDS_Create();
+/* initializer */
+void EDGEBOUNDS_Init(EDGEBOUNDS** edg);
+/* destructor */
+void EDGEBOUNDS_Destroy(EDGEBOUNDS* edg);
 
-void edgebounds_Insert(EDGEBOUNDS *edg,
-                       BOUND bnd,
-                       int i);
+/* push BOUND onto EDGEBOUNDS array */
+void EDGEBOUNDS_Pushback(EDGEBOUNDS* edg,
+                         BOUND       bnd);
+/* push HEAD onto EDGEBOUNDS array */
+void EDGEBOUNDS_Pushback_Head(EDGEBOUNDS* edg,
+                              int         id,
+                              int         head);
+/* insert BOUND into index of EDGEBOUNDS array */
+void EDGEBOUNDS_Insert(EDGEBOUNDS* edg,
+                       BOUND       bnd,
+                       int         i);
+/* insert BOUND into delete of EDGEBOUNDS array */
+void EDGEBOUNDS_Delete(EDGEBOUNDS* edg,
+                       BOUND       bnd,
+                       int         i);
+/* resize BOUNDS array */
+void EDGEBOUNDS_Resize(EDGEBOUNDS* edg);
+/* reverse ordering of BOUNDS array */
+void EDGEBOUNDS_Reverse(EDGEBOUNDS* edg);
+/* find the HEADS of each set of BOUNDS arrays by ID */
+void EDGEBOUNDS_SetHeads(EDGEBOUNDS* edg);
+/* Output EDGEBOUNDS to FILE POINTER */
+void EDGEBOUNDS_Dump(EDGEBOUNDS*  edg,
+                     FILE*        fp);
+/* Output EDGEBOUNDS to FILE based on FILENAME */
+void EDGEBOUNDS_Save(EDGEBOUNDS* edg,
+                     const char* _filename_);
+/* Sort BOUNDS array in EDGEBOUNDS */
+void EDGEBOUNDS_Sort(EDGEBOUNDS *edg);
+/* Count all cells covered by BOUNDS array in EDGEBOUNDS */
+int EDGEBOUNDS_Count(EDGEBOUNDS *edg);
 
-void edgebounds_Delete(EDGEBOUNDS *edg,
-                       BOUND bnd,
-                       int i);
 
-void edgebounds_Resize(EDGEBOUNDS *edg);
 
-void edgebounds_Reverse(EDGEBOUNDS *edg);
-
-void edgebounds_Print(EDGEBOUNDS *edg);
-void bound_Print(BOUND bnd);
-
-void edgebounds_Save(EDGEBOUNDS *edg,
-                     const char *_filename_);
-
-void edgbounds_Sort(EDGEBOUNDS *edg);
-
-int edgebounds_Count(EDGEBOUNDS *edg);
 
 #endif /* _EDGEBOUND_H */

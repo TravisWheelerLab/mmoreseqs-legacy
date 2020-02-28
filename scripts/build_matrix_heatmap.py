@@ -39,7 +39,8 @@ opts = {
    "-tr": False,
    "-diff": False,
    "-add": False,
-   "-eq": False
+   "-eq": False,
+   "-S": False
 };
 
 tsv_matrix = [];
@@ -293,7 +294,7 @@ def normalize_antidiags(NM_MX):
    return None       
 
 # Output matrix at heatmap
-def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax):
+def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax, file="", default="test"):
    fig, ( (ax1, ax2), (ax3, ax4) ) = plt.subplots(2, 2)
 
    ax1.set_title( title )
@@ -309,11 +310,16 @@ def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax):
    cbar = ax1.figure.colorbar(im, ax=ax4)
 
    plt.tight_layout()
+   if (opts["-S"]):
+      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      plt.savefig(dest)
+      print("Figure saved to '{}'...".format(dest))
+
    plt.show()
    return None
 
 # Output heatmap of single matrix with traceback on top
-def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax):
+def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
    fig, ax1 = plt.subplots(1, 1)
 
    # plot heatmap
@@ -337,6 +343,11 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax):
       # Add legend
       cbar = ax1.figure.colorbar(im, ax=ax1)
 
+   if (opts["-S"]):
+      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      plt.savefig(dest)
+      print("Figure saved to '{}'...".format(dest))
+
    plt.show()
    return None
 
@@ -344,6 +355,9 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax):
 ##############################################################################
 ###########################         MAIN         #############################
 ##############################################################################
+
+# default location to save files
+file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
 
 # Parse args
 if (len(sys.argv) == 1):
@@ -471,8 +485,11 @@ for i in range(N):
 
 # Output matrices as heatmaps
 for i in range(N):
+   name = tsv_matrix[i].split("/")
+   name = name[len(name)-1]
+
    if opts["-4"]:
-      output_heatmap(title1, MAT_MX[i], INS_MX[i], DEL_MX[i], SP_MX[i], min_val, max_val)
+      output_heatmap(title1, MAT_MX[i], INS_MX[i], DEL_MX[i], SP_MX[i], min_val, max_val, file, name)
    if opts["-tr"]:
-      output_heatmap_trace(title2, MAT_MX[i], TRACE[i], min_val, max_val)
+      output_heatmap_trace(title2, MAT_MX[i], TRACE[i], min_val, max_val, file, name)
    next

@@ -6,7 +6,7 @@
  *  @bug Lots.
  *******************************************************************************/
 
-// imports
+/* imports */
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -14,16 +14,23 @@
 #include <string.h>
 #include <math.h>
 
-// local imports (after struct declarations)
-#include "structs.h"
-#include "misc.h"
+/* objects */
+#include "objects/structs.h"
+#include "objects/edgebound.h"
+#include "objects/hmm_profile.h"
+
+/* local imports */
+#include "utility.h"
 #include "hmm_parser.h"
+
+/* header */
+#include "testing.h"
 
 /* test to cycle through all diags */
 void fwd_test_cycle(int Q, int T,
                    float* st_MX,
                    float* sp_MX,
-                   TRACEBACK* tr)
+                   ALIGNMENT* tr)
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -35,7 +42,7 @@ void fwd_test_cycle(int Q, int T,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q, dim_TOT;    /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;            /* start and end point of alignment */
 
    /* vars for computing cells */
    char   a;                     /* store current character in sequence */
@@ -60,13 +67,13 @@ void fwd_test_cycle(int Q, int T,
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
 
    /* get start and end points of viterbi alignment */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == 0 || start.j == 0) {
-      start.i += 1;
-      start.j += 1;
+   if (beg.i == 0 || beg.j == 0) {
+      beg.i += 1;
+      beg.j += 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -75,23 +82,23 @@ void fwd_test_cycle(int Q, int T,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   d_st = start.i + start.j;
+   d_st = beg.i + beg.j;
    // d_end = end.i + end.j;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - start.i;
-   dim_T = T - start.j;
+   dim_Q = Q - beg.i;
+   dim_T = T - beg.j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   // dim_min = MIN(Q + start.i, T + start.j);
-   // dim_max = MAX(Q + start.i, T + start.j);
+   // dim_min = MIN(Q + beg.i, T + beg.j);
+   // dim_max = MAX(Q + beg.i, T + beg.j);
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    // set bounds using starting cell
-   lb = start.i;
-   rb = start.i + 1;
+   lb = beg.i;
+   rb = beg.i + 1;
    num_cells = 0;
 
    /* iterate through diags */
@@ -112,7 +119,7 @@ void fwd_test_cycle(int Q, int T,
          num_cells--;
 
       /* find diag cells that are inside matrix bounds */
-      le = MAX(start.i, d - T);
+      le = MAX(beg.i, d - T);
       re = le + num_cells;
 
       /* NOTE: TESTING - THiS REMOVES ALL PRUNING */
@@ -160,7 +167,7 @@ void fwd_test_cycle3(int Q, int T,
                      float* st_MX, 
                      float* st_MX3,
                      float* sp_MX, 
-                     TRACEBACK* tr )
+                     ALIGNMENT* tr )
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -172,7 +179,7 @@ void fwd_test_cycle3(int Q, int T,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q, dim_TOT;    /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;            /* start and end point of alignment */
    bool overwrite;
 
    /* vars for computing cells */
@@ -199,13 +206,13 @@ void fwd_test_cycle3(int Q, int T,
    dp_matrix_Clear_X3(Q, T, st_MX3, sp_MX, 0);
 
    /* get start and end points of viterbi alignment */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == 0 || start.j == 0) {
-      start.i += 1;
-      start.j += 1;
+   if (beg.i == 0 || beg.j == 0) {
+      beg.i += 1;
+      beg.j += 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -214,21 +221,21 @@ void fwd_test_cycle3(int Q, int T,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   d_st = start.i + start.j;
+   d_st = beg.i + beg.j;
    // d_end = end.i + end.j;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - start.i;
-   dim_T = T - start.j;
+   dim_Q = Q - beg.i;
+   dim_T = T - beg.j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    /* set bounds using starting cell */
-   lb = start.i;
-   rb = start.i + 1;
+   lb = beg.i;
+   rb = beg.i + 1;
    num_cells = 0;
 
    /* keeps largest number seen on current diagonal */
@@ -260,7 +267,7 @@ void fwd_test_cycle3(int Q, int T,
       rb = rb + 1;
 
       /* Edge-checks: find if diag cells that are inside matrix bounds */
-      le = MAX(start.i, d - T);
+      le = MAX(beg.i, d - T);
       re = le + num_cells;
 
       /* Check that they dont exceed edges of matrix */
@@ -330,7 +337,7 @@ void fwd_test_cycle3(int Q, int T,
 void bck_test_cycle(int Q, int T,
                     float* st_MX,
                     float* sp_MX,
-                    TRACEBACK* tr)
+                    ALIGNMENT* tr)
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -342,7 +349,7 @@ void bck_test_cycle(int Q, int T,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q, dim_TOT;    /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;            /* start and end point of alignment */
 
    /* vars for computing cells */
    char   a;                     /* store current character in sequence */
@@ -368,13 +375,13 @@ void bck_test_cycle(int Q, int T,
 
    /* INIT ANTI-DIAGS */
    /* test coords */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == Q+1 || start.j == T+1) {
-      start.i -= 1;
-      start.j -= 1;
+   if (beg.i == Q+1 || beg.j == T+1) {
+      beg.i -= 1;
+      beg.j -= 1;
    }
 
    // diag index at corners of dp matrix
@@ -383,7 +390,7 @@ void bck_test_cycle(int Q, int T,
    d_cnt = 0;
 
    // diag index of different start points, creating submatrix
-   // d_st = start.i + start.j;
+   // d_st = beg.i + beg.j;
    d_end = end.i + end.j;
 
    // dimension of submatrix
@@ -475,7 +482,7 @@ void bck_test_cycle3(int Q, int T,
                     float* st_MX,
                     float* st_MX3,
                     float* sp_MX,
-                    TRACEBACK* tr)
+                    ALIGNMENT* tr)
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                /* diagonal, row, column, ... indices */
@@ -487,7 +494,7 @@ void bck_test_cycle3(int Q, int T,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q, dim_TOT;    /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;            /* start and end point of alignment */
    bool overwrite;
 
    /* vars for computing cells */
@@ -514,13 +521,13 @@ void bck_test_cycle3(int Q, int T,
    dp_matrix_Clear_X3(Q, T, st_MX3, sp_MX, 0);
 
    /* get start and end points of viterbi alignment */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == Q+1 || start.j == T+1) {
-      start.i -= 1;
-      start.j -= 1;
+   if (beg.i == Q+1 || beg.j == T+1) {
+      beg.i -= 1;
+      beg.j -= 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -529,7 +536,7 @@ void bck_test_cycle3(int Q, int T,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   // d_st = start.i + start.j;
+   // d_st = beg.i + beg.j;
    d_end = end.i + end.j;
 
    /* dimension of submatrix */
@@ -670,7 +677,7 @@ int cloud_Fill(int Q, int T,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         d  = edg->bounds[x].diag;
+         d  = edg->bounds[x].id;
          lb = edg->bounds[x].lb;
          rb = edg->bounds[x].rb;
 
@@ -698,7 +705,7 @@ int cloud_Fill(int Q, int T,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         i  = edg->bounds[x].diag;
+         i  = edg->bounds[x].id;
          lb = edg->bounds[x].lb;
          rb = edg->bounds[x].rb;
 
@@ -741,7 +748,7 @@ int cloud_Solid_Fill(int Q, int T,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         d  = edg->bounds[x].diag;
+         d  = edg->bounds[x].id;
          lb = edg->bounds[x].lb;
          rb = edg->bounds[x].rb;
 
@@ -766,7 +773,7 @@ int cloud_Solid_Fill(int Q, int T,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         i  = edg->bounds[x].diag;
+         i  = edg->bounds[x].id;
          lb = edg->bounds[x].lb;
          rb = edg->bounds[x].rb;
 
@@ -813,4 +820,554 @@ void print_test()
 {
    printf("test\n");
    fflush(stdout);
+}
+
+
+/*
+ *  FUNCTION:  dp_matrix_Print()
+ *  SYNOPSIS:  Print out dynamic programming matrix to screen.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *
+ *  RETURN:
+ */
+void dp_matrix_Print (const int Q, const int T,
+                      const float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                      const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ])
+{
+   /* PRINT resulting dp matrix */
+   printf("\n\n==== DP MATRIX BEGIN ==== \n");
+   /* Header */
+   printf("\t");
+   for (int i = 0; i <= T; i++)
+   {
+      printf("%d\t", i);
+   }
+   printf("\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i < Q + 1; i++)
+   {
+      printf( "%d M\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         printf( "%.3f\t", MMX(i, j) );
+      }
+      printf("\n");
+
+      printf( "%d I\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         printf( "%.3f\t", IMX(i, j) );
+      }
+      printf("\n");
+
+      printf( "%d D\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         printf( "%.3f\t", DMX(i, j) );
+      }
+      printf("\n\n");
+   }
+
+   printf("=== SPECIAL STATES ===\n");
+   printf("N:\t");
+   for (int i = 0; i <= Q; i++)
+   { printf( "%.3f\t", XMX(SP_N, i) ); }
+   printf("\n");
+   printf("J:\t");
+   for (int i = 0; i <= Q; i++)
+   { printf( "%.3f\t", XMX(SP_J, i) ); }
+   printf("\n");
+   printf("E:\t");
+   for (int i = 0; i <= Q; i++)
+   { printf( "%.3f\t", XMX(SP_E, i) ); }
+   printf("\n");
+   printf("C:\t");
+   for (int i = 0; i <= Q; i++)
+   { printf( "%.3f\t", XMX(SP_C, i) ); }
+   printf("\n");
+   printf("B:\t");
+   for (int i = 0; i <= Q; i++)
+   { printf( "%.3f\t", XMX(SP_B, i) ); }
+   printf("\n");
+
+   printf("==== DP MATRIX END ==== \n\n");
+}
+
+
+/*
+ *  FUNCTION:  dp_matrix_Print()
+ *  SYNOPSIS:  Print out dynamic programming matrix to screen.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <T>         target length,
+ *             <st_MX3>    Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *
+ *  RETURN:
+ */
+void dp_matrix_Print3(const int T, const int Q,
+                      const float *st_MX3 )
+{
+   /* PRINT resulting dp matrix */
+   printf("\n\n==== DP MATRIX BEGIN ==== \n");
+   /* Header */
+   printf("\t");
+   for (int i = 0; i <= T+1; i++)
+   {
+      printf("%d\t", i);
+   }
+   printf("\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i < 3; i++)
+   {
+      printf( "%d M\t", i );
+      for (int j = 0; j <= T+1; j++)
+      {
+         printf( "%.3f\t", MMX3(i, j) );
+      }
+      printf("\n");
+
+      printf( "%d I\t", i );
+      for (int j = 0; j <= T+1; j++)
+      {
+         printf( "%.3f\t", IMX3(i, j) );
+      }
+      printf("\n");
+
+      printf( "%d D\t", i );
+      for (int j = 0; j <= T+1; j++)
+      {
+         printf( "%.3f\t", DMX3(i, j) );
+      }
+      printf("\n\n");
+   }
+
+   printf("==== DP MATRIX END ==== \n\n");
+}
+
+
+/*
+ *  FUNCTION:  test_matrix_Print()
+ *  SYNOPSIS:  Print out dynamic programming matrix to screen.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *
+ *  RETURN:
+ */
+void test_matrix_Print (const int Q, const int T,
+                        const float test_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ])
+{
+   /* PRINT resulting dp matrix */
+   printf("\n\n==== TEST MATRIX BEGIN ====\n");
+   /* Header */
+   printf("\t");
+   for (int i = 0; i <= T; i++)
+   {
+      printf("%d\t", i);
+   }
+   printf("\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i < Q + 1; i++)
+   {
+      printf( "%d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         printf( "%3.0f\t", TMX(i, j) );
+      }
+      printf("\n");
+   }
+   printf("==== TEST MATRIX END ====\n\n");
+}
+
+/* Clear all matrix values to -INF. (for testing) */
+void dp_matrix_Clear (const int Q, const int T,
+                      float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                      float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ])
+{
+   for (int i = 0; i <= Q; i++)
+   {
+      for (int j = 0; j <= T; j++) {
+         MMX(i, j) = IMX(i, j) = DMX(i, j) = -INF;
+      }
+
+      for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
+         XMX(j, i) = -INF;
+      }
+   }
+}
+
+/* Clear all matrix values to -INF. (for testing) */
+void dp_matrix_Clear3 (const int Q, const int T,
+                      float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ])
+{
+   for (int i = 0; i <= Q; i++)
+   {
+      for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
+         XMX(j, i) = -INF;
+      }
+   }
+
+   for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < (T+1)+(Q+1); j++) {
+         MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = -INF;
+      }
+   }
+}
+
+/* Set all matrix values to val */
+void dp_matrix_Clear_X (const int Q, const int T,
+                        float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                        float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
+                        float val)
+{
+   for (int i = 0; i <= Q; i++)
+   {
+      for (int j = 0; j <= T; j++) {
+         MMX(i, j) = IMX(i, j) = DMX(i, j) = val;
+      }
+
+      for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
+         XMX(j, i) = val;
+      }
+   }
+}
+
+
+/* Clear all matrix values to -INF. (for testing) */
+void dp_matrix_Clear_X3 (const int Q, const int T,
+                      float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ],
+                      int val)
+{
+   for (int i = 0; i <= Q; i++)
+   {
+      for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
+         XMX(j, i) = val;
+      }
+   }
+
+   for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < (T+1)+(Q+1); j++) {
+         MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = val;
+      }
+   }
+}
+
+
+/* Set all matrix values to val */
+int dp_matrix_Compare (const int Q, const int T,
+                        float st_MX_1[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                        float sp_MX_1[ NUM_SPECIAL_STATES * (Q + 1) ],
+                        float st_MX_2[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                        float sp_MX_2[ NUM_SPECIAL_STATES * (Q + 1) ] )
+{
+   int i, j, st;
+
+   for (i = 0; i <= Q; i++)
+   {
+      for (j = 0; j <= T; j++) 
+      {
+         for (st = 0; st < NUM_NORMAL_STATES; st++) 
+         {
+            if ( ST_MX(st_MX_1, st, i, j) != ST_MX(st_MX_2, st, i, j) ) 
+            {
+               float val1 = ST_MX(st_MX_1, st, i, j);
+               float val2 = ST_MX(st_MX_2, st, i, j);
+               printf("MATRIX NOT EQUAL at (%d,%d): %f vs %f\n", i, j, val1, val2);
+               return false;
+            } 
+         }
+      }
+
+      for (st = 0; st < NUM_SPECIAL_STATES; st++) 
+      {
+         if ( SP_MX(sp_MX_1, st, i) != SP_MX(sp_MX_2, st, i) ) 
+         {
+            printf("MATRIX NOT EQUAL IN SPECIAL at (%d)\n", i);
+            return false;
+         }
+      }
+   }
+   return true;
+}
+
+/* Copy source matrix into destination matrix */
+void dp_matrix_Copy (const int Q, const int T,
+                     float st_MX_src[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                     float sp_MX_src[ NUM_SPECIAL_STATES * (Q + 1) ],
+                     float st_MX_dst[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
+                     float sp_MX_dst[ NUM_SPECIAL_STATES * (Q + 1) ] )
+{
+   int i, j, st;
+
+   for (i = 0; i <= Q; i++)
+   {
+      for (j = 0; j <= T; j++) 
+      {
+         for (st = 0; st < NUM_NORMAL_STATES; st++) 
+         {
+            // printf("(%d, %d, %d)\n", i, j, st);
+            // printf("(%f)\n", st_MX_src[0]);
+            // printf("(%f)\n", st_MX_dst[0]);
+
+            ST_MX(st_MX_dst, st, i, j) = ST_MX(st_MX_src, st, i, j);
+         }
+      }
+
+      for (st = 0; st < NUM_SPECIAL_STATES; st++) 
+      {
+         // printf("(%d, %d)\n", i, st);
+         SP_MX(sp_MX_dst, st, i) = SP_MX(sp_MX_src, st, i);
+      }
+   }
+}
+
+
+/*
+ *  FUNCTION:  dp_matrix_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State
+ *             <f>         Filename
+ *
+ *  RETURN:
+ */
+void dp_matrix_Save (const int Q, const int T, 
+                           const float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
+                           const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
+                           const char *_filename_)
+{
+   FILE *fp;
+   fp = fopen(_filename_, "w");
+
+   const char* STATE_NAMES[] = {
+   "M_ST",
+   "I_ST",
+   "D_ST",
+   "E_ST",
+   "N_ST",
+   "J_ST",
+   "C_ST",
+   "B_ST",
+   "S_ST",
+   "T_ST",
+   "X_ST",
+   };
+
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
+   /* Header */
+   fprintf(fp, "##### NORMAL STATES #####\n");
+   fprintf(fp, "XMATRIX\n");
+   /* Header Indices */
+   fprintf(fp, "#\t");
+   for (int i = 0; i <= T; i++)
+   {
+      fprintf(fp, "%d\t", i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row Values */
+   for (int i = 0; i < Q + 1; i++)
+   {
+      fprintf(fp, "M %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", MMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", IMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", DMX(i, j) );
+      }
+      fprintf(fp, "\n\n");
+   }
+   fprintf(fp, "/\n\n");
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "N\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_N, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "J\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_J, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "E\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_E, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "C\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_C, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "B\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_B, i) ); }
+   fprintf(fp, "\n");
+
+   fclose(fp);
+}
+
+/*
+ *  FUNCTION:  dp_matrix_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State
+ *             <tr>        TRACE object
+ *             <f>         Filename
+ *
+ *  RETURN:
+ */
+void dp_matrix_trace_Save (const int Q, const int T, 
+                           const float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
+                           const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
+                           const ALIGNMENT *tr,
+                           const char *_filename_)
+{
+   printf("Saving matrix...\n");
+
+   FILE *fp;
+   fp = fopen(_filename_, "w");
+
+   const char* STATE_NAMES[] = {
+   "M_ST",
+   "I_ST",
+   "D_ST",
+   "E_ST",
+   "N_ST",
+   "J_ST",
+   "C_ST",
+   "B_ST",
+   "S_ST",
+   "T_ST",
+   "X_ST",
+   };
+
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
+   /* Traceback */
+   fprintf(fp, "XTRACE\n");
+   /* Traceback */
+   for (int i = 0; i < tr->N; i++) 
+   {
+      int st = tr->traces[i].st;
+      if ( st == M_ST ) {
+         fprintf(fp, "[%d]%s\t%d\t%d\n", i, STATE_NAMES[st], tr->traces[i].i, tr->traces[i].j);
+      }
+   }
+   fprintf(fp, "/\n\n");
+
+   /* Header */
+   fprintf(fp, "##### NORMAL STATES #####\n");
+   fprintf(fp, "XMATRIX\n");
+   /* Header Indices */
+   fprintf(fp, "#\t");
+   for (int i = 0; i <= T; i++)
+   {
+      fprintf(fp, "%d\t", i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row Values */
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "M %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", MMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", IMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", DMX(i, j) );
+      }
+      fprintf(fp, "\n\n");
+   }
+   fprintf(fp, "/\n\n");
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "XSPECIAL\n");
+   fprintf(fp, "N\t");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%.3f\t", XMX(SP_N, i) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "J\t");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%.3f\t", XMX(SP_J, i) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "E\t");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%.3f\t", XMX(SP_E, i) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "C\t");
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "%.3f\t", XMX(SP_C, i) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "B\t");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%.3f\t", XMX(SP_B, i) ); 
+   }
+   fprintf(fp, "\n/\n");
+
+   fclose(fp);
+
+   printf("Saved Matrix to: '%s'\n", _filename_);
 }

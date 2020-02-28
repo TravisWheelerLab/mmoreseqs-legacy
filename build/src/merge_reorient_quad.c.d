@@ -1,15 +1,27 @@
 build/./src/merge_reorient_quad.c.o: src/merge_reorient_quad.c \
- src/structs.h src/misc.h src/hmm_parser.h src/testing.h \
- src/objects/edgebound.h src/merge_reorient_quad.h
+ src/objects/structs.h src/objects/edgebound.h src/objects/structs.h \
+ src/objects/vectors/vector_int.h src/objects/vectors/../structs.h \
+ src/objects/vectors/vector_bound.h src/objects/structs.h src/utility.h \
+ src/testing.h src/hmm_parser.h src/merge_reorient_quad.h
 
-src/structs.h:
+src/objects/structs.h:
 
-src/misc.h:
+src/objects/edgebound.h:
 
-src/hmm_parser.h:
+src/objects/structs.h:
+
+src/objects/vectors/vector_int.h:
+
+src/objects/vectors/../structs.h:
+
+src/objects/vectors/vector_bound.h:
+
+src/objects/structs.h:
+
+src/utility.h:
 
 src/testing.h:
 
-src/objects/edgebound.h:
+src/hmm_parser.h:
 
 src/merge_reorient_quad.h:

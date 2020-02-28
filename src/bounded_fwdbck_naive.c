@@ -6,7 +6,7 @@
  *  @bug Lots.
  *******************************************************************************/
 
-// imports
+/* imports */
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -14,34 +14,42 @@
 #include <string.h>
 #include <math.h>
 
-// local imports (after struct declarations)
-#include "structs.h"
-#include "misc.h"
+/* objects */
+#include "objects/structs.h"
+#include "objects/edgebound.h"
+#include "objects/hmm_profile.h"
+#include "objects/sequence.h"
+
+/* local imports */ 
+#include "utility.h"
+#include "testing.h"
+
+/* header */
 #include "bounded_fwdbck_naive.h"
 
 /*  
- *  FUNCTION: forward_Bounded_Naive_Run()
+ *  FUNCTION: bound_Forward_Naive()
  *  SYNOPSIS: Perform Forward part of Forward-Backward Algorithm.
  *
- *  PURPOSE:
+ *  ARGS:      <query>        query sequence, 
+ *             <target>       HMM model,
+ *             <Q>            query length, 
+ *             <T>            target length,
+ *             <st_MX>        Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>        Special State (J,N,B,C,E) Matrix,
+ *             <st_MX_cloud>  Boolean Matrix of Cloud Bounds,
+ *             <sc_final>     (OUTPUT) Final Score
  *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *
- *  RETURN: 
+ *  RETURN:    Returns the Forward Score.
  */
-float forward_Bounded_Naive_Run (const SEQ* query, 
-                                  const HMM_PROFILE* target, 
-                                  int Q, int T, 
-                                  float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                  float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],
-                                  float st_MX_cloud[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                  float *sc_final)
+float bound_Forward_Naive(const SEQUENCE*    query, 
+                          const HMM_PROFILE* target, 
+                          const int          Q, 
+                          const int          T, 
+                          float*             st_MX, 
+                          float*             sp_MX,
+                          float*             st_MX_cloud, 
+                          float*             sc_final)
 {
    init_Logsum();
 
@@ -213,28 +221,29 @@ float forward_Bounded_Naive_Run (const SEQ* query,
    return sc_best;
 }
 
-/* FUNCTION: backward_Bounded_Naive_Run()
- * SYNOPSIS: Perform Backward part of Forward-Backward Algorithm.
+/* 
+ *  FUNCTION: bound_Backward_Naive()
+ *  SYNOPSIS: Perform Backward part of Forward-Backward Algorithm.
  *
- * PURPOSE:
+ *  ARGS:      <query>        query sequence, 
+ *             <target>       HMM model,
+ *             <Q>            query length, 
+ *             <T>            target length,
+ *             <st_MX>        Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>        Special State (J,N,B,C,E) Matrix,
+ *             <st_MX_cloud>  Boolean Matrix of Cloud Bounds,
+ *             <sc_final>     (OUTPUT) Final Score
  *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *
- * RETURN: 
+ * RETURN:     Returns the Forward Score.
 */
-float backward_Bounded_Naive_Run (const SEQ* query, 
-                                const HMM_PROFILE* target, 
-                                int Q, int T, 
-                                float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],
-                                float st_MX_cloud[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                float *sc_final)
+float bound_Backward_Naive(const SEQUENCE*    query, 
+                          const HMM_PROFILE* target, 
+                          const int          Q, 
+                          const int          T, 
+                          float*             st_MX, 
+                          float*             sp_MX,
+                          float*             st_MX_cloud, 
+                          float*             sc_final)
 {
    init_Logsum();
 
@@ -290,18 +299,29 @@ float backward_Bounded_Naive_Run (const SEQ* query,
       a = seq[i];
       A = AA_REV[a];
 
-      /* SPECIAL STATES */
-      XMX(SP_B,i) = MMX(i+1,1) + TSC(0,B2M) + MSC(1,A);
+      /* UPDATE SPECIAL STATES at the start of EACH ROW */
 
-      /* B -> MATCH */
-      for (j = 2; j <= T; j++)
+      /* B STATE (COMPLETE) */
+      XMX(SP_B,i) = -INF;
+      for (j = 1; j <= T; j++)
       {
          XMX(SP_B,i) = calc_Logsum( XMX(SP_B,i),
                                     MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
       }
 
+      /* B STATE (SPARSE) */
+      // XMX(SP_B,i) = -INF;
+      // for (j = 1; j <= T; j++)
+      // {
+      //    sc_cloud = ST_MX( st_MX_cloud, I_ST, i, j);
+      //    if ( sc_cloud > 0 ) {
+      //       XMX(SP_B,i) = calc_Logsum( XMX(SP_B,i),
+      //                                  MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
+      //    }
+      // }
+
       XMX(SP_J,i) = calc_Logsum( XMX(SP_J,i+1) + XSC(SP_J,SP_LOOP),
-                                 XMX(SP_B,i)   + XSC(SP_J,SP_MOVE) );
+                                 XMX(SP_B,  i) + XSC(SP_J,SP_MOVE) );
 
       XMX(SP_C,i) = XMX(SP_C,i+1) + XSC(SP_C,SP_LOOP);
 
@@ -309,7 +329,7 @@ float backward_Bounded_Naive_Run (const SEQ* query,
                                  XMX(SP_C,i) + XSC(SP_E,SP_MOVE) );
 
       XMX(SP_N,i) = calc_Logsum( XMX(SP_N,i+1) + XSC(SP_N,SP_LOOP),
-                                 XMX(SP_B,i)   + XSC(SP_N,SP_MOVE) );
+                                 XMX(SP_B,  i) + XSC(SP_N,SP_MOVE) );
 
       MMX(i,T) = DMX(i,T) = XMX(SP_E,i);
       IMX(i,T) = -INF;
@@ -365,12 +385,23 @@ float backward_Bounded_Naive_Run (const SEQ* query,
    A = AA_REV[a];
 
    /* t_BM index is 0 because it's stored off-by-one. */
-   XMX(SP_B,0) = MMX(1,1) + TSC(0,B2M) + MSC(1,A);
-
+   j = 1;
+   XMX(SP_B,0) = MMX(1,j) + TSC(j-1,B2M) + MSC(j,A);
    for (j = 2; j >= T; j++) {
       XMX(SP_B,0) = calc_Logsum( XMX(SP_B,0),
                                  MMX(1,j) + TSC(j-1,B2M) + MSC(j,A) );
    }
+
+   /* B STATE (SPARSE) */
+   // XMX(SP_B,i) = -INF;
+   // for (j = 1; j <= T; j++)
+   // {
+   //    sc_cloud = ST_MX( st_MX_cloud, I_ST, i, j);
+   //    if ( sc_cloud > 0 ) {
+   //       XMX(SP_B,i) = calc_Logsum( XMX(SP_B,i),
+   //                                  MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
+   //    }
+   // }
 
    XMX(SP_J,i) = -INF;
    XMX(SP_C,i) = -INF;
@@ -390,11 +421,3 @@ float backward_Bounded_Naive_Run (const SEQ* query,
    fclose(tfp);
    return sc_best;
 }
-
-
-
-
-
-
-
-

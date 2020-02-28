@@ -8,7 +8,7 @@
  *  @bug Lots.
  *******************************************************************************/
 
-// imports
+/* imports */
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -16,11 +16,18 @@
 #include <string.h>
 #include <math.h>
 
-// local imports (after struct declarations)
-#include "structs.h"
-#include "misc.h"
-#include "hmm_parser.h"
+/* objects */
+#include "objects/structs.h"
 #include "objects/edgebound.h"
+#include "objects/hmm_profile.h"
+#include "objects/sequence.h"
+#include "objects/alignment.h"
+
+/* local imports */ 
+#include "utility.h"
+#include "testing.h"
+
+/* header */
 #include "cloud_search_linear.h"
 
 /* 
@@ -36,7 +43,7 @@
 
 
 /*  
- *  FUNCTION: cloud_forward_Run3()
+ *  FUNCTION: cloud_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
  *
  *  PURPOSE:
@@ -48,24 +55,25 @@
  *             <st_MX>     Normal State (Match, Insert, Delete) Matrix (quadratic space),
  *             <st_MX3>    Normal State (Match, Insert, Delete) Matrix (linear space),
  *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *             <tr>        Traceback Data
- *             <edg>       Edge Bounds Tracker Data
- *             <alpha>     Pruning Drop 
- *             <beta>      Number of Passes before
+ *             <tr>        Traceback Data,
+ *             <edg>       Edge Bounds Tracker Data,
+ *             <alpha>     Pruning Drop,
+ *             <beta>      Number of Passes before Pruning Begins
  *
  *  RETURN: 
  */
-void cloud_forward_Run3(const SEQ* query, 
-                        const HMM_PROFILE* target,
-                        int Q, int T, 
-                        float* st_MX, 
-                        float* st_MX3,
-                        float* sp_MX, 
-                        TRACEBACK* tr,
-                        EDGEBOUNDS* edg,
-                        float alpha, int beta,
-                        bool test )
+void cloud_Forward_Linear( const SEQUENCE*    query, 
+                           const HMM_PROFILE* target,
+                           const int          Q, 
+                           const int          T, 
+                           float*             st_MX, 
+                           float*             st_MX3,
+                           float*             sp_MX, 
+                           const ALIGNMENT*   tr,
+                           EDGEBOUNDS*        edg,
+                           const float        alpha, 
+                           const int          beta,
+                           const bool         test)
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column indices */
@@ -79,7 +87,7 @@ void cloud_forward_Run3(const SEQ* query,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q, dim_TOT;    /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;               /* start and end point of alignment */
 
    /* vars for computing cells */
    char   a;                     /* store current character in sequence */
@@ -111,13 +119,13 @@ void cloud_forward_Run3(const SEQ* query,
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* get start and end points of viterbi alignment */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == 0 || start.j == 0) {
-      start.i += 1;
-      start.j += 1;
+   if (beg.i == 0 || beg.j == 0) {
+      beg.i += 1;
+      beg.j += 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -126,21 +134,21 @@ void cloud_forward_Run3(const SEQ* query,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   d_st = start.i + start.j;
+   d_st = beg.i + beg.j;
    // d_end = end.i + end.j;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - start.i;
-   dim_T = T - start.j;
+   dim_Q = Q - beg.i;
+   dim_T = T - beg.j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    /* set bounds using starting cell */
-   lb = start.i;
-   rb = start.i + 1;
+   lb = beg.i;
+   rb = beg.i + 1;
    num_cells = 0;
    lb_1 = rb_1 = lb_2 = rb_2 = 0;
 
@@ -252,14 +260,14 @@ void cloud_forward_Run3(const SEQ* query,
       // rb = rb + 1;
 
       /* Edge-checks: find if diag cells that are inside matrix bounds */
-      le = MAX(start.i, d - T);
+      le = MAX(beg.i, d - T);
       re = le + num_cells;
 
       /* Check that they dont exceed edges of matrix */
       lb = MAX(lb, le);
       rb = MIN(rb, re);
 
-      edgebounds_Add(edg, (BOUND){d,lb,rb});
+      EDGEBOUNDS_Pushback(edg, (BOUND){d,lb,rb});
 
       /* MAIN RECURSION */
       /* ITERATE THROUGH CELLS OF NEXT ANTI-DIAGONAL */
@@ -274,7 +282,7 @@ void cloud_forward_Run3(const SEQ* query,
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         /* NOTE: Convert (i-1,j-1) => (d-2,k-1) */ 
+         /* NOTE: Convert (i-1,j-1) <=> (d-2,k-1) */ 
          prev_mat = MMX3(d2,k-1)  + TSC(j-1,M2M);
          prev_ins = IMX3(d2,k-1)  + TSC(j-1,I2M);
          prev_del = DMX3(d2,k-1)  + TSC(j-1,D2M);
@@ -288,7 +296,7 @@ void cloud_forward_Run3(const SEQ* query,
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
-         /* NOTE: Convert (i-1,j) => (d-1,k-1) */
+         /* NOTE: Convert (i-1,j) <=> (d-1,k-1) */
          prev_mat = MMX3(d1,k-1) + TSC(j,M2I);
          prev_ins = IMX3(d1,k-1) + TSC(j,I2I);
          /* best-to-insert */
@@ -297,7 +305,7 @@ void cloud_forward_Run3(const SEQ* query,
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
-         /* NOTE: Convert (i,j-1) => (d-1, k) */
+         /* NOTE: Convert (i,j-1) <=> (d-1, k) */
          prev_mat = MMX3(d1,k) + TSC(j-1,M2D);
          prev_del = DMX3(d1,k) + TSC(j-1,D2D);
          /* best-to-delete */
@@ -335,7 +343,7 @@ void cloud_forward_Run3(const SEQ* query,
 
 
 /*  
- *  FUNCTION: cloud_backward_Run3()
+ *  FUNCTION: cloud_Backward_Linear()
  *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm (Quadratic Space Implementation).
  *
  *  PURPOSE:
@@ -357,16 +365,18 @@ void cloud_forward_Run3(const SEQ* query,
  *
  *  RETURN: 
  */
-void cloud_backward_Run3(const SEQ* query, 
-                        const HMM_PROFILE* target,
-                        int Q, int T, 
-                        float* st_MX, 
-                        float* st_MX3,
-                        float* sp_MX, 
-                        TRACEBACK* tr,
-                        EDGEBOUNDS* edg,
-                        float alpha, int beta,
-                        bool test )
+void cloud_Backward_Linear(const SEQUENCE*    query, 
+                           const HMM_PROFILE* target,
+                           const int          Q, 
+                           const int          T, 
+                           float*             st_MX, 
+                           float*             st_MX3,
+                           float*             sp_MX, 
+                           const ALIGNMENT*   tr,
+                           EDGEBOUNDS*        edg,
+                           const float        alpha, 
+                           const int          beta,
+                           const bool         test)
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column, ... indices */
@@ -378,7 +388,7 @@ void cloud_backward_Run3(const SEQ* query,
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
    int dim_T, dim_Q;             /* dimensions of submatrix being searched */
    int total_cnt;                /* number of cells computed */
-   COORDS start, end;            /* start and end point of alignment */
+   TRACE beg, end;            /* start and end point of alignment */
 
    /* vars for computing cells */
    char   a;                     /* store current character in sequence */
@@ -410,13 +420,13 @@ void cloud_backward_Run3(const SEQ* query,
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* get start and end points of viterbi alignment */
-   start = tr->first_m;
-   end = tr->last_m;
+   beg = tr->traces[tr->beg];
+   end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (start.i == Q+1 || start.j == T+1) {
-      start.i -= 1;
-      start.j -= 1;
+   if (beg.i == Q+1 || beg.j == T+1) {
+      beg.i -= 1;
+      beg.j -= 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -425,7 +435,7 @@ void cloud_backward_Run3(const SEQ* query,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   // d_st = start.i + start.j;
+   // d_st = beg.i + beg.j;
    d_end = end.i + end.j;
 
    /* dimension of submatrix */
@@ -440,6 +450,7 @@ void cloud_backward_Run3(const SEQ* query,
    lb = end.i;
    rb = end.i + 1;
    num_cells = 0;
+   lb_1 = rb_1 = lb_2 = rb_2 = 0;
 
    /* end state starts at 0 */
    prev_end = 0;
@@ -550,7 +561,7 @@ void cloud_backward_Run3(const SEQ* query,
       rb = MIN(rb, re);
 
       /* ADD NEW ANTI-DIAG TO EDGEBOUNDS */
-      edgebounds_Add(edg, (BOUND){d,lb,rb});
+      EDGEBOUNDS_Pushback(edg, (BOUND){d,lb,rb});
 
       /* MAIN RECURSION */
       /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
@@ -627,44 +638,6 @@ void cloud_backward_Run3(const SEQ* query,
       }
    }
    /* reverse order of diagonals */
-   edgebounds_Reverse(edg);
-}  
-
-
-/*  
- *  FUNCTION: prune_bounds()
- *  SYNOPSIS: Prune edgebounds from right and left edge (non-bifurcating).
- *
- *  PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *             <tr>        Traceback Data
- *             <edg>       Edge Bounds Tracker Data
- *            tuning variables:
- *             <alpha>     Pruning Drop 
- *             <beta>      Number of Passes before
- *            meta-data:
- *             <comp_num>  Number of Cells Computed
- *
- *  RETURN: 
- */
-__attribute__((always_inline))
-void prune_bounds(const SEQ* query, 
-                  const HMM_PROFILE* target,
-                  int Q, int T, 
-                  float* st_MX, 
-                  float* st_MX3,
-                  float* sp_MX, 
-                  TRACEBACK* tr,
-                  EDGEBOUNDS* edg,
-                  float alpha, int beta )
-{
-
+   EDGEBOUNDS_Reverse(edg);
 }
 

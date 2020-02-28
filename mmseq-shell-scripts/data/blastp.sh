@@ -24,6 +24,7 @@ INPUT="$1"
 TARGET="$2"
 TMP_PATH="$4"
 
+# DAVID RICH EDIT
 echo "INPUT: $INPUT, TARGET: $TARGET, TMP: $TMP_PATH, RUNNER: $RUNNER"
 echo "THIS IS A TEST FROM data/blastp.sh !"
 
@@ -37,6 +38,12 @@ while [ "$STEP" -lt "$STEPS" ]; do
     # call prefilter module
     if notExists "$TMP_PATH/pref_$STEP.dbtype"; then
         # shellcheck disable=SC2086
+
+        # DAVID RICH EDIT
+        echo "MY EDIT: "
+        CMD=$RUNNER "$MMSEQS" prefilter "$INPUT" "$TARGET" "$TMP_PATH/pref_$STEP" $PREFILTER_PAR -s "$SENS"
+        echo $CMD
+
         $RUNNER "$MMSEQS" prefilter "$INPUT" "$TARGET" "$TMP_PATH/pref_$STEP" $PREFILTER_PAR -s "$SENS" \
             || fail "Prefilter died"
     fi
@@ -45,12 +52,24 @@ while [ "$STEP" -lt "$STEPS" ]; do
     if [ "$STEPS" -eq 1 ]; then
         if notExists "$3.dbtype"; then
             # shellcheck disable=SC2086
+
+            # DAVID RICH EDIT
+            echo "MY EDIT: "
+            CMD=$RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR
+            echo $CMD
+
             $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR  \
                 || fail "Alignment died"
         fi
     else
         if notExists "$TMP_PATH/aln_$STEP.dbtype"; then
             # shellcheck disable=SC2086
+
+            # DAVID RICH EDIT
+            echo "MY EDIT: "
+            CMD=$RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$TMP_PATH/aln_$STEP" $ALIGNMENT_PAR
+            echo $CMD
+
             $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$TMP_PATH/aln_$STEP" $ALIGNMENT_PAR  \
                 || fail "Alignment died"
         fi

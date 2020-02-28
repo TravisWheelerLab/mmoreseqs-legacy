@@ -9,20 +9,29 @@
 #ifndef _BOUNDED_FWDBCK_NAIVE_H
 #define _BOUNDED_FWDBCK_NAIVE_H
 
-float forward_Bounded_Naive_Run (const SEQ* query, 
-                               const HMM_PROFILE* target, 
-                               int Q, int T, 
-                               float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                               float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],
-                               float st_MX_cloud[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                               float* sc);
+/* === INCLUDES === */
+// #include "objects/structs.h"
+// #include "objects/edgebound.h"
+// #include "objects/hmm_profile.h"
+// #include "objects/sequence.h"
 
-float backward_Bounded_Naive_Run (const SEQ* query, 
-                                const HMM_PROFILE* target, 
-                                int Q, int T, 
-                                float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                float sp_MX[ NUM_SPECIAL_STATES * (Q+1) ],
-                                float st_MX_cloud[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                                float* sc);
+/* === FUNCTIONS === */
+float bound_Forward_Naive(const SEQUENCE*    query, 
+                          const HMM_PROFILE* target, 
+                          const int          Q, 
+                          const int          T, 
+                          float*             st_MX, 
+                          float*             sp_MX,
+                          float*             st_MX_cloud, 
+                          float*             sc_final);
+
+float bound_Backward_Naive(const SEQUENCE*    query, 
+                          const HMM_PROFILE* target, 
+                          const int          Q, 
+                          const int          T, 
+                          float*             st_MX, 
+                          float*             sp_MX,
+                          float*             st_MX_cloud, 
+                          float*             sc_final);
 
 #endif /* _BOUNDED_FWDBCK_NAIVE_H */

@@ -12,17 +12,24 @@
 #ifndef _MERGE_REORIENT_QUAD_H
 #define _MERGE_REORIENT_QUAD_H
 
-int edgebounds_Merge_Reorient_Naive(EDGEBOUNDS *edg_fwd,
-                                    EDGEBOUNDS *edg_bck,
-                                    EDGEBOUNDS *edg_diag,
-                                    EDGEBOUNDS *edg_row,
-                                    int Q, int T,
-                                    float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                                    float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ]);
+/* === INCLUDES === */
+// #include "objects/structs.h"
+// #include "objects/edgebound.h"
 
-void edgebounds_Build_From_Cloud( EDGEBOUNDS*edg,
-                                 int Q, int T,
-                                 float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                                 int mode);
+/* === FUNCTIONS === */
+int EDGEBOUNDS_Merge_Reorient_Naive(const EDGEBOUNDS* edg_fwd,
+                                    const EDGEBOUNDS* edg_bck,
+                                    EDGEBOUNDS*       edg_diag,
+                                    EDGEBOUNDS*       edg_row,
+                                    const int         Q, 
+                                    const int         T,
+                                    float*            st_MX,
+                                    float*            sp_MX);
+
+void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
+                                 const int   Q, 
+                                 const int   T,
+                                 float*      st_MX,
+                                 int         mode);
 
 #endif /* _MERGE_REORIENT_QUAD_H */

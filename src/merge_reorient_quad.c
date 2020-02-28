@@ -9,7 +9,7 @@
  *******************************************************************************/
 
 
-// imports
+/* imports */
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -17,34 +17,41 @@
 #include <string.h>
 #include <math.h>
 
-// local imports (after struct declarations)
-#include "structs.h"
-#include "misc.h"
-#include "hmm_parser.h"
-#include "testing.h"
+/* objects */
+#include "objects/structs.h"
 #include "objects/edgebound.h"
+
+/* local imports */
+#include "utility.h"
+#include "testing.h"
+#include "hmm_parser.h"
+
+/* header */
 #include "merge_reorient_quad.h"
 
 /*
- *  FUNCTION: edgebounds_Merge_Reorient_Quad()
+ *  FUNCTION: EDGEBOUNDS_Merge_Reorient_Quad()
  *  SYNOPSIS: Merge and Reorient edgebounds from Matrix Cloud (NAIVE).
- *
- *  PURPOSE:
  *
  *  ARGS:      <edg_fwd>      Forward Edgebounds,
  *             <edg_bck>      Backward Edgebounds,
- *             <edg_res>      Result Edgebounds,
- *             <st_MX>        State Matrix
+ *             <edg_diag>     (OUTPUT) Result Edgebounds (diagonal-wise)
+ *             <edg_row>      (OUTPUT) Result Edgebounds (row-wise),
+ *             <Q>            Query length
+ *             <T>            Target length
+ *             <st_MX>        Normal State Matrix
+ *             <sp_MX>        Special State Matrix
  *
- *  RETURN:
+ *  RETURN:    Returns the Number of Cells 
  */
-int edgebounds_Merge_Reorient_Naive(EDGEBOUNDS*edg_fwd,
-                                  EDGEBOUNDS*edg_bck,
-                                  EDGEBOUNDS*edg_diag,
-                                  EDGEBOUNDS*edg_row,
-                                  int Q, int T,
-                                  float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                                  float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ])
+int EDGEBOUNDS_Merge_Reorient_Naive(const EDGEBOUNDS* edg_fwd,
+                                    const EDGEBOUNDS* edg_bck,
+                                    EDGEBOUNDS*       edg_diag,
+                                    EDGEBOUNDS*       edg_row,
+                                    const int         Q, 
+                                    const int         T,
+                                    float*            st_MX,
+                                    float*            sp_MX)
 {
    /* merge edgebounds */
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
@@ -52,8 +59,8 @@ int edgebounds_Merge_Reorient_Naive(EDGEBOUNDS*edg_fwd,
    cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
    
    /* reorient from diag-wise to row-wise */
-   edgebounds_Build_From_Cloud(edg_row, Q, T, st_MX, MODE_ROW);
-   edgebounds_Build_From_Cloud(edg_diag, Q, T, st_MX, MODE_DIAG);
+   EDGEBOUNDS_Build_From_Cloud(edg_row, Q, T, st_MX, MODE_ROW);
+   EDGEBOUNDS_Build_From_Cloud(edg_diag, Q, T, st_MX, MODE_DIAG);
 
    int num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
 
@@ -62,21 +69,22 @@ int edgebounds_Merge_Reorient_Naive(EDGEBOUNDS*edg_fwd,
 
 
 /*
- *  FUNCTION: edgebounds_Build_From_Cloud()
+ *  FUNCTION: EDGEBOUNDS_Build_From_Cloud()
  *  SYNOPSIS: Create edgebounds from a Matrix Cloud.
  *
- *  PURPOSE:
- *
- *  ARGS:      <edg>        Edgebound,
+ *  ARGS:      <edg>        (OUTPUT) Edgebounds,
+ *             <Q>          Query length
+ *             <T>          Target length
  *             <st_MX>      State Matrix
  *             <mode>       Diagonal or Row-wise Edgebound
  *
- *  RETURN:
+ *  RETURN:    No Return.
  */
-void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
-                                 int Q, int T,
-                                 float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                                 int mode)
+void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
+                                 const int   Q, 
+                                 const int   T,
+                                 float*      st_MX,
+                                 int         mode)
 {
    int d, i, j, k;
    int x, y1, y2;
@@ -126,7 +134,7 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
                {
                   in_cloud = false;
                   y2 = k;
-                  edgebounds_Add(edg, (BOUND) {x,y1,y2});
+                  EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
                }
             }
             else
@@ -145,7 +153,7 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
          {
             in_cloud = false;
             y2 = re;
-            edgebounds_Add(edg, (BOUND) {x,y1,y2});
+            EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
          }
       }
    }
@@ -168,7 +176,7 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
                   in_cloud = false;
                   y2 = j;
 
-                  edgebounds_Add(edg, (BOUND) {x,y1,y2});
+                  EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
                }
             }
             else
@@ -189,7 +197,7 @@ void edgebounds_Build_From_Cloud( EDGEBOUNDS* edg,
             in_cloud = false;
             y2 = T+1;
 
-            edgebounds_Add(edg, (BOUND) {x,y1,y2});
+            EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
          }
       }
    }

@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # parse commandline args
 pwd = os.getcwd()
-out_folder = "data-vis/alpha-linegraphs/"
+out_folder = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/alpha-linegraphs/"
 filenames = []
 eval = ""
 if len(sys.argv) >= 2:
@@ -48,11 +48,14 @@ for filename in filenames:
    perc_cells = []
    perc_wind  = []
    perc_tot   = []
+   q_len      = []
+   t_len      = []
 
    line_cnt = 0
    with open(filename, "r") as fp:
       for line in fp:
          line = line.split()
+
          print("line:", line)
          name = line[0].split("/")
          name = name[len(name)-1]
@@ -60,6 +63,7 @@ for filename in filenames:
          name = line[1].split("/")
          name = name[len(name)-1]
          fasta_name.append(name)
+
          viterbi.append( float(line[2]) )
          fwd.append( float(line[3]) )
          bck.append( float(line[4]) )
@@ -71,19 +75,22 @@ for filename in filenames:
          perc_wind.append( np.log10( float(line[10]) ) )
          perc_tot.append( np.log10( 1 ) )
 
+         q_len.append( int(line[11]) )
+         t_len.append( int(line[12]) )
+
          line_cnt += 1
          print(line_cnt)
 
    # render results
    plt.subplot(2,1,1)
-   title = "{} || {}".format(hmm_name[0], fasta_name[0])
+   title = "{} || {} \n QUERY: {}, TARGET: {}".format(hmm_name[0], fasta_name[0], q_len[0], t_len[0])
    plt.title(title)
    plt.plot(alpha, viterbi, 'r--', label="viterbi score")
    # plt.plot(alpha, alpha, 'b--', label="alpha score")
-   plt.plot(alpha, fwd, 'b.', label="forward score")
-   plt.plot(alpha, fwd, 'b--', label="backward score")
-   plt.plot(alpha, cloud_fwd, 'g.', label="cloud-fwd score")
-   plt.plot(alpha, cloud_bck, 'g--', label="cloud-bck score")
+   plt.plot(alpha, fwd, 'b--', label="forward score")
+   # plt.plot(alpha, fwd, 'b--', label="backward score")
+   plt.plot(alpha, cloud_fwd, 'g--', label="cloud-fwd score")
+   # plt.plot(alpha, cloud_bck, 'g--', label="cloud-bck score")
    plt.ylabel("score")
    plt.xticks(alpha)
 
@@ -102,8 +109,8 @@ for filename in filenames:
       out_file += fasta_name[i]
    plt.xlabel('alpha pruning threshold')
 
-   out_dest = "{}/{}/{}.jpg".format(pwd, out_folder, out_file)
-   print("saving figure to: '{}'... ", out_dest)
+   out_dest = "{}/{}.jpg".format(out_folder, out_file)
+   print("saving figure to: '{}'... ".format(out_dest) )
    plt.savefig(out_dest)
    # plt.show()
 

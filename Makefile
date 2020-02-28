@@ -32,9 +32,11 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CLIBS := -lm
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -DDEBUG
-CFLAGS := $(INC_FLAGS) -g -std=c99
+CFLAGS := $(INC_FLAGS) -g -std=c99 -pg
 # standard C++ compiler flags to be run
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
+# flags for debugging and profiling
+DEBUGFLAGS := $(INC_FLAGS) -std=c99 -g -pg -DDEBUG=
 
 # compile each object file before executable
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
@@ -64,5 +66,3 @@ clean:
 -include $(DEPS)
 
 MKDIR_P ?= mkdir -p
-
-#
