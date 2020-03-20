@@ -60,7 +60,6 @@ void VECTOR_TRACE_Resize( VECTOR_TRACE *vec, float growth_factor )
 }
 
 /* push element onto end of array */
-__attribute__((always_inline))
 void VECTOR_TRACE_Pushback( VECTOR_TRACE *vec, TRACE val )
 {
    vec->data[vec->N] = val;

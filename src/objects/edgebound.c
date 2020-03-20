@@ -23,8 +23,8 @@
 #include "edgebound.h"
 
 /*
- *  FUNCTION: EDGEBOUNDS_Create()
- *  SYNOPSIS: Create new EDGEBOUNDS object and returns pointer.
+ *  FUNCTION:  EDGEBOUNDS_Create()
+ *  SYNOPSIS:  Create new EDGEBOUNDS object and returns as pointer.
  *
  *  ARGS:      None.
  *
@@ -32,37 +32,26 @@
  */
 EDGEBOUNDS* EDGEBOUNDS_Create()
 {
-   const int min_size = 8;
-   EDGEBOUNDS *edg;
-   edg = (EDGEBOUNDS*)malloc(sizeof(EDGEBOUNDS));
+   EDGEBOUNDS* edg      = NULL;
+   const int   min_size = 8;
+
+   edg = (EDGEBOUNDS*) malloc( sizeof(EDGEBOUNDS) );
    if (edg == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc for EDGEBOUNDS.\n");
    }
 
-   edg->N      = 0;
-   edg->Nalloc = min_size;
-   edg->ids    = VECTOR_INT_Create();
-   edg->heads  = VECTOR_INT_Create();
+   edg->N         = 0;
+   edg->Nalloc    = 0;
+   edg->ids       = NULL;
+   edg->heads     = NULL;
+   edg->bounds    = NULL;
 
-   edg->bounds = (BOUND*)malloc(min_size * sizeof(BOUND));
-   if (edg == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc BOUNDS for EDGEBOUNDS.\n");
-   }
+   edg->ids       = VECTOR_INT_Create();
+   edg->heads     = VECTOR_INT_Create();
+
+   EDGEBOUNDS_Resize(edg, min_size);
+
    return edg;
-}
-
-
-/*
- *  FUNCTION: EDGEBOUNDS_Create()
- *  SYNOPSIS: Create new EDGEBOUNDS object and returns pointer.
- *
- *  ARGS:      None.
- *
- *  RETURN:    <edg>      Edgebounds Object
- */
-void EDGEBOUNDS_Init(EDGEBOUNDS **edg)
-{
-   *edg = EDGEBOUNDS_Create();
 }
 
 /*
@@ -79,27 +68,26 @@ void EDGEBOUNDS_Destroy(EDGEBOUNDS*  edg)
    free(edg);
 }
 
-
 /*
  *  FUNCTION: EDGEBOUNDS_Pushback()
- *  SYNOPSIS: Add bound to Edgebound list.
+ *  SYNOPSIS: Add BOUND to EDGEBOUNDS list.
  *
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound
  *
- *  RETURN:
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Pushback(EDGEBOUNDS*  edg,
                          BOUND        bnd)
 {
-   /* resize if necessary */
-   if (edg->N >= edg->Nalloc - 1) 
-      EDGEBOUNDS_Resize(edg);
-
    edg->bounds[edg->N] = bnd;
    edg->N++;
-}
 
+   /* resize if necessary */
+   if (edg->N >= edg->Nalloc - 1) {
+      EDGEBOUNDS_Resize(edg, edg->Nalloc * 2);
+   } 
+}
 
 /*
  *  FUNCTION: EDGEBOUNDS_Pushback_Head()
@@ -109,7 +97,7 @@ void EDGEBOUNDS_Pushback(EDGEBOUNDS*  edg,
  *             <id>        id for row/diag,
  *             <head>      head index for id in row/diag
  *
- *  RETURN:
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Pushback_Head(EDGEBOUNDS* edg,
                               int         id,
@@ -119,7 +107,6 @@ void EDGEBOUNDS_Pushback_Head(EDGEBOUNDS* edg,
    VECTOR_INT_Pushback(edg->heads, head);
 }
 
-
 /*
  *  FUNCTION: EDGEBOUNDS_Insert()
  *  SYNOPSIS: Insert/Overwrite bound into i-index of Edgebound list.
@@ -127,7 +114,8 @@ void EDGEBOUNDS_Pushback_Head(EDGEBOUNDS* edg,
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound,
  *             <i>         int Index
- *  RETURN:
+ *
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Insert(EDGEBOUNDS*  edg,
                        BOUND        bnd,
@@ -136,7 +124,6 @@ void EDGEBOUNDS_Insert(EDGEBOUNDS*  edg,
    edg->bounds[i] = bnd;
 }
 
-
 /*
  *  FUNCTION: EDGEBOUNDS_Delete()
  *  SYNOPSIS: Delete bound at i-index and fill from end of list.
@@ -144,7 +131,8 @@ void EDGEBOUNDS_Insert(EDGEBOUNDS*  edg,
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound,
  *             <i>         int Index
- *  RETURN:
+ *
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Delete(EDGEBOUNDS*  edg,
                        BOUND        bnd,
@@ -165,16 +153,16 @@ void EDGEBOUNDS_Delete(EDGEBOUNDS*  edg,
  *
  *  RETURN:
  */
-void EDGEBOUNDS_Resize(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
+                       int         size)
 {
-   const int growth_factor = 2;
-   edg->Nalloc *= growth_factor;
-   edg->bounds = (BOUND *)realloc(edg->bounds, edg->Nalloc * sizeof(BOUND));
+   edg->Nalloc = size;
+   edg->bounds = (BOUND*) realloc( edg->bounds, sizeof(BOUND) * size );
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_Reverse()
- *  SYNOPSIS: Reverse order of edgebound list.
+ *  FUNCTION:  EDGEBOUNDS_Reverse()
+ *  SYNOPSIS:  Reverse order of edgebound list.
  *
  *  ARGS:      <edg>      Edgebounds Object
  *
@@ -200,10 +188,8 @@ void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_SetHeads()
- *  SYNOPSIS: Traverse Bounds and Find Heads of Each Row (Boundaries)
- *
- *  PURPOSE:
+ *  FUNCTION:  EDGEBOUNDS_SetHeads()
+ *  SYNOPSIS:  Traverse Bounds and Find Heads of Each Row (Boundaries)
  *
  *  ARGS:      <edg>      Edgebounds Object
  *

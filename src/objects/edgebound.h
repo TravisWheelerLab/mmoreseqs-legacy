@@ -53,7 +53,8 @@ void EDGEBOUNDS_Delete(EDGEBOUNDS* edg,
                        BOUND       bnd,
                        int         i);
 /* resize BOUNDS array */
-void EDGEBOUNDS_Resize(EDGEBOUNDS* edg);
+void EDGEBOUNDS_Resize(EDGEBOUNDS* edg, 
+                       int         size);
 /* reverse ordering of BOUNDS array */
 void EDGEBOUNDS_Reverse(EDGEBOUNDS* edg);
 /* find the HEADS of each set of BOUNDS arrays by ID */

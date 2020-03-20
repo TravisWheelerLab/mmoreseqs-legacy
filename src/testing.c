@@ -27,10 +27,11 @@
 #include "testing.h"
 
 /* test to cycle through all diags */
-void fwd_test_cycle(int Q, int T,
-                   float* st_MX,
-                   float* sp_MX,
-                   ALIGNMENT* tr)
+void fwd_test_cycle( const int   Q, 
+                     const int   T,
+                     float*      st_MX,
+                     float*      sp_MX,
+                     ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -163,11 +164,12 @@ void fwd_test_cycle(int Q, int T,
    }
 }
 
-void fwd_test_cycle3(int Q, int T, 
-                     float* st_MX, 
-                     float* st_MX3,
-                     float* sp_MX, 
-                     ALIGNMENT* tr )
+void fwd_test_cycle3(const int   Q, 
+                     const int   T, 
+                     float*      st_MX, 
+                     float*      st_MX3,
+                     float*      sp_MX, 
+                     ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -334,10 +336,11 @@ void fwd_test_cycle3(int Q, int T,
 }
 
 /* test to cycle through all diags in reverse */
-void bck_test_cycle(int Q, int T,
-                    float* st_MX,
-                    float* sp_MX,
-                    ALIGNMENT* tr)
+void bck_test_cycle( const int   Q, 
+                     const int   T,
+                     float*      st_MX,
+                     float*      sp_MX,
+                     ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                  /* diagonal, row, column indices */
@@ -478,11 +481,12 @@ void bck_test_cycle(int Q, int T,
 }
 
 /* test to cycle through all diags in reverse */
-void bck_test_cycle3(int Q, int T,
-                    float* st_MX,
-                    float* st_MX3,
-                    float* sp_MX,
-                    ALIGNMENT* tr)
+void bck_test_cycle3(const int   Q, 
+                     const int   T, 
+                     float*      st_MX, 
+                     float*      st_MX3,
+                     float*      sp_MX, 
+                     ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
    int d,i,j,k,x;                /* diagonal, row, column, ... indices */
@@ -658,12 +662,13 @@ void bck_test_cycle3(int Q, int T,
 
 
 /* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Fill(int Q, int T,
-                float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],
-                EDGEBOUNDS* edg,
-                float val, 
-                int mode)
+int cloud_Fill(const int   Q, 
+               const int   T,
+               float*      st_MX,
+               float*      sp_MX,
+               EDGEBOUNDS* edg,
+               float       val, 
+               int         mode )
 {
    int x, d, i, j, k;
    int rb, lb;
@@ -729,12 +734,13 @@ int cloud_Fill(int Q, int T,
 
 
 /* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Solid_Fill(int Q, int T,
-                   float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                   float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ],
-                   EDGEBOUNDS* edg,
-                   float val, 
-                   int mode)
+int cloud_Solid_Fill(const int      Q, 
+                     const int      T,
+                     float*         st_MX,
+                     float*         sp_MX,
+                     EDGEBOUNDS*    edg,
+                     float          val, 
+                     int            mode )
 {
    int x, d, i, j, k;
    int rb, lb;
@@ -796,9 +802,10 @@ int cloud_Solid_Fill(int Q, int T,
 }
 
 /* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Cell_Count(int Q, int T,
-                   float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                   float sp_MX[ NUM_NORMAL_STATES * (Q + 1) ])
+int cloud_Cell_Count(const int   Q, 
+                     const int   T,
+                     float*      st_MX,
+                     float*      sp_MX )
 {
    int i, j, num_cells;
    num_cells = 0;
@@ -836,9 +843,10 @@ void print_test()
  *
  *  RETURN:
  */
-void dp_matrix_Print (const int Q, const int T,
-                      const float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                      const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ])
+void dp_matrix_Print(const int      Q, 
+                     const int      T,
+                     const float*   st_MX,
+                     const float*   sp_MX )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== DP MATRIX BEGIN ==== \n");
@@ -913,8 +921,9 @@ void dp_matrix_Print (const int Q, const int T,
  *
  *  RETURN:
  */
-void dp_matrix_Print3(const int T, const int Q,
-                      const float *st_MX3 )
+void dp_matrix_Print3(  const int      T, 
+                        const int      Q,
+                        const float*   st_MX3 )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== DP MATRIX BEGIN ==== \n");
@@ -963,13 +972,13 @@ void dp_matrix_Print3(const int T, const int Q,
  *
  *  ARGS:      <Q>         query length,
  *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *             <test_MX>   matrix
  *
  *  RETURN:
  */
-void test_matrix_Print (const int Q, const int T,
-                        const float test_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ])
+void test_matrix_Print( const int      Q, 
+                        const int      T,
+                        const float*   test_MX )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== TEST MATRIX BEGIN ====\n");
@@ -995,9 +1004,10 @@ void test_matrix_Print (const int Q, const int T,
 }
 
 /* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear (const int Q, const int T,
-                      float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                      float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ])
+void dp_matrix_Clear(const int   Q, 
+                     const int   T, 
+                     float*      st_MX, 
+                     float*      sp_MX )
 {
    for (int i = 0; i <= Q; i++)
    {
@@ -1012,9 +1022,10 @@ void dp_matrix_Clear (const int Q, const int T,
 }
 
 /* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear3 (const int Q, const int T,
-                      float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ])
+void dp_matrix_Clear3(  const int   Q, 
+                        const int   T,
+                        float*      st_MX3,
+                        float*      sp_MX )
 {
    for (int i = 0; i <= Q; i++)
    {
@@ -1031,10 +1042,11 @@ void dp_matrix_Clear3 (const int Q, const int T,
 }
 
 /* Set all matrix values to val */
-void dp_matrix_Clear_X (const int Q, const int T,
-                        float st_MX[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                        float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
-                        float val)
+void dp_matrix_Clear_X( const int   Q, 
+                        const int   T, 
+                        float*      st_MX, 
+                        float*      sp_MX,
+                        float       val )
 {
    for (int i = 0; i <= Q; i++)
    {
@@ -1050,10 +1062,11 @@ void dp_matrix_Clear_X (const int Q, const int T,
 
 
 /* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear_X3 (const int Q, const int T,
-                      float st_MX3[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                      float sp_MX[ NUM_SPECIAL_STATES * ((Q+1)+(T+1)) * 3 ],
-                      int val)
+void dp_matrix_Clear_X3(const int   Q, 
+                        const int   T,
+                        float*      st_MX3,
+                        float*      sp_MX,
+                        int         val)
 {
    for (int i = 0; i <= Q; i++)
    {
@@ -1071,11 +1084,12 @@ void dp_matrix_Clear_X3 (const int Q, const int T,
 
 
 /* Set all matrix values to val */
-int dp_matrix_Compare (const int Q, const int T,
-                        float st_MX_1[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                        float sp_MX_1[ NUM_SPECIAL_STATES * (Q + 1) ],
-                        float st_MX_2[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                        float sp_MX_2[ NUM_SPECIAL_STATES * (Q + 1) ] )
+int dp_matrix_Compare ( const int   Q, 
+                        const int   T,
+                        float*      st_MX_1,
+                        float*      sp_MX_1,
+                        float*      st_MX_2,
+                        float*      sp_MX_2 )
 {
    int i, j, st;
 
@@ -1108,11 +1122,12 @@ int dp_matrix_Compare (const int Q, const int T,
 }
 
 /* Copy source matrix into destination matrix */
-void dp_matrix_Copy (const int Q, const int T,
-                     float st_MX_src[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                     float sp_MX_src[ NUM_SPECIAL_STATES * (Q + 1) ],
-                     float st_MX_dst[ NUM_NORMAL_STATES * (Q + 1) * (T + 1) ],
-                     float sp_MX_dst[ NUM_SPECIAL_STATES * (Q + 1) ] )
+void dp_matrix_Copy (const int   Q, 
+                     const int   T,
+                     float*      st_MX_src,
+                     float*      sp_MX_src,
+                     float*      st_MX_dst,
+                     float*      sp_MX_dst )
 {
    int i, j, st;
 
@@ -1153,27 +1168,14 @@ void dp_matrix_Copy (const int Q, const int T,
  *
  *  RETURN:
  */
-void dp_matrix_Save (const int Q, const int T, 
-                           const float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                           const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
-                           const char *_filename_)
+void dp_matrix_Save( const int      Q, 
+                     const int      T, 
+                     const float*   st_MX, 
+                     const float*   sp_MX,
+                     const char*    _filename_ )
 {
    FILE *fp;
    fp = fopen(_filename_, "w");
-
-   const char* STATE_NAMES[] = {
-   "M_ST",
-   "I_ST",
-   "D_ST",
-   "E_ST",
-   "N_ST",
-   "J_ST",
-   "C_ST",
-   "B_ST",
-   "S_ST",
-   "T_ST",
-   "X_ST",
-   };
 
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
@@ -1242,10 +1244,92 @@ void dp_matrix_Save (const int Q, const int T,
 }
 
 /*
- *  FUNCTION:  dp_matrix_Save()
+ *  FUNCTION:  dp_matrix_Dump()
  *  SYNOPSIS:  Save dynamic programming matrix to file.
  *
  *  PURPOSE:
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State
+ *             <fp>        File Pointer
+ *
+ *  RETURN:
+ */
+void dp_matrix_Dump( const int      Q, 
+                     const int      T, 
+                     const float*   st_MX, 
+                     const float*   sp_MX,
+                     FILE*          fp )
+{
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
+   /* Header */
+   fprintf(fp, "##### NORMAL STATES #####\n");
+   fprintf(fp, "XMATRIX\n");
+   /* Header Indices */
+   fprintf(fp, "#\t");
+   for (int i = 0; i <= T; i++)
+   {
+      fprintf(fp, "%d\t", i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row Values */
+   for (int i = 0; i < Q + 1; i++)
+   {
+      fprintf(fp, "M %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", MMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", IMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %d\t", i );
+      for (int j = 0; j <= T; j++)
+      {
+         fprintf(fp, "%.3f\t", DMX(i, j) );
+      }
+      fprintf(fp, "\n\n");
+   }
+   fprintf(fp, "/\n\n");
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "N\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_N, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "J\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_J, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "E\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_E, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "C\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_C, i) ); }
+   fprintf(fp, "\n");
+   fprintf(fp, "B\t");
+   for (int i = 0; i <= Q; i++)
+   { fprintf(fp, "%.3f\t", XMX(SP_B, i) ); }
+   fprintf(fp, "\n");
+}
+
+/*
+ *  FUNCTION:  dp_matrix_trace_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
  *
  *  ARGS:      <Q>         query length,
  *             <T>         target length,
@@ -1256,30 +1340,17 @@ void dp_matrix_Save (const int Q, const int T,
  *
  *  RETURN:
  */
-void dp_matrix_trace_Save (const int Q, const int T, 
-                           const float st_MX[ NUM_NORMAL_STATES * (Q+1) * (T+1) ], 
-                           const float sp_MX[ NUM_SPECIAL_STATES * (Q + 1) ],
-                           const ALIGNMENT *tr,
-                           const char *_filename_)
+void dp_matrix_trace_Save( const int         Q, 
+                           const int         T, 
+                           const float*      st_MX, 
+                           const float*      sp_MX,
+                           const ALIGNMENT*  tr,
+                           const char*       _filename_ )
 {
    printf("Saving matrix...\n");
 
    FILE *fp;
    fp = fopen(_filename_, "w");
-
-   const char* STATE_NAMES[] = {
-   "M_ST",
-   "I_ST",
-   "D_ST",
-   "E_ST",
-   "N_ST",
-   "J_ST",
-   "C_ST",
-   "B_ST",
-   "S_ST",
-   "T_ST",
-   "X_ST",
-   };
 
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");

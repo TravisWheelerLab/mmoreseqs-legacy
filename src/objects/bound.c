@@ -21,30 +21,34 @@
 /* header */
 #include "bound.h"
 
-/*
- *  FUNCTION: BOUND_Dump()
- *  SYNOPSIS: Output BOUND data to File Pointer.
+/* *******************************************************************
+ *    FUNC:    BOUND_Dump()
+ *    DESC:    Output BOUND data to File Pointer (checks for valid pointer).
  *
- *  ARGS:      <bnd>      Bound,
- *             <fp>       File Pointer
+ *    ARGS:       <bnd>      BOUND object,
+ *                <fp>       FILE POINTER to write output to,
  *
- *  RETURN:    No Return.
- */
+ *    RETURN:     None.
+ * *******************************************************************/
 void BOUND_Dump(const BOUND  bnd,
                 FILE*        fp)
 {
    fprintf(fp, "{ id: %d, lb: %d, rb: %d }\n", bnd.id, bnd.lb, bnd.rb);
 }
 
-/*
- *  FUNCTION: BOUND_Compare()
- *  SYNOPSIS: Compare two Bounds, first by diagonal, then by left-bound, then by right-bound.
+/* *******************************************************************
+ *    FUNC:    BOUND_Compare()
+ *    DESC:    Compare two Bounds.
  *
- *  ARGS:      <a>        Bound,
- *             <b>        Bound
+ *    PROCESS: [1]   Compare the id (which row or antidiag).  If equal, continue.
+ *             [2]   Compare the left bound.  If equal, continue.
+ *             [3]   Compare the right bound.
  *
- *  RETURN:    1 if (a > b), 0 if equal, -1 if (a < b)
- */
+ *    ARGS:       <a>        BOUND a,
+ *                <b>        BOUND b
+ *
+ *    RETURNS:    1 if (a > b), 0 if equal, -1 if (a < b)
+ * *******************************************************************/
 int BOUND_Compare(BOUND a, 
                   BOUND b)
 {

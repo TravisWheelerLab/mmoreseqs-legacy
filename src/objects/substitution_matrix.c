@@ -37,6 +37,8 @@ SUBSTITUTION_MATRIX* SUBSTITUTION_MATRIX_Create()
       perror("Error while malloc'ing SCORES in SUBSTITUTION_MATRIX.\n");
       exit(EXIT_FAILURE);
    }
+
+   return submat;
 }
 
 /* Destructor */
@@ -117,6 +119,8 @@ SUBSTITUTION_MATRIX* SUBSTITUTION_MATRIX_Load(char *_filename_)
       y++;
    }
    fclose(fp);
+
+   return submat;
 }
 
 /* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */

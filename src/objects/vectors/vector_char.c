@@ -22,7 +22,7 @@
 /* constructor */
 VECTOR_CHAR* VECTOR_CHAR_Create()
 {
-   VECTOR_CHAR *vec;
+   VECTOR_CHAR* vec;
    const int init_size = 8;
    vec = (VECTOR_CHAR *) malloc( sizeof(VECTOR_CHAR) );
    vec->data = (char *) malloc( sizeof(char) * init_size );
@@ -32,35 +32,37 @@ VECTOR_CHAR* VECTOR_CHAR_Create()
 }
 
 /* destructor */
-void VECTOR_CHAR_Destroy( VECTOR_CHAR *vec )
+void VECTOR_CHAR_Destroy( VECTOR_CHAR*  vec )
 {
    free(vec->data);
    free(vec);
 }
 
 /* deep copy */
-VECTOR_CHAR* VECTOR_CHAR_Copy( VECTOR_CHAR *src )
+VECTOR_CHAR* VECTOR_CHAR_Copy( VECTOR_CHAR*  src )
 {
-   VECTOR_CHAR *vec;
-   vec = (VECTOR_CHAR *) malloc( sizeof(VECTOR_CHAR) );
+   VECTOR_CHAR* vec;
+   vec = (VECTOR_CHAR*)malloc( sizeof(VECTOR_CHAR) );
    /* copy base data */
    memcpy( vec, src, sizeof(VECTOR_CHAR) );
    /* copy variable-sized data */
-   vec->data = (char *) malloc( sizeof(char) * src->Nalloc );
+   vec->data = (char*) malloc( sizeof(char) * src->Nalloc );
    memcpy( vec->data, src->data, sizeof(char) * src->N );
 
    return vec;
 }
 
 /* resize the array */
-void VECTOR_CHAR_Resize( VECTOR_CHAR *vec, const float growth_factor )
+void VECTOR_CHAR_Resize( VECTOR_CHAR*  vec, 
+                         const float   growth_factor )
 {
-   vec->data = (char *) realloc( vec->data, sizeof(char) * vec->Nalloc * growth_factor );
+   vec->data = (char*) realloc( vec->data, sizeof(char) * vec->Nalloc * growth_factor );
    vec->Nalloc *= growth_factor;
 }
 
 /* push element onto end of array */
-void VECTOR_CHAR_Pushback( VECTOR_CHAR *vec, const char val )
+void VECTOR_CHAR_Pushback( VECTOR_CHAR*  vec, 
+                           const char    val )
 {
    vec->data[vec->N] = val;
    vec->N++;
@@ -72,7 +74,7 @@ void VECTOR_CHAR_Pushback( VECTOR_CHAR *vec, const char val )
 }
 
 /* pop element from end of array */
-char VECTOR_CHAR_Pop( VECTOR_CHAR *vec )
+char VECTOR_CHAR_Pop( VECTOR_CHAR*  vec )
 {
    char tmp = vec->data[vec->N-1];
    vec->N -= 1;
@@ -86,19 +88,23 @@ char VECTOR_CHAR_Pop( VECTOR_CHAR *vec )
 }
 
 /* set data at index (no bound checks) */
-void VECTOR_CHAR_Set( VECTOR_CHAR *vec, const int idx, const char val )
+void VECTOR_CHAR_Set( VECTOR_CHAR*  vec, 
+                      const int     idx, 
+                      const char    val )
 {
    vec->data[idx] = val;
 }
 
 /* get data at index (no checks) */
-char VECTOR_CHAR_Get( VECTOR_CHAR *vec, const int idx )
+char VECTOR_CHAR_Get( VECTOR_CHAR*  vec, 
+                      const int     idx )
 {
    return vec->data[idx];
 }
 
 /* compare two VECTOR_CHAR objects */
-int VECTOR_CHAR_Compare( const VECTOR_CHAR *vecA, const VECTOR_CHAR *vecB )
+int VECTOR_CHAR_Compare( const VECTOR_CHAR*  vecA, 
+                         const VECTOR_CHAR*  vecB )
 {
    for (int i = 0; i < vecA->N; i++) {
       if ( vecA->data[i] != vecB->data[i] ) {

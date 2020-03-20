@@ -35,6 +35,9 @@ void SEQUENCE_Append_Seq(SEQUENCE* seq,
 void SEQUENCE_Set_Textfield(char** seq_field,
                             char*  text);
 
+/* Convert SEQUENCE to HMM_PROFILE */
+HMM_PROFILE* SEQUENCE_to_HMM_PROFILE(SEQUENCE* seq);
+
 /* Output SEQUENCE out to FILE POINTER */
 void SEQUENCE_Dump(SEQUENCE *seq,
                    FILE *fp);

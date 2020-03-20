@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:    alignment.c
- *  PURPOSE: ALIGNMENT Object.
+ *  FILE:      alignment.c
+ *  PURPOSE:   ALIGNMENT Object.
  *
- *  AUTHOR:  Dave Rich
- *  BUG:     Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:     
  *******************************************************************************/
 
 #ifndef _ALIGNMENT_H
@@ -35,7 +35,7 @@ void ALIGNMENT_Pushback(ALIGNMENT* aln,
                         TRACE*     tr);
 /* resize TRACE array in ALIGNMENT */
 void ALIGNMENT_Resize(ALIGNMENT* aln,
-                      float      growth_factor);
+                      int        size);
 
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,

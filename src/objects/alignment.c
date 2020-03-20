@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:    alignment.c
- *  PURPOSE: ALIGNMENT Object.
+ *  FILE:      alignment.c
+ *  PURPOSE:   ALIGNMENT Object.
  *
- *  AUTHOR:  Dave Rich
- *  BUG:     Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:     
  *******************************************************************************/
 
 /* imports */
@@ -24,18 +24,25 @@
 /* constructor */
 ALIGNMENT* ALIGNMENT_Create()
 {
-   const int min_size = 16;
-   ALIGNMENT *aln;
+   ALIGNMENT *aln       = NULL;
+   const int min_size   = 16;
+
    aln = (ALIGNMENT*) malloc( sizeof(ALIGNMENT) );
    if (aln == NULL) {
-      fprintf(stderr, "ERROR: Couldn't malloc ALIGNMENT.\n");
+      const char* obj_name = "ALIGNMENT";
+      fprintf(stderr, "ERROR: Couldn't malloc %s: <%p>.\n", obj_name, aln);
       exit(EXIT_FAILURE);
    }
-   aln->traces = (TRACE*) malloc( sizeof(TRACE) * min_size );
-      if (aln->traces == NULL) {
-      fprintf(stderr, "ERROR: Couldn't malloc TRACES for ALIGNMENT.\n");
-      exit(EXIT_FAILURE);
-   }
+
+   aln->N      = 0;
+   aln->Nalloc = min_size;
+   aln->beg    = 0;
+   aln->end    = 0;
+   aln->traces = NULL;
+
+   ALIGNMENT_Resize(aln, min_size);
+
+   return aln;
 }
 
 /* destructor */
@@ -54,22 +61,22 @@ void ALIGNMENT_Pushback(ALIGNMENT* aln,
 
    /* if array is full, resize */
    if (aln->N >= aln->Nalloc - 1) {
-      ALIGNMENT_Resize(aln, 2);
+      ALIGNMENT_Resize(aln, aln->Nalloc * 2);
    }
 }
 
 /* resize TRACE array in ALIGNMENT */
 void ALIGNMENT_Resize(ALIGNMENT* aln,
-                      float      growth_factor)
+                      int        size)
 {
-   aln->traces = (TRACE*) realloc(aln->traces, sizeof(TRACE) * aln->Nalloc * growth_factor);
+   aln->traces = (TRACE*) realloc(aln->traces, sizeof(TRACE) * size);
    if (aln->traces == NULL) {
-      fprintf(stderr, "ERROR: Couldn't realloc TRACES for ALIGNMENT.\n");
+      const char* obj_name = "ALIGNMENT";
+      fprintf(stderr, "ERROR: Couldn't realloc TRACES for %s: <%p>.\n", obj_name, aln);
       exit(EXIT_FAILURE);
    }
-   aln->Nalloc *= growth_factor;
+   aln->Nalloc = size;
 }
-
 
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,
@@ -78,30 +85,24 @@ void ALIGNMENT_Dump(ALIGNMENT* aln,
    /* test for bad file pointer */
    if (fp == NULL) {
       const char* obj_name = "ALIGNMENT";
-      fprintf(stderr, "ERROR: Bad FILE pointer for printing %s.\n", obj_name);
+      fprintf(stderr, "ERROR: Bad FILE pointer for printing %s: <%p>.\n", obj_name, aln);
       exit(EXIT_FAILURE);
       return;
    }
-
-   static char * states[] = {"ST_M",
-                             "ST_I",
-                             "ST_D",
-                             "ST_E",
-                             "ST_N",
-                             "ST_J",
-                             "ST_C",
-                             "ST_B",
-                             "ST_S",
-                             "ST_T",
-                             "ST_X" };
    
    for (unsigned int i = 0; i < aln->N; ++i)
    {
       int st = aln->traces[i].st;
-      fprintf(fp, "[%d](%s,%d,%d)\n", i, states[st], aln->traces[i].i, aln->traces[i].j);
+      fprintf(fp, "[%d](%s,%d,%d)\n", i, STATE_NAMES[st], aln->traces[i].i, aln->traces[i].j);
    }
 }
 
+/* */
+void ALIGNMENT_Full_Alignment_Dump(ALIGNMENT* aln,
+                                   FILE*      fp)
+{
+   
+}
 
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Save(ALIGNMENT* aln,

@@ -26,29 +26,32 @@
 /* Constructor */
 HMM_PROFILE* HMM_PROFILE_Create()
 {
-   HMM_PROFILE *prof = (HMM_PROFILE*)malloc( sizeof(HMM_PROFILE) );
+   HMM_PROFILE*   prof = NULL;
+
+   prof = (HMM_PROFILE*) malloc( sizeof(HMM_PROFILE) );
    if (prof == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc HMM_PROFILE.\n");
       exit(EXIT_FAILURE);
    }
 
-   prof->filename     = NULL;
-   prof->name         = NULL;
-   prof->acc          = NULL;
-   prof->desc         = NULL;
-   prof->alph         = NULL;
+   prof->filepath       = NULL;
+   prof->name           = NULL;
+   prof->acc            = NULL;
+   prof->desc           = NULL;
+   prof->alph           = NULL;
+   
+   prof->msv_dist       = NULL;
+   prof->viterbi_dist   = NULL;
+   prof->forward_dist   = NULL;
 
-   prof->msv_dist     = NULL;
-   prof->viterbi_dist = NULL;
-   prof->forward_dist = NULL;
+   prof->bg_model       = NULL;
+   prof->hmm_model      = NULL;
 
-   prof->bg_model     = (HMM_BG*)malloc( sizeof(HMM_BG) );
+   prof->bg_model       = (HMM_BG*) calloc( 1, sizeof(HMM_BG) );
    if (prof->bg_model == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc BG_MODEL in HMM_PROFILE.\n");
       exit(EXIT_FAILURE);
    }
-
-   prof->hmm_model    = NULL;
 
    return prof;
 }
@@ -56,7 +59,7 @@ HMM_PROFILE* HMM_PROFILE_Create()
 /* Destructor */
 void HMM_PROFILE_Destroy(HMM_PROFILE *prof)
 {
-   free(prof->filename);
+   free(prof->filepath);
    free(prof->name);
    free(prof->acc);
    free(prof->desc);
@@ -89,7 +92,8 @@ void HMM_PROFILE_Set_Model_Length(HMM_PROFILE* prof,
                                   int          length)
 {
    prof->N = length;
-   prof->hmm_model = malloc( sizeof (HMM_NODE) * (length + 1) );
+   prof->hmm_model = (HMM_NODE*) calloc( length + 1, sizeof(HMM_NODE) );
+
    if (prof->hmm_model == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc HMM_MODEL for HMM_PROFILE.\n");
       exit(EXIT_FAILURE);
@@ -130,8 +134,8 @@ void HMM_PROFILE_Set_Distribution_Params(HMM_PROFILE* prof,
                                          float        param2, 
                                          char*        dist_name)
 {
-   float *parPtr1 = NULL;
-   float *parPtr2 = NULL;
+   float*   parPtr1 = NULL;
+   float*   parPtr2 = NULL;
 
    if ( strcmp( dist_name, "MSV" ) == 0 ) {
       parPtr1 = &prof->msv_dist->param1;

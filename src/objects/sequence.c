@@ -30,11 +30,14 @@ SEQUENCE* SEQUENCE_Create()
       perror("Error while malloc'ing SEQUENCE.\n");
       exit(EXIT_FAILURE);
    }
+
+   seq->N        = 0;
    seq->filename = NULL;
    seq->name     = NULL;
    seq->alph     = NULL;
    seq->seq      = NULL;
-   seq->N        = 0;
+
+   return seq;
 }
 
 /* Destructor */
@@ -78,12 +81,12 @@ void SEQUENCE_Append_Seq(SEQUENCE* seq,
 void SEQUENCE_Set_Textfield(char** seq_field,
                             char*  text)
 {
-   *seq_field = malloc( sizeof(char) * (strlen(text) + 1) );
+   *seq_field = realloc( *seq_field, sizeof(char) * (strlen(text) + 1) );
    if (*seq_field == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc TEXTFIELD for SEQUENCE.\n");
-      exit(0);
+      exit(EXIT_FAILURE);
    }
-   strcpy(*seq_field, text);
+   strcat( *seq_field, text );
 }
 
 /* Output SEQUENCE to FILE POINTER */
@@ -96,10 +99,13 @@ void SEQUENCE_Dump(SEQUENCE* seq,
       exit(EXIT_FAILURE);
    }
 
+   /* space padding */
+   const int pad = 10;
+
    fprintf(fp, "===== SEQUENCE =========================================\n");
-   fprintf(fp, "\t    NAME:\t%s\n", seq->name);
-   fprintf(fp, "\t  LENGTH:\t%d\n", seq->N);
-   fprintf(fp, "\tSEQUENCE:\t%s\n", seq->seq);
+   fprintf(fp, "\t%*s:\t%s\n", pad, "NAME",      seq->name);
+   fprintf(fp, "\t%*s:\t%d\n", pad, "LENGTH",    seq->N);
+   fprintf(fp, "\t%*s:\t%s\n", pad, "SEQUENCE",  seq->seq);
    fprintf(fp, "========================================================\n");
    fprintf(fp, "\n");
 }

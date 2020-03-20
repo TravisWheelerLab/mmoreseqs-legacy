@@ -60,7 +60,6 @@ void VECTOR_RANGE_Resize( VECTOR_RANGE *vec, const float growth_factor )
 }
 
 /* push element onto end of array */
-__attribute__((always_inline))
 void VECTOR_RANGE_Pushback( VECTOR_RANGE *vec, const RANGE val )
 {
    vec->data[vec->N] = val;

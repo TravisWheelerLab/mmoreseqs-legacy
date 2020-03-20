@@ -10,7 +10,7 @@
 #define _VECTOR_BOUND_H
 
 /* import datatypes */
-#include "structs.h"
+#include "../structs.h"
 
 // /* VECTOR struct */
 // typedef struct {
@@ -22,22 +22,26 @@
 /* constructor */
 VECTOR_BOUND* VECTOR_BOUND_Create();
 /* destructor */
-void VECTOR_BOUND_Destroy( VECTOR_BOUND  *vec );
+void VECTOR_BOUND_Destroy( VECTOR_BOUND*  vec );
 /* deep copy */
 VECTOR_BOUND* VECTOR_BOUND_Copy();
 /* resize the array */
-void VECTOR_BOUND_Resize( VECTOR_BOUND  *vec, 
-                          float         growth_factor );
+void VECTOR_BOUND_Resize( VECTOR_BOUND*   vec, 
+                          int             size);
 /* push element onto end of array */
-void VECTOR_BOUND_Pushback( VECTOR_BOUND  *vec, 
-                            BOUND         val );
+void VECTOR_BOUND_Pushback( VECTOR_BOUND*  vec, 
+                            BOUND          val );
 /* pop element from end of array */
-BOUND VECTOR_BOUND_Pop( VECTOR_BOUND *vec );
+BOUND VECTOR_BOUND_Pop( VECTOR_BOUND*  vec );
 /* set data at index (no bound checks) */
-void VECTOR_BOUND_Set( VECTOR_BOUND *vec, int idx, BOUND val );
+void VECTOR_BOUND_Set( VECTOR_BOUND*  vec, 
+                       int            idx, 
+                       BOUND          val );
 /* get data at index (no bound checks) */
-BOUND VECTOR_BOUND_Get( VECTOR_BOUND *vec, int idx );
+BOUND VECTOR_BOUND_Get( VECTOR_BOUND*  vec, 
+                        int            idx );
 /* equality test */
-int VECTOR_BOUND_Compare( VECTOR_BOUND *vecA, VECTOR_BOUND *vecB );
+int VECTOR_BOUND_Compare( VECTOR_BOUND*  vecA, 
+                          VECTOR_BOUND*  vecB );
 
 #endif /* _VECTOR_BOUND_H */

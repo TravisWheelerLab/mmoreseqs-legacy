@@ -33,7 +33,7 @@ bool LOGSUM_INITIALIZED = false;
 /* TODO: inline small functions? */
 
 /* Get max value of two floats */
-// static inline
+inline
 float calc_Max (float x, float y)
 {
    if (x > y)
@@ -44,7 +44,7 @@ float calc_Max (float x, float y)
 }
 
 /* Get min value of two floats */
-// static inline
+inline
 float calc_Min (float x, float y)
 {
    if (x < y)
@@ -105,15 +105,6 @@ void print_Logsum(FILE *fp)
    }
    fprintf(fp, "\n\n");
 }
-
-// /* Get the number of characters in a string (including \0) */
-// int get_strlen(char* str) 
-// {
-//    for (int i = 0; str[i] != '\0'; i++) {} 
-//    i++;
-
-//    return i;
-// }
 
 /* check for NULL pointer */
 void check_null_ptr(void *ptr, char *str)

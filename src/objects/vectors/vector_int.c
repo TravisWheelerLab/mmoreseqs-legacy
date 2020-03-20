@@ -60,7 +60,6 @@ void VECTOR_INT_Resize( VECTOR_INT *vec, float growth_factor )
 }
 
 /* push element onto end of array */
-__attribute__((always_inline))
 void VECTOR_INT_Pushback( VECTOR_INT *vec, int val )
 {
    vec->data[vec->N] = val;

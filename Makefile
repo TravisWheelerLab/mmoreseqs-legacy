@@ -10,7 +10,7 @@
 CC = gcc-8
 
 # final executable
-TARGET_EXEC ?= cloud_fwdbck.exe
+TARGET_EXEC ?= fb-pruner
 
 # input/output directories
 BUILD_DIR ?= ./build
@@ -32,11 +32,19 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CLIBS := -lm
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -DDEBUG
-CFLAGS := $(INC_FLAGS) -g -std=c99 -pg
+CFLAGS := $(INC_FLAGS) -std=c99
 # standard C++ compiler flags to be run
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 # flags for debugging and profiling
-DEBUGFLAGS := $(INC_FLAGS) -std=c99 -g -pg -DDEBUG=
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1
+
+# speial flags for RELEASE or DEBUG
+ifeq ($(RELEASE), 1)
+endif
+
+ifeq ($(DEBUG), 1)
+	CFLAGS+=$(DEBUGFLAGS)
+endif
 
 # compile each object file before executable
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)

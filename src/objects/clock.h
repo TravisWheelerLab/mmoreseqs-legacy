@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file clock.h
- *  @brief CLOCK object.
+ *  FILE:      clock.c
+ *  PURPOSE:   CLOCK Object    
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Unknown.
  *******************************************************************************/
 
 #ifndef _CLOCK_H
@@ -20,17 +20,17 @@
 // } CLOCK;
 
 
-CLOCK* clock_Create();
+CLOCK* CLOCK_Create();
 
-void clock_Destroy(CLOCK*cl);
+void CLOCK_Destroy(CLOCK*cl);
 
-time_t clock_Start(CLOCK*cl);
+time_t CLOCK_Start(CLOCK*cl);
 
-time_t clock_Stop(CLOCK*cl);
+time_t CLOCK_Stop(CLOCK*cl);
 
-time_t clock_pTicks(CLOCK*cl, char*str);
+time_t CLOCK_pTicks(CLOCK*cl, char*str);
 
-time_t clock_Ticks(CLOCK*cl);
+time_t CLOCK_Ticks(CLOCK*cl);
 
 float ticks_to_msec(time_t t);
 
