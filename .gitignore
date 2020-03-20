@@ -1,5 +1,14 @@
+# macOS files
+*.DS_Store
+
+# sublime project files
 *.sublime-project
 *.sublime-workspace
+
+# testing and bytecode
 output/
 test_output/
 build/
+
+# test
+test.txt
