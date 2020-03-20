@@ -44,8 +44,10 @@
  *             <Q>         query length, 
  *             <T>         target length,
  *             <st_MX3>    Normal State (Match, Insert, Delete) Matrix,
+ *                         [ NORMAL_STATES * 3 * (Q+T+1) ]
  *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
  *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
+ *                         [ SPECIAL_STATES * (Q+1) ]
  *             <res>       Results Data
  *
  *  RETURN: 

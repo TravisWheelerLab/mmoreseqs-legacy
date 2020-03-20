@@ -68,8 +68,16 @@ void mmseqs_pipeline(ARGS* args)
    /* Get Arguments */
    float          alpha             = args->alpha;
    int            beta              = args->beta;
-   char*          target_filepath   = args->target_filepath;
-   char*          query_filepath    = args->query_filepath;
+
+   char*          t_filepath        = args->target_filepath;
+   char*          q_filepath        = args->query_filepath;
+
+   char*          t_indexpath       = args->target_indexpath;
+   char*          q_indexpath       = args->query_indexpath;
+
+   int            t_filetype        = args->target_filetype;
+   int            q_filetype        = args->query_filetype;
+
    char*          m8_filepath       = args->hits_filepath;
 
    /* results inputted from mmseqs pipeline */
@@ -78,44 +86,61 @@ void mmseqs_pipeline(ARGS* args)
    RESULT*        result_prv        = NULL;
 
    /* results outputted after cloud fwd/bck */
-   RESULTS*       results_out       = NULL;
+   RESULTS*       results_out       = RESULTS_Create();
    
    /* target & query objects */
-   SEQUENCE*      query_seq         = NULL;
-   HMM_PROFILE*   target_prof       = NULL;
+   SEQUENCE*      query             = NULL;
+   HMM_PROFILE*   target            = NULL;
 
    /* file indexes for target & query */
-   F_INDEX*       query_idx         = NULL;
-   F_INDEX*       target_idx        = NULL;
+   F_INDEX*       q_index           = NULL;
+   F_INDEX*       t_index           = NULL;
 
    /* dynamic programming matrices for computing cloud fwd/bck */
    MATRIX_3D*     st_matrix         = MATRIX_3D_Create(1, 3, NUM_NORMAL_STATES);
-   float*         st_MX             = NULL;
+   float*         st_MX3            = NULL;
    MATRIX_2D*     sp_matrix         = MATRIX_2D_Create(1, NUM_SPECIAL_STATES);
    float*         sp_MX             = NULL;
+
+   ALIGNMENT*     aln               = ALIGNMENT_Create();
+
+   EDGEBOUNDS*    edg_fwd           = EDGEBOUNDS_Create();
+   EDGEBOUNDS*    edg_bck           = EDGEBOUNDS_Create();
+   EDGEBOUNDS*    edg_diag          = EDGEBOUNDS_Create();
+   EDGEBOUNDS*    edg_row           = EDGEBOUNDS_Create();
+
+   /* clock for timing cloud forward-backward */
+   CLOCK*         cl                = CLOCK_Create();
+   /* file pointer for writing out to file */
+   FILE*          fp                = NULL;
+
+   /* problem size */
+   int   T  = 1;
+   int   Q  = 1;
+
+   /* threshold scores */
+   float threshold_sc   = 0;
+   float sc             = 0;
 
    /* input results file from MMSEQS pipeline */
    results_in = RESULTS_M8_Parse(m8_filepath);
    RESULTS_M8_Dump(results_in, stdout);
 
-   /* determine file type of target */
-   for ( int i = 0; i < NUM_FILE_TYPES; i++ ) {
-      if ( STRING_EndsWith( args->target_filepath, FILE_TYPE_NAMES[i], strlen(FILE_TYPE_NAMES[i]) ) == 0 ) {
-         args->target_filetype = FILE_TYPE_MAP[i];
-      }
-   }
+   /* initialize logrithmic sum table */
+   init_Logsum();
 
+   /* === INDEX FILES === */
    /* if target file doesn't have an index file, create one */
-   if ( args->target_indexpath == NULL ) 
+   if ( t_indexpath == NULL ) 
    {
       switch( args->target_filetype )
       {
          case FILE_HMM:
-            target_idx = F_INDEX_Hmm_Build( args->target_filepath );
+            t_index = F_INDEX_Hmm_Build( args->target_filepath );
             break;
 
          case FILE_FASTA:
-            target_idx = F_INDEX_Fasta_Build( args->target_filepath );
+            t_index = F_INDEX_Fasta_Build( args->target_filepath );
             break;
 
          default:
@@ -125,15 +150,9 @@ void mmseqs_pipeline(ARGS* args)
    } 
    else 
    {
-      target_idx = F_INDEX_Load( args->target_indexpath );
+      t_index = F_INDEX_Load( args->target_indexpath );
    }
-
-   /* determine file type of query */
-   for ( int i = 0; i < NUM_FILE_TYPES; i++ ) {
-      if ( STRING_EndsWith( args->query_filepath, FILE_TYPE_NAMES[i], strlen(FILE_TYPE_NAMES[i]) ) == 0 ) {
-         args->query_filetype = FILE_TYPE_MAP[i];
-      }
-   }
+   F_INDEX_Sort( t_index );
 
    /* if query file doesn't have an index file, create one */
    if ( args->query_indexpath == NULL ) 
@@ -141,7 +160,7 @@ void mmseqs_pipeline(ARGS* args)
       switch( args->query_filetype )
       {
          case FILE_FASTA:
-            target_idx = F_INDEX_Fasta_Build( args->target_filepath );
+            q_index = F_INDEX_Fasta_Build( args->target_filepath );
             break;
 
          default:
@@ -151,9 +170,11 @@ void mmseqs_pipeline(ARGS* args)
    } 
    else 
    {
-      target_idx = F_INDEX_Load( args->target_indexpath );
+      q_index = F_INDEX_Load( args->target_indexpath );
    }
+   F_INDEX_Sort( q_index );
 
+   /* === ITERATE OVER EACH RESULT === */
    /* Look through each input result */
    for (int i = 0; i < results_in->N; i++) 
    {
@@ -164,22 +185,65 @@ void mmseqs_pipeline(ARGS* args)
       if ( result_prv != NULL && strcmp( result->target_name, result_prv->target_name ) ) 
       {
          /* find query in index file */
-         long offset = F_INDEX_Search( target_idx, result->target_name );
+         long offset = F_INDEX_Search( t_index, result->target_name );
 
          /* jump to position in query file and load in query */
-         target_prof = HMM_PROFILE_Parse( args->target_filepath, offset );
+         target = HMM_PROFILE_Parse( args->target_filepath, offset );
       }
 
       /* if current result is not the same query as previous result, load it in. */
       if ( result_prv != NULL && strcmp( result->query_name, result_prv->query_name ) ) 
       {
          /* find query in index file */
-         long offset = F_INDEX_Search( query_idx, result->query_name );
+         long offset = F_INDEX_Search( q_index, result->query_name );
 
          /* jump to position in query file and load in query */
-         query_seq = SEQUENCE_Fasta_Parse( args->query_filepath, offset );
+         query = SEQUENCE_Fasta_Parse( args->query_filepath, offset );
       }
-     
-      
+
+      /* resize data structures for next search */
+      T = target->N;
+      Q = query->N;
+      MATRIX_3D_Reuse( st_matrix, NUM_NORMAL_STATES, 3, (Q+T+1) );
+      st_MX3 = st_matrix->data;
+      MATRIX_2D_Reuse( sp_matrix, NUM_SPECIAL_STATES, Q+1 );
+      sp_MX = sp_matrix->data;
+
+      /* get initial search window */
+      ALIGNMENT_Clear(aln);
+      ALIGNMENT_Pushback(aln, &((TRACE){ result->query_start, result->target_start, M_ST }) );
+      ALIGNMENT_Pushback(aln, &((TRACE){ result->query_end, result->target_end, M_ST }) );
+      aln->beg = 0;
+      aln->end = 1;
+
+      /* empty edgebound data */
+      EDGEBOUNDS_Clear(edg_fwd);
+      EDGEBOUNDS_Clear(edg_bck);
+
+      /* === CLOUD SEARCH === */
+
+      /* perform cloud search */
+      cloud_Forward_Linear(query, target, Q, T, NULL, st_MX3, sp_MX, aln, edg_fwd, alpha, beta, false);
+      cloud_Backward_Linear(query, target, Q, T, NULL, st_MX3, sp_MX, aln, edg_bck, alpha, beta, false);
+
+      edg_diag = EDGEBOUNDS_Merge(Q, T, edg_fwd, edg_bck);
+      edg_row  = EDGEBOUNDS_Reorient(Q, T, edg_diag);
+
+      bound_Forward_Linear(query, target, Q, T, st_MX3, NULL, sp_MX, edg_row, false, &sc);
+      result->cloud_fwd_sc = sc;
+
+      /* if it clears scoring threshold, add to results */
+      if ( sc > threshold_sc ) {
+         RESULTS_PushBack(results_out, result);
+      }
+
+      free(edg_diag);
+      free(edg_row);
    }
+
+   /* final output of results */
+   // fp = fopen()
+   fp = stdout;
+   RESULTS_My_Dump( results_out, fp );
+   if (fp != stdout) fclose(fp);
 }

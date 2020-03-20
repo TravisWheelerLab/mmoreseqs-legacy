@@ -18,6 +18,23 @@
 // #include "objects/alignment.h"
 
 /* === FUNCTIONS === */
+
+/* ------------------------------------------------------------------------------------------ *
+ *
+ *  FUNCTION: cloud_Forward_Linear()
+ *  SYNOPSIS: 
+ *
+ *  ARGS:      <query>        Query sequence, 
+ *             <target>       HMM model,
+ *             <Q>            Query length, 
+ *             <T>            Target length,
+ *             <st_MX3>       Normal State (Match, Insert, Delete) Matrix (Linear Space),
+ *             <st_MX>        Normal State (Match, Insert, Delete) Matrix (Quadratic Space),
+ *             <sp_MX>        Special State (J,N,B,C,E) Matrix
+ *
+ *  RETURN:    None.
+ *
+ * ------------------------------------------------------------------------------------------- */
 void cloud_Forward_Linear( const SEQUENCE*    query, 
                            const HMM_PROFILE* target,
                            const int          Q, 
@@ -31,6 +48,22 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
                            const int          beta,
                            const bool         test);
 
+/* ------------------------------------------------------------------------------------------ *
+ *
+ *  FUNCTION: cloud_Backward_Linear()
+ *  SYNOPSIS: 
+ *
+ *  ARGS:      <query>        Query sequence, 
+ *             <target>       HMM model,
+ *             <Q>            Query length, 
+ *             <T>            Target length,
+ *             <st_MX3>       Normal State (Match, Insert, Delete) Matrix (Linear Space),
+ *             <st_MX>        Normal State (Match, Insert, Delete) Matrix (Quadratic Space),
+ *             <sp_MX>        Special State (J,N,B,C,E) Matrix
+ *
+ *  RETURN:    Returns the final score of the Forward Algorithm.
+ *
+ * ------------------------------------------------------------------------------------------- */
 void cloud_Backward_Linear(const SEQUENCE*    query, 
                            const HMM_PROFILE* target,
                            const int          Q, 

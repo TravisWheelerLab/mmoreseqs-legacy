@@ -107,6 +107,7 @@ typedef enum {
    FILE_FASTA  = 2,
 } FILE_TYPE;
 #define NUM_FILE_TYPES 3
+#define NUM_FILE_EXTS  3
 
 typedef struct {
    int beg;
@@ -400,6 +401,11 @@ typedef struct {
 
    int      target_fileno;          /*  */
    int      query_fileno;           /*  */ 
+
+   /* threshold scores for pipeline */
+   float    viterbi_sc_threshold;
+   float    fwdbck_sc_threshold;
+   float    cloud_sc_threshold;
 } ARGS;
 
 
@@ -471,6 +477,8 @@ typedef struct {
 
    double   e_value;
    int      bit_score;
+
+   float    cloud_fwd_sc;
 } RESULT;
 
 typedef struct {
@@ -495,6 +503,7 @@ extern char*   VERBOSITY_NAMES[];
 extern char*   ALPHABET_NAMES[];
 extern int     ALPHABET_LENGTHS[];
 
+extern char*   FILE_TYPE_EXTS[];
 extern char*   FILE_TYPE_NAMES[];
 extern int     FILE_TYPE_MAP[];
 

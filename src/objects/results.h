@@ -24,6 +24,11 @@ void RESULTS_Resize( RESULTS* res,
 /* output results as .m8 format to file pointer */
 void RESULTS_M8_Dump( RESULTS*   res,
                       FILE*      fp );
+
+/* output results in personal format to file pointer */
+void RESULTS_My_Dump( RESULTS*   res,
+                      FILE*      fp );
+
 /* output single results to file pointer */
 void RESULT_M8_Dump( RESULT*  res,
                      FILE*    fp );

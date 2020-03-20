@@ -58,11 +58,8 @@ int STRING_EndsWith( const char*    str1,
 
    if ( len1 < n || len2 < n ) return -1;
 
-   for ( int i = 0; i < n; i++ ) {
-      if (str1[len1 - n] != str2[len2 - n]) {
-         return (str1[len1 - n] != str2[len2 - n]);
-      }
-   }
+   // printf( "COMPARE>: %s vs %s\n", str1, str2 );
+   // printf( "COMPARE: %s vs %s\n", &(str1[len1-(n-1)]), &(str2[len2-(n-1)]) );
 
-   return 0;
+   return strncmp( &(str1[len1-(n-1)]), &(str2[len2-(n-1)]), n-1 );
 }

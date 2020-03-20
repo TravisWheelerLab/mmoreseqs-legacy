@@ -25,6 +25,7 @@
 // } ALIGNMENT;
 
 /* === FUNCTIONS === */
+
 /* constructor */
 ALIGNMENT* ALIGNMENT_Create();
 /* destructor */
@@ -36,6 +37,9 @@ void ALIGNMENT_Pushback(ALIGNMENT* aln,
 /* resize TRACE array in ALIGNMENT */
 void ALIGNMENT_Resize(ALIGNMENT* aln,
                       int        size);
+
+/* Empty ALIGNMENT Array */
+void ALIGNMENT_Clear(ALIGNMENT* aln);
 
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,

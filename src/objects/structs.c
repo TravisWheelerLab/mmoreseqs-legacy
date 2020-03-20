@@ -184,7 +184,7 @@ int ALPHABET_LENGTHS[] = {
 };
 
 /* file extension types */
-char* FILE_TYPE_NAMES[] = {
+char* FILE_TYPE_EXTS[] = {
    ".hmm",     
    ".fasta",
    ".fa"
@@ -195,6 +195,13 @@ int FILE_TYPE_MAP[] = {
    FILE_HMM,
    FILE_FASTA,
    FILE_FASTA,
+};
+
+/* FILE_NAMES that map to FILE_TYPES */
+char* FILE_TYPE_NAMES[] = {
+   "NULL",
+   "HMMER",
+   "FASTA",
 };
 
 /* command line flags and options */

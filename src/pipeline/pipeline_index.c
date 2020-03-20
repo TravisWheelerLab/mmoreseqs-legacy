@@ -57,6 +57,7 @@
 #include "testing.h"
 
 /* header */
+#include "main.h"
 #include "pipeline.h"
 
 /* ****************************************************************************************** *
@@ -72,12 +73,13 @@
 /* ****************************************************************************************** */
 void index_pipeline(ARGS* args) 
 {
-   printf("test test\n");
+   FILE*       fp;
+
    F_INDEX*    t_index        = NULL; 
    F_INDEX*    q_index        = NULL;
 
-   int         t_filepath     = args->target_filepath;
-   int         q_filepath     = args->query_filepath;
+   char*       t_filepath     = args->target_filepath;
+   char*       q_filepath     = args->query_filepath;
 
    int         t_filetype     = args->target_filetype;
    int         q_filetype     = args->query_filetype; 
@@ -85,29 +87,47 @@ void index_pipeline(ARGS* args)
    char*       out_filepath   = args->output_filepath;
 
    /* index target file */
-   if ( t_filetype == FILE_HMM ) 
-   {
+   if ( t_filetype == FILE_HMM ) {
       t_index = F_INDEX_Hmm_Build( t_filepath );
    }
-   else if ( t_filetype == FILE_FASTA )
-   {
+   else if ( t_filetype == FILE_FASTA ) {
       t_index = F_INDEX_Fasta_Build( t_filepath ); 
    }
 
-   printf("test\n");
-
    /* index query file */
-   if ( q_filetype == FILE_HMM ) 
-   {
+   if ( q_filetype == FILE_HMM ) {
       q_index = F_INDEX_Hmm_Build( q_filepath );
    }
-   else if ( q_filetype == FILE_FASTA )
-   {
+   else if ( q_filetype == FILE_FASTA ) {
       q_index = F_INDEX_Fasta_Build( q_filepath ); 
    }
 
-   printf("test\n");
+   if ( strcmp( out_filepath, "#stdout" ) == 0 ) {
+      F_INDEX_Dump( t_index, stdout );
+      F_INDEX_Sort( t_index );
 
-   F_INDEX_Dump( t_index, stdout );
-   F_INDEX_Dump( q_index, stdout );
+      F_INDEX_Dump( q_index, stdout );
+      F_INDEX_Sort( q_index );
+   }
+   else
+   {
+      char* t_indexpath = strdup( t_filepath );
+      strcat( t_indexpath, ".idx" );
+      printf("saving target_index to:\t%s...\n", t_indexpath);
+
+      fp = fopen(t_indexpath, "w");
+      F_INDEX_Dump( t_index, fp );
+      F_INDEX_Sort( t_index );
+      fclose(fp);
+
+      char* q_indexpath = strdup( q_filepath );
+      strcat( q_indexpath, ".idx" );
+      printf("saving query_index to:\t%s...\n", q_indexpath);
+
+      fp = fopen(q_indexpath, "w");
+      F_INDEX_Dump( q_index, fp );
+      F_INDEX_Sort( q_index );
+      fclose(fp);
+   }
+   
 }

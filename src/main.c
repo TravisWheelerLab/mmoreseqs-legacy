@@ -241,7 +241,10 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->target_filetype         = FILE_HMM;
    args->query_filetype          = FILE_FASTA;
 
-   args->output_filepath         = "!stdout";
+   args->hits_filepath           = NULL;
+
+   args->output_filepath         = "#stdout";
+   // args->output_filepath         = "stats/cloud_stats.tsv";
 
    args->alpha                   = 20.0f;
    args->beta                    = 5;
@@ -250,7 +253,9 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->verbosity_mode          = VERBOSE_NONE;
    args->search_mode             = MODE_UNILOCAL;
 
-   args->output_filepath      = "stats/cloud_stats.tsv";
+   args->viterbi_sc_threshold    = 0.0f;
+   args->fwdbck_sc_threshold     = 0.0f;
+   args->cloud_sc_threshold      = 0.0f;
 }
 
 /* sends ARGS data to FILE POINTER */
@@ -268,6 +273,8 @@ void ARGS_Dump( ARGS*    args,
    char*    q_filepath        = args->query_filepath;
    int      t_filetype        = args->target_filetype;
    int      q_filetype        = args->query_filetype;
+
+   char*    hits_filepath     = args->hits_filepath;
 
    char*    output_filepath   = args->output_filepath;
 
@@ -287,6 +294,7 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "TARGET_FILETYPE",  FILE_TYPE_NAMES[t_filetype] );
    fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "QUERY_FILENAME",   q_filepath );
    fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "QUERY_FILETYPE",   FILE_TYPE_NAMES[q_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "HITS_FILEPATH",    hits_filepath );
    fprintf( fp, "\n" );
 
    fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "OUTPUT_FILEPATH",  output_filepath );
@@ -297,11 +305,15 @@ void ARGS_Dump( ARGS*    args,
 /* examines target and query, and finds the type of the files */
 int determine_FileType( char* _filename_ )
 {
-   for (int i = 1; i < NUM_FILE_TYPES; i++) {
-      char* ext = FILE_TYPE_NAMES[i];
-      if ( STRING_EndsWith( _filename_, ext, strlen(ext) ) == 0 )
-         return i;
+   for (int i = 0; i < NUM_FILE_EXTS; i++) {
+      char* ext = FILE_TYPE_EXTS[i];
+      if ( STRING_EndsWith( _filename_, ext, strlen(ext) ) == 0 ) {
+         return FILE_TYPE_MAP[i];
+      }
    }
+
+   fprintf(stderr, "ERROR: '%s' is not an acceptable file type.\n", _filename_);
+   exit(EXIT_FAILURE);
 
    return 0;
 }

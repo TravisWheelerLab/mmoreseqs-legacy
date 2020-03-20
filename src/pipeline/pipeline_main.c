@@ -61,26 +61,18 @@
 void main_pipeline(ARGS* args) 
 {
    /* Get Arguments */
-   float    alpha       = args->alpha;
-   int      beta        = args->beta;
-   char*    hmm_file    = args->target_filepath;
-   char*    fasta_file  = args->query_filepath;
-   int      pipeline    = args->pipeline_mode;
+   float    alpha          = args->alpha;
+   int      beta           = args->beta;
+
+   char*    t_filepath     = args->target_filepath;
+   char*    q_filepath     = args->query_filepath;
 
    // int      mode        = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
-   int      mode        = MODE_UNILOCAL;      /* Cloud Search mode (prohibiits jumps) */
+   int      mode           = MODE_UNILOCAL;      /* Cloud Search mode (prohibiits jumps) */
 
    /* Target & Query */
-   HMM_PROFILE* target_prof = NULL;
-   SEQUENCE*    query_seq   = NULL;
-
-   /* PRINT ARGS */
-   printf("%*s: %s\n", 15, "PIPELINE", PIPELINE_NAMES[pipeline]);
-   printf("%*s: %s\n", 15, "HMM_FILENAME", hmm_file);
-   printf("%*s: %s\n", 15, "FASTA_FILENAME", fasta_file);
-   printf("%*s: %f\n", 15, "ALPHA", alpha);
-   printf("%*s: %d\n", 15, "BETA", beta);
-   printf("%*s: %s\n", 15, "MODE", MODE_NAMES[mode]);
+   HMM_PROFILE* target     = NULL;
+   SEQUENCE*    query      = NULL;
 
    /* Timing & Scoring */
    SCORES*  scores      = (SCORES*) malloc( sizeof(SCORES) );
@@ -98,46 +90,53 @@ void main_pipeline(ARGS* args)
    float    sc          = 0.f;
 
    // printf("=== LOAD HMM_PROFILE / QUERY -> START ===\n");
-   target_prof = HMM_PROFILE_Parse(hmm_file, 0);
-   HMM_PROFILE_Config(target_prof, mode);
-   T = target_prof->N;
+   target = HMM_PROFILE_Parse(t_filepath, 0);
+   HMM_PROFILE_Config(target, mode);
+   T = target->N;
 
-   query_seq = SEQUENCE_Fasta_Parse(fasta_file, 0);
-   Q = query_seq->N;
+   query = SEQUENCE_Fasta_Parse(q_filepath, 0);
+   Q = query->N;
 
-   ALIGNMENT*  tr           = ALIGNMENT_Create();
-   EDGEBOUNDS* edg_fwd_lin  = EDGEBOUNDS_Create();
-   EDGEBOUNDS* edg_bck_lin  = EDGEBOUNDS_Create();
-   EDGEBOUNDS* edg_row_lin  = NULL;
-   EDGEBOUNDS* edg_diag_lin = NULL;
+   ALIGNMENT*  tr             = ALIGNMENT_Create();
+   EDGEBOUNDS* edg_fwd_lin    = EDGEBOUNDS_Create();
+   EDGEBOUNDS* edg_bck_lin    = EDGEBOUNDS_Create();
+   EDGEBOUNDS* edg_row_lin    = NULL;
+   EDGEBOUNDS* edg_diag_lin   = NULL;
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
-   MATRIX_3D*  st_MATRIX    = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
-   float*      st_MX        = st_MATRIX->data;
-   MATRIX_2D*  sp_MATRIX    = MATRIX_2D_Create(NUM_SPECIAL_STATES, Q+1);
-   float*      sp_MX        = sp_MATRIX->data;
+   MATRIX_3D*  st_MATRIX      = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   float*      st_MX          = st_MATRIX->data;
+   MATRIX_2D*  sp_MATRIX      = MATRIX_2D_Create(NUM_SPECIAL_STATES, Q+1);
+   float*      sp_MX          = sp_MATRIX->data;
    /* allocate memory for linear algs */
-   MATRIX_3D*  st_MATRIX3   = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
-   float*      st_MX3       = st_MATRIX3->data;
+   MATRIX_3D*  st_MATRIX3     = MATRIX_3D_Create(NUM_NORMAL_STATES, 3, (Q+T+1) );
+   float*      st_MX3         = st_MATRIX3->data;
+
+   /* === INDEX FILES === */
+   F_INDEX*    t_index        = F_INDEX_Create( t_filepath );
+   F_INDEX*    q_index        = F_INDEX_Create( q_filepath );
+
+
+   /* ==== CLOUD SEARCH === */
 
    /* run viterbi algorithm */
-   viterbi_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   viterbi_Quad(query, target, Q, T, st_MX, sp_MX, &sc);
 
    /* build traceback */
-   traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   traceback_Build(query, target, Q, T, st_MX, sp_MX, tr);
 
    /* run forward/backward algorithms */
    init_Logsum();
 
-   cloud_Forward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
-   cloud_Backward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
+   cloud_Forward_Linear(query, target, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
+   cloud_Backward_Linear(query, target, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
 
    edg_diag_lin = EDGEBOUNDS_Merge(Q, T, edg_fwd_lin, edg_bck_lin);
    edg_row_lin  = EDGEBOUNDS_Reorient(Q, T, edg_diag_lin);
 
-   bound_Forward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Linear(query, target, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    scores->cloud_fwd_sc = sc;
-   bound_Backward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Linear(query, target, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    scores->cloud_bck_sc = sc;
 
    printf("=== SCORES ===\n");
@@ -151,8 +150,8 @@ void main_pipeline(ARGS* args)
    MATRIX_3D_Destroy(st_MATRIX3);
 
    /* free hmm_profile and sequence*/
-   HMM_PROFILE_Destroy(target_prof);
-   SEQUENCE_Destroy(query_seq);
+   HMM_PROFILE_Destroy(target);
+   SEQUENCE_Destroy(query);
 
    /* free alignment */
    ALIGNMENT_Destroy(tr);

@@ -126,7 +126,7 @@ void EDGEBOUNDS_Insert(EDGEBOUNDS*  edg,
 
 /*
  *  FUNCTION: EDGEBOUNDS_Delete()
- *  SYNOPSIS: Delete bound at i-index and fill from end of list.
+ *  SYNOPSIS: Delete BOUND at i-index and fill from end of list.
  *
  *  ARGS:      <edg>       Edgebounds,
  *             <bnd>       Bound,
@@ -146,12 +146,26 @@ void EDGEBOUNDS_Delete(EDGEBOUNDS*  edg,
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_Resize()
- *  SYNOPSIS: Resize number of bounds in edgebound object.
+ *  FUNCTION: EDGEBOUNDS_Clear()
+ *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND.
  *
  *  ARGS:      <edg>      Edgebounds Object
  *
- *  RETURN:
+ *  RETURN:    None.
+ */
+void EDGEBOUNDS_Clear(EDGEBOUNDS* edg)
+{
+   edg->N = 0;
+}
+
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Resize()
+ *  SYNOPSIS: Resize number of BOUNDS in EDGEBOUND object.
+ *
+ *  ARGS:      <edg>      EDGEBOUND Object
+ *
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
                        int         size)
@@ -166,7 +180,7 @@ void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
  *
  *  ARGS:      <edg>      Edgebounds Object
  *
- *  RETURN:
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
 {
@@ -193,7 +207,7 @@ void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
  *
  *  ARGS:      <edg>      Edgebounds Object
  *
- *  RETURN:
+ *  RETURN:    None.
  */
 void EDGEBOUNDS_SetHeads(EDGEBOUNDS *edg)
 {
@@ -214,8 +228,6 @@ void EDGEBOUNDS_SetHeads(EDGEBOUNDS *edg)
 /*
  *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object.
- *
- *  PURPOSE:
  *
  *  ARGS:      <edg>      Edgebounds Object
  *

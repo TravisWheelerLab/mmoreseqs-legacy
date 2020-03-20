@@ -52,7 +52,6 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
    char*       name           = NULL;
 
    /* first pass */
-   printf("FILE: %s\n", _filename_);
    f_index = F_INDEX_Create(_filename_);
    fp      = fopen(_filename_, "r");
 
@@ -65,18 +64,21 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
    {
       /* if starts new header, add to index */
-      if ( strncmp(line_buf, "HMMER", 5) ) 
+      if ( strncmp(line_buf, "HMMER", 5)  == 0 ) 
       {
          cur_offset = prv_offset;
 
          while ( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
          {
-            if ( strncmp(line_buf, "NAME", 4) ) {
+            if ( strncmp(line_buf, "NAME", 4) == 0 ) 
+            {
                int i = 0;
                for ( i = 4; line_buf[i] != ' '; i++) {}
                name = &line_buf[i];
+               name[strlen(name)-1] = '\0';
+
+               F_INDEX_PushBack( f_index, (F_INDEX_NODE){name, cur_offset} );
             }
-            F_INDEX_PushBack( f_index, (F_INDEX_NODE){line_buf, cur_offset} );
          }
       }
       
@@ -120,7 +122,6 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
    char*       name           = NULL;
 
    /* first pass */
-   printf("FILE: %s\n", _filename_);
    f_index = F_INDEX_Create(_filename_);
    fp      = fopen(_filename_, "r");
 
@@ -179,11 +180,30 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
    }
 
    /* parse header details */
+   while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
+   {
+      /* ignore commented lines */
+      if (line_buf[0] == '#') continue;
 
+      /* remove end line */
+      if(line_buf[line_size-1] == '\n') {
+         line_buf[line_size-1] = '\0';
+         line_size--;
+      }
+
+      /* */
+      
+
+
+      line_count++;
+   }
 
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
    {
+      /* ignore commented lines */
+      if (line_buf[0] == '#') continue;
+
       /* remove end line */
       if(line_buf[line_size-1] == '\n') {
          line_buf[line_size-1] = '\0';

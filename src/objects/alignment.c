@@ -78,6 +78,12 @@ void ALIGNMENT_Resize(ALIGNMENT* aln,
    aln->Nalloc = size;
 }
 
+/* Empty ALIGNMENT Array */
+void ALIGNMENT_Clear(ALIGNMENT* aln)
+{
+   aln->N = 0;
+}
+
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,
                     FILE*      fp)

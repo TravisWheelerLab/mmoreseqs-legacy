@@ -103,12 +103,31 @@ void RESULTS_M8_Dump( RESULTS*   results,
       }
    }
 
+   /* headers */
    fprintf( fp, "# M8 RESULTS:\n");
+
+   fprintf( fp, "# " );
+   fprintf( fp, "%s\t",   "query" );
+   fprintf( fp, "%s\t",   "target" );
+
+   fprintf( fp, "%s\t",    "perc_id" );
+   fprintf( fp, "%s\t",    "aln_len" );
+   fprintf( fp, "%s\t",    "mismatch" );
+   fprintf( fp, "%s\t",    "gaps" );
+
+   fprintf( fp, "%d\t",    "q_st" );
+   fprintf( fp, "%d\t",    "q_end");
+   fprintf( fp, "%d\t",    "t_st" );
+   fprintf( fp, "%d\t",    "t_end" );
+
+   fprintf( fp, "%.3e\t",   "eval" );
+   fprintf( fp, "%d\n",     "bit-score" );
+
    for (int i = 0; i < results->N; i++) {
       RESULT* res = &(results->data[i]);
 
-      fprintf( fp, "%*s\t",   -max_len, res->query_name );
-      fprintf( fp, "%*s\t",   -max_len, res->target_name );
+      fprintf( fp, "%s\t",    res->query_name );
+      fprintf( fp, "%s\t",    res->target_name );
 
       fprintf( fp, "%.3f\t",  res->perc_id );
       fprintf( fp, "%d\t",    res->aln_len );
@@ -120,8 +139,75 @@ void RESULTS_M8_Dump( RESULTS*   results,
       fprintf( fp, "%d\t",    res->target_start );
       fprintf( fp, "%d\t",    res->target_end );
 
-      fprintf( fp, "%.3e\t",    res->e_value );
+      fprintf( fp, "%.3e\t",  res->e_value );
       fprintf( fp, "%d\n",    res->bit_score );
+   }
+}
+
+/* output results to file pointer */
+void RESULTS_My_Dump( RESULTS*   results,
+                      FILE*      fp )
+{
+   if (fp == NULL) {
+      fprintf(stderr, "ERROR: Unable to open file.\n");
+      exit(EXIT_FAILURE);
+   }
+
+   int max_len = 0;
+   for (int i = 0; i < results->N; i++) {
+      RESULT* res = &(results->data[i]);
+
+      if ( max_len < strlen(res->query_name) ) {
+         max_len = strlen(res->query_name);
+      }
+
+      if ( max_len < strlen(res->target_name) ) {
+         max_len = strlen(res->target_name);
+      }
+   }
+
+   /* headers */
+   fprintf( fp, "# M8 RESULTS:\n");
+
+   fprintf( fp, "# " );
+   fprintf( fp, "%s\t",   "query" );
+   fprintf( fp, "%s\t",   "target" );
+
+   fprintf( fp, "%s\t",    "perc_id" );
+   fprintf( fp, "%s\t",    "aln_len" );
+   fprintf( fp, "%s\t",    "mismatch" );
+   fprintf( fp, "%s\t",    "gaps" );
+
+   fprintf( fp, "%d\t",    "q_st" );
+   fprintf( fp, "%d\t",    "q_end");
+   fprintf( fp, "%d\t",    "t_st" );
+   fprintf( fp, "%d\t",    "t_end" );
+
+   fprintf( fp, "%.3e\t",   "eval" );
+   fprintf( fp, "%d\n",     "mmseqs-sc" );
+
+   fprintf( fp, "%d\n",     "cloud-sc" );
+
+   for (int i = 0; i < results->N; i++) {
+      RESULT* res = &(results->data[i]);
+
+      fprintf( fp, "%s\t",    res->query_name );
+      fprintf( fp, "%s\t",    res->target_name );
+
+      fprintf( fp, "%.3f\t",  res->perc_id );
+      fprintf( fp, "%d\t",    res->aln_len );
+      fprintf( fp, "%d\t",    res->mismatch );
+      fprintf( fp, "%d\t",    res->gap_openings );
+
+      fprintf( fp, "%d\t",    res->query_start );
+      fprintf( fp, "%d\t",    res->query_end );
+      fprintf( fp, "%d\t",    res->target_start );
+      fprintf( fp, "%d\t",    res->target_end );
+
+      fprintf( fp, "%.3e\t",  res->e_value );
+      fprintf( fp, "%d\t",    res->bit_score );
+
+      fprintf( fp, "%d\n",    res->cloud_fwd_sc );
    }
 }
 

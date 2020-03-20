@@ -259,17 +259,16 @@ void F_INDEX_Dump(F_INDEX* index,
    }
 
    fprintf(fp, "# === FILE INDEX === #\n");
-   fprintf(fp, "# %*s: %s\n", 20, "FILE",                index->filepath);
-   fprintf(fp, "# %*s: %d\n", 20, "NUMBER OF HMM FILES", index->N);
-   fprintf(fp, "# {ID}\t{OFFSET}\t{NAME}\n");
+   fprintf(fp, "%s\t%s\n", "FILE_NAME:",     index->filepath);
+   fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N);
+   fprintf(fp, "# {ID}\t{OFF}\t{NAME}\n");
 
    for (int i = 0; i < index->N; i++)
    {
       F_INDEX_NODE node = index->nodes[i];
       fprintf(fp, "%d\t%d\t%s\n", i, node.offset, node.name);
    }
-
-   fclose(fp);
+   fprintf(fp, "\n");
 }
 
 /* unit test for F_INDEX */
