@@ -10,204 +10,12 @@
 #define _STRUCTS_H
 
 /* === MACRO FUNCTIONS === */
-
-/* MATCH, INSERT, DELETE, SPECIAL DP MATRIX ACCESS MACROS */
-#define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
-#define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j)
-#define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j)
-#define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j)
-/* MATCH, INSERT, DELETE, SPECIAL ANTI-DIAG ACCESS MACROS (d = diag, i = offset) */
-#define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
-#define MMX3(i,j)          ST_MX3( st_MX3, MAT_ST, i, j)
-#define IMX3(i,j)          ST_MX3( st_MX3, INS_ST, i, j)
-#define DMX3(i,j)          ST_MX3( st_MX3, DEL_ST, i, j)
-
-/* SPECIAL STATE MATRIX MACROS */
-#define SP_MX(mx,sp,i)     (mx[ ((sp)*(Q+1)) + (i) ])
-#define XMX(sp,i)          (sp_MX[ ((sp)*(Q+1)) + (i) ])
-
-/* TEST MATRIX */
-#define TMX(i,j)           (test_MX[ ((i)*(T+1)) + (j) ])
-
-/* TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS */
-#define TSC(j,tr)          (target->hmm_model[j].trans[tr])
-// #define TSC(j,tr)          (target->bg_model->trans[tr])
-#define XSC(sp,tr)         (target->bg_model->spec[sp][tr])
-#define MSC(j,A)           (target->hmm_model[j].match[A])
-#define ISC(j,A)           (target->hmm_model[j].insert[A])
-
-/* DEBUG MACRO FOR RETREIVING VARIABLE NAME */
-#define getName(var) #var
-
-/* BASIC FUNCTION MACROS */
-#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
-#define ABS(i)       (( (i) > (0) ? (i) : (-i) ))
-/* check if two value are equal within tolerance */
-#define CMP_TOL(i,j) (( fabs( (i) - (j) ) < tol ? 1 : 0 )) 
-
-/* DEFINED CONSTANTS */
-#define CONST_LOG2 0.69314718055994529
-#define SCALE_FACTOR 1000
-#define INF INFINITY
-#define INT_MIN -2147483648
-
-#define Test_IsLocal(mode)  (mode == MODE_MULTILOCAL || mode == MODE_UNILOCAL)
-#define Test_IsMulti(mode)  (mode == MODE_MULTILOCAL || mode == MODE_MULTIGLOCAL)
+#include "objects/structs_macros.h"
 
 /* === ENUMERATIONS === */
+#include "objects/structs_enums.h"
 
-/* Pipeline Modes */
-typedef enum {
-   PIPELINE_NULL     = 0,
-   PIPELINE_MAIN     = 1,
-   PIPELINE_TEST     = 2,
-   PIPELINE_TIME     = 3,
-   PIPELINE_MMSEQS   = 4,
-   PIPELINE_INDEX    = 5,
-} PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 6
-
-/* Verbosity Modes */
-typedef enum {
-   VERBOSE_NONE   = 0,
-   VERBOSE_LOW    = 1,
-   VERBOSE_HIGH   = 2,
-} VERBOSITY_MODE;
-#define NUM_VERBOSITY_MODES 3
-
-/* Search modes */
-typedef enum {
-   MODE_NULL        = 0,    /* NO APPLICATIONS */
-   MODE_MULTILOCAL  = 1,    /* multihit local:  "fs" mode   */
-   MODE_MULTIGLOCAL = 2,    /* multihit glocal: "ls" mode   */
-   MODE_UNILOCAL    = 3,    /* unihit local: "sw" mode      */
-   MODE_UNIGLOCAL   = 4,    /* unihit glocal: "s" mode      */
-} SEARCH_MODE;
-
-typedef enum {
-   MODE_DIAG = 0,
-   MODE_ROW  = 1,
-} EDG_MODE;
-
-typedef enum {
-   MODE_LINEAR = 0,
-   MODE_QUAD   = 1,
-   MODE_NAIVE  = 2
-} FWDBCK_MODE;
-
-typedef enum {
-   MODE_OVERWRITE = 0,
-   MODE_APPEND    = 1,
-} WRITE_MODE;
-
-typedef enum {
-   FILE_NULL   = 0,
-   FILE_HMM    = 1,
-   FILE_FASTA  = 2,
-} FILE_TYPE;
-#define NUM_FILE_TYPES 3
-#define NUM_FILE_EXTS  3
-
-typedef struct {
-   int beg;
-   int end;
-} RANGE;
-
-typedef struct {
-   int i; /* row index */
-   int j; /* col index */
-} COORDS;
-
-typedef enum {
-   M_ST = 0,   /* MATCH STATE */
-   I_ST = 1,   /* INSERT STATE */
-   D_ST = 2,   /* DELETE STATE */
-   E_ST = 3,   /* END STATE */
-   N_ST = 4,   /* NEW STATE */
-   J_ST = 5,   /* JUMP STATE */
-   C_ST = 6,   /* TERMINAL STATE */
-   B_ST = 7,   /* BEGIN STATE */
-   S_ST = 8,   /*  */
-   T_ST = 9,   /*  */
-   X_ST = 10   /*  */
-} ALL_STATES;
-#define NUM_ALL_STATES 9
-
-typedef enum {
-   MAT_ST = 0,    /* MATCH STATE */
-   INS_ST = 1,    /* INSERT STATE */
-   DEL_ST = 2     /* DELETE STATE */
-} NORMAL_STATES;
-#define NUM_NORMAL_STATES 3
-
-typedef enum {
-   SP_E = 0,   /* END STATE */
-   SP_N = 1,   /* NEW STATE */
-   SP_J = 2,   /* JUMP STATE */
-   SP_C = 3,   /* TERMINAL STATE */
-   SP_B = 4,   /* BEGIN STATE */
-} SPECIAL_STATES;
-#define NUM_SPECIAL_STATES 5
-
-typedef enum {
-   M2M = 0,
-   M2I = 1,
-   M2D = 2,
-   I2M = 3,
-   I2I = 4,
-   D2M = 5,
-   D2D = 6,
-   B2M = 7
-} TRANS_STATES;
-#define NUM_TRANS_STATES 8
-
-typedef struct {
-   float vals[NUM_TRANS_STATES];
-   /* [0]m->m  [1]m->i  [2]m->d  [3]i->m  [4]i->i  [5]d->m  [6]d->d */
-} TRANS_PROB;
-
-typedef enum {
-   AMINO_A = 0,
-   AMINO_C = 1,
-   AMINO_D = 2,
-   AMINO_E = 3,
-   AMINO_F = 4,
-   AMINO_G = 5,
-   AMINO_H = 6,
-   AMINO_I = 7,
-   AMINO_K = 8,
-   AMINO_L = 9,
-   AMINO_M = 10,
-   AMINO_N = 11,
-   AMINO_P = 12,
-   AMINO_Q = 13,
-   AMINO_R = 14,
-   AMINO_S = 15,
-   AMINO_T = 16,
-   AMINO_V = 17,
-   AMINO_W = 18,
-   AMINO_Y = 19,
-   /* non-amino special chars */
-   xGC     = 20, /* gap character */
-   xNC     = 21, /* non-residue character */
-   xMC     = 22  /* missing character */
-} AMINOS;
-#define NUM_AMINO 20
-
-typedef enum {
-   DNA_A = 0,
-   DNA_C = 1,
-   DNA_G = 2,
-   DNA_T = 3,
-} DNAS;
-#define NUM_DNA 4
-
-typedef enum {
-   SP_LOOP = 0,
-   SP_MOVE = 1,
-} SPECIAL_TRANS;
-#define NUM_SPECIAL_TRANS 2
+/* === STRUCTS === */
 
 typedef struct {
    float    viterbi_sc;
@@ -281,6 +89,8 @@ typedef struct {
    float    param2;
 } DIST_PARAM;
 
+
+/* */
 typedef struct {
    /* POSITION-SPECIFIC NORMAL STATE PROBABILITIES */
    /* match emission probabilities for each amino acid */
@@ -291,6 +101,7 @@ typedef struct {
    float    trans[NUM_TRANS_STATES];   
 } HMM_NODE;
 
+/* */
 typedef struct {
    /* BACKGROUND PROBABILITIES */
    /* hard-coded background residue frequencies for each amino acid */
@@ -309,6 +120,7 @@ typedef struct {
    int      num_J;
 } HMM_BG;
 
+/* */
 typedef struct {
    int            N;                /* profile length (number of nodes) */
    int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
@@ -451,14 +263,20 @@ typedef struct {
 
 typedef struct {
    int      num_args;      /* number of arguments */
+   int      data_type;     /* data type of arguments */
+
    char*    name;          /* name of flag o */
    char*    long_flag;     /* long "--" flag */
    char*    short_flag;    /* single character "-" flag */
    char*    desc;          /* description of flag */
+   // void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
 } FLAG_CMD;
 
 
 typedef struct {
+   int      target_int;
+   int      query_int;
+
    char*    target_name;
    char*    query_name;
 

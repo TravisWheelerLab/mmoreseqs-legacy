@@ -1,10 +1,11 @@
 /*******************************************************************************
- *  FILE:      main.c
- *  PURPOSE:   Main Method, Parses Command Line Arguments, then
+ *  FILE:      pipeline_utest.c
+ *  PURPOSE:   Unit Test Cloud Search Pipeline.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
  *******************************************************************************/
+
 
 /* imports */
 #include <stdio.h>
@@ -16,15 +17,11 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and utility functions */
+/* data structures and file parsers */
 #include "objects/structs.h"
 #include "utility.h"
-
-/* file parsers */
-#include "arg_parser.h"
 #include "hmm_parser.h"
 #include "seq_parser.h"
-#include "index_parser.h"
 
 /* objects */
 #include "objects/alignment.h"
@@ -32,9 +29,6 @@
 #include "objects/hmm_profile.h"
 #include "objects/edgebound.h"
 #include "objects/clock.h"
-#include "objects/f_index.h"
-#include "objects/mystring.h"
-
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
 #include "objects/vectors/vector_range_2d.h"
@@ -60,29 +54,10 @@
 /* debugging methods */
 #include "testing.h"
 
-/* pipelines */
+/* header */
 #include "pipeline.h"
 
-/* set debug macros */
-#ifndef DEBUG
-   #define DEBUG false
-#endif
-
-/* === HEADER === */
-
-/* === MAIN ENTRY-POINT TO PROGRAM === */
-int main ( int argc, char *argv[] )
+void utest_pipeline( ARGS* args ) 
 {
-   /* parse command line arguments */
-   ARGS* args  = NULL;
-   args = ARGS_Parse(argc, argv);
-
-   /* output arguments */
-   ARGS_Dump( args, stdout );
-
-   /* jumps to pipeline based on -p flag */
-   printf("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
-   PIPELINES[ args->pipeline_mode ]( args );
-
-   exit(EXIT_SUCCESS);
+   
 }

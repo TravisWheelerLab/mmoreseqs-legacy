@@ -24,6 +24,7 @@
 #include "seq_parser.h"
 
 /* objects */
+#include "objects/f_index.h"
 #include "objects/alignment.h"
 #include "objects/sequence.h"
 #include "objects/hmm_profile.h"

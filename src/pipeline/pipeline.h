@@ -10,18 +10,21 @@
 #define _PIPELINE_MAIN_H
 
 /* standard pipeline */
-void main_pipeline(ARGS* args);
+void main_pipeline( ARGS* args );
 
 /* testing pipeline */
-void test_pipeline(ARGS* args);
+void test_pipeline( ARGS* args );
 
 /* MMSEQS pipeline */
-void mmseqs_pipeline(ARGS* args);
+void mmseqs_pipeline( ARGS* args );
 
 /* time trial pipeline */
-void time_pipeline(ARGS* args);
+void time_pipeline( ARGS* args );
 
 /* indexing pipeline */
-void index_pipeline(ARGS* args);
+void index_pipeline( ARGS* args );
+
+/* unit and integration testing pipeline */
+void utest_pipeline( ARGS* args );
 
 #endif /* _PIPELINE_MAIN_H */

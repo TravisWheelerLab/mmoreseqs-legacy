@@ -7,7 +7,8 @@
 #################################################################################
 
 # define C compiler to use
-CC = gcc-8
+CC = gcc-9
+CXX = g++-9 
 
 # final executable
 TARGET_EXEC ?= fb-pruner

@@ -206,7 +206,10 @@ char* FILE_TYPE_NAMES[] = {
 
 /* command line flags and options */
 FLAG_CMD command_opts[] = {
-   {  1,    "ALPHA",  "--alpha",  "-a",    "X-drop pruning ratio." },
-   {  1,    "BETA",   "--beta",   "-b",    "Number of passes of cloud search before pruning." }, 
+   /* pruning vars */
+   {  1,   DATATYPE_FLOAT, "ALPHA",    "--alpha",     "-a",    "X-drop pruning ratio." },
+   {  1,   DATATYPE_INT,   "BETA",     "--beta",      "-b",    "Number of passes of cloud search before pruning." },
+   {  1,   DATATYPE_INT,   "PIPELINE", "--pipeline",  "-p",    "Pipeline type: ID or name."  },
+   {  4,   DATATYPE_INT,   "WINDOW",   "--window",    "-w",    "Examine substring of query and target."  }
 };
 
