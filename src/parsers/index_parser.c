@@ -119,6 +119,8 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
 
    long        cur_offset     = 0;
    long        prv_offset     = 0;
+
+   int         id             = 0;
    char*       name           = NULL;
 
    /* first pass */
@@ -141,7 +143,9 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
 
       /* if starts new header, add to index */
       if (line_buf[0] == '>') {
-         F_INDEX_PushBack( f_index, (F_INDEX_NODE){line_buf, prv_offset} );
+         name = line_buf;
+         F_INDEX_PushBack( f_index, (F_INDEX_NODE){id, name, prv_offset} );
+         id++;
       }
       
       line_count++;

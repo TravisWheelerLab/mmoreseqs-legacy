@@ -73,25 +73,25 @@
 /* Constructor */
 HMM_PROFILE* HMM_PROFILE_Create();
 /* Destructor */
-void HMM_PROFILE_Destroy(HMM_PROFILE* prof);
+void HMM_PROFILE_Destroy( HMM_PROFILE* prof );
 
 /* Set Textfield to HMM_PROFILE field */
-void HMM_PROFILE_Set_TextField(char** prof_field, 
-                               char*  text);
+void HMM_PROFILE_Set_TextField( char** prof_field, 
+                                char*  text );
 /* Set HMM Model Length and allocate memory for nodes */
-void HMM_PROFILE_Set_Model_Length(HMM_PROFILE* prof, 
-                                  int          num_nodes);
+void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof, 
+                                   int          length );
 /* Set alphabet (DNA or AMINO ACID) for HMM_PROFILE */
-void HMM_PROFILE_Set_Alphabet(HMM_PROFILE* prof, 
-                              char*        alph_name);
+void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof, 
+                               char*        alph_name );
 /* Set Distribution Parameters for HMM_PROFILE */
-void HMM_PROFILE_Set_Distribution_Params(HMM_PROFILE* prof, 
-                                         float        param1, 
-                                         float        param2, 
-                                         char*        dist_name);
+void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof, 
+                                          float        param1, 
+                                          float        param2, 
+                                          char*        dist_name );
 
 /* Output HMM_PROFILE to FILE POINTER */
-void HMM_PROFILE_Dump(HMM_PROFILE* prof, 
-                      FILE*        fp);
+void HMM_PROFILE_Dump( HMM_PROFILE* prof, 
+                       FILE*        fp );
 
 #endif /* _HMM_PROFILE_H */

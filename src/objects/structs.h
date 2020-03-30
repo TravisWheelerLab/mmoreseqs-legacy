@@ -79,20 +79,13 @@ typedef struct {
    float*   stamps;           /* */
 } CLOCK;
 
-typedef enum {
-   AMINO    = 0,              /* Protein Alphabet */
-   DNA      = 1,              /* DNA {ACGT} Alphabet */
-} ALPHABET;
-
 typedef struct {
    float    param1;
    float    param2;
 } DIST_PARAM;
 
-
-/* */
+/* position specific state probabilities */
 typedef struct {
-   /* POSITION-SPECIFIC NORMAL STATE PROBABILITIES */
    /* match emission probabilities for each amino acid */
    float    match[NUM_AMINO];
    /* insert emission probabilities for each amino acid */  
@@ -101,7 +94,7 @@ typedef struct {
    float    trans[NUM_TRANS_STATES];   
 } HMM_NODE;
 
-/* */
+/* HMM Background Probabilities */
 typedef struct {
    /* BACKGROUND PROBABILITIES */
    /* hard-coded background residue frequencies for each amino acid */
@@ -116,30 +109,45 @@ typedef struct {
    /* SPECIAL STATE PROBABILITIES */
    /* move, loop for special transition states */
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
+
    /* jump value for configuring HMM */
-   int      num_J;
+   int      num_J; /* number of jumps allowed by model */
 } HMM_BG;
 
-/* */
+/* HMM File Data */
 typedef struct {
-   int            N;                /* profile length (number of nodes) */
-   int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
-   /* profile settings */
-   int            isLocal;          /* */
-   int            isMultihit;       /* */  
-   /* file location */
+   
+} HMM;
+
+/* HMM Profile */
+typedef struct {
+   /* META DATA */
+   /* file data */
    char*          filepath;         /* path to the file containing hmm */
-   int            offset;           /* offset within file to hmm */
-   /* meta data listed in hmm file */
-   char*          name;             /* */
-   char*          acc;              /* */
-   char*          desc;             /* */
-   char*          alph;             /* PROTEIN or DNA (Only PROTEIN ACCEPTED ) */;      
+   int            b_offset;         /* offset within file to beginning of hmm */
+   int            e_offset;         /* offset within file to ending of hmm */
+
+   /* entry data */
+   char*          name;             /* unique name field of model in file */
+   char*          acc;              /* unique accession field of model in file  */
+   char*          desc;             /* description field of model in file */
+   char*          alph;             /* PROTEIN or DNA (Only PROTEIN ACCEPTED ) */;  
+
+   /* profile settings */
+   int            mode;             /* enumerated mode */
+   int            isLocal;          /* local or global? */
+   int            isMultihit;       /* multi hit or single hit? */   
+
    /* distribution parameters for scoring */
    DIST_PARAM*    msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */
    DIST_PARAM*    viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
    DIST_PARAM*    forward_dist;     /* Parameters for the Distribution for Fwd/Bck Scores */
-   /* models */
+
+   /* MODEL DATA */
+   int            N;                /* profile length (currently in use) */
+   int            Nalloc;           /* profile length (allocated memory) */
+   int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
+
    HMM_BG*        bg_model;         /* background composition */
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
@@ -242,6 +250,7 @@ typedef struct {
 
 
 typedef struct {
+   int         id;            /* id number, determined by order in file */
    char*       name;          /* Name of HMM/FASTA in file */
    long        offset;        /* Positional offset of HMM/FASTA into file */
 } F_INDEX_NODE;

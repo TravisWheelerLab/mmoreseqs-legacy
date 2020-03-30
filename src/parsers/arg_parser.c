@@ -160,8 +160,8 @@ ARGS*  ARGS_Parse( int     argc,
 /* SET DEFAULT ARGUMENTS (for testing) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->target_filepath         = "data/test1_2.hmm";
-   args->query_filepath          = "data/test1_1.fa";
+   args->target_filepath         = "test_input/test1_2.hmm";
+   args->query_filepath          = "test_input/test1_1.fa";
 
    args->target_indexpath        = NULL;
    args->query_indexpath         = NULL;
@@ -171,7 +171,7 @@ void  ARGS_Set_Defaults( ARGS* args )
 
    args->hits_filepath           = NULL;
 
-   args->output_filepath         = "#stdout";
+   args->output_filepath         = "test_output/test.txt";
    // args->output_filepath         = "stats/cloud_stats.tsv";
 
    args->alpha                   = 20.0f;

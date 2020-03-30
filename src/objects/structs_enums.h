@@ -171,4 +171,10 @@ typedef enum {
 } SPECIAL_TRANS;
 #define NUM_SPECIAL_TRANS 2
 
+typedef enum {
+   AMINO    = 0,              /* Protein Alphabet */
+   DNA      = 1,              /* DNA {ACGT} Alphabet */
+} ALPHABET;
+
+
 #endif /* _STRUCTS_ENUMS_H */

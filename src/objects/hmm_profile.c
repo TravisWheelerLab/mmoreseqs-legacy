@@ -44,6 +44,10 @@ HMM_PROFILE* HMM_PROFILE_Create()
    prof->viterbi_dist   = NULL;
    prof->forward_dist   = NULL;
 
+   prof->N              = 0;
+   prof->Nalloc         = 0;
+   prof->alph_leng      = 20;
+
    prof->bg_model       = NULL;
    prof->hmm_model      = NULL;
 
@@ -57,7 +61,7 @@ HMM_PROFILE* HMM_PROFILE_Create()
 }
 
 /* Destructor */
-void HMM_PROFILE_Destroy(HMM_PROFILE *prof)
+void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 {
    free(prof->filepath);
    free(prof->name);
@@ -76,8 +80,8 @@ void HMM_PROFILE_Destroy(HMM_PROFILE *prof)
 }
 
 /* Set text to given HMM_PROFILE field */
-void HMM_PROFILE_Set_TextField(char** prof_field, 
-                               char*  text)
+void HMM_PROFILE_Set_TextField( char** prof_field, 
+                                char*  text )
 {
    *prof_field = malloc( sizeof(char) * ( strlen(text) + 1 ) );
    if ( *prof_field == NULL ) {
@@ -88,21 +92,27 @@ void HMM_PROFILE_Set_TextField(char** prof_field,
 }
 
 /* Set HMM Model Length and allocate memory for nodes */
-void HMM_PROFILE_Set_Model_Length(HMM_PROFILE* prof, 
-                                  int          length)
+void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof, 
+                                   int          length )
 {
-   prof->N = length;
-   prof->hmm_model = (HMM_NODE*) calloc( length + 1, sizeof(HMM_NODE) );
+   /* realloc memory if  */
+   if ( prof->N < length )
+   {
+      prof->hmm_model = (HMM_NODE*) realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
+      prof->Nalloc = length;
 
-   if (prof->hmm_model == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc HMM_MODEL for HMM_PROFILE.\n");
-      exit(EXIT_FAILURE);
+      if (prof->hmm_model == NULL) {
+         fprintf(stderr, "ERROR: Unable to malloc HMM_MODEL for HMM_PROFILE.\n");
+         exit(EXIT_FAILURE);
+      }
    }
+
+   prof->N = length;
 }
 
 /* Set alphabet (DNA or AMINO ACID) for HMM_PROFILE */
-void HMM_PROFILE_Set_Alphabet(HMM_PROFILE* prof, 
-                              char*        alph_name)
+void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof, 
+                               char*        alph_name )
 {
    prof->alph = malloc( sizeof(char) * (strlen(alph_name) + 1) );
    if (prof->alph == NULL) {
@@ -129,10 +139,10 @@ void HMM_PROFILE_Set_Alphabet(HMM_PROFILE* prof,
 }
 
 /* Set Distribution Parameters for HMM_PROFILE */
-void HMM_PROFILE_Set_Distribution_Params(HMM_PROFILE* prof, 
-                                         float        param1, 
-                                         float        param2, 
-                                         char*        dist_name)
+void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof, 
+                                          float        param1, 
+                                          float        param2, 
+                                          char*        dist_name )
 {
    float*   parPtr1 = NULL;
    float*   parPtr2 = NULL;
@@ -159,8 +169,8 @@ void HMM_PROFILE_Set_Distribution_Params(HMM_PROFILE* prof,
 }
 
 /* Output HMM_PROFILE to FILE POINTER */
-void HMM_PROFILE_Dump(HMM_PROFILE* prof, 
-                      FILE*        fp)
+void HMM_PROFILE_Dump( HMM_PROFILE* prof, 
+                       FILE*        fp )
 {
    /* test for bad file pointer */
    if (fp == NULL) {

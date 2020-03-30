@@ -185,34 +185,35 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
    }
 
    /* PARSE NODE PROBABILITY VALUES */
+
    /* set first node to zero */
    curr_node = &prof->hmm_model[0];
    curr_node->match[0] = 1.0f;
-   for (int i = 1; i < NUM_AMINO; i++) {
+   for ( int i = 1; i < NUM_AMINO; i++ ) {
       curr_node->match[0] = 0.0f;
    }
 
    /* read file node-by-node */
-   for ( int cnt = 1; cnt < prof->N; cnt++ )
+   for ( int j = 1; j < prof->N; j++ )
    {
       /* get first line in current node */
       line_size = getline ( &line_buf, &line_buf_size, fp );
       token = strtok ( line_buf, " \n" ); /* get first word (index) */
       // idx = atoi(token); /* index of line in sequence (unnecessary) */
 
-      curr_node = &prof->hmm_model[cnt];  /* get current node */
+      curr_node = &prof->hmm_model[j];  /* get current node */
       token = strtok(NULL, " \n");        /* get next word */
 
       /* LINE 1: Match Emission Line */
-      for ( int i = 0; i < NUM_AMINO; i++)
+      for ( int j = 0; j < NUM_AMINO; j++)
       {
          /* check if valid float */
          if ( token[0] == '*' ) {
-            curr_node->match[i] = 0.0f;
+            curr_node->match[j] = 0.0f;
          } else {
             value = atof( token );
             value = negln2real( value );
-            curr_node->match[i] = value;
+            curr_node->match[j] = value;
          }
 
          token = strtok(NULL, " \n"); /* get next word */
@@ -222,15 +223,15 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
       getline ( &line_buf, &line_buf_size, fp ); /* get next line */
       token = strtok ( line_buf, " \n" ); /* get first word */
 
-      for ( int i = 0; i < NUM_AMINO; i++)
+      for ( int j = 0; j < NUM_AMINO; j++)
       {
          /* check if valid float */
          if ( token[0] == '*' ) {
-            curr_node->insert[i] = 0.0f;
+            curr_node->insert[j] = 0.0f;
          } else {
             value = atof( token );
             value = negln2real( value );
-            curr_node->insert[i] = value;
+            curr_node->insert[j] = value;
          }
 
          token = strtok(NULL, " \n"); /* get next word */
@@ -240,15 +241,15 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
       getline ( &line_buf, &line_buf_size, fp ); /* get next line */
       token = strtok ( line_buf, " \n" ); /* get first word */
 
-      for ( int i = 0; i < NUM_TRANS_STATES - 1; i++)
+      for ( int j = 0; j < NUM_TRANS_STATES - 1; j++)
       {
          /* check if valid float */
          if ( token[0] == '*' ) {
-            curr_node->trans[i] = 0.0f;
+            curr_node->trans[j] = 0.0f;
          } else {
             value = atof( token );
             value = negln2real( value );
-            curr_node->trans[i] = value;
+            curr_node->trans[j] = value;
          }
 
          token = strtok(NULL, " \n"); /* get next word */
@@ -257,7 +258,7 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
 
    /* initial node */
    curr_node->match[0] = 1.0f;
-   for ( int i = 1; i < NUM_AMINO; i++)
+   for ( int i = 1; i < NUM_AMINO; i++ )
    {
       curr_node->match[i] = 0.0f;
    }

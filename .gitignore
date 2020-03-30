@@ -5,10 +5,8 @@
 *.sublime-project
 *.sublime-workspace
 
-# testing and bytecode
-output/
-test_output/
-build/
-
-# test
-test.txt
+# testing and bytecode folders
+test_input/*
+test_output/*
+output/*
+build/*

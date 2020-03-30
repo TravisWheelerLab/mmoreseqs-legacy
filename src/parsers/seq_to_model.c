@@ -21,16 +21,29 @@
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 #include "utility.h"
-
-/* header */
+/* self header */
 #include "seq_to_model.h"
 
 /* converts sequence to HMM profile model */
 void SEQ_to_PROF( SEQUENCE*      seq, 
                   HMM_PROFILE*   prof )
 {
+   int      N;
+   char*    filename;
+   double   popen;
+   double   pextend;
+
    /* extract info */
-   char*          filename = seq->filename;
+   N        = seq->N;
+   filename = seq->filename;
 
+   /* resize profile if necessary */
+   HMM_PROFILE_Set_Model_Length( prof, seq->N );
 
+   for (int i = 0; i < N; i++)
+   {
+      for (int j = 0; j < NUM_AMINO; j++) {
+
+      }
+   }
 }
