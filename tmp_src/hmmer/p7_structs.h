@@ -349,5 +349,4 @@ typedef struct p7_builder_s {
   char errbuf[eslERRBUFSIZE];            /* informative message on model construction failure      */
 } P7_BUILDER;
 
-
 #endif /* _P7_STRUCTS_H */

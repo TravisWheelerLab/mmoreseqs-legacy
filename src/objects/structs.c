@@ -59,7 +59,7 @@ int AA_REV[] = {
 };
 
 /* Null model background frequencies (normal space) used by HMMER */
-float BG_MODEL[] = {
+double BG_MODEL[] = {
    0.0787945,     /* A */
    0.0151600,     /* C */
    0.0535222,     /* D */
@@ -83,7 +83,7 @@ float BG_MODEL[] = {
 };
 
 /* Null model background -log(x) frequencies (neg log space) used by HMMER */
-float BG_MODEL_log[] = {
+double BG_MODEL_log[] = {
    2.540912081508539,     /* A */
    4.189094898767911,     /* C */
    2.927658757878447,     /* D */

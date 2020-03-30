@@ -15,7 +15,7 @@ TARGET_EXEC ?= fb-pruner
 
 # input/output directories
 BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src
+SRC_DIRS ?= ./src 
 
 # get all source code from source directory
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)

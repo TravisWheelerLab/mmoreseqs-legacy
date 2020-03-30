@@ -6,7 +6,7 @@ build/./src/main.c.o: src/main.c src/objects/structs.h \
  src/objects/edgebound.h src/objects/structs.h \
  src/objects/vectors/vector_int.h src/objects/vectors/../structs.h \
  src/objects/vectors/vector_bound.h src/objects/clock.h \
- src/objects/f_index.h src/objects/mystring.h \
+ src/objects/f_index.h src/objects/mystring.h src/objects/score_matrix.h \
  src/objects/matrix/matrix_2d.h src/objects/matrix/matrix_3d.h \
  src/objects/vectors/vector_range_2d.h src/objects/vectors/../edgebound.h \
  src/objects/vectors/vector_int.h src/objects/vectors/vector_range.h \
@@ -57,6 +57,8 @@ src/objects/clock.h:
 src/objects/f_index.h:
 
 src/objects/mystring.h:
+
+src/objects/score_matrix.h:
 
 src/objects/matrix/matrix_2d.h:
 

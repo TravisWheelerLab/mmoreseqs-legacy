@@ -95,8 +95,8 @@ void HMM_PROFILE_Set_TextField( char** prof_field,
 void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof, 
                                    int          length )
 {
-   /* realloc memory if  */
-   if ( prof->N < length )
+   /* realloc memory if allocated length is less than new length */
+   if ( prof->Nalloc < length )
    {
       prof->hmm_model = (HMM_NODE*) realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
       prof->Nalloc = length;

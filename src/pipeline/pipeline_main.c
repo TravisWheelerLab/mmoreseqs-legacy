@@ -62,18 +62,18 @@
 void main_pipeline(ARGS* args) 
 {
    /* Get Arguments */
-   float    alpha          = args->alpha;
-   int      beta           = args->beta;
+   float    alpha       = args->alpha;
+   int      beta        = args->beta;
 
-   char*    t_filepath     = args->target_filepath;
-   char*    q_filepath     = args->query_filepath;
+   char*    t_filepath  = args->target_filepath;
+   char*    q_filepath  = args->query_filepath;
 
    // int      mode        = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
-   int      mode           = MODE_UNILOCAL;      /* Cloud Search mode (prohibiits jumps) */
+   int      mode        = MODE_UNILOCAL;      /* Cloud Search mode (prohibiits jumps) */
 
    /* Target & Query */
-   HMM_PROFILE* target     = NULL;
-   SEQUENCE*    query      = NULL;
+   HMM_PROFILE* target  = NULL;
+   SEQUENCE*    query   = NULL;
 
    /* Timing & Scoring */
    SCORES*  scores      = (SCORES*) malloc( sizeof(SCORES) );

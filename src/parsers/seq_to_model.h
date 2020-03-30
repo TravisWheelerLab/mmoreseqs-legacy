@@ -1,7 +1,6 @@
 /*******************************************************************************
  *  FILE:      seq_to_model.c
  *  PURPOSE:   Converts a SEQUENCE to HMM_PROFILE.
- *             Uses the Easel and HMMER libraries.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -15,5 +14,6 @@
 void SEQ_to_PROF( SEQUENCE*      seq, 
                   HMM_PROFILE*   prof );
 
+HMM_BG* HMM_BG_Create();
 
 #endif /* _SEQ_TO_MODEL_H */

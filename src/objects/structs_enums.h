@@ -9,6 +9,17 @@
 #ifndef _STRUCTS_ENUMS_H
 #define _STRUCTS_ENUMS_H
 
+/* === CONSTANTS === */
+#define CONST_LOG2 0.69314718055994529    /*  */
+#define SCALE_FACTOR 1000                 /* scaling factor for summing logrithm */
+#define INF INFINITY
+#define INT_MIN -2147483648               /* min value of integer */
+
+/* submat constants */
+#define ALPHA_MAX 26
+#define SUBMAT_SIZE ALPHA_MAX*ALPHA_MAX
+
+/* === ENUMERATIONS === */
 /* Data Type */
 typedef enum {
    DATATYPE_NONE     = 0,
@@ -38,7 +49,7 @@ typedef enum {
 } VERBOSITY_MODE;
 #define NUM_VERBOSITY_MODES 3
 
-/* Search modes */
+/* Search modes (cloud search only supports uniglocal) */
 typedef enum {
    MODE_NULL        = 0,    /* NO APPLICATIONS */
    MODE_MULTILOCAL  = 1,    /* multihit local:  "fs" mode   */
@@ -47,22 +58,26 @@ typedef enum {
    MODE_UNIGLOCAL   = 4,    /* unihit glocal: "s" mode      */
 } SEARCH_MODE;
 
+/* Flags whether EDGEBOUNDS are stored row-wise or antidiagonal-wise */
 typedef enum {
    MODE_DIAG = 0,
    MODE_ROW  = 1,
 } EDG_MODE;
 
+/* Flags whether using linear, quadratic, or naive algorithm for cloud search (TESTING) */
 typedef enum {
-   MODE_LINEAR = 0,
-   MODE_QUAD   = 1,
-   MODE_NAIVE  = 2
-} FWDBCK_MODE;
+   ALG_LINEAR = 0,
+   ALG_QUAD   = 1,
+   ALG_NAIVE  = 2
+} ALG_MODE;
 
+/* Flags whether output file should be overwritten or appended to */
 typedef enum {
    MODE_OVERWRITE = 0,
    MODE_APPEND    = 1,
 } WRITE_MODE;
 
+/* Flags the filetype of incoming file */
 typedef enum {
    FILE_NULL   = 0,
    FILE_HMM    = 1,
@@ -71,16 +86,7 @@ typedef enum {
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3
 
-typedef struct {
-   int beg;
-   int end;
-} RANGE;
-
-typedef struct {
-   int i; /* row index */
-   int j; /* col index */
-} COORDS;
-
+/*  */
 typedef enum {
    M_ST = 0,   /* MATCH STATE */
    I_ST = 1,   /* INSERT STATE */
@@ -96,6 +102,7 @@ typedef enum {
 } ALL_STATES;
 #define NUM_ALL_STATES 9
 
+/* Normal States that map into dynamic programming matrix */
 typedef enum {
    MAT_ST = 0,    /* MATCH STATE */
    INS_ST = 1,    /* INSERT STATE */
@@ -103,6 +110,7 @@ typedef enum {
 } NORMAL_STATES;
 #define NUM_NORMAL_STATES 3
 
+/* Special States that map into dynamic programming matrix */
 typedef enum {
    SP_E = 0,   /* END STATE */
    SP_N = 1,   /* NEW STATE */
@@ -112,6 +120,7 @@ typedef enum {
 } SPECIAL_STATES;
 #define NUM_SPECIAL_STATES 5
 
+/* Transition States that map into HMM_PROFILE */
 typedef enum {
    M2M = 0,
    M2I = 1,
@@ -123,11 +132,6 @@ typedef enum {
    B2M = 7
 } TRANS_STATES;
 #define NUM_TRANS_STATES 8
-
-typedef struct {
-   float vals[NUM_TRANS_STATES];
-   /* [0]m->m  [1]m->i  [2]m->d  [3]i->m  [4]i->i  [5]d->m  [6]d->d */
-} TRANS_PROB;
 
 typedef enum {
    AMINO_A = 0,
@@ -175,6 +179,5 @@ typedef enum {
    AMINO    = 0,              /* Protein Alphabet */
    DNA      = 1,              /* DNA {ACGT} Alphabet */
 } ALPHABET;
-
 
 #endif /* _STRUCTS_ENUMS_H */

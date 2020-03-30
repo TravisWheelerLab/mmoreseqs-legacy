@@ -29,6 +29,27 @@ int STRING_Len( const char*  str )
    return i;
 }
 
+/* Return concatenation of two input strings as new string */
+char* STRING_Concat( const char*   str1,
+                     const char*   str2 )
+{
+   char*    str;
+   size_t   len;
+
+   len = strlen(str1) + strlen(str2) + 1;
+   str = (char*) malloc( len * sizeof(char) );
+
+   if ( str == NULL ) {
+      fprintf(stderr, "ERROR: malloc failed in STRING_Concat.\n");
+      exit(EXIT_FAILURE);
+   }
+
+   strcpy(str, str1);
+   strcat(str, str2);
+
+   return str;
+}
+
 /* compares first n chars of string 1 and string 2 */ 
 int STRING_BeginsWith( const char*     str1,
                        const char*     str2,

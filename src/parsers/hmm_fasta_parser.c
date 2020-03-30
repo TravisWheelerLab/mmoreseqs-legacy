@@ -21,9 +21,6 @@
 #include "objects/sequence.h"
 #include "utility.h"
 
-/* import easel */
-#include "../easel/easel.h"
-
 /* header */
 #include "hmm_parser.h"
 

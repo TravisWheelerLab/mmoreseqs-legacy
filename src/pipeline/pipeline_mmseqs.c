@@ -125,12 +125,14 @@ void mmseqs_pipeline(ARGS* args)
    /* input results file from MMSEQS pipeline */
    results_in = RESULTS_M8_Parse(m8_filepath);
    RESULTS_M8_Dump(results_in, stdout);
+   
    exit(0);
 
    /* initialize logrithmic sum table */
    init_Logsum();
 
    /* === INDEX FILES === */
+
    /* if target file doesn't have an index file, create one */
    if ( t_indexpath == NULL ) 
    {
@@ -176,6 +178,7 @@ void mmseqs_pipeline(ARGS* args)
    F_INDEX_Sort( q_index );
 
    /* === ITERATE OVER EACH RESULT === */
+
    /* Look through each input result */
    for (int i = 0; i < results_in->N; i++) 
    {

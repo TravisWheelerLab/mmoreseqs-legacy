@@ -34,6 +34,7 @@
 #include "objects/clock.h"
 #include "objects/f_index.h"
 #include "objects/mystring.h"
+#include "objects/score_matrix.h"
 
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"

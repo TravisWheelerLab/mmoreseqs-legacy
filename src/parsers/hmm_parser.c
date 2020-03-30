@@ -29,7 +29,7 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
                                 long    offset )
 {
    /* initialize HMM_PROFILE object */
-   HMM_PROFILE*   prof           = HMM_PROFILE_Create( _filename_ );
+   HMM_PROFILE*   prof           = HMM_PROFILE_Create();
 
    /* parser vars */
    FILE*          fp             = NULL;     
@@ -273,8 +273,8 @@ HMM_PROFILE* HMM_PROFILE_Parse( char*   _filename_,
 
 /* configures HMM_PROFILE to account for background model */
 /* modeled after HMMER p7_ProfileConfig() */
-void HMM_PROFILE_Config(HMM_PROFILE* prof, 
-                        int          mode)
+void HMM_PROFILE_Config( HMM_PROFILE* prof, 
+                         int          mode )
 {
    int      k     = 0; 
    int      x     = 0;
@@ -367,7 +367,7 @@ void HMM_PROFILE_Config(HMM_PROFILE* prof,
 
    /* Match Emission scores */
    for (x = 0; x < prof->alph_leng; x++) {
-      // prof->hmm_model[0].match[x] = -INF;
+      prof->hmm_model[0].match[x] = -INF;
    }
 
    for (k = 1; k < prof->N+1; k++) {
@@ -419,9 +419,6 @@ void HMM_PROFILE_ReconfigLength(HMM_PROFILE*  prof,
    ploop = 1.0f - pmove;
 
    /* hardwire numbers from p7_ReconfigLength() */
-   // ploop = -0.02956; 
-   // pmove = -3.53612;
-
    prof->bg_model->spec[SP_N][SP_LOOP] = log( ploop );
    prof->bg_model->spec[SP_C][SP_LOOP] = log( ploop );
    prof->bg_model->spec[SP_J][SP_LOOP] = log( ploop );
@@ -429,4 +426,18 @@ void HMM_PROFILE_ReconfigLength(HMM_PROFILE*  prof,
    prof->bg_model->spec[SP_N][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_C][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_J][SP_MOVE] = log( pmove );
+}
+
+HMM_BG* HMM_BG_Init()
+{
+   HMM_BG* bg = NULL;
+
+   bg = (HMM_BG*) malloc( sizeof(HMM_BG) );
+
+   for( int i = 0; i < NUM_AMINO; i++ ) 
+   {
+      bg->freq[i] = BG_MODEL[i];
+   }
+
+   return bg;
 }

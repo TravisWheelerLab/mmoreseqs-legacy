@@ -20,8 +20,8 @@
 HMM_PROFILE* HMM_PROFILE_Parse( char*  _filename_, 
                                 long   offset );
 
-/* configures HMM_PROFILE to account for background model */
-/* modeled after HMMER p7_ProfileConfig() */
+/* NOTE: modeled after HMMER p7_ProfileConfig() and other p7 functions */
+/* Configures HMM_PROFILE to account for background model */
 void HMM_PROFILE_Config( HMM_PROFILE* prof, 
                          int          mode );
 /* Calculates the Occupancy for the HMM_PROFILE */

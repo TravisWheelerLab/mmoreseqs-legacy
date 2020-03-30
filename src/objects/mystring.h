@@ -12,6 +12,10 @@
 /* Get the number of characters in a string (including \0) */
 int STRING_Len( const char*  str );
 
+/* Return concatenation of two input strings as new string */
+char* STRING_Concat( const char*   str1,
+                     const char*   str2 );
+
 /* compares first n chars of string 1 and string 2 */ 
 int STRING_BeginsWith( const char*     str1,
                        const char*     str2,

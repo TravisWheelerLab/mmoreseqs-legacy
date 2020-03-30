@@ -1,0 +1,37 @@
+/*******************************************************************************
+ *  @file submat.h
+ *  @brief SUBMAT Object (Substitution Matrix)
+ *
+ *  @author Dave Rich
+ *  @bug Lots.
+ *******************************************************************************/
+
+#ifndef _SUBMAT_H
+#define _SUBMAT_H
+
+/* Constructor */
+SCORE_MATRIX* SCORE_MATRIX_Create();
+/* Destructor */
+void SCORE_MATRIX_Destroy( SCORE_MATRIX*   submat );
+
+/* Construct SCORE_MATRIX object by parsing .submat file */
+SCORE_MATRIX* SCORE_MATRIX_Load( char*    _filename_ );
+
+/* Get score from SCORE_MATRIX, given query/target chars. Returns reference.  */
+float* SCORE_MATRIX_Score( SCORE_MATRIX*  submat, 
+                           char           q_ch, 
+                           char           t_ch );
+
+/* Get SCORE_MATRIX Score, given query and target character */
+float SCORE_MATRIX_Get_Score( SCORE_MATRIX*  submat, 
+                              char           query_char, 
+                              char           target_char );
+/* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */
+int SCORE_MATRIX_Keymap( char    query_char, 
+                         char    target_char);
+
+/* Output SCORE_MATRIX to FILE pointer */
+void SCORE_MATRIX_Dump( SCORE_MATRIX*  submat, 
+                        FILE*          fp );
+
+#endif /* _SUBMAT_H */

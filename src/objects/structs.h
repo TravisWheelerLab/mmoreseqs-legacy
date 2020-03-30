@@ -17,6 +17,19 @@
 
 /* === STRUCTS === */
 
+/* */
+typedef struct {
+   int beg;
+   int end;
+} RANGE;
+
+/* */
+typedef struct {
+   int i; /* row index */
+   int j; /* col index */
+} COORDS;
+
+/* */
 typedef struct {
    float    viterbi_sc;
    float    fwd_sc;
@@ -32,21 +45,21 @@ typedef struct {
    float    perc_window;  
 } SCORES;
 
-/* === OBJECT STRUCTS == */
-/* NOTE: These objects have their own .c files. */
-
+/* vector of integers */
 typedef struct {
    int*     data;             /* array of data type */
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_INT;
 
+/* bound for single row or diagonal */
 typedef struct {
    int      id;               /* current anti-diagonal OR row */
    int      lb;               /* bottom-left (lower) edge-bound */
    int      rb;               /* top-right (upper) edge-bound */
 } BOUND;
 
+/* set of bounds for cloud search space */
 typedef struct {
    int            N;          /* current size of bounds array */
    int            Nalloc;     /* allocated size of bounds array */
@@ -55,12 +68,14 @@ typedef struct {
    BOUND*         bounds;     /* list of bounded ranges along a row/diag */
 } EDGEBOUNDS;
 
+/* given cell of alignment */
 typedef struct {
    int         i;             /* index in query */
    int         j;             /* index in target */
    int         st;            /* state at index */
 } TRACE;
 
+/* alignment for viterbi traceback */
 typedef struct {
    int         N;             /* current length */
    int         Nalloc;        /* allocated length */
@@ -69,6 +84,7 @@ typedef struct {
    TRACE*      traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
 } ALIGNMENT;
 
+/* clock for timing events */
 typedef struct {
    time_t   start;            /* */
    time_t   stop;             /* */
@@ -79,6 +95,7 @@ typedef struct {
    float*   stamps;           /* */
 } CLOCK;
 
+/* distribution parameters */ 
 typedef struct {
    float    param1;
    float    param2;
@@ -98,8 +115,8 @@ typedef struct {
 typedef struct {
    /* BACKGROUND PROBABILITIES */
    /* hard-coded background residue frequencies for each amino acid */
-   float    freq[NUM_AMINO]; 
-   /* background residue frequencies of the given hmm model */
+   float    freq[NUM_AMINO];
+   /* background residue frequencies of the given hmm model (mean composition) */
    float    compo[NUM_AMINO];
    /* insert emission probabilities for each amino acid (uniform across positions) */
    float    insert[NUM_AMINO];
@@ -111,12 +128,11 @@ typedef struct {
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
 
    /* jump value for configuring HMM */
-   int      num_J; /* number of jumps allowed by model */
+   int      num_J; /* number of jumps allowed by model (single hit = 1) */
 } HMM_BG;
 
 /* HMM File Data */
 typedef struct {
-   
 } HMM;
 
 /* HMM Profile */
@@ -124,8 +140,8 @@ typedef struct {
    /* META DATA */
    /* file data */
    char*          filepath;         /* path to the file containing hmm */
-   int            b_offset;         /* offset within file to beginning of hmm */
-   int            e_offset;         /* offset within file to ending of hmm */
+   long           b_offset;         /* offset within file to beginning of hmm */
+   long           e_offset;         /* offset within file to ending of hmm */
 
    /* entry data */
    char*          name;             /* unique name field of model in file */
@@ -134,7 +150,7 @@ typedef struct {
    char*          alph;             /* PROTEIN or DNA (Only PROTEIN ACCEPTED ) */;  
 
    /* profile settings */
-   int            mode;             /* enumerated mode */
+   int            mode;             /* enumerated search mode */
    int            isLocal;          /* local or global? */
    int            isMultihit;       /* multi hit or single hit? */   
 
@@ -152,6 +168,7 @@ typedef struct {
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
 
+/*  */
 typedef struct {
    BOUND*   data;    /* array of data type */
    int      N;       /* current length of array in use */
@@ -165,6 +182,7 @@ typedef struct {
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
 
+/* */
 typedef struct {
    int      N;         /* length of sequence */
    char*    filename;  /* filename of sequence */
@@ -173,6 +191,7 @@ typedef struct {
    char*    seq;       /* */
 } SEQUENCE;
 
+/* */
 typedef struct {
    int      R;       /* number of columns = length of query */ 
    int      C;       /* number of rows = number of special states */
@@ -180,6 +199,7 @@ typedef struct {
    float*   data;    /* */
 } MATRIX_2D;
 
+/* */
 typedef struct {
    int      R;       /* number of rows = length of query */
    int      C;       /* number of columns = length of target  */
@@ -188,8 +208,7 @@ typedef struct {
    float*   data;    /* */
 } MATRIX_3D;
 
-/* === GLOBAL STRUCTS === */
-
+/* */
 typedef struct {
    /* file paths */
    char*    target_filepath;        /* filepath to target (hmm) file */
@@ -228,7 +247,7 @@ typedef struct {
    float    cloud_sc_threshold;
 } ARGS;
 
-
+/* */
 typedef struct {
    float    load_hmm;
 
@@ -248,13 +267,14 @@ typedef struct {
    float    bound_bck;
 } TIMES;
 
-
+/* */
 typedef struct {
    int         id;            /* id number, determined by order in file */
    char*       name;          /* Name of HMM/FASTA in file */
    long        offset;        /* Positional offset of HMM/FASTA into file */
 } F_INDEX_NODE;
 
+/* */
 typedef struct {
    int            N;          /* Number of location index nodes used */
    int            Nalloc;     /* Number of location index nodes allocated */ 
@@ -269,7 +289,7 @@ typedef struct {
    int            isSorted;   /* Whether the index nodes list has been sorted */
 } F_INDEX;
 
-
+/* */
 typedef struct {
    int      num_args;      /* number of arguments */
    int      data_type;     /* data type of arguments */
@@ -281,7 +301,7 @@ typedef struct {
    // void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
 } FLAG_CMD;
 
-
+/* */
 typedef struct {
    int      target_int;
    int      query_int;
@@ -308,12 +328,19 @@ typedef struct {
    float    cloud_fwd_sc;
 } RESULT;
 
+/* */
 typedef struct {
    int      N;
    int      Nalloc;
    RESULT*  data;
    char*    filepath;
 } RESULTS;
+
+/* substitution matrix */
+typedef struct {
+   char *filename;
+   float *scores;
+} SCORE_MATRIX;
 
 
 /* === GLOBAL VARIABLES === */
@@ -341,7 +368,7 @@ extern int     AA_REV[];
 extern char    AA2[];
 extern int     AA2_REV[];
 /* background frequencies of null model, normal and log space */
-extern float   BG_MODEL[];
-extern float   BG_MODEL_log[];
+extern double  BG_MODEL[];
+extern double  BG_MODEL_log[];
 
 #endif /* _STRUCTS_H */
