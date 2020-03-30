@@ -49,6 +49,8 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
 
    long        prv_offset     = 0;
    long        cur_offset     = 0;
+
+   int         id             = 0;
    char*       name           = NULL;
 
    /* first pass */
@@ -77,7 +79,8 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
                name = &line_buf[i];
                name[strlen(name)-1] = '\0';
 
-               F_INDEX_PushBack( f_index, (F_INDEX_NODE){name, cur_offset} );
+               F_INDEX_PushBack( f_index, (F_INDEX_NODE){id, name, cur_offset} );
+               id++;
             }
          }
       }
@@ -171,6 +174,8 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
 
    long        cur_offset     = 0;
    long        prv_offset     = 0;
+
+   int         id             = 0;
    char*       name           = NULL;
 
    /* first pass */
@@ -195,9 +200,8 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          line_size--;
       }
 
-      /* */
+      /* Line Structure: id, offset, name (tab-delimited) */
       
-
 
       line_count++;
    }

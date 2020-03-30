@@ -6,17 +6,8 @@
  *  BUG:       
  *******************************************************************************/
 
-#ifndef _INDEXER_H_
-#define _INDEXER_H_
-
-/* === OBJECTS === */
-
-// typedef struct {
-//    int      N;
-//    int      Nalloc;
-//    long*    offsets;
-//    char**   names;
-// } INDEX_HMM;
+#ifndef _PARSER_H
+#define _PARSER_H
 
 /* === FUNCTIONS === */
 
@@ -33,4 +24,4 @@ F_INDEX* F_INDEX_Load(const char* _filename);
 SEQUENCE* SEQUENCE_Fasta_Parse(char*      _filename_, 
                                long int   offset);
 
-#endif /* _INDEXER_H_ */
+#endif /* _PARSER_H */

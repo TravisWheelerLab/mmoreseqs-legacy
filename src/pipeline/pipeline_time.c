@@ -342,8 +342,8 @@ void time_pipeline(ARGS* args)
    fprintf(fp, "%*s:\t%f\n", pad, "FULL_FWDBCK",   full_fwdbck/tot_t );
    fprintf(fp, "%*s:\t%f\n", pad, "FULL_CLOUD",    full_cloud/tot_t );
    fprintf(fp, "\n");
-   fprintf(fp, "%*s:\t%f\n", pad, "SPEEDUP",       full_fwdbck/full_cloud);
-   fprintf(fp, "%*s:\t%f\n", pad, "TIME RATIO",    full_cloud/full_fwdbck);
+   fprintf(fp, "%*s:\t%f\n", pad, "SPEEDUP",       full_cloud/full_fwdbck);
+   fprintf(fp, "%*s:\t%f\n", pad, "TIME RATIO",    full_fwdbck/full_cloud);
    fprintf(fp, "============================\n\n");
 
    fprintf(fp, "=== SCORES =================\n");

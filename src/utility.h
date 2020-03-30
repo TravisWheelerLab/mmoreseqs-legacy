@@ -9,17 +9,13 @@
 #ifndef _MISC_H
 #define _MISC_H
 
-/* imports */
-// #include <stdio.h>
-// #include "objects/structs.h"
-
 /* constants */
 #define LOGSUM_SCALE 1000.f
 #define LOGSUM_TBL 16000
 
 /* CHECK FOR NULL POINTER */
-void check_null_pointer( void*   ptr, 
-                         char*   str );
+int alloc_pointer( void**  ptr, 
+                   int     size );
 
 /* MINIMUM & MAXIMUM FUNCTIONS */
 float calc_Max ( float  x, 

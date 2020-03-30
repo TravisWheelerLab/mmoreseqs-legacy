@@ -30,7 +30,14 @@
 static float LOGSUM_LOOKUP[LOGSUM_TBL];
 bool LOGSUM_INITIALIZED = false;
 
-/* TODO: inline small functions? */
+/* allocates memory and checks for size */
+int alloc_pointer( void**  ptr,
+                   int     size )
+{
+   *ptr = realloc( *ptr, size );
+
+   return ( *ptr == NULL );
+}
 
 /* Get max value of two floats */
 inline
