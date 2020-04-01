@@ -117,5 +117,36 @@ void WORKER_Destroy( WORKER* worker )
    free( worker->results );
    free( worker->clock   );
 
+   worker->args      = NULL;
+   worker->tasks     = NULL;
+
+   worker->q_index   = NULL;
+   worker->t_index   = NULL;
+
+   worker->q_file    = NULL;
+   worker->t_file    = NULL;
+
+   worker->q_seq     = NULL;
+   worker->t_seq     = NULL;
+   worker->t_prof    = NULL;
+
+   worker->edg_fwd   = NULL;
+   worker->edg_bck   = NULL;
+   worker->edg_diag  = NULL;
+   worker->edg_row   = NULL;
+
+   worker->traceback = NULL;
+
+   worker->st_MX     = NULL;
+   worker->sp_MX     = NULL;
+   worker->st_MX3    = NULL;
+
+   worker->times     = NULL;
+   worker->scores    = NULL;
+   worker->results   = NULL;
+   worker->clock     = NULL;
+
    free( worker );
+
+   worker = NULL;
 }

@@ -94,7 +94,5 @@ int main ( int argc, char *argv[] )
    printf("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
    PIPELINES[ args->pipeline_mode ]( worker );
 
-   WORKER_Destroy( worker );
-
    exit(EXIT_SUCCESS);
 }

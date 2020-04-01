@@ -11,6 +11,7 @@
 
 /* === STDLIB DATA TYPES === */
 #include <stdbool.h>
+#include <time.h>
 
 /* === MACRO FUNCTIONS === */
 #include "objects/structs_macros.h"

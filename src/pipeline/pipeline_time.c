@@ -134,10 +134,11 @@ void time_pipeline( WORKER* worker )
    // printf("=== LOAD HMM_PROFILE / QUERY -> START ===\n");
    CLOCK_Start(cl);
 
+   printf("test.\n");
    WORK_load_target_query( worker );
+   printf("test.\n");
    Q = q_seq->N;
    T = t_prof->N;
-
 
    times->load_hmm = (float)t;
    // printf("=== LOAD HMM_PROFILE / QUERY -> END ===\n\n");
