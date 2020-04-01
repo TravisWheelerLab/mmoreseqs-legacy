@@ -1,0 +1,13 @@
+TODO: Adding Cloud Search into MMSEQS
+
+- insert Cloud Search call into data/easysearch.sh or data/blastn.sh
+
+- then perform a rebuild on MMSEQS:
+   -   git clone https://github.com/soedinglab/MMseqs2.git
+       cd MMseqs2
+       mkdir build
+       cd build
+       cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. ..
+       make -j 4
+       make install
+       export PATH=$(pwd)/bin/:$PATH

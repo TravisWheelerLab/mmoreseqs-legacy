@@ -6,7 +6,6 @@
 *.sublime-workspace
 
 # testing and bytecode folders
-test_input/*
 test_output/*
 output/*
 build/*
