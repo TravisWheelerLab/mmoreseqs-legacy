@@ -11,24 +11,31 @@
 
 /* Constructor */
 SCORE_MATRIX* SCORE_MATRIX_Create();
+
 /* Destructor */
 void SCORE_MATRIX_Destroy( SCORE_MATRIX*   submat );
 
 /* Construct SCORE_MATRIX object by parsing .submat file */
 SCORE_MATRIX* SCORE_MATRIX_Load( char*    _filename_ );
 
+/* Set alphabet and the initialize score matrix based on size */
+void SCORE_MATRIX_Set_Alphabet( SCORE_MATRIX*   submat,
+                                char*           alph );
+
+/* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */
+int SCORE_MATRIX_Keymap( SCORE_MATRIX*    submat,
+                         char             q_ch, 
+                         char             t_ch );
+
 /* Get score from SCORE_MATRIX, given query/target chars. Returns reference.  */
 float* SCORE_MATRIX_Score( SCORE_MATRIX*  submat, 
                            char           q_ch, 
                            char           t_ch );
 
-/* Get SCORE_MATRIX Score, given query and target character */
+/* Get score from SCORE_MATRIX, given query/target chars  */
 float SCORE_MATRIX_Get_Score( SCORE_MATRIX*  submat, 
-                              char           query_char, 
-                              char           target_char );
-/* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */
-int SCORE_MATRIX_Keymap( char    query_char, 
-                         char    target_char);
+                              char           q_ch, 
+                              char           t_ch );
 
 /* Output SCORE_MATRIX to FILE pointer */
 void SCORE_MATRIX_Dump( SCORE_MATRIX*  submat, 

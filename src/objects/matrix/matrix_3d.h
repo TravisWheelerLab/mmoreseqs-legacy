@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file matrix.c
- *  @brief float matrix object
+ *  FILE:      matrix_3d.c
+ *  PURPOSE:   MATRIX_3D Float object.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _MATRIX_3D_H

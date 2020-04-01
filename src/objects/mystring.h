@@ -26,4 +26,7 @@ int STRING_EndsWith( const char*    str1,
                      const char*    str2,
                      const size_t   n );
 
+/* returns filename of full filepath */
+char* STRING_Get_File_from_Path( const char* filepath );
+
 #endif /* _STRING_H */

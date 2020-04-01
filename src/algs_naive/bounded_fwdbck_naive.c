@@ -55,18 +55,18 @@ float bound_Forward_Naive(const SEQUENCE*    query,
 {
    init_Logsum();
 
-   char   a;           /* store current character in sequence */
-   int    A;           /* store int value of character */
-   int    i,j,k = 0;   /* row, column indices */
-   char   *seq = query->seq; /* alias for getting seq */
-   int    x_0, r_0, x_1, r_1;
+   char   a;                     /* store current character in sequence */
+   int    A;                     /* store int value of character */
+   int    i,j,k = 0;             /* row, column indices */
+   char   *seq = query->seq;     /* alias for getting seq */
+   int    x_0, r_0, x_1, r_1;    /* */
 
    float  prev_mat, prev_del, prev_ins, prev_beg, prev_sum;
    float  sc, sc_1, sc_2;
    float  sc_max, sc_best;
    float  sc1, sc2, sc3, sc4;
    float  sc_cloud;
-   COORDS tr_end; /* ending match state of optimal alignment (for traceback) */
+   COORDS tr_end;       /* ending match state of optimal alignment (for traceback) */
 
    /* local or global (multiple alignments) */
    bool   is_local = target->isLocal;

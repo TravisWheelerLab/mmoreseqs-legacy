@@ -6,7 +6,6 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
-
 /* imports */
 #include <stdio.h>
 #include <unistd.h>
@@ -17,14 +16,22 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and file parsers */
+/* data structures */
 #include "objects/structs.h"
 #include "utility.h"
-#include "hmm_parser.h"
-#include "seq_parser.h"
+#include "error_handler.h"
+
+/* file parsers */
+#include "parsers/arg_parser.h"
+#include "parsers/hmm_parser.h"
+#include "parsers/seq_parser.h"
+#include "parsers/m8_parser.h"
+#include "parsers/index_parser.h"
+#include "parsers/seq_to_profile.h"
 
 /* objects */
 #include "objects/f_index.h"
+#include "objects/results.h"
 #include "objects/alignment.h"
 #include "objects/sequence.h"
 #include "objects/hmm_profile.h"
@@ -32,25 +39,28 @@
 #include "objects/clock.h"
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
+#include "objects/mystring.h"
 #include "objects/vectors/vector_range_2d.h"
 
 /* viterbi & fwdbck (quadratic) */
-#include "viterbi_quad.h"
-#include "traceback_quad.h"
-#include "fwdback_quad.h"
+#include "algs_quad/viterbi_quad.h"
+#include "algs_quad/traceback_quad.h"
+#include "algs_quad/fwdback_quad.h"
+/* viterbi & fwdbck (linear) */
+#include "algs_linear/fwdback_linear.h"
 
 /* cloud search (naive) */
-#include "bounded_fwdbck_naive.h"
+#include "algs_naive/bounded_fwdbck_naive.h"
 /* cloud search (quadratic space) */
-#include "cloud_search_quad.h"
-#include "merge_reorient_quad.h"
-#include "bounded_fwdbck_quad.h"
+#include "algs_quad/cloud_search_quad.h"
+#include "algs_quad/merge_reorient_quad.h"
+#include "algs_quad/bounded_fwdbck_quad.h"
 /* cloud search (linear space) */
-#include "cloud_search_linear.h"
-#include "merge_reorient_linear.h"
-#include "bounded_fwdbck_linear.h"
+#include "algs_linear/cloud_search_linear.h"
+#include "algs_linear/merge_reorient_linear.h"
+#include "algs_linear/bounded_fwdbck_linear.h"
 /* temp test */
-#include "cloud_search_linear_rows.h"
+#include "algs_linear/cloud_search_linear_rows.h"
 
 /* debugging methods */
 #include "testing.h"
@@ -65,20 +75,23 @@ void main_pipeline(ARGS* args)
    float    alpha       = args->alpha;
    int      beta        = args->beta;
 
-   char*    t_filepath  = args->target_filepath;
-   char*    q_filepath  = args->query_filepath;
+   char*    t_filepath  = args->t_filepath;
+   char*    q_filepath  = args->q_filepath;
 
-   // int      mode        = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
+   int      t_filetype  = args->t_filetype;
+   int      q_filetype  = args->q_filetype;
+
    int      mode        = MODE_UNILOCAL;      /* Cloud Search mode (prohibiits jumps) */
 
    /* Target & Query */
-   HMM_PROFILE* target  = NULL;
-   SEQUENCE*    query   = NULL;
+   HMM_PROFILE*   t_prof   = HMM_PROFILE_Create();
+   SEQUENCE*      t_seq    = SEQUENCE_Create();
+   SEQUENCE*      q_seq    = SEQUENCE_Create();
 
    /* Timing & Scoring */
-   SCORES*  scores      = (SCORES*) malloc( sizeof(SCORES) );
-   TIMES*   times       = (TIMES*) malloc( sizeof(TIMES) );
-   CLOCK*   cl          = CLOCK_Create();
+   SCORES*  scores   = (SCORES*) malloc( sizeof(SCORES) );
+   TIMES*   times    = (TIMES*) malloc( sizeof(TIMES) );
+   CLOCK*   cl       = CLOCK_Create();
 
    bool     is_testing  = false;
    bool     test        = false;
@@ -86,23 +99,51 @@ void main_pipeline(ARGS* args)
    time_t   runtime_tot = 0;
 
    /* records percentage of space computed */
-   int      T           = 0;
-   int      Q           = 0;
-   float    sc          = 0.f;
+   int      T     = 0;
+   int      Q     = 0;
+   float    sc    = 0.f;
 
-   // printf("=== LOAD HMM_PROFILE / QUERY -> START ===\n");
-   target = HMM_PROFILE_Parse(t_filepath, 0);
-   HMM_PROFILE_Config(target, mode);
-   T = target->N;
+   /* alignment and edgebounds */
+   ALIGNMENT*     tr             = ALIGNMENT_Create();
+   EDGEBOUNDS*    edg_fwd_lin    = EDGEBOUNDS_Create();
+   EDGEBOUNDS*    edg_bck_lin    = EDGEBOUNDS_Create();
+   EDGEBOUNDS*    edg_row_lin    = NULL;
+   EDGEBOUNDS*    edg_diag_lin   = NULL;
 
-   query = SEQUENCE_Fasta_Parse(q_filepath, 0);
-   Q = query->N;
-
-   ALIGNMENT*  tr             = ALIGNMENT_Create();
-   EDGEBOUNDS* edg_fwd_lin    = EDGEBOUNDS_Create();
-   EDGEBOUNDS* edg_bck_lin    = EDGEBOUNDS_Create();
-   EDGEBOUNDS* edg_row_lin    = NULL;
-   EDGEBOUNDS* edg_diag_lin   = NULL;
+   /* build q_seq sequence */
+   printf("building q_seq sequence...\n");
+   if ( q_filetype == FILE_FASTA ) 
+   {
+      SEQUENCE_Fasta_Parse( q_seq, q_filepath, 0 );
+   }
+   else 
+   {
+      fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
+      exit(EXIT_FAILURE);
+   }
+   Q = q_seq->N;
+   
+   /* build t_prof profile */
+   printf("building hmm profile...\n");
+   if ( t_filetype == FILE_HMM ) 
+   {
+      HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
+      HMM_PROFILE_Config( t_prof, mode );
+   }
+   else if ( t_filetype == FILE_FASTA )
+   {
+      SEQUENCE_Fasta_Parse( t_seq, t_filepath, 0 );
+      SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
+   }
+   else
+   {
+      fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
+      exit(EXIT_FAILURE);
+   }
+   
+   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   HMM_PROFILE_Dump( t_prof, fopen("output/my.post-profile.tsv", "w") );
+   T = t_prof->N;
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
    MATRIX_3D*  st_MATRIX      = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
@@ -119,25 +160,24 @@ void main_pipeline(ARGS* args)
 
 
    /* ==== CLOUD SEARCH === */
-
    /* run viterbi algorithm */
-   viterbi_Quad(query, target, Q, T, st_MX, sp_MX, &sc);
+   viterbi_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
 
    /* build traceback */
-   traceback_Build(query, target, Q, T, st_MX, sp_MX, tr);
+   traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
 
    /* run forward/backward algorithms */
    init_Logsum();
 
-   cloud_Forward_Linear(query, target, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
-   cloud_Backward_Linear(query, target, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
+   cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
+   cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
 
    edg_diag_lin = EDGEBOUNDS_Merge(Q, T, edg_fwd_lin, edg_bck_lin);
    edg_row_lin  = EDGEBOUNDS_Reorient(Q, T, edg_diag_lin);
 
-   bound_Forward_Linear(query, target, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    scores->cloud_fwd_sc = sc;
-   bound_Backward_Linear(query, target, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    scores->cloud_bck_sc = sc;
 
    printf("=== SCORES ===\n");
@@ -151,8 +191,8 @@ void main_pipeline(ARGS* args)
    MATRIX_3D_Destroy(st_MATRIX3);
 
    /* free hmm_profile and sequence*/
-   HMM_PROFILE_Destroy(target);
-   SEQUENCE_Destroy(query);
+   HMM_PROFILE_Destroy(t_prof);
+   SEQUENCE_Destroy(q_seq);
 
    /* free alignment */
    ALIGNMENT_Destroy(tr);

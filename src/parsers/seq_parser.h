@@ -16,7 +16,8 @@
 
 /* === FUNCTIONS === */
 /* parse .fasta file and build SEQUENCE object */
-SEQUENCE* SEQUENCE_Fasta_Parse( char*       _filename_, 
-                                long int    offset);
+void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
+                           char*       _filename_, 
+                           long        offset );
 
 #endif /* _SEQ_PARSER_H */

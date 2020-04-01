@@ -9,6 +9,9 @@
 #ifndef _STRUCTS_H
 #define _STRUCTS_H
 
+/* === STDLIB DATA TYPES === */
+#include <stdbool.h>
+
 /* === MACRO FUNCTIONS === */
 #include "objects/structs_macros.h"
 
@@ -101,6 +104,15 @@ typedef struct {
    float    param2;
 } DIST_PARAM;
 
+/* */
+typedef struct {
+   int      K;             /* size of unique alphabet */
+   int      Kp;            /* size of total symbols: alphabet + special symbols  */
+   char*    sym;           /* symbols of alph: "ACGT-RYMKSWHBVDN*~" for aminos */
+   char     inmap[1<<8];   /* map: index -> char value */
+   char     outmap[1<<8];  /* map: char value -> index */
+} ALPHABET;
+
 /* position specific state probabilities */
 typedef struct {
    /* match emission probabilities for each amino acid */
@@ -111,9 +123,8 @@ typedef struct {
    float    trans[NUM_TRANS_STATES];   
 } HMM_NODE;
 
-/* HMM Background Probabilities */
+/* HMM Background Composition */
 typedef struct {
-   /* BACKGROUND PROBABILITIES */
    /* hard-coded background residue frequencies for each amino acid */
    float    freq[NUM_AMINO];
    /* background residue frequencies of the given hmm model (mean composition) */
@@ -122,53 +133,73 @@ typedef struct {
    float    insert[NUM_AMINO];
    /* transition state probabilities (default same as COMPO) */
    float    trans[NUM_TRANS_STATES];   
-
-   /* SPECIAL STATE PROBABILITIES */
    /* move, loop for special transition states */
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
-
-   /* jump value for configuring HMM */
-   int      num_J; /* number of jumps allowed by model (single hit = 1) */
-} HMM_BG;
+} HMM_COMPO;
 
 /* HMM File Data */
 typedef struct {
+   int         N;       /* number of states in model */
+   float*      pi;      /* initial (begin) distribution ( 0..M ) */
+   float**     t;       /* state transition probabilities ( N x (N+1) ) */
+   float**     e;       /* emmission probabilities ( M x K ) */
+
+   float**     eo;      /* emission odds ratio ( M x K' ) */
+
+   ALPHABET*   abc;     /* alphabet */           
+   int         K;       /* size of alphabet */   
 } HMM;
 
 /* HMM Profile */
 typedef struct {
    /* META DATA */
+
    /* file data */
    char*          filepath;         /* path to the file containing hmm */
    long           b_offset;         /* offset within file to beginning of hmm */
    long           e_offset;         /* offset within file to ending of hmm */
 
+   int            numberFormat;     /* whether numbers are in real, logspace, or log-odds */
+
    /* entry data */
+   char*          format;           /* hmm file format */
    char*          name;             /* unique name field of model in file */
    char*          acc;              /* unique accession field of model in file  */
    char*          desc;             /* description field of model in file */
-   char*          alph;             /* PROTEIN or DNA (Only PROTEIN ACCEPTED ) */;  
+   char*          alph;             /* alphabet: only amino accepted */;  
+
+   int            nseq;             /* number of sequences used to created hmm */
+   float          effn;             /* */
+   long           checksum;         /* file checksum */
+
+   float          ga[2];            /* */
+   float          tc[2];            /* */
+   float          nc[2];            /* */
 
    /* profile settings */
    int            mode;             /* enumerated search mode */
-   int            isLocal;          /* local or global? */
-   int            isMultihit;       /* multi hit or single hit? */   
+   bool           isLocal;          /* local or global? */
+   bool           isMultihit;       /* multi hit or single hit? */   
+   /* jump value for configuring HMM */
+   int      num_J; /* number of jumps allowed by model (single hit = 1) */
 
    /* distribution parameters for scoring */
-   DIST_PARAM*    msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */
-   DIST_PARAM*    viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
-   DIST_PARAM*    forward_dist;     /* Parameters for the Distribution for Fwd/Bck Scores */
+   DIST_PARAM     msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */
+   DIST_PARAM     viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
+   DIST_PARAM     forward_dist;     /* Parameters for the Distribution for Fwd/Bck Scores */
 
    /* MODEL DATA */
    int            N;                /* profile length (currently in use) */
    int            Nalloc;           /* profile length (allocated memory) */
+   int            alph_type;        /* enumerated alphabet type */
    int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
+   char*          consensus;        /* consensus sequence */
 
-   HMM_BG*        bg_model;         /* background composition */
+   HMM_COMPO*     bg_model;         /* background composition */
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
 
-/*  */
+/* Vector  */
 typedef struct {
    BOUND*   data;    /* array of data type */
    int      N;       /* current length of array in use */
@@ -182,13 +213,15 @@ typedef struct {
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
 
-/* */
+/* sequence  */
 typedef struct {
-   int      N;         /* length of sequence */
-   char*    filename;  /* filename of sequence */
-   char*    name;      /* */
-   char*    alph;      /* */
-   char*    seq;       /* */
+   int      N;          /* length of sequence */
+   int      Nalloc;     /* allocated memory length */
+   /* meta data */
+   char*    filename;   /* filename of sequence */
+   char*    name;       /* */
+   char*    alph;       /* */
+   char*    seq;        /* */
 } SEQUENCE;
 
 /* */
@@ -204,19 +237,19 @@ typedef struct {
    int      R;       /* number of rows = length of query */
    int      C;       /* number of columns = length of target  */
    int      N;       /* number of 3rd dim = number of normal states */
-   int      Nalloc;  /* */
-   float*   data;    /* */
+   int      Nalloc;  /* number of total cells alloc'd */
+   float*   data;    /* matrix cells */
 } MATRIX_3D;
 
 /* */
 typedef struct {
    /* file paths */
-   char*    target_filepath;        /* filepath to target (hmm) file */
-   char*    query_filepath;         /* filepath to query (fasta) file */
+   char*    t_filepath;          /* filepath to target (hmm or fasta) file */
+   char*    q_filepath;          /* filepath to query (fasta) file */
    /* index paths */
-   char*    target_indexpath;       /* index filepath for quick access of target (hmm) file */
-   char*    query_indexpath;        /* index filepath for quick access of query (fasta) file */
-   /* mmseqs path */
+   char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
+   char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
+   /* mmseqs results path */
    char*    hits_filepath;          /* filepath to output of MMSEQS pipeline  */
    /* output path */
    char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
@@ -235,11 +268,11 @@ typedef struct {
    COORDS   end;                    /* ending coordinates of viterbi alignment */
 
    /* target/query metadata */
-   int      target_filetype;        /* enumerated FILETYPE of target file */
-   int      query_filetype;         /* enumerated FILETYPE of query file */
-
-   int      target_fileno;          /*  */
-   int      query_fileno;           /*  */ 
+   int      t_filetype;        /* enumerated FILETYPE of target file */
+   int      q_filetype;         /* enumerated FILETYPE of query file */
+   /* file id number */
+   int      t_fileno;          /*  */
+   int      q_fileno;           /*  */ 
 
    /* threshold scores for pipeline */
    float    viterbi_sc_threshold;
@@ -336,11 +369,54 @@ typedef struct {
    char*    filepath;
 } RESULTS;
 
-/* substitution matrix */
+/* substitution/scoring matrix */
 typedef struct {
-   char *filename;
-   float *scores;
+   char*    filename;
+   char*    alph;
+   int      alph_len;
+   int      map[256];
+   float*   scores;
 } SCORE_MATRIX;
+
+/* bools of all tasks to be executed by WORKER */
+/* flags set by pipeline and then passed to a generic workflow */
+typedef struct {
+   bool     time;          /* are we timing given tasks? */
+
+   bool     quad;          /* are we running any quadratic-space algorithms? */
+   bool     quad_fwdbck;   /* forward-backward */
+   bool     quad_vit;      /* viterbi */
+   bool     quad_cloud;    /* cloud pruning search */
+
+   bool     linear;  /* are we running any linear algorithms? */
+   bool     linear_fwdbck;   /* forward-backward */
+   bool     linear_vit;      /* viterbi */
+   bool     linear_cloud;    /* cloud pruning search */
+} TASKS;
+
+/* worker contains the necessary data structures to conduct search */
+/* unnecessary components will be left NULL */
+typedef struct {
+   /* meta data */
+   ARGS*          args;
+   TASKS*         tasks;
+   /* indexes of query and target data files */
+   F_INDEX*       q_index;
+   F_INDEX*       t_index;
+   /* file pointers to query and target data file */ 
+   FILE*          q_file;
+   FILE*          t_file;
+   /* current query and target data */
+   SEQUENCE*      q_seq;
+   SEQUENCE*      t_seq;
+   HMM_PROFILE*   t_prof;
+   /* times for tasks */
+   TIMES*         times;
+   /* scores for algorithms */
+   SCORES*        scores;
+   /* results for worker */
+   RESULTS*       results;
+} WORKER;
 
 
 /* === GLOBAL VARIABLES === */
@@ -362,11 +438,9 @@ extern char*   FILE_TYPE_NAMES[];
 extern int     FILE_TYPE_MAP[];
 
 /* alphabetically-ordered amino lookup and reverse lookup tables */
+extern char    ALPH_AMINO_CHARS[];
 extern char    AA[];
 extern int     AA_REV[];
-/* substitution matrix-ordered amino lookup and reverse lookup tables */
-extern char    AA2[];
-extern int     AA2_REV[];
 /* background frequencies of null model, normal and log space */
 extern double  BG_MODEL[];
 extern double  BG_MODEL_log[];

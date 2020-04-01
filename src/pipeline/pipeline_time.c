@@ -6,7 +6,6 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
-
 /* imports */
 #include <stdio.h>
 #include <unistd.h>
@@ -17,39 +16,51 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and file parsers */
+/* data structures */
 #include "objects/structs.h"
 #include "utility.h"
-#include "seq_parser.h"
-#include "hmm_parser.h"
+#include "error_handler.h"
+
+/* file parsers */
+#include "parsers/arg_parser.h"
+#include "parsers/hmm_parser.h"
+#include "parsers/seq_parser.h"
+#include "parsers/m8_parser.h"
+#include "parsers/index_parser.h"
+#include "parsers/seq_to_profile.h"
 
 /* objects */
+#include "objects/f_index.h"
+#include "objects/results.h"
+#include "objects/alignment.h"
 #include "objects/sequence.h"
 #include "objects/hmm_profile.h"
-#include "objects/alignment.h"
 #include "objects/edgebound.h"
 #include "objects/clock.h"
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
+#include "objects/mystring.h"
 #include "objects/vectors/vector_range_2d.h"
 
 /* viterbi & fwdbck (quadratic) */
-#include "viterbi_quad.h"
-#include "traceback_quad.h"
-#include "fwdback_quad.h"
+#include "algs_quad/viterbi_quad.h"
+#include "algs_quad/traceback_quad.h"
+#include "algs_quad/fwdback_quad.h"
+/* viterbi & fwdbck (linear) */
+#include "algs_linear/fwdback_linear.h"
 
 /* cloud search (naive) */
-#include "bounded_fwdbck_naive.h"
+#include "algs_naive/bounded_fwdbck_naive.h"
 /* cloud search (quadratic space) */
-#include "cloud_search_quad.h"
-#include "merge_reorient_quad.h"
-#include "bounded_fwdbck_quad.h"
+#include "algs_quad/cloud_search_quad.h"
+#include "algs_quad/merge_reorient_quad.h"
+#include "algs_quad/bounded_fwdbck_quad.h"
 /* cloud search (linear space) */
-#include "cloud_search_linear.h"
-#include "merge_reorient_linear.h"
-#include "bounded_fwdbck_linear.h"
+#include "algs_linear/cloud_search_linear.h"
+#include "algs_linear/merge_reorient_linear.h"
+#include "algs_linear/bounded_fwdbck_linear.h"
 /* temp test */
-#include "cloud_search_linear_rows.h"
+#include "algs_linear/cloud_search_linear_rows.h"
 
 /* debugging methods */
 #include "testing.h"
@@ -72,47 +83,48 @@
 void time_pipeline(ARGS* args) 
 {
    /* Set Commandline Arguments */
-   float          alpha             = args->alpha;
-   int            beta              = args->beta;
+   float          alpha          = args->alpha;
+   int            beta           = args->beta;
 
-   char*          hmm_file          = args->target_filepath;
-   char*          fasta_file        = args->query_filepath;
+   char*          t_filepath     = args->t_filepath;
+   char*          q_filepath     = args->q_filepath;
 
-   int            t_filetype        = args->target_filetype;
-   int            q_filetype        = args->query_filetype;
+   int            t_filetype     = args->t_filetype;
+   int            q_filetype     = args->q_filetype;
 
-   char*          out_file          = args->output_filepath;
+   char*          out_file       = args->output_filepath;
 
    /* Set Mode */
    // int            mode           = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
-   int            mode              = MODE_UNILOCAL;      /* Cloud mode (prohibiits jumps) */
+   int            mode           = MODE_UNILOCAL;      /* Cloud mode (prohibiits jumps) */
 
    /* Target & Query */
-   HMM_PROFILE*   target_prof       = NULL;
-   SEQUENCE*      query_seq         = NULL;
+   HMM_PROFILE*   t_prof         = HMM_PROFILE_Create();
+   SEQUENCE*      t_seq          = SEQUENCE_Create();
+   SEQUENCE*      q_seq          = SEQUENCE_Create();
 
    /* Times & Scores */
-   CLOCK*         cl                = CLOCK_Create();
-   SCORES*        scores            = NULL;
-   TIMES*         times             = NULL;
+   CLOCK*         cl             = CLOCK_Create();
+   SCORES*        scores         = NULL;
+   TIMES*         times          = NULL;
 
-   bool           is_testing        = false;
-   bool           test              = false;
-   time_t         t                 = 0; 
-   time_t         tot_t             = 0;
+   bool           is_testing     = false;
+   bool           test           = false;
+   time_t         t              = 0; 
+   time_t         tot_t          = 0;
 
-   int            T                 = 0;
-   int            Q                 = 0;
+   int            T              = 0;
+   int            Q              = 0;
 
-   float          sc                = 0.f; 
-   float          perc_cells        = 0.f;
-   int            num_cells         = 0;  
-   int            window_cells      = 0; 
-   int            tot_cells         = 0;
+   float          sc             = 0.f; 
+   float          perc_cells     = 0.f;
+   int            num_cells      = 0;  
+   int            window_cells   = 0; 
+   int            tot_cells      = 0;
 
    /* FILE OUTPUT */
-   FILE*          fp                = NULL;
-   int            pad               = 0;   
+   FILE*          fp             = NULL;
+   int            pad            = 0;   
 
    /* ----------------------------------------------------------------------------------------- */
 
@@ -128,33 +140,45 @@ void time_pipeline(ARGS* args)
       exit(EXIT_FAILURE);
    }
 
-   /* Print Arguments */
-   fp = stdout;
-   pad = 15;
-
-   fprintf(fp, "=== ARGS ====================\n");
-   fprintf(fp, "%*s:\t%s\n",     pad, "HMM_FILENAME",       hmm_file);
-   fprintf(fp, "%*s:\t%s\n",     pad, "QUERY FILETYPE",     FILE_TYPE_NAMES[q_filetype]);
-   fprintf(fp, "%*s:\t%s\n",     pad, "FASTA_FILENAME",     fasta_file);
-   fprintf(fp, "%*s:\t%s\n",     pad, "TARGET FILETYPE",    FILE_TYPE_NAMES[t_filetype]);
-   fprintf(fp, "%*s:\t%.3f\n",   pad, "ALPHA",              alpha);
-   fprintf(fp, "%*s:\t%d\n",     pad, "BETA",               beta);
-   fprintf(fp, "%*s:\t%s\n",     pad, "MODE",               MODE_NAMES[mode]);
-   fprintf(fp, "=============================\n\n");
-
    if (fp != stdout) fclose(fp);
 
    // printf("=== LOAD HMM_PROFILE / QUERY -> START ===\n");
    CLOCK_Start(cl);
 
-   target_prof = HMM_PROFILE_Parse(hmm_file, 0);
-   T = target_prof->N;
-   HMM_PROFILE_Config(target_prof, mode);
-   // HMM_PROFILE_Dump(target_prof, stdout);
-
-   query_seq = SEQUENCE_Fasta_Parse(fasta_file, 0);
-   Q = query_seq->N;
-   // SEQUENCE_Dump(query_seq, stdout);
+   /* build query sequence */
+   printf("building query sequence...\n");
+   if ( q_filetype == FILE_FASTA ) 
+   {
+      SEQUENCE_Fasta_Parse( q_seq, q_filepath, 0 );
+   }
+   else 
+   {
+      fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
+      exit(EXIT_FAILURE);
+   }
+   SEQUENCE_Dump( q_seq, stdout );
+   Q = q_seq->N;
+   
+   /* build target profile */
+   printf("building hmm profile...\n");
+   if ( t_filetype == FILE_HMM ) 
+   {
+      HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
+      HMM_PROFILE_Config( t_prof, mode );
+   }
+   else if ( t_filetype == FILE_FASTA )
+   {
+      SEQUENCE_Fasta_Parse( t_seq, t_filepath, 0 );
+      SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
+   }
+   else
+   {
+      fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
+      exit(EXIT_FAILURE);
+   }
+   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   HMM_PROFILE_Dump( t_prof, stdout );
+   T = t_prof->N;
 
    CLOCK_Stop(cl);
    t = CLOCK_Ticks(cl);
@@ -178,11 +202,15 @@ void time_pipeline(ARGS* args)
    MATRIX_3D*  st_MATRIX3   = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
    float*      st_MX3       = st_MATRIX3->data;
 
+   printf("Q=%d, T=%d\n", Q, T);
+
    // /* run viterbi algorithm */
    // printf("=== VITERBI -> START ===\n");
    CLOCK_Start(cl);
 
-   viterbi_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   printf("test.\n");
+   viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+   printf("test.\n");
    scores->viterbi_sc = sc;
 
    CLOCK_Stop(cl);
@@ -194,7 +222,7 @@ void time_pipeline(ARGS* args)
    // printf("=== ALIGNMENT -> START ===\n");
    CLOCK_Start(cl);
 
-   traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
 
    TRACE beg = tr->traces[tr->beg];
    TRACE end = tr->traces[tr->end];
@@ -204,6 +232,7 @@ void time_pipeline(ARGS* args)
    t = CLOCK_Ticks(cl);
    times->traceback = (float)t;
    // printf("=== ALIGNMENT -> END ===\n\n");
+   printf("test.\n");
 
    /* run forward/backward algorithms */
    init_Logsum();
@@ -211,7 +240,7 @@ void time_pipeline(ARGS* args)
    // printf("=== FORWARD/BACKWARD -> START ===\n");
    CLOCK_Start(cl);
 
-   forward_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   forward_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
    // printf("Forward Score: %f\n", sc);
    scores->fwd_sc = sc;
 
@@ -220,7 +249,7 @@ void time_pipeline(ARGS* args)
    times->fwd = (float)t;
    CLOCK_Start(cl);
 
-   backward_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   backward_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
    // printf("Backward Score: %f\n", sc);
    scores->bck_sc = sc;
 
@@ -233,7 +262,7 @@ void time_pipeline(ARGS* args)
    // printf("=== CLOUD FORWARD/BACKWARD (Linear) -> START ===\n");
    CLOCK_Start(cl);
 
-   cloud_Forward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
+   cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
    // EDGEBOUNDS_Save(edg_fwd_lin, "output/my.cloud_fwd.lin.diags.pipe.edg");
 
    CLOCK_Stop(cl);
@@ -241,7 +270,7 @@ void time_pipeline(ARGS* args)
    times->cloud_fwd = (float)t;
    CLOCK_Start(cl);
 
-   cloud_Backward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
+   cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
    // EDGEBOUNDS_Save(edg_bck_lin, "output/my.cloud_bck.lin.diags.pipe.edg");
 
    CLOCK_Stop(cl);
@@ -292,7 +321,7 @@ void time_pipeline(ARGS* args)
    // printf("=== BOUNDED FORWARD/BACKWARD (Linear) -> START ===\n");
    CLOCK_Start(cl);
 
-   bound_Forward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    // printf("Bound Forward Score (Linear): %f\n", sc);
    scores->cloud_fwd_sc = sc;
 
@@ -301,7 +330,7 @@ void time_pipeline(ARGS* args)
    times->bound_fwd = (float)t;
    CLOCK_Start(cl);
 
-   bound_Backward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    // printf("Bound Backward Score (Linear): %f\n", sc);
    scores->cloud_bck_sc = sc;
 
@@ -364,8 +393,8 @@ void time_pipeline(ARGS* args)
       fprintf(stderr, "ERROR: Cannot open file => %s\n", args->output_filepath);
       exit(EXIT_FAILURE);
    }
-   fprintf(fp, "%s\t", hmm_file);
-   fprintf(fp, "%s\t", fasta_file);
+   fprintf(fp, "%s\t", t_filepath);
+   fprintf(fp, "%s\t", q_filepath);
    fprintf(fp, "%f\t", scores->viterbi_sc);
    fprintf(fp, "%f\t", scores->fwd_sc);
    fprintf(fp, "%f\t", scores->bck_sc);
@@ -386,8 +415,8 @@ void time_pipeline(ARGS* args)
    MATRIX_3D_Destroy(st_MATRIX3);
 
    /* free hmm_profile and sequence*/
-   HMM_PROFILE_Destroy(target_prof);
-   SEQUENCE_Destroy(query_seq);
+   HMM_PROFILE_Destroy(t_prof);
+   SEQUENCE_Destroy(q_seq);
 
    /* free alignment */
    ALIGNMENT_Destroy(tr);

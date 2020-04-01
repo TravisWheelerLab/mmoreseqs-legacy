@@ -18,25 +18,7 @@
 #include "../pipeline/pipeline.h"
 #include "../parsers/index_parser.h"
 
-/* Proteins ordered as in Blosum62 matrix */
-char AA2[] = { 
-   'A', 'R', 'N', 'D', 'C', 'Q', 'E', 'G', 'H', 'I',
-   'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V' 
-};
-
-/* Maps ASCII Code to corresponding letters in AA[] */
-int AA2_REV[] = { 
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-   -1, -1, -1, -1, -1,  0, -1,  4,  3,  6,
-   13,  7,  8,  9, -1, 11, 10, 12,  2, -1,
-   14,  5,  1, 15, 16, -1, 19, 17, -1, 18,
-   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1  
-};
+char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 
 /* Proteins in Alphabetical order */
 char AA[] = { 

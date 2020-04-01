@@ -17,9 +17,12 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and file parsers */
+/* data structures */
 #include "objects/structs.h"
 #include "utility.h"
+
+/* file parsers */
+#include "arg_parser.h"
 #include "seq_parser.h"
 #include "hmm_parser.h"
 #include "index_parser.h"
@@ -57,14 +60,13 @@
 #include "testing.h"
 
 /* header */
-#include "main.h"
 #include "pipeline.h"
 
 /* ****************************************************************************************** *
  *  
  *  FUNCTION:  index_pipeline()
- *  SYNOPSIS:  Runs a workflow pipeline. 
- *             Indexes a target and query file, then saves the indexes to file.
+ *  SYNOPSIS:  Indexing workflow pipeline. 
+ *             Indexes a target and query file, then saves those indexes to file.
  *
  *  ARGS:      <args>     parsed commandline arguments
  *
@@ -78,11 +80,11 @@ void index_pipeline(ARGS* args)
    F_INDEX*    t_index        = NULL; 
    F_INDEX*    q_index        = NULL;
 
-   char*       t_filepath     = args->target_filepath;
-   char*       q_filepath     = args->query_filepath;
+   char*       t_filepath     = args->t_filepath;
+   char*       q_filepath     = args->q_filepath;
 
-   int         t_filetype     = args->target_filetype;
-   int         q_filetype     = args->query_filetype; 
+   int         t_filetype     = args->t_filetype;
+   int         q_filetype     = args->q_filetype; 
 
    char*       out_filepath   = args->output_filepath;
 

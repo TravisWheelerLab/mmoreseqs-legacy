@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file matrix.c
- *  @brief 2D MATRIX_2D Float object.
+ *  FILE:      matrix_2d.c
+ *  PURPOSE:   MATRIX_2D Float object.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -39,6 +39,11 @@ MATRIX_2D* MATRIX_2D_Create(int  R,
       fprintf(stderr, "ERROR: Unable to malloc MATRIX_3D.\n");
       exit(EXIT_FAILURE);
    }
+
+   mx->R       = 0;
+   mx->C       = 0;
+   mx->Nalloc  = 0;
+   mx->data    = NULL;
 
    MATRIX_2D_Resize( mx, R, C );
    

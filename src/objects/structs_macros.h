@@ -11,7 +11,7 @@
 
 /* === MACRO FUNCTIONS === */
 
-/* DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS */
+/* QUADRATIC DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS */
 /* generic access for any matrix */
 #define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
 /* match, insert, delete for st_MX matrix */
@@ -19,7 +19,7 @@
 #define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j )
 #define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j )
 
-/* LINEAR ACCESS MACROS ( dim: 3 x (N+M) ) */
+/* LINEAR DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS ( dim: 3 x (N+M) ) */
 /* generic matrix */
 #define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
 /* match, insert, delete for st_MX3 matrix */

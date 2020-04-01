@@ -33,11 +33,11 @@ SCORE_MATRIX* SCORE_MATRIX_Create()
       exit(EXIT_FAILURE);
    }
 
-   submat->scores = (float*) malloc( sizeof(float) * SUBMAT_SIZE );
-   if (submat == NULL) {
-      perror("Error while malloc'ing SCORES in SCORE_MATRIX.\n");
-      exit(EXIT_FAILURE);
-   }
+   submat->filename  = NULL;
+   submat->alph      = NULL;
+   submat->scores    = NULL;
+
+   SCORE_MATRIX_Set_Alphabet( submat, ALPH_AMINO_CHARS );
 
    return submat;
 }
@@ -46,6 +46,7 @@ SCORE_MATRIX* SCORE_MATRIX_Create()
 void SCORE_MATRIX_Destroy(SCORE_MATRIX* submat)
 {
    free(submat->filename);
+   free(submat->alph);
    free(submat->scores);
    free(submat);
 }
@@ -62,16 +63,19 @@ SCORE_MATRIX* SCORE_MATRIX_Load(char* _filename_)
    size_t   line_buf_size  = 0;
    int      line_count     = 0;
    ssize_t  line_size      = 0;
+   char*    token          = NULL;
 
    /* line parser objects */
-   char     delim[]        = "\t";
+   bool     hasHeader      = false;
+   char*    header         = strdup( ALPH_AMINO_CHARS );
+   char     delim[]        = " \t\n";
    char*    parser         = NULL;
-   int      x              = 0;
-   int      y              = 0;
-   int      key            = 0;
-   float    score          = 0;
-   char     a              = 0;
-   char     b              = 0;
+
+   int      x              = 0;  /* index of row in matrix */
+   int      y              = 0;  /* index of column in matrix */
+   char     a              = 0;  /* char at row index */
+   char     b              = 0;  /* char at column index */
+   float    score          = 0;  /* match score */
 
    /* open file */
    FILE *fp;
@@ -85,69 +89,119 @@ SCORE_MATRIX* SCORE_MATRIX_Load(char* _filename_)
    /* read a line */
    while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1 )
    {
-      /* get next target character */
-      b = AA[y];
-      /* reset x at start of each line */
-      x = 0;
+      /* get first non-whitespace word */
+      parser = strtok(line_buf, delim);
 
-      if (line_buf[0] != '#') /* if not a comment, parse line */
+      /* if comment or blank line, skip */
+      if ( parser == NULL || parser[0] == '#' ) {
+         continue;
+      }
+
+      /* header leads with a > character */
+      if ( parser[0] == '>' && !hasHeader )
       {
-         bool isNull = (parser != NULL);
-         parser = strtok(line_buf, delim);
+         header = (char*) realloc( header, sizeof(char) * 256 );
+         int i = 0;
 
-         // next row value is the first element on line
-         if (parser != NULL) {
-            b = parser[0];
-            parser = strtok(NULL, delim);
+         /* parse header elements */
+         while ( (parser = strtok(NULL, delim) ), parser != NULL )  
+         {
+            header[i] = parser[0];
+            i++;
          }
-         while (parser != NULL) {
+         header[i] = '\0';
+         hasHeader = true;
+         SCORE_MATRIX_Set_Alphabet( submat, header );
+         continue;
+      }
+
+      /* if line begins with letter from alphabet, we are on a data row */
+      if ( strchr( header, parser[0] ) != NULL ) 
+      {
+         /* first element on line is member of alphabet */
+         b = parser[0];
+
+         /* tab-delimited scores */
+         x = 0;
+         while ( (parser = strtok(NULL, delim) ), parser != NULL ) 
+         {
             /* get next query character */ 
-            a = AA2[x]; 
+            a = header[x]; 
             score = atof(parser);
 
-            // check if cast score is valid
-            if (!(score == 0 && parser[0] != '0')) {
-               // map protein pair to int (both directions)
-               *( SCORE_MATRIX_Score(submat,a,b) ) = score;
-               *( SCORE_MATRIX_Score(submat,b,a) ) = score;
-               x++;
-            }
-            // split on next tab
-            parser = strtok(NULL, delim);
+            // map protein pair to int (both directions)
+            *( SCORE_MATRIX_Score( submat, a, b ) ) = score;
+            *( SCORE_MATRIX_Score( submat, b, a ) ) = score;
+
+            x++;
          }
+         y++;
+         continue;
       }
-      y++;
+
    }
    fclose(fp);
+
+   free(header);
+   free(line_buf);
 
    return submat;
 }
 
-/* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */
-int SCORE_MATRIX_Keymap( char query_char, 
-                         char target_char )
+/* Set alphabet and the initialize score matrix based on size */
+void SCORE_MATRIX_Set_Alphabet( SCORE_MATRIX*   submat,
+                                char*           alph )
 {
-   int X = query_char - 'A';
-   int Y = target_char - 'A';
+   int alph_len      = strlen( alph );
+   submat->alph      = NULL;
+   submat->alph      = strdup( alph );
+   submat->alph_len  = alph_len;
+   
+   /* initialize map */
+   for ( int i = 0; i < 256; i++ ) {
+      submat->map[i] = -1;
+   }
 
-   return (X * ALPHA_MAX) + Y;
+   /* create map from char -> index */
+   for ( int i = 0; i < strlen(alph); i++ ) {
+      submat->map[alph[i]] = i;
+   }
+
+   submat->scores = (float*) realloc( submat->scores, sizeof(float) * alph_len * alph_len );
+   if (submat == NULL) {
+      perror("Error while malloc'ing SCORES in SCORE_MATRIX.\n");
+      exit(EXIT_FAILURE);
+   }
+}
+
+/* Maps 2D-coords to 1D-coords in SUBSTITUTION MATRIX */
+int SCORE_MATRIX_Keymap( SCORE_MATRIX*    submat,
+                         char             q_ch, 
+                         char             t_ch )
+{
+   int X = submat->map[q_ch];
+   int Y = submat->map[t_ch];
+
+   return ( (X * submat->alph_len) + Y );
 }
 
 /* Get score from SCORE_MATRIX, given query/target chars. Returns reference.  */
+inline
 float* SCORE_MATRIX_Score( SCORE_MATRIX*  submat, 
                            char           q_ch, 
                            char           t_ch )
 {
-   int key = SCORE_MATRIX_Keymap(q_ch, t_ch);
+   int key = SCORE_MATRIX_Keymap(submat, q_ch, t_ch);
    return &(submat->scores[key]);
 }
 
 /* Get score from SCORE_MATRIX, given query/target chars  */
+inline
 float SCORE_MATRIX_Get_Score( SCORE_MATRIX*  submat, 
                               char           q_ch, 
                               char           t_ch )
 {
-   int key = SCORE_MATRIX_Keymap(q_ch, t_ch);
+   int key = SCORE_MATRIX_Keymap(submat, q_ch, t_ch);
    return submat->scores[key];
 }
 
@@ -156,31 +210,42 @@ void SCORE_MATRIX_Dump( SCORE_MATRIX*  submat,
                         FILE*          fp )
 {
    fprintf(fp, "# ====== SCORE_MATRIX ======\n");
-   fprintf(fp, "# FILENAME:\t%s\n", submat->filename);
+   fprintf(fp, "# FILE:\t%s\n", submat->filename);
+   fprintf(fp, "# ALPH:\t%s\n", submat->alph);
 
-   char query_char,target_char;
-   float score;
-   int i,j = 0;
+   char     q_ch     = 0;
+   char     t_ch     = 0;
+   float    score    = 0.0;
 
-   fprintf(fp, "#\t");
-   for (i = 0; i < NUM_AMINO; i++)
+   int      i        = 0; 
+   int      j        = 0;
+   char*    alph     = submat->alph;
+   int      alph_len = submat->alph_len;
+
+   /* print header */
+   fprintf(fp, ">\t");
+   for (i = 0; i < alph_len; i++) 
    {
-      fprintf(fp, "%c\t", AA[i]);
+      fprintf(fp, "%c\t", alph[i]);
    }
    fprintf(fp, "\n");
 
-   for (i = 0; i < NUM_AMINO; i++)
+   /* print each row */
+   for (i = 0; i < alph_len; i++) 
    {
-      query_char = AA[i];
-      fprintf(fp, "%c\t", query_char);
-      for (j = 0; j < NUM_AMINO; j++)
+      fprintf(fp, "%c\t", alph[i]);
+      for (j = 0; j < alph_len; j++)
       {
-         target_char = AA[j];
-
-         score = *( SCORE_MATRIX_Score(submat, query_char, target_char) );
-         fprintf(fp, "%.3f\t", score);
+         score = *( SCORE_MATRIX_Score( submat, alph[i], alph[j] ) );
+         fprintf(fp, "%f\t", score);
       }
       fprintf(fp, "\n");
    }
-   fprintf(fp, "# =========================\n\n");
+   fprintf(fp, "# ============================\n");
+}
+
+/* for now, just create generic amino alphabet */
+ALPHABET* ALPHABET_Create( ALPHABET alph_type )
+{
+
 }

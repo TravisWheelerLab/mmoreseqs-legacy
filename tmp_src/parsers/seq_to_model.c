@@ -35,10 +35,10 @@
 #include "utility.h"
 
 /* header */
-#include "seq_to_model.h"
+#include "seq_to_profile.h"
 
 /* converts sequence to HMM profile model */
-void SEQ_to_PROF( SEQUENCE*      seq, 
+void SEQUENCE_to_HMM_PROFILE( SEQUENCE*      seq, 
                   HMM_PROFILE*   prof )
 {
    /* extract info */

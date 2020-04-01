@@ -1,14 +1,18 @@
 /*******************************************************************************
- *  FILE:      hmm_fasta_parser.h
- *  PURPOSE:   Converts a .fasta to HMM_PROFILE.
+ *  FILE:      worker.c
+ *  PURPOSE:   WORKER object.h
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
  *******************************************************************************/
 
-#ifndef _HMM_FASTA_PARSER_H
-#define _HMM_FASTA_PARSER_H
+#ifndef _WORKER_H
+#define _WORKER_H
 
+/* constructor */
+WORKER* WORKER_Create();
 
+/* destructor */
+void WORKER_Destory( WORKER* work );
 
-#endif /* _HMM_FASTA_PARSER_H */
+#endif /* _WORKER_H */

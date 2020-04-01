@@ -6,7 +6,6 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
-
 /* imports */
 #include <stdio.h>
 #include <unistd.h>
@@ -17,13 +16,18 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and file parsers */
+/* data structures */
 #include "objects/structs.h"
 #include "utility.h"
-#include "../parsers/hmm_parser.h"
-#include "../parsers/seq_parser.h"
-#include "../parsers/m8_parser.h"
-#include "../parsers/index_parser.h"
+#include "error_handler.h"
+
+/* file parsers */
+#include "parsers/arg_parser.h"
+#include "parsers/hmm_parser.h"
+#include "parsers/seq_parser.h"
+#include "parsers/m8_parser.h"
+#include "parsers/index_parser.h"
+#include "parsers/seq_to_profile.h"
 
 /* objects */
 #include "objects/f_index.h"
@@ -39,22 +43,24 @@
 #include "objects/vectors/vector_range_2d.h"
 
 /* viterbi & fwdbck (quadratic) */
-#include "viterbi_quad.h"
-#include "traceback_quad.h"
-#include "fwdback_quad.h"
+#include "algs_quad/viterbi_quad.h"
+#include "algs_quad/traceback_quad.h"
+#include "algs_quad/fwdback_quad.h"
+/* viterbi & fwdbck (linear) */
+#include "algs_linear/fwdback_linear.h"
 
 /* cloud search (naive) */
-#include "bounded_fwdbck_naive.h"
+#include "algs_naive/bounded_fwdbck_naive.h"
 /* cloud search (quadratic space) */
-#include "cloud_search_quad.h"
-#include "merge_reorient_quad.h"
-#include "bounded_fwdbck_quad.h"
+#include "algs_quad/cloud_search_quad.h"
+#include "algs_quad/merge_reorient_quad.h"
+#include "algs_quad/bounded_fwdbck_quad.h"
 /* cloud search (linear space) */
-#include "cloud_search_linear.h"
-#include "merge_reorient_linear.h"
-#include "bounded_fwdbck_linear.h"
+#include "algs_linear/cloud_search_linear.h"
+#include "algs_linear/merge_reorient_linear.h"
+#include "algs_linear/bounded_fwdbck_linear.h"
 /* temp test */
-#include "cloud_search_linear_rows.h"
+#include "algs_linear/cloud_search_linear_rows.h"
 
 /* debugging methods */
 #include "testing.h"
@@ -69,14 +75,14 @@ void mmseqs_pipeline(ARGS* args)
    float          alpha             = args->alpha;
    int            beta              = args->beta;
 
-   char*          t_filepath        = args->target_filepath;
-   char*          q_filepath        = args->query_filepath;
+   char*          t_filepath        = args->t_filepath;
+   char*          q_filepath        = args->q_filepath;
 
-   char*          t_indexpath       = args->target_indexpath;
-   char*          q_indexpath       = args->query_indexpath;
+   char*          t_indexpath       = args->t_indexpath;
+   char*          q_indexpath       = args->q_indexpath;
 
-   int            t_filetype        = args->target_filetype;
-   int            q_filetype        = args->query_filetype;
+   int            t_filetype        = args->t_filetype;
+   int            q_filetype        = args->q_filetype;
 
    char*          m8_filepath       = args->hits_filepath;
 
@@ -89,8 +95,9 @@ void mmseqs_pipeline(ARGS* args)
    RESULTS*       results_out       = RESULTS_Create();
    
    /* target & query objects */
-   SEQUENCE*      query             = NULL;
-   HMM_PROFILE*   target            = NULL;
+   SEQUENCE*      q_seq             = SEQUENCE_Create();
+   SEQUENCE*      t_seq             = SEQUENCE_Create();
+   HMM_PROFILE*   t_prof            = HMM_PROFILE_Create();
 
    /* file indexes for target & query */
    F_INDEX*       q_index           = NULL;
@@ -136,44 +143,44 @@ void mmseqs_pipeline(ARGS* args)
    /* if target file doesn't have an index file, create one */
    if ( t_indexpath == NULL ) 
    {
-      switch( args->target_filetype )
+      switch( args->t_filetype )
       {
          case FILE_HMM:
-            t_index = F_INDEX_Hmm_Build( args->target_filepath );
+            t_index = F_INDEX_Hmm_Build( args->t_filepath );
             break;
 
          case FILE_FASTA:
-            t_index = F_INDEX_Fasta_Build( args->target_filepath );
+            t_index = F_INDEX_Fasta_Build( args->t_filepath );
             break;
 
          default:
-            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->target_filepath);
+            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->t_filepath);
             exit(EXIT_FAILURE);
       }
    } 
    else 
    {
-      t_index = F_INDEX_Load( args->target_indexpath );
+      t_index = F_INDEX_Load( args->t_indexpath );
    }
    F_INDEX_Sort( t_index );
 
    /* if query file doesn't have an index file, create one */
-   if ( args->query_indexpath == NULL ) 
+   if ( args->q_indexpath == NULL ) 
    {
-      switch( args->query_filetype )
+      switch( args->q_filetype )
       {
          case FILE_FASTA:
-            q_index = F_INDEX_Fasta_Build( args->target_filepath );
+            q_index = F_INDEX_Fasta_Build( args->t_filepath );
             break;
 
          default:
-            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->target_filepath);
+            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->t_filepath);
             exit(EXIT_FAILURE);
       }
    } 
    else 
    {
-      q_index = F_INDEX_Load( args->target_indexpath );
+      q_index = F_INDEX_Load( args->t_indexpath );
    }
    F_INDEX_Sort( q_index );
 
@@ -185,29 +192,9 @@ void mmseqs_pipeline(ARGS* args)
       /* get next result from list */
       result = &(results_in->data[i]);
 
-      /* if current result is not the same query as previous result, load it in. */
-      if ( result_prv != NULL && strcmp( result->target_name, result_prv->target_name ) ) 
-      {
-         /* find query in index file */
-         long offset = F_INDEX_Search( t_index, result->target_name );
-
-         /* jump to position in query file and load in query */
-         target = HMM_PROFILE_Parse( args->target_filepath, offset );
-      }
-
-      /* if current result is not the same query as previous result, load it in. */
-      if ( result_prv != NULL && strcmp( result->query_name, result_prv->query_name ) ) 
-      {
-         /* find query in index file */
-         long offset = F_INDEX_Search( q_index, result->query_name );
-
-         /* jump to position in query file and load in query */
-         query = SEQUENCE_Fasta_Parse( args->query_filepath, offset );
-      }
-
       /* resize data structures for next search */
-      T = target->N;
-      Q = query->N;
+      T = t_prof->N;
+      Q = q_seq->N;
       MATRIX_3D_Reuse( st_matrix, NUM_NORMAL_STATES, 3, (Q+T+1) );
       st_MX3 = st_matrix->data;
       MATRIX_2D_Reuse( sp_matrix, NUM_SPECIAL_STATES, Q+1 );
@@ -227,13 +214,13 @@ void mmseqs_pipeline(ARGS* args)
       /* === CLOUD SEARCH === */
 
       /* perform cloud search */
-      cloud_Forward_Linear(query, target, Q, T, NULL, st_MX3, sp_MX, aln, edg_fwd, alpha, beta, false);
-      cloud_Backward_Linear(query, target, Q, T, NULL, st_MX3, sp_MX, aln, edg_bck, alpha, beta, false);
+      cloud_Forward_Linear(q_seq, t_prof, Q, T, NULL, st_MX3, sp_MX, aln, edg_fwd, alpha, beta, false);
+      cloud_Backward_Linear(q_seq, t_prof, Q, T, NULL, st_MX3, sp_MX, aln, edg_bck, alpha, beta, false);
 
       edg_diag = EDGEBOUNDS_Merge(Q, T, edg_fwd, edg_bck);
       edg_row  = EDGEBOUNDS_Reorient(Q, T, edg_diag);
 
-      bound_Forward_Linear(query, target, Q, T, st_MX3, NULL, sp_MX, edg_row, false, &sc);
+      bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3, NULL, sp_MX, edg_row, false, &sc);
       result->cloud_fwd_sc = sc;
 
       /* if it clears scoring threshold, add to results */

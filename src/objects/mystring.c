@@ -84,3 +84,20 @@ int STRING_EndsWith( const char*    str1,
 
    return strncmp( &(str1[len1-(n-1)]), &(str2[len2-(n-1)]), n-1 );
 }
+
+/* returns filename of full filepath */
+char* STRING_Get_File_from_Path( const char* in_filepath ) 
+{
+   char*    filepath    = strdup( in_filepath );
+   char*    token       = NULL;
+   char*    prv_token   = NULL;
+   char*    delim       = "/";
+
+   /* get last non-null token in string while breaking on backslash */
+   while( ( token = strtok( filepath, NULL ) ), token != NULL  ) {
+      prv_token = token;
+   }
+
+   free(filepath);
+   return prv_token;
+}

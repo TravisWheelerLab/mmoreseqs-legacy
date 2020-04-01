@@ -10,16 +10,30 @@
 #define _STRUCTS_ENUMS_H
 
 /* === CONSTANTS === */
+
 #define CONST_LOG2 0.69314718055994529    /*  */
 #define SCALE_FACTOR 1000                 /* scaling factor for summing logrithm */
 #define INF INFINITY
 #define INT_MIN -2147483648               /* min value of integer */
 
-/* submat constants */
-#define ALPHA_MAX 26
-#define SUBMAT_SIZE ALPHA_MAX*ALPHA_MAX
-
 /* === ENUMERATIONS === */
+
+/* Error Flags */
+typedef enum {
+   ERROR_UNKNOWN     = 0,
+   ERROR_MALLOC      = 1,
+   ERROR_REALLOC     = 2
+} ERROR_FLAGS;
+#define NUM_ERROR_FLAGS 3
+
+/* Number Format of HMM_PROFILE */
+typedef enum {
+   PROF_FORMAT_REAL      = 0,
+   PROF_FORMAT_NEGLOG    = 1,
+   PROF_FORMAT_LOGODDS   = 2
+} PROF_FORMAT;
+#define NUM_PROF_FORMAT 3
+
 /* Data Type */
 typedef enum {
    DATATYPE_NONE     = 0,
@@ -176,8 +190,9 @@ typedef enum {
 #define NUM_SPECIAL_TRANS 2
 
 typedef enum {
-   AMINO    = 0,              /* Protein Alphabet */
-   DNA      = 1,              /* DNA {ACGT} Alphabet */
-} ALPHABET;
+   ALPH_NULL   = 0,     /* NULL Alphabet */
+   ALPH_AMINO  = 1,     /* Protein Alphabet */
+   ALPH_DNA    = 2,     /* DNA {ACGT} Alphabet */
+} ALPH_TYPE;
 
 #endif /* _STRUCTS_ENUMS_H */

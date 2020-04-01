@@ -1,7 +1,7 @@
 # BLOSUM62 Matrix Scores for protein substitution
 # tab-delimited values
 
-#  A	R	N	D	C	Q	E	G	H	I	L	K	M	F	P	S	T	W	Y	V
+>  A	R	N	D	C	Q	E	G	H	I	L	K	M	F	P	S	T	W	Y	V
 A	4
 R	-1	5
 N	-2	0	6

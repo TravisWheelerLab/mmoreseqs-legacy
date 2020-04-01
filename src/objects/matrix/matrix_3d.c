@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file matrix.c
- *  @brief MATRIX_3D Float object.
+ *  FILE:      matrix_3d.c
+ *  PURPOSE:   MATRIX_3D Float object.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -28,13 +28,23 @@ MATRIX_3D* MATRIX_3D_Create(int  R,
                             int  C,
                             int  N) 
 {
-   MATRIX_3D* mx;
+   if ( R <= 0 || C <= 0 ) {
+      fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
+      exit(EXIT_FAILURE);
+   }
 
+   MATRIX_3D* mx;
    mx = (MATRIX_3D*) malloc( sizeof(MATRIX_3D) );
    if (mx == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc MATRIX_3D.\n");
       exit(EXIT_FAILURE);
    }
+
+   mx->R       = 0;
+   mx->C       = 0;
+   mx->N       = 0;
+   mx->Nalloc  = 0;
+   mx->data    = NULL;
 
    MATRIX_3D_Resize( mx, R, C, N );
 

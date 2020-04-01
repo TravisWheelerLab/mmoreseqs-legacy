@@ -137,11 +137,11 @@ ARGS*  ARGS_Parse( int     argc,
          printf("%s\n", argv[i]);
          if (num_main_args == 0)
          {
-            args->target_filepath = strdup(argv[i]);
+            args->t_filepath = strdup(argv[i]);
          }
          else if (num_main_args == 1)
          {
-            args->query_filepath = strdup(argv[i]);
+            args->q_filepath = strdup(argv[i]);
          }
          else
          {
@@ -151,8 +151,8 @@ ARGS*  ARGS_Parse( int     argc,
       }
    }
 
-   args->target_filetype = ARGS_Find_FileType( args->target_filepath );
-   args->query_filetype  = ARGS_Find_FileType( args->query_filepath );
+   args->t_filetype = ARGS_Find_FileType( args->t_filepath );
+   args->q_filetype  = ARGS_Find_FileType( args->q_filepath );
 
    return args;
 }
@@ -160,14 +160,14 @@ ARGS*  ARGS_Parse( int     argc,
 /* SET DEFAULT ARGUMENTS (for testing) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->target_filepath         = "test_input/test1_2.hmm";
-   args->query_filepath          = "test_input/test1_1.fa";
+   args->t_filepath              = "test_input/test1_2.hmm";
+   args->q_filepath              = "test_input/test1_1.fa";
 
-   args->target_indexpath        = NULL;
-   args->query_indexpath         = NULL;
+   args->t_indexpath             = NULL;
+   args->q_indexpath             = NULL;
 
-   args->target_filetype         = FILE_HMM;
-   args->query_filetype          = FILE_FASTA;
+   args->t_filetype              = FILE_HMM;
+   args->q_filetype              = FILE_FASTA;
 
    args->hits_filepath           = NULL;
 
@@ -197,35 +197,35 @@ void ARGS_Dump( ARGS*    args,
    float    alpha             = args->alpha;
    int      beta              = args->beta;
 
-   char*    t_filepath        = args->target_filepath;
-   char*    q_filepath        = args->query_filepath;
-   int      t_filetype        = args->target_filetype;
-   int      q_filetype        = args->query_filetype;
+   char*    t_filepath        = args->t_filepath;
+   char*    q_filepath        = args->q_filepath;
+   int      t_filetype        = args->t_filetype;
+   int      q_filetype        = args->q_filetype;
 
    char*    hits_filepath     = args->hits_filepath;
 
    char*    output_filepath   = args->output_filepath;
 
    int      pad               = 20;
-   bool     left_aln          = 1;
+   bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
 
    fprintf( fp, "=== ARGS =====================\n");
 
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "PIPELINE",         PIPELINE_NAMES[pipeline] );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "VERBOSITY_MODE",   VERBOSITY_NAMES[verbosity] );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "SEARCH_MODE",      MODE_NAMES[search_mode] );
-   fprintf( fp, "%*s:\t%.3f\n",  left_aln * pad,  "ALPHA",            alpha );
-   fprintf( fp, "%*s:\t%d\n",    left_aln * pad,  "BETA",             beta );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",         PIPELINE_NAMES[pipeline] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",   VERBOSITY_NAMES[verbosity] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",      MODE_NAMES[search_mode] );
+   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",            alpha );
+   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",             beta );
    fprintf( fp, "\n" );
 
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "TARGET_FILEPATH",  t_filepath );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "TARGET_FILETYPE",  FILE_TYPE_NAMES[t_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "QUERY_FILENAME",   q_filepath );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "QUERY_FILETYPE",   FILE_TYPE_NAMES[q_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "HITS_FILEPATH",    hits_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH",  t_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE",  FILE_TYPE_NAMES[t_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",   q_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",   FILE_TYPE_NAMES[q_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "HITS_FILEPATH",    hits_filepath );
    fprintf( fp, "\n" );
 
-   fprintf( fp, "%*s:\t%s\n",    left_aln * pad,  "OUTPUT_FILEPATH",  output_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH",  output_filepath );
 
    fprintf( fp, "=============================\n\n");
 }

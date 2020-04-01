@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file hmm_profile.c
- *  @brief HMM_PROFILE Object
+ *  FILE:      hmm_profile.c
+ *  PURPOSE:   HMM_PROFILE Object.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUGS:  
  *******************************************************************************/
 
 /* imports */
@@ -39,10 +39,11 @@ HMM_PROFILE* HMM_PROFILE_Create()
    prof->acc            = NULL;
    prof->desc           = NULL;
    prof->alph           = NULL;
+   prof->consensus      = NULL;
    
-   prof->msv_dist       = NULL;
-   prof->viterbi_dist   = NULL;
-   prof->forward_dist   = NULL;
+   prof->msv_dist       = (DIST_PARAM){0.0, 0.0};
+   prof->viterbi_dist   = (DIST_PARAM){0.0, 0.0};
+   prof->forward_dist   = (DIST_PARAM){0.0, 0.0};
 
    prof->N              = 0;
    prof->Nalloc         = 0;
@@ -51,11 +52,7 @@ HMM_PROFILE* HMM_PROFILE_Create()
    prof->bg_model       = NULL;
    prof->hmm_model      = NULL;
 
-   prof->bg_model       = (HMM_BG*) calloc( 1, sizeof(HMM_BG) );
-   if (prof->bg_model == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc BG_MODEL in HMM_PROFILE.\n");
-      exit(EXIT_FAILURE);
-   }
+   prof->bg_model = HMM_COMPO_Create();
 
    return prof;
 }
@@ -69,21 +66,40 @@ void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
    free(prof->desc);
    free(prof->alph);
 
-   free(prof->msv_dist);
-   free(prof->viterbi_dist);
-   free(prof->forward_dist);
-
    free(prof->bg_model);
    free(prof->hmm_model);
 
    free(prof);
 }
 
+/* reuse profile by setting length of length of profile to zero */
+void HMM_PROFILE_Reuse( HMM_PROFILE* prof )
+{
+   prof->N = 0;
+}
+
+/* create backround hmm composition from hardcoded background frequencies */
+HMM_COMPO* HMM_COMPO_Create()
+{
+   HMM_COMPO* bg = (HMM_COMPO*) malloc( sizeof(HMM_COMPO) );
+   if (bg == NULL) {
+      fprintf( stderr, "ERROR: Unable to malloc for HMM_COMPO.\n" );
+      exit(EXIT_FAILURE);
+   }
+
+   /* set background frequencies from BG_MODEL (imported from HMMER) */
+   for ( int i = 0; i < NUM_AMINO; i++ ) {
+      bg->freq[i] = BG_MODEL[i];
+   }
+
+   return bg;
+}
+
 /* Set text to given HMM_PROFILE field */
 void HMM_PROFILE_Set_TextField( char** prof_field, 
                                 char*  text )
 {
-   *prof_field = malloc( sizeof(char) * ( strlen(text) + 1 ) );
+   *prof_field = realloc( *prof_field, sizeof(char) * ( strlen(text) + 1 ) );
    if ( *prof_field == NULL ) {
       fprintf(stderr, "ERROR: Unable to malloc TEXTFIELD for HMM_PROFILE.\n");
       exit(EXIT_FAILURE);
@@ -98,8 +114,8 @@ void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof,
    /* realloc memory if allocated length is less than new length */
    if ( prof->Nalloc < length )
    {
-      prof->hmm_model = (HMM_NODE*) realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
-      prof->Nalloc = length;
+      prof->hmm_model   = (HMM_NODE*) realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
+      prof->Nalloc      = length;
 
       if (prof->hmm_model == NULL) {
          fprintf(stderr, "ERROR: Unable to malloc HMM_MODEL for HMM_PROFILE.\n");
@@ -138,6 +154,36 @@ void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof,
    }
 }
 
+/* Determine the consensus sequence using HMM_PROFILE */
+char* HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
+{
+   float       best_val; 
+   float       new_val;
+   char        best_amino;
+   HMM_NODE    curr_node;
+
+   prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
+
+   /* find consensus sequence */
+   for (int i = 1; i < prof->N+1; i++)
+   {
+      best_val = -INF;
+      curr_node = prof->hmm_model[i];
+      for (int j = 0; j < NUM_AMINO; j++)
+      {
+         new_val = curr_node.match[j];
+         if (best_val < new_val)
+         {
+            best_val = new_val;
+            best_amino = AA[j];
+         }
+      }
+      prof->consensus[i-1] = best_amino;
+   }
+
+   return prof->consensus;
+}
+
 /* Set Distribution Parameters for HMM_PROFILE */
 void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof, 
                                           float        param1, 
@@ -148,16 +194,16 @@ void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof,
    float*   parPtr2 = NULL;
 
    if ( strcmp( dist_name, "MSV" ) == 0 ) {
-      parPtr1 = &prof->msv_dist->param1;
-      parPtr2 = &prof->msv_dist->param2;
+      parPtr1 = &prof->msv_dist.param1;
+      parPtr2 = &prof->msv_dist.param2;
    }
    else if ( strcmp( dist_name, "VITERBI" ) == 0 ) {
-      parPtr1 = &prof->viterbi_dist->param1;
-      parPtr2 = &prof->viterbi_dist->param2;
+      parPtr1 = &prof->viterbi_dist.param1;
+      parPtr2 = &prof->viterbi_dist.param2;
    }
    else if ( strcmp( dist_name, "FORWARD" ) == 0 ) {
-      parPtr1 = &prof->forward_dist->param1;
-      parPtr2 = &prof->forward_dist->param2;
+      parPtr1 = &prof->forward_dist.param1;
+      parPtr2 = &prof->forward_dist.param2;
    }
    else {
       fprintf( stderr, "Invalid distribution type: %s\n", dist_name );
@@ -180,111 +226,81 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
       return;
    }
 
-   int i,j;
-   float best_val, new_val;
-   char best_amino;
-   HMM_NODE curr_node;
+   int i, j;
+   if ( prof->consensus == NULL ) {
+      HMM_PROFILE_Set_Consensus( prof );
+   }
 
+   int pad = 20;
    fprintf(fp, "\n");
    fprintf(fp, "===== HMM PROFILE ====================================\n");
-   fprintf(fp, "\t         NAME:\t%s\n", prof->name);
-   fprintf(fp, "\t       LENGTH:\t%d\n", prof->N);
-   char *seq = (char *)malloc( sizeof(char) * prof->N );
+   fprintf(fp, "%*s\t%s\n",  pad,  "NAME",       prof->name);
+   fprintf(fp, "%*s\t%d\n",  pad,  "LENGTH",     prof->N);
+   fprintf(fp, "%*s\t%d\n",  pad,  "ALLOC",      prof->Nalloc);
+   fprintf(fp, "%*s\t%s\n",  pad,  "CONSENSUS",  prof->consensus);
 
-   /* print consensus sequence */
-   fprintf(fp, "\tCONSENSUS SEQ:\t");
-   for (int i = 1; i < prof->N+1; i++)
-   {
-      best_val = -INF;
-      curr_node = prof->hmm_model[i];
-      for (int j = 0; j < NUM_AMINO; j++)
-      {
-         new_val = curr_node.match[j];
-         if (best_val < new_val)
-         {
-            best_val = new_val;
-            best_amino = AA[j];
-         }
-      }
-      fprintf(fp, "%c", best_amino);
-   }
+   /* background model */
+   fprintf(fp, "#%10s:\t", "FREQ");
+   for (int j = 0; j < NUM_AMINO; j++)
+      fprintf(fp, "%9.4f ", prof->bg_model->freq[j]);
    fprintf(fp, "\n");
 
-   fprintf(fp, "\t        COMPO:\n");
-   fprintf(fp, "FREQ:\t");
+   fprintf(fp, "#%10s:\t", "COMPO");
    for (int j = 0; j < NUM_AMINO; j++)
-   {
-      fprintf(fp, "\t%.4f", prof->bg_model->freq[j]);
-   }
-   fprintf(fp, "\nCOMPO:\t");
+      fprintf(fp, "%9.4f ", prof->bg_model->compo[j]);
+   fprintf(fp, "\n");
+
+   fprintf(fp, "#%10s:\t", "INSERT");
    for (int j = 0; j < NUM_AMINO; j++)
-   {
-      fprintf(fp, "\t%.4f", prof->bg_model->compo[j]);
-   }
-   fprintf(fp, "\nINSERT:\t");
-   for (int j = 0; j < NUM_AMINO; j++)
-   {
-      fprintf(fp, "\t%.4f", prof->bg_model->insert[j]);
-   }
-   fprintf(fp, "\nTRANS:\t");
+      fprintf(fp, "%9.4f ", prof->bg_model->insert[j]);
+   fprintf(fp, "\n");
+
+   fprintf(fp, "#%10s:\t", "TRANS");
    for (int j = 0; j < NUM_TRANS_STATES; j++)
-   {
-      fprintf(fp, "\t%.4f", prof->bg_model->trans[j]);
-   }
+      fprintf(fp, "%9.4f ", prof->bg_model->trans[j]);
    fprintf(fp, "\n\n");
 
-   /* NORMAL STATE PROBS */
-   fprintf(fp, "=== TRANSITION PROBS ===\n");
+   /* position-specific probabilities */
    for (int i = 0; i < prof->N+1; i++)
    {
-      fprintf(fp, "%d", i);
-      for (int j = 0; j < NUM_TRANS_STATES; j++)
-      {
-         fprintf(fp, "\t%.4f", prof->hmm_model[i].trans[j]);
-      }
-      fprintf(fp, "\n");
-   }
-   fprintf(fp, "=== MATCH EMISSION PROBS ===\n");
-   for (int i = 0; i < prof->N+1; i++)
-   {
-      fprintf(fp, "%d", i);
+      /* line 1: match emissions */
+      fprintf(fp, " %5d ", i);
       for (int j = 0; j < NUM_AMINO; j++)
-      {
-         fprintf(fp, "\t%.4f", prof->hmm_model[i].match[j]);
-      }
+         fprintf(fp, "%9.4f ", prof->hmm_model[i].match[j]);
       fprintf(fp, "\n");
-   }
-   fprintf(fp, "=== INSERT EMISSION PROBS ===\n");
-   for (int i = 0; i < prof->N+1; i++)
-   {
-      fprintf(fp, "%d", i);
-      for (int j = 0; j < NUM_AMINO; j++)
-      {
-         fprintf(fp, "\t%.4f", prof->hmm_model[i].insert[j]);
-      }
-      fprintf(fp, "\n");
-   }
 
-   fprintf(fp, "BACKGROUND:\n");
-   fprintf(fp, "LOG:\t\t");
-   for (int i = 0; i < NUM_AMINO; i++)
-   {
-      fprintf(fp, "%.4f\t", BG_MODEL_log[i]);
+      /* line 2: insert emissions */
+      fprintf(fp, "%7s", "");
+      for (int j = 0; j < NUM_AMINO; j++)
+         fprintf(fp, "%9.4f ", prof->hmm_model[i].insert[j]);
+      fprintf(fp, "\n");
+      
+      /* line 3: transition probabilities */
+      fprintf(fp, "%7s", "");
+      for (int j = 0; j < NUM_TRANS_STATES; j++)
+         fprintf(fp, "%9.4f ", prof->hmm_model[i].trans[j]);
+      fprintf(fp, "\n");
    }
    fprintf(fp, "\n");
-   fprintf(fp, "ACTUAL:\t\t");
+
+   fprintf(fp, "#%15s:\n", "BACKGROUND");
+
+   fprintf(fp, "#%15s:%7s", "LOG", "");
    for (int i = 0; i < NUM_AMINO; i++)
-   {
-      fprintf(fp, "%.4f\t", BG_MODEL[i]);
-   }
-   fprintf(fp, "\n\n");
+      fprintf(fp, "%9.4f ", BG_MODEL_log[i]);
+   fprintf(fp, "\n");
 
-   fprintf(fp, "SPECIAL:\n");
-   fprintf(fp, "\tE:\t%.4f\t%.4f\n", prof->bg_model->spec[SP_E][SP_LOOP], prof->bg_model->spec[SP_E][SP_MOVE]);
-   fprintf(fp, "\tN:\t%.4f\t%.4f\n", prof->bg_model->spec[SP_N][SP_LOOP], prof->bg_model->spec[SP_N][SP_MOVE]);
-   fprintf(fp, "\tC:\t%.4f\t%.4f\n", prof->bg_model->spec[SP_C][SP_LOOP], prof->bg_model->spec[SP_C][SP_MOVE]);
-   fprintf(fp, "\tJ:\t%.4f\t%.4f\n", prof->bg_model->spec[SP_J][SP_LOOP], prof->bg_model->spec[SP_J][SP_MOVE]);
+   fprintf(fp, "#%15s:%7s", "ACTUAL", "");
+   for (int i = 0; i < NUM_AMINO; i++)
+      fprintf(fp, "%9.4f ", BG_MODEL[i]);
+   fprintf(fp, "\n");
 
-   fprintf(fp, "//");
+   fprintf(fp, "#%15s:\n", "SPECIAL");
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "E", prof->bg_model->spec[SP_E][SP_LOOP], prof->bg_model->spec[SP_E][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "N", prof->bg_model->spec[SP_N][SP_LOOP], prof->bg_model->spec[SP_N][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "C", prof->bg_model->spec[SP_C][SP_LOOP], prof->bg_model->spec[SP_C][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "J", prof->bg_model->spec[SP_J][SP_LOOP], prof->bg_model->spec[SP_J][SP_MOVE]);
+
+   fprintf(fp, "//\n");
 }
 

@@ -25,12 +25,10 @@
 #include "hmm_parser.h"
 
 /* parse .fasta file and build SEQUENCE object */
-SEQUENCE* SEQUENCE_Fasta_Parse(  char*       _filename_,
-                                 long int    offset )
+void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
+                           char*       _filename_,
+                           long        offset )
 {
-   /* initialize sequence object */
-   SEQUENCE* seq = SEQUENCE_Create();
-
    /* parser vars */
    FILE*    fp             = NULL;    
    int      line_count     = -1;       /* line counter of current line in file */
@@ -40,6 +38,9 @@ SEQUENCE* SEQUENCE_Fasta_Parse(  char*       _filename_,
 
    int      num_seqs       = 0;        
    int      seq_len        = 0;
+
+   SEQUENCE_Reuse(seq);
+   SEQUENCE_Set_Textfield(&seq->filename, _filename_);
 
    /* open file */
    fp = fopen(_filename_, "r");
@@ -63,13 +64,11 @@ SEQUENCE* SEQUENCE_Fasta_Parse(  char*       _filename_,
          line_size -= 1;
       }
 
-      /* write line to console */
-      // printf ("[%d] %zd: %s \n", line_count, line_size, line_buf );
-
       /* check if line is a header */
       if (line_buf[0] == '>')
       {
          num_seqs++;
+         SEQUENCE_Set_Textfield(&seq->name, line_buf);
 
          /* if onto next seq, reset counters */
          /* NOTE: Currently only accepts one SEQUENCE */
@@ -86,8 +85,6 @@ SEQUENCE* SEQUENCE_Fasta_Parse(  char*       _filename_,
             // printf("[%d] %s\n", i, token);
             i++;
          }
-
-         SEQUENCE_Set_Textfield(&seq->name, line_buf);
       }
       else /* otherwise, append to current sequence */
       {
@@ -104,6 +101,4 @@ SEQUENCE* SEQUENCE_Fasta_Parse(  char*       _filename_,
    free(line_buf);
    /* close file */
    fclose(fp);
-
-   return seq;
 }

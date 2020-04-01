@@ -6,7 +6,6 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
-
 /* imports */
 #include <stdio.h>
 #include <unistd.h>
@@ -17,41 +16,51 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and file parsers */
+/* data structures */
 #include "objects/structs.h"
 #include "utility.h"
-#include "seq_parser.h"
-#include "hmm_parser.h"
+#include "error_handler.h"
+
+/* file parsers */
+#include "parsers/arg_parser.h"
+#include "parsers/hmm_parser.h"
+#include "parsers/seq_parser.h"
+#include "parsers/m8_parser.h"
+#include "parsers/index_parser.h"
+#include "parsers/seq_to_profile.h"
 
 /* objects */
+#include "objects/f_index.h"
+#include "objects/results.h"
+#include "objects/alignment.h"
 #include "objects/sequence.h"
 #include "objects/hmm_profile.h"
-#include "objects/alignment.h"
 #include "objects/edgebound.h"
 #include "objects/clock.h"
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
+#include "objects/mystring.h"
 #include "objects/vectors/vector_range_2d.h"
 
 /* viterbi & fwdbck (quadratic) */
-#include "viterbi_quad.h"
-#include "traceback_quad.h"
-#include "fwdback_quad.h"
+#include "algs_quad/viterbi_quad.h"
+#include "algs_quad/traceback_quad.h"
+#include "algs_quad/fwdback_quad.h"
 /* viterbi & fwdbck (linear) */
-#include "fwdback_linear.h"
+#include "algs_linear/fwdback_linear.h"
 
 /* cloud search (naive) */
-#include "bounded_fwdbck_naive.h"
+#include "algs_naive/bounded_fwdbck_naive.h"
 /* cloud search (quadratic space) */
-#include "cloud_search_quad.h"
-#include "merge_reorient_quad.h"
-#include "bounded_fwdbck_quad.h"
+#include "algs_quad/cloud_search_quad.h"
+#include "algs_quad/merge_reorient_quad.h"
+#include "algs_quad/bounded_fwdbck_quad.h"
 /* cloud search (linear space) */
-#include "cloud_search_linear.h"
-#include "merge_reorient_linear.h"
-#include "bounded_fwdbck_linear.h"
+#include "algs_linear/cloud_search_linear.h"
+#include "algs_linear/merge_reorient_linear.h"
+#include "algs_linear/bounded_fwdbck_linear.h"
 /* temp test */
-#include "cloud_search_linear_rows.h"
+#include "algs_linear/cloud_search_linear_rows.h"
 
 /* debugging methods */
 #include "testing.h"
@@ -65,20 +74,25 @@ void test_pipeline(ARGS* args)
    /* Commandline Arguments */
    float          alpha          = args->alpha;
    int            beta           = args->beta;
-   char*          hmm_file       = args->target_filepath;
-   char*          fasta_file     = args->query_filepath;
+
+   char*          t_filepath     = args->t_filepath;
+   char*          q_filepath     = args->q_filepath;
+
+   int            t_filetype     = args->t_filetype;
+   int            q_filetype     = args->q_filetype;
+
    char*          output_file    = args->output_filepath;
 
-   /* TODO: multi mode is unneccesarry (only support for UNILOCAL) */
+   /* TODO: multi mode is unneccesary (only support for UNILOCAL) */
    /* mode types: MODE_NONE, MODE_MULTILOCAL, MODE_MULTIGLOCAL, MODE_UNILOCAL, MODE_UNIGLOCAL */
-   /* HMMER standard mode (allows jumps) */
-   // int            mode           = MODE_MULTILOCAL;    
+
    /* Cloud Search mode (prohibits jumps) */
    int            mode           = MODE_UNILOCAL;      
 
    /* PROFILE & SEQUENCE */
-   HMM_PROFILE*   target_prof    = NULL;
-   SEQUENCE*      query_seq      = NULL;
+   HMM_PROFILE*   t_prof         = HMM_PROFILE_Create();
+   SEQUENCE*      t_seq          = SEQUENCE_Create();  /* only used if target is a fasta file */
+   SEQUENCE*      q_seq          = SEQUENCE_Create();
 
    /* EDGEBOUNDS & ALIGNMENTS */
    ALIGNMENT*     tr             = ALIGNMENT_Create();
@@ -110,28 +124,55 @@ void test_pipeline(ARGS* args)
    int            window_cells   = 0; 
    int            tot_cells      = 0;
 
-   printf("MODE: %s\n", MODE_NAMES[mode]);
+   /* ====================================================================================== */
 
    /* PRINT ARGS */
-   printf("HMM_FILENAME: %s\n", hmm_file);
-   printf("FASTA_FILENAME: %s\n", fasta_file);
-   printf("ALPHA: %f\n", alpha);
-   printf("BETA: %d\n\n", beta);
+   int pad = 20;
+   printf("%*s: %s\n", pad, "MODE",             MODE_NAMES[mode]);
+   printf("%*s: %s\n", pad, "HMM_FILENAME",     t_filepath);
+   printf("%*s: %s\n", pad, "FASTA_FILENAME",   q_filepath);
+   printf("%*s: %f\n", pad, "ALPHA",            alpha);
+   printf("%*s: %d\n", pad, "BETA",             beta);
+   printf("\n");
 
    printf("=== BUILD HMM_PROFILE / QUERY -> START ===\n");
-   
-   /* build target profile */
-   printf("building hmm profile...\n");
-   target_prof = HMM_PROFILE_Parse(hmm_file, 0);
-   HMM_PROFILE_Config(target_prof, mode);
-   HMM_PROFILE_Dump(target_prof, fopen("output/my.post-profile.tsv", "w") );
-   T = target_prof->N;
 
-   /* build query sequence */
-   printf("building query sequence...\n");
-   query_seq = SEQUENCE_Fasta_Parse(fasta_file, 0);
-   Q = query_seq->N;
-   printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n");
+   /* build q_seq sequence */
+   printf("building q_seq sequence...\n");
+   if ( q_filetype == FILE_FASTA ) 
+   {
+      SEQUENCE_Fasta_Parse( q_seq, q_filepath, 0 );
+   }
+   else 
+   {
+      fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
+      exit(EXIT_FAILURE);
+   }
+   Q = q_seq->N;
+   
+   /* build t_prof profile */
+   printf("building hmm profile...\n");
+   if ( t_filetype == FILE_HMM ) 
+   {
+      HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
+      HMM_PROFILE_Config( t_prof, mode );
+   }
+   else if ( t_filetype == FILE_FASTA )
+   {
+      SEQUENCE_Fasta_Parse( t_seq, t_filepath, 0 );
+      SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
+   }
+   else
+   {
+      fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
+      exit(EXIT_FAILURE);
+   }
+   
+   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   HMM_PROFILE_Dump( t_prof, fopen("output/my.post-profile.tsv", "w") );
+   T = t_prof->N;
+
+   printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n\n");
 
    tot_cells = (T+1) * (Q+1);
 
@@ -154,7 +195,7 @@ void test_pipeline(ARGS* args)
 
    /* run viterbi algorithm */
    printf("=== VITERBI -> START ===\n");
-   sc = viterbi_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   sc = viterbi_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
    printf("Viterbi Score: %f\n", sc);
    scores->viterbi_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
@@ -163,7 +204,7 @@ void test_pipeline(ARGS* args)
 
    /* run traceback of viterbi */
    printf("=== TRACEBACK -> START ===\n");
-   traceback_Build(query_seq, target_prof, Q, T, st_MX, sp_MX, tr);
+   traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
    // ALIGNMENT_Dump(tr, stdout);
    ALIGNMENT_Save(tr, "output/my.traceback.tsv");
    TRACE beg = tr->traces[tr->beg];
@@ -177,34 +218,35 @@ void test_pipeline(ARGS* args)
    init_Logsum();
 
    printf("=== FORWARD -> START ===\n");
+   /* ==> forward (quadratic) */
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   sc = forward_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   sc = forward_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
    printf("Forward Score (quadratic): %f\n", sc);
    scores->fwd_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.fwd.quad.mx");
-
-   // dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   // sc = forward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, &sc);
-   // printf("Forward Score (linear): %f\n", sc);
-   // scores->fwd_sc = sc;
+   /* ==> forward (linear) */
+   dp_matrix_Clear(Q, T, st_MX, sp_MX);
+   sc = forward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, &sc);
+   printf("Forward Score (linear): %f\n", sc);
+   scores->fwd_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
-   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.fwd.lin.mx");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.fwd.lin.mx");
    printf("=== FORWARD -> END ===\n\n");
 
    printf("=== BACKWARD -> START ===\n");
-   
-   sc = backward_Quad(query_seq, target_prof, Q, T, st_MX, sp_MX, &sc);
+   /* ==> backward (quadratic) */
+   sc = backward_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
    printf("Backward Score (quadratic): %f\n", sc);
    scores->bck_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bck.quad.mx");
-
-   // sc = backward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, &sc);
-   // printf("Backward Score (linear): %f\n", sc);
-   // scores->bck_sc = sc;
+   /* ==> backward (linear) */
+   sc = backward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, &sc);
+   printf("Backward Score (linear): %f\n", sc);
+   scores->bck_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
-   // dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bck.lin.mx");
+   dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bck.lin.mx");
    printf("=== BACKWARD -> END ===\n\n");
 
    // /* TEST */
@@ -221,7 +263,7 @@ void test_pipeline(ARGS* args)
 
    /* cloud forward (quadratic) */
    printf("=== CLOUD FORWARD (Quadratic) -> START ===\n");
-   cloud_Forward_Quad(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_fwd_quad, alpha, beta);
+   cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_fwd_quad, alpha, beta);
    dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_fwd_vals.quad.mx");
    dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
    cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_fwd_quad, 1, MODE_DIAG);
@@ -231,7 +273,7 @@ void test_pipeline(ARGS* args)
 
    /* cloud forward (linear) */
    printf("=== CLOUD FORWARD (Linear) -> START ===\n");
-   cloud_Forward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
+   cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_fwd_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_fwd_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd_lin, 1, MODE_DIAG);
@@ -243,7 +285,7 @@ void test_pipeline(ARGS* args)
 
    /* cloud backward (quadratic) */
    printf("=== CLOUD BACKWARD (Quadratic) -> START ===\n");
-   cloud_Backward_Quad(query_seq, target_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_bck_quad, alpha, beta);
+   cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_tmp, sp_MX, tr, edg_bck_quad, alpha, beta);
    dp_matrix_trace_Save(Q, T, st_MX_tmp, sp_MX, tr, "output/my.cloud_bck_vals.quad.mx");
    dp_matrix_Clear_X(Q, T, st_MX_tmp, sp_MX, 0);
    cloud_Fill(Q, T, st_MX_tmp, sp_MX, edg_bck_quad, 1, MODE_DIAG);
@@ -253,7 +295,7 @@ void test_pipeline(ARGS* args)
 
    /* cloud backward (linear) */
    printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
-   cloud_Backward_Linear(query_seq, target_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
+   cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX, st_MX3, sp_MX, tr, edg_bck_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.cloud_bck_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
    cloud_Fill(Q, T, st_MX, sp_MX, edg_bck_lin, 1, MODE_DIAG);
@@ -314,19 +356,19 @@ void test_pipeline(ARGS* args)
    /* bounded forward */
    printf("=== BOUNDED FORWARD -> START ===\n");
 
-   bound_Forward_Naive(query_seq, target_prof, Q, T, st_MX, sp_MX, st_MX_cloud, &sc);
+   bound_Forward_Naive(q_seq, t_prof, Q, T, st_MX, sp_MX, st_MX_cloud, &sc);
    printf("Bounded Forward Score (Naive): %f\n", sc);
    scores->cloud_fwd_sc = sc;
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.naive.mx");
    
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   bound_Forward_Quad(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    printf("Bounded Forward Score (Quadratic): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.quad.mx");
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
-   bound_Forward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    printf("Bound Forward Score (Linear): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_fwd.lin.mx");
 
@@ -336,21 +378,21 @@ void test_pipeline(ARGS* args)
    printf("=== BOUNDED BACKWARD -> START ===\n");
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   bound_Backward_Naive(query_seq, target_prof, Q, T, st_MX, sp_MX, st_MX_cloud, &sc);
+   bound_Backward_Naive(q_seq, t_prof, Q, T, st_MX, sp_MX, st_MX_cloud, &sc);
    printf("Bounded Backward Score (Naive): %f\n", sc);
    scores->cloud_bck_sc = sc;
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.naive.mx");
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear(Q, T, st_MX_cloud, sp_MX);
-   bound_Backward_Quad(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    printf("Bounded Backward Score (Quadratic): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.quad.mx");
    dp_matrix_trace_Save(Q, T, st_MX_cloud, sp_MX, tr, "output/my.bounded_bck.test.mx");
 
    dp_matrix_Clear(Q, T, st_MX, sp_MX);
    dp_matrix_Clear_X3(Q, T, st_MX3, sp_MX, 0);
-   bound_Backward_Linear(query_seq, target_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row_lin, is_testing, &sc);
    printf("Bound Backward Score (Linear): %f\n", sc);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.bounded_bck.lin.mx");
 
@@ -360,8 +402,8 @@ void test_pipeline(ARGS* args)
    printf("Writing results to: '%s'\n", output_file);
    FILE *fp = fopen(output_file, "a+");
 
-   fprintf(fp, "%s\t", hmm_file);
-   fprintf(fp, "%s\t", fasta_file);
+   fprintf(fp, "%s\t", t_filepath);
+   fprintf(fp, "%s\t", q_filepath);
    fprintf(fp, "%f\t", scores->viterbi_sc);
    fprintf(fp, "%f\t", scores->fwd_sc);
    fprintf(fp, "%f\t", scores->bck_sc);
@@ -388,8 +430,8 @@ void test_pipeline(ARGS* args)
    MATRIX_2D_Destroy(sp_MATRIX_cloud);
 
    /* free hmm_profile and sequence*/
-   HMM_PROFILE_Destroy(target_prof);
-   SEQUENCE_Destroy(query_seq);
+   HMM_PROFILE_Destroy(t_prof);
+   SEQUENCE_Destroy(q_seq);
 
    /* free alignment */
    ALIGNMENT_Destroy(tr);
