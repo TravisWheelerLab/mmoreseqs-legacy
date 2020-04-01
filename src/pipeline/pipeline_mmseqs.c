@@ -68,10 +68,12 @@
 /* header */
 #include "pipeline.h"
 
-/* standard pipeline */
-void mmseqs_pipeline(ARGS* args) 
+/* mmseqs pipeline */
+void mmseqs_pipeline( WORKER* worker ) 
 {
    /* Get Arguments */
+   ARGS*          args              = worker->args;
+
    float          alpha             = args->alpha;
    int            beta              = args->beta;
 

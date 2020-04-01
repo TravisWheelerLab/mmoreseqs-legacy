@@ -32,10 +32,15 @@
 /* === FUNCTIONS === */
 /* constructor */
 EDGEBOUNDS* EDGEBOUNDS_Create();
+
 /* initializer */
 void EDGEBOUNDS_Init(EDGEBOUNDS** edg);
+
 /* destructor */
 void EDGEBOUNDS_Destroy(EDGEBOUNDS* edg);
+
+/* reuse */
+void EDGEBOUNDS_Reuse(EDGEBOUNDS*  edg);
 
 /* push BOUND onto EDGEBOUNDS array */
 void EDGEBOUNDS_Pushback(EDGEBOUNDS* edg,

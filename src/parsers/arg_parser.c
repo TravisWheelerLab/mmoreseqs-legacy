@@ -169,6 +169,9 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
 
+   args->t_offset                = 0;
+   args->q_offset                = 0;
+
    args->hits_filepath           = NULL;
 
    args->output_filepath         = "test_output/test.txt";

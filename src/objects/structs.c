@@ -9,14 +9,15 @@
 /* imports */
 #include <time.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /* header */
 #include "structs.h"
 
 /* local imports */
-#include "../../utility.h"
-#include "../pipeline/pipeline.h"
-#include "../parsers/index_parser.h"
+#include "utility.h"
+#include "pipeline/pipeline.h"
+#include "parsers/index_parser.h"
 
 char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 
@@ -89,7 +90,7 @@ double BG_MODEL_log[] = {
 };
 
 /* function pointers to all pipelines */
-void (*PIPELINES[])(ARGS*) = {
+void (*PIPELINES[])(WORKER*) = {
    NULL,
    main_pipeline,
    test_pipeline,

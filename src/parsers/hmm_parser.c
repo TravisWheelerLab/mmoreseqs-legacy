@@ -63,6 +63,9 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    /* jump to start of desired hmm model */
    fseek(fp, offset, SEEK_SET);
 
+   /* reset the HMM_PROFILE fields for reuse */
+   HMM_PROFILE_Reuse( prof );
+
    /* PARSE FILE HEADER FIELDS */
    /* read file line-by-line */
    while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1  && inHeader) /* read a line */
@@ -256,9 +259,254 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    prof->numberFormat = PROF_FORMAT_NEGLOG;
 }
 
+void HMM_PROFILE_Parse_REAL(   HMM_PROFILE*   prof,
+                              char*          _filename_,
+                              long           offset )
+{
+   /* parser vars */
+   FILE*          fp             = NULL;     
+   int            line_count     = -1;       /* line counter of current line in file */
+   char*          line_buf       = NULL;     /* pointer to start of buffered line */
+   size_t         line_buf_size  = 0;        /* length of entire <line_buf> array */
+   size_t         line_size      = 0;        /* length of current line in <line_buf> array */
+   
+   char*          line_ptr       = NULL;     /* pointer for splitting <line_buf> by delimiters */
+   char*          token          = NULL;     /* pointer for iterating over <line_ptr> */
+   char*          header         = NULL;     /* temp for current line header in <line_buf> */
+   char*          field          = NULL;     /* temp for current line field in <line_buf> */
+   float          value          = 0.0f;     /* temp for casting field to float */
+
+   bool           inHeader       = true;     /* checks if are in the header or body of file */
+   HMM_NODE*      curr_node      = NULL;     /* pointer to currently accessed node in the <hmm_profile> */
+
+   /* open file */
+   fp = fopen(_filename_, "r");
+   /* check for file read error */
+   if (fp == NULL)
+   {
+      char*  str = NULL;
+      fprintf(stderr, "ERROR: Bad FILE POINTER for HMM PARSER => %s\n", _filename_ );
+      exit(EXIT_FAILURE);
+   }
+   /* jump to start of desired hmm model */
+   fseek(fp, offset, SEEK_SET);
+
+   /* reset the HMM_PROFILE fields for reuse */
+   HMM_PROFILE_Reuse( prof );
+
+   /* PARSE FILE HEADER FIELDS */
+   /* read file line-by-line */
+   while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1  && inHeader) /* read a line */
+   {
+      line_count++;
+
+      /* remove newline from end of line */
+      if (line_buf_size > 0 && line_buf[line_buf_size-1] == '\n') {
+         line_buf[--line_buf_size] = '\0';
+      }
+
+      line_ptr = line_buf;
+      header = strtok_r(line_ptr, " \n", &line_ptr);
+
+      /* check which <header> data is being filled */
+      if ( strcmp( header, "NAME" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr);
+         HMM_PROFILE_Set_TextField( &prof->name, field );
+      }
+      else if ( strcmp( header, "ACC" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr);
+         HMM_PROFILE_Set_TextField( &prof->acc, field );
+      }
+      else if ( strcmp( header, "DESC" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr);
+         HMM_PROFILE_Set_TextField( &prof->acc, field );
+      }
+      else if ( strcmp( header, "LENG" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr);
+         int num_nodes = atoi(field);
+         HMM_PROFILE_Set_Model_Length(prof, num_nodes);
+      }
+      else if ( strcmp( header, "ALPH" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr);
+         HMM_PROFILE_Set_Alphabet(prof, field);
+      }
+      else if ( strcmp( header, "RF" ) == 0 ) {}
+      else if ( strcmp( header, "MM" ) == 0 ) {}
+
+      else if ( strcmp( header, "STATS" ) == 0 ) 
+      {
+         field = strtok_r(line_ptr, " \n", &line_ptr); /* LOCAL */
+         field = strtok_r(line_ptr, " \n", &line_ptr); /* distribution type */
+         float param1 = atof( strtok_r(line_ptr, " \n", &line_ptr) );
+         float param2 = atof( strtok_r(line_ptr, " \n", &line_ptr) );
+
+         HMM_PROFILE_Set_Distribution_Params(prof, param1, param2, field);
+      }
+      /* COMPO is the background composition of the model */
+      else if ( strcmp( header, "COMPO" ) == 0 ) 
+      {
+         /* LINE 1: optional args (do nothing) */
+         token = strtok ( NULL, " \n" );
+         for ( int j = 0; j < NUM_AMINO && token != NULL; j++)
+         {
+            value = atof( token );
+            value = negln2real( value );
+
+            /* check if valid float */
+            if ( token[0] != '*' ) {
+               prof->bg_model->compo[j] = value;
+            } else {
+               prof->bg_model->compo[j] = 0.0f;
+            }
+
+            token = strtok ( NULL, " \n" );
+         }
+
+         /* LINE 2: background emission probs */
+         getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+         token = strtok ( line_buf, " \n" ); /* get first word */
+
+         for ( int j = 0; j < NUM_AMINO && token != NULL; j++)
+         {
+            value = atof( token );
+            value = negln2real( value );
+
+            /* check if valid float */
+            if ( token[0] != '*' ) {
+               prof->bg_model->insert[j] = value;
+               prof->hmm_model[0].insert[j] = value;
+            } else {
+               prof->bg_model->insert[j] = 0.0f;
+               prof->hmm_model[0].insert[j] = 0.0f;
+            }
+
+            token = strtok(NULL, " \n"); /* get next word */
+         }
+
+         /* LINE 3: trans probs (identical for all positions) */
+         getline ( &line_buf, &line_buf_size, fp );  /* get next line */
+         token = strtok ( line_buf, " \n" ); /* get first word */
+
+         for ( int j = 0; j < NUM_TRANS_STATES && token != NULL; j++ )
+         {
+            value = atof( token );
+            value = negln2real( value );
+
+            /* check if valid float */
+            if ( token[0] != '*' ) {
+               prof->bg_model->trans[j] = value;
+               prof->hmm_model[0].trans[j] = value;
+            } else {
+               prof->bg_model->trans[j] = 0.0f;
+               prof->hmm_model[0].trans[j] = 0.0f;
+            }
+
+            token = strtok(NULL, " \n"); /* get next word */
+         }
+
+         inHeader = false;
+      }
+
+      line_count++;
+      if (!inHeader) { break; }
+   }
+
+   /* PARSE NODE PROBABILITY VALUES */
+
+   /* set first node to zero */
+   curr_node = &prof->hmm_model[0];
+   curr_node->match[0] = 1.0f;
+   for ( int i = 1; i < NUM_AMINO; i++ ) {
+      curr_node->match[0] = 0.0f;
+   }
+
+   /* read file node-by-node */
+   for ( int j = 1; j < prof->N; j++ )
+   {
+      /* get first line in current node */
+      line_size = getline ( &line_buf, &line_buf_size, fp );
+      token = strtok ( line_buf, " \n" ); /* get first word (index) */
+      // idx = atoi(token); /* index of line in sequence (unnecessary) */
+
+      curr_node = &prof->hmm_model[j];  /* get current node */
+      token = strtok(NULL, " \n");        /* get next word */
+
+      /* LINE 1: Match Emission Line */
+      for ( int j = 0; j < NUM_AMINO; j++)
+      {
+         /* check if valid float */
+         if ( token[0] == '*' ) {
+            curr_node->match[j] = 0.0f;
+         } else {
+            value = atof( token );
+            value = negln2real( value );
+            curr_node->match[j] = value;
+         }
+
+         token = strtok(NULL, " \n"); /* get next word */
+      }
+
+      /* LINE 2: Insert Emission Line */
+      getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+      token = strtok ( line_buf, " \n" ); /* get first word */
+
+      for ( int j = 0; j < NUM_AMINO; j++)
+      {
+         /* check if valid float */
+         if ( token[0] == '*' ) {
+            curr_node->insert[j] = 0.0f;
+         } else {
+            value = atof( token );
+            value = negln2real( value );
+            curr_node->insert[j] = value;
+         }
+
+         token = strtok(NULL, " \n"); /* get next word */
+      }
+
+      /* LINE 3: State Transition Line */
+      getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+      token = strtok ( line_buf, " \n" ); /* get first word */
+
+      for ( int j = 0; j < NUM_TRANS_STATES - 1; j++)
+      {
+         /* check if valid float */
+         if ( token[0] == '*' ) {
+            curr_node->trans[j] = 0.0f;
+         } else {
+            value = atof( token );
+            value = negln2real( value );
+            curr_node->trans[j] = value;
+         }
+
+         token = strtok(NULL, " \n"); /* get next word */
+      }
+   }
+
+   /* initial node */
+   curr_node->match[0] = 1.0f;
+   for ( int i = 1; i < NUM_AMINO; i++ )
+   {
+      curr_node->match[i] = 0.0f;
+   }
+
+   /* free line buffer */
+   free ( line_buf );
+   /* close file */
+   fclose ( fp );
+
+   prof->numberFormat = PROF_FORMAT_NEGLOG;
+}
+
 /* .hmm stores numbers in log space, but we need reals */
 void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
 {
+   printf("converting to real numbers...\n");
    /* verify profile is in negative log space */
    if ( prof->numberFormat != PROF_FORMAT_NEGLOG ) return;
 

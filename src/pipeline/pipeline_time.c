@@ -80,9 +80,11 @@
  *  RETURN:    No Return.
  *
 /* ****************************************************************************************** */
-void time_pipeline(ARGS* args) 
+void time_pipeline( WORKER* worker ) 
 {
    /* Set Commandline Arguments */
+   ARGS*          args           = worker->args;
+
    float          alpha          = args->alpha;
    int            beta           = args->beta;
 
@@ -92,11 +94,12 @@ void time_pipeline(ARGS* args)
    int            t_filetype     = args->t_filetype;
    int            q_filetype     = args->q_filetype;
 
+   int            t_offset       = 0;
+   int            q_offset       = 0;
+
    char*          out_file       = args->output_filepath;
 
-   /* Set Mode */
-   // int            mode           = MODE_MULTILOCAL;    /* HMMER standard mode (allows jumps) */
-   int            mode           = MODE_UNILOCAL;      /* Cloud mode (prohibiits jumps) */
+   int            mode           = args->search_mode; 
 
    /* Target & Query */
    HMM_PROFILE*   t_prof         = HMM_PROFILE_Create();
@@ -104,9 +107,9 @@ void time_pipeline(ARGS* args)
    SEQUENCE*      q_seq          = SEQUENCE_Create();
 
    /* Times & Scores */
-   CLOCK*         cl             = CLOCK_Create();
-   SCORES*        scores         = NULL;
-   TIMES*         times          = NULL;
+   CLOCK*         cl             = worker->clock;
+   SCORES*        scores         = worker->scores;
+   TIMES*         times          = worker->times;
 
    bool           is_testing     = false;
    bool           test           = false;
@@ -128,60 +131,14 @@ void time_pipeline(ARGS* args)
 
    /* ----------------------------------------------------------------------------------------- */
 
-   /* Allocate memory for time & scores */
-   scores = (SCORES*) malloc( sizeof(SCORES) );
-   if (scores == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc for SCORES.\n");
-      exit(EXIT_FAILURE);
-   }
-   times = (TIMES*) malloc( sizeof(TIMES) );
-   if (times == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc for TIMES.\n");
-      exit(EXIT_FAILURE);
-   }
-
-   if (fp != stdout) fclose(fp);
-
    // printf("=== LOAD HMM_PROFILE / QUERY -> START ===\n");
    CLOCK_Start(cl);
 
-   /* build query sequence */
-   printf("building query sequence...\n");
-   if ( q_filetype == FILE_FASTA ) 
-   {
-      SEQUENCE_Fasta_Parse( q_seq, q_filepath, 0 );
-   }
-   else 
-   {
-      fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
-      exit(EXIT_FAILURE);
-   }
-   SEQUENCE_Dump( q_seq, stdout );
+   WORK_load_target_query( worker );
    Q = q_seq->N;
-   
-   /* build target profile */
-   printf("building hmm profile...\n");
-   if ( t_filetype == FILE_HMM ) 
-   {
-      HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
-      HMM_PROFILE_Config( t_prof, mode );
-   }
-   else if ( t_filetype == FILE_FASTA )
-   {
-      SEQUENCE_Fasta_Parse( t_seq, t_filepath, 0 );
-      SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
-   }
-   else
-   {
-      fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
-      exit(EXIT_FAILURE);
-   }
-   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
-   HMM_PROFILE_Dump( t_prof, stdout );
    T = t_prof->N;
 
-   CLOCK_Stop(cl);
-   t = CLOCK_Ticks(cl);
+
    times->load_hmm = (float)t;
    // printf("=== LOAD HMM_PROFILE / QUERY -> END ===\n\n");
 

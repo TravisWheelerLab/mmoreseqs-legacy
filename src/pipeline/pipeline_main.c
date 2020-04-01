@@ -69,9 +69,11 @@
 #include "pipeline.h"
 
 /* standard pipeline */
-void main_pipeline(ARGS* args) 
+void main_pipeline( WORKER* worker ) 
 {
    /* Get Arguments */
+   ARGS*    args        = worker->args;
+
    float    alpha       = args->alpha;
    int      beta        = args->beta;
 

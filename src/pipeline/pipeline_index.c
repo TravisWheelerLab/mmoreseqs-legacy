@@ -73,9 +73,10 @@
  *  RETURN:    No Return.
  *
 /* ****************************************************************************************** */
-void index_pipeline(ARGS* args) 
+void index_pipeline( WORKER* worker ) 
 {
-   FILE*       fp;
+   ARGS*       args           = worker->args;
+   FILE*       fp             = NULL;
 
    F_INDEX*    t_index        = NULL; 
    F_INDEX*    q_index        = NULL;

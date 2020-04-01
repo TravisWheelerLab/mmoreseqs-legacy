@@ -22,12 +22,18 @@
 /* constructor */
 VECTOR_INT* VECTOR_INT_Create()
 {
-   VECTOR_INT *vec;
    const int init_size = 8;
-   vec = (VECTOR_INT *) malloc( sizeof(VECTOR_INT) );
-   vec->data = (int *) malloc( sizeof(float) * init_size );
-   vec->N = 0;
-   vec->Nalloc = init_size;
+   VECTOR_INT *vec = NULL;
+   vec         = (VECTOR_INT *) malloc( sizeof(VECTOR_INT) );
+   if ( vec == NULL ) {
+      fprintf(stderr, "ERROR: Failure to malloc.\n");
+      exit(EXIT_FAILURE);
+   }
+   vec->data   = NULL;
+   vec->N      = 0;
+   vec->Nalloc = 0;
+   VECTOR_INT_Resize( vec, init_size );
+
    return vec;
 }
 
@@ -38,25 +44,34 @@ void VECTOR_INT_Destroy( VECTOR_INT *vec )
    free(vec);
 }
 
+/* reuse */
+void VECTOR_INT_Reuse( VECTOR_INT *vec )
+{
+   vec->N = 0;
+}
+
 /* deep copy */
 VECTOR_INT* VECTOR_INT_Copy( VECTOR_INT *src )
 {
-   VECTOR_INT *vec;
-   vec = (VECTOR_INT *) malloc( sizeof(VECTOR_INT) );
+   VECTOR_INT* vec = VECTOR_INT_Create();
+   VECTOR_INT_Resize( vec, src->Nalloc );
    /* copy base data */
    memcpy( vec, src, sizeof(VECTOR_INT) );
    /* copy variable-sized data */
-   vec->data = (int *) malloc( sizeof(int) * src->Nalloc );
    memcpy( vec->data, src->data, sizeof(int) * src->N );
 
    return vec;
 }
 
 /* resize the array */
-void VECTOR_INT_Resize( VECTOR_INT *vec, float growth_factor )
+void VECTOR_INT_Resize( VECTOR_INT *vec, int size )
 {
-   vec->data = (int *) realloc( vec->data, sizeof(int) * vec->Nalloc * growth_factor );
-   vec->Nalloc *= growth_factor;
+   vec->data = (int *) realloc( vec->data, sizeof(int) * size );
+   if ( vec->data == NULL ) {
+      fprintf(stderr, "ERROR: Failure to malloc.\n" );
+      exit(EXIT_FAILURE);
+   }
+   vec->Nalloc = size;
 }
 
 /* push element onto end of array */
@@ -67,7 +82,7 @@ void VECTOR_INT_Pushback( VECTOR_INT *vec, int val )
 
    /* if array is full, resize */
    if (vec->N >= vec->Nalloc - 1) {
-      VECTOR_INT_Resize( vec, 2 );
+      VECTOR_INT_Resize( vec, vec->N * 2 );
    }
 }
 
@@ -79,7 +94,7 @@ int VECTOR_INT_Pop( VECTOR_INT *vec )
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
-      VECTOR_INT_Resize( vec, 0.5 );
+      VECTOR_INT_Resize( vec, vec->N / 2 );
    }
 
    return tmp;

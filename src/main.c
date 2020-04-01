@@ -30,6 +30,7 @@
 #include "parsers/seq_to_profile.h"
 
 /* objects */
+#include "objects/worker.h"
 #include "objects/f_index.h"
 #include "objects/results.h"
 #include "objects/alignment.h"
@@ -85,9 +86,15 @@ int main ( int argc, char *argv[] )
    /* output arguments */
    ARGS_Dump( args, stdout );
 
+   /* build worker */
+   WORKER* worker = WORKER_Create();
+   worker->args = args;
+
    /* jumps to pipeline based on -p flag */
    printf("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
-   PIPELINES[ args->pipeline_mode ]( args );
+   PIPELINES[ args->pipeline_mode ]( worker );
+
+   WORKER_Destroy( worker );
 
    exit(EXIT_SUCCESS);
 }

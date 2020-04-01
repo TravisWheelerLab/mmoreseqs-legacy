@@ -52,6 +52,14 @@ void ALIGNMENT_Destroy(ALIGNMENT* aln)
    free(aln);
 }
 
+/* reuse */
+void ALIGNMENT_Reuse(ALIGNMENT* aln)
+{
+   aln->N   = 0;
+   aln->beg = -1;
+   aln->end = -1;
+}
+
 /* push trace onto end of alignment */
 void ALIGNMENT_Pushback(ALIGNMENT* aln,
                         TRACE*     tr)

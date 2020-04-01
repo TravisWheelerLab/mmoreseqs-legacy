@@ -69,6 +69,19 @@ void EDGEBOUNDS_Destroy(EDGEBOUNDS*  edg)
 }
 
 /*
+ *  FUNCTION: EDGEBOUNDS_Reuse()
+ *  SYNOPSIS: Resizes 
+ *
+ *  ARGS:     <edg>      Edgebounds Object
+ *
+ *  RETURN:   None.
+ */
+void EDGEBOUNDS_Reuse(EDGEBOUNDS*  edg)
+{
+   edg->N = 0;
+}
+
+/*
  *  FUNCTION: EDGEBOUNDS_Pushback()
  *  SYNOPSIS: Add BOUND to EDGEBOUNDS list.
  *

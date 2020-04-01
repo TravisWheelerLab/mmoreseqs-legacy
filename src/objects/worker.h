@@ -13,6 +13,6 @@
 WORKER* WORKER_Create();
 
 /* destructor */
-void WORKER_Destory( WORKER* work );
+void WORKER_Destroy( WORKER* worker );
 
 #endif /* _WORKER_H */

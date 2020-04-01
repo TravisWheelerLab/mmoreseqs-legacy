@@ -21,6 +21,10 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                         char*          _filename_,
                         long           offset );
 
+void HMM_PROFILE_Parse_REAL(  HMM_PROFILE*   prof,
+                              char*          _filename_,
+                              long           offset );
+
 /* .hmm stores numbers in log space, but we need reals */
 void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof );
 

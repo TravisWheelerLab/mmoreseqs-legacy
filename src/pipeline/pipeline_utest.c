@@ -57,7 +57,7 @@
 /* header */
 #include "pipeline.h"
 
-void utest_pipeline( ARGS* args ) 
+void utest_pipeline( WORKER* worker ) 
 {
    
 }

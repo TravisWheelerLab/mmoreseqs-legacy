@@ -69,9 +69,11 @@
 #include "pipeline.h"
 
 /* pipeline run optimized and unoptimized versions of search algs */
-void test_pipeline(ARGS* args)
+void test_pipeline( WORKER* worker )
 {
    /* Commandline Arguments */
+   ARGS*          args           = worker->args;
+
    float          alpha          = args->alpha;
    int            beta           = args->beta;
 
@@ -167,7 +169,6 @@ void test_pipeline(ARGS* args)
       fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
       exit(EXIT_FAILURE);
    }
-   
    HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
    HMM_PROFILE_Dump( t_prof, fopen("output/my.post-profile.tsv", "w") );
    T = t_prof->N;

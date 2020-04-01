@@ -30,7 +30,7 @@ void VECTOR_INT_Destroy( VECTOR_INT *vec );
 VECTOR_INT* VECTOR_INT_Copy();
 
 /* resize the array */
-void VECTOR_INT_Resize( VECTOR_INT *vec, float growth_factor );
+void VECTOR_INT_Resize( VECTOR_INT *vec, int size );
 
 /* push element onto end of array */
 void VECTOR_INT_Pushback( VECTOR_INT *vec, int val );
