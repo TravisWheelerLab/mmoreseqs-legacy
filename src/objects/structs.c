@@ -15,7 +15,7 @@
 #include "structs.h"
 
 /* local imports */
-#include "utility.h"
+#include "utilities/utility.h"
 #include "pipeline/pipeline.h"
 #include "parsers/index_parser.h"
 
@@ -99,7 +99,7 @@ void (*PIPELINES[])(WORKER*) = {
    index_pipeline
 };
 
-/* pipeline names */
+/* pipeline names (for outputs) */
 char* PIPELINE_NAMES[] = {
    "PIPELINE_NULL",
    "PIPELINE_MAIN",
@@ -123,7 +123,7 @@ char* STATE_FULL_NAMES[] = {
    "UNKNOWN",
 };
 
-/* abbreviations of all states */
+/* Abbreviations of all states (for trace outputs) */
 char* STATE_NAMES[] = {
    "ST_M",
    "ST_I",
@@ -138,7 +138,7 @@ char* STATE_NAMES[] = {
    "ST_X", 
 };
 
-/*  */
+/* Search Mode Names (for output) */
 char* MODE_NAMES[] = { 
    "None", 
    "Multi-local", 
@@ -154,13 +154,13 @@ char* VERBOSITY_NAMES[] = {
    "High"
 };
 
-/*  */
+/* Alphabet Names (for hmm files) */
 char* ALPHABET_NAMES[] = {
    "AMINO",
    "DNA",
 };
 
-/*  */
+/* Alphabet Lengths */
 int ALPHABET_LENGTHS[] = {
    20,      /* amino alphabet length */
    4        /* DNA alphabet length */

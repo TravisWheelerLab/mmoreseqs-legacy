@@ -10,7 +10,7 @@
 #define _VECTOR_FLOAT_H
 
 /* import datatypes */
-#include "../structs.h"
+#include "objects/structs.h"
 
 /* Vector struct */
 typedef struct {

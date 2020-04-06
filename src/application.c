@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      main.c
+ *  FILE:      application.c
  *  PURPOSE:   Entry Point to Application, Argument Parsing
  *
  *  AUTHOR:    Dave Rich
@@ -16,10 +16,11 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures */
+/* data structures, general utilities, and testing */
 #include "objects/structs.h"
-#include "utility.h"
-#include "error_handler.h"
+#include "utilities/utility.h"
+#include "utilities/error_handler.h"
+#include "utilities/testing.h"
 
 /* file parsers */
 #include "parsers/arg_parser.h"
@@ -38,9 +39,9 @@
 #include "objects/hmm_profile.h"
 #include "objects/edgebound.h"
 #include "objects/clock.h"
+#include "objects/mystring.h"
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
-#include "objects/mystring.h"
 #include "objects/vectors/vector_range_2d.h"
 
 /* viterbi & fwdbck (quadratic) */
@@ -63,12 +64,6 @@
 /* temp test */
 #include "algs_linear/cloud_search_linear_rows.h"
 
-/* debugging methods */
-#include "testing.h"
-
-/* header */
-#include "pipeline.h"
-
 /* set debug macros */
 #ifndef DEBUG
    #define DEBUG false
@@ -81,7 +76,7 @@ int main ( int argc, char *argv[] )
 {
    /* parse command line arguments */
    ARGS* args  = NULL;
-   args = ARGS_Parse(argc, argv);
+   args = ARGS_Parse( argc, argv );
 
    /* output arguments */
    ARGS_Dump( args, stdout );

@@ -20,7 +20,7 @@
 #include "objects/hmm_profile.h"
 
 /* local imports */
-#include "utility.h"
+#include "utilities/utility.h"
 #include "hmm_parser.h"
 
 /* header */
@@ -290,7 +290,7 @@ void fwd_test_cycle3(const int   Q,
          x = k;
 
          if ( MMX3(d0,x) != 0 || DMX3(d0,x) != 0 || IMX3(d0,x) != 0) {
-            printf("OVERWRITE AT %d:(%d,%d)=%d!\n", d, i, j, DMX(d0,x) );
+            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX(d0,x) );
             overwrite = true;
          }
 
@@ -601,7 +601,7 @@ void bck_test_cycle3(const int   Q,
          x = k;
 
          if ( MMX3(d0,x) != 0 || DMX3(d0,x) != 0 || IMX3(d0,x) != 0) {
-            printf("OVERWRITE AT %d:(%d,%d)=%d!\n", d, i, j, DMX(d0,x) );
+            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX(d0,x) );
             overwrite = true;
          }
 

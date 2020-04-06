@@ -22,7 +22,7 @@
 #include "objects/edgebound.h"
 
 /* local imports */
-#include "utility.h"
+#include "utilities/utility.h"
 #include "testing.h"
 #include "hmm_parser.h"
 

@@ -19,7 +19,7 @@
 
 /* data structures */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* file parsers */
 #include "arg_parser.h"

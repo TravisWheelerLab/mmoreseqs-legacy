@@ -18,7 +18,7 @@
 
 /* data structures */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "error_handler.h"
 
 /* file parsers */
@@ -151,7 +151,7 @@ void WORK_init( WORKER* worker )
    }
    if ( isLin ) {
       st_MX3 = MATRIX_3D_Create(NUM_NORMAL_STATES,  1, 1);
-      sp_MX = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
+      sp_MX  = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
    }
 
    edg_fwd  = EDGEBOUNDS_Create();

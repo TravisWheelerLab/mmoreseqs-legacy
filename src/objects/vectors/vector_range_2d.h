@@ -10,7 +10,7 @@
 #define _VECTOR_RANGE_2D_H
 
 /* import datatype dependencies */
-#include "../structs.h"
+#include "objects/structs.h"
 #include "../edgebound.h"
 #include "vector_int.h"
 #include "vector_range.h"

@@ -14,17 +14,18 @@
 #include <string.h>
 #include <math.h>
 
-/* objects */
+/* data structures, general utilities, and testing */
 #include "objects/structs.h"
+#include "utilities/utility.h"
+#include "utilities/error_handler.h"
+#include "utilities/testing.h"
+
+/* objects */
 #include "objects/edgebound.h"
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 
-/* local imports */ 
-#include "utility.h"
-#include "testing.h"
-
-/* header */
+/* self header */
 #include "bounded_fwdbck_linear.h"
 
 /*

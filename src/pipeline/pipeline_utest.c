@@ -19,7 +19,7 @@
 
 /* data structures and file parsers */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "hmm_parser.h"
 #include "seq_parser.h"
 

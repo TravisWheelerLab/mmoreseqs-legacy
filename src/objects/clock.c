@@ -81,7 +81,7 @@ time_t CLOCK_Ticks(CLOCK*cl)
 /* */
 time_t CLOCK_pTicks(CLOCK*cl, char*str)
 {
-   printf("%s took %d ticks\n", str, CLOCK_Ticks(cl) );
+   printf("%s took %ld ticks\n", str, CLOCK_Ticks(cl) );
    return cl->duration;
 }
 
@@ -95,7 +95,7 @@ float CLOCK_Secs(CLOCK*cl)
 /* */
 time_t CLOCK_Print_Secs(CLOCK*cl, char*str)
 {
-   printf("%s took %d msecs\n", str, CLOCK_Secs(cl) );
+   printf("%s took %f msecs\n", str, CLOCK_Secs(cl) );
    return cl->duration;
 }
 

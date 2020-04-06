@@ -8,7 +8,7 @@
 
 # define C compiler to use
 CC = gcc-9
-CXX = g++-9 
+CXX = g++-9
 
 # final executable
 TARGET_EXEC ?= fb-pruner
@@ -33,7 +33,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CLIBS := -lm
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -DDEBUG
-CFLAGS := $(INC_FLAGS) -std=c99 -g -pg
+CFLAGS := $(INC_FLAGS) -pg
 # standard C++ compiler flags to be run
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 # flags for debugging and profiling

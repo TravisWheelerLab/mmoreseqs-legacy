@@ -18,7 +18,7 @@
 
 /* data structures */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "error_handler.h"
 
 /* file parsers */
@@ -72,6 +72,8 @@
 void test_pipeline( WORKER* worker )
 {
    /* Commandline Arguments */
+   FILE*          fp             = NULL;
+
    ARGS*          args           = worker->args;
 
    float          alpha          = args->alpha;
@@ -150,8 +152,9 @@ void test_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
       exit(EXIT_FAILURE);
    }
+   SEQUENCE_Dump( t_seq, stdout );
    Q = q_seq->N;
-   
+
    /* build t_prof profile */
    printf("building hmm profile...\n");
    if ( t_filetype == FILE_HMM ) 
@@ -170,7 +173,7 @@ void test_pipeline( WORKER* worker )
       exit(EXIT_FAILURE);
    }
    HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
-   HMM_PROFILE_Dump( t_prof, fopen("output/my.post-profile.tsv", "w") );
+   HMM_PROFILE_Dump( t_prof, stdout );
    T = t_prof->N;
 
    printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n\n");
@@ -401,7 +404,7 @@ void test_pipeline( WORKER* worker )
 
    /* sample stats */
    printf("Writing results to: '%s'\n", output_file);
-   FILE *fp = fopen(output_file, "a+");
+   fp = fopen(output_file, "a+");
 
    fprintf(fp, "%s\t", t_filepath);
    fprintf(fp, "%s\t", q_filepath);

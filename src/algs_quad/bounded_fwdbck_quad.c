@@ -22,7 +22,7 @@
 #include "objects/hmm_profile.h"
 
 /* local imports */ 
-#include "utility.h"
+#include "utilities/utility.h"
 #include "testing.h"
 
 /* header */

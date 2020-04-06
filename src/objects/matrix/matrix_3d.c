@@ -17,8 +17,8 @@
 #include <time.h>
 
 /* local imports */
-#include "../structs.h"
-#include "../../utility.h"
+#include "objects/structs.h"
+#include "utilities/utility.h"
 
 /* header */
 #include "matrix_3d.h"

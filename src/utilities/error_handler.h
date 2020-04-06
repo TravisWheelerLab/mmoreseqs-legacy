@@ -15,8 +15,8 @@ void ERROR_Handler( const int    error_code,
                     const int    line,
                     const char*  note );
 
-void ERROR_NullCheck( const void*   data,
-                      int*          error_code,
-                      const char*   note );
+void ERROR_NullPtrCheck( const void*   data,
+                         int*          error_code,
+                         const char*   note );
 
 #endif /* _ERROR_HANDLER_H */

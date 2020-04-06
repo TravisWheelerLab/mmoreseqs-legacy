@@ -10,7 +10,7 @@
 #define _VECTOR_BOUND_H
 
 /* import datatypes */
-#include "../structs.h"
+#include "objects/structs.h"
 
 // /* VECTOR struct */
 // typedef struct {

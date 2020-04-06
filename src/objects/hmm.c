@@ -19,7 +19,7 @@
 #include "objects/structs.h"
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* self header */
 #include "objects/hmm.h"

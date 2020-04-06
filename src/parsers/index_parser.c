@@ -14,7 +14,7 @@
 #include <string.h>
 
 /* local imports */
-#include "../structs.h"
+#include "objects/structs.h"
 #include "objects/f_index.h"
 #include "objects/vectors/vector_int.h"
 

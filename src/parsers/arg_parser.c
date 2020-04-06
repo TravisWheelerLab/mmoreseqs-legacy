@@ -18,7 +18,7 @@
 
 /* data structures and utility functions */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "objects/mystring.h"
 
 /* header */
@@ -180,7 +180,7 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->alpha                   = 20.0f;
    args->beta                    = 5;
 
-   args->pipeline_mode           = PIPELINE_TIME;
+   args->pipeline_mode           = PIPELINE_TEST;
    args->verbosity_mode          = VERBOSE_NONE;
    args->search_mode             = MODE_UNILOCAL;
 

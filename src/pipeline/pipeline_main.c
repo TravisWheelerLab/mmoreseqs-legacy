@@ -18,7 +18,7 @@
 
 /* data structures */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "error_handler.h"
 
 /* file parsers */

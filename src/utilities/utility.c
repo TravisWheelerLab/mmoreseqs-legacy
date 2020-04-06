@@ -23,7 +23,7 @@
 #include "hmm_parser.h"
 
 /* header */
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* GLOBAL STATIC VARIABLES */
 /* table of logsum values */

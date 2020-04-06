@@ -16,8 +16,8 @@
 #include <time.h>
 
 /* local imports */
-#include "../structs.h"
-#include "../../utility.h"
+#include "objects/structs.h"
+#include "utilities/utility.h"
 
 /* unit test imports */
 #include "index_parser.h"
@@ -266,7 +266,7 @@ void F_INDEX_Dump(F_INDEX* index,
    for (int i = 0; i < index->N; i++)
    {
       F_INDEX_NODE node = index->nodes[i];
-      fprintf(fp, "%d\t%d\t%s\n", i, node.offset, node.name);
+      fprintf(fp, "%d\t%ld\t%s\n", i, node.offset, node.name);
    }
    fprintf(fp, "\n");
 }

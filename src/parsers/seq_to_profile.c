@@ -20,7 +20,7 @@
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 #include "objects/score_matrix.h"
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* parsers */ 
 #include "parsers/hmm_parser.h"

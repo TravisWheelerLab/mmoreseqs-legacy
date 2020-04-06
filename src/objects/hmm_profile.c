@@ -18,7 +18,7 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utility.h"
+#include "utilities/utility.h"
 
 /* header */
 #include "hmm_profile.h"

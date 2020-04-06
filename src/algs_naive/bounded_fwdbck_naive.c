@@ -23,7 +23,7 @@
 #include "objects/matrix/matrix_3d.h"
 
 /* local imports */ 
-#include "utility.h"
+#include "utilities/utility.h"
 #include "testing.h"
 
 /* header */

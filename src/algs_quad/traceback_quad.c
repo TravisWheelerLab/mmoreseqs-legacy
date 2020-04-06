@@ -23,7 +23,7 @@
 #include "objects/alignment.h"
 
 /* local imports */
-#include "utility.h"
+#include "utilities/utility.h"
 #include "hmm_parser.h"
 
 /* header */

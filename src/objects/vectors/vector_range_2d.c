@@ -15,7 +15,7 @@
 #include <time.h>
 
 /* local imports */
-#include "../structs.h"
+#include "objects/structs.h"
 #include "../edgebound.h"
 #include "vector_int.h"
 #include "vector_range.h"

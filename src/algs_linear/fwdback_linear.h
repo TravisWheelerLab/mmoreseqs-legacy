@@ -10,12 +10,6 @@
 #ifndef _FWDBACK_LIN_H
 #define _FWDBACK_LIN_H
 
-/* === INCLUDES === */
-// #include "objects/structs.h"
-// #include "objects/hmm_profile.h"
-// #include "objects/sequence.h"
-
-/* === FUNCTIONS === */
 float forward_Linear(const SEQUENCE*   query, 
                      const HMM_PROFILE* target, 
                      const int          Q, 

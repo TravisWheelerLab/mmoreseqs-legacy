@@ -10,7 +10,7 @@
 #define _VECTOR_TRACE_H
 
 /* import datatypes */
-#include "../structs.h"
+#include "objects/structs.h"
 
 // typedef struct {
 //    int         i;            /* index in query */

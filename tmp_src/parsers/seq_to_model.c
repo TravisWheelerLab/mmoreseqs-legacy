@@ -32,7 +32,7 @@
 #include "hmmer/p7_funcs.h"
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* header */
 #include "seq_to_profile.h"

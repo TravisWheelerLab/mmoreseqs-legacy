@@ -18,7 +18,7 @@
 
 /* data structures */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 
 /* debugging methods */
 #include "testing.h"
@@ -53,9 +53,9 @@ void ERROR_Handler( const int    error_code,
 }
 
 /* check for null pointer */
-void ERROR_NullCheck( const void*   data,
-                      int*          error_code,
-                      const char*   note )
+void ERROR_NullPtrCheck( const void*   data,
+                         int*          error_code,
+                         const char*   note )
 {
 
 }

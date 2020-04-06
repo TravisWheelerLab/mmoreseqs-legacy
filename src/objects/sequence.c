@@ -15,9 +15,11 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
+
 /* local imports */
 #include "structs.h"
-#include "../utility.h"
+#include "utilities/utility.h"
+
 /* header */
 #include "sequence.h"
 

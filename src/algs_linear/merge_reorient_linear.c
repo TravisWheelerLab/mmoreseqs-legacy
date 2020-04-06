@@ -17,7 +17,7 @@
 
 /* data stuctures and utility functions */
 #include "objects/structs.h"
-#include "utility.h"
+#include "utilities/utility.h"
 #include "testing.h"
 
 /* objects */

@@ -10,7 +10,7 @@
 #define _VECTOR_RANGE_H
 
 /* import datatypes */
-#include "../structs.h"
+#include "objects/structs.h"
 
 /* VECTOR struct */
 typedef struct {
