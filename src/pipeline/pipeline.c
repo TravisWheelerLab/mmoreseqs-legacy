@@ -225,7 +225,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
 
    /* Viterbi */
    if ( isLinVit ) {
-      viterbi_Quad( q_seq, t_prof, Q, T, st_MX->data, sp_MX->data, quad_sc );
+      viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, quad_sc );
       if ( isLinTr ) {
          traceback_Build(q_seq, t_prof, Q, T, st_MX->data, sp_MX->data, tr);
       }

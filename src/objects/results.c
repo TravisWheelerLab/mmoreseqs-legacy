@@ -107,21 +107,22 @@ void RESULTS_M8_Dump( RESULTS*   results,
    fprintf( fp, "# M8 RESULTS:\n");
 
    fprintf( fp, "# " );
-   fprintf( fp, "%s\t",   "query" );
-   fprintf( fp, "%s\t",   "target" );
+   fprintf( fp, "%s\t",    "query" );
+   fprintf( fp, "%s\t",    "target" );
 
    fprintf( fp, "%s\t",    "perc_id" );
    fprintf( fp, "%s\t",    "aln_len" );
    fprintf( fp, "%s\t",    "mismatch" );
    fprintf( fp, "%s\t",    "gaps" );
 
-   fprintf( fp, "%d\t",    "q_st" );
-   fprintf( fp, "%d\t",    "q_end");
-   fprintf( fp, "%d\t",    "t_st" );
-   fprintf( fp, "%d\t",    "t_end" );
+   fprintf( fp, "%s\t",    "q_st" );
+   fprintf( fp, "%s\t",    "q_end");
+   fprintf( fp, "%s\t",    "t_st" );
+   fprintf( fp, "%s\t",    "t_end" );
 
-   fprintf( fp, "%.3e\t",   "eval" );
-   fprintf( fp, "%d\n",     "bit-score" );
+   fprintf( fp, "%s\t",    "eval" );
+   fprintf( fp, "%s\t",    "bit-sc" );
+   fprintf( fp, "%s\n",    "cloud-fwd-sc");
 
    for (int i = 0; i < results->N; i++) {
       RESULT* res = &(results->data[i]);
@@ -140,7 +141,9 @@ void RESULTS_M8_Dump( RESULTS*   results,
       fprintf( fp, "%d\t",    res->target_end );
 
       fprintf( fp, "%.3e\t",  res->e_value );
-      fprintf( fp, "%d\n",    res->bit_score );
+      fprintf( fp, "%d\t",    res->bit_score );
+      
+      fprintf( fp, "%f\n",    res->cloud_fwd_sc);
    }
 }
 
@@ -170,23 +173,23 @@ void RESULTS_My_Dump( RESULTS*   results,
    fprintf( fp, "# M8 RESULTS:\n");
 
    fprintf( fp, "# " );
-   fprintf( fp, "%s\t",   "query" );
-   fprintf( fp, "%s\t",   "target" );
+   fprintf( fp, "%s\t",    "query" );
+   fprintf( fp, "%s\t",    "target" );
 
    fprintf( fp, "%s\t",    "perc_id" );
    fprintf( fp, "%s\t",    "aln_len" );
    fprintf( fp, "%s\t",    "mismatch" );
    fprintf( fp, "%s\t",    "gaps" );
 
-   fprintf( fp, "%d\t",    "q_st" );
-   fprintf( fp, "%d\t",    "q_end");
-   fprintf( fp, "%d\t",    "t_st" );
-   fprintf( fp, "%d\t",    "t_end" );
+   fprintf( fp, "%s\t",    "q_st" );
+   fprintf( fp, "%s\t",    "q_end");
+   fprintf( fp, "%s\t",    "t_st" );
+   fprintf( fp, "%s\t",    "t_end" );
 
-   fprintf( fp, "%.3e\t",   "eval" );
-   fprintf( fp, "%d\n",     "mmseqs-sc" );
+   fprintf( fp, "%s\t",    "eval" );
+   fprintf( fp, "%s\t",    "bit_sc" );
 
-   fprintf( fp, "%d\n",     "cloud-sc" );
+   fprintf( fp, "%s\n",    "cloud_fwd_sc" );
 
    for (int i = 0; i < results->N; i++) {
       RESULT* res = &(results->data[i]);
@@ -207,7 +210,7 @@ void RESULTS_My_Dump( RESULTS*   results,
       fprintf( fp, "%.3e\t",  res->e_value );
       fprintf( fp, "%d\t",    res->bit_score );
 
-      fprintf( fp, "%d\n",    res->cloud_fwd_sc );
+      fprintf( fp, "%f\n",    res->cloud_fwd_sc );
    }
 }
 

@@ -148,12 +148,12 @@ void main_pipeline( WORKER* worker )
    T = t_prof->N;
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
-   MATRIX_3D*  st_MATRIX      = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   MATRIX_3D*  st_MATRIX      = MATRIX_3D_Create( NUM_NORMAL_STATES,  Q+1, T+1 );
    float*      st_MX          = st_MATRIX->data;
-   MATRIX_2D*  sp_MATRIX      = MATRIX_2D_Create(NUM_SPECIAL_STATES, Q+1);
+   MATRIX_2D*  sp_MATRIX      = MATRIX_2D_Create( NUM_SPECIAL_STATES, Q+1 );
    float*      sp_MX          = sp_MATRIX->data;
    /* allocate memory for linear algs */
-   MATRIX_3D*  st_MATRIX3     = MATRIX_3D_Create(NUM_NORMAL_STATES, 3, (Q+T+1) );
+   MATRIX_3D*  st_MATRIX3     = MATRIX_3D_Create( NUM_NORMAL_STATES, ((Q+1)+(T+1)), 3 );
    float*      st_MX3         = st_MATRIX3->data;
 
    /* === INDEX FILES === */
@@ -163,7 +163,7 @@ void main_pipeline( WORKER* worker )
 
    /* ==== CLOUD SEARCH === */
    /* run viterbi algorithm */
-   viterbi_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
+   viterbi_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
 
    /* build traceback */
    traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);

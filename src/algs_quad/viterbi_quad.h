@@ -19,9 +19,9 @@
 float viterbi_Quad(const SEQUENCE*    query,
                    const HMM_PROFILE* target,
                    const int          Q, 
-                   const int          T,
-                   float*             st_MX,
-                   float*             sp_MX,
+                   const int          T, 
+                   MATRIX_3D*         st_Matrix,
+                   MATRIX_2D*         sp_Matrix,
                    float*             sc_final);
 
 #endif /* _VITERBI_QUAD_H */

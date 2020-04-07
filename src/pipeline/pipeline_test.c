@@ -181,25 +181,25 @@ void test_pipeline( WORKER* worker )
    tot_cells = (T+1) * (Q+1);
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
-   MATRIX_3D* st_MATRIX       = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   MATRIX_3D* st_MATRIX       = MATRIX_3D_Create( NUM_NORMAL_STATES,  Q+1, T+1 );
    float*     st_MX           = st_MATRIX->data;
-   MATRIX_2D* sp_MATRIX       = MATRIX_2D_Create(NUM_SPECIAL_STATES, Q+1);
+   MATRIX_2D* sp_MATRIX       = MATRIX_2D_Create( NUM_SPECIAL_STATES, Q+1 );
    float*     sp_MX           = sp_MATRIX->data;
    /* allocate memory for comparing quadratic algs (for DEBUGGING) */
-   MATRIX_3D* st_MATRIX_tmp   = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   MATRIX_3D* st_MATRIX_tmp   = MATRIX_3D_Create( NUM_NORMAL_STATES, Q+1, T+1 );
    float*     st_MX_tmp       = st_MATRIX_tmp->data;
    /* allocate memory for cloud matrices (for DEBUGGING) */
-   MATRIX_3D* st_MATRIX_cloud = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   MATRIX_3D* st_MATRIX_cloud = MATRIX_3D_Create( NUM_NORMAL_STATES, Q+1, T+1 );
    float*     st_MX_cloud     = st_MATRIX_cloud->data;
-   MATRIX_2D* sp_MATRIX_cloud = MATRIX_2D_Create(NUM_SPECIAL_STATES, Q+1);
+   MATRIX_2D* sp_MATRIX_cloud = MATRIX_2D_Create( NUM_SPECIAL_STATES, Q+1 );
    float*     sp_MX_cloud     = sp_MATRIX_cloud->data;
    /* allocate memory for linear algs */
-   MATRIX_3D* st_MATRIX3      = MATRIX_3D_Create(NUM_NORMAL_STATES,  Q+1, T+1);
+   MATRIX_3D* st_MATRIX3      = MATRIX_3D_Create( NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
    float*     st_MX3          = st_MATRIX3->data;
 
    /* run viterbi algorithm */
    printf("=== VITERBI -> START ===\n");
-   sc = viterbi_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
+   sc = viterbi_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
    printf("Viterbi Score: %f\n", sc);
    scores->viterbi_sc = sc;
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
