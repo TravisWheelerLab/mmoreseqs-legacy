@@ -157,7 +157,7 @@ void test_pipeline( WORKER* worker )
 
    /* build t_prof profile */
    printf("building hmm profile...\n");
-   if ( t_filetype == FILE_HMM ) 
+   if ( t_filetype == FILE_HMM || true ) 
    {
       HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
       HMM_PROFILE_Config( t_prof, mode );
