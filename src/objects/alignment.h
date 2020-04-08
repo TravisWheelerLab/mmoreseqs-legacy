@@ -3,28 +3,11 @@
  *  PURPOSE:   ALIGNMENT Object.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:     
+ *  BUG:
  *******************************************************************************/
 
 #ifndef _ALIGNMENT_H
 #define _ALIGNMENT_H
-
-/* === OBJECTS === */
-// typedef struct {
-//    int         i;            /* index in query */
-//    int         j;            /* index in target */
-//    int         st;           /* state at index */
-// } TRACE;
-
-// typedef struct {
-//    int         N;            /* current length */
-//    int         Nalloc;       /* allocated length */
-//    int         beg;          /* position in trace for first MID state */
-//    int         end;          /* position in trace for last MID state */
-//    TRACE       *traces;      /* list of all (state,i,j) TRACES in ALIGNMENT */
-// } ALIGNMENT;
-
-/* === FUNCTIONS === */
 
 /* constructor */
 ALIGNMENT* ALIGNMENT_Create();

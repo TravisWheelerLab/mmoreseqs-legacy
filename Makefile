@@ -33,7 +33,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CLIBS := -lm
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -DDEBUG
-CFLAGS := $(INC_FLAGS) -pg
+CFLAGS := $(INC_FLAGS) -pg -DDEBUG=1
 # standard C++ compiler flags to be run
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 # flags for debugging and profiling

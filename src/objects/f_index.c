@@ -81,11 +81,14 @@ F_INDEX*  F_INDEX_Create(char* pathname)
  * *******************************************************************/
 void F_INDEX_Destroy(F_INDEX* index)
 {
+   if (index == NULL) return;
+
    for (int i = 0; i < index->N; i++) {
       free(index->nodes[i].name);
    }
    free(index->nodes);
    free(index);
+   index = NULL;
 }
 
 /* *******************************************************************

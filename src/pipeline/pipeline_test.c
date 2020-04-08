@@ -152,15 +152,17 @@ void test_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
       exit(EXIT_FAILURE);
    }
-   SEQUENCE_Dump( t_seq, stdout );
-   Q = q_seq->N;
+   SEQUENCE_Dump( q_seq, stdout );
 
    /* build t_prof profile */
    printf("building hmm profile...\n");
    if ( t_filetype == FILE_HMM || true ) 
    {
       HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
+      HMM_PROFILE_Dump( t_prof, stdout );
+      HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
       HMM_PROFILE_Config( t_prof, mode );
+      HMM_PROFILE_Dump( t_prof, stdout );
    }
    else if ( t_filetype == FILE_FASTA )
    {
@@ -172,12 +174,13 @@ void test_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
       exit(EXIT_FAILURE);
    }
-   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
-   HMM_PROFILE_Dump( t_prof, stdout );
-   T = t_prof->N;
+   // HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   // HMM_PROFILE_Dump( t_prof, stdout );
 
    printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n\n");
 
+   Q = q_seq->N;
+   T = t_prof->N;
    tot_cells = (T+1) * (Q+1);
 
    /* allocate memory for quadratic algs (for DEBUGGING) */
@@ -237,6 +240,8 @@ void test_pipeline( WORKER* worker )
    // dp_matrix_Print(Q, T, st_MX, sp_MX);
    dp_matrix_trace_Save(Q, T, st_MX, sp_MX, tr, "output/my.fwd.lin.mx");
    printf("=== FORWARD -> END ===\n\n");
+
+   exit(0);
 
    printf("=== BACKWARD -> START ===\n");
    /* ==> backward (quadratic) */

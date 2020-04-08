@@ -135,7 +135,7 @@ void mmseqs_pipeline( WORKER* worker )
    results_in = RESULTS_M8_Parse(m8_filepath);
    RESULTS_M8_Dump(results_in, stdout);
    
-   exit(0);
+   exit(EXIT_SUCCESS);
 
    /* initialize logrithmic sum table */
    init_Logsum();

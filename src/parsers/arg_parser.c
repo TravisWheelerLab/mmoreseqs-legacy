@@ -20,6 +20,7 @@
 #include "objects/structs.h"
 #include "utilities/utility.h"
 #include "objects/mystring.h"
+#include "objects/args.h"
 
 /* header */
 #include "arg_parser.h"
@@ -32,11 +33,7 @@ ARGS*  ARGS_Parse( int     argc,
    int         num_main_args  = 0; 
    const int   max_main_args  = 2;
 
-   args = (ARGS*) malloc( sizeof(ARGS) );
-   if (args == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc ARGS.\n");
-      exit(EXIT_FAILURE);
-   }
+   args = ARGS_Create();
    ARGS_Set_Defaults(args);
 
    if (argc == 1) {

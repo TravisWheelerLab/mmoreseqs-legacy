@@ -60,6 +60,8 @@ HMM_PROFILE* HMM_PROFILE_Create()
 /* Destructor */
 void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 {
+   if (prof == NULL) return;
+   
    free(prof->filepath);
    free(prof->name);
    free(prof->acc);
@@ -70,6 +72,7 @@ void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
    free(prof->hmm_model);
 
    free(prof);
+   prof = NULL;
 }
 
 /* reuse profile by setting length of length of profile to zero */

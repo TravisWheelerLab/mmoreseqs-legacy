@@ -53,8 +53,11 @@ CLOCK* CLOCK_Create()
 /* destructor */
 void CLOCK_Destroy(CLOCK*cl)
 {
+   if (cl == NULL) return;
+
    free(cl->stamps);
    free(cl);
+   cl = NULL;
 }
 
 /* */

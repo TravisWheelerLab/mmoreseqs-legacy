@@ -25,9 +25,7 @@ void MATRIX_2D_Destroy(MATRIX_2D*  mx);
 
 /* fill */
 MATRIX_2D* MATRIX_2D_Fill(MATRIX_2D*  mx,
-                          int         R, 
-                          int         C, 
-                          int         val);
+                          float       val);
 
 /* getter for index */
 float* MATRIX_2D_Get(MATRIX_2D*  mx, 

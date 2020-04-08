@@ -21,10 +21,6 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                         char*          _filename_,
                         long           offset );
 
-void HMM_PROFILE_Parse_REAL(  HMM_PROFILE*   prof,
-                              char*          _filename_,
-                              long           offset );
-
 /* .hmm stores numbers in log space, but we need reals */
 void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof );
 
@@ -32,10 +28,12 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof );
 /* Configures HMM_PROFILE to account for background model */
 void HMM_PROFILE_Config( HMM_PROFILE* prof, 
                          int          mode );
+
 /* Calculates the Occupancy for the HMM_PROFILE */
 void HMM_PROFILE_CalcOccupancy( HMM_PROFILE* prof, 
                                 float*       mocc,
                                 float*       iocc );
+
 /* Reconfigure the Length of the HMM_PROFILE */
 void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof, 
                                  int           L );

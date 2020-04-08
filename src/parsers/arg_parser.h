@@ -1,14 +1,14 @@
 /*******************************************************************************
  *  FILE:      arg_parser.h
- *  PURPOSE:   Parses command line arguments. 
+ *  PURPOSE:   Parses command line arguments.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:
  *******************************************************************************/
 
 
 /* parses arguments from the command line */
-ARGS* ARGS_Parse( int     argc, 
+ARGS* ARGS_Parse( int     argc,
                   char*   argv[] );
 
 /* set default arguments */

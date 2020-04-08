@@ -119,7 +119,7 @@ void check_null_ptr(void *ptr, char *str)
    if (ptr == NULL)
    {
       perror("ERROR: issuing while malloc'ing %s.\n");
-      exit(0);
+      exit(EXIT_SUCCESS);
    }
 }
 

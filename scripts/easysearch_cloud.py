@@ -57,7 +57,7 @@ opts = {}
 # Parse args
 if (len(sys.argv) == 1):
    print("Usage: <tsv_matrix_1>");
-   sys.exit(0)
+   sys.exit(EXIT_SUCCESS)
 else:
    i = 1
    while (i < len(sys.argv) ):

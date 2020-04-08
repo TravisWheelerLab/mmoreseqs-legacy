@@ -49,8 +49,8 @@ void traceback_Build(const SEQUENCE*     query,
                      const HMM_PROFILE*  target,
                      const int           Q, 
                      const int           T,
-                     float*              st_MX,
-                     float*              sp_MX,
+                     float*          st_MX,
+                     float*          sp_MX,
                      ALIGNMENT*          aln)
 {
    int    i = Q;              /* position in query seq (row) (1...L) */
@@ -106,7 +106,7 @@ void traceback_Build(const SEQUENCE*     query,
          case C_ST:  /* C(i) comes from C(i-1) or E(i) */
             if (XMX(SP_C, i) == -INF ) {
                printf("ERROR: Impossible C_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( XMX(SP_C, i), XMX(SP_C, i - 1) + XSC(SP_C, SP_LOOP) ) )
@@ -115,7 +115,7 @@ void traceback_Build(const SEQUENCE*     query,
                st_cur = E_ST;
             else {
                printf("ERROR: Failed to alnace from B_ST at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             break;
 
@@ -123,7 +123,7 @@ void traceback_Build(const SEQUENCE*     query,
          case E_ST:  /* E connects from any M state. k set here */
             if (XMX(SP_E, i) == -INF ) {
                printf("ERROR: Impossible E_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( is_local )  /* local mode: ends in M */
@@ -136,7 +136,7 @@ void traceback_Build(const SEQUENCE*     query,
                }
                if (j == 0) {
                   printf("ERROR: Failed to alnace from E_ST at (%d,%d)\n", i, j);
-                  exit(1);
+                  exit(EXIT_FAILURE);
                }
             }
             else     /* glocal mode: we either come from D_M or M_M */
@@ -151,7 +151,7 @@ void traceback_Build(const SEQUENCE*     query,
                }
                else {
                   printf("ERROR: Failed to alnace from E_ST at (%d,%d)\n", i, j);
-                  exit(1);
+                  exit(EXIT_FAILURE);
                }
             }
             break;
@@ -160,7 +160,7 @@ void traceback_Build(const SEQUENCE*     query,
          case M_ST:  /* M connects from i-1,k-1, or B */
             if (MMX(i, j) == -INF ) {
                printf("ERROR: Impossible M_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( MMX(i, j), XMX(SP_B, i - 1) + TSC(j - 1, B2M) + MSC(j, A) ) )
@@ -174,7 +174,7 @@ void traceback_Build(const SEQUENCE*     query,
             else {
                printf("ERROR: Failed to alnace from M_ST at (%d,%d)\n", i, j);
                printf("TOL: %f vs %f\n", MMX(i, j), MMX(i - 1, j - 1) + TSC(j - 1, D2M) + MSC(j, A) );
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             j--; i--;
             break;
@@ -183,7 +183,7 @@ void traceback_Build(const SEQUENCE*     query,
          case D_ST:  /* D connects from M,D at i,k-1 */
             if (DMX(i, j) == -INF ) {
                printf("ERROR: Impossible D_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( DMX(i, j), MMX(i, j - 1) + TSC(j - 1, M2D) ) )
@@ -192,7 +192,7 @@ void traceback_Build(const SEQUENCE*     query,
                st_cur = D_ST;
             else {
                printf("ERROR: Failed to alnace from D_ST at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             j--;
             break;
@@ -201,7 +201,7 @@ void traceback_Build(const SEQUENCE*     query,
          case I_ST:  /* I connects from M,I at i-1,k */
             if (IMX(i, j) == -INF ) {
                printf("ERROR: Impossible I_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( IMX(i, j), MMX(i - 1, j) + TSC(j, M2I) + ISC(j, A) ) )
@@ -210,7 +210,7 @@ void traceback_Build(const SEQUENCE*     query,
                st_cur = I_ST;
             else {
                printf("ERROR: Failed to alnace from I_ST at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             i--;
             break;
@@ -219,7 +219,7 @@ void traceback_Build(const SEQUENCE*     query,
          case N_ST:  /* N connects from S, N */
             if (XMX(SP_N, i) == -INF ) {
                printf("ERROR: Impossible N_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             st_cur = ( (i <= 0) ? S_ST : N_ST );
@@ -233,7 +233,7 @@ void traceback_Build(const SEQUENCE*     query,
                st_cur = J_ST;
             else {
                printf("ERROR: Failed to alnace from B_ST at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             break;
 
@@ -241,7 +241,7 @@ void traceback_Build(const SEQUENCE*     query,
          case J_ST:  /* J connects from E(i) or J(i-1) */
             if (XMX(SP_J, i) == -INF ) {
                printf("ERROR: Impossible J_ST reached at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( XMX(SP_J, i), XMX(SP_J, i - 1) + XSC(SP_J, SP_LOOP) ) )
@@ -250,13 +250,13 @@ void traceback_Build(const SEQUENCE*     query,
                st_cur = E_ST;
             else {
                printf("ERROR: Failed to alnace from J_ST at (%d,%d)\n", i, j);
-               exit(1);
+               exit(EXIT_FAILURE);
             }
             break;
 
          default:
             printf("ERROR: Hit Bogus State!!!\n");
-            exit(1);
+            exit(EXIT_FAILURE);
       }
 
       /* Add new state and (i,j) to alnace */
@@ -376,7 +376,7 @@ void traceback_Append(ALIGNMENT*  aln,
 
       default:
          printf("ERROR: Hit Bogus State!!!\n");
-         exit(0);
+         exit(EXIT_SUCCESS);
    }
 
    aln->traces[N].st = st;

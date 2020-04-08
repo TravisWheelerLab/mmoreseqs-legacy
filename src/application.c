@@ -66,7 +66,7 @@
 
 /* set debug macros */
 #ifndef DEBUG
-   #define DEBUG false
+#define DEBUG false
 #endif
 
 /* === HEADER === */
@@ -74,6 +74,10 @@
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 int main ( int argc, char *argv[] )
 {
+   #if DEBUG
+      printf("In DEBUG MODE...\n");
+   #endif
+
    /* parse command line arguments */
    ARGS* args  = NULL;
    args = ARGS_Parse( argc, argv );

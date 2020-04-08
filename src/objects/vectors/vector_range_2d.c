@@ -225,6 +225,6 @@ void VECTOR_RANGE_2D_UnitTest()
       VECTOR_RANGE_2D_Pushback(vec, *subvec);
    }
    VECTOR_RANGE_2D_Dump(stdout, vec);
-   exit(0);
+   exit(EXIT_SUCCESS);
 }
 

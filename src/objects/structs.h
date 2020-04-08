@@ -36,23 +36,23 @@ typedef struct {
 /* */
 typedef struct {
    /* naive */
-   float    cloud_fwd_naive_sc; 
+   float    cloud_fwd_naive_sc;
    float    cloud_bck_naive_sc;
    /* quadratic */
    float    viterbi_quad_sc;
    float    fwd_quad_sc;
-   float    bck_quad_sc;  
-   float    cloud_fwd_quad_sc; 
+   float    bck_quad_sc;
+   float    cloud_fwd_quad_sc;
    float    cloud_bck_quad_sc;
    /* linear */
    float    viterbi_sc;
    float    fwd_sc;
    float    bck_sc;
-   float    cloud_fwd_sc; 
+   float    cloud_fwd_sc;
    float    cloud_bck_sc;
    /* statistics */
-   float    perc_cells; 
-   float    perc_window;  
+   float    perc_cells;
+   float    perc_window;
 } SCORES;
 
 /* vector of integers */
@@ -105,7 +105,7 @@ typedef struct {
    float*   stamps;           /* */
 } CLOCK;
 
-/* distribution parameters */ 
+/* distribution parameters */
 typedef struct {
    float    param1;
    float    param2;
@@ -116,18 +116,18 @@ typedef struct {
    int      K;             /* size of unique alphabet */
    int      Kp;            /* size of total symbols: alphabet + special symbols  */
    char*    sym;           /* symbols of alph: "ACGT-RYMKSWHBVDN*~" for aminos */
-   char     inmap[1<<8];   /* map: index -> char value */
-   char     outmap[1<<8];  /* map: char value -> index */
+   char     inmap[1 << 8]; /* map: index -> char value */
+   char     outmap[1 << 8]; /* map: char value -> index */
 } ALPHABET;
 
 /* position specific state probabilities */
 typedef struct {
    /* match emission probabilities for each amino acid */
    float    match[NUM_AMINO];
-   /* insert emission probabilities for each amino acid */  
+   /* insert emission probabilities for each amino acid */
    float    insert[NUM_AMINO];
    /* transition state probabilities (default same as COMPO) */
-   float    trans[NUM_TRANS_STATES];   
+   float    trans[NUM_TRANS_STATES];
 } HMM_NODE;
 
 /* HMM Background Composition */
@@ -139,7 +139,7 @@ typedef struct {
    /* insert emission probabilities for each amino acid (uniform across positions) */
    float    insert[NUM_AMINO];
    /* transition state probabilities (default same as COMPO) */
-   float    trans[NUM_TRANS_STATES];   
+   float    trans[NUM_TRANS_STATES];
    /* move, loop for special transition states */
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
 } HMM_COMPO;
@@ -153,8 +153,8 @@ typedef struct {
 
    float**     eo;      /* emission odds ratio ( M x K' ) */
 
-   ALPHABET*   abc;     /* alphabet */           
-   int         K;       /* size of alphabet */   
+   ALPHABET*   abc;     /* alphabet */
+   int         K;       /* size of alphabet */
 } HMM;
 
 /* HMM Profile */
@@ -173,7 +173,7 @@ typedef struct {
    char*          name;             /* unique name field of model in file */
    char*          acc;              /* unique accession field of model in file  */
    char*          desc;             /* description field of model in file */
-   char*          alph;             /* alphabet: only amino accepted */;  
+   char*          alph;             /* alphabet: only amino accepted */;
 
    int            nseq;             /* number of sequences used to created hmm */
    float          effn;             /* */
@@ -186,7 +186,7 @@ typedef struct {
    /* profile settings */
    int            mode;             /* enumerated search mode */
    bool           isLocal;          /* local or global? */
-   bool           isMultihit;       /* multi hit or single hit? */   
+   bool           isMultihit;       /* multi hit or single hit? */
    /* jump value for configuring HMM */
    int            num_J; /* number of jumps allowed by model (single hit = 1) */
 
@@ -233,7 +233,7 @@ typedef struct {
 
 /* */
 typedef struct {
-   int      R;       /* number of columns = length of query */ 
+   int      R;       /* number of columns = length of query */
    int      C;       /* number of rows = number of special states */
    int      Nalloc;  /* flat length of matrix = rows x cols */
    float*   data;    /* */
@@ -280,7 +280,7 @@ typedef struct {
    int      q_filetype;          /* enumerated FILETYPE of query file */
    /* file id number */
    int      t_fileno;            /*  */
-   int      q_fileno;            /*  */ 
+   int      q_fileno;            /*  */
    /* offset into file */
    int      t_offset;
    int      q_offset;
@@ -295,13 +295,13 @@ typedef struct {
 typedef struct {
    float    load_hmm;
 
-   float    viterbi; 
+   float    viterbi;
    float    traceback;
 
-   float    fwd; 
+   float    fwd;
    float    bck;
 
-   float    cloud_fwd; 
+   float    cloud_fwd;
    float    cloud_bck;
 
    float    merge;
@@ -321,7 +321,7 @@ typedef struct {
 /* */
 typedef struct {
    int            N;          /* Number of location index nodes used */
-   int            Nalloc;     /* Number of location index nodes allocated */ 
+   int            Nalloc;     /* Number of location index nodes allocated */
    F_INDEX_NODE*  nodes;      /* List of nodes for location of each HMM/FASTA in file */
 
    char*          indexpath;  /* File path of index file (NULL if built and not loaded) */
@@ -329,7 +329,7 @@ typedef struct {
    int            filetype;   /* Type of file being indexed */
 
    char*          delim;      /* one of more delimiter of header fields */
-   int            name_field; /* index of header field containing name */ 
+   int            name_field; /* index of header field containing name */
    int            isSorted;   /* Whether the index nodes list has been sorted */
 } F_INDEX;
 
@@ -419,7 +419,7 @@ typedef struct {
    /* indexes of query and target data files */
    F_INDEX*       q_index;
    F_INDEX*       t_index;
-   /* file pointers to query and target data file */ 
+   /* file pointers to query and target data file */
    FILE*          q_file;
    FILE*          t_file;
 

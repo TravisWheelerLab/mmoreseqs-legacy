@@ -48,8 +48,11 @@ ALIGNMENT* ALIGNMENT_Create()
 /* destructor */
 void ALIGNMENT_Destroy(ALIGNMENT* aln)
 {
+   if (aln == NULL) return;
+   
    free(aln->traces);
    free(aln);
+   aln = NULL;
 }
 
 /* reuse */

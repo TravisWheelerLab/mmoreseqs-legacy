@@ -31,7 +31,7 @@ if len(sys.argv) >= 2:
       i += 1
 else:
    print("Usage: <results_filename1> <results_filename2> ... -o <out_folder>")
-   sys.exit(0)
+   sys.exit(EXIT_SUCCESS)
 
 # read in file
 for filename in filenames:

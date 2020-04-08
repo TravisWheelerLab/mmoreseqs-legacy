@@ -13,6 +13,7 @@
 void ERROR_Handler( const int    error_code,
                     const char*  file,
                     const int    line,
+                    const char*  func,
                     const char*  note );
 
 void ERROR_NullPtrCheck( const void*   data,

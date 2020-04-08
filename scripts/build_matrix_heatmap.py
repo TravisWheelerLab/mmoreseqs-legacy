@@ -362,7 +362,7 @@ file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-
 # Parse args
 if (len(sys.argv) == 1):
    print("Usage: <tsv_matrix_1>");
-   sys.exit(0);
+   sys.exit(EXIT_SUCCESS);
 else:
    i = 1
    while (i < len(sys.argv) ):
@@ -416,7 +416,7 @@ if opts["-diff"]:
       N -= 1
    else:
       print("To use -diff, requires two matrices")
-      exit(0)
+      exit(EXIT_SUCCESS)
 
 # if add, then take the sum of the two matrices
 if opts["-add"]:
@@ -428,7 +428,7 @@ if opts["-add"]:
       N -= 1
    else:
       print("To use -diff, requires two matrices")
-      exit(0)
+      exit(EXIT_SUCCESS)
 
 # if eq, then compare equality of two matrices
 if opts["-eq"]:
@@ -440,7 +440,7 @@ if opts["-eq"]:
       N -= 1
    else:
       print("To use -eq, requires two matrices")
-      exit(0)
+      exit(EXIT_SUCCESS)
 
 # title
 title1 = "MATCH\n(min=%f, max=%f)" % (min_val, max_val)

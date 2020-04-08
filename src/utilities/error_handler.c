@@ -3,7 +3,7 @@
  *  PURPOSE:   Functions for handling error codes
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:
  *******************************************************************************/
 
 /* imports */
@@ -29,27 +29,31 @@
 void ERROR_Handler( const int    error_code,
                     const char*  file,
                     const int    line,
+                    const char*  func,
                     const char*  note )
 {
-   switch( error_code )
-   {
-      case ERROR_UNKNOWN:
-         fprintf( stderr, "%s\n", "ERROR: Unknown error." );
-         break;
-      case ERROR_MALLOC:
-         fprintf( stderr, "%s\n", "ERROR: Malloc error." );
-         break;
-      default:
-         fprintf( stderr, "%s\n", "ERROR: Error occurred with invalid error code." );
-   }
-   if (file != NULL)
-      fprintf(stderr, "ERROR occurred in FILE: \"%s\", at LINE: %d\n)", file, line);
-   fprintf(stderr, "[ CODE = %d ]\n", error_code);
-   if (note != NULL)
-      fprintf(stderr, "NOTE: %s\n", note);
+    switch ( error_code )
+    {
+    case ERROR_UNKNOWN:
+        fprintf( stderr, "%s\n", "ERROR: Unknown error." );
+        break;
+    case ERROR_MALLOC:
+        fprintf( stderr, "%s\n", "ERROR: Malloc error." );
+        break;
+    case ERROR_REALLOC:
+        fprintf(stderr, "%s\n", "ERROR: Realloc error." );
+        break;
+    default:
+        fprintf( stderr, "%s\n", "ERROR: Error occurred with invalid error code." );
+    }
+    if (file != NULL)
+        fprintf(stderr, "ERROR occurred in FILE: \"%s\", at LINE: %d, in FUNC: \"%s\".\n)", file, line, func);
+    fprintf(stderr, "[ CODE = %d ]\n", error_code);
+    if (note != NULL)
+        fprintf(stderr, "NOTE: %s\n", note);
 
-   fprintf(stderr, "Program terminated.\n");
-   exit(EXIT_FAILURE);
+    fprintf(stderr, "Program terminated.\n");
+    exit(EXIT_FAILURE);
 }
 
 /* check for null pointer */
