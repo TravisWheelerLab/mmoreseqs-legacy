@@ -74,6 +74,8 @@ void WORK_workflow( WORKER*  work )
 
 }
 
+
+
 /* load target and query from file */
 void WORK_load_target_query( WORKER*  worker )
 {
@@ -93,6 +95,7 @@ void WORK_load_target_query( WORKER*  worker )
 
    /* load query sequence */
    printf("building q_seq sequence...\n");
+
    if ( q_filetype == FILE_FASTA ) 
    {
       SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
@@ -134,30 +137,16 @@ void WORK_init( WORKER* worker )
    int   isQuad   = worker->tasks->quadratic;
    int   isLin    = worker->tasks->linear;
 
-   /* dynamic programming matrices */
-   MATRIX_3D*     st_MX       = worker->st_MX;
-   MATRIX_3D*     st_MX3      = worker->st_MX3;
-   MATRIX_2D*     sp_MX       = worker->sp_MX;
-
-   /* edgebounds for cloud search */
-   EDGEBOUNDS*    edg_fwd     = worker->edg_fwd;
-   EDGEBOUNDS*    edg_bck     = worker->edg_bck;
-   EDGEBOUNDS*    edg_diag    = worker->edg_diag;
-   EDGEBOUNDS*    edg_row     = worker->edg_row;
-
+   /* create necessary dp matrices */
    if ( isQuad ) {
-      st_MX = MATRIX_3D_Create(NUM_NORMAL_STATES,  1, 1);
-      sp_MX = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
+      worker->st_MX = MATRIX_3D_Create(NUM_NORMAL_STATES,  1, 1);
+      worker->sp_MX = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
    }
    if ( isLin ) {
-      st_MX3 = MATRIX_3D_Create(NUM_NORMAL_STATES,  1, 1);
-      sp_MX  = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
+      worker->st_MX3 = MATRIX_3D_Create(NUM_NORMAL_STATES,  1, 1);
+      worker->sp_MX  = MATRIX_2D_Create(NUM_SPECIAL_STATES, 1);
    }
-
-   edg_fwd  = EDGEBOUNDS_Create();
-   edg_bck  = EDGEBOUNDS_Create();
-   edg_diag = EDGEBOUNDS_Create();
-   edg_row  = EDGEBOUNDS_Create();
+   
 }
 
 /* initialize dynamic programming matrices */
@@ -196,6 +185,12 @@ void WORK_reuse( WORKER* worker )
    EDGEBOUNDS_Reuse( edg_row );
 }
 
+/* initial output printed before search */
+void WORK_print_header( WORKER*  worker ) 
+{
+
+}
+
 /* viterbi and traceback */
 void WORK_viterbi_and_traceback( WORKER*  worker )
 {
@@ -215,25 +210,27 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
    MATRIX_2D*     sp_MX    = worker->sp_MX;
    ALIGNMENT*     tr       = worker->traceback;
 
-   bool           isLinVit    = tasks->linear_vit;
+   bool           isLinVit    = tasks->lin_vit;
    bool           isQuadVit   = tasks->quad_vit;
-   bool           isLinTr     = tasks->linear_trace;
+   bool           isLinTr     = tasks->lin_trace;
    bool           isQuadTr    = tasks->quad_trace;
 
    float*         quad_sc  = &(scores->viterbi_quad_sc);
    float*         lin_sc   = &(scores->viterbi_sc);
 
    /* Viterbi */
-   if ( isLinVit ) {
+   if ( isQuadVit ) {
       viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, quad_sc );
-      if ( isLinTr ) {
+      if ( isQuadTr ) {
          traceback_Build(q_seq, t_prof, Q, T, st_MX->data, sp_MX->data, tr);
       }
    }
-   if ( isQuadVit ) {
+   if ( isLinVit ) {
       // TODO: linear viterbi goes here
-      if ( isQuadTr ) {
+      // viterbi_Lin( q_seq, t_prof, Q, T, st_MX, sp_MX, quad_sc );
+      if ( isLinTr ) {
          // TODO: linear traceback goes here
+         // traceback_Lin_Build(q_seq, t_prof, Q, T, st_MX->data, sp_MX->data, tr);
       }
    }
 }
@@ -257,15 +254,17 @@ void WORK_forward_backward( WORKER*  worker )
    MATRIX_2D*     sp_MX    = worker->sp_MX;
    ALIGNMENT*     tr       = worker->traceback;
 
-   bool     isLinVit    = tasks->linear_vit;
-   bool     isQuadVit   = tasks->quad_vit;
-   bool     isLinTr     = tasks->linear_trace;
-   bool     isQuadTr    = tasks->quad_trace;
+   bool     isLinFwd    = tasks->lin_fwd;
+   bool     isLinBck    = tasks->lin_bck;
+   bool     isQuadFwd   = tasks->quad_fwd;
+   bool     isQuadBck   = tasks->quad_bck;
 
    float*   quad_fwd_sc  = &(scores->fwd_quad_sc);
    float*   lin_fwd_sc   = &(scores->fwd_sc);
    float*   quad_bck_sc  = &(scores->bck_quad_sc);
    float*   lin_bck_sc   = &(scores->bck_sc);
 
-   
+   if ( isLinFwd ) {
+
+   } 
 }

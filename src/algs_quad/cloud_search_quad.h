@@ -12,20 +12,12 @@
 #ifndef _CLOUD_SEARCH_QUAD_H
 #define _CLOUD_SEARCH_QUAD_H
 
-/* === INCLUDES === */
-// #include "objects/structs.h"
-// #include "objects/edgebound.h"
-// #include "objects/hmm_profile.h"
-// #include "objects/sequence.h"
-// #include "objects/alignment.h"
-
-/* === FUNCTIONS === */
 void cloud_Forward_Quad(const SEQUENCE*    query, 
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 
-                        float*             st_MX, 
-                        float*             sp_MX, 
+                        MATRIX_3D*         st_MX, 
+                        MATRIX_2D*         sp_MX, 
                         const ALIGNMENT*   tr,
                         EDGEBOUNDS*        edg,
                         const float        alpha, 
@@ -35,8 +27,8 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 
-                        float*             st_MX, 
-                        float*             sp_MX, 
+                        MATRIX_3D*         st_MX, 
+                        MATRIX_2D*         sp_MX, 
                         const ALIGNMENT*   tr,
                         EDGEBOUNDS*        edg,
                         const float        alpha, 

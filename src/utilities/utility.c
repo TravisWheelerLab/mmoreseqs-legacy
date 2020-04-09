@@ -136,3 +136,20 @@ float real2negln(float real_prob)
    float negln_prob = -1.0f * log(real_prob);
    return negln_prob;
 }
+
+/* check if two numbers are within a tolerance of eachother */
+inline
+bool cmp_tol( const float a, 
+              const float b)
+{
+   /* acceptable tolerance range for "equality tests" */
+   const float tol = 1e-5;   
+   return ( fabs( a - b ) < tol );
+}
+
+/* frees memory at pointer and sets to null */
+void myfree(void* ptr)
+{
+   free(ptr);
+   ptr = NULL;
+}

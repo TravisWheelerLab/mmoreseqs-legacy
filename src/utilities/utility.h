@@ -25,9 +25,11 @@ float calc_Min ( float  x,
 
 /* LOGRITHMIC SUM FUNCTIONS */
 void init_Logsum ();
+
 /* Takes two logscale numbers and returns the log of their real sum (approx) */
 float calc_Logsum( float   x, 
                    float   y );
+
 /* Takes two log numbers and returns the log of their real sum (exact) */
 float calc_Logsum_exact( float   x, 
                          float   y);
@@ -37,7 +39,15 @@ void print_Logsum( FILE*   fp );
 /* CONVERT REAL NUMBERS to NEGATIVE LOG NUMBERS */
 /* convert negative natural logs to real probabilities */
 float negln2real( float  negln_prob );
+
 /* convert real probabilities to negative natural logs */
 float real2negln( float  real_prob );
+
+/* check if two numbers are within a tolerance of eachother */
+bool cmp_tol(const float a, 
+			 const float b);
+
+/* frees memory at pointer and sets to null */
+void myfree(void* ptr);
 
 #endif /* _MISC_H */

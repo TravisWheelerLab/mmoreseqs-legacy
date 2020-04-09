@@ -11,22 +11,6 @@
 
 /* === MACRO FUNCTIONS === */
 
-/* QUADRATIC DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS */
-/* generic access for any matrix */
-#define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
-/* match, insert, delete for st_MX matrix */
-#define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j )
-#define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j )
-#define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j )
-
-/* LINEAR DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS ( dim: 3 x (N+M) ) */
-/* generic matrix */
-#define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
-/* match, insert, delete for st_MX3 matrix */
-#define MMX3(i,j)          ST_MX3( st_MX3, MAT_ST, i, j )
-#define IMX3(i,j)          ST_MX3( st_MX3, INS_ST, i, j )
-#define DMX3(i,j)          ST_MX3( st_MX3, DEL_ST, i, j )
-
 /* === MATRIX OBJECT FUNCTIONS === */
 /* generic access for any matrix */
 #define ST_MX_M(mx,st,i,j)  ( *MATRIX_3D_Get(mx,st,i,j) )
@@ -44,7 +28,27 @@
 
 #define SP_MX_M(mx,sp,i)     ( *MATRIX_2D_Get(mx,sp,i) )
 #define XMX_M(sp,i)          SP_MX_M(sp_MX,sp,i)
-/* ===================== */
+
+#define TMX_M(i,j)           ( *MATRIX_3D_Get(test_MX,MAT_ST,i,j) ) 
+
+/* === EDGEBOUNDS OBJECT ACCESS FUNCTION === */
+#define EDG_X(edg,i)		( *EDGEBOUNDS_Get(edg,i) )
+
+/* FLOAT ARRAY FUNCTIONS */
+/* generic access for any matrix */
+#define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
+/* match, insert, delete for st_MX matrix */
+#define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j )
+#define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j )
+#define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j )
+
+/* LINEAR DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS ( dim: 3 x (N+M) ) */
+/* generic matrix */
+#define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
+/* match, insert, delete for st_MX3 matrix */
+#define MMX3(i,j)          ST_MX3( st_MX3, MAT_ST, i, j )
+#define IMX3(i,j)          ST_MX3( st_MX3, INS_ST, i, j )
+#define DMX3(i,j)          ST_MX3( st_MX3, DEL_ST, i, j )
 
 /* SPECIAL STATE MATRIX MACROS */
 #define SP_MX(mx,sp,i)     ( mx[ ((sp)*(Q+1)) + (i) ] )

@@ -72,21 +72,21 @@
 void mmseqs_pipeline( WORKER* worker ) 
 {
    /* Get Arguments */
-   ARGS*          args              = worker->args;
+   ARGS*    args              = worker->args;
 
-   float          alpha             = args->alpha;
-   int            beta              = args->beta;
+   float    alpha             = args->alpha;
+   int      beta              = args->beta;  
 
-   char*          t_filepath        = args->t_filepath;
-   char*          q_filepath        = args->q_filepath;
+   char*    t_filepath        = args->t_filepath;
+   char*    q_filepath        = args->q_filepath;
 
-   char*          t_indexpath       = args->t_indexpath;
-   char*          q_indexpath       = args->q_indexpath;
+   char*    t_indexpath       = args->t_indexpath;
+   char*    q_indexpath       = args->q_indexpath;
 
-   int            t_filetype        = args->t_filetype;
-   int            q_filetype        = args->q_filetype;
+   int      t_filetype        = args->t_filetype;
+   int      q_filetype        = args->q_filetype;
 
-   char*          m8_filepath       = args->hits_filepath;
+   char*    m8_filepath       = args->hits_filepath;
 
    /* results inputted from mmseqs pipeline */
    RESULTS*       results_in        = NULL;
@@ -106,10 +106,8 @@ void mmseqs_pipeline( WORKER* worker )
    F_INDEX*       t_index           = NULL;
 
    /* dynamic programming matrices for computing cloud fwd/bck */
-   MATRIX_3D*     st_matrix         = MATRIX_3D_Create(1, 3, NUM_NORMAL_STATES);
-   float*         st_MX3            = NULL;
-   MATRIX_2D*     sp_matrix         = MATRIX_2D_Create(1, NUM_SPECIAL_STATES);
-   float*         sp_MX             = NULL;
+   MATRIX_3D*     st_MX3            = MATRIX_3D_Create(1, 3, NUM_NORMAL_STATES);
+   MATRIX_2D*     sp_MX             = MATRIX_2D_Create(1, NUM_SPECIAL_STATES);
 
    ALIGNMENT*     aln               = ALIGNMENT_Create();
 
@@ -194,13 +192,16 @@ void mmseqs_pipeline( WORKER* worker )
       /* get next result from list */
       result = &(results_in->data[i]);
 
+      /* load target and query */
+      int t_id = result->target_id;
+      int q_id = result->query_id;
+
+
       /* resize data structures for next search */
       T = t_prof->N;
       Q = q_seq->N;
-      MATRIX_3D_Reuse( st_matrix, NUM_NORMAL_STATES, 3, (Q+T+1) );
-      st_MX3 = st_matrix->data;
-      MATRIX_2D_Reuse( sp_matrix, NUM_SPECIAL_STATES, Q+1 );
-      sp_MX = sp_matrix->data;
+      MATRIX_3D_Reuse( st_MX3, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
+      MATRIX_2D_Reuse( sp_MX, NUM_SPECIAL_STATES, Q+1 );
 
       /* get initial search window */
       ALIGNMENT_Clear(aln);

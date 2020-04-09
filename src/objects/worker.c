@@ -45,18 +45,19 @@ WORKER* WORKER_Create()
       exit(EXIT_FAILURE);
    }
 
+   /* set all pointers null */
    worker->args      = NULL;
    worker->tasks     = NULL;
 
-   worker->q_index   = NULL;
    worker->t_index   = NULL;
+   worker->q_index   = NULL;
 
-   worker->q_file    = NULL;
    worker->t_file    = NULL;
+   worker->q_file    = NULL;
 
-   worker->q_seq     = NULL;
    worker->t_seq     = NULL;
    worker->t_prof    = NULL;
+   worker->q_seq     = NULL;
 
    worker->edg_fwd   = NULL;
    worker->edg_bck   = NULL;
@@ -74,17 +75,25 @@ WORKER* WORKER_Create()
    worker->results   = NULL;
    worker->clock     = NULL;
 
+   /* malloc all basic data structures */
    worker->tasks     = (TASKS*) malloc( sizeof(TASKS) );
    worker->times     = (TIMES*) malloc( sizeof(TIMES) );
    worker->scores    = (SCORES*) malloc( sizeof(SCORES) );
    worker->results   = (RESULTS*) malloc( sizeof(RESULTS) );
-
    if ( worker->tasks == NULL || worker->times == NULL || worker->scores == NULL || worker->results == NULL ) {
       fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
       exit(EXIT_FAILURE);
    }
 
+   /* create edgebounds objects */
+   worker->edg_fwd   = EDGEBOUNDS_Create();
+   worker->edg_bck   = EDGEBOUNDS_Create();
+   worker->edg_diag  = EDGEBOUNDS_Create();
+   worker->edg_row   = EDGEBOUNDS_Create();
+
    worker->clock     = CLOCK_Create();
+
+   return worker;
 }
 
 /* destructor */

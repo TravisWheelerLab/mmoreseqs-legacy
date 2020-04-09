@@ -10,15 +10,6 @@
 #ifndef _CLOUD_SEARCH_LINEAR_H
 #define _CLOUD_SEARCH_LINEAR_H
 
-/* === INCLUDES === */
-// #include "objects/structs.h"
-// #include "objects/edgebound.h"
-// #include "objects/hmm_profile.h"
-// #include "objects/sequence.h"
-// #include "objects/alignment.h"
-
-/* === FUNCTIONS === */
-
 /* ------------------------------------------------------------------------------------------ *
  *
  *  FUNCTION: cloud_Forward_Linear()
@@ -39,9 +30,9 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           float*             st_MX, 
-                           float*             st_MX3,
-                           float*             sp_MX, 
+                           MATRIX_3D*         st_MX, 
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_2D*         sp_MX, 
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
                            const float        alpha, 
@@ -68,9 +59,9 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           float*             st_MX, 
-                           float*             st_MX3,
-                           float*             sp_MX, 
+                           MATRIX_3D*         st_MX, 
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_2D*         sp_MX, 
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
                            const float        alpha, 

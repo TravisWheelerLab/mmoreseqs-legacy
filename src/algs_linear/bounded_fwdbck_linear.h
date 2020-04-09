@@ -9,13 +9,6 @@
 #ifndef _BOUNDED_FWDBCK_LINEAR_H
 #define _BOUNDED_FWDBCK_LINEAR_H
 
-/* === INCLUDES === */
-// #include "objects/structs.h"
-// #include "objects/edgebound.h"
-// #include "objects/hmm_profile.h"
-// #include "objects/sequence.h"
-
-/* === FUNCTIONS === */
 /* ------------------------------------------------------------------------------------------ *
  *
  *  FUNCTION: bound_Forward_Linear()
@@ -47,9 +40,9 @@ float bound_Forward_Linear(const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           float*             st_MX3,
-                           float*             st_MX,
-                           float*             sp_MX, 
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_3D*         st_MX,
+                           MATRIX_2D*         sp_MX, 
                            const EDGEBOUNDS*  edg,
                            const bool         test,
                            float              *sc_final );
@@ -85,9 +78,9 @@ float bound_Backward_Linear(  const SEQUENCE*    query,
                               const HMM_PROFILE* target,
                               const int          Q, 
                               const int          T, 
-                              float*             st_MX3,
-                              float*             st_MX,
-                              float*             sp_MX, 
+                              MATRIX_3D*         st_MX3,
+                              MATRIX_3D*         st_MX,
+                              MATRIX_2D*         sp_MX, 
                               const EDGEBOUNDS*  edg,
                               const bool         test,
                               float              *sc_final );

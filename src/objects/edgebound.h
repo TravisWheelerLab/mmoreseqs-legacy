@@ -42,6 +42,10 @@ void EDGEBOUNDS_Destroy(EDGEBOUNDS* edg);
 /* reuse */
 void EDGEBOUNDS_Reuse(EDGEBOUNDS*  edg);
 
+/* access bound in edgebound array */
+BOUND* EDGEBOUNDS_Get(EDGEBOUNDS*   edg, 
+                      int           i );
+
 /* push BOUND onto EDGEBOUNDS array */
 void EDGEBOUNDS_Pushback(EDGEBOUNDS* edg,
                          BOUND       bnd);

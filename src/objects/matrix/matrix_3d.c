@@ -81,13 +81,14 @@ float* MATRIX_3D_Get(MATRIX_3D*  mx,
                      const int   j,
                      const int   k )
 {
-  /* if debugging, do edgechecks */
+  /* if debugging, do edgebound checks */
   #if DEBUG
     int n = MATRIX_3D_to_1D(mx, i, j, k);
-    if (i > mx->R || j > mx->C || k > mx->N || n > mx->Nalloc ) {
-      fprintf(stderr, "%s\n", "ERROR: Matrix Access Out-of-Bounds\n");
+    int used = mx->R * mx->C * mx->N;
+    if (i >= mx->R || i < 0 || j >= mx->C || j < 0 || k >= mx->N || n >= used ) {
+      fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
       fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
-      fprintf(stderr, "1D => dim: (%d), access: (%d)\n", mx->Nalloc, n);
+      fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
       exit(EXIT_FAILURE);
     }
   #endif
@@ -150,7 +151,7 @@ void MATRIX_3D_Dump(MATRIX_3D*  mx,
     exit(EXIT_FAILURE);
   }
 
-  fprintf(fp, "=== MATRIX_3D ===\n");
+  fprintf(fp, "=== MATRIX_3D { R, C, N } { %d, %d, %d } ===\n", mx->R, mx->C, mx->N);
   for (int i = 0; i < mx->R; i++) {
     for (int j = 0; j < mx->C; j++) {
       for (int k = 0; k < mx->N; k++) {

@@ -20,6 +20,8 @@
 /* objects */
 #include "objects/structs.h"
 #include "objects/edgebound.h"
+#include "objects/matrix/matrix_2d.h"
+#include "objects/matrix/matrix_3d.h"
 
 /* local imports */
 #include "utilities/utility.h"
@@ -50,8 +52,8 @@ int EDGEBOUNDS_Merge_Reorient_Naive(const EDGEBOUNDS* edg_fwd,
                                     EDGEBOUNDS*       edg_row,
                                     const int         Q, 
                                     const int         T,
-                                    float*            st_MX,
-                                    float*            sp_MX)
+                                    MATRIX_3D*        st_MX,
+                                    MATRIX_2D*        sp_MX)
 {
    /* merge edgebounds */
    dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
@@ -83,17 +85,19 @@ int EDGEBOUNDS_Merge_Reorient_Naive(const EDGEBOUNDS* edg_fwd,
 void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
                                  const int   Q, 
                                  const int   T,
-                                 float*      st_MX,
+                                 MATRIX_3D*  st_MX,
                                  int         mode)
 {
-   int d, i, j, k;
-   int x, y1, y2;
-   int d_st, d_end;
-   int dim_min, dim_max; 
-   int le, re;                         
-   bool in_cloud;
-   int num_cells;
+   int   d, i, j, k;
+   int   x, y1, y2;
+   int   d_st, d_end;
+   int   dim_min, dim_max; 
+   int   le, re;                         
+   bool  in_cloud;
+   int   num_cells;
    BOUND bnd;
+
+   in_cloud = false;
    
    /* create edgebound in antidiagonal-wise order */
    if (mode == MODE_DIAG) 
@@ -120,6 +124,7 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
          /* find diag cells that are inside matrix bounds */
          le = MAX(0, d - T);
          re = le + num_cells;
+         
 
          /* iterate through cells of diag */
          for (k = le; k < re; k++)
@@ -130,7 +135,7 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             if (in_cloud)
             {
                /* end of bound, add bound to edgebound list */
-               if ( IMX(i,j) <= 0 ) 
+               if ( IMX_M(i,j) <= 0 ) 
                {
                   in_cloud = false;
                   y2 = k;
@@ -140,7 +145,7 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             else
             {
                /* start of new bound */
-               if ( IMX(i,j) > 0 ) {
+               if ( IMX_M(i,j) > 0 ) {
                   in_cloud = true;
                   x = d;
                   y1 = k;
@@ -161,7 +166,6 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
    else 
    if (mode == MODE_ROW) 
    {
-      printf("");
       /* iterate through rows */
       for (i = 0; i <= Q; i++)
       {
@@ -171,7 +175,7 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             if (in_cloud)
             {
                /* end of bound, add bound to edgebound list */
-               if ( IMX(i,j) <= 0 ) 
+               if ( IMX_M(i,j) <= 0 ) 
                {
                   in_cloud = false;
                   y2 = j;
@@ -182,7 +186,7 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             else
             {
                /* start of new bound */
-               if ( IMX(i,j) > 0 ) {
+               if ( IMX_M(i,j) > 0 ) {
                   in_cloud = true;
                   x = i;
                   y1 = j;

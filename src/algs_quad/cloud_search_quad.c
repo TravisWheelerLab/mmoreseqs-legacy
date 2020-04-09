@@ -26,6 +26,8 @@
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 #include "objects/alignment.h"
+#include "objects/matrix/matrix_3d.h"
+#include "objects/matrix/matrix_2d.h"
 
 /* file parsers */
 #include "hmm_parser.h"
@@ -35,13 +37,13 @@
 
 /* 
  *       NOTE: CONVERSION - row-coords => diag-coords
- *       MX(i-1, j-1) => MX3(d_2, k-1)
- *       MX(i  , j-1) => MX3(d_1, k  ) 
- *       MX(i-1, j  ) => MX3(d_1, k-1)
+ *       MX_M(i-1, j-1) => MX3(d_2, k-1)
+ *       MX_M(i  , j-1) => MX3(d_1, k  ) 
+ *       MX_M(i-1, j  ) => MX3(d_1, k-1)
  *
- *       MX(i+1, j+1) => MX3(d_2, k+1)
- *       MX(i  , j+1) => MX3(d_1, k  )
- *       MX(i+1, j  ) => MX3(d_1, k+1)
+ *       MX_M(i+1, j+1) => MX3(d_2, k+1)
+ *       MX_M(i  , j+1) => MX3(d_1, k  )
+ *       MX_M(i+1, j  ) => MX3(d_1, k+1)
  */
 
 
@@ -69,19 +71,19 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 
-                        float*             st_MX, 
-                        float*             sp_MX, 
+                        MATRIX_3D*         st_MX, 
+                        MATRIX_2D*         sp_MX, 
                         const ALIGNMENT*   tr,
                         EDGEBOUNDS*        edg,
                         const float        alpha, 
                         const int          beta )
 {
    /* vars for navigating matrix */
-   int d,i,j,k;                  /* diagonal, row, column indices */
+   int d, i, j, k;               /* diagonal, row, column indices */
    /* NOTE: all left inclusive, right exclusive indexing!! */
    int lb, rb, le, re;           /* right/left bounds and edges */
    int lb_new, rb_new;           /* tmp for new right/left bounds */
-   int *lb_list, rb_list;        /* tmp for forking right/left bounds */
+   int *lb_list, *rb_list;       /* tmp for forking right/left bounds */
    int num_cells;                /* number of cells in diagonal */
    int d_st, d_end, d_cnt;       /* starting and ending diagonal indices */
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
@@ -117,8 +119,6 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
    int cpu_num = 0;
 
    /* --------------------------------------------------------------------------------- */
-
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
 
    /* get start and end points of viterbi alignment */
    beg = tr->traces[tr->beg];
@@ -174,7 +174,7 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
       /* is dp matrix diagonal growing or shrinking? */
       if (d <= dim_min)
          num_cells++;
-      if (d > dim_max)
+      if (d >= dim_max)
          num_cells--;
 
       /* UPDATE/PRUNE BOUNDS */
@@ -192,8 +192,8 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
             i = k;
             j = d_1 - i;    /* back one diag */
             diag_max = calc_Max( 
-                           calc_Max( diag_max, MMX(i,j) ),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+                           calc_Max( diag_max, MMX_M(i,j) ),
+                           calc_Max( IMX_M(i,j), DMX_M(i,j) ) );
          }
 
          /* Total max records largest cell score seen so far */
@@ -210,8 +210,8 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
             i = k;
             j = d_1 - i; /* looking back one diag */
 
-            cell_max = calc_Max( MMX(i,j),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+            cell_max = calc_Max( MMX_M(i,j),
+                           calc_Max( IMX_M(i,j), DMX_M(i,j) ) );
 
             /* prune in left edgebound */
             if( cell_max >= total_limit )
@@ -231,8 +231,8 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
             i = k;
             j = d_1 - i;
 
-            cell_max = calc_Max( MMX(i,j),
-                           calc_Max( IMX(i,j),   DMX(i,j) ) );
+            cell_max = calc_Max( MMX_M(i,j),
+                           calc_Max( IMX_M(i,j),   DMX_M(i,j) ) );
 
             /* prune in right edgebound */
             if( cell_max >= total_limit )
@@ -278,32 +278,32 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-         prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-         prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+         prev_mat = MMX_M(i-1,j-1)  + TSC(j-1,M2M);
+         prev_ins = IMX_M(i-1,j-1)  + TSC(j-1,I2M);
+         prev_del = DMX_M(i-1,j-1)  + TSC(j-1,D2M);
          /* free to begin match state (new alignment) */
          // prev_beg = 0; /* assigned once at start */
          /* best-to-match */
          prev_sum = calc_Logsum( 
                         calc_Logsum( prev_mat, prev_ins ),
                         calc_Logsum( prev_del, prev_beg ) );
-         MMX(i,j) = prev_sum + MSC(j,A);
+         MMX_M(i,j) = prev_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX(i-1,j) + TSC(j,M2I);
-         prev_ins = IMX(i-1,j) + TSC(j,I2I);
+         prev_mat = MMX_M(i-1,j) + TSC(j,M2I);
+         prev_ins = IMX_M(i-1,j) + TSC(j,I2I);
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
-         IMX(i,j) = prev_sum + ISC(j,A);
+         IMX_M(i,j) = prev_sum + ISC(j,A);
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX(i,j-1) + TSC(j-1,M2D);
-         prev_del = DMX(i,j-1) + TSC(j-1,D2D);
+         prev_mat = MMX_M(i,j-1) + TSC(j-1,M2D);
+         prev_del = DMX_M(i,j-1) + TSC(j-1,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum(prev_mat, prev_del);
-         DMX(i,j) = prev_sum;
+         DMX_M(i,j) = prev_sum;
       }
    }
 }
@@ -331,8 +331,8 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 
-                        float*             st_MX, 
-                        float*             sp_MX, 
+                        MATRIX_3D*         st_MX, 
+                        MATRIX_2D*         sp_MX, 
                         const ALIGNMENT*   tr,
                         EDGEBOUNDS*        edg,
                         const float        alpha, 
@@ -374,21 +374,19 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
 
    /* --------------------------------------------------------------------------------- */
 
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-
    /* get start and end points of viterbi alignment */
    beg = tr->traces[tr->beg];
    end = tr->traces[tr->end];
 
-   /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (beg.i == Q+1 || beg.j == T+1) {
-      beg.i -= 1;
-      beg.j -= 1;
+   /* We don't want to start search on an edge and go out-of-bounds (start at next match state) */
+   if (end.i >= Q || end.j >= T) {
+      end.i -= 1;
+      end.j -= 1;
    }
 
    /* diag index at corners of dp matrix */
-   d_st = 0;
-   d_end = Q + T;
+   d_st = 0;      /* top-left corner of matrix */
+   d_end = Q + T; /* bottom-right corner of matrix, inset one diagonal */
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
@@ -443,8 +441,8 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
             i = k;
             j = d_1 - i;    /* back one diag */
             diag_max = calc_Max( 
-                           calc_Max( diag_max, MMX(i,j) ),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+                           calc_Max( diag_max, MMX_M(i,j) ),
+                           calc_Max( IMX_M(i,j), DMX_M(i,j) ) );
          }
 
          /* total max records largest cell score see so far */
@@ -459,8 +457,8 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
          {
             i = k;
             j = d_1 - i;
-            cell_max = calc_Max( MMX(i,j),
-                           calc_Max( IMX(i,j), DMX(i,j) ) );
+            cell_max = calc_Max( MMX_M(i,j),
+                           calc_Max( IMX_M(i,j), DMX_M(i,j) ) );
 
             if( cell_max >= total_limit ) {
                lb_new = i;
@@ -477,8 +475,8 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
          {
             i = k;
             j = d_1 - i;
-            cell_max = calc_Max( MMX(i,j),
-                           calc_Max( IMX(i,j),   DMX(i,j) ) );
+            cell_max = calc_Max( MMX_M(i,j),
+                           calc_Max( IMX_M(i,j),   DMX_M(i,j) ) );
 
             if( cell_max >= total_limit ) {
                rb_new = (i + 1);
@@ -524,31 +522,31 @@ void cloud_Backward_Quad(const SEQUENCE*    query,
          sc_I = ISC(j+1,A);
 
          /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-         prev_mat = MMX(i+1,j+1) + TSC(j,M2M) + sc_M;
-         prev_ins = IMX(i+1,j)   + TSC(j,M2I) + sc_I;
-         prev_del = DMX(i,j+1)   + TSC(j,M2D);
-         // prev_end = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
+         prev_mat = MMX_M(i+1,j+1) + TSC(j,M2M) + sc_M;
+         prev_ins = IMX_M(i+1,j)   + TSC(j,M2I) + sc_I;
+         prev_del = DMX_M(i,j+1)   + TSC(j,M2D);
+         // prev_end = XMX_M(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
          // prev_end = sc_E;
          /* best-to-match */
          prev_sum = calc_Logsum( 
                            calc_Logsum( prev_mat, prev_ins ),
                            calc_Logsum( prev_del, prev_end ) );
-         MMX(i,j) = prev_sum;
+         MMX_M(i,j) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-         prev_mat = MMX(i+1,j+1) + TSC(j,I2M) + sc_M;
-         prev_ins = IMX(i+1,j)   + TSC(j,I2I) + sc_I;
+         prev_mat = MMX_M(i+1,j+1) + TSC(j,I2M) + sc_M;
+         prev_ins = IMX_M(i+1,j)   + TSC(j,I2I) + sc_I;
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
-         IMX(i,j) = prev_sum;
+         IMX_M(i,j) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prev_mat = MMX(i+1,j+1) + TSC(j,D2M) + sc_M;
-         prev_del = DMX(i,j+1)   + TSC(j,D2D);
+         prev_mat = MMX_M(i+1,j+1) + TSC(j,D2M) + sc_M;
+         prev_del = DMX_M(i,j+1)   + TSC(j,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );
-         DMX(i,j) = prev_sum;
+         DMX_M(i,j) = prev_sum;
       }
    }
 

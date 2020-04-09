@@ -235,8 +235,6 @@ EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q,
                bnd_out.id = i;
                bnd_out.lb = j;
                bnd_out.rb = j+1;
-               // printf("CLOUD BEGIN: ");
-               // bound_Print(bnd_out);
                in_cloud = true;
             }
          } 
@@ -247,9 +245,6 @@ EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q,
             d = bnd_out.id + bnd_out.rb;   /* antidiag containing current cell */
             if (in_cloud && bnd_in.id > d ) 
             {
-               // printf("CLOUD END: ");
-               // bound_Print(bnd_out);
-
                EDGEBOUNDS_Pushback(edg_out, bnd_out);
                in_cloud = false;
             }
@@ -258,9 +253,6 @@ EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q,
 
       /* if the end of the row is reached and still in cloud */
       if (in_cloud) {
-         // printf("CLOUD END: ");
-         // bound_Print(bnd_out);
-
          EDGEBOUNDS_Pushback(edg_out, bnd_out);
          in_cloud = false;
       }

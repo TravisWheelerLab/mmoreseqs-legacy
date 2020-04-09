@@ -18,6 +18,14 @@
 
 /* === ENUMERATIONS === */
 
+/* Flag for which models in file are to be loaded */
+typedef enum {
+   LOAD_NONE,
+   LOAD_BY_ID,       /* load by id (counting from start of file) */
+   LOAD_BY_OFFSET,   /* laod by offset (referenced from index file) */
+   LOAD_FIRST        /* load the first model in file */
+} LOAD_TYPE;
+
 /* Error Flags */
 typedef enum {
    ERROR_UNKNOWN     = 0,

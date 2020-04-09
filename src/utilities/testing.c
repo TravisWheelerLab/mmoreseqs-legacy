@@ -18,6 +18,8 @@
 #include "objects/structs.h"
 #include "objects/edgebound.h"
 #include "objects/hmm_profile.h"
+#include "objects/matrix/matrix_2d.h"
+#include "objects/matrix/matrix_3d.h"
 
 /* local imports */
 #include "utilities/utility.h"
@@ -26,11 +28,11 @@
 /* header */
 #include "testing.h"
 
-/* test to cycle through all diags */
+/* cycle through all indices in quadratic matrix, diag-by-diag */
 void fwd_test_cycle( const int   Q, 
                      const int   T,
-                     float*      st_MX,
-                     float*      sp_MX,
+                     MATRIX_3D*  st_MX,
+                     MATRIX_2D*  sp_MX,
                      ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
@@ -143,32 +145,33 @@ void fwd_test_cycle( const int   Q,
          /* ex. x = k - le */
          x = k;
 
-         if ( MMX(i,j) != 0 || DMX(i,j) != 0 || IMX(i,j) != 0)
+         if ( MMX_M(i,j) != 0 || DMX_M(i,j) != 0 || IMX_M(i,j) != 0)
             printf("OVERWRITE AT (%d,%d)!\n", i, j);
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: (i-1,j-1) => (d-2,k-1) */ 
-         MMX(i,j) = MMX(i-1,j-1) + 1;
+         MMX_M(i,j) = MMX_M(i-1,j-1) + 1;
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i-1,j) => (d-1,k-1) */
-         IMX(i,j) = IMX(i-1,j) + 1;
+         IMX_M(i,j) = IMX_M(i-1,j) + 1;
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i,j-1) => (d-1, k) */
-         DMX(i,j) = DMX(i,j-1) + 1;
+         DMX_M(i,j) = DMX_M(i,j-1) + 1;
       }
    }
 }
 
+/* cycle through all indices in linear matrix, diag-by-diag */
 void fwd_test_cycle3(const int   Q, 
                      const int   T, 
-                     float*      st_MX, 
-                     float*      st_MX3,
-                     float*      sp_MX, 
+                     MATRIX_3D*  st_MX, 
+                     MATRIX_3D*  st_MX3,
+                     MATRIX_2D*  sp_MX, 
                      ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
@@ -289,35 +292,35 @@ void fwd_test_cycle3(const int   Q,
          /* ex. x = k - le */
          x = k;
 
-         if ( MMX3(d0,x) != 0 || DMX3(d0,x) != 0 || IMX3(d0,x) != 0) {
-            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX(d0,x) );
+         if ( MMX3_M(d0,x) != 0 || DMX3_M(d0,x) != 0 || IMX3_M(d0,x) != 0) {
+            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX_M(d0,x) );
             overwrite = true;
          }
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: (i-1,j-1) => (d-2,k-1) */ 
-         MMX3(d0,x) = MMX3(d2,k-1) + 1;
+         MMX3_M(d0,x) = MMX3_M(d2,k-1) + 1;
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i-1,j) => (d-1,k-1) */
-         IMX3(d0,x) = IMX3(d1,k-1) + 1;
+         IMX3_M(d0,x) = IMX3_M(d1,k-1) + 1;
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i,j-1) => (d-1, k) */
-         DMX3(d0,x) = DMX3(d1,k) + 1;
+         DMX3_M(d0,x) = DMX3_M(d1,k) + 1;
 
          if (overwrite) {
             overwrite = false;
-            MMX3(d0,x) = 30;
+            MMX3_M(d0,x) = 30;
          }
       }
 
       /* NAIVE SCRUB */
       for (k = 0; k < ((T+1)+(Q+1)); k++) {
-         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = 0;
+         MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = 0;
       }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
@@ -328,18 +331,18 @@ void fwd_test_cycle3(const int   Q,
          /* linear coords */
          x = k;
 
-         MMX(i,j) = MMX3(d0,x);
-         IMX(i,j) = IMX3(d0,x);
-         DMX(i,j) = DMX3(d0,x);
+         MMX_M(i,j) = MMX3_M(d0,x);
+         IMX_M(i,j) = IMX3_M(d0,x);
+         DMX_M(i,j) = DMX3_M(d0,x);
       }
    }
 }
 
-/* test to cycle through all diags in reverse */
+/* cycle through all indices in quadratic matrix in reverse, diag-by-diag */
 void bck_test_cycle( const int   Q, 
                      const int   T,
-                     float*      st_MX,
-                     float*      sp_MX,
+                     MATRIX_3D*  st_MX,
+                     MATRIX_2D*  sp_MX,
                      ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
@@ -452,40 +455,40 @@ void bck_test_cycle( const int   Q,
          /* ex. x = k - le */
          x = k;
 
-         if ( MMX(i,j) != 0 || DMX(i,j) != 0 || IMX(i,j) != 0)
+         if ( MMX_M(i,j) != 0 || DMX_M(i,j) != 0 || IMX_M(i,j) != 0)
             printf("OVERWRITE AT (%d,%d)!\n", i, j);
 
          /*
-          *   MAT: MX(i+1, j+1) => MX3(d_2, k+1)
-          *   DEL: MX(i  , j+1) => MX3(d_1, k  )
-          *   INS: MX(i+1, j  ) => MX3(d_1, k+1)
+          *   MAT: MX_M(i+1, j+1) => MX3_M(d_2, k+1)
+          *   DEL: MX_M(i  , j+1) => MX3_M(d_1, k  )
+          *   INS: MX_M(i+1, j  ) => MX3_M(d_1, k+1)
           */
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: (i+1,j+1) => (d+2, k+1) */ 
-         MMX(i,j) = MMX(i+1,j+1) + 1;
+         MMX_M(i,j) = MMX_M(i+1,j+1) + 1;
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i+1,j) => (d+1, k  ) */
-         IMX(i,j) = IMX(i+1,j) + 1;
+         IMX_M(i,j) = IMX_M(i+1,j) + 1;
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i,j+1) => (d+1, k+1) */
-         // DMX(i,j) = DMX(i,j+1) + 1;
-         DMX(i,j) += d;
+         // DMX_M(i,j) = DMX_M(i,j+1) + 1;
+         DMX_M(i,j) += d;
       }
    }
 }
 
-/* test to cycle through all diags in reverse */
+/* cycle through all indices in linear matrix in reverse, diag-by-diag */
 void bck_test_cycle3(const int   Q, 
                      const int   T, 
-                     float*      st_MX, 
-                     float*      st_MX3,
-                     float*      sp_MX, 
+                     MATRIX_3D*  st_MX, 
+                     MATRIX_3D*  st_MX3,
+                     MATRIX_2D*  sp_MX, 
                      ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
@@ -600,42 +603,42 @@ void bck_test_cycle3(const int   Q,
          /* ex. x = k - le */
          x = k;
 
-         if ( MMX3(d0,x) != 0 || DMX3(d0,x) != 0 || IMX3(d0,x) != 0) {
-            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX(d0,x) );
+         if ( MMX3_M(d0,x) != 0 || DMX3_M(d0,x) != 0 || IMX3_M(d0,x) != 0) {
+            printf("OVERWRITE AT %d:(%d,%d)=%f!\n", d, i, j, DMX_M(d0,x) );
             overwrite = true;
          }
 
          /*
-          *   MAT: MX(i+1, j+1) => MX3(d_2, k+1)
-          *   DEL: MX(i  , j+1) => MX3(d_1, k  )
-          *   INS: MX(i+1, j  ) => MX3(d_1, k+1)
+          *   MAT: MX_M(i+1, j+1) => MX3_M(d_2, k+1)
+          *   DEL: MX_M(i  , j+1) => MX3_M(d_1, k  )
+          *   INS: MX_M(i+1, j  ) => MX3_M(d_1, k+1)
           */
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: (i+1,j+1) => (d+2,k+1) */ 
-         MMX3(d0,x) = MMX3(d2,k+1) + 1;
+         MMX3_M(d0,x) = MMX3_M(d2,k+1) + 1;
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i+1,j) => (d+1,k+1) */
-         IMX3(d0,x) = IMX3(d1,k+1) + 1;
+         IMX3_M(d0,x) = IMX3_M(d1,k+1) + 1;
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: (i,j+1) => (d+1, k) */
-         // DMX3(d0,x) = DMX3(d1,k) + 1;
-         DMX3(d0,x) += d;
+         // DMX3_M(d0,x) = DMX3_M(d1,k) + 1;
+         DMX3_M(d0,x) += d;
 
          if (overwrite) {
             overwrite = false;
-            // MMX3(d0,x) = 30;
+            // MMX3_M(d0,x) = 30;
          }
       }
 
       // /* SCRUB 2-BACK ANTIDIAGONAL */
       // for (k = lb_2; k < rb_2; k++) {
-      //    MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      //    MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = -INF;
       // }
       // rb_2 = rb_1;
       // lb_2 = lb_1;
@@ -644,7 +647,7 @@ void bck_test_cycle3(const int   Q,
 
       /* NAIVE SCRUB - FOR DEBUGGING */
       for (k = 0; k < (T+1)+(Q+1); k++) {
-         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = 0;
+         MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = 0;
       }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
@@ -652,9 +655,9 @@ void bck_test_cycle3(const int   Q,
          i = k;
          j = d_0 - i;
 
-         MMX(i,j) = MMX3(d0,k);
-         IMX(i,j) = IMX3(d0,k);
-         DMX(i,j) = DMX3(d0,k);
+         MMX_M(i,j) = MMX3_M(d0,k);
+         IMX_M(i,j) = IMX3_M(d0,k);
+         DMX_M(i,j) = DMX3_M(d0,k);
       }
    }
 }  
@@ -664,8 +667,8 @@ void bck_test_cycle3(const int   Q,
 /* test to show the cloud area, fill with value, return number of used cells  */
 int cloud_Fill(const int   Q, 
                const int   T,
-               float*      st_MX,
-               float*      sp_MX,
+               MATRIX_3D*  st_MX,
+               MATRIX_2D*  sp_MX,
                EDGEBOUNDS* edg,
                float       val, 
                int         mode )
@@ -674,8 +677,6 @@ int cloud_Fill(const int   Q,
    int rb, lb;
    int num_cells = 0;
    int N = edg->N;
-   int MAX = (DEL_ST*(Q+1)*(T+1)) + ((Q)*(T+1)) + (T);
-   int IDX;
 
    if (mode == MODE_DIAG)
    {
@@ -691,16 +692,14 @@ int cloud_Fill(const int   Q,
          {
             i = k;
             j = d - i;
+            // printf("(i,j)=(%d,%d)\n", i, j);
 
-            // if (i > Q || j > T ) 
-            //    printf("OVER MAX: MAX=(Q=%d,T=%d) -> (%d,%d)\n", Q, T, i, j);
-
-            MMX(i,j) += 1;
-            // if (MMX(i,j) > 1)
+            MMX_M(i,j) += 1;
+            // if (MMX_M(i,j) > 1)
             //    printf("DOUBLE HIT!  MAX=(Q=%d,T=%d) -> d:(%d,%d) = r:(%d,%d)\n", Q, T, d, k, i, j);
 
-            IMX(i,j) = 1;
-            DMX(i,j) += val;
+            IMX_M(i,j) = 1;
+            DMX_M(i,j) += val;
             num_cells++;
          }
       }
@@ -717,14 +716,9 @@ int cloud_Fill(const int   Q,
          /* insert value across row in range */
          for (j = lb; j < rb; j++)
          {
-            IDX = (DEL_ST*(Q+1)*(T+1)) + ((i)*(T+1)) + (j);
-
-            if (IDX > MAX)
-               printf("OVER MAX: MAX=(%d,%d) -> (%d,%d)\n", Q, T, i, j);
-
-            MMX(i,j) += 1;
-            IMX(i,j) = 1;
-            DMX(i,j) += val;
+            MMX_M(i,j) += 1;
+            IMX_M(i,j) =  1;
+            DMX_M(i,j) += val;
             num_cells++;
          }
       }
@@ -736,8 +730,8 @@ int cloud_Fill(const int   Q,
 /* test to show the cloud area, fill with value, return number of used cells  */
 int cloud_Solid_Fill(const int      Q, 
                      const int      T,
-                     float*         st_MX,
-                     float*         sp_MX,
+                     MATRIX_3D*     st_MX,
+                     MATRIX_2D*     sp_MX,
                      EDGEBOUNDS*    edg,
                      float          val, 
                      int            mode )
@@ -767,9 +761,9 @@ int cloud_Solid_Fill(const int      Q,
             if (i > Q || j > T ) 
                printf("OVER MAX: MAX=(Q=%d,T=%d) -> (%d,%d)\n", Q, T, i, j);
 
-            MMX(i,j) = 1;
-            IMX(i,j) = 1;
-            DMX(i,j) = val;
+            MMX_M(i,j) = 1;
+            IMX_M(i,j) = 1;
+            DMX_M(i,j) = val;
             num_cells++;
          }
       }
@@ -791,9 +785,9 @@ int cloud_Solid_Fill(const int      Q,
             if (IDX > MAX)
                printf("OVER MAX: MAX=(%d,%d) -> (%d,%d)\n", Q, T, i, j);
 
-            MMX(i,j) = 1;
-            IMX(i,j) = 1;
-            DMX(i,j) = val;
+            MMX_M(i,j) = 1;
+            IMX_M(i,j) = 1;
+            DMX_M(i,j) = val;
             num_cells++;
          }
       }
@@ -804,8 +798,8 @@ int cloud_Solid_Fill(const int      Q,
 /* test to show the cloud area, fill with value, return number of used cells  */
 int cloud_Cell_Count(const int   Q, 
                      const int   T,
-                     float*      st_MX,
-                     float*      sp_MX )
+                     MATRIX_3D*  st_MX,
+                     MATRIX_2D*  sp_MX )
 {
    int i, j, num_cells;
    num_cells = 0;
@@ -814,21 +808,13 @@ int cloud_Cell_Count(const int   Q,
    {
       for (j = 0; j <= T; j++)
       {
-         if ( MMX(i,j) > 0 ) {
+         if ( MMX_M(i,j) > 0 ) {
             num_cells++;
          }
       }
    }
    return num_cells;
 }
-
-/* print test and flush buffer */
-void print_test()
-{
-   printf("test\n");
-   fflush(stdout);
-}
-
 
 /*
  *  FUNCTION:  dp_matrix_Print()
@@ -843,10 +829,10 @@ void print_test()
  *
  *  RETURN:
  */
-void dp_matrix_Print(const int      Q, 
-                     const int      T,
-                     const float*   st_MX,
-                     const float*   sp_MX )
+void dp_matrix_Print(const int         Q, 
+                     const int         T,
+                     const MATRIX_3D*  st_MX,
+                     const MATRIX_2D*  sp_MX )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== DP MATRIX BEGIN ==== \n");
@@ -864,21 +850,21 @@ void dp_matrix_Print(const int      Q,
       printf( "%d M\t", i );
       for (int j = 0; j <= T; j++)
       {
-         printf( "%.3f\t", MMX(i, j) );
+         printf( "%.3f\t", MMX_M(i, j) );
       }
       printf("\n");
 
       printf( "%d I\t", i );
       for (int j = 0; j <= T; j++)
       {
-         printf( "%.3f\t", IMX(i, j) );
+         printf( "%.3f\t", IMX_M(i, j) );
       }
       printf("\n");
 
       printf( "%d D\t", i );
       for (int j = 0; j <= T; j++)
       {
-         printf( "%.3f\t", DMX(i, j) );
+         printf( "%.3f\t", DMX_M(i, j) );
       }
       printf("\n\n");
    }
@@ -886,23 +872,23 @@ void dp_matrix_Print(const int      Q,
    printf("=== SPECIAL STATES ===\n");
    printf("N:\t");
    for (int i = 0; i <= Q; i++)
-   { printf( "%.3f\t", XMX(SP_N, i) ); }
+   { printf( "%.3f\t", XMX_M(SP_N, i) ); }
    printf("\n");
    printf("J:\t");
    for (int i = 0; i <= Q; i++)
-   { printf( "%.3f\t", XMX(SP_J, i) ); }
+   { printf( "%.3f\t", XMX_M(SP_J, i) ); }
    printf("\n");
    printf("E:\t");
    for (int i = 0; i <= Q; i++)
-   { printf( "%.3f\t", XMX(SP_E, i) ); }
+   { printf( "%.3f\t", XMX_M(SP_E, i) ); }
    printf("\n");
    printf("C:\t");
    for (int i = 0; i <= Q; i++)
-   { printf( "%.3f\t", XMX(SP_C, i) ); }
+   { printf( "%.3f\t", XMX_M(SP_C, i) ); }
    printf("\n");
    printf("B:\t");
    for (int i = 0; i <= Q; i++)
-   { printf( "%.3f\t", XMX(SP_B, i) ); }
+   { printf( "%.3f\t", XMX_M(SP_B, i) ); }
    printf("\n");
 
    printf("==== DP MATRIX END ==== \n\n");
@@ -921,9 +907,9 @@ void dp_matrix_Print(const int      Q,
  *
  *  RETURN:
  */
-void dp_matrix_Print3(  const int      T, 
-                        const int      Q,
-                        const float*   st_MX3 )
+void dp_matrix_Print3(  const int         T, 
+                        const int         Q,
+                        const MATRIX_3D*  st_MX3 )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== DP MATRIX BEGIN ==== \n");
@@ -941,21 +927,21 @@ void dp_matrix_Print3(  const int      T,
       printf( "%d M\t", i );
       for (int j = 0; j <= T+1; j++)
       {
-         printf( "%.3f\t", MMX3(i, j) );
+         printf( "%.3f\t", MMX3_M(i, j) );
       }
       printf("\n");
 
       printf( "%d I\t", i );
       for (int j = 0; j <= T+1; j++)
       {
-         printf( "%.3f\t", IMX3(i, j) );
+         printf( "%.3f\t", IMX3_M(i, j) );
       }
       printf("\n");
 
       printf( "%d D\t", i );
       for (int j = 0; j <= T+1; j++)
       {
-         printf( "%.3f\t", DMX3(i, j) );
+         printf( "%.3f\t", DMX3_M(i, j) );
       }
       printf("\n\n");
    }
@@ -976,9 +962,9 @@ void dp_matrix_Print3(  const int      T,
  *
  *  RETURN:
  */
-void test_matrix_Print( const int      Q, 
-                        const int      T,
-                        const float*   test_MX )
+void test_matrix_Print( const int         Q, 
+                        const int         T,
+                        const MATRIX_3D*  test_MX )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== TEST MATRIX BEGIN ====\n");
@@ -996,7 +982,7 @@ void test_matrix_Print( const int      Q,
       printf( "%d\t", i );
       for (int j = 0; j <= T; j++)
       {
-         printf( "%3.0f\t", TMX(i, j) );
+         printf( "%3.0f\t", TMX_M(i, j) );
       }
       printf("\n");
    }
@@ -1006,17 +992,17 @@ void test_matrix_Print( const int      Q,
 /* Clear all matrix values to -INF. (for testing) */
 void dp_matrix_Clear(const int   Q, 
                      const int   T, 
-                     float*      st_MX, 
-                     float*      sp_MX )
+                     MATRIX_3D*  st_MX, 
+                     MATRIX_2D*  sp_MX )
 {
    for (int i = 0; i <= Q; i++)
    {
       for (int j = 0; j <= T; j++) {
-         MMX(i, j) = IMX(i, j) = DMX(i, j) = -INF;
+         MMX_M(i, j) = IMX_M(i, j) = DMX_M(i, j) = -INF;
       }
 
       for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
-         XMX(j, i) = -INF;
+         XMX_M(j, i) = -INF;
       }
    }
 }
@@ -1024,19 +1010,19 @@ void dp_matrix_Clear(const int   Q,
 /* Clear all matrix values to -INF. (for testing) */
 void dp_matrix_Clear3(  const int   Q, 
                         const int   T,
-                        float*      st_MX3,
-                        float*      sp_MX )
+                        MATRIX_3D*  st_MX3,
+                        MATRIX_2D*  sp_MX )
 {
    for (int i = 0; i <= Q; i++)
    {
       for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
-         XMX(j, i) = -INF;
+         XMX_M(j, i) = -INF;
       }
    }
 
    for (int i = 0; i < 3; i++) {
       for (int j = 0; j < (T+1)+(Q+1); j++) {
-         MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = -INF;
+         MMX3_M(i, j) = IMX3_M(i, j) = DMX3_M(i, j) = -INF;
       }
    }
 }
@@ -1044,18 +1030,18 @@ void dp_matrix_Clear3(  const int   Q,
 /* Set all matrix values to val */
 void dp_matrix_Clear_X( const int   Q, 
                         const int   T, 
-                        float*      st_MX, 
-                        float*      sp_MX,
+                        MATRIX_3D*  st_MX, 
+                        MATRIX_2D*  sp_MX,
                         float       val )
 {
    for (int i = 0; i <= Q; i++)
    {
       for (int j = 0; j <= T; j++) {
-         MMX(i, j) = IMX(i, j) = DMX(i, j) = val;
+         MMX_M(i, j) = IMX_M(i, j) = DMX_M(i, j) = val;
       }
 
       for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
-         XMX(j, i) = val;
+         XMX_M(j, i) = val;
       }
    }
 }
@@ -1064,20 +1050,20 @@ void dp_matrix_Clear_X( const int   Q,
 /* Clear all matrix values to -INF. (for testing) */
 void dp_matrix_Clear_X3(const int   Q, 
                         const int   T,
-                        float*      st_MX3,
-                        float*      sp_MX,
+                        MATRIX_3D*  st_MX3,
+                        MATRIX_2D*  sp_MX,
                         int         val)
 {
    for (int i = 0; i <= Q; i++)
    {
       for (int j = 0; j < NUM_SPECIAL_STATES; j++) {
-         XMX(j, i) = val;
+         XMX_M(j, i) = val;
       }
    }
 
    for (int i = 0; i < 3; i++) {
       for (int j = 0; j < (T+1)+(Q+1); j++) {
-         MMX3(i, j) = IMX3(i, j) = DMX3(i, j) = val;
+         MMX3_M(i, j) = IMX3_M(i, j) = DMX3_M(i, j) = val;
       }
    }
 }
@@ -1086,10 +1072,10 @@ void dp_matrix_Clear_X3(const int   Q,
 /* Set all matrix values to val */
 int dp_matrix_Compare ( const int   Q, 
                         const int   T,
-                        float*      st_MX_1,
-                        float*      sp_MX_1,
-                        float*      st_MX_2,
-                        float*      sp_MX_2 )
+                        MATRIX_3D*  st_MX_1,
+                        MATRIX_2D*  sp_MX_1,
+                        MATRIX_3D*  st_MX_2,
+                        MATRIX_2D*  sp_MX_2 )
 {
    int i, j, st;
 
@@ -1099,10 +1085,10 @@ int dp_matrix_Compare ( const int   Q,
       {
          for (st = 0; st < NUM_NORMAL_STATES; st++) 
          {
-            if ( ST_MX(st_MX_1, st, i, j) != ST_MX(st_MX_2, st, i, j) ) 
+            if ( ST_MX_M(st_MX_1, st, i, j) != ST_MX_M(st_MX_2, st, i, j) ) 
             {
-               float val1 = ST_MX(st_MX_1, st, i, j);
-               float val2 = ST_MX(st_MX_2, st, i, j);
+               float val1 = ST_MX_M(st_MX_1, st, i, j);
+               float val2 = ST_MX_M(st_MX_2, st, i, j);
                printf("MATRIX NOT EQUAL at (%d,%d): %f vs %f\n", i, j, val1, val2);
                return false;
             } 
@@ -1111,7 +1097,7 @@ int dp_matrix_Compare ( const int   Q,
 
       for (st = 0; st < NUM_SPECIAL_STATES; st++) 
       {
-         if ( SP_MX(sp_MX_1, st, i) != SP_MX(sp_MX_2, st, i) ) 
+         if ( SP_MX_M(sp_MX_1, st, i) != SP_MX_M(sp_MX_2, st, i) ) 
          {
             printf("MATRIX NOT EQUAL IN SPECIAL at (%d)\n", i);
             return false;
@@ -1124,10 +1110,10 @@ int dp_matrix_Compare ( const int   Q,
 /* Copy source matrix into destination matrix */
 void dp_matrix_Copy (const int   Q, 
                      const int   T,
-                     float*      st_MX_src,
-                     float*      sp_MX_src,
-                     float*      st_MX_dst,
-                     float*      sp_MX_dst )
+                     MATRIX_3D*  st_MX_src,
+                     MATRIX_2D*  sp_MX_src,
+                     MATRIX_3D*  st_MX_dst,
+                     MATRIX_2D*  sp_MX_dst )
 {
    int i, j, st;
 
@@ -1137,18 +1123,13 @@ void dp_matrix_Copy (const int   Q,
       {
          for (st = 0; st < NUM_NORMAL_STATES; st++) 
          {
-            // printf("(%d, %d, %d)\n", i, j, st);
-            // printf("(%f)\n", st_MX_src[0]);
-            // printf("(%f)\n", st_MX_dst[0]);
-
-            ST_MX(st_MX_dst, st, i, j) = ST_MX(st_MX_src, st, i, j);
+            ST_MX_M(st_MX_dst, st, i, j) = ST_MX_M(st_MX_src, st, i, j);
          }
       }
 
       for (st = 0; st < NUM_SPECIAL_STATES; st++) 
       {
-         // printf("(%d, %d)\n", i, st);
-         SP_MX(sp_MX_dst, st, i) = SP_MX(sp_MX_src, st, i);
+         SP_MX_M(sp_MX_dst, st, i) = SP_MX_M(sp_MX_src, st, i);
       }
    }
 }
@@ -1168,79 +1149,18 @@ void dp_matrix_Copy (const int   Q,
  *
  *  RETURN:
  */
-void dp_matrix_Save( const int      Q, 
-                     const int      T, 
-                     const float*   st_MX, 
-                     const float*   sp_MX,
-                     const char*    _filename_ )
+void dp_matrix_Save( const int         Q, 
+                     const int         T, 
+                     const MATRIX_3D*  st_MX, 
+                     const MATRIX_2D*  sp_MX,
+                     const char*       _filename_ )
 {
+   printf("Saving matrix...\n");
    FILE *fp;
    fp = fopen(_filename_, "w");
-
-   /* PRINT resulting dp matrix */
-   fprintf(fp, "##### DP MATRIX ##### \n");
-   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
-
-   /* Header */
-   fprintf(fp, "##### NORMAL STATES #####\n");
-   fprintf(fp, "XMATRIX\n");
-   /* Header Indices */
-   fprintf(fp, "#\t");
-   for (int i = 0; i <= T; i++)
-   {
-      fprintf(fp, "%d\t", i);
-   }
-   fprintf(fp, "\n");
-
-   /* Row-by-Row Values */
-   for (int i = 0; i < Q + 1; i++)
-   {
-      fprintf(fp, "M %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", MMX(i, j) );
-      }
-      fprintf(fp, "\n");
-
-      fprintf(fp, "I %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", IMX(i, j) );
-      }
-      fprintf(fp, "\n");
-
-      fprintf(fp, "D %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", DMX(i, j) );
-      }
-      fprintf(fp, "\n\n");
-   }
-   fprintf(fp, "/\n\n");
-
-   fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "N\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_N, i) ); }
-   fprintf(fp, "\n");
-   fprintf(fp, "J\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_J, i) ); }
-   fprintf(fp, "\n");
-   fprintf(fp, "E\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_E, i) ); }
-   fprintf(fp, "\n");
-   fprintf(fp, "C\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_C, i) ); }
-   fprintf(fp, "\n");
-   fprintf(fp, "B\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_B, i) ); }
-   fprintf(fp, "\n");
-
+   dp_matrix_Dump(Q, T, st_MX, sp_MX, fp);
    fclose(fp);
+   printf("Saved matrix to: '%s'\n", _filename_);
 }
 
 /*
@@ -1257,11 +1177,11 @@ void dp_matrix_Save( const int      Q,
  *
  *  RETURN:
  */
-void dp_matrix_Dump( const int      Q, 
-                     const int      T, 
-                     const float*   st_MX, 
-                     const float*   sp_MX,
-                     FILE*          fp )
+void dp_matrix_Dump( const int         Q, 
+                     const int         T, 
+                     const MATRIX_3D*  st_MX, 
+                     const MATRIX_2D*  sp_MX,
+                     FILE*             fp )
 {
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
@@ -1281,49 +1201,49 @@ void dp_matrix_Dump( const int      Q,
    /* Row-by-Row Values */
    for (int i = 0; i < Q + 1; i++)
    {
-      fprintf(fp, "M %d\t", i );
+      fprintf(fp, "%d\tM\t%d", i );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", MMX(i, j) );
+         fprintf(fp, "%9.4f ", MMX_M(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "I %d\t", i );
+      fprintf(fp, "\tI\t" );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", IMX(i, j) );
+         fprintf(fp, "%9.4f ", IMX_M(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "D %d\t", i );
+      fprintf(fp, "\tD\t" );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", DMX(i, j) );
+         fprintf(fp, "%9.4f ", DMX_M(i, j) );
       }
-      fprintf(fp, "\n\n");
+      fprintf(fp, "\n");
    }
    fprintf(fp, "/\n\n");
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
    fprintf(fp, "N\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_N, i) ); }
+   { fprintf(fp, "%9.4f ", XMX_M(SP_N, i) ); }
    fprintf(fp, "\n");
    fprintf(fp, "J\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_J, i) ); }
+   { fprintf(fp, "%9.4f ", XMX_M(SP_J, i) ); }
    fprintf(fp, "\n");
    fprintf(fp, "E\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_E, i) ); }
+   { fprintf(fp, "%9.4f ", XMX_M(SP_E, i) ); }
    fprintf(fp, "\n");
    fprintf(fp, "C\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_C, i) ); }
+   { fprintf(fp, "%9.4f ", XMX_M(SP_C, i) ); }
    fprintf(fp, "\n");
    fprintf(fp, "B\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(SP_B, i) ); }
+   { fprintf(fp, "%9.4f ", XMX_M(SP_B, i) ); }
    fprintf(fp, "\n");
 }
 
@@ -1342,16 +1262,40 @@ void dp_matrix_Dump( const int      Q,
  */
 void dp_matrix_trace_Save( const int         Q, 
                            const int         T, 
-                           const float*      st_MX, 
-                           const float*      sp_MX,
+                           const MATRIX_3D*  st_MX, 
+                           const MATRIX_2D*  sp_MX,
                            const ALIGNMENT*  tr,
                            const char*       _filename_ )
 {
    printf("Saving matrix...\n");
-
    FILE *fp;
    fp = fopen(_filename_, "w");
+   dp_matrix_trace_Dump( Q, T, st_MX, sp_MX, tr, fp );
+   fclose( fp );
+   printf("Saved Matrix to: '%s'\n", _filename_);
+}
 
+
+/*
+ *  FUNCTION:  dp_matrix_trace_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State
+ *             <tr>        TRACE object
+ *             <f>         Filename
+ *
+ *  RETURN:
+ */
+void dp_matrix_trace_Dump( const int         Q, 
+                           const int         T, 
+                           const MATRIX_3D*  st_MX, 
+                           const MATRIX_2D*  sp_MX,
+                           const ALIGNMENT*  tr,
+                           const FILE*       fp )
+{
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
@@ -1385,21 +1329,21 @@ void dp_matrix_trace_Save( const int         Q,
       fprintf(fp, "M %d\t", i );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", MMX(i, j) );
+         fprintf(fp, "%.3f\t", MMX_M(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "I %d\t", i );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", IMX(i, j) );
+         fprintf(fp, "%.3f\t", IMX_M(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "D %d\t", i );
       for (int j = 0; j <= T; j++)
       {
-         fprintf(fp, "%.3f\t", DMX(i, j) );
+         fprintf(fp, "%.3f\t", DMX_M(i, j) );
       }
       fprintf(fp, "\n\n");
    }
@@ -1410,35 +1354,31 @@ void dp_matrix_trace_Save( const int         Q,
    fprintf(fp, "N\t");
    for (int i = 0; i <= Q; i++)
    { 
-      fprintf(fp, "%.3f\t", XMX(SP_N, i) ); 
+      fprintf(fp, "%.3f\t", XMX_M(SP_N, i) ); 
    }
    fprintf(fp, "\n");
    fprintf(fp, "J\t");
    for (int i = 0; i <= Q; i++)
    { 
-      fprintf(fp, "%.3f\t", XMX(SP_J, i) ); 
+      fprintf(fp, "%.3f\t", XMX_M(SP_J, i) ); 
    }
    fprintf(fp, "\n");
    fprintf(fp, "E\t");
    for (int i = 0; i <= Q; i++)
    { 
-      fprintf(fp, "%.3f\t", XMX(SP_E, i) ); 
+      fprintf(fp, "%.3f\t", XMX_M(SP_E, i) ); 
    }
    fprintf(fp, "\n");
    fprintf(fp, "C\t");
    for (int i = 0; i <= Q; i++)
    {
-      fprintf(fp, "%.3f\t", XMX(SP_C, i) ); 
+      fprintf(fp, "%.3f\t", XMX_M(SP_C, i) ); 
    }
    fprintf(fp, "\n");
    fprintf(fp, "B\t");
    for (int i = 0; i <= Q; i++)
    { 
-      fprintf(fp, "%.3f\t", XMX(SP_B, i) ); 
+      fprintf(fp, "%.3f\t", XMX_M(SP_B, i) ); 
    }
    fprintf(fp, "\n/\n");
-
-   fclose(fp);
-
-   printf("Saved Matrix to: '%s'\n", _filename_);
 }

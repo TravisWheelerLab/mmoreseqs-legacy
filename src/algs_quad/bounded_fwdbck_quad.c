@@ -20,6 +20,8 @@
 #include "objects/structs.h"
 #include "objects/edgebound.h"
 #include "objects/hmm_profile.h"
+#include "objects/matrix/matrix_3d.h"
+#include "objects/matrix/matrix_2d.h"
 
 /* local imports */ 
 #include "utilities/utility.h"
@@ -47,9 +49,9 @@ float bound_Forward_Quad(const SEQUENCE*    query,
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 
-                        float*             st_MX3,
-                        float*             st_MX,
-                        float*             sp_MX, 
+                        MATRIX_3D*         st_MX3,
+                        MATRIX_3D*         st_MX,
+                        MATRIX_2D*         sp_MX, 
                         const EDGEBOUNDS*  edg,
                         const bool         test,
                         float*             sc_final)
@@ -85,27 +87,24 @@ float bound_Forward_Quad(const SEQUENCE*    query,
 
    /* --------------------------------------------------------------------------------- */
 
-   /* clear all pre-existing data from matrix */
-   dp_matrix_Clear(Q, T, st_MX, sp_MX);
-
    /* Clear top-row */
    row_cur = 0;
    x_0 = 0;             /* current row in matrix */
    r_0 = x_0;           /* for use in linear space alg (mod-mapping) */
 
    /* Initialize special states (?) */
-   XMX(SP_N, x_0) = 0;                                         /* S->N, p=1             */
-   XMX(SP_B, x_0) = XSC(SP_N,SP_MOVE);                         /* S->N->B, no N-tail    */
-   XMX(SP_E, x_0) = XMX(SP_C, x_0) = XMX(SP_J, x_0) = -INF;    /* need seq to get here (?)  */
+   XMX_M(SP_N, x_0) = 0;                                         /* S->N, p=1             */
+   XMX_M(SP_B, x_0) = XSC(SP_N,SP_MOVE);                         /* S->N->B, no N-tail    */
+   XMX_M(SP_E, x_0) = XMX_M(SP_C, x_0) = XMX_M(SP_J, x_0) = -INF;    /* need seq to get here (?)  */
 
    /* Initialize zero row (top-edge) */
    for (j = 0; j < T; j++)
-      MMX(r_0, j) = IMX(r_0, j) = DMX(r_0, j) = -INF;          /* need seq to get here (?)  */
+      MMX_M(r_0, j) = IMX_M(r_0, j) = DMX_M(r_0, j) = -INF;          /* need seq to get here (?)  */
 
    /* pass over top-row (i=0) edgebounds from list */
    k    = 0;            /* current index in edgebounds */
    r_0b = 0;            /* beginning index for current row in list */
-   while ( k < N && edg->bounds[k].id == row_cur ) {
+   while ( k < N && EDG_X(edg,k).id == row_cur ) {
       k++;
    }
    r_0e = k;            /* ending index for current row in list */
@@ -114,6 +113,8 @@ float bound_Forward_Quad(const SEQUENCE*    query,
    row_prv = row_cur;
    x_1 = x_0;
    r_1 = r_0;
+   r_1b = r_0b;
+   r_1e = r_0e;
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
@@ -126,8 +127,8 @@ float bound_Forward_Quad(const SEQUENCE*    query,
 
       /* add every edgebound from current row */
       r_0b = k;
-      // fprintf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, edg->bounds[k].id);
-      while ( k < N && edg->bounds[k].id == row_cur ) {
+      // fprintf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, EDG_X(edg,k).id);
+      while ( k < N && EDG_X(edg,k).id == row_cur ) {
          k++;
       }
       r_0e = k;
@@ -137,19 +138,19 @@ float bound_Forward_Quad(const SEQUENCE*    query,
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      MMX(r_0, 0) = IMX(r_0, 0) = DMX(r_0, 0) = -INF;
-      XMX(SP_E, x_0) = -INF;
+      MMX_M(r_0, 0) = IMX_M(r_0, 0) = DMX_M(r_0, 0) = -INF;
+      XMX_M(SP_E, x_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
       for (i = r_0b; i < r_0e; i++)
       {
          /* in this context, "diag" represents the "row" */
-         x = edg->bounds[i].id;                 /* NOTE: this is always the same as cur_row, x_0 */
-         y1 = MAX(1, edg->bounds[i].lb);        /* can't overflow the left edge */
-         y2 = edg->bounds[i].rb;
+         x = EDG_X(edg,i).id;                 /* NOTE: this is always the same as cur_row, x_0 */
+         y1 = MAX(1, EDG_X(edg,i).lb);        /* can't overflow the left edge */
+         y2 = EDG_X(edg,i).rb;
          y2_re = (y2 > T);                      /* check if cloud touches right edge */
          y2 = MIN(y2, T);                       /* can't overflow the right edge */
-         
+
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
          for (j = y1; j < y2; j++)
@@ -157,41 +158,41 @@ float bound_Forward_Quad(const SEQUENCE*    query,
             // fprintf(tfp, "%d...", j);
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            sc1 = prev_mat = MMX(r_1,j-1)   + TSC(j-1,M2M);
-            sc2 = prev_ins = IMX(r_1,j-1)   + TSC(j-1,I2M);
-            sc3 = prev_del = DMX(r_1,j-1)   + TSC(j-1,D2M);
-            sc4 = prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
+            sc1 = prev_mat = MMX_M(r_1,j-1)   + TSC(j-1,M2M);
+            sc2 = prev_ins = IMX_M(r_1,j-1)   + TSC(j-1,I2M);
+            sc3 = prev_del = DMX_M(r_1,j-1)   + TSC(j-1,D2M);
+            sc4 = prev_beg = XMX_M(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = calc_Logsum( 
                            calc_Logsum( prev_mat, prev_ins ),
                            calc_Logsum( prev_del, prev_beg ) );
-            MMX(r_0,j) = prev_sum + MSC(j,A);
-            // fprintf(tfp, "MMX(%d,%d): m=%f, i=%f, d=%f, b=%f\n", x_0, j, sc1, sc2, sc3, sc4 );
+            MMX_M(r_0,j) = prev_sum + MSC(j,A);
+            // fprintf(tfp, "MMX_M(%d,%d): m=%f, i=%f, d=%f, b=%f\n", x_0, j, sc1, sc2, sc3, sc4 );
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_1,j) + TSC(j,M2I);
-            prev_ins = IMX(r_1,j) + TSC(j,I2I);
+            prev_mat = MMX_M(r_1,j) + TSC(j,M2I);
+            prev_ins = IMX_M(r_1,j) + TSC(j,I2I);
             /* best-to-insert */
             prev_sum = calc_Logsum( prev_mat, prev_ins );
-            IMX(r_0,j) = prev_sum + ISC(j,A);
+            IMX_M(r_0,j) = prev_sum + ISC(j,A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX_M(r_0,j-1) + TSC(j-1,M2D);
+            prev_del = DMX_M(r_0,j-1) + TSC(j-1,D2D);
             /* best-to-delete */
             prev_sum = calc_Logsum(prev_mat, prev_del);
-            DMX(r_0,j) = prev_sum;
+            DMX_M(r_0,j) = prev_sum;
 
             /* UPDATE E STATE */
-            prev_mat = MMX(r_0, j) + sc_E;
-            prev_del = DMX(r_0, j) + sc_E;
-            XMX(SP_E, x_0) = calc_Logsum( 
+            prev_mat = MMX_M(r_0, j) + sc_E;
+            prev_del = DMX_M(r_0, j) + sc_E;
+            XMX_M(SP_E, x_0) = calc_Logsum( 
                                     calc_Logsum( prev_mat, prev_del ),
-                                    XMX(SP_E, x_0) );
+                                    XMX_M(SP_E, x_0) );
 
-            // fprintf(tfp, "PRE (%d,%d) -> E: %f, Esc: %f, MMX: %f, DMX: %f, MSC: %f \n", x_0, j, XMX(SP_E, x_0), sc_E, MMX(r_0, j), DMX(r_0, j), MSC(j,A) );
+            // fprintf(tfp, "PRE (%d,%d) -> E: %f, Esc: %f, MMX: %f, DMX: %f, MSC: %f \n", x_0, j, XMX_M(SP_E, x_0), sc_E, MMX_M(r_0, j), DMX_M(r_0, j), MSC(j,A) );
          }
 
          /* UNROLLED FINAL LOOP ITERATION */
@@ -202,34 +203,34 @@ float bound_Forward_Quad(const SEQUENCE*    query,
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prev_mat = MMX(r_1,j-1)  + TSC(j-1,M2M);
-            prev_ins = IMX(r_1,j-1)  + TSC(j-1,I2M);
-            prev_del = DMX(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,r_1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+            prev_mat = MMX_M(r_1,j-1)  + TSC(j-1,M2M);
+            prev_ins = IMX_M(r_1,j-1)  + TSC(j-1,I2M);
+            prev_del = DMX_M(r_1,j-1)  + TSC(j-1,D2M);
+            prev_beg = XMX_M(SP_B,r_1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = calc_Logsum( 
                               calc_Logsum( prev_mat, prev_ins ),
                               calc_Logsum( prev_del, prev_beg )
                         );
-            MMX(r_0,j) = prev_sum + MSC(j,A);
+            MMX_M(r_0,j) = prev_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE */
-            IMX(r_0,j) = -INF;
+            IMX_M(r_0,j) = -INF;
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX_M(r_0,j-1) + TSC(j-1,M2D);
+            prev_del = DMX_M(r_0,j-1) + TSC(j-1,D2D);
             /* best-to-delete */
             prev_sum = calc_Logsum( prev_mat, prev_del );
-            DMX(r_0,j) = prev_sum;
+            DMX_M(r_0,j) = prev_sum;
 
             /* UPDATE E STATE */
-            prev_mat = MMX(r_0, j);
-            prev_del = DMX(r_0, j);
-            XMX(SP_E, x_0) = calc_Logsum( 
+            prev_mat = MMX_M(r_0, j);
+            prev_del = DMX_M(r_0, j);
+            XMX_M(SP_E, x_0) = calc_Logsum( 
                                  calc_Logsum( prev_mat, prev_del ),
-                                 XMX(SP_E, x_0) );
+                                 XMX_M(SP_E, x_0) );
          }
       }
       // fprintf(tfp, "...done\n");
@@ -237,24 +238,24 @@ float bound_Forward_Quad(const SEQUENCE*    query,
       /* ONCE ROW IS COMPLETED, UPDATE SPECIAL STATES */
       /* SPECIAL STATES */
       /* J state */
-      sc1 = XMX(SP_J, x_1) + XSC(SP_J, SP_LOOP);   /* J->J */
-      sc2 = XMX(SP_E, x_0) + XSC(SP_E, SP_LOOP);   /* E->J is E's "loop" */
-      XMX(SP_J, x_0) = calc_Logsum( sc1, sc2 );
+      sc1 = XMX_M(SP_J, x_1) + XSC(SP_J, SP_LOOP);   /* J->J */
+      sc2 = XMX_M(SP_E, x_0) + XSC(SP_E, SP_LOOP);   /* E->J is E's "loop" */
+      XMX_M(SP_J, x_0) = calc_Logsum( sc1, sc2 );
 
       /* C state */
-      sc1 = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);
-      sc2 = XMX(SP_E, x_0) + XSC(SP_E, SP_MOVE);
-      XMX(SP_C, x_0) = calc_Logsum( sc1, sc2 );
-      // printf("x_0: %d -> C(-1): %f, Cloop: %f, E(0): %f, Emove: %f\n", x_0, XMX(SP_C, x_1), XSC(SP_C, SP_LOOP), XMX(SP_E, x_0), XSC(SP_E, SP_MOVE) );
+      sc1 = XMX_M(SP_C, x_1) + XSC(SP_C, SP_LOOP);
+      sc2 = XMX_M(SP_E, x_0) + XSC(SP_E, SP_MOVE);
+      XMX_M(SP_C, x_0) = calc_Logsum( sc1, sc2 );
+      // printf("x_0: %d -> C(-1): %f, Cloop: %f, E(0): %f, Emove: %f\n", x_0, XMX_M(SP_C, x_1), XSC(SP_C, SP_LOOP), XMX_M(SP_E, x_0), XSC(SP_E, SP_MOVE) );
 
       /* N state */
-      XMX(SP_N, x_0) = XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP);
+      XMX_M(SP_N, x_0) = XMX_M(SP_N, x_1) + XSC(SP_N, SP_LOOP);
 
       /* B state */
-      sc1 = XMX(SP_N, x_0) + XSC(SP_N, SP_MOVE);       /* N->B is N's move */
-      sc2 = XMX(SP_J, x_0) + XSC(SP_J, SP_MOVE);       /* J->B is J's move */
-      XMX(SP_B, x_0) = calc_Logsum( sc1, sc2 );
-      // printf("x_0: %d -> J: %f, C: %f, N: %f, B: %f\n", x_0, XMX(SP_J, x_0), XMX(SP_C, x_0), XMX(SP_N, x_0), XMX(SP_N, x_0));
+      sc1 = XMX_M(SP_N, x_0) + XSC(SP_N, SP_MOVE);       /* N->B is N's move */
+      sc2 = XMX_M(SP_J, x_0) + XSC(SP_J, SP_MOVE);       /* J->B is J's move */
+      XMX_M(SP_B, x_0) = calc_Logsum( sc1, sc2 );
+      // printf("x_0: %d -> J: %f, C: %f, N: %f, B: %f\n", x_0, XMX_M(SP_J, x_0), XMX_M(SP_C, x_0), XMX_M(SP_N, x_0), XMX_M(SP_N, x_0));
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       row_prv = row_cur;
@@ -265,7 +266,7 @@ float bound_Forward_Quad(const SEQUENCE*    query,
    }
 
    /* T state */
-   sc_best = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
+   sc_best = XMX_M(SP_C, Q) + XSC(SP_C, SP_MOVE);
    *sc_final = sc_best;
    // fclose(tfp);
    return sc_best;
@@ -293,13 +294,15 @@ float bound_Backward_Quad( const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           float*             st_MX3,
-                           float*             st_MX,
-                           float*             sp_MX, 
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_3D*         st_MX,
+                           MATRIX_2D*         sp_MX, 
                            const EDGEBOUNDS*  edg,
                            const bool         test,
                            float*             sc_final)
 {
+   FILE* fp = NULL;
+
    char   a;                              /* store current character in sequence */
    int    A;                              /* store int value of character */
    int    i,j,k = 0;                      /* row, column indices */
@@ -321,15 +324,7 @@ float bound_Backward_Quad( const SEQUENCE*    query,
    bool   is_local = target->isLocal;
    float  sc_E = (is_local) ? 0 : -INF;
 
-   /* DEBUG OUTPUT */
-   // FILE *tfp = fopen("test_output/bck_bounded.quad.txt", "w+");
-
    /* --------------------------------------------------------------------------------- */
-
-   /* clear all pre-existing data from matrix */
-   // if (test) 
-      dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   // dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* Initialize the Q row. */
    row_cur = Q;         
@@ -337,17 +332,17 @@ float bound_Backward_Quad( const SEQUENCE*    query,
    r_0 = x_0;           /* for use in linear space alg (mod-mapping) */
 
    /* Initialize special states */
-   XMX(SP_J, x_0) = XMX(SP_B, x_0) = XMX(SP_N, x_0) = -INF;
-   XMX(SP_C, x_0) = XSC(SP_C, SP_MOVE);
-   XMX(SP_E, x_0) = XMX(SP_C, x_0) + XSC(SP_E, SP_MOVE);
+   XMX_M(SP_J, x_0) = XMX_M(SP_B, x_0) = XMX_M(SP_N, x_0) = -INF;
+   XMX_M(SP_C, x_0) = XSC(SP_C, SP_MOVE);
+   XMX_M(SP_E, x_0) = XMX_M(SP_C, x_0) + XSC(SP_E, SP_MOVE);
 
-   MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
-   IMX(r_0, T) = -INF;
+   MMX_M(r_0, T) = DMX_M(r_0, T) = XMX_M(SP_E, x_0);
+   IMX_M(r_0, T) = -INF;
 
    /* pass over (Q) bottom-row edgebounds from list */
    k    = N-1;          /* current index in edgebounds */
    r_0b = N-1;          /* beginning index for current row in list */
-   while ( k >= 0 && edg->bounds[k].id == row_cur ) {
+   while ( k >= 0 && EDG_X(edg,k).id == row_cur ) {
       k--;
    }
    r_0e = k;            /* ending index for current row in list */
@@ -355,38 +350,38 @@ float bound_Backward_Quad( const SEQUENCE*    query,
    // /* Initialize normal states */
    // for (j = T-1; j >= 1; j--)
    // {
-   //    sc1 = XMX(SP_E, x_0) + sc_E;
-   //    sc2 = DMX(r_0, j+1)  + TSC(j, M2D);
-   //    MMX(r_0, j) = calc_Logsum( XMX(SP_E, x_0) + sc_E, 
-   //                               DMX(r_0, j+1)  + TSC(j, M2D) );
+   //    sc1 = XMX_M(SP_E, x_0) + sc_E;
+   //    sc2 = DMX_M(r_0, j+1)  + TSC(j, M2D);
+   //    MMX_M(r_0, j) = calc_Logsum( XMX_M(SP_E, x_0) + sc_E, 
+   //                               DMX_M(r_0, j+1)  + TSC(j, M2D) );
 
-   //    sc1 = XMX(SP_E, x_0) + sc_E;
-   //    sc2 = DMX(r_0, j+1)  + TSC(j, D2D);
-   //    DMX(r_0, j) = calc_Logsum( XMX(SP_E, x_0) + sc_E,
-   //                               DMX(r_0, j+1)  + TSC(j, D2D) );
+   //    sc1 = XMX_M(SP_E, x_0) + sc_E;
+   //    sc2 = DMX_M(r_0, j+1)  + TSC(j, D2D);
+   //    DMX_M(r_0, j) = calc_Logsum( XMX_M(SP_E, x_0) + sc_E,
+   //                               DMX_M(r_0, j+1)  + TSC(j, D2D) );
 
-   //    // IMX(r_0,j) = -INF;
+   //    // IMX_M(r_0,j) = -INF;
    // }
 
    /* Initialize normal states */
-   for (i = r_1b; i > r_1e; i--) 
+   for (i = r_0b; i > r_0e; i--) 
    {
-      y1 = MAX(0, edg->bounds[i].lb);     /* can't overflow the left edge */
-      y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+      y1 = MAX(0, EDG_X(edg,i).lb);     /* can't overflow the left edge */
+      y2 = MIN(EDG_X(edg,i).rb, T);     /* can't overflow the right edge */
 
       for (j = y2-1; j >= y1; j--)
       {
-         sc1 = XMX(SP_E, x_0) + sc_E;
-         sc2 = DMX(r_0, j+1)  + TSC(j, M2D);
-         MMX(r_0, j) = calc_Logsum( XMX(SP_E, x_0) + sc_E, 
-                                    DMX(r_0, j+1)  + TSC(j, M2D) );
+         sc1 = XMX_M(SP_E, x_0) + sc_E;
+         sc2 = DMX_M(r_0, j+1)  + TSC(j, M2D);
+         MMX_M(r_0, j) = calc_Logsum( XMX_M(SP_E, x_0) + sc_E, 
+                                    DMX_M(r_0, j+1)  + TSC(j, M2D) );
 
-         sc1 = XMX(SP_E, x_0) + sc_E;
-         sc2 = DMX(r_0, j+1)  + TSC(j, D2D);
-         DMX(r_0, j) = calc_Logsum( XMX(SP_E, x_0) + sc_E,
-                                    DMX(r_0, j+1)  + TSC(j, D2D) );
+         sc1 = XMX_M(SP_E, x_0) + sc_E;
+         sc2 = DMX_M(r_0, j+1)  + TSC(j, D2D);
+         DMX_M(r_0, j) = calc_Logsum( XMX_M(SP_E, x_0) + sc_E,
+                                    DMX_M(r_0, j+1)  + TSC(j, D2D) );
 
-         // IMX(r_0,j) = -INF;
+         IMX_M(r_0,j) = -INF;
       }
    }
 
@@ -395,7 +390,7 @@ float bound_Backward_Quad( const SEQUENCE*    query,
    x_1 = x_0;
    r_1 = r_0;
    r_1b = r_0b;
-   r_1e = r_1e;
+   r_1e = r_0e;
 
    /* MAIN RECURSION */
    /* FOR every bound in EDGEBOUND */
@@ -408,8 +403,8 @@ float bound_Backward_Quad( const SEQUENCE*    query,
 
       /* add every edgebound from current row */
       r_0b = k;
-      // printf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, edg->bounds[k].id);
-      while ( k >= 0 && edg->bounds[k].id >= row_cur ) {
+      // printf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, EDG_X(edg,k).id);
+      while ( k >= 0 && EDG_X(edg,k).id >= row_cur ) {
          k--;
       }
       r_0e = k;
@@ -421,96 +416,90 @@ float bound_Backward_Quad( const SEQUENCE*    query,
       /* UPDATE SPECIAL STATES at the start of EACH ROW */
 
       /* B STATE (NAIVE) */
-      // XMX(SP_B, x_0) = -INF;
+      // XMX_M(SP_B, x_0) = -INF;
       // for (j = 1; j <= T; j++) {
-      //    XMX(SP_B, x_0) = calc_Logsum( XMX(SP_B, x_0),
-      //                                  MMX(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
+      //    XMX_M(SP_B, x_0) = calc_Logsum( XMX_M(SP_B, x_0),
+      //                                  MMX_M(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
       // }
 
       /* B STATE (SPARSE) */
-      XMX(SP_B, x_0) = -INF;
-      for (i = r_1b; i > r_1e; i--) {
-         y1 = MAX(1, edg->bounds[i].lb);         /* can't overflow the left edge */
-         y2 = MIN(edg->bounds[i].rb, T);         /* can't overflow the right edge */
+      XMX_M(SP_B, x_0) = -INF;
+      for (i = r_1b; i > r_1e; i--) 
+      {
+         y1 = MAX(1, EDG_X(edg,i).lb);         /* can't overflow the left edge */
+         y2 = MIN(EDG_X(edg,i).rb, T);         /* can't overflow the right edge */
 
          for (j = y2-1; j >= y1; j--)
          {
-            XMX(SP_B, x_0) = calc_Logsum( XMX(SP_B, x_0),
-                                          MMX(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
+            XMX_M(SP_B, x_0) = calc_Logsum( XMX_M(SP_B, x_0),
+                                          MMX_M(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
          }
       }
 
-      XMX(SP_J, x_0) = calc_Logsum( XMX(SP_J, x_1) + XSC(SP_J, SP_LOOP),
-                                    XMX(SP_B, x_0) + XSC(SP_J, SP_MOVE) );
+      XMX_M(SP_J, x_0) = calc_Logsum( XMX_M(SP_J, x_1) + XSC(SP_J, SP_LOOP),
+                                    XMX_M(SP_B, x_0) + XSC(SP_J, SP_MOVE) );
 
-      XMX(SP_C, x_0) = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);
+      XMX_M(SP_C, x_0) = XMX_M(SP_C, x_1) + XSC(SP_C, SP_LOOP);
 
-      XMX(SP_E, x_0) = calc_Logsum( XMX(SP_J, x_0) + XSC(SP_E, SP_LOOP),
-                                    XMX(SP_C, x_0) + XSC(SP_E, SP_MOVE) );
+      XMX_M(SP_E, x_0) = calc_Logsum( XMX_M(SP_J, x_0) + XSC(SP_E, SP_LOOP),
+                                    XMX_M(SP_C, x_0) + XSC(SP_E, SP_MOVE) );
 
-      XMX(SP_N, x_0) = calc_Logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
-                                    XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
+      XMX_M(SP_N, x_0) = calc_Logsum( XMX_M(SP_N, x_1) + XSC(SP_N, SP_LOOP),
+                                    XMX_M(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-      MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
-      IMX(r_0, T) = -INF;
-
-      // fprintf(tfp, "x_0: %d -> B: %f, J: %f, C: %f, E: %f, N: %f, MSC(%d): %f \n", x_0, XMX(SP_B, x_0), XMX(SP_J, x_0), XMX(SP_C, x_0),  XMX(SP_E, x_0), XMX(SP_N, x_0), A, MSC(j, A) );
-      // fprintf(tfp, "x_0: %d (%d, %d) -> (%d, %d)\n", x_0, r_0b, r_0e, edg->bounds[r_0b], edg->bounds[r_0e-1]);
+      MMX_M(r_0, T) = DMX_M(r_0, T) = XMX_M(SP_E, x_0);
+      IMX_M(r_0, T) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
       for (i = r_0b; i > r_0e; i--)
       {
          /* in this context, "diag" represents the "row" */
-         // x_0  = edg->bounds[i].id;
-         y1 = MAX(0, edg->bounds[i].lb);     /* can't overflow the left edge */
-         y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+         // x_0  = EDG_X(edg,i).id;
+         y1 = MAX(0, EDG_X(edg,i).lb);     /* can't overflow the left edge */
+         y2 = MIN(EDG_X(edg,i).rb, T);     /* can't overflow the right edge */
 
          /* FOR every position in TARGET profile */
          for (j = y2-1; j >= y1; j--)
          {
-            // fprintf(tfp, "%d...", j);
             sc_M = MSC(j+1,A);
             sc_I = ISC(j,A);
-            // fprintf(tfp, "(%d,%d): A=%d, MSC=%f, ISC=%f\n", x_0, j, A, sc_M, sc_I);
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-            prev_mat = MMX(r_1, j+1)  + TSC(j, M2M) + sc_M;
-            prev_ins = IMX(r_1,   j)  + TSC(j, M2I) + sc_I;
-            prev_del = DMX(r_0, j+1)  + TSC(j, M2D);
-            prev_end = XMX(SP_E, x_0) + sc_E;     /* from end match state (new alignment) */
+            prev_mat = MMX_M(r_1, j+1)  + TSC(j, M2M) + sc_M;
+            prev_ins = IMX_M(r_1,   j)  + TSC(j, M2I) + sc_I;
+            prev_del = DMX_M(r_0, j+1)  + TSC(j, M2D);
+            prev_end = XMX_M(SP_E, x_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
             prev_sum = calc_Logsum( 
                               calc_Logsum( prev_mat, prev_ins ),
                               calc_Logsum( prev_end, prev_del ) );
-            MMX(r_0, j) = prev_sum;
+            MMX_M(r_0, j) = prev_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-            prev_mat = MMX(r_1, j+1) + TSC(j, I2M) + sc_M;
-            prev_ins = IMX(r_1,   j) + TSC(j, I2I) + sc_I;
+            prev_mat = MMX_M(r_1, j+1) + TSC(j, I2M) + sc_M;
+            prev_ins = IMX_M(r_1,   j) + TSC(j, I2I) + sc_I;
             /* best-to-insert */
             prev_sum = calc_Logsum( prev_mat, prev_ins );
-            IMX(r_0, j) = prev_sum;
+            IMX_M(r_0, j) = prev_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prev_mat = MMX(r_1, j+1)  + TSC(j,D2M) + sc_M;
-            prev_del = DMX(r_0, j+1)  + TSC(j,D2D);
-            prev_end = XMX(SP_E,x_0)  + sc_E;
+            prev_mat = MMX_M(r_1, j+1)  + TSC(j,D2M) + sc_M;
+            prev_del = DMX_M(r_0, j+1)  + TSC(j,D2D);
+            prev_end = XMX_M(SP_E,x_0)  + sc_E;
             /* best-to-delete */
             prev_sum = calc_Logsum( 
                               prev_mat,
                               calc_Logsum( prev_del, prev_end ) );
-            DMX(r_0, j) = prev_sum;
-
-            // fprintf(tfp, "(%d,%d): M=%f, I=%f, D=%f\n", r_0, j, MMX(r_0, j), IMX(r_0,j), DMX(r_0,j) );
+            DMX_M(r_0, j) = prev_sum;
          }
       }
 
       // /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
       // if (test) {
       //    for (i = 0; i <= T; i++) {
-      //       MMX(x_0,i) = MMX3(r_0,i);
-      //       IMX(x_0,i) = IMX3(r_0,i);
-      //       DMX(x_0,i) = DMX3(r_0,i);
+      //       MMX_M(x_0,i) = MMX3_M(r_0,i);
+      //       IMX_M(x_0,i) = IMX3_M(r_0,i);
+      //       DMX_M(x_0,i) = DMX3_M(r_0,i);
       //    }
       // }
 
@@ -519,18 +508,18 @@ float bound_Backward_Quad( const SEQUENCE*    query,
       // {
       //    // printf("SCRUB x_0: %d, x_1: %d, r_0: %d, r_1: %d => y1: %d, y2: %d \n", x_0, x_1, r_0, r_1, y1, y2);
       //    /* in this context, "diag" represents the "row" */
-      //    // x  = edg->bounds[i].id;
-      //    y1 = MAX(0, edg->bounds[i].lb);       /* can't overflow the left edge */
-      //    y2 = MIN(edg->bounds[i].rb, T);     /* can't overflow the right edge */
+      //    // x  = EDG_X(edg,i).id;
+      //    y1 = MAX(0, EDG_X(edg,i).lb);       /* can't overflow the left edge */
+      //    y2 = MIN(EDG_X(edg,i).rb, T);       /* can't overflow the right edge */
 
       //    for (j = y2; j >= y1; j--) {
-      //       MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      //       MMX3_M(r_1, j) = IMX3_M(r_1, j) = DMX3_M(r_1, j) = -INF;
       //    }
       // }
 
       // /* NAIVE SCRUB (removes all values) - FOR DEBUGGING */
       // for (i = 0; i <= T; i++) {
-      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      //    MMX3_M(r_1, j) = IMX3_M(r_1, j) = DMX3_M(r_1, j) = -INF;
       // }
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
@@ -539,9 +528,6 @@ float bound_Backward_Quad( const SEQUENCE*    query,
       r_1  = r_0;
       r_1b = r_0b;
       r_1e = r_0e;
-
-      // fprintf(tfp, "...done\n");
-      // fprintf(tfp, "N(0): %f\n", XMX(SP_N, 0));
    }
 
    /* FINAL ROW */
@@ -550,7 +536,7 @@ float bound_Backward_Quad( const SEQUENCE*    query,
 
    /* pass over (Q) bottom-row edgebounds from list */
    r_0b = k;            /* beginning index for current row in list */
-   while ( k >= 0 && edg->bounds[k].id == row_cur ) {
+   while ( k >= 0 && EDG_X(edg,k).id == row_cur ) {
       k--;
    }
    r_0e = k;            /* ending index for current row in list */
@@ -559,42 +545,40 @@ float bound_Backward_Quad( const SEQUENCE*    query,
    a = seq[1];
    A = AA_REV[a];
 
-   /* B STATE (COMPLETE) */
-   // XMX(SP_B, x_0) = -INF;
-   // // j = 1;
-   // // XMX(SP_B, x_0) = MMX(r_1,j) + TSC(j-1,B2M) + MSC(j,A);
-   // for (j = 2; j >= T; j++) {
-   //    XMX(SP_B,x_0) = calc_Logsum( XMX(SP_B,x_0),
-   //                                 MMX(r_1,j) + TSC(j-1,B2M) + MSC(j,A) );
+   /* B STATE (NAIVE) */
+   // XMX_M(SP_B, x_0) = -INF;
+   // for (j = 1; j >= T; j++) {
+   //    XMX_M(SP_B,x_0) = calc_Logsum( XMX_M(SP_B,x_0),
+   //                                 MMX_M(r_1,j) + TSC(j-1,B2M) + MSC(j,A) );
    // }
 
    /* B STATE (SPARSE) */
-   XMX(SP_B, x_0) = -INF;
+   XMX_M(SP_B, x_0) = -INF;
    for (i = r_1b; i > r_1e; i--) {
-      y1 = MAX(1, edg->bounds[i].lb);         /* can't overflow the left edge */
-      y2 = MIN(edg->bounds[i].rb, T);         /* can't overflow the right edge */
+      y1 = MAX(1, EDG_X(edg,i).lb);         /* can't overflow the left edge */
+      y2 = MIN(EDG_X(edg,i).rb, T);         /* can't overflow the right edge */
 
       for (j = y2-1; j >= y1; j--)
       {
-         XMX(SP_B, x_0) = calc_Logsum( XMX(SP_B, x_0),
-                                       MMX(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
+         XMX_M(SP_B, x_0) = calc_Logsum( XMX_M(SP_B, x_0),
+                                       MMX_M(r_1, j) + TSC(j-1, B2M) + MSC(j, A) );
       }
    }
 
-   XMX(SP_J, r_0) = -INF;
-   XMX(SP_C, r_0) = -INF;
-   XMX(SP_E, r_0) = -INF;
+   XMX_M(SP_J, r_0) = -INF;
+   XMX_M(SP_C, r_0) = -INF;
+   XMX_M(SP_E, r_0) = -INF;
 
-   XMX(SP_N, x_0) = calc_Logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
-                                 XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
+   XMX_M(SP_N, x_0) = calc_Logsum( XMX_M(SP_N, x_1) + XSC(SP_N, SP_LOOP),
+                                 XMX_M(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-   for (j = T; j >= 1; j--) {
-      MMX(x_0, j) = IMX(x_0, j) = DMX(x_0, j) = -INF;
-   }
+   // for (j = T; j >= 1; j--) {
+   //    MMX_M(x_0, j) = IMX_M(x_0, j) = DMX_M(x_0, j) = -INF;
+   // }
 
    // fprintf(tfp, "a=%d, A=%d, MSC=%f\n", a, A, MSC(1,A) );
 
-   sc_best = XMX(SP_N,0);
+   sc_best = XMX_M(SP_N,0);
    *sc_final = sc_best;
    // fclose(tfp);
    return sc_best;

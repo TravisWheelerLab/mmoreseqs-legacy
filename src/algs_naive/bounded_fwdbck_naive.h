@@ -20,18 +20,18 @@ float bound_Forward_Naive(const SEQUENCE*    query,
                           const HMM_PROFILE* target, 
                           const int          Q, 
                           const int          T, 
-                          float*             st_MX, 
-                          float*             sp_MX,
-                          float*             st_MX_cloud, 
+                          MATRIX_3D*         st_MX, 
+                          MATRIX_2D*         sp_MX,
+                          MATRIX_3D*         st_MX_cloud, 
                           float*             sc_final);
 
 float bound_Backward_Naive(const SEQUENCE*    query, 
                           const HMM_PROFILE* target, 
                           const int          Q, 
                           const int          T, 
-                          float*             st_MX, 
-                          float*             sp_MX,
-                          float*             st_MX_cloud, 
+                          MATRIX_3D*         st_MX, 
+                          MATRIX_2D*         sp_MX,
+                          MATRIX_3D*         st_MX_cloud, 
                           float*             sc_final);
 
 #endif /* _BOUNDED_FWDBCK_NAIVE_H */

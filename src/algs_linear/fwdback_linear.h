@@ -14,18 +14,18 @@ float forward_Linear(const SEQUENCE*   query,
                      const HMM_PROFILE* target, 
                      const int          Q, 
                      const int          T, 
-                     float*             st_MX3,
-                     float*             st_MX, 
-                     float*             sp_MX,
+                     MATRIX_3D*         st_MX3,
+                     MATRIX_3D*         st_MX, 
+                     MATRIX_2D*         sp_MX,
                      float*             sc_final);
 
 float backward_Linear(const SEQUENCE*    query, 
                      const HMM_PROFILE* target, 
                      const int          Q, 
                      const int          T, 
-                     float*             st_MX3,
-                     float*             st_MX, 
-                     float*             sp_MX,
+                     MATRIX_3D*         st_MX3, 
+                     MATRIX_3D*         st_MX, 
+                     MATRIX_2D*         sp_MX,
                      float*             sc_final);
 
 #endif /* _FWDBACK_LIN_H */

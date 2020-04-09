@@ -70,7 +70,7 @@ void EDGEBOUNDS_Destroy(EDGEBOUNDS*  edg)
 
 /*
  *  FUNCTION: EDGEBOUNDS_Reuse()
- *  SYNOPSIS: Resizes 
+ *  SYNOPSIS: Resizes
  *
  *  ARGS:     <edg>      Edgebounds Object
  *
@@ -79,6 +79,30 @@ void EDGEBOUNDS_Destroy(EDGEBOUNDS*  edg)
 void EDGEBOUNDS_Reuse(EDGEBOUNDS*  edg)
 {
    edg->N = 0;
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Reuse()
+ *  SYNOPSIS: Resizes
+ *
+ *  ARGS:     <edg>      Edgebounds Object
+ *
+ *  RETURN:   None.
+ */
+inline
+BOUND* EDGEBOUNDS_Get(EDGEBOUNDS*   edg,
+                      int           i )
+{
+   /* if debugging, do edgebound checks */
+   #if DEBUG
+      if ( i >= edg->N || i < 0 ) {
+         fprintf(stderr, "ERROR: EDGEBOUNDS Access Out-of-Bounds\n");
+         fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
+         exit(EXIT_FAILURE);
+      }
+   #endif
+
+   return &(edg->bounds[i]);
 }
 
 /*
@@ -99,7 +123,7 @@ void EDGEBOUNDS_Pushback(EDGEBOUNDS*  edg,
    /* resize if necessary */
    if (edg->N >= edg->Nalloc - 1) {
       EDGEBOUNDS_Resize(edg, edg->Nalloc * 2);
-   } 
+   }
 }
 
 /*
@@ -204,13 +228,13 @@ void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
       tmp.lb = edg->bounds[i].lb;
       tmp.rb = edg->bounds[i].rb;
 
-      edg->bounds[i].id = edg->bounds[edg->N-i].id;
-      edg->bounds[i].lb = edg->bounds[edg->N-i].lb;
-      edg->bounds[i].rb = edg->bounds[edg->N-i].rb;
+      edg->bounds[i].id = edg->bounds[edg->N - i - 1].id;
+      edg->bounds[i].lb = edg->bounds[edg->N - i - 1].lb;
+      edg->bounds[i].rb = edg->bounds[edg->N - i - 1].rb;
 
-      edg->bounds[edg->N-i].id = tmp.id;
-      edg->bounds[edg->N-i].lb = tmp.lb;
-      edg->bounds[edg->N-i].rb = tmp.rb;
+      edg->bounds[edg->N - i - 1].id = tmp.id;
+      edg->bounds[edg->N - i - 1].lb = tmp.lb;
+      edg->bounds[edg->N - i - 1].rb = tmp.rb;
    }
 }
 
@@ -230,7 +254,7 @@ void EDGEBOUNDS_SetHeads(EDGEBOUNDS *edg)
    VECTOR_INT_Pushback(edg->heads, 0);
 
    for (int i = 1; i < edg->N; i++) {
-      if (edg->bounds[i-1].id != edg->bounds[i].id) {
+      if (edg->bounds[i - 1].id != edg->bounds[i].id) {
          id = edg->bounds[i].id;
          VECTOR_INT_Pushback(edg->ids, id);
          VECTOR_INT_Pushback(edg->heads, i);

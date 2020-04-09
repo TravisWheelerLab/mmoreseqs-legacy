@@ -20,14 +20,14 @@ void traceback_Build(const SEQUENCE*     query,
                      const HMM_PROFILE*  target,
                      const int           Q, 
                      const int           T,
-                     float*              st_MX,
-                     float*              sp_MX,
+                     MATRIX_3D*          st_MX,
+                     MATRIX_2D*          sp_MX,
                      ALIGNMENT*          aln);
 
 void traceback_Append(ALIGNMENT*  aln,
-                      int          st,
-                      int          i,
-                      int          j);
+                      const int   st,
+                      const int   i,
+                      const int   j);
 
 void traceback_Reverse(ALIGNMENT* aln);
 

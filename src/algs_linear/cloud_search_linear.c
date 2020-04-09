@@ -24,6 +24,8 @@
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 #include "objects/alignment.h"
+#include "objects/matrix/matrix_2d.h"
+#include "objects/matrix/matrix_3d.h"
 
 /* file parsers */
 #include "hmm_parser.h"
@@ -33,13 +35,13 @@
 
 /* 
  *       NOTE: CONVERSION - row-coords => diag-coords
- *       MX(i-1, j-1) => MX3(d_2, k-1)
- *       MX(i  , j-1) => MX3(d_1, k  ) 
- *       MX(i-1, j  ) => MX3(d_1, k-1)
+ *       MX_M(i-1, j-1) => MX3_M(d_2, k-1)
+ *       MX_M(i  , j-1) => MX3_M(d_1, k  ) 
+ *       MX_M(i-1, j  ) => MX3_M(d_1, k-1)
  *
- *       MX(i+1, j+1) => MX3(d_2, k+1)
- *       MX(i  , j+1) => MX3(d_1, k  )
- *       MX(i+1, j  ) => MX3(d_1, k+1)
+ *       MX_M(i+1, j+1) => MX3_M(d_2, k+1)
+ *       MX_M(i  , j+1) => MX3_M(d_1, k  )
+ *       MX_M(i+1, j  ) => MX3_M(d_1, k+1)
  */
 
 /* ****************************************************************************************** *
@@ -73,9 +75,9 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           float*             st_MX, 
-                           float*             st_MX3,
-                           float*             sp_MX, 
+                           MATRIX_3D*         st_MX, 
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_2D*         sp_MX, 
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
                            const float        alpha, 
@@ -88,7 +90,7 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
    int lb, rb, le, re;           /* right/left bounds and edges */
    int lb_1, rb_1, lb_2, rb_2;   /* for storing lookback bounds */
    int lb_new, rb_new;           /* tmp for new right/left bounds */
-   int *lb_list, rb_list;        /* tmp for forking right/left bounds */
+   int *lb_list, *rb_list;       /* tmp for forking right/left bounds */
    int num_cells;                /* number of cells in diagonal */
    int d_st, d_end, d_cnt;       /* starting and ending diagonal indices */
    int dim_min, dim_max;         /* diagonal index where num cells reaches highest point and diminishing point */ 
@@ -120,10 +122,6 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
    int cpu_num = 0;
 
    /* --------------------------------------------------------------------------------- */
-
-   /* clear residual data */
-   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
 
    /* get start and end points of viterbi alignment */
    beg = tr->traces[tr->beg];
@@ -180,7 +178,7 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
       /* is dp matrix diagonal growing or shrinking? */
       if (d <= dim_min)
          num_cells++;
-      if (d > dim_max)
+      if (d >= dim_max)
          num_cells--;
 
       /* UPDATE/PRUNE BOUNDS */
@@ -201,8 +199,8 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
             j = d_1 - i;    /* back one diag */
 
             diag_max = calc_Max( 
-                           calc_Max( diag_max, MMX3(d1,k) ),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+                           calc_Max( diag_max, MMX3_M(d1,k) ),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
          }
 
          /* Total max records largest cell score seen so far */
@@ -220,8 +218,8 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
             i = k;
             j = d_1 - i; /* looking back one diag */
 
-            cell_max = calc_Max( MMX3(d1,k),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+            cell_max = calc_Max( MMX3_M(d1,k),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
 
             /* prune in left edgebound */
             if( cell_max >= total_limit ) {
@@ -241,8 +239,8 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
             i = k;
             j = d_1 - i;
 
-            cell_max = calc_Max( MMX3(d1,k),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+            cell_max = calc_Max( MMX3_M(d1,k),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
 
             /* prune in right edgebound */
             if( cell_max >= total_limit )
@@ -290,39 +288,39 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
          /* NOTE: Convert (i-1,j-1) <=> (d-2,k-1) */ 
-         prev_mat = MMX3(d2,k-1)  + TSC(j-1,M2M);
-         prev_ins = IMX3(d2,k-1)  + TSC(j-1,I2M);
-         prev_del = DMX3(d2,k-1)  + TSC(j-1,D2M);
+         prev_mat = MMX3_M(d2,k-1)  + TSC(j-1,M2M);
+         prev_ins = IMX3_M(d2,k-1)  + TSC(j-1,I2M);
+         prev_del = DMX3_M(d2,k-1)  + TSC(j-1,D2M);
          /* free to begin match state (new alignment) */
          // prev_beg = 0; /* assigned once at start */
          /* best-to-match */
          prev_sum = calc_Logsum( 
                         calc_Logsum( prev_mat, prev_ins ),
                         calc_Logsum( prev_del, prev_beg ) );
-         MMX3(d0,k) = prev_sum + MSC(j,A);
+         MMX3_M(d0,k) = prev_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: Convert (i-1,j) <=> (d-1,k-1) */
-         prev_mat = MMX3(d1,k-1) + TSC(j,M2I);
-         prev_ins = IMX3(d1,k-1) + TSC(j,I2I);
+         prev_mat = MMX3_M(d1,k-1) + TSC(j,M2I);
+         prev_ins = IMX3_M(d1,k-1) + TSC(j,I2I);
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
-         IMX3(d0,k) = prev_sum + ISC(j,A);
+         IMX3_M(d0,k) = prev_sum + ISC(j,A);
 
          /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          /* NOTE: Convert (i,j-1) <=> (d-1, k) */
-         prev_mat = MMX3(d1,k) + TSC(j-1,M2D);
-         prev_del = DMX3(d1,k) + TSC(j-1,D2D);
+         prev_mat = MMX3_M(d1,k) + TSC(j-1,M2D);
+         prev_del = DMX3_M(d1,k) + TSC(j-1,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum(prev_mat, prev_del);
-         DMX3(d0,k) = prev_sum;
+         DMX3_M(d0,k) = prev_sum;
       }
 
       /* SCRUB 2-BACK ANTIDIAGONAL */
       for (k = lb_2; k < rb_2; k++) {
-         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+         MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = -INF;
       }
       rb_2 = rb_1;
       lb_2 = lb_1;
@@ -331,18 +329,19 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
 
       // /* NAIVE SCRUB - FOR DEBUGGING */
       // for (k = 0; k < (T+1)+(Q+1); k++) {
-      //    MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      //    MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = -INF;
       // }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
       if (test) {
-         for (k = le; k <= re; k++) {
+         for (k = le; k <= re; k++) 
+         {
             i = k;
             j = d_0 - i;
 
-            MMX(i,j) = MMX3(d0,k);
-            IMX(i,j) = IMX3(d0,k);
-            DMX(i,j) = DMX3(d0,k);
+            MMX_M(i,j) = MMX3_M(d0,k);
+            IMX_M(i,j) = IMX3_M(d0,k);
+            DMX_M(i,j) = DMX3_M(d0,k);
          }
       }
    }
@@ -378,16 +377,16 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
 /* ****************************************************************************************** */
 void cloud_Backward_Linear(const SEQUENCE*    query, 
                            const HMM_PROFILE* target,
-                           const int          Q, 
-                           const int          T, 
-                           float*             st_MX, 
-                           float*             st_MX3,
-                           float*             sp_MX, 
+                           const int          Q,
+                           const int          T,
+                           MATRIX_3D*         st_MX,
+                           MATRIX_3D*         st_MX3,
+                           MATRIX_2D*         sp_MX,
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
-                           const float        alpha, 
+                           const float        alpha,
                            const int          beta,
-                           const bool         test)
+                           const bool         test )
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column, ... indices */
@@ -426,16 +425,12 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
 
    /* --------------------------------------------------------------------------------- */
 
-   /* clear residual data */
-   if (test) dp_matrix_Clear(Q, T, st_MX, sp_MX);
-   dp_matrix_Clear3(Q, T, st_MX3, sp_MX);
-
    /* get start and end points of viterbi alignment */
    beg = tr->traces[tr->beg];
    end = tr->traces[tr->end];
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (beg.i == Q+1 || beg.j == T+1) {
+   if (beg.i == Q || beg.j == T) {
       beg.i -= 1;
       beg.j -= 1;
    }
@@ -501,8 +496,8 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
             j = d_1 - i;    /* back one diag */
 
             diag_max = calc_Max( 
-                           calc_Max( diag_max, MMX3(d1,k) ),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+                           calc_Max( diag_max, MMX3_M(d1,k) ),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
          }
 
          /* Total max records largest cell score seen so far */
@@ -519,8 +514,8 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
             i = k;
             j = d_1 - i; /* looking back one diag */
 
-            cell_max = calc_Max( MMX3(d1,k),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+            cell_max = calc_Max( MMX3_M(d1,k),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
 
             /* prune in left edgebound */
             if( cell_max >= total_limit ) {
@@ -540,8 +535,8 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
             i = k;
             j = d_1 - i;
 
-            cell_max = calc_Max( MMX3(d1,k),
-                           calc_Max( IMX3(d1,k), DMX3(d1,k) ) );
+            cell_max = calc_Max( MMX3_M(d1,k),
+                           calc_Max( IMX3_M(d1,k), DMX3_M(d1,k) ) );
 
             /* prune in right edgebound */
             if( cell_max >= total_limit )
@@ -582,9 +577,9 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
          j = d - i;
 
          /*
-          *    MX(i+1, j+1) => MX3(d_2, k+1)
-          *    MX(i  , j+1) => MX3(d_1, k  )
-          *    MX(i+1, j  ) => MX3(d_1, k+1)
+          *    MX_M(i+1, j+1) => MX3_M(d_2, k+1)
+          *    MX_M(i  , j+1) => MX3_M(d_1, k  )
+          *    MX_M(i+1, j  ) => MX3_M(d_1, k+1)
           */
 
          /* Get next sequence character */
@@ -595,38 +590,38 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
          sc_M = MSC(j+1, A);
          sc_I = ISC(j+1, A);
 
-         prev_mat = MMX3(d2,k+1) + TSC(j,M2M) + sc_M;
-         prev_ins = IMX3(d1,k+1) + TSC(j,M2I) + sc_I;
-         prev_del = DMX3(d1,k  ) + TSC(j,M2D);
-         // prev_end = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
+         prev_mat = MMX3_M(d2,k+1) + TSC(j,M2M) + sc_M;
+         prev_ins = IMX3_M(d1,k+1) + TSC(j,M2I) + sc_I;
+         prev_del = DMX3_M(d1,k  ) + TSC(j,M2D);
+         // prev_end = XMX_M(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
          // prev_end = sc_E;
          /* best-to-match */
          prev_sum = calc_Logsum( 
                            calc_Logsum( prev_mat, prev_ins ),
                            calc_Logsum( prev_del, prev_end ) );
-         MMX3(d0,k) = prev_sum;
+         MMX3_M(d0,k) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
          sc_I = ISC(j, A);
 
-         prev_mat = MMX3(d2,k+1) + TSC(j,I2M) + sc_M;
-         prev_ins = IMX3(d1,k+1) + TSC(j,I2I) + sc_I;
+         prev_mat = MMX3_M(d2,k+1) + TSC(j,I2M) + sc_M;
+         prev_ins = IMX3_M(d1,k+1) + TSC(j,I2I) + sc_I;
          /* best-to-insert */
          prev_sum = calc_Logsum( prev_mat, prev_ins );
-         IMX3(d0,k) = prev_sum;
+         IMX3_M(d0,k) = prev_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prev_mat = MMX3(d2,k+1) + TSC(j,D2M) + sc_M;
-         prev_del = DMX3(d1,k  ) + TSC(j,D2D);
+         prev_mat = MMX3_M(d2,k+1) + TSC(j,D2M) + sc_M;
+         prev_del = DMX3_M(d1,k  ) + TSC(j,D2D);
          /* best-to-delete */
          prev_sum = calc_Logsum( prev_mat, prev_del );
          prev_sum = calc_Logsum( prev_sum, prev_end );
-         DMX3(d0,k) = prev_sum;
+         DMX3_M(d0,k) = prev_sum;
       }
 
       /* SCRUB 2-BACK ANTIDIAGONAL */
       for (k = lb_2; k < rb_2; k++) {
-         MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+         MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = -INF;
       }
       rb_2 = rb_1;
       lb_2 = lb_1;
@@ -635,7 +630,7 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
 
       // /* NAIVE SCRUB - FOR DEBUGGING */
       // for (k = 0; k < (T+1)+(Q+1); k++) {
-      //    MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+      //    MMX3_M(d2,k) = IMX3_M(d2,k) = DMX3_M(d2,k) = -INF;
       // }
 
       /* Embed Current Row into Quadratic Array - FOR DEBUGGING */
@@ -644,9 +639,9 @@ void cloud_Backward_Linear(const SEQUENCE*    query,
             i = k;
             j = d_0 - i;
 
-            MMX(i,j) = MMX3(d0,k);
-            IMX(i,j) = IMX3(d0,k);
-            DMX(i,j) = DMX3(d0,k);
+            MMX_M(i,j) = MMX3_M(d0,k);
+            IMX_M(i,j) = IMX3_M(d0,k);
+            DMX_M(i,j) = DMX3_M(d0,k);
          }
       }
    }

@@ -250,9 +250,11 @@ typedef struct {
 
 /* */
 typedef struct {
+   bool     is_index_given;         /* is an index file supplied? */
+
    /* file paths */
-   char*    t_filepath;          /* filepath to target (hmm or fasta) file */
-   char*    q_filepath;          /* filepath to query (fasta) file */
+   char*    t_filepath;             /* filepath to target (hmm or fasta) file */
+   char*    q_filepath;             /* filepath to query (fasta) file */
    /* index paths */
    char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
    char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
@@ -269,7 +271,7 @@ typedef struct {
    int      pipeline_mode;          /* which workflow pipeline to use */
    int      verbosity_mode;         /* levels of verbosity */
    int      search_mode;            /* alignment search mode */
-   int      is_testing;             /* determines whether debug statements appear */
+   bool     is_testing;             /* determines whether debug statements appear */
 
    /* if viterbi is precomputed, gives starting and ending coords (single result) */
    COORDS   beg;                    /* beginning coordinates of viterbi alignment */
@@ -279,11 +281,14 @@ typedef struct {
    int      t_filetype;          /* enumerated FILETYPE of target file */
    int      q_filetype;          /* enumerated FILETYPE of query file */
    /* file id number */
-   int      t_fileno;            /*  */
-   int      q_fileno;            /*  */
+   int      t_fileno; 
+   int      q_fileno;
    /* offset into file */
    int      t_offset;
    int      q_offset;
+   /* ids to be searched */
+   VECTOR_INT*    t_ids;            /* list of all targets in file to be searched */
+   VECTOR_INT*    q_ids;            /* list of all queries in file to be searched */
 
    /* threshold scores for pipeline */
    float    viterbi_sc_threshold;
@@ -293,11 +298,13 @@ typedef struct {
 
 /* */
 typedef struct {
-   float    load_hmm;
+   /* load times */
+   float    load_t;
+   float    load_q;
 
-   float    viterbi;
-   float    traceback;
-
+   /* linear */
+   float    lin_viterbi;
+   float    lin_traceback;
    float    fwd;
    float    bck;
 
@@ -392,21 +399,31 @@ typedef struct {
 /* bools of all tasks to be executed by WORKER */
 /* flags set by pipeline and then passed to a generic workflow */
 typedef struct {
-   bool     time;             /* are we timing given tasks? */
+   /* results output */
+   bool     scores;           /* are we reporting scores for given tasks? */
+   bool     time;             /* are we reporting times for given tasks? */
 
-   bool     naive_cloud;      /* */
+   /* output heatmaps */
+   bool     heatmaps;         /* */     
 
+   /* naive algs */
+   bool     naive_cloud;      /* naive cloud search */
+
+   /* quadratic algs */
    bool     quadratic;        /* are we running any quadratic-space algorithms? */
-   bool     quad_fwdbck;      /* forward-backward */
+   bool     quad_fwd;         /* forward */
+   bool     quad_bck;         /* backward */
    bool     quad_vit;         /* viterbi */
    bool     quad_trace;       /* traceback of viterbi */
    bool     quad_cloud;       /* cloud pruning search */
 
+   /* linear algs */
    bool     linear;           /* are we running any linear algorithms? */
-   bool     linear_fwdbck;    /* forward-backward */
-   bool     linear_vit;       /* viterbi */
-   bool     linear_trace;     /* traceback of viterbi */
-   bool     linear_cloud;     /* cloud pruning search */
+   bool     lin_fwd;          /* forward-backward */
+   bool     lin_bck;          /* backward */
+   bool     lin_vit;          /* viterbi */
+   bool     lin_trace;        /* traceback of viterbi */
+   bool     lin_cloud;        /* cloud pruning search */
 } TASKS;
 
 /* worker contains the necessary data structures to conduct search */
@@ -422,6 +439,10 @@ typedef struct {
    /* file pointers to query and target data file */
    FILE*          q_file;
    FILE*          t_file;
+   /* id of currently loaded query and target */
+   int            q_id;
+   int            t_id;
+
 
    /* current query and target data */
    SEQUENCE*      q_seq;
@@ -434,13 +455,16 @@ typedef struct {
    EDGEBOUNDS*    edg_diag;
    EDGEBOUNDS*    edg_row;
 
+   /* edgebounds for cloud search (quad space) */
+
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;
 
    /* dynamic programming matrices */
-   MATRIX_3D*     st_MX;  /* normal state matrix (quadratic space) */
-   MATRIX_3D*     st_MX3; /* normal state matrix (linear space) */
-   MATRIX_2D*     sp_MX;  /* special state matrix (quadratic space) */
+   MATRIX_3D*     st_MX;         /* normal state matrix (quadratic space) */
+   MATRIX_3D*     st_MX3;        /* normal state matrix (linear space) */
+   MATRIX_2D*     sp_MX;         /* special state matrix (quadratic space) */
+   MATRIX_3D*     st_cloud_MX;   /* matrix for naive cloud search */
 
    /* times for tasks */
    TIMES*         times;
