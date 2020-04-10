@@ -26,132 +26,169 @@
 #include "arg_parser.h"
 
 /* Parses Arguments from the command line */
-ARGS*  ARGS_Parse( int     argc, 
+void   ARGS_Parse( ARGS*   args,
+                   int     argc, 
                    char*   argv[] )
 {
-   ARGS*       args           = NULL;
-   int         num_main_args  = 0; 
-   const int   max_main_args  = 2;
+   int   num_main_args  = 2; 
+   char* flag           = NULL;
+   int   req_args       = 0;
 
-   args = ARGS_Create();
    ARGS_Set_Defaults(args);
 
-   if (argc == 1) {
-      printf("Usage: ./fb-pruner <target_hmm_file> <query_fasta_file>\n");
-      printf("Using DEFAULT arguments...\n\n");
+   /* if no arguments given, run test case if in debug mode */
+   if (argc < 2) {
+      printf("Usage: fb-pruner <command> <target_hmm_file> <query_fasta_file>\n");
+      #if DEBUG 
+         printf("Using DEFAULT arguments...\n\n");
+         return;
+      #else
+         exit(EXIT_FAILURE);
+      #endif
    }
 
-   for (int i = 1; i < argc; ++i)
+   /* check for help flag */
+   if ( strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0 ) {
+      ARGS_Help_Info();
+   }
+
+   /* first argument is command pipeline (id_number or name) */
+   bool found_pipeline = false;
+   if ( isdigit(argv[1][0]) ) {
+      args->pipeline_mode = atoi(argv[1]);
+   } else {
+      for (int i = 0; i < NUM_PIPELINE_MODES; i++) {
+         if ( strcmp(argv[1], PIPELINE_NAMES[i]) == 0 ) {
+            args->pipeline_mode = i;
+            found_pipeline = true;
+            break;
+         }
+      }
+   }
+   /* check that valid pipeline mode was entered */
+   if ( found_pipeline == false || (args->pipeline_mode < 0) || (args->pipeline_mode >= NUM_PIPELINE_MODES) ) {
+      fprintf(stderr, "ERROR: invalid pipeline/command was given: (%s, %d).\n", argv[1], args->pipeline_mode);
+      fprintf(stderr, "VALID PIPELINE/COMMANDS OPTS: [ ");
+      for (int i = 0; i < NUM_PIPELINE_MODES; i++) 
+         fprintf(stderr, "%s, ", PIPELINE_NAMES[i]);
+      fprintf(stderr, "]\n");
+      exit(EXIT_FAILURE);
+   }
+
+   /* set number of main arguments based on given pipeline */
+   num_main_args = 2;
+   /* check proper number of main args remain */
+   if ( argc < 2 + num_main_args ) {
+      fprintf(stderr, "ERROR: Improper number of main args. [required: %d]\n", num_main_args);
+      #if DEBUG 
+         printf("Using DEFAULT arguments...\n\n");
+         return;
+      #else 
+         exit(EXIT_FAILURE);
+      #endif
+   }
+
+   /* TODO: make dynamic number of args based on pipeline */
+   /* second arg is query */
+   args->t_filepath = strdup(argv[2]);
+   /* third arg is target */
+   args->q_filepath = strdup(argv[3]);
+
+   for (int i = 2 + num_main_args; i < argc; ++i)
    {
-      if ( argv[i][0] == '-' )
+      /* if long flag */
+      if ( strncmp(argv[i], "--", 2) == 0 ) 
       {
-         switch (argv[i][1]) {
-
-            /* alpha value */
-            case 'a':   
+         if ( strcmp(argv[i], (flag = "--help") ) == 0 ) {
+            ARGS_Help_Info();
+         }
+         else if ( strcmp(argv[i], (flag = "--alpha") ) == 0 ) {
+            req_args = 1;
+            i++;
+            if (i < argc) {
+               args->alpha = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--beta") ) == 0 ) {
+            req_args = 1;
+            i++;
+            if (i+req_args < argc) {
+               args->beta = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--eval") ) == 0 ) {
+            req_args = 1;
+            i++;
+            if (i+req_args <= argc) {
+               args->cloud_threshold = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-lookup") ) == 0 ) {
+            req_args = 2;
+            i++;
+            if (i+req_args <= argc) {
+               free(args->t_lookup_filepath);
+               args->t_lookup_filepath = argv[i];
                i++;
-               if (i < argc) {
-                  args->alpha = atof(argv[i]);
-               } else {
-                  fprintf(stderr, "ERROR: -a flag requires argument: <alpha>.\n");
-               }
-               break;
-
-            /* beta value */
-            case 'b':  
+               free(args->q_lookup_filepath);
+               args->q_lookup_filepath = argv[i];
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-input") ) == 0 ) {
+            req_args = 1;
+            i++;
+            if (i+req_args <= argc) {
+               free(args->output_filepath);
+               args->output_filepath = strdup(flag);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--index") ) == 0 ) {
+            req_args = 2;
+            i++;
+            if (i+req_args <= argc) {
+               free(args->t_indexpath);
+               args->t_lookup_filepath = argv[i];
                i++;
-               if (i < argc) {
-                  args->beta = atoi(argv[i]);
-               } else {
-                  fprintf(stderr, "ERROR: -b flag requires argument: <beta>.\n");
-               }
-               break;
-
-            /* append results to outfile */
-            case 'o':  
-               i++;
-               if (i < argc) {
-                  args->output_filepath = strdup(argv[i]);
-                  // args->outfile = fopen(argv[i], "w+");
-               } else {
-                  fprintf(stderr, "ERROR: -o flag requires argument: <output_filepath>.\n");
-               } 
-               break;
-
-            /* set windows (viterbi alignments) */
-            case 'w': 
-               i ++;
-               if (i+3 < argc) {
-                  args->beg.j = atoi(argv[i]);
-                  i++;
-                  args->beg.i = atoi(argv[i]);
-                  i++;
-                  args->end.j = atoi(argv[i]);
-                  i++;
-                  args->end.i = atoi(argv[i]);
-                  i++;
-               } else {
-                  fprintf(stderr, "ERROR: -w flag requires 4 arguments: <beg_j, beg_i, end_j, end_i>.\n");
-               }
-
-            /* set pipeline */
-            case 'p': 
-               i++;
-               if (i < argc) {
-                  args->pipeline_mode = atoi(argv[i]);
-               } else {
-                  fprintf(stderr, "ERROR: -p flag requires argument: <pipeline_mode>.\n");
-               }
-               break;
-
-            /* input m8 results file */
-            case 'i':
-               i++;
-               if (i < argc) {
-                  args->hits_filepath = strdup(argv[i]);
-               } else {
-                  fprintf(stderr, "ERROR: -i flag requires argument: <m8_hits_file>.\n");
-               }
-               break;
-
-            /* help */
-            case 'h':
-               fprintf(stdout, "USAGE: ./cloud_fwdbck <target_file> <query_file>\n");
-               exit(EXIT_SUCCESS);
-               break;
-
-            /* "--" long options */
-            case '-':
-               break;
-
-            default:
-               fprintf(stderr, "ERROR: -%c is not a recognized flag.\n", argv[i][1]);
-               exit(EXIT_FAILURE);
+               free(args->q_indexpath);
+               args->q_lookup_filepath = argv[i];
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--output") ) == 0 ) {
+            req_args = 1;
+            i++;
+            if (i+req_args <= argc) {
+               free(args->output_filepath);
+               args->output_filepath = strdup(flag);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+            }
+         }
+         else {
+            fprintf(stderr, "ERROR: '%s' is not a recognized flag.\n", argv[i]);
+            exit(EXIT_FAILURE);
          }
       }
       else
       {
-         printf("%s\n", argv[i]);
-         if (num_main_args == 0)
-         {
-            args->t_filepath = strdup(argv[i]);
-         }
-         else if (num_main_args == 1)
-         {
-            args->q_filepath = strdup(argv[i]);
-         }
-         else
-         {
-            fprintf(stderr, "ERROR: Too many main arguments.\n");
-         }
-         num_main_args++;
+         fprintf(stderr, "ERROR: '%s' is not associated with an argument or flag\n", argv[i]);
+         exit(EXIT_FAILURE);
       }
    }
 
    args->t_filetype = ARGS_Find_FileType( args->t_filepath );
    args->q_filetype  = ARGS_Find_FileType( args->q_filepath );
-
-   return args;
 }
 
 /* SET DEFAULT ARGUMENTS (for testing) */
@@ -169,10 +206,7 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_offset                = 0;
    args->q_offset                = 0;
 
-   args->hits_filepath           = NULL;
-
-   args->output_filepath         = "test_output/test.txt";
-   // args->output_filepath         = "stats/cloud_stats.tsv";
+   args->output_filepath         = STDOUT;
 
    args->alpha                   = 20.0f;
    args->beta                    = 5;
@@ -181,9 +215,9 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->verbosity_mode          = VERBOSE_NONE;
    args->search_mode             = MODE_UNILOCAL;
 
-   args->viterbi_sc_threshold    = 0.0f;
-   args->fwdbck_sc_threshold     = 0.0f;
-   args->cloud_sc_threshold      = 0.0f;
+   args->viterbi_threshold       = 0.0f;
+   args->fwdbck_threshold        = 0.0f;
+   args->cloud_threshold         = 0.0f;
 }
 
 /* sends ARGS data to FILE POINTER */
@@ -202,7 +236,12 @@ void ARGS_Dump( ARGS*    args,
    int      t_filetype        = args->t_filetype;
    int      q_filetype        = args->q_filetype;
 
-   char*    hits_filepath     = args->hits_filepath;
+   char*    t_indexpath        = args->t_indexpath;
+   char*    q_indexpath        = args->q_indexpath;
+
+   char*    mmseqs_res        = args->mmseqs_res_filepath;
+   char*    t_lookup_filepath = args->t_lookup_filepath;
+   char*    q_lookup_filepath = args->q_lookup_filepath;
 
    char*    output_filepath   = args->output_filepath;
 
@@ -222,8 +261,17 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE",  FILE_TYPE_NAMES[t_filetype] );
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",   q_filepath );
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",   FILE_TYPE_NAMES[q_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "HITS_FILEPATH",    hits_filepath );
    fprintf( fp, "\n" );
+
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",   t_indexpath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",   q_indexpath );
+   fprintf( fp, "\n" );
+
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",   mmseqs_res );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_LOOKUP_PATH",   t_lookup_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_LOOKUP_PATH",   q_lookup_filepath );   
+   fprintf( fp, "\n" );
+
 
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH",  output_filepath );
 
@@ -242,12 +290,25 @@ int ARGS_Find_FileType( char* _filename_ )
 
    fprintf(stderr, "ERROR: '%s' is not an acceptable file type.\n", _filename_);
    exit(EXIT_FAILURE);
-
-   return 0;
+   return -1;
 }
 
 /* output help info */
-void ARGS_Help_Info( ARGS* args )
+void ARGS_Help_Info()
 {
-   
+   printf("Usage: ./fb-pruner <command> <target_hmm_file> <query_fasta_file>\n\n");
+   printf("%-10s\t%-10s\t%-10s\t%s\n",
+      "FLAG",
+      "NUM_ARGS",
+      "ARG_TYPE",
+      "DESC");
+   for (int i = 0; i < NUM_FLAG_CMDS; i++) {
+      printf("%-10s\t%-10d\t%-10s\t%s\n", 
+         COMMAND_OPTS[i].long_flag,
+         COMMAND_OPTS[i].num_args,
+         DATATYPE_NAMES[COMMAND_OPTS[i].data_type],
+         COMMAND_OPTS[i].desc );
+   }
+   printf("\n");
+   exit(EXIT_SUCCESS);
 }

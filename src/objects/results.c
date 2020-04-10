@@ -107,6 +107,9 @@ void RESULTS_M8_Dump( RESULTS*   results,
    fprintf( fp, "# M8 RESULTS:\n");
 
    fprintf( fp, "# " );
+   fprintf( fp, "%s\t",    "q_id" );
+   fprintf( fp, "%s\t",    "t_id" );
+
    fprintf( fp, "%s\t",    "query" );
    fprintf( fp, "%s\t",    "target" );
 
@@ -126,6 +129,9 @@ void RESULTS_M8_Dump( RESULTS*   results,
 
    for (int i = 0; i < results->N; i++) {
       RESULT* res = &(results->data[i]);
+
+      fprintf( fp, "%d\t",    res->query_id );
+      fprintf( fp, "%d\t",    res->target_id );
 
       fprintf( fp, "%s\t",    res->query_name );
       fprintf( fp, "%s\t",    res->target_name );

@@ -10,13 +10,19 @@
 #define _STRUCTS_ENUMS_H
 
 /* === CONSTANTS === */
-
 #define CONST_LOG2 0.69314718055994529    /*  */
 #define SCALE_FACTOR 1000                 /* scaling factor for summing logrithm */
 #define INF INFINITY
 #define INT_MIN -2147483648               /* min value of integer */
 
+#define STDOUT "/dev/stdout"
+#define STDERR "/dev/stderr"
+#define DEVNULL "/dev/null"
+ 
 /* === ENUMERATIONS === */
+
+/* commandline flags */
+#define NUM_FLAG_CMDS 4
 
 /* Flag for which models in file are to be loaded */
 typedef enum {
@@ -48,8 +54,9 @@ typedef enum {
    DATATYPE_INT      = 1,
    DATATYPE_FLOAT    = 2,
    DATATYPE_STRING   = 3,
+   DATATYPE_BOOL     = 4,
 } DATATYPES;
-#define NUM_DATATYPES 4
+#define NUM_DATATYPES 5
 
 /* Pipeline Modes */
 typedef enum {
@@ -61,7 +68,7 @@ typedef enum {
    PIPELINE_INDEX    = 5,
    PIPELINE_UTEST    = 6,
 } PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 6
+#define NUM_PIPELINE_MODES 7
 
 /* Verbosity Modes */
 typedef enum {

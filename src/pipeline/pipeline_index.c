@@ -84,8 +84,14 @@ void index_pipeline( WORKER* worker )
    char*       t_filepath     = args->t_filepath;
    char*       q_filepath     = args->q_filepath;
 
+   char*       t_indexpath    = args->t_indexpath;
+   char*       q_indexpath    = args->q_indexpath;
+
    int         t_filetype     = args->t_filetype;
    int         q_filetype     = args->q_filetype; 
+
+   char*       t_lookup_filepath = args->t_lookup_filepath;
+   char*       q_lookup_filepath = args->q_lookup_filepath;   
 
    char*       out_filepath   = args->output_filepath;
 
@@ -96,6 +102,7 @@ void index_pipeline( WORKER* worker )
    else if ( t_filetype == FILE_FASTA ) {
       t_index = F_INDEX_Fasta_Build( t_filepath ); 
    }
+   t_index->index_path = args->t_indexpath;
 
    /* index query file */
    if ( q_filetype == FILE_HMM ) {
@@ -104,33 +111,47 @@ void index_pipeline( WORKER* worker )
    else if ( q_filetype == FILE_FASTA ) {
       q_index = F_INDEX_Fasta_Build( q_filepath ); 
    }
+   q_index->index_path = args->q_indexpath;
 
-   if ( strcmp( out_filepath, "#stdout" ) == 0 ) {
-      F_INDEX_Dump( t_index, stdout );
-      F_INDEX_Sort( t_index );
-
-      F_INDEX_Dump( q_index, stdout );
-      F_INDEX_Sort( q_index );
+   /* if we have a mmseqs lookup, update names to match */
+   if ( t_lookup_filepath != NULL ) {
+      F_INDEX_Lookup_Update( t_index, t_lookup_filepath );
    }
-   else
-   {
-      char* t_indexpath = strdup( t_filepath );
-      strcat( t_indexpath, ".idx" );
-      printf("saving target_index to:\t%s...\n", t_indexpath);
-
-      fp = fopen(t_indexpath, "w");
-      F_INDEX_Dump( t_index, fp );
-      F_INDEX_Sort( t_index );
-      fclose(fp);
-
-      char* q_indexpath = strdup( q_filepath );
-      strcat( q_indexpath, ".idx" );
-      printf("saving query_index to:\t%s...\n", q_indexpath);
-
-      fp = fopen(q_indexpath, "w");
-      F_INDEX_Dump( q_index, fp );
-      F_INDEX_Sort( q_index );
-      fclose(fp);
+   if ( q_lookup_filepath != NULL ) {
+      F_INDEX_Lookup_Update( q_index, q_lookup_filepath );
    }
+
+   /* determine the method of output for target index */
+   if ( t_indexpath == NULL ) {
+      /* if no output name is given, append ".idx" and save in same directory */
+      const char* ext = ".idx";
+      t_indexpath = (char*) malloc( sizeof(char) * (strlen(t_filepath) + strlen(ext) + 1) );
+      if (t_indexpath == NULL) {
+         fprintf(stderr, "ERROR: malloc failed.\n");
+      }
+      strcpy( t_indexpath, t_filepath );
+      strcat( t_indexpath, ext );
+   }
+   /* output target index */
+   fp = fopen( t_indexpath, "w" );
+   F_INDEX_Dump( t_index, fp );
+   // F_INDEX_Sort_by_Name( t_index );
+   fclose(fp);
    
+   /* determine the method of output for query index */
+   if ( q_indexpath == NULL ) {
+      /* if no output name is given, append ".idx" and save in same directory */
+      const char* ext = ".idx";
+      q_indexpath = (char*) malloc( sizeof(char) * (strlen(q_filepath) + strlen(ext) + 1) );
+      if (t_indexpath == NULL) {
+         fprintf(stderr, "ERROR: malloc failed.\n");
+      }
+      strcpy( q_indexpath, q_filepath );
+      strcat( q_indexpath, ".idx" );
+   }
+   /* output query index */
+   fp = fopen( q_indexpath, "w" );
+   F_INDEX_Dump( q_index, fp );
+   // F_INDEX_Sort_by_Name( q_index );
+   fclose(fp);
 }

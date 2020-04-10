@@ -40,6 +40,7 @@
 #include "objects/edgebound.h"
 #include "objects/clock.h"
 #include "objects/mystring.h"
+#include "objects/args.h"
 #include "objects/matrix/matrix_2d.h"
 #include "objects/matrix/matrix_3d.h"
 #include "objects/vectors/vector_range_2d.h"
@@ -79,8 +80,8 @@ int main ( int argc, char *argv[] )
    #endif
 
    /* parse command line arguments */
-   ARGS* args  = NULL;
-   args = ARGS_Parse( argc, argv );
+   args = ARGS_Create();
+   ARGS_Parse( args, argc, argv );
 
    /* output arguments */
    ARGS_Dump( args, stdout );

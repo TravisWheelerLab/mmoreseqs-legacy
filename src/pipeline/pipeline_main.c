@@ -71,5 +71,36 @@
 /* standard pipeline */
 void main_pipeline( WORKER* worker ) 
 {
-   
+	printf("IN MAIN\n");
+
+	FILE* 	fp 		= NULL;
+
+	ARGS* 	args 	= worker->args;
+	TASKS* 	tasks 	= worker->tasks;
+
+	char* 	t_indexpath = args->t_indexpath;
+	char* 	q_indexpath = args->q_indexpath;
+
+	WORK_load_indexes( worker );
+
+	F_INDEX_Dump( worker->t_index, stdout );
+	F_INDEX_Dump( worker->q_index, stdout );
+
+	/* allocate data structs */
+	worker->t_prof 	= HMM_PROFILE_Create();
+	worker->t_seq	= SEQUENCE_Create();
+	worker->q_seq	= SEQUENCE_Create();
+
+	/* loop over targets */
+	for (int i = 0; i < 0; i++) {
+		/* load in next target */
+
+
+		/* loop over queries */
+		for (int j = 0; j < 0; j++) {
+			/* load in next query */
+
+			/* perform given tasks on them */
+		}
+	}
 }

@@ -86,7 +86,7 @@ void mmseqs_pipeline( WORKER* worker )
    int      t_filetype        = args->t_filetype;
    int      q_filetype        = args->q_filetype;
 
-   char*    m8_filepath       = args->hits_filepath;
+   char*    m8_filepath       = args->mmseqs_res_filepath;
 
    /* results inputted from mmseqs pipeline */
    RESULTS*       results_in        = NULL;
@@ -196,6 +196,7 @@ void mmseqs_pipeline( WORKER* worker )
       int t_id = result->target_id;
       int q_id = result->query_id;
 
+      
 
       /* resize data structures for next search */
       T = t_prof->N;

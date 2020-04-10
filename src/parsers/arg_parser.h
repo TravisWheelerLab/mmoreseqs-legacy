@@ -8,8 +8,9 @@
 
 
 /* parses arguments from the command line */
-ARGS* ARGS_Parse( int     argc,
-                  char*   argv[] );
+void ARGS_Parse( ARGS*   args,
+				 int     argc, 
+                 char*   argv[] );
 
 /* set default arguments */
 void ARGS_Set_Defaults( ARGS* args );
@@ -20,3 +21,6 @@ void ARGS_Dump( ARGS*    args,
 
 /* examines target and query, and finds the type of the files */
 int ARGS_Find_FileType( char* _filename_ );
+
+/* output help info */
+void ARGS_Help_Info();

@@ -26,7 +26,7 @@
 /* header */
 #include "error_handler.h"
 
-void ERROR_Handler( const int    error_code,
+void ERRORCHECK_Handler( const int    error_code,
                     const char*  file,
                     const int    line,
                     const char*  func,
@@ -57,9 +57,33 @@ void ERROR_Handler( const int    error_code,
 }
 
 /* check for null pointer */
-void ERROR_NullPtrCheck( const void*   data,
+void ERRORCHECK_NullPtr( const void*   data,
                          int*          error_code,
                          const char*   note )
 {
 
+}
+
+/* open file and check for null file pointer */ 
+FILE* ERRORCHECK_fopen( char*       filename,
+                        const char* permission )
+{
+    FILE* fp = fopen( filename, permission );
+    if (fp == NULL) {
+        fprintf(stderr, "ERROR: Unable to open file '%s' for '%s'.\n", filename, permission);
+    }
+}
+
+/* malloc and check for null pointer */
+void* ERRORCHECK_malloc()
+{
+
+}
+
+/* report error location */
+void ERRORCHECK_location( const char* _file_,
+                          const int   _line_,
+                          const char* _func_  )
+{
+    fprintf(stderr, "ERROR occurred in FILE: %s, LINE: %d, FUNC: %s.\n", _file_, _line_, _func_);
 }

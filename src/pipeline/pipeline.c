@@ -74,7 +74,103 @@ void WORK_workflow( WORKER*  work )
 
 }
 
+/* load query and target indexes (or build them) */
+void WORK_load_indexes( WORKER* worker ) 
+{
+   FILE*    fp       = NULL;
 
+   ARGS*    args  = worker->args;
+   TASKS*   tasks    = worker->tasks;
+
+   char*    t_indexpath = args->t_indexpath;
+   char*    q_indexpath = args->q_indexpath;
+
+   /* defuault index location  (same as main file but with .idx extension) */
+   char* t_indexpath_tmp = NULL;
+   if (args->t_indexpath == NULL) {
+      char* ext = ".idx";
+      t_indexpath_tmp = (char*) malloc( sizeof(char) * (strlen(args->t_filepath) + strlen(ext) + 1) );
+      if (t_indexpath_tmp == NULL) {
+           fprintf(stderr, "ERROR: malloc failed.\n");
+       }
+      strcpy( t_indexpath_tmp, args->t_filepath );
+      strcat( t_indexpath_tmp, ext );
+   }
+
+   /* load or build target file index */
+   if (args->t_indexpath != NULL) {
+      /* load file passed by commandline */
+      printf("loading indexpath from commandline...\n");
+      worker->t_index = F_INDEX_Load(args->t_indexpath);
+   } 
+   else if ( access( t_indexpath_tmp, F_OK ) == 0 ) {
+      /* check if standard extension index file exists */
+      printf("found index at database location...\n");
+      worker->t_index = F_INDEX_Load( t_indexpath_tmp );
+   }  
+   else {
+      /* build index on the fly */
+      printf("building index of file...\n");
+      if (args->t_filetype == FILE_HMM) {
+         worker->t_index = F_INDEX_Hmm_Build(args->t_filepath);
+      }
+      else if (args->t_filetype == FILE_FASTA) {
+         worker->t_index = F_INDEX_Fasta_Build(args->t_filepath);
+      }
+      else {
+         fprintf(stderr, "ERROR: target filetype is not supported.\n" );
+         exit(EXIT_FAILURE);
+      }
+      /* save index file */
+      args->t_indexpath = t_indexpath_tmp;
+      fp = fopen( t_indexpath_tmp, "w" );
+      F_INDEX_Dump( worker->t_index, fp );
+      fclose(fp);
+   }
+
+   /* default index location (same as main file but with .idx extenstion) */
+   char* q_indexpath_tmp = NULL;
+   if (args->q_indexpath == NULL) {
+      char* ext = ".idx";
+      q_indexpath_tmp = (char*) malloc( sizeof(char) * (strlen(args->q_filepath) + strlen(ext) + 1) );
+      if (q_indexpath_tmp == NULL) {
+           fprintf(stderr, "ERROR: malloc failed.\n");
+       }
+      strcpy( q_indexpath_tmp, args->q_filepath );
+      strcat( q_indexpath_tmp, ext );
+   }
+
+   /* load or build target file index */
+   if (args->q_indexpath != NULL) {
+      /* load file passed by commandline */
+      printf("loading indexpath from commandline...\n");
+      worker->q_index = F_INDEX_Load(args->q_indexpath);
+   } 
+   else if ( access( q_indexpath_tmp, F_OK ) != -1 ) {
+      /* check if standard extension index file exists */
+      printf("found index at database location...\n");
+      worker->q_index = F_INDEX_Load( q_indexpath_tmp );
+   }  
+   else {
+      /* build index on the fly */
+      printf("building index of file...\n");
+      if (args->q_filetype == FILE_HMM) {
+         worker->q_index = F_INDEX_Hmm_Build(args->q_filepath);
+      }
+      else if (args->q_filetype == FILE_FASTA) {
+         worker->q_index = F_INDEX_Fasta_Build(args->q_filepath);
+      }
+      else {
+         fprintf(stderr, "ERROR: target filetype is not supported.\n" );
+         exit(EXIT_FAILURE);
+      }
+      /* save index file */
+      args->q_indexpath = q_indexpath_tmp;
+      fp = fopen( q_indexpath_tmp, "w" );
+      F_INDEX_Dump( worker->q_index, fp );
+      fclose(fp);
+   }
+}
 
 /* load target and query from file */
 void WORK_load_target_query( WORKER*  worker )

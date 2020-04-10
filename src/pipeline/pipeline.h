@@ -34,6 +34,9 @@ void utest_pipeline( WORKER* worker );
 /* generic workflow */
 void WORK_workflow( WORKER*  work );
 
+/* load query and target indexes (or build them) */
+void WORK_load_indexes( WORKER* worker );
+
 /* load target and query from file */
 void WORK_load_target_query( WORKER*  worker );
 

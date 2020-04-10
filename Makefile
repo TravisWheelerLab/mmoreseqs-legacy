@@ -1,6 +1,7 @@
 #################################################################################
 #
-#		TEMPLATE MAKEFILE
+#		NAME: TEMPLATE MAKEFILE
+# 		AUTHOR: David Rich (modified from source)
 #
 #		SOURCE: https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
 #
@@ -32,9 +33,9 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # Any C linked libraries I want to include
 CLIBS := -lm
 # standard C compiler flags to be run
-# suggested flags: -Wall -g -O2 -DDEBUG
-CFLAGS := $(INC_FLAGS) -pg -DDEBUG=1
-# standard C++ compiler flags to be run
+# suggested flags: -Wall -g -O2 -DDEBUG=1
+CFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1
+# standard C++ compiler flags to be run (project currently contains no current c++ files)
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
 # flags for debugging and profiling
 DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1

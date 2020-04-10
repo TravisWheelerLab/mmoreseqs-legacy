@@ -111,7 +111,7 @@ typedef struct {
    float    param2;
 } DIST_PARAM;
 
-/* */
+/* alphabet (amino, dna, etc) (modeled after EASEL) */
 typedef struct {
    int      K;             /* size of unique alphabet */
    int      Kp;            /* size of total symbols: alphabet + special symbols  */
@@ -159,8 +159,6 @@ typedef struct {
 
 /* HMM Profile */
 typedef struct {
-   /* META DATA */
-
    /* file data */
    char*          filepath;         /* path to the file containing hmm */
    long           b_offset;         /* offset within file to beginning of hmm */
@@ -195,7 +193,7 @@ typedef struct {
    DIST_PARAM     viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
    DIST_PARAM     forward_dist;     /* Parameters for the Distribution for Fwd/Bck Scores */
 
-   /* MODEL DATA */
+   /* hmm model/profile */
    int            N;                /* profile length (currently in use) */
    int            Nalloc;           /* profile length (allocated memory) */
    int            alph_type;        /* enumerated alphabet type */
@@ -206,21 +204,21 @@ typedef struct {
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
 
-/* Vector  */
+/* vector of edgebounds  */
 typedef struct {
    BOUND*   data;    /* array of data type */
    int      N;       /* current length of array in use */
    int      Nalloc;  /* current length of array allocated */
 }  VECTOR_BOUND;
 
-/* VECTOR struct */
+/* vector of structs */
 typedef struct {
    TRACE*   data;     /* array of data type */
    int      N;        /* current length of array in use */
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
 
-/* sequence  */
+/* sequence */
 typedef struct {
    int      N;          /* length of sequence */
    int      Nalloc;     /* allocated memory length */
@@ -231,7 +229,7 @@ typedef struct {
    char*    seq;        /* */
 } SEQUENCE;
 
-/* */
+/* 2-dimensional float matrix */
 typedef struct {
    int      R;       /* number of columns = length of query */
    int      C;       /* number of rows = number of special states */
@@ -239,7 +237,7 @@ typedef struct {
    float*   data;    /* */
 } MATRIX_2D;
 
-/* */
+/* 3-dimensional float matrix */
 typedef struct {
    int      R;       /* number of rows = length of query */
    int      C;       /* number of columns = length of target  */
@@ -248,7 +246,7 @@ typedef struct {
    float*   data;    /* matrix cells */
 } MATRIX_3D;
 
-/* */
+/* commandline arguments */
 typedef struct {
    bool     is_index_given;         /* is an index file supplied? */
 
@@ -258,10 +256,13 @@ typedef struct {
    /* index paths */
    char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
    char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
-   /* mmseqs results path */
-   char*    hits_filepath;          /* filepath to output of MMSEQS pipeline  */
    /* output path */
    char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
+
+   /* mmseqs-plus search params */
+   char*    mmseqs_res_filepath;    /* filepath to mmseqs results file */
+   char*    t_lookup_filepath;      /* filepath to target lookup, which pairs names to ids */
+   char*    q_lookup_filepath;      /* filepath to query lookup, which pairs names to ids */
 
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
@@ -286,17 +287,14 @@ typedef struct {
    /* offset into file */
    int      t_offset;
    int      q_offset;
-   /* ids to be searched */
-   VECTOR_INT*    t_ids;            /* list of all targets in file to be searched */
-   VECTOR_INT*    q_ids;            /* list of all queries in file to be searched */
 
    /* threshold scores for pipeline */
-   float    viterbi_sc_threshold;
-   float    fwdbck_sc_threshold;
-   float    cloud_sc_threshold;
+   float    viterbi_threshold;
+   float    fwdbck_threshold;
+   float    cloud_threshold;
 } ARGS;
 
-/* */
+/* times to execute given operations */
 typedef struct {
    /* load times */
    float    load_t;
@@ -318,38 +316,40 @@ typedef struct {
    float    bound_bck;
 } TIMES;
 
-/* */
+/* hmm location within file */
 typedef struct {
    int         id;            /* id number, determined by order in file */
    char*       name;          /* Name of HMM/FASTA in file */
    long        offset;        /* Positional offset of HMM/FASTA into file */
 } F_INDEX_NODE;
 
-/* */
+/* index for offset locations into a file, searchable by name or id */
 typedef struct {
    int            N;          /* Number of location index nodes used */
    int            Nalloc;     /* Number of location index nodes allocated */
-   F_INDEX_NODE*  nodes;      /* List of nodes for location of each HMM/FASTA in file */
+   F_INDEX_NODE*  nodes;      /* List of nodes for location of each HMM/FASTA in file */    
 
-   char*          indexpath;  /* File path of index file (NULL if built and not loaded) */
-   char*          filepath;   /* File path of file being indexed */
-   int            filetype;   /* Type of file being indexed */
+   char*          index_path;    /* Filepath of index file (NULL if built and not loaded) */
+   char*          lookup_path;   /* Filepath to lookup file (NULL if not used) */
+   char*          filepath;      /* Filepath of file being indexed */
+   char*          delim;         /* one of more delimiter of header fields */
+   int            filetype;      /* Type of file being indexed */
 
-   char*          delim;      /* one of more delimiter of header fields */
-   int            name_field; /* index of header field containing name */
+   int            name_field; /* sorted index of header field containing name */
    int            isSorted;   /* Whether the index nodes list has been sorted */
 } F_INDEX;
 
-/* */
+
+/* flags for command line arguments */
 typedef struct {
    int      num_args;      /* number of arguments */
    int      data_type;     /* data type of arguments */
+   void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
 
    char*    name;          /* name of flag o */
    char*    long_flag;     /* long "--" flag */
    char*    short_flag;    /* single character "-" flag */
    char*    desc;          /* description of flag */
-   // void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
 } FLAG_CMD;
 
 /* */
@@ -443,7 +443,6 @@ typedef struct {
    int            q_id;
    int            t_id;
 
-
    /* current query and target data */
    SEQUENCE*      q_seq;
    SEQUENCE*      t_seq;
@@ -502,5 +501,10 @@ extern int     AA_REV[];
 /* background frequencies of null model, normal and log space */
 extern double  BG_MODEL[];
 extern double  BG_MODEL_log[];
+
+/* commandline arg objects */
+extern ARGS*      args;
+extern FLAG_CMD   COMMAND_OPTS[];
+extern char*      DATATYPE_NAMES[];
 
 #endif /* _STRUCTS_H */

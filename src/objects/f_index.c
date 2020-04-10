@@ -43,10 +43,10 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
  *
  *    RETURN:     Pointer to new F_INDEX object
  * *******************************************************************/
-F_INDEX*  F_INDEX_Create(char* pathname)
+F_INDEX*  F_INDEX_Create()
 {
    F_INDEX*   index    = NULL;
-   const int  min_size = 16;
+   const int  min_size = 32;
 
    index = (F_INDEX*) malloc( sizeof(F_INDEX) );
    if (index == NULL) {
@@ -54,19 +54,22 @@ F_INDEX*  F_INDEX_Create(char* pathname)
       exit(EXIT_FAILURE);
    }
 
-   index->N          = 0;
-   index->Nalloc     = min_size;
-   index->filepath   = NULL;
-   index->nodes      = NULL;
-   index->isSorted   = false;
+   index->N             = 0;
+   index->Nalloc        = min_size;
+   index->nodes         = NULL;
+
+   index->index_path    = NULL;
+   index->lookup_path   = NULL;
+   index->filepath      = NULL;
+   index->delim         = NULL;
+
+   index->isSorted      = false;
 
    index->nodes      = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
    if (index == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc F_INDEX_NODE array for F_INDEX.\n");
       exit(EXIT_FAILURE);
    }
-
-   index->filepath   = strdup(pathname);
 
    return index;
 }
@@ -135,16 +138,31 @@ void F_INDEX_Resize(F_INDEX* index,
 }
 
 /* *******************************************************************
- *    FUNC:    F_INDEX_Sort()
+ *    FUNC:    F_INDEX_Sort_by_Name()
  *    DESC:    Sorts F_INDEX nodes by name.
  *
  *    ARGS:       <index>     F_INDEX
  *
  *    RETURN:     None.
  * *******************************************************************/
-void F_INDEX_Sort(F_INDEX* index)
+void F_INDEX_Sort_by_Name(F_INDEX* index)
 {
-   F_INDEX_Quiksort(index->nodes, 0, index->N);
+   // F_INDEX_Quiksort(index->nodes, 0, index->N);
+   qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Name);
+}
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Sort_by_Id()
+ *    DESC:    Sorts F_INDEX nodes by name.
+ *
+ *    ARGS:       <index>     F_INDEX
+ *
+ *    RETURN:     None.
+ * *******************************************************************/
+void F_INDEX_Sort_by_Id(F_INDEX* index)
+{
+   // F_INDEX_Quiksort(index->nodes, 0, index->N);
+   qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Id);
 }
 
 /* *******************************************************************
@@ -176,13 +194,13 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
    while (true) {
       /* shift left pointer to the right until a node is found greater than pivot */
       while ( left <= right ) {
-         if ( F_INDEX_Compare( arr, left, 0 ) > 0 ) break;
+         if ( F_INDEX_Compare_by_Name( &(arr[left]), &(arr[0]) ) > 0 ) break;
          left++;
       }
 
       /* shift right pointer to the left until a node is found greater than pivot */
       while ( left <= right ) {
-         if ( F_INDEX_Compare( arr, right, 0 ) <= 0 ) break;
+         if ( F_INDEX_Compare_by_Name( &(arr[right]), &(arr[0]) ) <= 0 ) break;
          right--;
       }
 
@@ -213,12 +231,23 @@ void F_INDEX_Swap(F_INDEX_NODE*  arr,
 
 /* compare ith to jth node in nodes array */
 inline
-int F_INDEX_Compare(F_INDEX_NODE*  arr,
-                    int            i,
-                    int            j)
+int F_INDEX_Compare_by_Name(const void* a,
+                            const void* b)
 {
-   // printf("COMPARE: {%s} VS {%s}\n", arr[i].name, arr[j].name);
-   int cmp = strcmp(arr[i].name, arr[j].name);
+   F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
+   F_INDEX_NODE* node_b = (F_INDEX_NODE*)b; 
+   int cmp = strcmp( node_a->name, node_b->name);
+   return cmp;
+}
+
+/* compare ith to jth node in nodes array */
+inline
+int F_INDEX_Compare_by_Id(const void*  a,
+                          const void*  b)
+{
+   F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
+   F_INDEX_NODE* node_b = (F_INDEX_NODE*)b; 
+   int cmp = node_a->id - node_b->id;
    return cmp;
 }
 
@@ -262,9 +291,11 @@ void F_INDEX_Dump(F_INDEX* index,
    }
 
    fprintf(fp, "# === FILE INDEX === #\n");
-   fprintf(fp, "%s\t%s\n", "FILE_NAME:",     index->filepath);
+   fprintf(fp, "%s\t%s\n", "FILE_PATH:",     index->index_path);
+   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->filepath);
+   fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path);
    fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N);
-   fprintf(fp, "# {ID}\t{OFF}\t{NAME}\n");
+   fprintf(fp, ">{ID}\t{OFF}\t{NAME}\n");
 
    for (int i = 0; i < index->N; i++)
    {
@@ -278,7 +309,7 @@ void F_INDEX_Dump(F_INDEX* index,
 void F_INDEX_UnitTest()
 {
    F_INDEX* f_index = F_INDEX_Fasta_Build("src/test.txt");
-   F_INDEX_Sort(f_index);
+   F_INDEX_Sort_by_Name(f_index);
    F_INDEX_Dump(f_index, stdout);
 
    for (int i = 0; i < f_index->N; i++) 

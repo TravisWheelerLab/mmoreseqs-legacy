@@ -36,16 +36,17 @@
  *  RETURN:    F_INDEX object containing index of file
  *
 /* ****************************************************************************************** */
-F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
+F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
 {
    F_INDEX*    f_index        = NULL;
    FILE*       fp             = NULL;
 
-   char*       line_buf       = NULL;
-   size_t      line_buf_size  = 0;
-
-   ssize_t     line_size      = 0;
    int         line_count     = 0;
+   size_t      line_buf_size  = 0;
+   ssize_t     line_size      = 0;
+   char*       line_buf       = NULL;
+   char*       token          = NULL;
+   char*       delim          = "\t\n";
 
    long        prv_offset     = 0;
    long        cur_offset     = 0;
@@ -54,17 +55,21 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
    char*       name           = NULL;
 
    /* first pass */
-   f_index = F_INDEX_Create(_filename_);
-   fp      = fopen(_filename_, "r");
+   f_index = F_INDEX_Create();
+   f_index->filepath = strdup( _filename_ );
 
+   fp = fopen(_filename_, "r");
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
+      fprintf(stderr, "ERROR: Unable to Open File '%s'\n", _filename_);
       exit(EXIT_FAILURE);
    }
 
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
    {
+      /* ignore commented lines */
+      if (line_buf[0] == '#') continue;
+
       /* if starts new header, add to index */
       if ( strncmp(line_buf, "HMMER", 5)  == 0 ) 
       {
@@ -79,17 +84,20 @@ F_INDEX* F_INDEX_Hmm_Build( const char*    _filename_ )
                name = &line_buf[i];
                name[strlen(name)-1] = '\0';
 
-               F_INDEX_PushBack( f_index, (F_INDEX_NODE){id, name, cur_offset} );
+               /* add to index */
+               F_INDEX_PushBack( f_index, (F_INDEX_NODE){ id, name, cur_offset } );
+
                id++;
+               break;
             }
          }
       }
       
       line_count++;
       prv_offset = ftell(fp);
-      // printf("%s [%d=>%lu]:{%d/%d} %s\n", _filename_, line_count, tell, line_size, line_buf_size, line_buf);
    }
 
+   fclose(fp);
    free(line_buf);
    return f_index;
 }
@@ -114,22 +122,24 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
    F_INDEX*    f_index        = NULL;
    FILE*       fp             = NULL;
 
-   char*       line_buf       = NULL;
-   size_t      line_buf_size  = 0;
-
-   ssize_t     line_size      = 0;
    int         line_count     = 0;
-
-   long        cur_offset     = 0;
-   long        prv_offset     = 0;
+   size_t      line_buf_size  = 0;
+   ssize_t     line_size      = 0;
+   char*       line_buf       = NULL;
+   char*       token          = NULL;
+   char*       delim          = "\t";
 
    int         id             = 0;
    char*       name           = NULL;
+   long        cur_offset     = 0;
+   long        prv_offset     = 0;
 
-   /* first pass */
+   /* create index */
    f_index = F_INDEX_Create(_filename_);
-   fp      = fopen(_filename_, "r");
+   f_index->filepath = strdup( _filename_ );
 
+   /* open file */
+   fp = fopen(_filename_, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
       exit(EXIT_FAILURE);
@@ -138,6 +148,9 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
    {
+      /* ignore commented lines */
+      if (line_buf[0] == '#') continue;
+
       /* remove end line */
       if(line_buf[line_size-1] == '\n') {
          line_buf[line_size-1] = '\0';
@@ -153,9 +166,9 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
       
       line_count++;
       prv_offset = ftell(fp);
-      // printf("%s [%d=>%lu]:{%d/%d} %s\n", _filename_, line_count, tell, line_size, line_buf_size, line_buf);
    }
 
+   fclose(fp);
    free(line_buf);
    return f_index;
 }
@@ -166,23 +179,24 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
    F_INDEX*    f_index        = NULL;
    FILE*       fp             = NULL;
 
-   char*       line_buf       = NULL;
-   size_t      line_buf_size  = 0;
-
-   ssize_t     line_size      = 0;
    int         line_count     = 0;
-
-   long        cur_offset     = 0;
-   long        prv_offset     = 0;
+   size_t      line_buf_size  = 0;
+   ssize_t     line_size      = 0;
+   char*       line_buf       = NULL;
+   char*       token          = NULL;
+   char*       delim          = "\t\n";
 
    int         id             = 0;
    char*       name           = NULL;
+   long        cur_offset     = 0;
+   long        prv_offset     = 0;
 
-   /* first pass */
-   printf("FILE: %s\n", _filename_);
+   /* create index */
    f_index = F_INDEX_Create(_filename_);
-   fp      = fopen(_filename_, "r");
+   f_index->filepath = strdup( _filename_ );
 
+   /* file open */
+   fp      = fopen(_filename_, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
       exit(EXIT_FAILURE);
@@ -193,6 +207,8 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
    {
       /* ignore commented lines */
       if (line_buf[0] == '#') continue;
+      /* carot marks last line of header */
+      if (line_buf[0] == '>') break;
 
       /* remove end line */
       if(line_buf[line_size-1] == '\n') {
@@ -200,8 +216,19 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          line_size--;
       }
 
-      /* Line Structure: id, offset, name (tab-delimited) */
-      
+      /* get next token, if empty line, skip it */
+      token = strtok( line_buf, delim );
+      if (token == NULL) continue;
+
+      /* number of nodes */
+      if ( strcmp( token, "NUMBER_SEQS" ) == 0 ) {
+         token = strtok( NULL, delim );
+         int size = atoi( token );
+         F_INDEX_Resize( f_index, size );
+
+         line_count++;
+         break;
+      }
 
       line_count++;
    }
@@ -217,13 +244,83 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          line_buf[line_size-1] = '\0';
          line_size--;
       }
+      printf("LINE: %s\n", line_buf);
 
-      /* */
+      /* first token is the id */
+      token = strtok( line_buf, delim );
+      if (token == NULL) continue;
+      id = atoi( token );
 
+      /* second token is the offset */
+      if ( (token = strtok( NULL, delim )), token == NULL) continue;
+      cur_offset = atol( token ); 
+
+      /* third token is the name */
+      if ( (token = strtok( NULL, delim )), token == NULL) continue;
+      name = token;
+
+      printf("adding node...\n");
+      F_INDEX_PushBack( f_index, (F_INDEX_NODE) { id, name, cur_offset } );
 
       line_count++;
    }
 
+   fclose(fp);
    free(line_buf);
    return f_index;
 }
+
+/* update f_index using mmseqs lookup table */
+void F_INDEX_Lookup_Update( F_INDEX*   f_index, 
+                            char*      _lookup_filepath_ ) 
+{
+   FILE*          fp             = NULL;
+
+   int            line_count     = 0;
+   ssize_t        line_size      = 0;
+   size_t         line_buf_size  = 0;
+   char*          line_buf       = NULL;
+   char*          token          = NULL;
+   char*          delim          = "\t\n";  /* tab-delimited */
+
+   F_INDEX_NODE*  node           = NULL;
+   int            id             = 0;
+   char*          name           = NULL;
+   long           cur_offset     = 0;
+   long           prv_offset     = 0;
+
+   f_index->lookup_path = strdup( _lookup_filepath_ );
+
+   /* open file */
+   fp = fopen( _lookup_filepath_, "r" );
+   if (fp == NULL) {
+      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _lookup_filepath_ );
+      exit(EXIT_FAILURE);
+   }
+
+   /* parse header details */
+   while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
+   {
+      /* ignore comment lines */
+      if (line_buf[0] == '#') continue;
+
+      /* first token is id */
+      token = strtok(line_buf, delim);
+      id = atoi(token);
+
+      /* get the idth node */
+      node = &(f_index->nodes[id]);
+
+      /* second token is name */
+      token = strtok(line_buf, delim);
+      name = token;
+
+      /* update name to match mmseqs lookup */
+      free(node->name);
+      node->name = strdup( name );
+   }
+
+   fclose(fp);
+   free(line_buf);
+}
+

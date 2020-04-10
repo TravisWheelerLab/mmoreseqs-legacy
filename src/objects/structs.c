@@ -101,12 +101,13 @@ void (*PIPELINES[])(WORKER*) = {
 
 /* pipeline names (for outputs) */
 char* PIPELINE_NAMES[] = {
-   "PIPELINE_NULL",
-   "PIPELINE_MAIN",
-   "PIPELINE_TEST",
-   "PIPELINE_TIME",
-   "PIPELINE_MMSEQS",
-   "PIPELINE_INDEX"
+   "null",
+   "main",
+   "test",
+   "time",
+   "mmseqs",
+   "index",
+   "utest"
 };
 
 /* full names of the all states */
@@ -187,12 +188,22 @@ char* FILE_TYPE_NAMES[] = {
    "FASTA",
 };
 
+/* commandline arguments */
+ARGS* args;
+
 /* command line flags and options */
-FLAG_CMD command_opts[] = {
-   /* pruning vars */
-   {  1,   DATATYPE_FLOAT, "ALPHA",    "--alpha",     "-a",    "X-drop pruning ratio." },
-   {  1,   DATATYPE_INT,   "BETA",     "--beta",      "-b",    "Number of passes of cloud search before pruning." },
-   {  1,   DATATYPE_INT,   "PIPELINE", "--pipeline",  "-p",    "Pipeline type: ID or name."  },
-   {  4,   DATATYPE_INT,   "WINDOW",   "--window",    "-w",    "Examine substring of query and target."  }
+/* NOTE: update definition of NUM_FLAG_CMDS */
+FLAG_CMD COMMAND_OPTS[] = {
+   {  1,   DATATYPE_FLOAT,    NULL,    "ALPHA",    "--alpha",     "-a",    "X-drop pruning ratio." },
+   {  1,   DATATYPE_INT,      NULL,    "BETA",     "--beta",      "-b",    "Number of passes of cloud search before pruning." },
+   {  1,   DATATYPE_INT,      NULL,    "PIPELINE", "--pipeline",  "-p",    "Pipeline type: ID or name."  },
+   {  4,   DATATYPE_INT,      NULL,    "WINDOW",   "--window",    "-w",    "Examine substring of query and target."  },
 };
 
+char* DATATYPE_NAMES[] = {
+   "NONE",
+   "INT",
+   "FLOAT",
+   "STR",
+   "BOOL"
+};
