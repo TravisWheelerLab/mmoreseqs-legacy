@@ -25,22 +25,42 @@
 #include "objects/sequence.h"
 #include "objects/alignment.h"
 
+/* header */
+#include "algs_linear/pruning_methods_linear.h"
+
+
 /* ****************************************************************************************** *
  *  
- *  FUNCTION:  Prune_Xdrop_Trim_Edges
- *  SYNOPSIS:        
+ *  FUNCTION:  Prune_Xdrop_Trim_Edges.
+ *  SYNOPSIS:  
  *
- *  ARGS:      <edg>          EDGEBOUNDS to be appended to,
- *             <beta>         Current antidiagonal being pruned,
- *             <>
+ *  ARGS:      <edg>          List of edgebounds (stored by anti-diags)
+ *             <d_cnt>        Current antidiagonal being pruned
+ *             <alpha>        Pruning ratio
+ *             <beta>         Number of edgebounds to traverse before pruning
+ *             <st_MX3>       DP Matrix
+ *             <d0>           The current anti-diagonal (mod-mapped to linear matrix)
+ *             <d1>           The preveding anti-diagonal (mod-mapped to linear matrix)
+ *             <lb_1>         The preceding anti-diagonal's 
  *
- *  RETURN:    No return, but <edg> is updated.
+ *  RETURN:    No return, but <edg> is updated with latest diag edgebounds.
  *
 /* ****************************************************************************************** */
-void Prune_Xdrop_Trim_Edges( EDGEBOUNDS*  edg,
-                             int          beta,
-                             float        alpha )
+void Prune_Xdrop_Trim3( EDGEBOUNDS*  edg,
+                        int          beta,
+                        float        alpha,
+                        MATRIX_3D*   st_MX3,
+                        int          d_cnt,
+                        int          d0,
+                        int          d1 )
 {
+   // int i,j,k;
+
+   // /* the previous antidiagonal's edgebounds */
+   // int prev_bound = edg->bounds[edg->N-1];  
+   // int lb_1 = prev_bound.lb;
+   // int rb_1 = prev_bound.rb;
+
    // /* UPDATE/PRUNE BOUNDS */
    // /* if free passes are complete (beta < d), prune and set new edgebounds */
    // /* beta must be > 1 */
@@ -134,3 +154,4 @@ void Prune_Xdrop_Trim_Edges( EDGEBOUNDS*  edg,
 
    // EDGEBOUNDS_Pushback(edg, (BOUND){d,lb,rb});
 }
+

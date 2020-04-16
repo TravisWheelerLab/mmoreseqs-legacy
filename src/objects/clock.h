@@ -9,29 +9,29 @@
 #ifndef _CLOCK_H
 #define _CLOCK_H
 
-// typedef struct {
-//    time_t   start;
-//    time_t   stop;
-//    time_t   duration;
-
-//    float    N;
-//    float    Nalloc;
-//    float*   stamps;
-// } CLOCK;
-
-
+/* constructor */
 CLOCK* CLOCK_Create();
 
-void CLOCK_Destroy(CLOCK*cl);
+/* destructor */
+void CLOCK_Destroy(CLOCK* cl);
 
-time_t CLOCK_Start(CLOCK*cl);
+/* start timer */
+time_t CLOCK_Start(CLOCK* cl);
 
-time_t CLOCK_Stop(CLOCK*cl);
+/* stop timer  */
+time_t CLOCK_Stop(CLOCK* cl);
 
-time_t CLOCK_pTicks(CLOCK*cl, char*str);
+/* get duration in ticks */
+time_t CLOCK_Ticks(CLOCK* cl);
 
-time_t CLOCK_Ticks(CLOCK*cl);
+/* get duration in msecs */
+float CLOCK_Secs(CLOCK* cl);
 
+/* (test) print duration in ticks */
+void CLOCK_pTicks(CLOCK* 	cl, 
+				  char*		str);
+
+/* convert time in ticks to milliseconds */
 float ticks_to_msec(time_t t);
 
 #endif /* _CLOCK_H */

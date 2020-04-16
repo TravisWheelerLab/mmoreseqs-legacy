@@ -23,7 +23,6 @@
 
 
 /* ****************************************************************************************** *
- *  
  *  FUNCTION:  F_INDEX_Hmm_Build
  *  SYNOPSIS:  Build F_INDEX object from .hmm file with list of hmm name and offset into file.
  *             
@@ -34,7 +33,6 @@
  *  ARGS:      <_filename_>   path to file to be indexed
  *
  *  RETURN:    F_INDEX object containing index of file
- *
 /* ****************************************************************************************** */
 F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
 {
@@ -57,6 +55,8 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
    /* first pass */
    f_index = F_INDEX_Create();
    f_index->filepath = strdup( _filename_ );
+   /* index does not use mmseqs names by default */
+   f_index->mmseqs_names = false;
 
    fp = fopen(_filename_, "r");
    if (fp == NULL) {
@@ -104,7 +104,6 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
 
 
 /* ****************************************************************************************** *
- *  
  *  FUNCTION:  F_INDEX_Fasta_Build
  *  SYNOPSIS:  Build F_INDEX object from .fasta file by fasta name and offset into file.
  *             
@@ -115,7 +114,6 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
  *  ARGS:      <_filename_>   path to file to be indexed.
  *
  *  RETURN:    F_INDEX object containing index of file  
- *
 /* ****************************************************************************************** */
 F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
 {
@@ -137,6 +135,8 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
    /* create index */
    f_index = F_INDEX_Create(_filename_);
    f_index->filepath = strdup( _filename_ );
+   /* index does not use mmseqs names by default */
+   f_index->mmseqs_names = false;
 
    /* open file */
    fp = fopen(_filename_, "r");
@@ -227,7 +227,21 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          F_INDEX_Resize( f_index, size );
 
          line_count++;
-         break;
+         continue;
+      }
+
+      /* number of nodes */
+      if ( strcmp( token, "NUMBER_SEQS" ) == 0 ) {
+         token = strtok( NULL, delim );
+         if ( strcmp( token, "true" ) == 0 ) {
+            f_index->mmseqs_names = true;
+         } 
+         else if ( strcmp( token, "false" ) == 0 ) {
+            f_index->mmseqs_names = false;
+         }
+
+         line_count++;
+         continue;
       }
 
       line_count++;
@@ -244,7 +258,6 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          line_buf[line_size-1] = '\0';
          line_size--;
       }
-      printf("LINE: %s\n", line_buf);
 
       /* first token is the id */
       token = strtok( line_buf, delim );
@@ -259,7 +272,6 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
       if ( (token = strtok( NULL, delim )), token == NULL) continue;
       name = token;
 
-      printf("adding node...\n");
       F_INDEX_PushBack( f_index, (F_INDEX_NODE) { id, name, cur_offset } );
 
       line_count++;

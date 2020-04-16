@@ -831,8 +831,8 @@ int cloud_Cell_Count(const int   Q,
  */
 void dp_matrix_Print(const int         Q, 
                      const int         T,
-                     const MATRIX_3D*  st_MX,
-                     const MATRIX_2D*  sp_MX )
+                     MATRIX_3D*        st_MX,
+                     MATRIX_2D*        sp_MX )
 {
    /* PRINT resulting dp matrix */
    printf("\n\n==== DP MATRIX BEGIN ==== \n");

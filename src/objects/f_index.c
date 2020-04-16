@@ -64,6 +64,7 @@ F_INDEX*  F_INDEX_Create()
    index->delim         = NULL;
 
    index->isSorted      = false;
+   index->mmseqs_names  = false;
 
    index->nodes      = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
    if (index == NULL) {
@@ -286,21 +287,22 @@ void F_INDEX_Dump(F_INDEX* index,
                   FILE*    fp)
 {
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to open file.\n");
+      fprintf(stderr, "ERROR: Unable to open file.\n" );
       exit(EXIT_FAILURE);
    }
 
-   fprintf(fp, "# === FILE INDEX === #\n");
-   fprintf(fp, "%s\t%s\n", "FILE_PATH:",     index->index_path);
-   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->filepath);
-   fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path);
-   fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N);
+   fprintf(fp, "# === FILE INDEX === #\n" );
+   fprintf(fp, "%s\t%s\n", "FILE_PATH:",     index->index_path );
+   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->filepath );
+   fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path );
+   fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N );
+   fprintf(fp, "%s\t%s\n", "MMSEQS_NAMES:",  index->mmseqs_names ? "true" : "false" );
    fprintf(fp, ">{ID}\t{OFF}\t{NAME}\n");
 
    for (int i = 0; i < index->N; i++)
    {
       F_INDEX_NODE node = index->nodes[i];
-      fprintf(fp, "%d\t%ld\t%s\n", i, node.offset, node.name);
+      fprintf(fp, "%d\t%ld\t%s\n", i, node.offset, node.name );
    }
    fprintf(fp, "\n");
 }

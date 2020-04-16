@@ -161,7 +161,7 @@ typedef struct p7_hmm_s {
   float    compo[p7_MAXABET];    /* model bg residue comp                 (p7H_COMPO)      */
 
   off_t    offset;               /* HMM record offset on disk                              */
-  const ESL_ALPHABET *abc;       /* ptr to alphabet info (hmm->abc->K is alphabet size)    */
+  ESL_ALPHABET *abc;       /* ptr to alphabet info (hmm->abc->K is alphabet size)    */
   int      flags;                /* status flags                                           */
 } P7_HMM;
 
@@ -174,7 +174,7 @@ typedef struct p7_bg_s {
 
   float    omega; /* the "prior" on null2/null3: set at initialization (one omega for both null types)  */
 
-  const ESL_ALPHABET *abc; /* reference to alphabet in use: set at initialization             */
+  ESL_ALPHABET *abc; /* reference to alphabet in use: set at initialization             */
 } P7_BG;
 
 /* */
@@ -209,7 +209,7 @@ typedef struct p7_profile_s {
   off_t  roff;                  /* record offset (start of record); -1 if none            */
   off_t  eoff;                  /* offset to last byte of record; -1 if unknown           */
 
-  const ESL_ALPHABET *abc; /* copy of pointer to appropriate alphabet                */
+  ESL_ALPHABET *abc; /* copy of pointer to appropriate alphabet                */
 } P7_PROFILE;
 
 /* temp */
@@ -264,7 +264,7 @@ typedef struct p7_oprofile_s {
   float  evparam[p7_NEVPARAM];   /* parameters for determining E-values, or UNSET     */
   float  cutoff[p7_NCUTOFFS];   /* per-seq/per-dom bit cutoffs, or UNSET             */
   float  compo[p7_MAXABET];  /* per-model HMM filter composition, or UNSET        */
-  const ESL_ALPHABET *abc;  /* copy of ptr to alphabet information               */
+  ESL_ALPHABET *abc;  /* copy of ptr to alphabet information               */
 
   /* Information about current configuration, size, allocation                       */
   int    L;      /* current configured target seq length              */
@@ -345,7 +345,7 @@ typedef struct p7_builder_s {
   double               w_beta;    /*beta value used to compute W (window length)   */
   int                  w_len;     /*W (window length)  explicitly set */
 
-  const ESL_ALPHABET  *abc;       /* COPY of alphabet                                       */
+  ESL_ALPHABET  *abc;       /* COPY of alphabet                                       */
   char errbuf[eslERRBUFSIZE];            /* informative message on model construction failure      */
 } P7_BUILDER;
 

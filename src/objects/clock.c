@@ -60,50 +60,51 @@ void CLOCK_Destroy(CLOCK*cl)
    cl = NULL;
 }
 
-/* */
+/* Set the Stopwatch */
 time_t CLOCK_Start(CLOCK*cl)
 {
    cl->start = clock();
    return cl->start;
 }
 
-/* */
+/* Stop the Stopwatch */
 time_t CLOCK_Stop(CLOCK*cl)
 {
    cl->stop = clock();
    return cl->stop;
 }
 
-/* */
+/* Get duration between Start() and Stop() */
 time_t CLOCK_Ticks(CLOCK*cl)
 {
    cl->duration = cl->stop - cl->start;
    return cl->duration;
 }
 
-/* */
-time_t CLOCK_pTicks(CLOCK*cl, char*str)
-{
-   printf("%s took %ld ticks\n", str, CLOCK_Ticks(cl) );
-   return cl->duration;
-}
-
-/* */
+/* Convert duration from ticks to msec */
 float CLOCK_Secs(CLOCK*cl)
 {
    cl->duration = cl->stop - cl->start;
    return ticks_to_msec(cl->duration);
 }
 
-/* */
-time_t CLOCK_Print_Secs(CLOCK*cl, char*str)
+/* Report duration time in msecs to console */
+void CLOCK_Print_Secs(CLOCK*  cl, 
+                      char*   str)
 {
    printf("%s took %f msecs\n", str, CLOCK_Secs(cl) );
-   return cl->duration;
 }
 
-/* */
+/* Report duration time to console */
+void CLOCK_pTicks(CLOCK*   cl, 
+                  char*    str)
+{
+   printf("%s took %ld ticks\n", str, CLOCK_Ticks(cl) );
+}
+
+/* Convert a time in ticks (time_t) to msecs (float) */
 float ticks_to_msec(time_t t)
 {
    return ((float)t * 1000.f) / ((float)CLOCKS_PER_SEC);
 }
+

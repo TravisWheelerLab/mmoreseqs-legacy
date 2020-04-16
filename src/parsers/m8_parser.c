@@ -25,11 +25,9 @@
 #include "m8_parser.h"
 
 /* parse .m8 results file and create RESULTS object */
-RESULTS* RESULTS_M8_Parse( char* _filename_ )
+void RESULTS_M8_Parse( RESULTS* 	results,
+					   char* 		_filename_ )
 {
-   RESULTS* results  = NULL;
-   results           = RESULTS_Create();
-
    /* parser vars */
    FILE*    fp             = NULL;    
    int      line_count     = -1;       /* line counter of current line in file */

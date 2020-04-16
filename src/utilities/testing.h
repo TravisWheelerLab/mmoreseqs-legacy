@@ -68,8 +68,8 @@ int cloud_Cell_Count(const int   Q,
 /* DP MATRIX FUNCTIONS */
 void dp_matrix_Print(const int         Q, 
                      const int         T,
-                     const MATRIX_3D*  st_MX,
-                     const MATRIX_2D*  sp_MX );
+                     MATRIX_3D*        st_MX,
+                     MATRIX_2D*        sp_MX );
 
 void dp_matrix_Print3(  const int         T, 
                         const int         Q,

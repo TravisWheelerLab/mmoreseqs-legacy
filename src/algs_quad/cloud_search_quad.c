@@ -327,7 +327,7 @@ void cloud_Forward_Quad(const SEQUENCE*    query,
  *
  *  RETURN:    No Return.
  */
-void cloud_Backward_Quad(const SEQUENCE*    query, 
+void cloud_Backward_Quad(const SEQUENCE*   query, 
                         const HMM_PROFILE* target,
                         const int          Q, 
                         const int          T, 

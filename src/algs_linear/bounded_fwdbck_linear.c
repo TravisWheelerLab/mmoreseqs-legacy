@@ -55,16 +55,16 @@
  *  RETURN:    Returns the final score of the Forward Algorithm.
  *
  * ------------------------------------------------------------------------------------------- */
-float bound_Forward_Linear(const SEQUENCE*    query, 
-                           const HMM_PROFILE* target,
-                           const int          Q, 
-                           const int          T, 
-                           MATRIX_3D*         st_MX3,
-                           MATRIX_3D*         st_MX,
-                           MATRIX_2D*         sp_MX, 
-                           const EDGEBOUNDS*  edg,
-                           const bool         test,
-                           float              *sc_final )
+float bound_Forward_Linear(const SEQUENCE*      query, 
+                           const HMM_PROFILE*   target,
+                           const int            Q, 
+                           const int            T, 
+                           MATRIX_3D*           st_MX3,
+                           MATRIX_3D*           st_MX,
+                           MATRIX_2D*           sp_MX, 
+                           EDGEBOUNDS*          edg,
+                           const bool           test,
+                           float*               sc_final )
 {
    /* extract data from objects */
    char   a;                              /* store current character in sequence */
@@ -336,16 +336,16 @@ float bound_Forward_Linear(const SEQUENCE*    query,
  *  RETURN:    Returns the final score of the Backward Algorithm.
  *
  * ------------------------------------------------------------------------------------------- */
-float bound_Backward_Linear(  const SEQUENCE*    query, 
-                              const HMM_PROFILE* target,
-                              const int          Q, 
-                              const int          T, 
-                              MATRIX_3D*         st_MX3,
-                              MATRIX_3D*         st_MX,
-                              MATRIX_2D*         sp_MX, 
-                              const EDGEBOUNDS*  edg,
-                              const bool         test,
-                              float              *sc_final )
+float bound_Backward_Linear(  const SEQUENCE*      query, 
+                              const HMM_PROFILE*   target,
+                              const int            Q, 
+                              const int            T, 
+                              MATRIX_3D*           st_MX3,
+                              MATRIX_3D*           st_MX,
+                              MATRIX_2D*           sp_MX, 
+                              EDGEBOUNDS*          edg,
+                              const bool           test,
+                              float*               sc_final )
 {
    FILE*  fp = NULL;
 

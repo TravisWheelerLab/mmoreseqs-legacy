@@ -195,9 +195,9 @@ void test_pipeline( WORKER* worker )
 
    /* run viterbi algorithm */
    printf("=== VITERBI -> START ===\n");
-   sc = viterbi_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
+   viterbi_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
    printf("Viterbi Score: %f\n", sc);
-   scores->viterbi_sc = sc;
+   scores->quad_vit = sc;
    dp_matrix_Save(Q, T, st_MATRIX, sp_MATRIX, "output/my.viterbi.mx");
    printf("=== VITERBI -> END ===\n\n");
 
@@ -217,27 +217,27 @@ void test_pipeline( WORKER* worker )
 
    printf("=== FORWARD -> START ===\n");
    /* ==> forward (quadratic) */
-   sc = forward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
+   forward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
    printf("Forward Score (quadratic): %f\n", sc);
-   scores->fwd_sc = sc;
+   scores->quad_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.fwd.quad.mx");
    /* ==> forward (linear) */
-   sc = forward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, &sc);
+   forward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, &sc);
    printf("Forward Score (linear): %f\n", sc);
-   scores->fwd_sc = sc;
+   scores->lin_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.fwd.lin.mx");
    printf("=== FORWARD -> END ===\n\n");
 
    printf("=== BACKWARD -> START ===\n");
    /* ==> backward (quadratic) */
-   sc = backward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
+   backward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, &sc);
    printf("Backward Score (quadratic): %f\n", sc);
-   scores->bck_sc = sc;
+   scores->quad_bck = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bck.quad.mx");
    /* ==> backward (linear) */
-   sc = backward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, &sc);
+   backward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, &sc);
    printf("Backward Score (linear): %f\n", sc);
-   scores->bck_sc = sc;
+   scores->lin_bck = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bck.lin.mx");
    printf("=== BACKWARD -> END ===\n\n");
 
@@ -265,7 +265,7 @@ void test_pipeline( WORKER* worker )
 
    /* cloud forward (linear) */
    printf("=== CLOUD FORWARD (Linear) -> START ===\n");
-   cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MATRIX, st_MATRIX3, sp_MATRIX, tr, edg_fwd_lin, alpha, beta, is_testing);
+   cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, tr, edg_fwd_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.cloud_fwd_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MATRIX, sp_MATRIX, 0);
    cloud_Fill(Q, T, st_MATRIX, sp_MATRIX, edg_fwd_lin, 1, MODE_DIAG);
@@ -287,7 +287,7 @@ void test_pipeline( WORKER* worker )
 
    /* cloud backward (linear) */
    printf("=== CLOUD BACKWARD (Linear) -> START ===\n");
-   cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MATRIX, st_MATRIX3, sp_MATRIX, tr, edg_bck_lin, alpha, beta, is_testing);
+   cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, tr, edg_bck_lin, alpha, beta, is_testing);
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.cloud_bck_vals.lin.mx");
    dp_matrix_Clear_X(Q, T, st_MATRIX, sp_MATRIX, 0);
    cloud_Fill(Q, T, st_MATRIX, sp_MATRIX, edg_bck_lin, 1, MODE_DIAG);
@@ -300,6 +300,7 @@ void test_pipeline( WORKER* worker )
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Naive) -> START ===\n");
    EDGEBOUNDS_Merge_Reorient_Naive(edg_fwd_quad, edg_bck_quad, edg_diag_quad, edg_row_quad, Q, T, st_MATRIX, sp_MATRIX);
+
    dp_matrix_Clear_X(Q, T, st_MATRIX, sp_MATRIX, 0);
    cloud_Fill(Q, T, st_MATRIX, sp_MATRIX, edg_diag_quad, 1, MODE_DIAG);
    EDGEBOUNDS_Save(edg_diag_quad, "output/my.cloud.quad.diags.edg");
@@ -311,7 +312,7 @@ void test_pipeline( WORKER* worker )
    dp_matrix_Copy(Q, T, st_MATRIX, sp_MATRIX, st_MATRIX_cloud, sp_MATRIX_cloud);
    printf("=== MERGE & REORIENT CLOUD (Naive) -> END ===\n\n");
 
-   // /* stats */
+   /* stats */
    num_cells = cloud_Cell_Count(Q, T, st_MATRIX, sp_MATRIX);
    scores->perc_cells = (float)num_cells/(float)tot_cells;
    printf("Perc. Total Cells Computed = %d/%d = %f\n", num_cells, tot_cells, scores->perc_cells);
@@ -321,12 +322,13 @@ void test_pipeline( WORKER* worker )
 
    /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
    printf("=== MERGE & REORIENT CLOUD (Linear) -> START ===\n");
-   edg_diag_lin = EDGEBOUNDS_Merge(Q, T, edg_fwd_lin, edg_bck_lin);
+   EDGEBOUNDS_Merge(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
+
    dp_matrix_Clear_X(Q, T, st_MATRIX, sp_MATRIX, 0);
    cloud_Fill(Q, T, st_MATRIX, sp_MATRIX, edg_diag_lin, 1, MODE_DIAG);
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.cloud.lin.diags.mx");
    EDGEBOUNDS_Save(edg_diag_lin, "output/my.cloud.lin.diags.edg");
-   edg_row_lin = EDGEBOUNDS_Reorient(Q, T, edg_diag_lin);
+   EDGEBOUNDS_Reorient(Q, T, edg_diag_lin, edg_row_lin);
    dp_matrix_Clear_X(Q, T, st_MATRIX, sp_MATRIX, 0);
    cloud_Fill(Q, T, st_MATRIX, sp_MATRIX, edg_row_lin, 1, MODE_ROW);
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.cloud.lin.rows.mx");
@@ -352,15 +354,17 @@ void test_pipeline( WORKER* worker )
 
    bound_Forward_Naive(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, st_MATRIX_cloud, &sc);
    printf("Bounded Forward Score (Naive): %f\n", sc);
-   scores->cloud_fwd_sc = sc;
+   scores->naive_cloud_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_fwd.naive.mx");
    
-   bound_Forward_Quad(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
+   bound_Forward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
    printf("Bounded Forward Score (Quadratic): %f\n", sc);
+   scores->quad_cloud_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_fwd.quad.mx");
 
    bound_Forward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
    printf("Bound Forward Score (Linear): %f\n", sc);
+   scores->lin_cloud_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_fwd.lin.mx");
 
    printf("=== BOUNDED FORWARD -> END ===\n\n");
@@ -370,16 +374,18 @@ void test_pipeline( WORKER* worker )
 
    bound_Backward_Naive(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, st_MATRIX_cloud, &sc);
    printf("Bounded Backward Score (Naive): %f\n", sc);
-   scores->cloud_bck_sc = sc;
+   scores->naive_cloud_bck = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_bck.naive.mx");
 
-   bound_Backward_Quad(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
+   bound_Backward_Quad(q_seq, t_prof, Q, T, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
    printf("Bounded Backward Score (Quadratic): %f\n", sc);
+   scores->quad_cloud_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_bck.quad.mx");
    dp_matrix_trace_Save(Q, T, st_MATRIX_cloud, sp_MATRIX, tr, "output/my.bounded_bck.test.mx");
 
    bound_Backward_Linear(q_seq, t_prof, Q, T, st_MATRIX3, st_MATRIX, sp_MATRIX, edg_row_lin, is_testing, &sc);
    printf("Bound Backward Score (Linear): %f\n", sc);
+   scores->lin_cloud_fwd = sc;
    dp_matrix_trace_Save(Q, T, st_MATRIX, sp_MATRIX, tr, "output/my.bounded_bck.lin.mx");
 
    printf("=== BOUNDED BACKWARD -> END ===\n\n");
@@ -390,11 +396,11 @@ void test_pipeline( WORKER* worker )
 
    fprintf(fp, "%s\t", t_filepath);
    fprintf(fp, "%s\t", q_filepath);
-   fprintf(fp, "%f\t", scores->viterbi_sc);
-   fprintf(fp, "%f\t", scores->fwd_sc);
-   fprintf(fp, "%f\t", scores->bck_sc);
-   fprintf(fp, "%f\t", scores->cloud_fwd_sc);
-   fprintf(fp, "%f\t", scores->cloud_bck_sc);
+   fprintf(fp, "%f\t", scores->quad_vit);
+   fprintf(fp, "%f\t", scores->quad_fwd);
+   fprintf(fp, "%f\t", scores->quad_bck);
+   fprintf(fp, "%f\t", scores->naive_cloud_fwd);
+   fprintf(fp, "%f\t", scores->naive_cloud_bck);
    fprintf(fp, "%f\t", alpha);
    fprintf(fp, "%d\t", beta);
    fprintf(fp, "%f\t", scores->perc_cells);
@@ -403,30 +409,4 @@ void test_pipeline( WORKER* worker )
    fprintf(fp, "%d\n", T);
 
    if ( fp != stdout ) fclose( fp );
-
-   // /* FREE MEMORY */
-   // /* free matrices */
-   // MATRIX_3D_Destroy(st_MATRIX);
-   // MATRIX_2D_Destroy(sp_MATRIX);
-   // MATRIX_3D_Destroy(st_MATRIX3);
-
-   // MATRIX_3D_Destroy(st_MATRIX_tmp);
-
-   // MATRIX_3D_Destroy(st_MATRIX_cloud);
-   // MATRIX_2D_Destroy(sp_MATRIX_cloud);
-
-   // /* free hmm_profile and sequence*/
-   // HMM_PROFILE_Destroy(t_prof);
-   // SEQUENCE_Destroy(q_seq);
-
-   // /* free alignment */
-   // ALIGNMENT_Destroy(tr);
-
-   // /* free edgebounds */
-   // EDGEBOUNDS_Destroy(edg_fwd_lin);
-   // EDGEBOUNDS_Destroy(edg_bck_lin);
-   // EDGEBOUNDS_Destroy(edg_diag_lin);
-   // EDGEBOUNDS_Destroy(edg_row_lin);
-
-   // printf("...test finished. \n");
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      bounded_fwdbck_linear.c
- *  PURPOSE:   Bounded Forward/Backward Algorithm (LINEAR SPACE)
+ *  PURPOSE:   All /algs_linear/ header.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       

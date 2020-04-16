@@ -25,6 +25,7 @@
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
 #include "objects/alignment.h"
+#include "objects/vectors/vector_int.h"
 
 /* file parsers */
 #include "hmm_parser.h"
@@ -36,7 +37,7 @@
  *  FUNCTION: EDGEBOUNDS_Reflect()
  *  SYNOPSIS: Reflect antidiagonal bounds.
  *
- *  ARGS:      <bnd>      Bounds Object
+ *  ARGS:      <edg>      EDGEBOUNDS object
  *
  *  RETURN:    No Return.
  */
@@ -57,19 +58,21 @@ void EDGEBOUNDS_Reflect(EDGEBOUNDS *edg)
 
 /*
  *  FUNCTION: EDGEBOUNDS_Merge()
- *  SYNOPSIS: Combine two edgebound lists into one.
+ *  SYNOPSIS: Combine two edgebound lists into one. Assumes both lists are sorted.
  *
  *  ARGS:      <Q>            Query length,
  *             <T>            Target length,
- *             <edg_1>        Forward Edgebounds  (by-diag, sorted ascending),
- *             <edg_2>        Backward Edgebounds (by-diag, sorted ascending),
+ *             <edg_in_1>     Forward Edgebounds  (by-diag, sorted ascending),
+ *             <edg_in_2>     Backward Edgebounds (by-diag, sorted ascending),
+ *             <edg_out>      OUTPUT: resulting merged Edgebounds
  *
  *  RETURN:
  */
-EDGEBOUNDS* EDGEBOUNDS_Merge(const int         Q, 
-                             const int         T,
-                             const EDGEBOUNDS* edg_1,
-                             const EDGEBOUNDS* edg_2)
+void EDGEBOUNDS_Merge(const int           Q, 
+                      const int           T,
+                      const EDGEBOUNDS*   edg_in_1,
+                      const EDGEBOUNDS*   edg_in_2, 
+                      EDGEBOUNDS*         edg_out )
 {
    int         i, j;
    int         x, y; 
@@ -82,15 +85,18 @@ EDGEBOUNDS* EDGEBOUNDS_Merge(const int         Q,
    const int   tol         = 0;                    /* if clouds are within tolerance range, clouds are merged */
    const int   num_input   = 2;                    /* number of input edgebounds */
    int         starts[]    = {0,0};                /* head pointers for current edgebound ranges */
-   BOUND       bnd_1;
-   BOUND       bnd_2;
-   const 
-   EDGEBOUNDS* edg;                                /* pointer for looping through all edgebounds */
-   const 
-   EDGEBOUNDS* edg_in[]  = {edg_1, edg_2};         /* list of edgebound sets */
 
-   EDGEBOUNDS* edg_out   = EDGEBOUNDS_Create();    /* final output edgebound */
-   EDGEBOUNDS* edg_cur   = EDGEBOUNDS_Create();    /* new edgebounds which the two old edgebounds will be merged into */
+   /* pointer for looping through all edgebounds */   
+   const EDGEBOUNDS* edg;
+   BOUND             bnd_1;
+   BOUND             bnd_2;
+
+   /* list of edgebound sets */
+   const EDGEBOUNDS* edg_in[]  = {edg_in_1, edg_in_2};
+   /* reset output edgebounds */
+   EDGEBOUNDS_Reuse( edg_out );
+   /* new edgebounds which the two old edgebounds will be merged into */
+   EDGEBOUNDS* edg_cur   = EDGEBOUNDS_Create();
 
    /* iterate over all diags */
    st_y = 0;
@@ -158,8 +164,6 @@ EDGEBOUNDS* EDGEBOUNDS_Merge(const int         Q,
       edg_cur->N = 0;
    }
    EDGEBOUNDS_Destroy(edg_cur);
-
-   return edg_out;
 }
 
 
@@ -173,9 +177,10 @@ EDGEBOUNDS* EDGEBOUNDS_Merge(const int         Q,
  *
  *  RETURN:    <edg_out>     Edgebounds (by-row)          
  */
-EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q, 
-                                const int         T,
-                                const EDGEBOUNDS* edg_in)
+void EDGEBOUNDS_Reorient(const int           Q, 
+                         const int           T,
+                         const EDGEBOUNDS*   edg_in,
+                         EDGEBOUNDS*         edg_out )
 {
    int       x,y;
    int       y_st, y_end;
@@ -187,7 +192,8 @@ EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q,
    bool      is_covered = false;   
    const int tol        = 1;         /* max distance between two forks before merging */
 
-   EDGEBOUNDS* edg_out = EDGEBOUNDS_Create();
+   /* reuse edgebounds */
+   EDGEBOUNDS_Reuse( edg_out );
 
    /* range for possible antidiags */
    y_st = 0;
@@ -257,6 +263,4 @@ EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q,
          in_cloud = false;
       }
    }
-
-   return edg_out;
 }

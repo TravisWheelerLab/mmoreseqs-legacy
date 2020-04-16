@@ -75,13 +75,74 @@ void main_pipeline( WORKER* worker )
 
 	FILE* 	fp 		= NULL;
 
-	ARGS* 	args 	= worker->args;
-	TASKS* 	tasks 	= worker->tasks;
+	/* worker objects */
+	ARGS* 		args 		= worker->args;
+	TASKS* 		tasks 		= worker->tasks;
+	REPORT* 	report 		= worker->report;
+	RESULTS* 	results 	= worker->results;
+	RESULT* 	result 		= worker->result;
 
-	char* 	t_indexpath = args->t_indexpath;
-	char* 	q_indexpath = args->q_indexpath;
+	/* flags for pipeline tasks */
+	/* linear algs */
+	tasks->linear 			= true;
+	tasks->lin_fwd 			= true;
+	tasks->lin_bck 			= true;
+	tasks->lin_vit 			= true;
+	tasks->lin_trace 		= true;
+	tasks->lin_bound_fwd 	= true;
+	tasks->lin_bound_bck 	= true;
+	/* quadratic algs */
+	tasks->quadratic 		= false;
+	tasks->quad_fwd 		= false;
+	tasks->quad_bck 		= false;
+	tasks->quad_vit 		= false;
+	tasks->quad_trace 		= false;
+	tasks->quad_bound_fwd 	= false;
+	tasks->quad_bound_bck 	= false;
 
-	WORK_load_indexes( worker );
+	/* flags for reporting */
+	/* SCORES */
+	/* linear algs */
+	report->lin_fwd_sc 			= true;
+	report->lin_bck_sc 			= true;
+	report->lin_vit_sc 			= true;
+	report->lin_bound_fwd_sc 	= true;
+	report->lin_bound_bck_sc 	= true;
+	/* quadratic algs */
+ 	report->quad_fwd_sc 		= false;
+	report->quad_bck_sc 		= false;
+	report->quad_vit_sc 		= false;
+	report->quad_bound_fwd_sc 	= false;
+	report->quad_bound_bck_sc 	= false;
+
+	/* TIMES */
+	/* linear algs */
+	report->lin_fwd_t 			= true;
+	report->lin_bck_t 			= true;
+	report->lin_vit_t 			= true;
+	report->lin_trace_t 		= true;
+	report->lin_cloud_fwd_t 	= true;
+	report->lin_cloud_bck_t 	= true;
+	report->lin_merge_t 		= true;
+	report->lin_reorient_t 		= true;
+	report->lin_bound_fwd_t 	= true;
+	report->lin_bound_bck_t 	= true;
+	/* quadratic algs */
+	report->quad_fwd_t 			= false;
+	report->quad_bck_t 			= false;
+	report->quad_vit_t 			= false;
+	report->quad_trace_t 		= false;
+	report->quad_cloud_fwd_t 	= false;
+	report->quad_cloud_bck_t 	= false;
+	report->quad_merge_t 		= false;
+	report->quad_reorient_t 	= false;
+	report->quad_bound_fwd_t 	= false;
+	report->quad_bound_bck_t 	= false;
+
+	/* initialize data structures needed for tasks */
+	WORK_init( worker );
+	WORK_load_target_index( worker );
+	WORK_load_query_index( worker );
 
 	F_INDEX_Dump( worker->t_index, stdout );
 	F_INDEX_Dump( worker->q_index, stdout );
@@ -92,15 +153,29 @@ void main_pipeline( WORKER* worker )
 	worker->q_seq	= SEQUENCE_Create();
 
 	/* loop over targets */
-	for (int i = 0; i < 0; i++) {
+	for (int i = 0; i < worker->t_index->N; i++) {
 		/* load in next target */
-
+		WORK_load_target_by_id( worker, i );
+		HMM_PROFILE_Dump( worker->t_prof, stdout );
+		result->target_id = i;
 
 		/* loop over queries */
-		for (int j = 0; j < 0; j++) {
+		for (int j = 0; j < worker->q_index->N; j++) {
 			/* load in next query */
+			WORK_load_query_by_id( worker, j );
+			SEQUENCE_Dump( worker->q_seq, stdout );
+			result->query_id = j;
+
+			/* resize dp matrices to new query/target */
+			WORK_reuse( worker );
 
 			/* perform given tasks on them */
+			WORK_viterbi_and_traceback( worker );
+			WORK_forward_backward( worker );
+			WORK_cloud_search( worker );
+
+			/* report results */
+			RESULTS_PushBack( results, result );
 		}
 	}
 }

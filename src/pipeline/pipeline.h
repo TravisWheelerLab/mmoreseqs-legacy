@@ -34,22 +34,41 @@ void utest_pipeline( WORKER* worker );
 /* generic workflow */
 void WORK_workflow( WORKER*  work );
 
-/* load query and target indexes (or build them) */
-void WORK_load_indexes( WORKER* worker );
-
-/* load target and query from file */
-void WORK_load_target_query( WORKER*  worker );
-
 /* initialize dp matrices */
 void WORK_init( WORKER* worker );
 
 /* resize dp matrices if necessary */
 void WORK_reuse( WORKER* worker );
 
+/* load query and target indexes (or build them) */
+void WORK_load_target_index( WORKER* worker );
+
+/* load query index (or build them) */
+void WORK_load_query_index( WORKER* worker );
+
+/* load target by file index */
+void WORK_load_target_by_id( WORKER* worker,
+                             int     id );
+
+/* load query by file index id */
+void WORK_load_query_by_id( WORKER* worker,
+                            int     id );
+
+/* load target by file index name */
+void WORK_load_target_by_name( WORKER* worker,
+                               char*   name );
+
+/* load target by file index name */
+void WORK_load_query_by_name( WORKER* worker,
+                              char*   name );
+
 /* viterbi and traceback */
 void WORK_viterbi_and_traceback( WORKER*  worker );
 
 /* forward/backward */
 void WORK_forward_backward( WORKER*  worker );
+
+/* cloud search AKA pruned forward/backward */
+void WORK_cloud_search( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

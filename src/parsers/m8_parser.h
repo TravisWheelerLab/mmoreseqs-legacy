@@ -10,6 +10,7 @@
 #define _M8_PARSER_H
 
 /* parse .m8 results file and create RESULTS object */
-RESULTS* RESULTS_M8_Parse( char* _filename_ );
+void RESULTS_M8_Parse( RESULTS* 	results,
+					   char* 		_filename_ );
 
 #endif /* _M8_PARSER_H */

@@ -71,174 +71,98 @@
 /* mmseqs pipeline */
 void mmseqs_pipeline( WORKER* worker ) 
 {
-   /* Get Arguments */
-   ARGS*    args              = worker->args;
+	/* file pointer for writing out to file */
+   FILE* fp  	= NULL;
 
-   float    alpha             = args->alpha;
-   int      beta              = args->beta;  
-
-   char*    t_filepath        = args->t_filepath;
-   char*    q_filepath        = args->q_filepath;
-
-   char*    t_indexpath       = args->t_indexpath;
-   char*    q_indexpath       = args->q_indexpath;
-
-   int      t_filetype        = args->t_filetype;
-   int      q_filetype        = args->q_filetype;
-
-   char*    m8_filepath       = args->mmseqs_res_filepath;
-
-   /* results inputted from mmseqs pipeline */
-   RESULTS*       results_in        = NULL;
-   RESULT*        result            = NULL;
-   RESULT*        result_prv        = NULL;
-
-   /* results outputted after cloud fwd/bck */
-   RESULTS*       results_out       = RESULTS_Create();
-   
-   /* target & query objects */
-   SEQUENCE*      q_seq             = SEQUENCE_Create();
-   SEQUENCE*      t_seq             = SEQUENCE_Create();
-   HMM_PROFILE*   t_prof            = HMM_PROFILE_Create();
-
-   /* file indexes for target & query */
-   F_INDEX*       q_index           = NULL;
-   F_INDEX*       t_index           = NULL;
-
-   /* dynamic programming matrices for computing cloud fwd/bck */
-   MATRIX_3D*     st_MX3            = MATRIX_3D_Create(1, 3, NUM_NORMAL_STATES);
-   MATRIX_2D*     sp_MX             = MATRIX_2D_Create(1, NUM_SPECIAL_STATES);
-
-   ALIGNMENT*     aln               = ALIGNMENT_Create();
-
-   EDGEBOUNDS*    edg_fwd           = EDGEBOUNDS_Create();
-   EDGEBOUNDS*    edg_bck           = EDGEBOUNDS_Create();
-   EDGEBOUNDS*    edg_diag          = EDGEBOUNDS_Create();
-   EDGEBOUNDS*    edg_row           = EDGEBOUNDS_Create();
-
-   /* clock for timing cloud forward-backward */
-   CLOCK*         cl                = CLOCK_Create();
-   /* file pointer for writing out to file */
-   FILE*          fp                = NULL;
-
-   /* problem size */
-   int   T  = 1;
-   int   Q  = 1;
-
-   /* threshold scores */
-   float threshold_sc   = 0;
-   float sc             = 0;
+   /* worker objects */
+   ARGS*    args   	= worker->args;
+   TASKS*   tasks   	= worker->tasks;
+   REPORT*  report   = worker->report;
+   TIMES*   times   	= worker->times;
+   SCORES* 	scores 	= worker->scores;
+   CLOCK*   clock 	= worker->clock;
+   /* alignment for mmseqs window */
+   ALIGNMENT*	tr 	= worker->traceback;
 
    /* input results file from MMSEQS pipeline */
-   results_in = RESULTS_M8_Parse(m8_filepath);
-   RESULTS_M8_Dump(results_in, stdout);
-   
-   exit(EXIT_SUCCESS);
+   RESULTS* results_in = RESULTS_Create();
+   RESULT* 	result;
+   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath );
+   RESULTS_M8_Dump( results_in, stdout );
 
-   /* initialize logrithmic sum table */
-   init_Logsum();
+   /* set tasks */
+   args->is_testing 		= false;
+   tasks->lin_bound_fwd = true;
+
+   /* set values */
+   bool report_all 		= true;
+   float threshold_sc	= 0;
+
+   /* initialize worker data structures */
+   WORK_init( worker );
 
    /* === INDEX FILES === */
+   WORK_load_target_index( worker );
+   F_INDEX_Sort_by_Name( worker->t_index );
+   WORK_load_query_index( worker );
+   F_INDEX_Sort_by_Name( worker->q_index );
 
-   /* if target file doesn't have an index file, create one */
-   if ( t_indexpath == NULL ) 
-   {
-      switch( args->t_filetype )
-      {
-         case FILE_HMM:
-            t_index = F_INDEX_Hmm_Build( args->t_filepath );
-            break;
-
-         case FILE_FASTA:
-            t_index = F_INDEX_Fasta_Build( args->t_filepath );
-            break;
-
-         default:
-            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->t_filepath);
-            exit(EXIT_FAILURE);
-      }
-   } 
-   else 
-   {
-      t_index = F_INDEX_Load( args->t_indexpath );
-   }
-   F_INDEX_Sort( t_index );
-
-   /* if query file doesn't have an index file, create one */
-   if ( args->q_indexpath == NULL ) 
-   {
-      switch( args->q_filetype )
-      {
-         case FILE_FASTA:
-            q_index = F_INDEX_Fasta_Build( args->t_filepath );
-            break;
-
-         default:
-            fprintf(stderr, "ERROR: File type of '%s' is not supported.\n", args->t_filepath);
-            exit(EXIT_FAILURE);
-      }
-   } 
-   else 
-   {
-      q_index = F_INDEX_Load( args->t_indexpath );
-   }
-   F_INDEX_Sort( q_index );
+   /* add header to file */
+   fp = fopen(args->output_filepath, "w+");
+   fprintf(fp, ">");
+   fprintf(fp, "{%s}\t", "t_id");
+   fprintf(fp, "{%s}\t", "t_name");
+   fprintf(fp, "{%s}\t", "q_id");
+   fprintf(fp, "{%s}\t", "q_name");
+   fprintf(fp, "{%s}\t", "cloud_sc");
+   fprintf(fp, "{%s}\t", "cloud_time");
+   fprintf(fp, "\n");
 
    /* === ITERATE OVER EACH RESULT === */
-
    /* Look through each input result */
    for (int i = 0; i < results_in->N; i++) 
    {
       /* get next result from list */
       result = &(results_in->data[i]);
 
-      /* load target and query */
-      int t_id = result->target_id;
-      int q_id = result->query_id;
+      /* load target and query by looking them up by name */
+      WORK_load_target_by_name( worker, result->target_name );
+      WORK_load_query_by_name( worker, result->query_name );
 
+      /* change sizes of data structs */
+      WORK_reuse( worker );
+
+      /* get search window from mmseqs */
+	   ALIGNMENT_Reuse( tr );
+	   ALIGNMENT_Pushback( tr, &((TRACE){ result->query_start, result->target_start, M_ST }) );
+	   ALIGNMENT_Pushback( tr, &((TRACE){ result->query_end, result->target_end, M_ST }) );
+	   tr->beg = 0;
+	   tr->end = 1;
       
-
-      /* resize data structures for next search */
-      T = t_prof->N;
-      Q = q_seq->N;
-      MATRIX_3D_Reuse( st_MX3, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
-      MATRIX_2D_Reuse( sp_MX, NUM_SPECIAL_STATES, Q+1 );
-
-      /* get initial search window */
-      ALIGNMENT_Clear(aln);
-      ALIGNMENT_Pushback(aln, &((TRACE){ result->query_start, result->target_start, M_ST }) );
-      ALIGNMENT_Pushback(aln, &((TRACE){ result->query_end, result->target_end, M_ST }) );
-      aln->beg = 0;
-      aln->end = 1;
-
-      /* empty edgebound data */
-      EDGEBOUNDS_Clear(edg_fwd);
-      EDGEBOUNDS_Clear(edg_bck);
-
-      /* === CLOUD SEARCH === */
-
-      /* perform cloud search */
-      cloud_Forward_Linear(q_seq, t_prof, Q, T, NULL, st_MX3, sp_MX, aln, edg_fwd, alpha, beta, false);
-      cloud_Backward_Linear(q_seq, t_prof, Q, T, NULL, st_MX3, sp_MX, aln, edg_bck, alpha, beta, false);
-
-      edg_diag = EDGEBOUNDS_Merge(Q, T, edg_fwd, edg_bck);
-      edg_row  = EDGEBOUNDS_Reorient(Q, T, edg_diag);
-
-      bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3, NULL, sp_MX, edg_row, false, &sc);
-      result->cloud_fwd_sc = sc;
+      /* run cloud search */
+      WORK_cloud_search( worker );
 
       /* if it clears scoring threshold, add to results */
-      if ( sc > threshold_sc ) {
-         RESULTS_PushBack(results_out, result);
+      if ( scores->lin_cloud_fwd > threshold_sc || report_all ) {
+         RESULTS_PushBack( worker->results, result );
       }
 
-      free(edg_diag);
-      free(edg_row);
+      /* print out results */
+      float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck + 
+                        times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
+      fprintf(fp, "%d\t", result->target_id);
+      fprintf(fp, "%s\t", result->target_name);
+      fprintf(fp, "%d\t", result->query_id);
+      fprintf(fp, "%s\t", result->query_name);
+      fprintf(fp, "%.5f\t", scores->lin_cloud_fwd);
+      fprintf(fp, "%.5f\t", cloud_tot);
+      fprintf(fp, "\n");
    }
+   fclose(fp);
 
    /* final output of results */
    // fp = fopen()
-   fp = stdout;
-   RESULTS_My_Dump( results_out, fp );
-   if (fp != stdout) fclose(fp);
+   // fp = stdout;
+   // RESULTS_My_Dump( worker->results, fp );
+   // if (fp != stdout) fclose(fp);
 }

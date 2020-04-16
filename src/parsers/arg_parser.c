@@ -129,15 +129,12 @@ void   ARGS_Parse( ARGS*   args,
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-lookup") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--mmseqs-tmp") ) == 0 ) {
             req_args = 2;
             i++;
             if (i+req_args <= argc) {
-               free(args->t_lookup_filepath);
-               args->t_lookup_filepath = argv[i];
-               i++;
-               free(args->q_lookup_filepath);
-               args->q_lookup_filepath = argv[i];
+               free(args->mmseqs_tmp_filepath);
+               args->mmseqs_tmp_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
             }
@@ -147,7 +144,7 @@ void   ARGS_Parse( ARGS*   args,
             i++;
             if (i+req_args <= argc) {
                free(args->output_filepath);
-               args->output_filepath = strdup(flag);
+               args->output_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
             }
@@ -156,11 +153,8 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             i++;
             if (i+req_args <= argc) {
-               free(args->t_indexpath);
-               args->t_lookup_filepath = argv[i];
-               i++;
-               free(args->q_indexpath);
-               args->q_lookup_filepath = argv[i];
+               free(args->mmseqs_tmp_filepath);
+               args->mmseqs_tmp_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
             }
@@ -170,7 +164,7 @@ void   ARGS_Parse( ARGS*   args,
             i++;
             if (i+req_args <= argc) {
                free(args->output_filepath);
-               args->output_filepath = strdup(flag);
+               args->output_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
             }
@@ -240,8 +234,7 @@ void ARGS_Dump( ARGS*    args,
    char*    q_indexpath        = args->q_indexpath;
 
    char*    mmseqs_res        = args->mmseqs_res_filepath;
-   char*    t_lookup_filepath = args->t_lookup_filepath;
-   char*    q_lookup_filepath = args->q_lookup_filepath;
+   char*    mmseqs_tmp        = args->mmseqs_tmp_filepath;
 
    char*    output_filepath   = args->output_filepath;
 
@@ -250,30 +243,29 @@ void ARGS_Dump( ARGS*    args,
 
    fprintf( fp, "=== ARGS =====================\n");
 
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",         PIPELINE_NAMES[pipeline] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",   VERBOSITY_NAMES[verbosity] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",      MODE_NAMES[search_mode] );
-   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",            alpha );
-   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",             beta );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[pipeline] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[verbosity] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[search_mode] );
+   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           alpha );
+   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",            beta );
    fprintf( fp, "\n" );
 
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH",  t_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE",  FILE_TYPE_NAMES[t_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",   q_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",   FILE_TYPE_NAMES[q_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH", t_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[t_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",  q_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[q_filetype] );
    fprintf( fp, "\n" );
 
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",   t_indexpath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",   q_indexpath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",    t_indexpath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",    q_indexpath );
    fprintf( fp, "\n" );
 
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",   mmseqs_res );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_LOOKUP_PATH",   t_lookup_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_LOOKUP_PATH",   q_lookup_filepath );   
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",  mmseqs_res );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_TEMP",     mmseqs_tmp );  
    fprintf( fp, "\n" );
 
 
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH",  output_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH", output_filepath );
 
    fprintf( fp, "=============================\n\n");
 }

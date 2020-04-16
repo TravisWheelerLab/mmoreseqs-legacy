@@ -99,6 +99,7 @@ MMSEQS_RES_IN="--mmseqs-results $MMSEQS_RESULTS"
 MMSEQS_LOOKUP_IN="--mmseqs-lookup $MMSEQS_LOOKUP"
 CLOUD_INDEX_IN="--index-input $CLOUD_INDEX"
 RESULTS_OUT="--output $CLOUD_RES"
+CLOUD_PARAMS="--alpha 15.0  --beta 5"
 
 echo "(4) PERFORMING CLOUD SEARCH..."
 $CLOUD mmseqs $TARGET_PATH $QUERY_PATH $MMSEQ

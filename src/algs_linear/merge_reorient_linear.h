@@ -11,20 +11,20 @@
 #ifndef _MERGE_REORIENT_LINEAR_H
 #define _MERGE_REORIENT_LINEAR_H
 
-/* === INCLUDES === */
-// #include "objects/structs.c"
-// #include "objects/edgebound.c"
-
-/* === FUNCTIONS === */
+/* */
 void edgebounds_Reflect(EDGEBOUNDS *edg);
 
-EDGEBOUNDS* EDGEBOUNDS_Merge(const int         Q, 
-                             const int         T,
-                             const EDGEBOUNDS* edg_1,
-                             const EDGEBOUNDS* edg_2);
+/* merge two edgebounds into a single edgebounds */
+void EDGEBOUNDS_Merge(const int         	Q, 
+                      const int         	T,
+                      const EDGEBOUNDS* 	edg_in_1,
+                      const EDGEBOUNDS* 	edg_in_2, 
+                      EDGEBOUNDS* 			edg_out );
 
-EDGEBOUNDS* EDGEBOUNDS_Reorient(const int         Q, 
-                                const int         T,
-                                const EDGEBOUNDS* edg_in);
+/* reorient edgebounds from by-diag to by-row */
+void EDGEBOUNDS_Reorient(const int         	Q, 
+                         const int         	T,
+                         const EDGEBOUNDS* 	edg_in,
+                         EDGEBOUNDS* 		edg_out );
 
 #endif /* _MERGE_REORIENT_LINEAR_H */

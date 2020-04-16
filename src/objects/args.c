@@ -41,8 +41,7 @@ ARGS* ARGS_Create()
    args->output_filepath = NULL; 
 
    args->mmseqs_res_filepath = NULL;
-   args->t_lookup_filepath = NULL;
-   args->q_lookup_filepath = NULL;
+   args->mmseqs_tmp_filepath = NULL;
 
    return args;
 }
@@ -61,8 +60,7 @@ void ARGS_Destroy(ARGS* args)
    free( args->output_filepath );
 
    free( args->mmseqs_res_filepath );
-   free( args->t_lookup_filepath );
-   free( args->q_lookup_filepath );
+   free( args->mmseqs_tmp_filepath );
 
    free( args );
    args = NULL;

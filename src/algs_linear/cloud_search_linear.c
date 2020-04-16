@@ -75,8 +75,8 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
                            const HMM_PROFILE* target,
                            const int          Q, 
                            const int          T, 
-                           MATRIX_3D*         st_MX, 
                            MATRIX_3D*         st_MX3,
+                           MATRIX_3D*         st_MX, 
                            MATRIX_2D*         sp_MX, 
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
@@ -272,6 +272,7 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
       lb = MAX(lb, le);
       rb = MIN(rb, re);
 
+      /* add results to edgebound list */
       EDGEBOUNDS_Pushback(edg, (BOUND){d,lb,rb});
 
       /* MAIN RECURSION */
@@ -377,16 +378,16 @@ void cloud_Forward_Linear( const SEQUENCE*    query,
 /* ****************************************************************************************** */
 void cloud_Backward_Linear(const SEQUENCE*    query, 
                            const HMM_PROFILE* target,
-                           const int          Q,
-                           const int          T,
-                           MATRIX_3D*         st_MX,
+                           const int          Q, 
+                           const int          T, 
                            MATRIX_3D*         st_MX3,
-                           MATRIX_2D*         sp_MX,
+                           MATRIX_3D*         st_MX, 
+                           MATRIX_2D*         sp_MX, 
                            const ALIGNMENT*   tr,
                            EDGEBOUNDS*        edg,
-                           const float        alpha,
+                           const float        alpha, 
                            const int          beta,
-                           const bool         test )
+                           const bool         test)
 {
    /* vars for navigating matrix */
    int d,i,j,k;                  /* diagonal, row, column, ... indices */

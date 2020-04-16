@@ -35,21 +35,23 @@ typedef struct {
 
 /* */
 typedef struct {
-   /* naive */
-   float    cloud_fwd_naive_sc;
-   float    cloud_bck_naive_sc;
-   /* quadratic */
-   float    viterbi_quad_sc;
-   float    fwd_quad_sc;
-   float    bck_quad_sc;
-   float    cloud_fwd_quad_sc;
-   float    cloud_bck_quad_sc;
+   /* naive algs */
+   float    naive_cloud_fwd;
+   float    naive_cloud_bck;
+   /* quadratic algs */
+   float    quad_vit;
+   float    quad_trace;
+   float    quad_fwd;
+   float    quad_bck;
+   float    quad_cloud_fwd;
+   float    quad_cloud_bck;
    /* linear */
-   float    viterbi_sc;
-   float    fwd_sc;
-   float    bck_sc;
-   float    cloud_fwd_sc;
-   float    cloud_bck_sc;
+   float    lin_vit;
+   float    lin_trace;
+   float    lin_fwd;
+   float    lin_bck;
+   float    lin_cloud_fwd;
+   float    lin_cloud_bck;
    /* statistics */
    float    perc_cells;
    float    perc_window;
@@ -261,8 +263,7 @@ typedef struct {
 
    /* mmseqs-plus search params */
    char*    mmseqs_res_filepath;    /* filepath to mmseqs results file */
-   char*    t_lookup_filepath;      /* filepath to target lookup, which pairs names to ids */
-   char*    q_lookup_filepath;      /* filepath to query lookup, which pairs names to ids */
+   char*    mmseqs_tmp_filepath;    /* filepath to mmseqs temporary files root */
 
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
@@ -279,14 +280,14 @@ typedef struct {
    COORDS   end;                    /* ending coordinates of viterbi alignment */
 
    /* target/query metadata */
-   int      t_filetype;          /* enumerated FILETYPE of target file */
-   int      q_filetype;          /* enumerated FILETYPE of query file */
+   int      t_filetype;             /* enumerated FILETYPE of target file */
+   int      q_filetype;             /* enumerated FILETYPE of query file */
    /* file id number */
-   int      t_fileno; 
-   int      q_fileno;
+   int      t_fileno;               /* */
+   int      q_fileno;               /* */
    /* offset into file */
-   int      t_offset;
-   int      q_offset;
+   int      t_offset;               /* */
+   int      q_offset;               /* */
 
    /* threshold scores for pipeline */
    float    viterbi_threshold;
@@ -297,23 +298,39 @@ typedef struct {
 /* times to execute given operations */
 typedef struct {
    /* load times */
-   float    load_t;
-   float    load_q;
+   float    load_target_index;
+   float    load_query_index;
 
-   /* linear */
-   float    lin_viterbi;
-   float    lin_traceback;
-   float    fwd;
-   float    bck;
+   float    load_target;
+   float    load_query;
 
-   float    cloud_fwd;
-   float    cloud_bck;
+   /* linear algs */
+   float    lin_vit;
+   float    lin_trace;
+   float    lin_fwd;
+   float    lin_bck;
+   float    lin_cloud_fwd;
+   float    lin_cloud_bck;
+   float    lin_merge;
+   float    lin_reorient;
+   float    lin_bound_fwd;
+   float    lin_bound_bck;
 
-   float    merge;
-   float    reorient;
+   /* quadratic algs */
+   float    quad_vit;
+   float    quad_trace;
+   float    quad_fwd;
+   float    quad_bck;
+   float    quad_cloud_fwd;
+   float    quad_cloud_bck;
+   float    quad_merge;
+   float    quad_reorient;
+   float    quad_bound_fwd;
+   float    quad_bound_bck;  
 
-   float    bound_fwd;
-   float    bound_bck;
+   /* naive algs */
+   float    naive_bound_fwd;
+   float    naive_bound_bck;  
 } TIMES;
 
 /* hmm location within file */
@@ -330,13 +347,13 @@ typedef struct {
    F_INDEX_NODE*  nodes;      /* List of nodes for location of each HMM/FASTA in file */    
 
    char*          index_path;    /* Filepath of index file (NULL if built and not loaded) */
-   char*          lookup_path;   /* Filepath to lookup file (NULL if not used) */
+   char*          lookup_path;   /* Filepath to mmseqs lookup file (NULL if not used) */
    char*          filepath;      /* Filepath of file being indexed */
    char*          delim;         /* one of more delimiter of header fields */
-   int            filetype;      /* Type of file being indexed */
 
-   int            name_field; /* sorted index of header field containing name */
-   int            isSorted;   /* Whether the index nodes list has been sorted */
+   int            filetype;      /* Type of file being indexed (HMM, FASTA, etc) */
+   int            isSorted;      /* Whether the index nodes list has been sorted */
+   int            mmseqs_names;  /* Whether index is using names from mmseqs lookup */
 } F_INDEX;
 
 
@@ -385,6 +402,31 @@ typedef struct {
    int      Nalloc;
    RESULT*  data;
    char*    filepath;
+
+   /* field reporting */
+   bool     target_id;
+   bool     query_id;
+
+   bool     target_name;
+   bool     query_name;
+
+   bool     beg;
+   bool     end;
+
+   bool     perc_id;
+   bool     aln_len;
+   bool     mismatch;
+   bool     gap_openings;
+
+   bool     query_start;
+   bool     query_end;
+   bool     target_start;
+   bool     target_end;
+
+   bool     e_value;
+   bool     bit_score;
+
+   bool     cloud_fwd_sc;
 } RESULTS;
 
 /* substitution/scoring matrix */
@@ -404,7 +446,10 @@ typedef struct {
    bool     time;             /* are we reporting times for given tasks? */
 
    /* output heatmaps */
-   bool     heatmaps;         /* */     
+   bool     heatmaps;         /* output heatmaps */
+
+   /* mmseqs lookup */
+   bool     mmseqs_lookup;    /* if we have a mmseqs name lookup table */
 
    /* naive algs */
    bool     naive_cloud;      /* naive cloud search */
@@ -415,7 +460,8 @@ typedef struct {
    bool     quad_bck;         /* backward */
    bool     quad_vit;         /* viterbi */
    bool     quad_trace;       /* traceback of viterbi */
-   bool     quad_cloud;       /* cloud pruning search */
+   bool     quad_bound_fwd;   /* bounded forward (requires cloud) */
+   bool     quad_bound_bck;   /* bounded backward (requires cloud) */
 
    /* linear algs */
    bool     linear;           /* are we running any linear algorithms? */
@@ -423,8 +469,50 @@ typedef struct {
    bool     lin_bck;          /* backward */
    bool     lin_vit;          /* viterbi */
    bool     lin_trace;        /* traceback of viterbi */
-   bool     lin_cloud;        /* cloud pruning search */
+   bool     lin_bound_fwd;    /* bounded forwarded (requires cloud) */
+   bool     lin_bound_bck;    /* bounded backward (requires cloud) */
 } TASKS;
+
+/* bools of which scores and times to be reported */
+typedef struct {
+   /* TIMES */
+   /* linear algs */
+   bool     lin_fwd_t;
+   bool     lin_bck_t;
+   bool     lin_vit_t;
+   bool     lin_trace_t;
+   bool     lin_cloud_fwd_t;
+   bool     lin_cloud_bck_t;
+   bool     lin_merge_t;
+   bool     lin_reorient_t;
+   bool     lin_bound_fwd_t;
+   bool     lin_bound_bck_t;
+   /* quadratic algs */
+   bool     quad_fwd_t;
+   bool     quad_bck_t;
+   bool     quad_vit_t;
+   bool     quad_trace_t;
+   bool     quad_cloud_fwd_t;
+   bool     quad_cloud_bck_t;
+   bool     quad_merge_t;
+   bool     quad_reorient_t;
+   bool     quad_bound_fwd_t;
+   bool     quad_bound_bck_t;
+
+   /* SCORES */
+   /* linear algs */
+   bool     lin_fwd_sc;
+   bool     lin_bck_sc;
+   bool     lin_vit_sc;
+   bool     lin_bound_fwd_sc;
+   bool     lin_bound_bck_sc;  
+   /* quadratic algs */
+   bool     quad_fwd_sc;
+   bool     quad_bck_sc;
+   bool     quad_vit_sc;
+   bool     quad_bound_fwd_sc;
+   bool     quad_bound_bck_sc;  
+} REPORT;
 
 /* worker contains the necessary data structures to conduct search */
 /* unnecessary components will be left NULL */
@@ -432,6 +520,8 @@ typedef struct {
    /* meta data */
    ARGS*          args;
    TASKS*         tasks;
+   /* fields to report */
+   REPORT*        report;
 
    /* indexes of query and target data files */
    F_INDEX*       q_index;
@@ -448,13 +538,11 @@ typedef struct {
    SEQUENCE*      t_seq;
    HMM_PROFILE*   t_prof;
 
-   /* edgebounds for cloud search (linear space) */
+   /* edgebounds for cloud search */
    EDGEBOUNDS*    edg_fwd;
    EDGEBOUNDS*    edg_bck;
    EDGEBOUNDS*    edg_diag;
    EDGEBOUNDS*    edg_row;
-
-   /* edgebounds for cloud search (quad space) */
 
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;
@@ -469,8 +557,12 @@ typedef struct {
    TIMES*         times;
    /* scores for algorithms */
    SCORES*        scores;
-   /* results for worker */
-   RESULTS*       results;
+   /* results from mmseqs */
+   RESULTS*       results_in;
+   /* results to output */
+   RESULTS*       results; 
+   /* current result */
+   RESULT*        result;
    /* clock for taking times */
    CLOCK*         clock;
 } WORKER;

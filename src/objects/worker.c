@@ -48,6 +48,7 @@ WORKER* WORKER_Create()
    /* set all pointers null */
    worker->args      = NULL;
    worker->tasks     = NULL;
+   worker->report    = NULL;
 
    worker->t_index   = NULL;
    worker->q_index   = NULL;
@@ -76,10 +77,12 @@ WORKER* WORKER_Create()
    worker->clock     = NULL;
 
    /* malloc all basic data structures */
-   worker->tasks     = (TASKS*) malloc( sizeof(TASKS) );
-   worker->times     = (TIMES*) malloc( sizeof(TIMES) );
-   worker->scores    = (SCORES*) malloc( sizeof(SCORES) );
-   worker->results   = (RESULTS*) malloc( sizeof(RESULTS) );
+   worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) ); /* sets all tasks to false */
+   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) ); /* sets all tasks to false */
+   worker->times        = (TIMES*) malloc( sizeof(TIMES) );
+   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );
+   worker->results      = (RESULTS*) malloc( sizeof(RESULTS) );
+   worker->result       = (RESULT*) malloc( sizeof(RESULT) );
    if ( worker->tasks == NULL || worker->times == NULL || worker->scores == NULL || worker->results == NULL ) {
       fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
       exit(EXIT_FAILURE);
@@ -118,15 +121,16 @@ void WORKER_Destroy( WORKER* worker )
    EDGEBOUNDS_Destroy( worker->edg_bck  );
    EDGEBOUNDS_Destroy( worker->edg_diag );
    EDGEBOUNDS_Destroy( worker->edg_row  );
-   ALIGNMENT_Destroy( worker->traceback  );
+   ALIGNMENT_Destroy( worker->traceback );
 
+   MATRIX_3D_Destroy( worker->st_MX3 );
    MATRIX_3D_Destroy( worker->st_MX  );
    MATRIX_2D_Destroy( worker->sp_MX  );
-   MATRIX_3D_Destroy( worker->st_MX3 );
 
    free( worker->times   );
    free( worker->scores  );
    free( worker->results );
+   free( worker->result  );
 
    CLOCK_Destroy( worker->clock   );
 
