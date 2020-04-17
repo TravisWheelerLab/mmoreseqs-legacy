@@ -163,8 +163,9 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             i++;
             if (i+req_args <= argc) {
-               free(args->output_filepath);
+               printf("output: %s\n", args->output_filepath);
                args->output_filepath = strdup(argv[i]);
+               printf("test\n");
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
             }
@@ -197,9 +198,6 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
 
-   args->t_offset                = 0;
-   args->q_offset                = 0;
-
    args->output_filepath         = STDOUT;
 
    args->alpha                   = 20.0f;
@@ -212,6 +210,10 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->viterbi_threshold       = 0.0f;
    args->fwdbck_threshold        = 0.0f;
    args->cloud_threshold         = 0.0f;
+
+   /* these will default to entire file unless filled with positive ints */
+   args->t_range                 = (RANGE) { -1, -1 };    
+   args->q_range                 = (RANGE) { -1, -1 };
 }
 
 /* sends ARGS data to FILE POINTER */

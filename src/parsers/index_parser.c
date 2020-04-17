@@ -198,7 +198,7 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
    f_index->index_path = strdup( _filename_ );
 
    /* file open */
-   fp      = fopen(_filename_, "r");
+   fp = fopen(_filename_, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
       exit(EXIT_FAILURE);
@@ -222,8 +222,30 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
       token = strtok( line_buf, delim );
       if (token == NULL) continue;
 
+      /* path to source */
+      if ( strcmp( token, "SOURCE_PATH:" ) == 0 ) {
+         token = strtok( NULL, delim );
+         if ( strcmp( token, "(null)" ) != 0 ) {
+            f_index->source_path = strdup( token );
+         }
+
+         line_count++;
+         continue;
+      }
+
+      /* path to lookup */
+      if ( strcmp( token, "LOOKUP_PATH:" ) == 0 ) {
+         token = strtok( NULL, delim );
+         if ( strcmp( token, "(null)" ) != 0 ) {
+            f_index->lookup_path = strdup( token );
+         }
+
+         line_count++;
+         continue;
+      }
+
       /* number of nodes */
-      if ( strcmp( token, "NUMBER_SEQS" ) == 0 ) {
+      if ( strcmp( token, "NUMBER_SEQS:" ) == 0 ) {
          token = strtok( NULL, delim );
          int size = atoi( token );
          F_INDEX_Resize( f_index, size );
@@ -232,8 +254,8 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
          continue;
       }
 
-      /* number of nodes */
-      if ( strcmp( token, "NUMBER_SEQS" ) == 0 ) {
+      /* whether using mmseqs names */
+      if ( strcmp( token, "MMSEQS_NAMES:" ) == 0 ) {
          token = strtok( NULL, delim );
          if ( strcmp( token, "true" ) == 0 ) {
             f_index->mmseqs_names = true;
@@ -303,6 +325,7 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
    long           cur_offset     = 0;
    long           prv_offset     = 0;
 
+   /* add meta data */
    f_index->lookup_path = strdup( _lookup_filepath_ );
 
    /* open file */

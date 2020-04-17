@@ -82,6 +82,7 @@ int main ( int argc, char *argv[] )
    /* parse command line arguments */
    args = ARGS_Create();
    ARGS_Parse( args, argc, argv );
+   fprintf(stderr, "test\n" );
 
    /* output arguments */
    ARGS_Dump( args, stdout );

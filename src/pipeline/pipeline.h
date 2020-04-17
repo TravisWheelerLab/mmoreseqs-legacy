@@ -52,6 +52,9 @@ void WORK_output_target_index( WORKER* worker );
 /* output query index to file */
 void WORK_output_query_index( WORKER* worker );
 
+/* set and verify ranges */
+void WORK_set_ranges( WORKER* worker );
+
 /* load target by file index */
 void WORK_load_target_by_id( WORKER* worker,
                              int     id );
@@ -76,5 +79,11 @@ void WORK_forward_backward( WORKER*  worker );
 
 /* cloud search AKA pruned forward/backward */
 void WORK_cloud_search( WORKER* worker );
+
+/* print header for results file (default) */
+void WORK_print_result_header( WORKER* worker );
+
+/* print current result (default) */
+void WORK_print_result_current( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

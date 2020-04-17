@@ -1,6 +1,5 @@
 # === FILE INDEX === #
-FILE_PATH:	(null)
-INDEX_PATH:	test_input/3-PAP.fa
+SOURCE_PATH:	test_input/3-PAP.fa
 LOOKUP_PATH:	(null)
 NUMBER_SEQS:	3
 MMSEQS_NAMES:	false

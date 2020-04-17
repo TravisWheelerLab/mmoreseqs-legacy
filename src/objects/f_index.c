@@ -298,8 +298,8 @@ void F_INDEX_Dump(F_INDEX* index,
    }
 
    fprintf(fp, "# === FILE INDEX === #\n" );
-   fprintf(fp, "%s\t%s\n", "FILE_PATH:",     index->index_path );
-   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->source_path );
+   // fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->index_path );
+   fprintf(fp, "%s\t%s\n", "SOURCE_PATH:",   index->source_path );
    fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path );
    fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N );
    fprintf(fp, "%s\t%s\n", "MMSEQS_NAMES:",  index->mmseqs_names ? "true" : "false" );

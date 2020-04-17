@@ -1,0 +1,8 @@
+TARGET_SOURCE:	test_input/3-PAP.hmm
+QUERY_SOURCE:	test_input/3-PAP.fa
+TARGET_INDEX:	(null)
+QUERY_INDEX:	(null)
+>{t_id}	{q_id}	{t_len}	{q_len}	{alpha}	{beta}	{tot_c}	{cld_c}	{vit_sc}	{cl_sc}	{vit_t}	{trace_t}	{cl_fwd_t}	{cl_bck_t}	{merge_t}	{reorient_t}	{bnd_fwd_t}	
+0	0	133	643	  10.0000	5	86296	3668	   2.1788	   6.7326	  81.2700	   0.0850	   0.9130	   1.8340	   0.0220	   1.1450	   3.0010	
+0	1	133	620	  10.0000	5	83214	1893	  -3.3925	  -0.3267	  51.4060	   0.0800	   0.5430	   1.6000	   0.0150	   0.7500	   1.7220	
+0	2	133	1212	  10.0000	5	162542	3836	 -12.8997	  -7.2300	  97.7370	   0.1260	   0.5970	   2.2600	   0.0260	   1.8970	   4.0230	

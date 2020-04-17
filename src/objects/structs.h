@@ -282,12 +282,10 @@ typedef struct {
    /* target/query metadata */
    int      t_filetype;             /* enumerated FILETYPE of target file */
    int      q_filetype;             /* enumerated FILETYPE of query file */
-   /* file id number */
-   int      t_fileno;               /* */
-   int      q_fileno;               /* */
-   /* offset into file */
-   int      t_offset;               /* */
-   int      q_offset;               /* */
+
+   /* for specified range of targets/queries in file */
+   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
+   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
 
    /* threshold scores for pipeline */
    float    viterbi_threshold;
@@ -525,6 +523,9 @@ typedef struct {
    TASKS*         tasks;
    /* fields to report */
    REPORT*        report;
+
+   /* output file pointer */
+   FILE*          out_file;
 
    /* indexes of query and target data files */
    F_INDEX*       q_index;

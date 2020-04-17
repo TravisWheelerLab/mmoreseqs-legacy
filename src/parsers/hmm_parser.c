@@ -19,6 +19,9 @@
 #include "objects/structs.h"
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
+#include "objects/mystring.h"
+
+/* utility functions */
 #include "utilities/utility.h"
 
 /* header */

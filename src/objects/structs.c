@@ -194,12 +194,14 @@ ARGS* args;
 /* command line flags and options */
 /* NOTE: update definition of NUM_FLAG_CMDS */
 FLAG_CMD COMMAND_OPTS[] = {
-   {  "ALPHA",    1,    DATATYPE_FLOAT,   NULL,    "--alpha",     "-a",    "X-drop pruning ratio." },
-   {  "BETA",     1,    DATATYPE_INT,     NULL,    "--beta",      "-b",    "Number of passes of cloud search before pruning." },
+   {  "OUTFILE",  2,    DATATYPE_INT,     NULL,    "--output",    "-o",    "Result output file destination [stdout]."  },
+   {  "INFILES",  2,    DATATYPE_STRING,  NULL,    "--input",     "-i",    "Input files: {target,query} [test cases]."  },
+   {  "INDEX",    2,    DATATYPE_STRING,  NULL,    "--index",     "-x",    "Index files: {target,query} [builds on fly]."  },
+   {  "ALPHA",    1,    DATATYPE_FLOAT,   NULL,    "--alpha",     "-a",    "X-drop pruning ratio [20.0]." },
+   {  "BETA",     1,    DATATYPE_INT,     NULL,    "--beta",      "-b",    "Number of passes of cloud search before pruning [5]." },
    {  "WINDOW",   4,    DATATYPE_INT,     NULL,    "--window",    "-w",    "Examine substring of query and target."  },
-   {  "Q_RANGE",  2,    DATATYPE_INT,     NULL,    "--qrange",    NULL,    "Give range of ids in query file index to search."  },
-   {  "T_RANGE",  2,    DATATYPE_INT,     NULL,    "--trange",    NULL,    "Give range of ids in target file index to search."  },
-   {  "SINGLE",   2,    DATATYPE_INT,     NULL,    "--single",    NULL,    "Give single {target,query} id pair to search." }
+   {  "Q_RANGE",  2,    DATATYPE_INT,     NULL,    "--qrange",    NULL,    "Give range of ids in query file index to search [-1,-1]."  },
+   {  "T_RANGE",  2,    DATATYPE_INT,     NULL,    "--trange",    NULL,    "Give range of ids in target file index to search [-1,-1]."  },
 };
 
 char* DATATYPE_NAMES[] = {

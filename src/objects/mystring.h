@@ -6,8 +6,8 @@
  *  BUG:       
  *******************************************************************************/
 
-#ifndef _STRING_H
-#define _STRING_H
+#ifndef _MYSTRING_H
+#define _MYSTRING_H
 
 /* Get the number of characters in a string (including \0) */
 int STRING_Len( const char*  str );
@@ -34,4 +34,4 @@ int STRING_EndsWith( const char*    str1,
 /* returns filename of full filepath */
 char* STRING_Get_File_from_Path( const char* filepath );
 
-#endif /* _STRING_H */
+#endif /* _MYSTRING_H */

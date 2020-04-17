@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  FILE:      pipeline_main.c
- *  PURPOSE:   Pipelines and Subroutines
+ *  FILE:      work.c
+ *  PURPOSE:   Pipelines Workflow Subroutines
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -256,6 +256,7 @@ void WORK_load_query_index( WORKER* worker )
    else if ( access( q_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
       printf("found index at database location...\n");
+      args->q_indexpath = strdup( q_indexpath_tmp );
       worker->q_index = F_INDEX_Load( q_indexpath_tmp );
    }  
    else {
@@ -273,13 +274,14 @@ void WORK_load_query_index( WORKER* worker )
       }
       /* identify the query file being indexed */
       worker->q_index->source_path = strdup(args->q_filepath);
+      args->q_indexpath = strdup( q_indexpath_tmp );
 
       /* save index file */
-      args->q_indexpath = q_indexpath_tmp;
       fp = fopen( q_indexpath_tmp, "w+" );
       F_INDEX_Dump( worker->q_index, fp );
       fclose(fp);
    }
+   free(q_indexpath_tmp);
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
    if ( tasks->mmseqs_lookup && worker->q_index->mmseqs_names ) {
@@ -346,6 +348,38 @@ void WORK_output_query_index( WORKER* worker )
    fclose(fp);
 }
 
+/* set and verify ranges */
+void WORK_set_ranges( WORKER* worker )
+{
+   ARGS* args = worker->args;
+
+   /* verify range of targets to search */
+   /* if beginning is less than zero, default to entire range */
+   if ( args->t_range.beg < 0 ) {
+      args->t_range = (RANGE) { 0, worker->t_index->N };
+   } 
+   /* check for invalid ranges ( assert min > max, and min/max are less than the total in file ) */
+   else if ( args->t_range.beg > args->t_range.end  || 
+           args->t_range.beg > worker->t_index->N || 
+           args->t_range.end > worker->t_index->N ) {
+      fprintf(stderr, "ERROR: Invalid target id range (%d,%d).\n", args->t_range.beg, args->t_range.end );
+      exit(EXIT_FAILURE);
+   }
+
+   /* verify range of queries to search */
+   /* if beginning is less than zero, default to entire range */
+   if ( args->q_range.beg < 0 ) {
+      args->q_range = (RANGE) { 0, worker->q_index->N };
+   } 
+   /* check for invalid ranges ( assert min > max, and min/max are less than the total in file ) */
+   else if ( args->q_range.beg > args->q_range.end  || 
+           args->q_range.beg > worker->q_index->N || 
+           args->q_range.end > worker->q_index->N ) {
+      fprintf(stderr, "ERROR: Invalid target id range (%d,%d).\n", args->q_range.beg, args->q_range.end );
+      exit(EXIT_FAILURE);
+   }
+}
+
 /* load target by file index id */
 void WORK_load_target_by_id( WORKER* worker,
                              int     id )
@@ -366,6 +400,9 @@ void WORK_load_target_by_id( WORKER* worker,
    char*          t_filepath     = args->t_filepath;
    int            t_filetype     = args->t_filetype;
    int            mode           = args->search_mode;
+
+   /* set current target id */
+   worker->t_id = id;
 
    /* begin time */
    CLOCK_Start(clock);
@@ -421,6 +458,9 @@ void WORK_load_query_by_id( WORKER* worker,
 
    char*          q_filepath     = args->q_filepath;
    int            q_filetype     = args->q_filetype;
+
+   /* set current query id */
+   worker->q_id = id;
 
    /* begin time */
    CLOCK_Start(clock);
@@ -647,7 +687,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clock);
       EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clock);
-      times->lin_merge = CLOCK_Secs(clock);
+      times->lin_reorient = CLOCK_Secs(clock);
 
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
@@ -720,18 +760,8 @@ void WORK_cloud_search( WORKER* worker )
    }
 }
 
-/* fill result with  */
-void WORK_fill_result( WORKER* worker )
-{
-   SCORES*  scores   = worker->scores;
-   TIMES*   times    = worker->times;
-   RESULT*  result   = worker->result;
-
-   
-}
-
-/* */
-void WORK_print_results_header( WORKER* worker )
+/* TODO: fill result header based on task flags */
+void WORK_result_header_fill( WORKER* worker )
 {
    FILE*    fp       = NULL;
 
@@ -796,8 +826,87 @@ void WORK_print_results_header( WORKER* worker )
    fclose(fp);
 }
 
-/* */
-void WORK_print_results( WORKER* worker )
+/* TODO: fill result with data based on task flags */
+void WORK_result_fill( WORKER* worker )
 {
+   SCORES*  scores   = worker->scores;
+   TIMES*   times    = worker->times;
+   RESULT*  result   = worker->result;
+}
 
+/* print header for results file (default) */
+void WORK_print_result_header( WORKER* worker )
+{
+   FILE* fp = worker->out_file;
+
+   /* open file */
+   fprintf(fp, "TARGET_SOURCE:\t%s\n", args->t_filepath);
+   fprintf(fp, "QUERY_SOURCE:\t%s\n", args->q_filepath);
+   fprintf(fp, "TARGET_INDEX:\t%s\n", args->t_indexpath);
+   fprintf(fp, "QUERY_INDEX:\t%s\n", args->q_indexpath);
+
+   /* print header */
+   int pad = 0;
+   fprintf(fp, ">");
+
+   fprintf(fp, "{%*s}\t", pad, "t_id" );
+   fprintf(fp, "{%*s}\t", pad, "q_id" );
+   // fprintf(fp, "{%*s}\t", pad, "t_name" );
+   // fprintf(fp, "{%*s}\t", pad, "q_name" );
+   fprintf(fp, "{%*s}\t", pad, "t_len" );
+   fprintf(fp, "{%*s}\t", pad, "q_len" );
+
+   fprintf(fp, "{%*s}\t", pad, "alpha" );
+   fprintf(fp, "{%*s}\t", pad, "beta" );
+
+   fprintf(fp, "{%*s}\t", pad, "tot_c" );
+   fprintf(fp, "{%*s}\t", pad, "cld_c" );
+
+   fprintf(fp, "{%*s}\t", pad, "vit_sc" );
+   fprintf(fp, "{%*s}\t", pad, "cl_sc" );
+
+   fprintf(fp, "{%*s}\t", pad, "vit_t" );
+   fprintf(fp, "{%*s}\t", pad, "trace_t" );
+   fprintf(fp, "{%*s}\t", pad, "cl_fwd_t" );
+   fprintf(fp, "{%*s}\t", pad, "cl_bck_t" );
+   fprintf(fp, "{%*s}\t", pad, "merge_t" );
+   fprintf(fp, "{%*s}\t", pad, "reorient_t" );
+   fprintf(fp, "{%*s}\t", pad, "bnd_fwd_t" );
+
+   fprintf(fp, "\n");
+}
+
+/* print current result (default) */
+void WORK_print_result_current( WORKER* worker )
+{
+   FILE*    fp       = worker->out_file;
+   ARGS*    args     = worker->args;
+   TIMES*   times    = worker->times;
+   SCORES*  scores   = worker->scores;
+
+   fprintf(fp, "%d\t", worker->t_id );
+   fprintf(fp, "%d\t", worker->q_id );
+   // fprintf(fp, "%s\t", worker->t_index->nodes[i].name );
+   // fprintf(fp, "%s\t", worker->q_index->nodes[i].name );
+   fprintf(fp, "%d\t", worker->t_prof->N );
+   fprintf(fp, "%d\t", worker->q_seq->N );
+
+   fprintf(fp, "%9.4f\t",  args->alpha );
+   fprintf(fp, "%d\t",     args->beta );
+
+   fprintf(fp, "%d\t", worker->result->total_cells );
+   fprintf(fp, "%d\t", worker->result->cloud_cells );
+
+   fprintf(fp, "%9.4f\t", scores->quad_vit );
+   fprintf(fp, "%9.4f\t", scores->lin_cloud_fwd );
+
+   fprintf(fp, "%9.4f\t", times->quad_vit );
+   fprintf(fp, "%9.4f\t", times->quad_trace );
+   fprintf(fp, "%9.4f\t", times->lin_cloud_fwd );
+   fprintf(fp, "%9.4f\t", times->lin_cloud_bck );
+   fprintf(fp, "%9.4f\t", times->lin_merge );
+   fprintf(fp, "%9.4f\t", times->lin_reorient );
+   fprintf(fp, "%9.4f\t", times->lin_bound_fwd );
+
+   fprintf(fp, "\n");
 }
