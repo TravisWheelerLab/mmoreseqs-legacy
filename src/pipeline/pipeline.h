@@ -46,6 +46,12 @@ void WORK_load_target_index( WORKER* worker );
 /* load query index (or build them) */
 void WORK_load_query_index( WORKER* worker );
 
+/* output target index to file */
+void WORK_output_target_index( WORKER* worker );
+
+/* output query index to file */
+void WORK_output_query_index( WORKER* worker );
+
 /* load target by file index */
 void WORK_load_target_by_id( WORKER* worker,
                              int     id );

@@ -34,11 +34,13 @@ typedef enum {
 
 /* Error Flags */
 typedef enum {
-   ERROR_UNKNOWN     = 0,
-   ERROR_MALLOC      = 1,
-   ERROR_REALLOC     = 2
+   ERROR_UNKNOWN,
+   ERROR_MALLOC,
+   ERROR_REALLOC,
+   ERROR_FILE_IO,
+   ERROR_UNSUPPORTED_FUNC,
 } ERROR_FLAGS;
-#define NUM_ERROR_FLAGS 3
+#define NUM_ERROR_FLAGS 5
 
 /* Number Format of HMM_PROFILE */
 typedef enum {
@@ -75,6 +77,7 @@ typedef enum {
    VERBOSE_NONE   = 0,
    VERBOSE_LOW    = 1,
    VERBOSE_HIGH   = 2,
+   VERBOSE_ALL    = 3
 } VERBOSITY_MODE;
 #define NUM_VERBOSITY_MODES 3
 

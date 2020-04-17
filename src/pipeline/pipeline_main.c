@@ -78,104 +78,170 @@ void main_pipeline( WORKER* worker )
 	/* worker objects */
 	ARGS* 		args 		= worker->args;
 	TASKS* 		tasks 		= worker->tasks;
+	TIMES* 		times 		= worker->times;
+	SCORES* 	scores 		= worker->scores;
 	REPORT* 	report 		= worker->report;
 	RESULTS* 	results 	= worker->results;
 	RESULT* 	result 		= worker->result;
 
-	/* flags for pipeline tasks */
+	/* set flags for pipeline tasks */
 	/* linear algs */
-	tasks->linear 			= true;
-	tasks->lin_fwd 			= true;
-	tasks->lin_bck 			= true;
-	tasks->lin_vit 			= true;
-	tasks->lin_trace 		= true;
-	tasks->lin_bound_fwd 	= true;
-	tasks->lin_bound_bck 	= true;
-	/* quadratic algs */
-	tasks->quadratic 		= false;
-	tasks->quad_fwd 		= false;
-	tasks->quad_bck 		= false;
-	tasks->quad_vit 		= false;
-	tasks->quad_trace 		= false;
-	tasks->quad_bound_fwd 	= false;
-	tasks->quad_bound_bck 	= false;
+	{
+		tasks->linear 			= true;		/* if any other linear tasks are flagged, this must be too */
+		tasks->lin_fwd 			= true;
+		tasks->lin_bck 			= true;
+		tasks->lin_vit 			= false;	/* currently not supported */
+		tasks->lin_trace 		= false;	/* currently not supported */
+		tasks->lin_bound_fwd 	= true;
+		tasks->lin_bound_bck 	= true;
+		/* quadratic algs */
+		tasks->quadratic 		= true;		/* if any other quadratic tasks are flagged, this must be too */
+		tasks->quad_fwd 		= false;
+		tasks->quad_bck 		= false;
+		tasks->quad_vit 		= true;		/* cloud search depends on viterbi */
+		tasks->quad_trace 		= true;		/* cloud search depends on traceback */
+		tasks->quad_bound_fwd 	= false;
+		tasks->quad_bound_bck 	= false;
+	}
 
-	/* flags for reporting */
+	/* set flags for reporting */
 	/* SCORES */
-	/* linear algs */
-	report->lin_fwd_sc 			= true;
-	report->lin_bck_sc 			= true;
-	report->lin_vit_sc 			= true;
-	report->lin_bound_fwd_sc 	= true;
-	report->lin_bound_bck_sc 	= true;
-	/* quadratic algs */
- 	report->quad_fwd_sc 		= false;
-	report->quad_bck_sc 		= false;
-	report->quad_vit_sc 		= false;
-	report->quad_bound_fwd_sc 	= false;
-	report->quad_bound_bck_sc 	= false;
+	{
+		/* linear algs */
+		report->lin_fwd_sc 			= true;
+		report->lin_bck_sc 			= true;
+		report->lin_vit_sc 			= true;
+		report->lin_bound_fwd_sc 	= true;
+		report->lin_bound_bck_sc 	= true;
+		/* quadratic algs */
+	 	report->quad_fwd_sc 		= false;
+		report->quad_bck_sc 		= false;
+		report->quad_vit_sc 		= false;
+		report->quad_bound_fwd_sc 	= false;
+		report->quad_bound_bck_sc 	= false;
+	}
 
 	/* TIMES */
-	/* linear algs */
-	report->lin_fwd_t 			= true;
-	report->lin_bck_t 			= true;
-	report->lin_vit_t 			= true;
-	report->lin_trace_t 		= true;
-	report->lin_cloud_fwd_t 	= true;
-	report->lin_cloud_bck_t 	= true;
-	report->lin_merge_t 		= true;
-	report->lin_reorient_t 		= true;
-	report->lin_bound_fwd_t 	= true;
-	report->lin_bound_bck_t 	= true;
-	/* quadratic algs */
-	report->quad_fwd_t 			= false;
-	report->quad_bck_t 			= false;
-	report->quad_vit_t 			= false;
-	report->quad_trace_t 		= false;
-	report->quad_cloud_fwd_t 	= false;
-	report->quad_cloud_bck_t 	= false;
-	report->quad_merge_t 		= false;
-	report->quad_reorient_t 	= false;
-	report->quad_bound_fwd_t 	= false;
-	report->quad_bound_bck_t 	= false;
+	{
+		/* linear algs */
+		report->lin_fwd_t 			= true;
+		report->lin_bck_t 			= true;
+		report->lin_vit_t 			= true;
+		report->lin_trace_t 		= true;
+		report->lin_cloud_fwd_t 	= true;
+		report->lin_cloud_bck_t 	= true;
+		report->lin_merge_t 		= true;
+		report->lin_reorient_t 		= true;
+		report->lin_bound_fwd_t 	= true;
+		report->lin_bound_bck_t 	= true;
+		/* quadratic algs */
+		report->quad_fwd_t 			= false;
+		report->quad_bck_t 			= false;
+		report->quad_vit_t 			= false;
+		report->quad_trace_t 		= false;
+		report->quad_cloud_fwd_t 	= false;
+		report->quad_cloud_bck_t 	= false;
+		report->quad_merge_t 		= false;
+		report->quad_reorient_t 	= false;
+		report->quad_bound_fwd_t 	= false;
+		report->quad_bound_bck_t 	= false;
+	}
 
 	/* initialize data structures needed for tasks */
 	WORK_init( worker );
-	WORK_load_target_index( worker );
-	WORK_load_query_index( worker );
 
-	F_INDEX_Dump( worker->t_index, stdout );
-	F_INDEX_Dump( worker->q_index, stdout );
+	/* load target index file */
+	WORK_load_target_index( worker );
+	// F_INDEX_Dump( worker->t_index, stdout );
+	/* load query index file */
+	WORK_load_query_index( worker );
+	// F_INDEX_Dump( worker->q_index, stdout );
 
 	/* allocate data structs */
 	worker->t_prof 	= HMM_PROFILE_Create();
 	worker->t_seq	= SEQUENCE_Create();
 	worker->q_seq	= SEQUENCE_Create();
 
+	/* open file */
+	fp = fopen(args->output_filepath, "w+");
+	/* print header */
+	{
+		int pad = 0;
+		fprintf(fp, ">");
+		fprintf(fp, "{%*s}\t", pad, "t_id" );
+		fprintf(fp, "{%*s}\t", pad, "q_id" );
+		fprintf(fp, "{%*s}\t", pad, "t_name" );
+		fprintf(fp, "{%*s}\t", pad, "q_name" );
+		fprintf(fp, "{%*s}\t", pad, "t_len" );
+		fprintf(fp, "{%*s}\t", pad, "q_len" );
+		fprintf(fp, "{%*s}\t", pad, "alpha" );
+		fprintf(fp, "{%*s}\t", pad, "beta" );
+		fprintf(fp, "{%*s}\t", pad, "total_cells" );
+		fprintf(fp, "{%*s}\t", pad, "cloud_cells" );
+		fprintf(fp, "{%*s}\t", pad, "vit_sc" );
+		fprintf(fp, "{%*s}\t", pad, "bnd_fwd_sc" );
+		fprintf(fp, "{%*s}\t", pad, "vit_time" );
+		fprintf(fp, "{%*s}\t", pad, "trace_time" );
+		fprintf(fp, "{%*s}\t", pad, "cl_fwd_time" );
+		fprintf(fp, "{%*s}\t", pad, "cl_bck_time" );
+		fprintf(fp, "{%*s}\t", pad, "merge_time" );
+		fprintf(fp, "{%*s}\t", pad, "reorient_time" );
+		fprintf(fp, "{%*s}\t", pad, "bnd_fwd_time" );
+		fprintf(fp, "{%*s}\t", pad, "bnd_bck_time" );
+		fprintf(fp, "\n");
+	}
+
 	/* loop over targets */
 	for (int i = 0; i < worker->t_index->N; i++) {
+
 		/* load in next target */
 		WORK_load_target_by_id( worker, i );
-		HMM_PROFILE_Dump( worker->t_prof, stdout );
+		// HMM_PROFILE_Dump( worker->t_prof, stdout );
 		result->target_id = i;
 
 		/* loop over queries */
 		for (int j = 0; j < worker->q_index->N; j++) {
 			/* load in next query */
 			WORK_load_query_by_id( worker, j );
-			SEQUENCE_Dump( worker->q_seq, stdout );
+			// SEQUENCE_Dump( worker->q_seq, stdout );
 			result->query_id = j;
 
 			/* resize dp matrices to new query/target */
 			WORK_reuse( worker );
 
 			/* perform given tasks on them */
+			// printf("viterbi...\n");
 			WORK_viterbi_and_traceback( worker );
+			// printf("forward-backward...\n");
 			WORK_forward_backward( worker );
+			// printf("cloud search...\n");
 			WORK_cloud_search( worker );
 
 			/* report results */
-			RESULTS_PushBack( results, result );
+			// RESULTS_PushBack( results, result );
+
+			/* print result */
+			{
+				fprintf(fp, "%d\t", i );
+				fprintf(fp, "%d\t", j );
+				fprintf(fp, "%s\t", worker->t_index->nodes[i].name );
+				fprintf(fp, "%s\t", worker->q_index->nodes[i].name );
+				fprintf(fp, "%d\t", worker->t_prof->N );
+				fprintf(fp, "%d\t", worker->q_seq->N );
+				fprintf(fp, "%d\t", worker->result->total_cells );
+				fprintf(fp, "%d\t", worker->result->cloud_cells );
+				fprintf(fp, "%9.4f\t", scores->quad_vit );
+				fprintf(fp, "%9.4f\t", scores->lin_cloud_fwd );
+				fprintf(fp, "%9.4f\t", times->lin_vit );
+				fprintf(fp, "%9.4f\t", times->lin_trace );
+				fprintf(fp, "%9.4f\t", times->lin_cloud_fwd );
+				fprintf(fp, "%9.4f\t", times->lin_cloud_fwd );
+				fprintf(fp, "%9.4f\t", times->lin_cloud_bck );
+				fprintf(fp, "%9.4f\t", times->lin_merge );
+				fprintf(fp, "%9.4f\t", times->lin_reorient );
+				fprintf(fp, "%9.4f\t", times->lin_bound_fwd );
+				fprintf(fp, "\n");
+			}
 		}
 	}
 }

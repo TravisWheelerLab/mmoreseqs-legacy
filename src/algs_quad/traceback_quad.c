@@ -63,18 +63,17 @@ void traceback_Build(const SEQUENCE*     query,
    float  tol = 1e-5;         /* acceptable tolerance range for "equality tests" */
    char   *seq = query->seq;  /* alias for getting seq */
 
+   TRACE* tr = (TRACE*) malloc( sizeof(TRACE) );   /* trace object for appending */
+
    /* local or global? */
    bool is_local = target->isLocal;
 
-   /* allocate memory for alnace */
-   const int min_size = 256;
-   aln->N = 0;
-   aln->Nalloc = min_size;
-   aln->traces = malloc(min_size * sizeof(TRACE));
+   /* allocate memory for trace */
+   ALIGNMENT_Reuse( aln );
 
    /* Backalnacing, so C is end state */
-   traceback_Append(aln, T_ST, i, j);
-   traceback_Append(aln, C_ST, i, j);
+   traceback_Append(aln, tr, T_ST, i, j);
+   traceback_Append(aln, tr, C_ST, i, j);
    st_prv = C_ST;
 
    const char * states[] = { "ST_M",
@@ -94,7 +93,7 @@ void traceback_Build(const SEQUENCE*     query,
    {
       if (i == 0) 
       {
-         traceback_Append(aln, S_ST, i, j);
+         traceback_Append(aln, tr, S_ST, i, j);
          break;
       } 
       
@@ -262,18 +261,18 @@ void traceback_Build(const SEQUENCE*     query,
       }
 
       /* Add new state and (i,j) to trace */
-      int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
+      // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
       // if (st_cur < 3) {
-      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, ST_MX(st_MX, state_num[st_cur], i, j) );
+      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, ST_MX_M(st_MX, state_num[st_cur], i, j) );
       // } 
       // else if (st_cur >= 3 && st_cur < 9) {
-      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, SP_MX(sp_MX, state_num[st_cur], i) );
+      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, SP_MX_M(sp_MX, state_num[st_cur], i) );
       // }
       // else {
       //    printf("%s:\t(%d,%d)\n", states[st_cur], i, j );
       // }
 
-      traceback_Append(aln, st_cur, i, j);
+      traceback_Append(aln, tr, st_cur, i, j);
 
       /* For NCJ, we deferred i decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && st_cur == st_prv) {
@@ -317,10 +316,11 @@ void traceback_Build(const SEQUENCE*     query,
  *
  *  RETURN:    No Return.
  */
-void traceback_Append(ALIGNMENT*  aln,
-                      const int   st,
-                      const int   i,
-                      const int   j )
+void traceback_Append( ALIGNMENT*   aln,
+                       TRACE*       tr,
+                       const int    st,
+                       const int    i,
+                       const int    j )
 {
    static char * states[] = {"ST_M",
                              "ST_I",
@@ -333,14 +333,6 @@ void traceback_Append(ALIGNMENT*  aln,
                              "ST_S",
                              "ST_T",
                              "ST_X" };
-   int N = aln->N;
-   int size = aln->Nalloc;
-   // printf("[%d](%s,%d,%d) -> \n", N, states[st], i, j);
-
-   /* grow alnace length if needed */
-   if (aln->N >= aln->Nalloc - 1) {
-      aln->traces = (TRACE *)realloc(aln->traces, aln->Nalloc * 2 * sizeof(TRACE));
-   }
 
    /* jump from current state to the prev state */
    switch (st)
@@ -349,8 +341,8 @@ void traceback_Append(ALIGNMENT*  aln,
       case N_ST:
       case C_ST:
       case J_ST:
-         aln->traces[N].i = ( (aln->traces[N - 1].st == st) ? i : 0 );
-         aln->traces[N].j = 0;
+         tr->i = ( ( tr->st == st) ? i : 0 );
+         tr->j = 0;
          break;
 
       /* Non-Emitting States, not in Main Model: */
@@ -359,21 +351,21 @@ void traceback_Append(ALIGNMENT*  aln,
       case B_ST:
       case E_ST:
       case T_ST:
-         aln->traces[N].i = 0;
-         aln->traces[N].j = 0;
+         tr->i = 0;
+         tr->j = 0;
          break;
 
       /* Non-Emitting States, but in Main Model: */
       case D_ST:
-         aln->traces[N].i = 0;
-         aln->traces[N].j = j;
+         tr->i = 0;
+         tr->j = j;
          break;
 
       /* Emitting States: */
       case M_ST:
       case I_ST:
-         aln->traces[N].i = i;
-         aln->traces[N].j = j;
+         tr->i = i;
+         tr->j = j;
          break;
 
       default:
@@ -381,8 +373,9 @@ void traceback_Append(ALIGNMENT*  aln,
          exit(EXIT_SUCCESS);
    }
 
-   aln->traces[N].st = st;
-   aln->N++;
+   tr->st = st;
+   ALIGNMENT_Pushback( aln, tr );
+
    return;
 }
 

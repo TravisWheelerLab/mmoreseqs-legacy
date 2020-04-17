@@ -3,6 +3,7 @@ FILE_PATH:	(null)
 INDEX_PATH:	test_input/3-PAP.hmm
 LOOKUP_PATH:	(null)
 NUMBER_SEQS:	1
+MMSEQS_NAMES:	false
 >{ID}	{OFF}	{NAME}
 0	0	  3-PAP
 

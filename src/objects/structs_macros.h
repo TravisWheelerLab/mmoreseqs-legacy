@@ -13,7 +13,7 @@
 
 /* === MATRIX OBJECT FUNCTIONS === */
 /* generic access for any matrix */
-#define ST_MX_M(mx,st,i,j)  ( *MATRIX_3D_Get(mx,st,i,j) )
+#define ST_MX_M(mx,st,i,j)  ( *MATRIX_3D_Get( mx, st, i, j ) )
 /* match, insert, delete for st_MX matrix */
 #define MMX_M(i,j)           ST_MX_M( st_MX, MAT_ST, i, j )
 #define IMX_M(i,j)           ST_MX_M( st_MX, INS_ST, i, j )

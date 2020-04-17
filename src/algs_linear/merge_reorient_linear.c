@@ -264,3 +264,23 @@ void EDGEBOUNDS_Reorient(const int           Q,
       }
    }
 }
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Count()
+ *  SYNOPSIS: Count number of cells in edgebounds.
+ *
+ *  ARGS:      <edg>    edgebounds list to be counted
+ *
+ *  RETURN:    <int>    cell counts           
+ */
+// int EDGEBOUNDS_Count(EDGEBOUNDS*   edg)
+// {
+//    int      cell  = 0;
+//    BOUND*   bnd   = NULL;
+
+//    for ( int i = 0; i < edg->N; i++ ) {
+//       bnd = &(edg->bounds[i]);
+//       cell += (bnd->rb - bnd->lb);
+//    }
+//    return cell;
+// }

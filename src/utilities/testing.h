@@ -10,7 +10,6 @@
 #ifndef _TESTING_H
 #define _TESTING_H
 
-
 /* test to cycle through all diags */
 void fwd_test_cycle( const int   Q, 
                      const int   T,
@@ -105,12 +104,14 @@ void dp_matrix_Clear_X3(const int   Q,
                         MATRIX_2D*  sp_MX,
                         int         val);
 
+/* */
 void dp_matrix_Save( const int         Q, 
                      const int         T, 
                      const MATRIX_3D*  st_MX, 
                      const MATRIX_2D*  sp_MX,
                      const char*       _filename_ );
 
+/* */
 void dp_matrix_trace_Save( const int         Q, 
                            const int         T, 
                            const MATRIX_3D*  st_MX, 
@@ -126,6 +127,7 @@ void dp_matrix_Copy (const int   Q,
                      MATRIX_3D*  st_MX_dst,
                      MATRIX_2D*  sp_MX_dst );
 
+/* */
 int dp_matrix_Compare ( const int   Q, 
                         const int   T,
                         MATRIX_3D*  st_MX_1,
@@ -133,12 +135,14 @@ int dp_matrix_Compare ( const int   Q,
                         MATRIX_3D*  st_MX_2,
                         MATRIX_2D*  sp_MX_2 );
 
+/* */
 void dp_matrix_Dump( const int         Q, 
                      const int         T, 
                      const MATRIX_3D*  st_MX, 
                      const MATRIX_2D*  sp_MX,
                      FILE*             fp );
 
+/* */
 void dp_matrix_trace_Save( const int         Q, 
                            const int         T, 
                            const MATRIX_3D*  st_MX, 

@@ -17,6 +17,7 @@
 /* local imports */
 #include "structs.h"
 #include "vector_bound.h"
+#include "vector_int.h"
 #include "bound.h"
 
 /* header */

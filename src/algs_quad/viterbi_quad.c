@@ -67,11 +67,12 @@ float viterbi_Quad(const SEQUENCE*    query,
    /* initialize special states (?) */
    XMX_M(SP_N, 0) = 0;                                        /* S->N, p=1             */
    XMX_M(SP_B, 0) = XSC(SP_N, SP_MOVE);                       /* S->N->B, no N-tail    */
-   XMX_M(SP_E, 0) = XMX_M(SP_C, 0) = XMX_M(SP_J, 0) = -INF;       /* need seq to get here  */
+   XMX_M(SP_E, 0) = XMX_M(SP_C, 0) = XMX_M(SP_J, 0) = -INF;   /* need seq to get here  */
 
    /* initialize zero row (top-edge) */
-   for (j = 0; j <= T; j++)
-   { MMX_M(0, j) = IMX_M(0, j) = DMX_M(0, j) = -INF; }         /* need seq to get here  */
+   for (j = 0; j <= T; j++) { 
+      MMX_M(0, j) = IMX_M(0, j) = DMX_M(0, j) = -INF;          /* need seq to get here  */
+   }
 
    /* FOR every position in QUERY seq */
    for (i = 1; i <= Q; i++)

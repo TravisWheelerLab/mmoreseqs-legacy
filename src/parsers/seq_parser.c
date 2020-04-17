@@ -19,6 +19,9 @@
 #include "objects/structs.h"
 #include "objects/hmm_profile.h"
 #include "objects/sequence.h"
+#include "objects/mystring.h"
+
+/* utility functions */
 #include "utilities/utility.h"
 
 /* header */
@@ -33,6 +36,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    FILE*    fp             = NULL;    
    int      line_count     = -1;       /* line counter of current line in file */
    char*    line_buf       = NULL;     /* pointer to start of buffered line */
+   char*    name           = NULL;     /* name pointer */
    size_t   line_buf_size  = 0;        /* length of entire <line_buf> array */
    size_t   line_size      = 0;        /* length of current line in <line_buf> array */
 
@@ -68,7 +72,12 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
       if (line_buf[0] == '>')
       {
          num_seqs++;
-         SEQUENCE_Set_Textfield(&seq->name, line_buf);
+         name = line_buf + 1;
+
+         /* replace spaces with underscores and set as name */
+
+         STRING_Replace( name, ' ', '_' );
+         SEQUENCE_Set_Textfield(&seq->name, name);
 
          /* if onto next seq, reset counters */
          /* NOTE: Currently only accepts one SEQUENCE */
@@ -76,15 +85,15 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
             break;
          }
 
-         char* line_ptr = line_buf;
-         char* token    = NULL;
-         int   i        = 0;
+         /* if we are going to parse header */
+         // char* line_ptr = line_buf;
+         // char* token    = NULL;
+         // int   i        = 0;
          
-         while( token = strtok_r(line_ptr, "/|\n", &line_ptr) )
-         {
-            // printf("[%d] %s\n", i, token);
-            i++;
-         }
+         // while( token = strtok_r(line_ptr, "/|\n", &line_ptr) ) {
+         //    // printf("[%d] %s\n", i, token);
+         //    i++;
+         // }
       }
       else /* otherwise, append to current sequence */
       {

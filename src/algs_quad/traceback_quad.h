@@ -24,10 +24,11 @@ void traceback_Build(const SEQUENCE*     query,
                      MATRIX_2D*          sp_MX,
                      ALIGNMENT*          aln);
 
-void traceback_Append(ALIGNMENT*  aln,
-                      const int   st,
-                      const int   i,
-                      const int   j);
+void traceback_Append(ALIGNMENT*  	aln,
+					  TRACE* 		tr,
+                      const int   	st,
+                      const int   	i,
+                      const int   	j );
 
 void traceback_Reverse(ALIGNMENT* aln);
 

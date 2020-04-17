@@ -287,13 +287,15 @@ float bound_Forward_Linear(const SEQUENCE*      query,
 
 
       /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-      if (test) {
-         for (i = 0; i <= T; i++) {
-            MMX_M(x_0,i) = MMX3_M(r_0,i);
-            IMX_M(x_0,i) = IMX3_M(r_0,i);
-            DMX_M(x_0,i) = DMX3_M(r_0,i);
+      #if DEBUG
+         if (test) {
+            for (i = 0; i <= T; i++) {
+               MMX_M(x_0,i) = MMX3_M(r_0,i);
+               IMX_M(x_0,i) = IMX3_M(r_0,i);
+               DMX_M(x_0,i) = DMX3_M(r_0,i);
+            }
          }
-      }
+      #endif
 
       /* set curr rows to prv rows */
       row_prv = row_cur;
@@ -388,9 +390,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
    /* pass over (Q) bottom-row edgebounds from list */
    k    = N-1;          /* current index in edgebounds */
    r_0b = N-1;          /* beginning index for current row in list */
-   while ( k >= 0 && EDG_X(edg,k).id == row_cur ) {
-      k--;
-   }
+   while ( k >= 0 && EDG_X(edg,k).id == row_cur ) k--;
    r_0e = k;            /* ending index for current row in list */
 
    // /* Initialize normal states */
@@ -541,13 +541,15 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
       }
 
       /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-      if (test) {
-         for (i = 0; i <= T; i++) {
-            MMX_M(x_0,i) = MMX3_M(r_0,i);
-            IMX_M(x_0,i) = IMX3_M(r_0,i);
-            DMX_M(x_0,i) = DMX3_M(r_0,i);
+      #if DEBUG
+         if (test) {
+            for (i = 0; i <= T; i++) {
+               MMX_M(x_0,i) = MMX3_M(r_0,i);
+               IMX_M(x_0,i) = IMX3_M(r_0,i);
+               DMX_M(x_0,i) = DMX3_M(r_0,i);
+            }
          }
-      }
+      #endif
 
       /* SCRUB PREVIOUS ROW VALUES (backward) */
       for (i = r_1b; i > r_1e; i--) 
@@ -623,15 +625,16 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
    //    MMX3_M(x_0, j) = IMX3_M(x_0, j) = DMX3_M(x_0, j) = -INF;
    // }
 
-   // fprintf(tfp, "a=%d, A=%d, MSC=%f\n", a, A, MSC(1,A) );
-   /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-   if (test) {
-      for (i = 0; i <= T; i++) {
-         MMX_M(x_0,i) = MMX3_M(r_0,i);
-         IMX_M(x_0,i) = IMX3_M(r_0,i);
-         DMX_M(x_0,i) = DMX3_M(r_0,i);
+   #if DEBUG
+      /* EMBED LINEAR MX into QUAD MX */
+      if (test) {
+         for (i = 0; i <= T; i++) {
+            MMX_M(x_0,i) = MMX3_M(r_0,i);
+            IMX_M(x_0,i) = IMX3_M(r_0,i);
+            DMX_M(x_0,i) = DMX3_M(r_0,i);
+         }
       }
-   }
+   #endif
 
    sc_best = XMX_M(SP_N,0);
    *sc_final = sc_best;

@@ -168,7 +168,7 @@ char* HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
    prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
 
    /* find consensus sequence */
-   for (int i = 1; i < prof->N+1; i++)
+   for (int i = 1; i <= prof->N; i++)
    {
       best_val = -INF;
       curr_node = prof->hmm_model[i];
@@ -183,6 +183,7 @@ char* HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
       }
       prof->consensus[i-1] = best_amino;
    }
+   prof->consensus[prof->N] = '\0';
 
    return prof->consensus;
 }

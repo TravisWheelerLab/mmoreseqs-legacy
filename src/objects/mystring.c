@@ -50,6 +50,18 @@ char* STRING_Concat( const char*   str1,
    return str;
 }
 
+/* replace old character with new character in string */
+void STRING_Replace( char*          str,
+                     const char     ch_old,
+                     const char     ch_new )
+{
+   char* p = NULL;
+   int i = 0;
+   for ( p = str; *p != '\0'; p++ ) {
+      if ( *p == ch_old ) *p = ch_new;
+   }
+}
+
 /* compares first n chars of string 1 and string 2 */ 
 int STRING_BeginsWith( const char*     str1,
                        const char*     str2,

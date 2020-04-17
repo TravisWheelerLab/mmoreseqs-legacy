@@ -16,6 +16,7 @@
 /* local imports */
 #include "objects/structs.h"
 #include "objects/f_index.h"
+#include "objects/mystring.h"
 #include "objects/vectors/vector_int.h"
 
 /* header */
@@ -54,7 +55,7 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
 
    /* first pass */
    f_index = F_INDEX_Create();
-   f_index->filepath = strdup( _filename_ );
+   f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
 
@@ -134,7 +135,7 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
 
    /* create index */
    f_index = F_INDEX_Create(_filename_);
-   f_index->filepath = strdup( _filename_ );
+   f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
 
@@ -159,7 +160,8 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
 
       /* if starts new header, add to index */
       if (line_buf[0] == '>') {
-         name = line_buf;
+         name = line_buf + 1;
+         STRING_Replace( name, ' ', '_' );
          F_INDEX_PushBack( f_index, (F_INDEX_NODE){id, name, prv_offset} );
          id++;
       }
@@ -193,7 +195,7 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
 
    /* create index */
    f_index = F_INDEX_Create(_filename_);
-   f_index->filepath = strdup( _filename_ );
+   f_index->index_path = strdup( _filename_ );
 
    /* file open */
    fp      = fopen(_filename_, "r");

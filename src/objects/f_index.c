@@ -60,7 +60,7 @@ F_INDEX*  F_INDEX_Create()
 
    index->index_path    = NULL;
    index->lookup_path   = NULL;
-   index->filepath      = NULL;
+   index->source_path   = NULL;
    index->delim         = NULL;
 
    index->isSorted      = false;
@@ -91,6 +91,12 @@ void F_INDEX_Destroy(F_INDEX* index)
       free(index->nodes[i].name);
    }
    free(index->nodes);
+
+   free(index->index_path);
+   free(index->lookup_path);
+   free(index->source_path);
+   free(index->delim);
+
    free(index);
    index = NULL;
 }
@@ -293,7 +299,7 @@ void F_INDEX_Dump(F_INDEX* index,
 
    fprintf(fp, "# === FILE INDEX === #\n" );
    fprintf(fp, "%s\t%s\n", "FILE_PATH:",     index->index_path );
-   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->filepath );
+   fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->source_path );
    fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path );
    fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N );
    fprintf(fp, "%s\t%s\n", "MMSEQS_NAMES:",  index->mmseqs_names ? "true" : "false" );

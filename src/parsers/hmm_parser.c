@@ -80,6 +80,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       if ( strcmp( header, "NAME" ) == 0 )
       {
          field = strtok(NULL, delim);
+         STRING_Replace(field, ' ', '_');
          HMM_PROFILE_Set_TextField( &prof->name, field );
       }
       else if ( strcmp( header, "ACC" ) == 0 )
@@ -274,7 +275,6 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
 /* .hmm stores numbers in log space, but we need reals */
 void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
 {
-   printf("converting to real numbers...\n");
    /* verify profile is in negative log space */
    if ( prof->numberFormat != PROF_FORMAT_NEGLOG ) return;
 

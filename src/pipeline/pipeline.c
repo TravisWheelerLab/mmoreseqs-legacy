@@ -142,7 +142,7 @@ void WORK_reuse( WORKER* worker )
       MATRIX_3D_Reuse( worker->st_MX3, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
    }
    if ( tasks->quadratic || tasks->linear ) {
-      MATRIX_2D_Reuse( worker->sp_MX, NUM_SPECIAL_STATES, 1);
+      MATRIX_2D_Reuse( worker->sp_MX, NUM_SPECIAL_STATES, Q+1);
    }
 }
 
@@ -195,9 +195,12 @@ void WORK_load_target_index( WORKER* worker )
          fprintf(stderr, "ERROR: target filetype is not supported.\n" );
          exit(EXIT_FAILURE);
       }
+      /* identify the query file being indexed */
+      worker->t_index->source_path = strdup(args->t_filepath);
+
       /* save index file */
       args->t_indexpath = t_indexpath_tmp;
-      fp = fopen( t_indexpath_tmp, "w" );
+      fp = fopen( t_indexpath_tmp, "w+" );
       F_INDEX_Dump( worker->t_index, fp );
       fclose(fp);
    }
@@ -265,12 +268,15 @@ void WORK_load_query_index( WORKER* worker )
          worker->q_index = F_INDEX_Fasta_Build(args->q_filepath);
       }
       else {
-         fprintf(stderr, "ERROR: target filetype is not supported.\n" );
+         fprintf(stderr, "ERROR: query filetype is not supported.\n" );
          exit(EXIT_FAILURE);
       }
+      /* identify the query file being indexed */
+      worker->q_index->source_path = strdup(args->q_filepath);
+
       /* save index file */
       args->q_indexpath = q_indexpath_tmp;
-      fp = fopen( q_indexpath_tmp, "w" );
+      fp = fopen( q_indexpath_tmp, "w+" );
       F_INDEX_Dump( worker->q_index, fp );
       fclose(fp);
    }
@@ -379,6 +385,9 @@ void WORK_load_target_by_id( WORKER* worker,
    }
    else if ( t_filetype == FILE_FASTA )
    {
+      fprintf(stderr, "ERROR: Fasta file not currently supported.\n");
+      exit(EXIT_FAILURE);
+
       SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
       SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
    }
@@ -486,6 +495,8 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
 
    /* Viterbi */
    if ( tasks->lin_vit ) {
+      fprintf(stderr, "ERROR: Operation not supported.\n");
+      exit(EXIT_FAILURE);
       // TODO: linear viterbi goes here
       // CLOCK_Start(clock);
       // viterbi_Lin( q_seq, t_prof, Q, T, st_MX, sp_MX, quad_sc );
@@ -493,6 +504,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       // times->lin_vit = CLOCK_Secs(clock);
    }
    if ( tasks->quad_vit ) {
+      // printf("quad viterbi...\n");
       CLOCK_Start(clock);
       viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clock);
@@ -502,6 +514,8 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
 
    /* Traceback */
    if ( tasks->lin_trace ) {
+      fprintf(stderr, "ERROR: Operation not supported.\n");
+      exit(EXIT_FAILURE);
       // TODO: linear traceback goes here
       // CLOCK_Start(clock);
       // traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
@@ -509,6 +523,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       // times->lin_trace = CLOCK_Secs(clock);
    }
    if ( tasks->quad_trace ) {
+      // printf("quad traceback...\n");
       CLOCK_Start(clock);
       traceback_Build( q_seq, t_prof, Q, T, st_MX, sp_MX, tr );
       CLOCK_Stop(clock);
@@ -524,6 +539,7 @@ void WORK_forward_backward( WORKER*  worker )
    SCORES*        scores   = worker->scores;
    TIMES*         times    = worker->times;
    CLOCK*         clock    = worker->clock;
+   RESULT*        result   = worker->result;
 
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
@@ -578,12 +594,13 @@ void WORK_cloud_search( WORKER* worker )
    SCORES*  scores   = worker->scores;
    TIMES*   times    = worker->times;
    CLOCK*   clock    = worker->clock;
+   RESULT*  result   = worker->result;
 
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
 
-   int   Q  = q_seq->N;
-   int   T  = t_prof->N;
+   int   Q           = q_seq->N;
+   int   T           = t_prof->N;
 
    float    alpha       = args->alpha;
    int      beta        = args->beta;
@@ -604,32 +621,41 @@ void WORK_cloud_search( WORKER* worker )
 
    /* if performing linear bounded forward or backward  */
    if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) {
-      /* linear cloud forward */
+      /* cloud forward */
+      // printf("=> cloud forward...\n");
       CLOCK_Start(clock);
       cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, tr, edg_fwd, alpha, beta, is_testing );
       CLOCK_Stop(clock);
       times->lin_cloud_fwd = CLOCK_Secs(clock);
 
-      /* linear cloud backward */
+      /* cloud backward */
+      // printf("=> cloud backward...\n");
       CLOCK_Start(clock);
       cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, tr, edg_bck, alpha, beta, is_testing );
       CLOCK_Stop(clock);
       times->lin_cloud_bck = CLOCK_Secs(clock);
 
       /* merge edgebounds */
+      // printf("=> merge...\n");
       CLOCK_Start(clock);
       EDGEBOUNDS_Merge( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clock);
       times->lin_merge = CLOCK_Secs(clock);
 
       /* reorient edgebounds */
+      // printf("=> reorient...\n");
       CLOCK_Start(clock);
       EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clock);
       times->lin_merge = CLOCK_Secs(clock);
+
+      /* compute the number of cells in matrix computed */
+      result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
+      result->total_cells  = (Q+1) * (T+1);
    }
    /* bounded forward */
    if ( tasks->lin_bound_fwd ) {
+      // printf("=> linear bound forward...\n");
       CLOCK_Start(clock);
       bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, is_testing, &sc );
       CLOCK_Stop(clock);
@@ -638,22 +664,23 @@ void WORK_cloud_search( WORKER* worker )
    }
    /* bounded backward */
    if ( tasks->lin_bound_bck ) {
+      // printf("=> linear bound backward...\n");
       CLOCK_Start(clock);
-      bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, is_testing, &sc );
+      bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, is_testing, &sc );
       CLOCK_Stop(clock);
       times->lin_bound_bck = CLOCK_Secs(clock);
       scores->lin_cloud_bck = sc;
    }
 
-   /* if performing linear bounded forward or backward  */
+   /* if performing quadratic bounded forward or backward  */
    if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) {
-      /* linear cloud forward */
+      /* cloud forward */
       CLOCK_Start(clock);
       cloud_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta );
       CLOCK_Stop(clock);
       times->quad_cloud_fwd = CLOCK_Secs(clock);
 
-      /* linear cloud backward */
+      /* cloud backward */
       CLOCK_Start(clock);
       cloud_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta );
       CLOCK_Stop(clock);
@@ -670,6 +697,10 @@ void WORK_cloud_search( WORKER* worker )
       EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clock);
       times->quad_merge = CLOCK_Secs(clock);
+      
+      /* compute the number of cells in matrix computed */
+      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
+      result->total_cells  = (Q+1) * (T+1);
    }
    /* bounded forward */
    if ( tasks->quad_bound_fwd ) {
@@ -682,7 +713,7 @@ void WORK_cloud_search( WORKER* worker )
    /* bounded backward */
    if ( tasks->quad_bound_bck ) {
       CLOCK_Start(clock);
-      bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, is_testing, &sc );
+      bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, is_testing, &sc );
       CLOCK_Stop(clock);
       times->quad_bound_bck = CLOCK_Secs(clock);
       scores->quad_cloud_bck = sc;
@@ -696,7 +727,7 @@ void WORK_fill_result( WORKER* worker )
    TIMES*   times    = worker->times;
    RESULT*  result   = worker->result;
 
-
+   
 }
 
 /* */

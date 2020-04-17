@@ -77,13 +77,14 @@ WORKER* WORKER_Create()
    worker->clock     = NULL;
 
    /* malloc all basic data structures */
-   worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) ); /* sets all tasks to false */
-   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) ); /* sets all tasks to false */
+   worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) );    /* sets all tasks to false */
+   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) );  /* sets all tasks to false */
    worker->times        = (TIMES*) malloc( sizeof(TIMES) );
    worker->scores       = (SCORES*) malloc( sizeof(SCORES) );
    worker->results      = (RESULTS*) malloc( sizeof(RESULTS) );
-   worker->result       = (RESULT*) malloc( sizeof(RESULT) );
-   if ( worker->tasks == NULL || worker->times == NULL || worker->scores == NULL || worker->results == NULL ) {
+   worker->result       = (RESULT*) calloc( 1, sizeof(RESULT) );  /* sets all results to zero */
+   if ( worker->tasks == NULL || worker->report == NULL || worker->times == NULL || 
+        worker->scores == NULL || worker->results == NULL || worker->result == NULL ) {
       fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
       exit(EXIT_FAILURE);
    }

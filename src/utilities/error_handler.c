@@ -87,3 +87,9 @@ void ERRORCHECK_location( const char* _file_,
 {
     fprintf(stderr, "ERROR occurred in FILE: %s, LINE: %d, FUNC: %s.\n", _file_, _line_, _func_);
 }
+
+/* error if called function is currently unsupported */
+void ERRORCHECK_unsupported_op( )
+{
+
+}

@@ -25,7 +25,7 @@
 ALIGNMENT* ALIGNMENT_Create()
 {
    ALIGNMENT *aln       = NULL;
-   const int min_size   = 16;
+   const int min_size   = 256;
 
    aln = (ALIGNMENT*) malloc( sizeof(ALIGNMENT) );
    if (aln == NULL) {

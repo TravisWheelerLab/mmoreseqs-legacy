@@ -206,7 +206,7 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->beta                    = 5;
 
    args->pipeline_mode           = PIPELINE_TEST;
-   args->verbosity_mode          = VERBOSE_NONE;
+   args->verbosity_mode          = VERBOSE_ALL;
    args->search_mode             = MODE_UNILOCAL;
 
    args->viterbi_threshold       = 0.0f;

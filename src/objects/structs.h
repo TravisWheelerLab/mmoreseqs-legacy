@@ -348,7 +348,7 @@ typedef struct {
 
    char*          index_path;    /* Filepath of index file (NULL if built and not loaded) */
    char*          lookup_path;   /* Filepath to mmseqs lookup file (NULL if not used) */
-   char*          filepath;      /* Filepath of file being indexed */
+   char*          source_path;   /* Filepath of file being indexed */
    char*          delim;         /* one of more delimiter of header fields */
 
    int            filetype;      /* Type of file being indexed (HMM, FASTA, etc) */
@@ -359,11 +359,12 @@ typedef struct {
 
 /* flags for command line arguments */
 typedef struct {
+   char*    name;          /* name of flag */
+
    int      num_args;      /* number of arguments */
    int      data_type;     /* data type of arguments */
    void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
 
-   char*    name;          /* name of flag o */
    char*    long_flag;     /* long "--" flag */
    char*    short_flag;    /* single character "-" flag */
    char*    desc;          /* description of flag */
@@ -394,6 +395,8 @@ typedef struct {
    int      bit_score;
 
    float    cloud_fwd_sc;
+   int      cloud_cells;
+   int      total_cells;
 } RESULT;
 
 /* */
