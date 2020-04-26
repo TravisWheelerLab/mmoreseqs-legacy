@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file cloud_search.h
- *  @brief Bounded Forward-Backward Algorithm (QUADRATIC SPACE)
+ *  FILE:      bounded_fwdbck_quad.c
+ *  PURPOSE:   Bounded Forward-Backward Algorithm (QUADRATIC SPACE)
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _BOUNDED_FWDBCK_QUAD_H
@@ -17,7 +17,6 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
                            MATRIX_3D*           st_MX,
                            MATRIX_2D*           sp_MX, 
                            EDGEBOUNDS*          edg,
-                           const bool           test,
                            float*               sc_final );
 
 float bound_Backward_Quad( const SEQUENCE*      query, 
@@ -27,7 +26,6 @@ float bound_Backward_Quad( const SEQUENCE*      query,
                            MATRIX_3D*           st_MX,
                            MATRIX_2D*           sp_MX, 
                            EDGEBOUNDS*          edg,
-                           const bool           test,
                            float*               sc_final );
 
 #endif /* BOUNDED_FWDBCK_QUAD_H */

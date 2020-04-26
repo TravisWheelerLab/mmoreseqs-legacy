@@ -7,7 +7,7 @@
  *******************************************************************************/
 
 #ifndef _OBJECTS_H
-#define _RESULTS_H
+#define _OBJECTS_H
 
 /* declares all datatypes */
 #include "structs.h"
@@ -31,8 +31,6 @@
 #include "clock.h"
 #include "edgebound.h"
 #include "f_index.h"
-#include "hmm.h"
-#include "hmm_bg.h"
 #include "hmm_profile.h"
 #include "mystring.h"
 #include "results.h"

@@ -11,11 +11,12 @@
 
 /* constructor */
 RESULTS* RESULTS_Create();
+
 /* destructor */
 void RESULTS_Destroy( RESULTS* res );
 
 /* add result to list */
-void RESULTS_PushBack( RESULTS*  res, 
+void RESULTS_Pushback( RESULTS*  res, 
                        RESULT*   r );
 /* resize results */
 void RESULTS_Resize( RESULTS* res,

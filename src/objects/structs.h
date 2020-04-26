@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      structs.h
+ *     FILE:   structs.h
  *  PURPOSE:   All Data Structures used by Cloud Search.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *     BUG:    
  *******************************************************************************/
 
 #ifndef _STRUCTS_H
@@ -21,41 +21,17 @@
 
 /* === STRUCTS === */
 
-/* */
+/* integer ranges */
 typedef struct {
    int beg;
    int end;
 } RANGE;
 
-/* */
+/* coordinates in matrix */
 typedef struct {
    int i; /* row index */
    int j; /* col index */
 } COORDS;
-
-/* */
-typedef struct {
-   /* naive algs */
-   float    naive_cloud_fwd;
-   float    naive_cloud_bck;
-   /* quadratic algs */
-   float    quad_vit;
-   float    quad_trace;
-   float    quad_fwd;
-   float    quad_bck;
-   float    quad_cloud_fwd;
-   float    quad_cloud_bck;
-   /* linear */
-   float    lin_vit;
-   float    lin_trace;
-   float    lin_fwd;
-   float    lin_bck;
-   float    lin_cloud_fwd;
-   float    lin_cloud_bck;
-   /* statistics */
-   float    perc_cells;
-   float    perc_window;
-} SCORES;
 
 /* vector of integers */
 typedef struct {
@@ -75,9 +51,15 @@ typedef struct {
 typedef struct {
    int            N;          /* current size of bounds array */
    int            Nalloc;     /* allocated size of bounds array */
+
    VECTOR_INT*    ids;        /* identity of each row/diag */
    VECTOR_INT*    heads;      /* indexes the heads of each row/diag */
    BOUND*         bounds;     /* list of bounded ranges along a row/diag */
+   int            edg_mode;   /* whether edges are stored by-row or by-diag */
+
+   /* dimensions of embedded matrix */
+   int            Q;          
+   int            T;
 } EDGEBOUNDS;
 
 /* given cell of alignment */
@@ -94,6 +76,10 @@ typedef struct {
    int         beg;           /* position in trace for first MID state */
    int         end;           /* position in trace for last MID state */
    TRACE*      traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
+
+   /* dimensions of embedded matrix */
+   int         Q;
+   int         T;
 } ALIGNMENT;
 
 /* clock for timing events */
@@ -260,10 +246,22 @@ typedef struct {
    char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
    /* output path */
    char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
+   /* target/query metadata */
+   int      t_filetype;             /* enumerated FILETYPE of target file */
+   int      q_filetype;             /* enumerated FILETYPE of query file */
+   /* for specified range of targets/queries in file */
+   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
+   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
 
    /* mmseqs-plus search params */
-   char*    mmseqs_res_filepath;    /* filepath to mmseqs results file */
-   char*    mmseqs_tmp_filepath;    /* filepath to mmseqs temporary files root */
+   char*    mmseqs_res_filepath;       /* filepath to mmseqs .m8 results file */
+   char*    mmseqs_plus_filepath;      /* filepath to mmseqs .m8+ results file */
+   char*    mmseqs_tmp_filepath;       /* filepath to mmseqs temporary files root */
+   /* mmseqs reference files */
+   char*    t_lookup_filepath;      /* filepath to mmseqs target lookup file */
+   char*    q_lookup_filepath;      /* filepath to mmseqs query lookup file */
+   /* mmseqs specified result file range */
+   RANGE    mmseqs_range;
 
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
@@ -271,7 +269,7 @@ typedef struct {
 
    /* pipeline options */
    int      pipeline_mode;          /* which workflow pipeline to use */
-   int      verbosity_mode;         /* levels of verbosity */
+   int      verbose_level;         /* levels of verbosity */
    int      search_mode;            /* alignment search mode */
    bool     is_testing;             /* determines whether debug statements appear */
 
@@ -279,19 +277,35 @@ typedef struct {
    COORDS   beg;                    /* beginning coordinates of viterbi alignment */
    COORDS   end;                    /* ending coordinates of viterbi alignment */
 
-   /* target/query metadata */
-   int      t_filetype;             /* enumerated FILETYPE of target file */
-   int      q_filetype;             /* enumerated FILETYPE of query file */
-
-   /* for specified range of targets/queries in file */
-   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
-   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
-
    /* threshold scores for pipeline */
    float    viterbi_threshold;
    float    fwdbck_threshold;
    float    cloud_threshold;
 } ARGS;
+
+/* scores */
+typedef struct {
+   /* naive algs */
+   float    naive_cloud_fwd;
+   float    naive_cloud_bck;
+   /* quadratic algs */
+   float    quad_vit;
+   float    quad_trace;
+   float    quad_fwd;
+   float    quad_bck;
+   float    quad_cloud_fwd;
+   float    quad_cloud_bck;
+   /* linear */
+   float    lin_vit;
+   float    lin_trace;
+   float    lin_fwd;
+   float    lin_bck;
+   float    lin_cloud_fwd;
+   float    lin_cloud_bck;
+   /* statistics */
+   float    perc_cells;
+   float    perc_window;
+} SCORES;
 
 /* times to execute given operations */
 typedef struct {
@@ -336,6 +350,7 @@ typedef struct {
    int         id;            /* id number, determined by order in file */
    char*       name;          /* Name of HMM/FASTA in file */
    long        offset;        /* Positional offset of HMM/FASTA into file */
+   int         mmseqs_id;     /* id number, referencing mmseqs lookup file */
 } F_INDEX_NODE;
 
 /* index for offset locations into a file, searchable by name or id */
@@ -350,7 +365,7 @@ typedef struct {
    char*          delim;         /* one of more delimiter of header fields */
 
    int            filetype;      /* Type of file being indexed (HMM, FASTA, etc) */
-   int            isSorted;      /* Whether the index nodes list has been sorted */
+   int            sort_type;     /* Whether the index nodes list has been sorted, and by which field */
    int            mmseqs_names;  /* Whether index is using names from mmseqs lookup */
 } F_INDEX;
 
@@ -368,66 +383,47 @@ typedef struct {
    char*    desc;          /* description of flag */
 } FLAG_CMD;
 
-/* */
+/* results fields */
 typedef struct {
+   /* result unique identifier */
+   int      result_id;
+   /* cloud search lookup index id */
    int      target_id;
    int      query_id;
-
+   /* mmseqs lookup index id */
+   int      target_mid;
+   int      query_mid;
+   /* name */
    char*    target_name;
    char*    query_name;
-
-   COORDS   beg;
-   COORDS   end;
-
+   /* */
    float    perc_id;
    int      aln_len;
    int      mismatch;
    int      gap_openings;
-
+   /* alignment window */
+   COORDS   beg;
+   COORDS   end;
+   /* alignment window */
    int      query_start;
    int      query_end;
    int      target_start;
    int      target_end;
-
+   /* */
    double   e_value;
    int      bit_score;
-
+   /* */
    float    cloud_fwd_sc;
    int      cloud_cells;
    int      total_cells;
 } RESULT;
 
-/* */
+/* array of results */
 typedef struct {
    int      N;
    int      Nalloc;
    RESULT*  data;
    char*    filepath;
-
-   /* field reporting */
-   bool     target_id;
-   bool     query_id;
-
-   bool     target_name;
-   bool     query_name;
-
-   bool     beg;
-   bool     end;
-
-   bool     perc_id;
-   bool     aln_len;
-   bool     mismatch;
-   bool     gap_openings;
-
-   bool     query_start;
-   bool     query_end;
-   bool     target_start;
-   bool     target_end;
-
-   bool     e_value;
-   bool     bit_score;
-
-   bool     cloud_fwd_sc;
 } RESULTS;
 
 /* substitution/scoring matrix */
@@ -438,6 +434,21 @@ typedef struct {
    int      map[256];
    float*   scores;
 } SCORE_MATRIX;
+
+/* data struct for passing debugger data */
+typedef struct {
+   /* debug options */
+   bool           is_debugging;     /* debug flag determines whether testing debug output is generated */
+   int            verbose_level;   /* level of verbosity; amount to output */  
+   bool           is_embed;         /* whether to embed linear space matrices in quadratic matrices */
+   bool           is_viz;           /* whether to fill data viz matrix */
+   /* output paths */
+   char*          dbfp_path;        /* debugger ouput filepath */
+   FILE*          dbfp;             /* debugger output file pointer */
+   /* data structs */
+   MATRIX_3D*     test_MX;          /* quadratic testing matrix */
+   MATRIX_2D*     cloud_MX;         /* cloud matrix for visualizing */
+} DEBUG_KIT;
 
 /* bools of all tasks to be executed by WORKER */
 /* flags set by pipeline and then passed to a generic workflow */
@@ -523,7 +534,6 @@ typedef struct {
    TASKS*         tasks;
    /* fields to report */
    REPORT*        report;
-
    /* output file pointer */
    FILE*          out_file;
 
@@ -567,8 +577,8 @@ typedef struct {
    RESULTS*       results; 
    /* current result */
    RESULT*        result;
-   /* clock for taking times */
-   CLOCK*         clock;
+   /* clok for taking times */
+   CLOCK*         clok;
 } WORKER;
 
 
@@ -600,7 +610,11 @@ extern double  BG_MODEL_log[];
 
 /* commandline arg objects */
 extern ARGS*      args;
+extern int        num_flag_cmds;
 extern FLAG_CMD   COMMAND_OPTS[];
 extern char*      DATATYPE_NAMES[];
+
+/* debugging data */
+extern DEBUG_KIT* debugger;
 
 #endif /* _STRUCTS_H */

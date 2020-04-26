@@ -16,16 +16,12 @@
 #include <ctype.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "objects/hmm_profile.h"
-#include "objects/sequence.h"
-#include "objects/mystring.h"
-
-/* utility functions */
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
-#include "hmm_parser.h"
+#include "parsers.h"
 
 /* parse .fasta file and build SEQUENCE object */
 void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
@@ -71,19 +67,17 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
       /* check if line is a header */
       if (line_buf[0] == '>')
       {
+         /* if onto next seq, return (only captures first sequence) */
+         if (num_seqs > 0) {
+            break;
+         }
+
          num_seqs++;
          name = line_buf + 1;
 
          /* replace spaces with underscores and set as name */
-
-         STRING_Replace( name, ' ', '_' );
+         // STRING_Replace( name, ' ', '_' );
          SEQUENCE_Set_Textfield(&seq->name, name);
-
-         /* if onto next seq, reset counters */
-         /* NOTE: Currently only accepts one SEQUENCE */
-         if (num_seqs > 1) {
-            break;
-         }
 
          /* if we are going to parse header */
          // char* line_ptr = line_buf;

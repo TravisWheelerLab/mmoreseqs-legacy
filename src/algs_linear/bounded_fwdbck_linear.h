@@ -1,6 +1,7 @@
 /*******************************************************************************
  *  FILE:      bounded_fwdbck_linear.c
- *  PURPOSE:   Bounded Forward/Backward Algorithm (LINEAR SPACE)
+ *  PURPOSE:   Bounded Forward/Backward Algorithm 
+ *             (Linear Space Alg)
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -41,10 +42,8 @@ float bound_Forward_Linear(const SEQUENCE*      query,
                            const int            Q, 
                            const int            T, 
                            MATRIX_3D*           st_MX3,
-                           MATRIX_3D*           st_MX,
                            MATRIX_2D*           sp_MX, 
                            EDGEBOUNDS*          edg,
-                           const bool           test,
                            float*               sc_final );
 
 /* ------------------------------------------------------------------------------------------ *
@@ -79,10 +78,8 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
                               const int            Q, 
                               const int            T, 
                               MATRIX_3D*           st_MX3,
-                              MATRIX_3D*           st_MX,
                               MATRIX_2D*           sp_MX, 
                               EDGEBOUNDS*          edg,
-                              const bool           test,
                               float*               sc_final );
 
 #endif /* _BOUNDED_FWDBCK_LINEAR_H */

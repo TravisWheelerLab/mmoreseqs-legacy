@@ -1,8 +1,0 @@
-# === FILE INDEX === #
-SOURCE_PATH:	test_input/test1_1.fa
-LOOKUP_PATH:	(null)
-NUMBER_SEQS:	1
-MMSEQS_NAMES:	false
->{ID}	{OFF}	{NAME}
-0	0	random_sequence_1_consisting_of_15_residues._(Added_4_to_begin_and_end)
-

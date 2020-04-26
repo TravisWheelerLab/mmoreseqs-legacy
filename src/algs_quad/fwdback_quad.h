@@ -1,9 +1,10 @@
 /*******************************************************************************
- *  @file forward_backward.h
- *  @brief Function prototypes for the Forward-Backward algorithm. (QUADRATIC ALGORITHM)
+ *  FILE:      fwdback_quad.h
+ *  PURPOSE:   The Forward-Backward Algorithm for Sequence Alignment Search.
+ *             (Quadratic Space Alg)
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _FWDBACK_QUAD_H

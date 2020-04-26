@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      clock.c
+ *  FILE:      clok.c
  *  PURPOSE:   CLOCK Object    
  *
  *  AUTHOR:    Dave Rich

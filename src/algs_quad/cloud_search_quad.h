@@ -1,37 +1,43 @@
 /*******************************************************************************
- *  @file cloud_search_quad.c
- *  @brief Cloud Search for Forward-Backward Pruning Alg. (QUADRATIC SPACE)
+ *  FILE:       cloud_search_quad.c
+ *  PURPOSE:    Cloud Search for Forward-Backward Pruning Alg. (QUADRATIC SPACE)
  *
- *  @synopsis
- *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:     Dave Rich
+ *  BUG:        Lots.
  *******************************************************************************/
 
 
 #ifndef _CLOUD_SEARCH_QUAD_H
 #define _CLOUD_SEARCH_QUAD_H
 
-void cloud_Forward_Quad(const SEQUENCE*    query, 
-                        const HMM_PROFILE* target,
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX, 
-                        MATRIX_2D*         sp_MX, 
-                        const ALIGNMENT*   tr,
-                        EDGEBOUNDS*        edg,
-                        const float        alpha, 
-                        const int          beta );
+/*  
+ *  FUNCTION:  cloud_Forward_Run()
+ *  SYNOPSIS:  Perform Forward part of Cloud Search Algorithm.
+ */
+float cloud_Forward_Quad(const SEQUENCE*      query,         /* query sequence */
+                        const HMM_PROFILE*   target,        /* target model */
+                        const int            Q,             /* query length */
+                        const int            T,             /* target length */
+                        MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        const ALIGNMENT*     tr,            /* viterbi traceback */ 
+                        EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
+                        float                alpha,         /* PARAM: x-drop threshold */
+                        int                  beta );        /* PARAM: free passes */
 
-void cloud_Backward_Quad(const SEQUENCE*    query, 
-                        const HMM_PROFILE* target,
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX, 
-                        MATRIX_2D*         sp_MX, 
-                        const ALIGNMENT*   tr,
-                        EDGEBOUNDS*        edg,
-                        const float        alpha, 
-                        const int          beta );
+/*  
+ *  FUNCTION: cloud_backward_Run()
+ *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm.
+ */
+float cloud_Backward_Quad(const SEQUENCE*     query,         /* query sequence */
+                        const HMM_PROFILE*   target,        /* target model */
+                        const int            Q,             /* query length */
+                        const int            T,             /* target length */
+                        MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        const ALIGNMENT*     tr,            /* viterbi traceback */ 
+                        EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
+                        float                alpha,         /* PARAM: x-drop threshold */
+                        int                  beta );        /* PARAM: free passes */
 
 #endif /* _CLOUD_SEARCH_QUAD_H */

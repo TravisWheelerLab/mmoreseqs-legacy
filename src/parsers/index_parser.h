@@ -22,4 +22,7 @@ F_INDEX* F_INDEX_Load( const char* _filename );
 void F_INDEX_Lookup_Update( F_INDEX*   f_index, 
                             char*      _lookup_filepath_ );
 
+/* load index file */
+F_INDEX* F_INDEX_Plus_Load( const char*   _filename_ );
+
 #endif /* _INDEX_PARSER_H */

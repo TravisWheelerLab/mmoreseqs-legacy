@@ -1,13 +1,11 @@
 /*******************************************************************************
- *  @file merge_reorient_quad.c
- *  @brief  Functions for merging multiple EDGEBOUND objects and reorienting from antidiagonal-wise to row-wise.
+ *  FILE:      merge_reorient_quad.c
+ *  PURPOSE:   Functions for merging multiple EDGEBOUND objects. 
+ *             Reorients from antidiagonal-wise to row-wise.
  *
- *  @synopsis
- *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
-
 
 /* imports */
 #include <stdio.h>
@@ -17,99 +15,99 @@
 #include <string.h>
 #include <math.h>
 
-/* objects */
-#include "objects/structs.h"
-#include "objects/edgebound.h"
-#include "objects/matrix/matrix_2d.h"
-#include "objects/matrix/matrix_3d.h"
-
 /* local imports */
-#include "utilities/utility.h"
-#include "testing.h"
-#include "hmm_parser.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
+#include "algs_quad.h"
 
 /* header */
 #include "merge_reorient_quad.h"
 
 /*
- *  FUNCTION: EDGEBOUNDS_Merge_Reorient_Quad()
- *  SYNOPSIS: Merge and Reorient edgebounds from Matrix Cloud (NAIVE).
- *
- *  ARGS:      <edg_fwd>      Forward Edgebounds,
- *             <edg_bck>      Backward Edgebounds,
- *             <edg_diag>     (OUTPUT) Result Edgebounds (diagonal-wise)
- *             <edg_row>      (OUTPUT) Result Edgebounds (row-wise),
- *             <Q>            Query length
- *             <T>            Target length
- *             <st_MX>        Normal State Matrix
- *             <sp_MX>        Special State Matrix
- *
- *  RETURN:    Returns the Number of Cells 
+ *  FUNCTION:  EDGEBOUNDS_Merge_Reorient_Naive()
+ *  SYNOPSIS:  Merge two sets of EDGEBOUNDS.
+ *             Reorient EDGEBOUNDS from diagonal-wise to row-wise.
  */
-int EDGEBOUNDS_Merge_Reorient_Naive(const EDGEBOUNDS* edg_fwd,
-                                    const EDGEBOUNDS* edg_bck,
+int EDGEBOUNDS_Merge_Reorient_Naive(const int         Q, 
+                                    const int         T,
+                                    EDGEBOUNDS*       edg_fwd,
+                                    EDGEBOUNDS*       edg_bck,
                                     EDGEBOUNDS*       edg_diag,
                                     EDGEBOUNDS*       edg_row,
-                                    const int         Q, 
-                                    const int         T,
-                                    MATRIX_3D*        st_MX,
-                                    MATRIX_2D*        sp_MX)
+                                    MATRIX_2D*        cloud_MX )
 {
    /* merge edgebounds */
-   dp_matrix_Clear_X(Q, T, st_MX, sp_MX, 0);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_fwd, 1, MODE_DIAG);
-   cloud_Fill(Q, T, st_MX, sp_MX, edg_bck, 1, MODE_DIAG);
+   MATRIX_2D_Fill( cloud_MX, 0 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_fwd, 1 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_bck, 2 );
    
    /* reorient from diag-wise to row-wise */
-   EDGEBOUNDS_Build_From_Cloud(edg_row, Q, T, st_MX, MODE_ROW);
-   EDGEBOUNDS_Build_From_Cloud(edg_diag, Q, T, st_MX, MODE_DIAG);
+   EDGEBOUNDS_Build_From_Cloud( Q, T, edg_row, cloud_MX, EDG_ROW );
+   EDGEBOUNDS_Build_From_Cloud( Q, T, edg_diag, cloud_MX, EDG_DIAG );
 
-   int num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
-
+   /* count number of cells covered by cloud */
+   int num_cells = MATRIX_2D_Cloud_Count( cloud_MX );
    return num_cells;
+}
+
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Reorient_Naive()
+ *  SYNOPSIS:  Reorients EDGEBOUNDS from antidiagonal-wise to row-wise (or vice versa)
+ */
+int EDGEBOUNDS_Reorient_Naive(const int         Q,
+                              const int         T,
+                              EDGEBOUNDS*       edg_dest,
+                              EDGEBOUNDS*       edg_src,
+                              MATRIX_2D*        cloud_MX )
+{
+   int output_mode;
+   if ( edg_src->edg_mode == EDG_DIAG )  
+      output_mode = EDG_ROW;
+   else 
+      output_mode = EDG_DIAG;
+
+   MATRIX_2D_Fill( cloud_MX, 0 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_src, 1 );
+   EDGEBOUNDS_Build_From_Cloud( Q, T, edg_dest, cloud_MX, output_mode );
 }
 
 
 /*
  *  FUNCTION: EDGEBOUNDS_Build_From_Cloud()
  *  SYNOPSIS: Create edgebounds from a Matrix Cloud.
- *
- *  ARGS:      <edg>        (OUTPUT) Edgebounds,
- *             <Q>          Query length
- *             <T>          Target length
- *             <st_MX>      State Matrix
- *             <mode>       Diagonal or Row-wise Edgebound
- *
- *  RETURN:    No Return.
  */
-void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
-                                 const int   Q, 
-                                 const int   T,
-                                 MATRIX_3D*  st_MX,
-                                 int         mode)
+void EDGEBOUNDS_Build_From_Cloud(const int      Q, 
+                                 const int      T,
+                                 EDGEBOUNDS*    edg,
+                                 MATRIX_2D*     cloud_MX,
+                                 int            mode )
 {
-   int   d, i, j, k;
-   int   x, y1, y2;
-   int   d_st, d_end;
-   int   dim_min, dim_max; 
-   int   le, re;                         
-   bool  in_cloud;
-   int   num_cells;
-   BOUND bnd;
+   int      d, i, j, k;
+   int      x, y1, y2;
+   int      d_st, d_end;
+   int      dim_min, dim_max; 
+   int      le, re;
+   int      lb, rb;
+   int      num_cells;
+   bool     in_cloud;
+   BOUND    bnd;
 
+   /* starts not in cloud */
    in_cloud = false;
    
    /* create edgebound in antidiagonal-wise order */
-   if (mode == MODE_DIAG) 
+   if (mode == EDG_DIAG) 
    {
       d_st = 0;
       d_end = Q + T;
 
-      dim_min = MIN(Q,T);
-      dim_max = MAX(Q,T);
+      dim_min = MIN(Q, T);
+      dim_max = MAX(Q, T);
 
-      le = 0;
-      re = 1;
+      lb = 0;
+      rb = 1;
       num_cells = 0;
 
       /* iterate through diags */
@@ -121,13 +119,20 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
          if (d > dim_max)
             num_cells--;
 
-         /* find diag cells that are inside matrix bounds */
-         le = MAX(0, d - T);
-         re = le + num_cells;
-         
+         /* cells adjacent to previous row */
+         lb = lb;
+         rb = rb + 1;
 
+         /* find diag cells that are inside matrix bounds */
+         le = MAX( 0, d - T );
+         re = le + num_cells;
+
+         /* for testing, bounds = edges */
+         lb = MAX(lb, le);
+         rb = MIN(rb, re);
+         
          /* iterate through cells of diag */
-         for (k = le; k < re; k++)
+         for ( k = lb; k < rb; k++ )
          {
             i = k;
             j = d - i;
@@ -135,17 +140,17 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             if (in_cloud)
             {
                /* end of bound, add bound to edgebound list */
-               if ( IMX_M(i,j) <= 0 ) 
+               if ( MX_2D( cloud_MX, i, j ) <= 0 ) 
                {
                   in_cloud = false;
                   y2 = k;
-                  EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
+                  EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
                }
             }
             else
             {
                /* start of new bound */
-               if ( IMX_M(i,j) > 0 ) {
+               if ( MX_2D( cloud_MX, i, j ) > 0 ) {
                   in_cloud = true;
                   x = d;
                   y1 = k;
@@ -154,39 +159,40 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
          }
 
          /* if still in bound at end of diag, then at end of of bound, so add to edgebound list */
-         if (in_cloud) 
+         if ( in_cloud ) 
          {
             in_cloud = false;
             y2 = re;
-            EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
+            EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
          }
       }
    }
+
    /* create edgebound in row-wise order */
    else 
-   if (mode == MODE_ROW) 
+   if (mode == EDG_ROW) 
    {
       /* iterate through rows */
-      for (i = 0; i <= Q; i++)
+      for (i = 0; i <= Q; i++) 
       {
          /* iterate through cells in row */
-         for (j = 0; j <= T; j++)
+         for (j = 0; j <= T; j++) 
          {
             if (in_cloud)
             {
                /* end of bound, add bound to edgebound list */
-               if ( IMX_M(i,j) <= 0 ) 
+               if ( MX_2D( cloud_MX, i, j ) <= 0 ) 
                {
                   in_cloud = false;
                   y2 = j;
 
-                  EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
+                  EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
                }
             }
             else
             {
                /* start of new bound */
-               if ( IMX_M(i,j) > 0 ) {
+               if ( MX_2D( cloud_MX, i, j ) > 0 ) {
                   in_cloud = true;
                   x = i;
                   y1 = j;
@@ -201,8 +207,30 @@ void EDGEBOUNDS_Build_From_Cloud(EDGEBOUNDS* edg,
             in_cloud = false;
             y2 = T+1;
 
-            EDGEBOUNDS_Pushback(edg, (BOUND) {x,y1,y2});
+            EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
          }
       }
    }
+
+   /* set edgebounds config */
+   edg->Q = Q;
+   edg->T = T;
+   edg->edg_mode = mode;
+}
+
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Compare_by_Cloud()
+ *  SYNOPSIS: Compare two EDGEBOUNDS by filling cloud matrices.
+ */
+int EDGEBOUNDS_Compare_by_Cloud( EDGEBOUNDS*    edg_a,
+                                 MATRIX_2D*     mx_a,
+                                 EDGEBOUNDS*    edg_b,
+                                 MATRIX_2D*     mx_b )
+{
+   MATRIX_2D_Fill( mx_a, 0 );
+   MATRIX_2D_Cloud_Fill( mx_a, edg_a, 1 );
+   MATRIX_2D_Fill( mx_b, 0 );
+   MATRIX_2D_Cloud_Fill( mx_b, edg_b, 1 );
+   return MATRIX_2D_Cloud_Compare( mx_a, mx_b );
 }

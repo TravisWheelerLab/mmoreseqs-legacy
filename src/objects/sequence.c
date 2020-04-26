@@ -18,7 +18,8 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities/utility.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "sequence.h"
@@ -49,6 +50,8 @@ SEQUENCE* SEQUENCE_Create()
 /* Destructor */
 void SEQUENCE_Destroy(SEQUENCE *seq)
 {
+   if ( seq == NULL ) return;
+
    free(seq->filename);
    free(seq->name);
    free(seq->alph);

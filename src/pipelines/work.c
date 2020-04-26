@@ -16,57 +16,17 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures */
-#include "objects/structs.h"
-#include "utilities/utility.h"
-#include "error_handler.h"
-
-/* file parsers */
-#include "parsers/arg_parser.h"
-#include "parsers/hmm_parser.h"
-#include "parsers/seq_parser.h"
-#include "parsers/m8_parser.h"
-#include "parsers/index_parser.h"
-#include "parsers/seq_to_profile.h"
-
-/* objects */
-#include "objects/f_index.h"
-#include "objects/results.h"
-#include "objects/alignment.h"
-#include "objects/sequence.h"
-#include "objects/hmm_profile.h"
-#include "objects/edgebound.h"
-#include "objects/clock.h"
-#include "objects/matrix/matrix_2d.h"
-#include "objects/matrix/matrix_3d.h"
-#include "objects/mystring.h"
-#include "objects/vectors/vector_range_2d.h"
-
-/* viterbi & fwdbck (quadratic) */
-#include "algs_quad/viterbi_quad.h"
-#include "algs_quad/traceback_quad.h"
-#include "algs_quad/fwdback_quad.h"
-/* viterbi & fwdbck (linear) */
-#include "algs_linear/fwdback_linear.h"
-
-/* cloud search (naive) */
-#include "algs_naive/bounded_fwdbck_naive.h"
-/* cloud search (quadratic space) */
-#include "algs_quad/cloud_search_quad.h"
-#include "algs_quad/merge_reorient_quad.h"
-#include "algs_quad/bounded_fwdbck_quad.h"
-/* cloud search (linear space) */
-#include "algs_linear/cloud_search_linear.h"
-#include "algs_linear/merge_reorient_linear.h"
-#include "algs_linear/bounded_fwdbck_linear.h"
-/* temp test */
-#include "algs_linear/cloud_search_linear_rows.h"
-
-/* debugging methods */
-#include "testing.h"
+/* local imports */
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
+#include "parsers.h"
+#include "algs_linear.h"
+#include "algs_quad.h"
+#include "algs_naive.h"
 
 /* header */
-#include "pipeline.h"
+#include "pipelines.h"
 
 /* generic workflow */
 void WORK_workflow( WORKER*  work )
@@ -87,7 +47,7 @@ void WORK_init( WORKER* worker )
    TASKS*   tasks    = worker->tasks;
 
    /* initialize logrithmic sum table */
-   init_Logsum();
+   logsum_Init();
 
    /* target and profile structures */
    worker->q_seq        = SEQUENCE_Create();
@@ -127,12 +87,11 @@ void WORK_reuse( WORKER* worker )
    int   Q  = worker->q_seq->N;
 
    /* clear traceback and edgebound data */
-   ALIGNMENT_Reuse( worker->traceback );
-   
-   EDGEBOUNDS_Reuse( worker->edg_fwd );
-   EDGEBOUNDS_Reuse( worker->edg_bck );
-   EDGEBOUNDS_Reuse( worker->edg_diag );
-   EDGEBOUNDS_Reuse( worker->edg_row );
+   ALIGNMENT_Reuse( worker->traceback, Q, T );
+   EDGEBOUNDS_Reuse( worker->edg_fwd, Q, T );
+   EDGEBOUNDS_Reuse( worker->edg_bck, Q, T );
+   EDGEBOUNDS_Reuse( worker->edg_diag, Q, T );
+   EDGEBOUNDS_Reuse( worker->edg_row, Q, T );
 
    /* reuse necessary dp matrices (only reallocs if new size is larger) */
    if ( tasks->quadratic ) {
@@ -144,6 +103,13 @@ void WORK_reuse( WORKER* worker )
    if ( tasks->quadratic || tasks->linear ) {
       MATRIX_2D_Reuse( worker->sp_MX, NUM_SPECIAL_STATES, Q+1);
    }
+
+   #if DEBUG 
+   {
+      MATRIX_2D_Reuse( debugger->cloud_MX, Q+1, T+1 );
+      MATRIX_3D_Reuse( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
+   }
+   #endif
 }
 
 /* load target index (or build them) */
@@ -154,10 +120,10 @@ void WORK_load_target_index( WORKER* worker )
    ARGS*    args     = worker->args;
    TASKS*   tasks    = worker->tasks;
    TIMES*   times    = worker->times;
-   CLOCK*   clock    = worker->clock;
+   CLOCK*   clok    = worker->clok;
 
    /* begin time */
-   CLOCK_Start(clock);
+   CLOCK_Start(clok);
 
    /* defuault index location  (same as main file but with .idx extension) */
    char* t_indexpath_tmp = NULL;
@@ -197,28 +163,35 @@ void WORK_load_target_index( WORKER* worker )
       }
       /* identify the query file being indexed */
       worker->t_index->source_path = strdup(args->t_filepath);
+      args->t_indexpath = strdup(t_indexpath_tmp);
 
       /* save index file */
-      args->t_indexpath = t_indexpath_tmp;
       fp = fopen( t_indexpath_tmp, "w+" );
       F_INDEX_Dump( worker->t_index, fp );
       fclose(fp);
    }
+   free(t_indexpath_tmp);
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
-   if ( tasks->mmseqs_lookup && worker->q_index->mmseqs_names ) {
-      printf("updating target with mmseqs lookup...\n");
-      char* t_lookup_path  = "/latest/target.lookup"; 
-      char* t_lookup       = (char*)malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(t_lookup_path) + 1 ) );
-      strcpy( t_lookup, args->mmseqs_tmp_filepath );
-      strcat( t_lookup, t_lookup_path );
-      F_INDEX_Lookup_Update( worker->t_index, t_lookup );
-      free( t_lookup );
+   if ( tasks->mmseqs_lookup && worker->t_index->mmseqs_names ) {
+      printf("updating query with mmseqs lookup...\n");
+      if ( args->t_lookup_filepath != NULL ) {
+         /* if filepath given directly as argument, do nothing */
+      }
+      else if ( args->mmseqs_tmp_filepath != NULL ) {
+         /* else, construct default path to lookup from mmseqs tmp folder */
+         char* t_lookup_path     = "/latest/target.lookup"; 
+         args->t_lookup_filepath = (char*) malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(t_lookup_path) + 1 ) );
+         strcpy( args->t_lookup_filepath, args->mmseqs_tmp_filepath );
+         strcat( args->t_lookup_filepath, t_lookup_path );
+      }
+      /*  */
+      F_INDEX_Lookup_Update( worker->t_index, args->t_lookup_filepath );
    }
 
    /* end and save time */
-   CLOCK_Stop(clock);
-   times->load_target_index = CLOCK_Secs(clock);
+   CLOCK_Stop(clok);
+   times->load_target_index = CLOCK_Secs(clok);
 }
 
 /* load query index (or build them) */
@@ -230,10 +203,10 @@ void WORK_load_query_index( WORKER* worker )
    TASKS*   tasks    = worker->tasks;
    TIMES*   times    = worker->times;
 
-   CLOCK*   clock    = worker->clock;
+   CLOCK*   clok    = worker->clok;
 
    /* begin time */
-   CLOCK_Start(clock);
+   CLOCK_Start(clok);
 
    /* default index location (same as main file but with .idx extenstion) */
    char* q_indexpath_tmp = NULL;
@@ -250,18 +223,18 @@ void WORK_load_query_index( WORKER* worker )
    /* load or build target file index */
    if (args->q_indexpath != NULL) {
       /* load file passed by commandline */
-      printf("loading indexpath from commandline...\n");
+      printf_vhi("loading indexpath from commandline...\n");
       worker->q_index = F_INDEX_Load(args->q_indexpath);
    } 
    else if ( access( q_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
-      printf("found index at database location...\n");
+      printf_vhi("found index at database location...\n");
       args->q_indexpath = strdup( q_indexpath_tmp );
       worker->q_index = F_INDEX_Load( q_indexpath_tmp );
    }  
    else {
       /* build index on the fly */
-      printf("building index of file...\n");
+      printf_vhi("building index of file...\n");
       if (args->q_filetype == FILE_HMM) {
          worker->q_index = F_INDEX_Hmm_Build(args->q_filepath);
       }
@@ -274,7 +247,7 @@ void WORK_load_query_index( WORKER* worker )
       }
       /* identify the query file being indexed */
       worker->q_index->source_path = strdup(args->q_filepath);
-      args->q_indexpath = strdup( q_indexpath_tmp );
+      args->q_indexpath = strdup(q_indexpath_tmp);
 
       /* save index file */
       fp = fopen( q_indexpath_tmp, "w+" );
@@ -285,19 +258,24 @@ void WORK_load_query_index( WORKER* worker )
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
    if ( tasks->mmseqs_lookup && worker->q_index->mmseqs_names ) {
-      printf("updating query with mmseqs lookup...\n");
-      /* construct default path to lookup from mmseqs tmp folder */
-      char* q_lookup_path  = "/latest/query.lookup"; 
-      char* q_lookup       = (char*)malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(q_lookup_path) + 1 ) );
-      strcpy( q_lookup, args->mmseqs_tmp_filepath );
-      strcat( q_lookup, q_lookup_path );
-      F_INDEX_Lookup_Update( worker->q_index, q_lookup );
-      free( q_lookup );
+      printf_vhi("updating query with mmseqs lookup...\n");
+      if ( args->q_lookup_filepath != NULL ) {
+         /* if filepath given directly as argument, do nothing */
+      }
+      else if ( args->mmseqs_tmp_filepath != NULL ) {
+         /* else, construct default path to lookup from mmseqs tmp folder */
+         char* q_lookup_path     = "/latest/query.lookup"; 
+         args->q_lookup_filepath = (char*) malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(q_lookup_path) + 1 ) );
+         strcpy( args->q_lookup_filepath, args->mmseqs_tmp_filepath );
+         strcat( args->q_lookup_filepath, q_lookup_path );
+      }
+      /*  */
+      F_INDEX_Lookup_Update( worker->q_index, args->q_lookup_filepath );
    }
 
    /* end and save time */
-   CLOCK_Stop(clock);
-   times->load_query_index = CLOCK_Secs(clock);
+   CLOCK_Stop(clok);
+   times->load_query_index = CLOCK_Secs(clok);
 }
 
 /* output target index to file */
@@ -387,7 +365,7 @@ void WORK_load_target_by_id( WORKER* worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   CLOCK*         clock          = worker->clock;
+   CLOCK*         clok          = worker->clok;
    RESULTS*       results        = worker->results;
    RESULT*        result         = worker->result;
 
@@ -405,13 +383,18 @@ void WORK_load_target_by_id( WORKER* worker,
    worker->t_id = id;
 
    /* begin time */
-   CLOCK_Start(clock);
+   CLOCK_Start(clok);
 
    /* add id to result report */
    result->target_id = id;
 
    /* get offset into by checking index */
-   t_offset = t_index->nodes[id].offset;
+   int            term;
+   F_INDEX_NODE*  node;
+   term  = F_INDEX_Search_Id(t_index, id);
+   node = &(t_index->nodes[ term ]);
+   // printf("search_id: %d, node_id: %d, node_name: %s\n", term, node->id, node->name );
+   t_offset = node->offset;
 
    /* load target profile */
    if ( t_filetype == FILE_HMM ) 
@@ -436,8 +419,8 @@ void WORK_load_target_by_id( WORKER* worker,
    // HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
 
    /* end and save time */
-   CLOCK_Start(clock);
-   times->load_target = CLOCK_Secs(clock);
+   CLOCK_Start(clok);
+   times->load_target = CLOCK_Secs(clok);
 }
 
 /* load query by file index id */
@@ -447,7 +430,7 @@ void WORK_load_query_by_id( WORKER* worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   CLOCK*         clock          = worker->clock;
+   CLOCK*         clok          = worker->clok;
    RESULTS*       results        = worker->results;
    RESULT*        result         = worker->result;
 
@@ -463,13 +446,18 @@ void WORK_load_query_by_id( WORKER* worker,
    worker->q_id = id;
 
    /* begin time */
-   CLOCK_Start(clock);
+   CLOCK_Start(clok);
 
    /* add id to result report */
    result->query_id = id;
 
    /* get offset into by checking index */
-   q_offset = q_index->nodes[id].offset;
+   int            term;
+   F_INDEX_NODE*  node;
+   term  = F_INDEX_Search_Id(q_index, id);
+   node = &(q_index->nodes[ term ]);
+   // printf("search_id: %d, node_id: %d node_name: %s\n", term, node->id, node->name );
+   q_offset = node->offset;
 
    /* load query */
    if ( q_filetype == FILE_FASTA ) 
@@ -483,15 +471,15 @@ void WORK_load_query_by_id( WORKER* worker,
    }
 
    /* end and save time */
-   CLOCK_Start(clock);
-   times->load_query = CLOCK_Secs(clock);
+   CLOCK_Start(clok);
+   times->load_query = CLOCK_Secs(clok);
 }
 
 /* load target by file index name */
 void WORK_load_target_by_name( WORKER* worker,
                                char*   name )
 {
-   int t_id = F_INDEX_Search( worker->t_index, name );
+   int t_id = F_INDEX_Search_Name( worker->t_index, name );
    if ( t_id != -1 ) {
       fprintf(stderr, "ERROR: Target name '%s' not found in F_INDEX.\n", name );
       exit(EXIT_FAILURE);
@@ -503,7 +491,7 @@ void WORK_load_target_by_name( WORKER* worker,
 void WORK_load_query_by_name( WORKER* worker,
                               char*   name )
 {
-   int q_id = F_INDEX_Search( worker->q_index, name );
+   int q_id = F_INDEX_Search_Name( worker->q_index, name );
    if ( q_id != -1 ) {
       fprintf(stderr, "ERROR: Query name '%s' not found in F_INDEX.\n", name );
       exit(EXIT_FAILURE);
@@ -519,7 +507,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
    TASKS*   tasks    = worker->tasks;
    SCORES*  scores   = worker->scores;
    TIMES*   times    = worker->times;
-   CLOCK*   clock    = worker->clock;
+   CLOCK*   clok    = worker->clok;
 
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
@@ -538,17 +526,17 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       fprintf(stderr, "ERROR: Operation not supported.\n");
       exit(EXIT_FAILURE);
       // TODO: linear viterbi goes here
-      // CLOCK_Start(clock);
+      // CLOCK_Start(clok);
       // viterbi_Lin( q_seq, t_prof, Q, T, st_MX, sp_MX, quad_sc );
-      // CLOCK_Stop(clock);
-      // times->lin_vit = CLOCK_Secs(clock);
+      // CLOCK_Stop(clok);
+      // times->lin_vit = CLOCK_Secs(clok);
    }
    if ( tasks->quad_vit ) {
-      // printf("quad viterbi...\n");
-      CLOCK_Start(clock);
+      printf_vall("=> viterbi (quad)...\n");
+      CLOCK_Start(clok);
       viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
-      CLOCK_Stop(clock);
-      times->quad_vit = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_vit = CLOCK_Secs(clok);
       scores->quad_vit = sc;
    }
 
@@ -557,17 +545,17 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       fprintf(stderr, "ERROR: Operation not supported.\n");
       exit(EXIT_FAILURE);
       // TODO: linear traceback goes here
-      // CLOCK_Start(clock);
+      // CLOCK_Start(clok);
       // traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
-      // CLOCK_Stop(clock);
-      // times->lin_trace = CLOCK_Secs(clock);
+      // CLOCK_Stop(clok);
+      // times->lin_trace = CLOCK_Secs(clok);
    }
    if ( tasks->quad_trace ) {
-      // printf("quad traceback...\n");
-      CLOCK_Start(clock);
+      printf_vall("=> traceback (quad)...\n");
+      CLOCK_Start(clok);
       traceback_Build( q_seq, t_prof, Q, T, st_MX, sp_MX, tr );
-      CLOCK_Stop(clock);
-      times->quad_trace = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_trace = CLOCK_Secs(clok);
    }
 }
 
@@ -578,7 +566,7 @@ void WORK_forward_backward( WORKER*  worker )
    TASKS*         tasks    = worker->tasks;
    SCORES*        scores   = worker->scores;
    TIMES*         times    = worker->times;
-   CLOCK*         clock    = worker->clock;
+   CLOCK*         clok    = worker->clok;
    RESULT*        result   = worker->result;
 
    SEQUENCE*      q_seq    = worker->q_seq;
@@ -595,34 +583,38 @@ void WORK_forward_backward( WORKER*  worker )
 
    /* forward */
    if ( tasks->lin_fwd ) {
-      CLOCK_Start(clock);
-      backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, &sc );
-      CLOCK_Stop(clock);
-      times->lin_fwd    = CLOCK_Secs(clock);
+      printf_vall("=> forward (lin)...\n");
+      CLOCK_Start(clok);
+      backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      CLOCK_Stop(clok);
+      times->lin_fwd    = CLOCK_Secs(clok);
       scores->lin_fwd   = sc;
    } 
    if ( tasks->quad_fwd ) {
-      CLOCK_Start(clock);
+      printf_vall("=> forward (quad)...\n");
+      CLOCK_Start(clok);
       forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
-      CLOCK_Stop(clock);
-      times->quad_fwd   = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_fwd   = CLOCK_Secs(clok);
       scores->quad_fwd  = sc;
    }
 
    /* backward */
    if ( tasks->lin_bck ) {
-      CLOCK_Start(clock);
-      backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, &sc );
-      CLOCK_Stop(clock);
-      times->lin_bck    = CLOCK_Secs(clock);
+      printf_vall("=> backward (lin)...\n");
+      CLOCK_Start(clok);
+      backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      CLOCK_Stop(clok);
+      times->lin_bck    = CLOCK_Secs(clok);
       scores->lin_bck   = sc;
    }
    if ( tasks->quad_bck ) {
-      CLOCK_Start(clock);
+      printf_vall("=> backward (quad)...\n");
+      CLOCK_Start(clok);
       forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
-      CLOCK_Stop(clock);
-      times->lin_fwd    = CLOCK_Secs(clock);
-      scores->lin_fwd   = sc;
+      CLOCK_Stop(clok);
+      times->quad_bck   = CLOCK_Secs(clok);
+      scores->quad_bck  = sc;
    }
 }
 
@@ -633,18 +625,17 @@ void WORK_cloud_search( WORKER* worker )
    TASKS*   tasks    = worker->tasks;
    SCORES*  scores   = worker->scores;
    TIMES*   times    = worker->times;
-   CLOCK*   clock    = worker->clock;
+   CLOCK*   clok     = worker->clok;
    RESULT*  result   = worker->result;
 
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
 
-   int   Q           = q_seq->N;
-   int   T           = t_prof->N;
+   int   Q     = q_seq->N;
+   int   T     = t_prof->N;
 
-   float    alpha       = args->alpha;
-   int      beta        = args->beta;
-   bool     is_testing  = args->is_testing;
+   float    alpha    = args->alpha;
+   int      beta     = args->beta;
    float    sc;
 
    MATRIX_3D*     st_MX       = worker->st_MX;
@@ -662,32 +653,44 @@ void WORK_cloud_search( WORKER* worker )
    /* if performing linear bounded forward or backward  */
    if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) {
       /* cloud forward */
-      // printf("=> cloud forward...\n");
-      CLOCK_Start(clock);
-      cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, tr, edg_fwd, alpha, beta, is_testing );
-      CLOCK_Stop(clock);
-      times->lin_cloud_fwd = CLOCK_Secs(clock);
+      printf_vall("=> cloud forward (lin)...\n");
+      CLOCK_Start(clok);
+      cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_fwd, alpha, beta );
+      CLOCK_Stop(clok);
+      times->lin_cloud_fwd = CLOCK_Secs(clok);
 
       /* cloud backward */
-      // printf("=> cloud backward...\n");
-      CLOCK_Start(clock);
-      cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, tr, edg_bck, alpha, beta, is_testing );
-      CLOCK_Stop(clock);
-      times->lin_cloud_bck = CLOCK_Secs(clock);
+      printf_vall("=> cloud backward (lin)...\n");
+      CLOCK_Start(clok);
+      cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_bck, alpha, beta );
+      CLOCK_Stop(clok);
+      times->lin_cloud_bck = CLOCK_Secs(clok);
 
       /* merge edgebounds */
-      // printf("=> merge...\n");
-      CLOCK_Start(clock);
+      printf_vall("=> merge (lin)...\n");
+      CLOCK_Start(clok);
       EDGEBOUNDS_Merge( Q, T, edg_fwd, edg_bck, edg_diag );
-      CLOCK_Stop(clock);
-      times->lin_merge = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->lin_merge = CLOCK_Secs(clok);
 
       /* reorient edgebounds */
-      // printf("=> reorient...\n");
-      CLOCK_Start(clock);
+      printf_vall("=> reorient (lin)...\n");
+      CLOCK_Start(clok);
       EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
-      CLOCK_Stop(clock);
-      times->lin_reorient = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->lin_reorient = CLOCK_Secs(clok);
+
+      /* if debugging, print the cloud */
+      #if DEBUG
+      {
+         MATRIX_2D_Fill( debugger->cloud_MX, 0 );
+         MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_fwd, 1 );
+         MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_bck, 2 );
+         DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
+         // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
+         // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
+      }
+      #endif
 
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
@@ -695,48 +698,48 @@ void WORK_cloud_search( WORKER* worker )
    }
    /* bounded forward */
    if ( tasks->lin_bound_fwd ) {
-      // printf("=> linear bound forward...\n");
-      CLOCK_Start(clock);
-      bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, is_testing, &sc );
-      CLOCK_Stop(clock);
-      times->lin_bound_fwd = CLOCK_Secs(clock);
+      printf_vall("=> bound forward (lin)...\n");
+      CLOCK_Start(clok);
+      bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      CLOCK_Stop(clok);
+      times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
    }
    /* bounded backward */
    if ( tasks->lin_bound_bck ) {
-      // printf("=> linear bound backward...\n");
-      CLOCK_Start(clock);
-      bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, st_MX, sp_MX, edg_row, is_testing, &sc );
-      CLOCK_Stop(clock);
-      times->lin_bound_bck = CLOCK_Secs(clock);
+      printf_vall("=> bound backward (lin)...\n");
+      CLOCK_Start(clok);
+      bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      CLOCK_Stop(clok);
+      times->lin_bound_bck = CLOCK_Secs(clok);
       scores->lin_cloud_bck = sc;
    }
 
    /* if performing quadratic bounded forward or backward  */
    if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) {
       /* cloud forward */
-      CLOCK_Start(clock);
+      CLOCK_Start(clok);
       cloud_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta );
-      CLOCK_Stop(clock);
-      times->quad_cloud_fwd = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_cloud_fwd = CLOCK_Secs(clok);
 
       /* cloud backward */
-      CLOCK_Start(clock);
+      CLOCK_Start(clok);
       cloud_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta );
-      CLOCK_Stop(clock);
-      times->quad_cloud_bck = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_cloud_bck = CLOCK_Secs(clok);
 
       /* merge edgebounds */
-      CLOCK_Start(clock);
+      CLOCK_Start(clok);
       EDGEBOUNDS_Merge( Q, T, edg_fwd, edg_bck, edg_diag );
-      CLOCK_Stop(clock);
-      times->quad_merge = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_merge = CLOCK_Secs(clok);
 
       /* reorient edgebounds */
-      CLOCK_Start(clock);
+      CLOCK_Start(clok);
       EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
-      CLOCK_Stop(clock);
-      times->quad_merge = CLOCK_Secs(clock);
+      CLOCK_Stop(clok);
+      times->quad_merge = CLOCK_Secs(clok);
       
       /* compute the number of cells in matrix computed */
       result->cloud_cells = EDGEBOUNDS_Count( edg_row );
@@ -744,18 +747,20 @@ void WORK_cloud_search( WORKER* worker )
    }
    /* bounded forward */
    if ( tasks->quad_bound_fwd ) {
-      CLOCK_Start(clock);
-      bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, is_testing, &sc );
-      CLOCK_Stop(clock);
-      times->quad_bound_fwd = CLOCK_Secs(clock);
+      printf_vall("=> bound forward (quad)...\n");
+      CLOCK_Start(clok);
+      bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
+      CLOCK_Stop(clok);
+      times->quad_bound_fwd = CLOCK_Secs(clok);
       scores->quad_cloud_fwd = sc;
    }
    /* bounded backward */
    if ( tasks->quad_bound_bck ) {
-      CLOCK_Start(clock);
-      bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, is_testing, &sc );
-      CLOCK_Stop(clock);
-      times->quad_bound_bck = CLOCK_Secs(clock);
+      printf_vall("=> bound backward (quad)...\n");
+      CLOCK_Start(clok);
+      bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
+      CLOCK_Stop(clok);
+      times->quad_bound_bck = CLOCK_Secs(clok);
       scores->quad_cloud_bck = sc;
    }
 }
@@ -837,41 +842,42 @@ void WORK_result_fill( WORKER* worker )
 /* print header for results file (default) */
 void WORK_print_result_header( WORKER* worker )
 {
-   FILE* fp = worker->out_file;
+   FILE*    fp    = worker->out_file;
+   ARGS*    args  = worker->args;
 
    /* open file */
    fprintf(fp, "TARGET_SOURCE:\t%s\n", args->t_filepath);
-   fprintf(fp, "QUERY_SOURCE:\t%s\n", args->q_filepath);
-   fprintf(fp, "TARGET_INDEX:\t%s\n", args->t_indexpath);
-   fprintf(fp, "QUERY_INDEX:\t%s\n", args->q_indexpath);
+   fprintf(fp, "QUERY_SOURCE:\t%s\n",  args->q_filepath);
+   fprintf(fp, "TARGET_INDEX:\t%s\n",  args->t_indexpath);
+   fprintf(fp, "QUERY_INDEX:\t%s\n",   args->q_indexpath);
 
    /* print header */
    int pad = 0;
    fprintf(fp, ">");
 
-   fprintf(fp, "{%*s}\t", pad, "t_id" );
-   fprintf(fp, "{%*s}\t", pad, "q_id" );
-   // fprintf(fp, "{%*s}\t", pad, "t_name" );
-   // fprintf(fp, "{%*s}\t", pad, "q_name" );
-   fprintf(fp, "{%*s}\t", pad, "t_len" );
-   fprintf(fp, "{%*s}\t", pad, "q_len" );
+   fprintf(fp, "{%*s}\t", pad, "T_ID" );
+   fprintf(fp, "{%*s}\t", pad, "Q_ID" );
+   // fprintf(fp, "{%*s}\t", pad, "T_NAME" );
+   // fprintf(fp, "{%*s}\t", pad, "Q_NAME" );
+   fprintf(fp, "{%*s}\t", pad, "T_LEN" );
+   fprintf(fp, "{%*s}\t", pad, "Q_LEN" );
 
-   fprintf(fp, "{%*s}\t", pad, "alpha" );
-   fprintf(fp, "{%*s}\t", pad, "beta" );
+   fprintf(fp, "{%*s}\t", pad, "ALPHA" );
+   fprintf(fp, "{%*s}\t", pad, "BETA" );
 
-   fprintf(fp, "{%*s}\t", pad, "tot_c" );
-   fprintf(fp, "{%*s}\t", pad, "cld_c" );
+   fprintf(fp, "{%*s}\t", pad, "TOTAL_CNT" );
+   fprintf(fp, "{%*s}\t", pad, "CLOUD_CNT" );
 
-   fprintf(fp, "{%*s}\t", pad, "vit_sc" );
-   fprintf(fp, "{%*s}\t", pad, "cl_sc" );
+   fprintf(fp, "{%*s}\t", pad, "VIT_SC" );
+   fprintf(fp, "{%*s}\t", pad, "CLOUD_SC" );
 
-   fprintf(fp, "{%*s}\t", pad, "vit_t" );
-   fprintf(fp, "{%*s}\t", pad, "trace_t" );
-   fprintf(fp, "{%*s}\t", pad, "cl_fwd_t" );
-   fprintf(fp, "{%*s}\t", pad, "cl_bck_t" );
-   fprintf(fp, "{%*s}\t", pad, "merge_t" );
-   fprintf(fp, "{%*s}\t", pad, "reorient_t" );
-   fprintf(fp, "{%*s}\t", pad, "bnd_fwd_t" );
+   fprintf(fp, "{%*s}\t", pad, "VIT_T" );
+   fprintf(fp, "{%*s}\t", pad, "TRACE_T" );
+   fprintf(fp, "{%*s}\t", pad, "CL_FWD_T" );
+   fprintf(fp, "{%*s}\t", pad, "CL_BCK_T" );
+   fprintf(fp, "{%*s}\t", pad, "MERGE_T" );
+   fprintf(fp, "{%*s}\t", pad, "REORIENT_T" );
+   fprintf(fp, "{%*s}\t", pad, "BND_FWD_T" );
 
    fprintf(fp, "\n");
 }
@@ -879,34 +885,38 @@ void WORK_print_result_header( WORKER* worker )
 /* print current result (default) */
 void WORK_print_result_current( WORKER* worker )
 {
+   
+   
    FILE*    fp       = worker->out_file;
    ARGS*    args     = worker->args;
    TIMES*   times    = worker->times;
    SCORES*  scores   = worker->scores;
 
-   fprintf(fp, "%d\t", worker->t_id );
-   fprintf(fp, "%d\t", worker->q_id );
-   // fprintf(fp, "%s\t", worker->t_index->nodes[i].name );
-   // fprintf(fp, "%s\t", worker->q_index->nodes[i].name );
-   fprintf(fp, "%d\t", worker->t_prof->N );
-   fprintf(fp, "%d\t", worker->q_seq->N );
+   int      name_pad = 50;
+
+   fprintf(fp, "%d\t",     worker->t_id );
+   fprintf(fp, "%d\t",     worker->q_id );
+   // fprintf(fp, "%.*s\t",   name_pad, worker->t_prof->name );
+   // fprintf(fp, "%.*s\t",   name_pad, worker->q_seq->name );
+   fprintf(fp, "%d\t",     worker->t_prof->N );
+   fprintf(fp, "%d\t",     worker->q_seq->N );
 
    fprintf(fp, "%9.4f\t",  args->alpha );
    fprintf(fp, "%d\t",     args->beta );
 
-   fprintf(fp, "%d\t", worker->result->total_cells );
-   fprintf(fp, "%d\t", worker->result->cloud_cells );
+   fprintf(fp, "%d\t",     worker->result->total_cells );
+   fprintf(fp, "%d\t",     worker->result->cloud_cells );
 
-   fprintf(fp, "%9.4f\t", scores->quad_vit );
-   fprintf(fp, "%9.4f\t", scores->lin_cloud_fwd );
+   fprintf(fp, "%9.4f\t",  scores->quad_vit );
+   fprintf(fp, "%9.4f\t",  scores->lin_cloud_fwd );
 
-   fprintf(fp, "%9.4f\t", times->quad_vit );
-   fprintf(fp, "%9.4f\t", times->quad_trace );
-   fprintf(fp, "%9.4f\t", times->lin_cloud_fwd );
-   fprintf(fp, "%9.4f\t", times->lin_cloud_bck );
-   fprintf(fp, "%9.4f\t", times->lin_merge );
-   fprintf(fp, "%9.4f\t", times->lin_reorient );
-   fprintf(fp, "%9.4f\t", times->lin_bound_fwd );
+   fprintf(fp, "%9.4f\t",  times->quad_vit );
+   fprintf(fp, "%9.4f\t",  times->quad_trace );
+   fprintf(fp, "%9.4f\t",  times->lin_cloud_fwd );
+   fprintf(fp, "%9.4f\t",  times->lin_cloud_bck );
+   fprintf(fp, "%9.4f\t",  times->lin_merge );
+   fprintf(fp, "%9.4f\t",  times->lin_reorient );
+   fprintf(fp, "%9.4f\t",  times->lin_bound_fwd );
 
    fprintf(fp, "\n");
 }

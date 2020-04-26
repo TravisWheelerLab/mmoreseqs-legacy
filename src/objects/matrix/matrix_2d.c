@@ -17,8 +17,9 @@
 #include <time.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "matrix_2d.h"
@@ -34,7 +35,7 @@ MATRIX_2D* MATRIX_2D_Create(int  R,
       exit(EXIT_FAILURE);
    }
 
-   mx = (MATRIX_2D*) malloc( sizeof(MATRIX_2D) );
+   mx = (MATRIX_2D*) ERRORCHECK_malloc( sizeof(MATRIX_2D), __FILE__, __LINE__, __FUNCTION__ );
    if (mx == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc MATRIX_3D.\n");
       exit(EXIT_FAILURE);
@@ -60,6 +61,30 @@ void MATRIX_2D_Destroy(MATRIX_2D*  mx)
    mx = NULL;
 }
 
+/* deep copy: returns dest matrix, will allocate if null */
+MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,
+                           MATRIX_2D*     src )
+{
+   /* dim */
+   int R = src->R;
+   int C = src->C;
+
+   /* create a matrix if necessary */
+   if ( dest == NULL ) {
+      dest = MATRIX_2D_Create( R, C );
+   } else {
+      MATRIX_2D_Reuse( dest, R, C );
+   }
+   /* copy values */
+   for ( int i = 0; i < R; i++ ) {
+      for ( int j = 0; j < C; j++ ) {
+            MX_2D( dest, i, j ) = MX_2D( src, i, j );
+      }
+   }
+
+   return dest;
+}
+
 /* fill MATRIX_2D with values */
 MATRIX_2D* MATRIX_2D_Fill(MATRIX_2D*  mx,
                           float       val)
@@ -83,7 +108,7 @@ float* MATRIX_2D_Get(MATRIX_2D*  mx,
       int used = mx->R * mx->C;
       if (i >= mx->R || i < 0 || j >= mx->C || j < 0 || n >= used ) {
          fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
-         fprintf(stderr, "3D => dim: (%d,%d), access: (%d,%d)\n", mx->R, mx->C, i, j);
+         fprintf(stderr, "2D => dim: (%d,%d), access: (%d,%d)\n", mx->R, mx->C, i, j);
          fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
          exit(EXIT_FAILURE);
       }
@@ -134,8 +159,8 @@ float MATRIX_2D_Resize(MATRIX_2D*  mx,
    }
 }
 /* Outputs MATRIX_2D out to FILE POINTER */
-void MATRIX_2D_Dump(MATRIX_2D*  mx,
-                    FILE*       fp)
+void MATRIX_2D_Dump( MATRIX_2D*  mx,
+                     FILE*       fp )
 {
    /* check for bad pointer */
    if (fp == NULL) {
@@ -153,12 +178,87 @@ void MATRIX_2D_Dump(MATRIX_2D*  mx,
 }
 
 /* Save MATRIX_2D to FILE by FILENAME */
-void MATRIX_2D_Save(MATRIX_2D*  mx,
-                    char*       _filename_)
+void MATRIX_2D_Save( MATRIX_2D*  mx,
+                     char*       _filename_ )
 {
    FILE* fp = fopen(_filename_, "w");
    MATRIX_2D_Dump(mx, fp);
+   printf("MATRIX_2D saved to '%s'\n", _filename_);
    fclose(fp);
+}
+
+/* Compare two MATRIX_2D */
+int MATRIX_2D_Compare(  MATRIX_2D*  mx_a,
+                        MATRIX_2D*  mx_b )
+{
+   /* inequality value */
+   int      cmp   = 0;
+   float    diff  = 0;
+   bool     eq    = false;
+   /* set float equality tolerance */
+   const float tol = 1e-2;
+
+   /* dim */
+   int   R  = mx_a->R;
+   int   C  = mx_a->C;
+
+   MATRIX_2D* cloud_MX = debugger->cloud_MX;
+   #if DEBUG
+   {
+      MATRIX_2D_Reuse( cloud_MX, R, C );
+      MATRIX_2D_Fill( cloud_MX, 0 );
+   }
+   #endif
+
+   if (  mx_a->R != mx_b->R || 
+         mx_a->C != mx_b->C ) {
+      return -1;
+   }
+
+   for ( int i = 0; i < R; i++ ) {
+      for ( int j = 0; j < C; j++ ) {
+         eq    = ( MX_2D( mx_a, i, j ) == MX_2D( mx_b, i, j ) );
+         diff  = MX_2D( mx_a, i, j ) - MX_2D( mx_b, i, j );
+         diff  = ABS( diff );
+         if ( eq == false && diff > tol ) {
+            #if DEBUG
+            {
+               if ( cmp == 0 ) {  /* only reports first inequality */
+                  printf("MATRIX_2D EQUALITY failed at: (%d,%d), TOLERANCE: %f\n", i, j, tol);
+                  printf("MX_A: %f, MX_B: %f => DIFF: %f\n", MX_2D( mx_a, i, j ), MX_2D( mx_b, i, j ), diff );
+               }
+               MX_2D( cloud_MX, i, j ) += 1.0;
+            }
+            #endif
+            cmp++;
+            #if !DEBUG 
+            {
+               return cmp;
+            }
+            #endif
+         }
+      }
+   }
+   return cmp;
+}
+
+/*
+ *  FUNCTION:  MATRIX_2D_Diff()
+ *  SYNOPSIS:  Takes difference of <mx_a> - <mx_b>.  Result stored in <mx_diff>.
+ */
+int MATRIX_2D_Diff(  MATRIX_2D*  mx_a,
+                     MATRIX_2D*  mx_b,
+                     MATRIX_2D*  mx_diff )
+{
+   for ( int i = 0; i < mx_a->R; i++ ) {
+      for ( int j = 0; j < mx_a->C; j++ ) {
+         if ( MX_2D( mx_a, i, j ) == MX_2D( mx_b, i, j ) )
+            MX_2D( mx_diff, i, j ) = 0;   /* verifies equality when INF or -INF */
+         else
+            MX_2D( mx_diff, i, j ) = MX_2D( mx_a, i, j ) - MX_2D( mx_b, i, j );
+      }
+   }
+   return 0;
 }
 
 /* unit test */

@@ -16,8 +16,9 @@
 #include <time.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* unit test imports */
 #include "index_parser.h"
@@ -38,10 +39,6 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
  *    FUNC:    F_INDEX_Create()
  *    DESC:    Creates an instance of F_INDEX.
  *             Initial node length set to min_size.  
- *
- *    ARGS:       <pathname>     Path to file being indexed
- *
- *    RETURN:     Pointer to new F_INDEX object
  * *******************************************************************/
 F_INDEX*  F_INDEX_Create()
 {
@@ -63,7 +60,7 @@ F_INDEX*  F_INDEX_Create()
    index->source_path   = NULL;
    index->delim         = NULL;
 
-   index->isSorted      = false;
+   index->sort_type     = SORT_NONE;
    index->mmseqs_names  = false;
 
    index->nodes      = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
@@ -78,10 +75,6 @@ F_INDEX*  F_INDEX_Create()
 /* *******************************************************************
  *    FUNC:    F_INDEX_Create()
  *    DESC:    Destroys instance of F_INDEX and frees memory.
- *
- *    ARGS:       <index>     F_INDEX object to be freed (cannot be NULL)
- *
- *    RETURN:     None.
  * *******************************************************************/
 void F_INDEX_Destroy(F_INDEX* index)
 {
@@ -102,21 +95,16 @@ void F_INDEX_Destroy(F_INDEX* index)
 }
 
 /* *******************************************************************
- *    FUNC:    F_INDEX_PushBack()
+ *    FUNC:    F_INDEX_Pushback()
  *    DESC:    Add F_INDEX_NODE to F_INDEX node vector.  
  *             Resizes vector if necessary.
- *
- *    ARGS:       <index>     F_INDEX 
- *                <node>      F_INDEX_NODE to be added to F_INDEX
- *
- *    RETURN:     None.
  * *******************************************************************/
-void F_INDEX_PushBack(F_INDEX*      index,
-                      F_INDEX_NODE  node)
+void F_INDEX_Pushback(F_INDEX*      index,
+                      F_INDEX_NODE* node)
 {
-   index->nodes[index->N] = node;
+   index->nodes[index->N] = *node;
    /* allocate space for string */
-   index->nodes[index->N].name = strdup(node.name);
+   index->nodes[index->N].name = strdup(node->name);
    
    index->N++;
    if (index->N >= index->Nalloc) {
@@ -127,11 +115,6 @@ void F_INDEX_PushBack(F_INDEX*      index,
 /* *******************************************************************
  *    FUNC:    F_INDEX_Resize()
  *    DESC:    Resizes the length of the F_INDEX nodes array.
- *
- *    ARGS:       <index>     F_INDEX 
- *                <size>      Length F_INDEX node array is to be resized to.
- *
- *    RETURN:     None.
  * *******************************************************************/
 void F_INDEX_Resize(F_INDEX* index,
                     int      size)
@@ -147,44 +130,32 @@ void F_INDEX_Resize(F_INDEX* index,
 /* *******************************************************************
  *    FUNC:    F_INDEX_Sort_by_Name()
  *    DESC:    Sorts F_INDEX nodes by name.
- *
- *    ARGS:       <index>     F_INDEX
- *
- *    RETURN:     None.
  * *******************************************************************/
 void F_INDEX_Sort_by_Name(F_INDEX* index)
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
    qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Name);
+   index->sort_type = SORT_NAME;
 }
 
 /* *******************************************************************
  *    FUNC:    F_INDEX_Sort_by_Id()
  *    DESC:    Sorts F_INDEX nodes by name.
- *
- *    ARGS:       <index>     F_INDEX
- *
- *    RETURN:     None.
  * *******************************************************************/
 void F_INDEX_Sort_by_Id(F_INDEX* index)
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
    qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Id);
+   index->sort_type = SORT_ID;
 }
 
 /* *******************************************************************
  *    FUNC:    F_INDEX_Quikort()
  *    DESC:    Recursive quicksort of F_INDEX node subarray on range (lo,hi). 
- *
- *    ARGS:       <arr>       F_INDEX node array to be sorted
- *                <lo>        lower end of range in subarray 
- *                <hi>        upper end of range in subarray          
- *
- *    RETURN:     None.
  * *******************************************************************/
-void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
-                      int            lo,
-                      int            hi)
+void F_INDEX_Quiksort(F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorted */
+                      int            lo,     /* lower end of range in subarray  */
+                      int            hi )    /* upper end of range in subarray  */
 {
    if (hi - lo <= 1) return;
 
@@ -224,7 +195,10 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
    F_INDEX_Quiksort( arr, left, hi );
 }
 
-/* swap ith and jth nodes in nodes array */
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Swap()
+ *    DESC:    Swap the ith and jth node in the array.
+ * *******************************************************************/
 inline
 void F_INDEX_Swap(F_INDEX_NODE*  arr,
                   int            i,
@@ -236,7 +210,10 @@ void F_INDEX_Swap(F_INDEX_NODE*  arr,
    arr[j] = tmp;
 }
 
-/* compare ith to jth node in nodes array */
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Compare_by_Name()
+ *    DESC:    Compare <a> and <b> node in the array by NAME.
+ * *******************************************************************/
 inline
 int F_INDEX_Compare_by_Name(const void* a,
                             const void* b)
@@ -247,7 +224,10 @@ int F_INDEX_Compare_by_Name(const void* a,
    return cmp;
 }
 
-/* compare ith to jth node in nodes array */
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Compare_by_Id()
+ *    DESC:    Compare <a> and <b> node in the array by ID.
+ * *******************************************************************/
 inline
 int F_INDEX_Compare_by_Id(const void*  a,
                           const void*  b)
@@ -258,16 +238,32 @@ int F_INDEX_Compare_by_Id(const void*  a,
    return cmp;
 }
 
-/* binary search for node in array in F_INDEX */
-int F_INDEX_Search(F_INDEX* index,
-                   char*    search_term)
+/* *******************************************************************
+ * FUNCTION:   F_INDEX_Search_Name()
+ * SYNOPSIS:   Binary search (by name) for node in array in F_INDEX.
+ *             Assumes F_INDEX is sorted by Name.
+ * RETURN:     index of search result; -1 if no result found.
+ * *******************************************************************/
+int F_INDEX_Search_Name(F_INDEX* index,
+                        char*    search_term)
 {
    int lo  = 0;
    int mid = 0;
    int hi  = index->N;
    int cmp = 0;
+   F_INDEX_NODE node;
 
-   printf("SEARCH TERM: '%s'\n", search_term);
+   #if DEBUG
+   {
+      printf("SEARCH TERM: '%s'\n", search_term);
+      if ( index->sort_type != SORT_NAME )
+      {
+         printf("ERROR: Binary Search of F_INDEX by Name while not sorted by Name.\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+   #endif
+
    while (lo <= hi)
    {
       mid = (lo+hi)/2;
@@ -283,38 +279,116 @@ int F_INDEX_Search(F_INDEX* index,
       else {
          return mid;
       }
-      // printf("SEARCHING, range=(%d,%d), mid=%d, cmp=%d, term='%s'...\n", lo, hi, mid, cmp, index->nodes[mid].name);
    }
    return -1;
 }
 
-/* sends F_INDEX data to output file */
-void F_INDEX_Dump(F_INDEX* index,
-                  FILE*    fp)
+F_INDEX_NODE* F_INDEX_Get_by_Id( F_INDEX* index, 
+                                 int      search_term )
 {
+   int res = F_INDEX_Search_Id( index, search_term );
+   if (res == -1) return NULL;
+   return &(index->nodes[res]);
+}
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Search_Id()
+ *    DESC:    Binary search (by id) for node in array in F_INDEX. 
+ *             Assumes F_INDEX is sorted by Id.
+ * RETURN:     index of search result; -1 if no result found.
+ * *******************************************************************/
+int F_INDEX_Search_Id( F_INDEX* index,
+                       int      search_term)
+{
+   int lo  = 0;
+   int mid = 0;
+   int hi  = index->N;
+   int cmp = 0;
+
+   #if DEBUG
+   {
+      if ( index->sort_type != SORT_ID )
+      {
+         printf("ERROR: Binary Search of F_INDEX by ID while not sorted by ID.\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+   #endif
+   
+   while (lo <= hi)
+   {
+      mid = (lo+hi)/2;
+      cmp = search_term - index->nodes[mid].id;
+
+      if ( cmp < 0 ) {
+         hi = mid - 1;
+      }
+      else 
+      if ( cmp > 0 ) {
+         lo = mid + 1;
+      }
+      else {
+         return mid;
+      }
+   }
+   return -1;
+}
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Save()
+ *    DESC:    Save F_INDEX data to filepath.
+ * *******************************************************************/
+void F_INDEX_Save( F_INDEX*   index,
+                   char*      _filename_ )
+{
+   FILE* fp = fopen( _filename_, "w" );
+   F_INDEX_Dump( index, fp );
+   printf("F_INDEX saved to: '%s'\n", _filename_);
+}
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Save()
+ *    DESC:    Send F_INDEX data to file.
+ * *******************************************************************/
+void F_INDEX_Dump( F_INDEX*   index,
+                   FILE*      fp )
+{
+   F_INDEX_NODE*  node;
+   char*          name;
+   char*          delim = " \t";    /* whitespace */
+
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n" );
       exit(EXIT_FAILURE);
    }
 
-   fprintf(fp, "# === FILE INDEX === #\n" );
-   // fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->index_path );
-   fprintf(fp, "%s\t%s\n", "SOURCE_PATH:",   index->source_path );
-   fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path );
-   fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N );
-   fprintf(fp, "%s\t%s\n", "MMSEQS_NAMES:",  index->mmseqs_names ? "true" : "false" );
-   fprintf(fp, ">{ID}\t{OFF}\t{NAME}\n");
-
+   /* print header (TODO: make option?) */
+   int header = false;
+   if (header == true) {
+      fprintf(fp, "# === FILE INDEX === #\n" );
+      // fprintf(fp, "%s\t%s\n", "INDEX_PATH:",    index->index_path );
+      fprintf(fp, "%s\t%s\n", "SOURCE_PATH:",   index->source_path );
+      fprintf(fp, "%s\t%s\n", "LOOKUP_PATH:",   index->lookup_path );
+      fprintf(fp, "%s\t%d\n", "NUMBER_SEQS:",   index->N );
+      fprintf(fp, "%s\t%s\n", "MMSEQS_NAMES:",  index->mmseqs_names ? "true" : "false" );
+      fprintf(fp, ">{ID}\t{OFF}\t{NAME}\n");
+   }
+   
+   /* print index */
    for (int i = 0; i < index->N; i++)
    {
-      F_INDEX_NODE node = index->nodes[i];
-      fprintf(fp, "%d\t%ld\t%s\n", i, node.offset, node.name );
+      node = &(index->nodes[i]);
+      name = strtok(node->name, delim);
+      fprintf(fp, "%d\t%ld\t%s\t", i, node->offset, name );
+      fprintf(fp, "\n");
    }
-   fprintf(fp, "\n");
 }
 
-/* unit test for F_INDEX */
-void F_INDEX_UnitTest()
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Utest
+ *    DESC:    F_INDEX unit test.
+ * *******************************************************************/
+void F_INDEX_Utest()
 {
    F_INDEX* f_index = F_INDEX_Fasta_Build("src/test.txt");
    F_INDEX_Sort_by_Name(f_index);
@@ -323,7 +397,7 @@ void F_INDEX_UnitTest()
    for (int i = 0; i < f_index->N; i++) 
    {
       char* search_term = f_index->nodes[i].name;
-      int   find        = F_INDEX_Search(f_index, search_term);
+      int   find        = F_INDEX_Search_Name(f_index, search_term);
       printf("INDEX: %d, FIND: %s\n", find, search_term);
    }
    exit(EXIT_SUCCESS);

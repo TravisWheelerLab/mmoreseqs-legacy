@@ -15,8 +15,9 @@
 #include <math.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "mystring.h"
@@ -106,7 +107,8 @@ char* STRING_Get_File_from_Path( const char* in_filepath )
    char*    delim       = "/";
 
    /* get last non-null token in string while breaking on backslash */
-   while( ( token = strtok( filepath, NULL ) ), token != NULL  ) {
+
+   while( ( token = strtok( filepath, delim ) ), token != NULL  ) {
       prv_token = token;
    }
 

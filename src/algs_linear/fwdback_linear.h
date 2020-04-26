@@ -15,7 +15,6 @@ float forward_Linear(const SEQUENCE*   query,
                      const int          Q, 
                      const int          T, 
                      MATRIX_3D*         st_MX3,
-                     MATRIX_3D*         st_MX, 
                      MATRIX_2D*         sp_MX,
                      float*             sc_final);
 
@@ -24,7 +23,6 @@ float backward_Linear(const SEQUENCE*    query,
                      const int          Q, 
                      const int          T, 
                      MATRIX_3D*         st_MX3, 
-                     MATRIX_3D*         st_MX, 
                      MATRIX_2D*         sp_MX,
                      float*             sc_final);
 

@@ -15,10 +15,9 @@
 #include <time.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "../edgebound.h"
-#include "vector_int.h"
-#include "vector_range.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "vector_range_2d.h"
@@ -166,22 +165,22 @@ void VECTOR_RANGE_2D_MergeFwd( VECTOR_RANGE_2D *vec, const BOUND bnd )
 /* convert 2d vector of flat list of edgebounds with head pointers */
 EDGEBOUNDS* VECTOR_RANGE_2D_Convert_to_Edgebound( VECTOR_RANGE_2D *vec ) 
 {
-   EDGEBOUNDS   *edg = EDGEBOUNDS_Create();
-   VECTOR_RANGE row;
-   RANGE        range;
+//    EDGEBOUNDS   *edg = EDGEBOUNDS_Create();
+//    VECTOR_RANGE row;
+//    RANGE        range;
 
-   for (int i = 0; i < vec->N; i++) 
-   {
-      row = vec->data[i];
-      EDGEBOUNDS_Pushback_Head( edg, i, edg->N );
-      for (int j = 0; j < row.N; j++)
-      {
-         range = row.data[j];
-         EDGEBOUNDS_Pushback( edg, (BOUND){i, range.beg, range.end} );
-      }
-   }
+//    for (int i = 0; i < vec->N; i++) 
+//    {
+//       row = vec->data[i];
+//       EDGEBOUNDS_Pushback_Head( edg, i, edg->N );
+//       for (int j = 0; j < row.N; j++)
+//       {
+//          range = row.data[j];
+//          EDGEBOUNDS_Pushback( edg, (BOUND){i, range.beg, range.end} );
+//       }
+//    }
 
-   return edg;
+//    return edg;
 }
 
 void VECTOR_RANGE_2D_Dump(FILE *fp, VECTOR_RANGE_2D *vec)

@@ -16,20 +16,8 @@
 
 /* local imports */
 #include "structs.h"
-
-/* objects */
-#include "objects/f_index.h"
-#include "objects/results.h"
-#include "objects/alignment.h"
-#include "objects/sequence.h"
-#include "objects/hmm_profile.h"
-#include "objects/edgebound.h"
-#include "objects/clock.h"
-#include "objects/matrix/matrix_2d.h"
-#include "objects/matrix/matrix_3d.h"
-#include "objects/mystring.h"
-#include "objects/vectors/vector_range_2d.h"
-#include "objects/args.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "worker.h"
@@ -74,7 +62,7 @@ WORKER* WORKER_Create()
    worker->times     = NULL;
    worker->scores    = NULL;
    worker->results   = NULL;
-   worker->clock     = NULL;
+   worker->clok     = NULL;
 
    /* malloc all basic data structures */
    worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) );    /* sets all tasks to false */
@@ -95,7 +83,7 @@ WORKER* WORKER_Create()
    worker->edg_diag  = EDGEBOUNDS_Create();
    worker->edg_row   = EDGEBOUNDS_Create();
 
-   worker->clock     = CLOCK_Create();
+   worker->clok     = CLOCK_Create();
 
    return worker;
 }
@@ -111,12 +99,12 @@ void WORKER_Destroy( WORKER* worker )
    F_INDEX_Destroy( worker->q_index );
    F_INDEX_Destroy( worker->t_index );
 
-   free( worker->q_file  );
-   free( worker->t_file  );
+   free( worker->q_file );
+   free( worker->t_file );
 
-   SEQUENCE_Destroy( worker->q_seq   );
-   SEQUENCE_Destroy( worker->t_seq   );
-   HMM_PROFILE_Destroy( worker->t_prof  );
+   SEQUENCE_Destroy( worker->q_seq );
+   SEQUENCE_Destroy( worker->t_seq );
+   HMM_PROFILE_Destroy( worker->t_prof );
 
    EDGEBOUNDS_Destroy( worker->edg_fwd  );
    EDGEBOUNDS_Destroy( worker->edg_bck  );
@@ -133,7 +121,7 @@ void WORKER_Destroy( WORKER* worker )
    free( worker->results );
    free( worker->result  );
 
-   CLOCK_Destroy( worker->clock   );
+   CLOCK_Destroy( worker->clok   );
 
    free( worker );
    worker = NULL;

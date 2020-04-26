@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      arg_parser.h
+ *     FILE:   arg_parser.h
  *  PURPOSE:   Parses command line arguments. 
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *     BUG:    
  *******************************************************************************/
 
 /* imports */
@@ -16,14 +16,13 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures and utility functions */
-#include "objects/structs.h"
-#include "utilities/utility.h"
-#include "objects/mystring.h"
-#include "objects/args.h"
+/* local imports */
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
-#include "arg_parser.h"
+#include "parsers.h"
 
 /* Parses Arguments from the command line */
 void   ARGS_Parse( ARGS*   args,
@@ -36,7 +35,7 @@ void   ARGS_Parse( ARGS*   args,
 
    ARGS_Set_Defaults(args);
 
-   /* if no arguments given, run test case if in debug mode */
+   /* if no <command> argument given, run test case if in debug mode */
    if (argc < 2) {
       printf("Usage: fb-pruner <command> <target_hmm_file> <query_fasta_file>\n");
       #if DEBUG 
@@ -104,70 +103,125 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( strcmp(argv[i], (flag = "--alpha") ) == 0 ) {
             req_args = 1;
-            i++;
-            if (i < argc) {
+            if (i+req_args < argc) {
+               i++;
                args->alpha = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else if ( strcmp(argv[i], (flag = "--beta") ) == 0 ) {
             req_args = 1;
-            i++;
             if (i+req_args < argc) {
+               i++;
                args->beta = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--verbose") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->verbose_level = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else if ( strcmp(argv[i], (flag = "--eval") ) == 0 ) {
             req_args = 1;
-            i++;
             if (i+req_args <= argc) {
+               i++;
                args->cloud_threshold = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else if ( strcmp(argv[i], (flag = "--mmseqs-tmp") ) == 0 ) {
-            req_args = 2;
-            i++;
+            req_args = 1;
             if (i+req_args <= argc) {
+               i++;
                free(args->mmseqs_tmp_filepath);
                args->mmseqs_tmp_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-input") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
             req_args = 1;
-            i++;
             if (i+req_args <= argc) {
-               free(args->output_filepath);
-               args->output_filepath = strdup(argv[i]);
+               i++;
+               free(args->mmseqs_res_filepath);
+               args->mmseqs_res_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-m8+") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               free(args->mmseqs_plus_filepath);
+               args->mmseqs_res_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-range") ) == 0 ) {
+            req_args = 2;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_range.beg = atoi(argv[i]);
+               i++;
+               args->mmseqs_range.end = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: '%s' flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-lookup") ) == 0 ) {
+            req_args = 2;
+            if (i+req_args <= argc) {
+               i++;
+               free(args->t_lookup_filepath);
+               args->t_lookup_filepath = strdup(argv[i]);
+               i++;
+               free(args->q_lookup_filepath);
+               args->q_lookup_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else if ( strcmp(argv[i], (flag = "--index") ) == 0 ) {
             req_args = 2;
-            i++;
             if (i+req_args <= argc) {
-               free(args->mmseqs_tmp_filepath);
-               args->mmseqs_tmp_filepath = strdup(argv[i]);
+               i++;
+               free(args->t_indexpath);
+               args->t_indexpath = strdup(argv[i]);
+               i++;
+               free(args->q_indexpath);
+               args->q_indexpath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else if ( strcmp(argv[i], (flag = "--output") ) == 0 ) {
             req_args = 1;
-            i++;
             if (i+req_args <= argc) {
-               printf("output: %s\n", args->output_filepath);
+               i++;
                args->output_filepath = strdup(argv[i]);
-               printf("test\n");
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
             }
          }
          else {
@@ -182,15 +236,17 @@ void   ARGS_Parse( ARGS*   args,
       }
    }
 
-   args->t_filetype = ARGS_Find_FileType( args->t_filepath );
+   args->t_filetype  = ARGS_Find_FileType( args->t_filepath );
    args->q_filetype  = ARGS_Find_FileType( args->q_filepath );
 }
 
 /* SET DEFAULT ARGUMENTS (for testing) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->t_filepath              = "test_input/test1_2.hmm";
-   args->q_filepath              = "test_input/test1_1.fa";
+
+
+   args->t_filepath              = strdup("test_input/test1_2.hmm");
+   args->q_filepath              = strdup("test_input/test1_1.fa");
 
    args->t_indexpath             = NULL;
    args->q_indexpath             = NULL;
@@ -198,13 +254,17 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
 
-   args->output_filepath         = STDOUT;
+   args->output_filepath         = strdup("results.tsv");
+
+   args->mmseqs_res_filepath     = NULL;
+   args->mmseqs_plus_filepath    = NULL;
+   args->mmseqs_tmp_filepath     = NULL;
 
    args->alpha                   = 20.0f;
    args->beta                    = 5;
 
    args->pipeline_mode           = PIPELINE_TEST;
-   args->verbosity_mode          = VERBOSE_ALL;
+   args->verbose_level           = VERBOSE_LOW;
    args->search_mode             = MODE_UNILOCAL;
 
    args->viterbi_threshold       = 0.0f;
@@ -214,61 +274,40 @@ void  ARGS_Set_Defaults( ARGS* args )
    /* these will default to entire file unless filled with positive ints */
    args->t_range                 = (RANGE) { -1, -1 };    
    args->q_range                 = (RANGE) { -1, -1 };
+   args->mmseqs_range            = (RANGE) { -1, -1 };
 }
 
 /* sends ARGS data to FILE POINTER */
 void ARGS_Dump( ARGS*    args,
                 FILE*    fp )
 {
-   int      pipeline          = args->pipeline_mode;
-   int      verbosity         = args->verbosity_mode;
-   int      search_mode       = args->search_mode;
-
-   float    alpha             = args->alpha;
-   int      beta              = args->beta;
-
-   char*    t_filepath        = args->t_filepath;
-   char*    q_filepath        = args->q_filepath;
-   int      t_filetype        = args->t_filetype;
-   int      q_filetype        = args->q_filetype;
-
-   char*    t_indexpath        = args->t_indexpath;
-   char*    q_indexpath        = args->q_indexpath;
-
-   char*    mmseqs_res        = args->mmseqs_res_filepath;
-   char*    mmseqs_tmp        = args->mmseqs_tmp_filepath;
-
-   char*    output_filepath   = args->output_filepath;
-
    int      pad               = 20;
    bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
 
    fprintf( fp, "=== ARGS =====================\n");
-
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[pipeline] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[verbosity] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[search_mode] );
-   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           alpha );
-   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",            beta );
+   /* parameters */
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
+   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           args->alpha );
+   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",            args->beta );
    fprintf( fp, "\n" );
-
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH", t_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[t_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",  q_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[q_filetype] );
+   /* inputs */
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH", args->t_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",  args->q_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
    fprintf( fp, "\n" );
-
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",    t_indexpath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",    q_indexpath );
+   /* index input */
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",    args->t_indexpath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
    fprintf( fp, "\n" );
-
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",  mmseqs_res );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_TEMP",     mmseqs_tmp );  
+   /* mmseqs input */
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",  args->mmseqs_res_filepath );
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_TEMP",     args->mmseqs_tmp_filepath );  
    fprintf( fp, "\n" );
-
-
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH", output_filepath );
-
+   /* output */
+   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
    fprintf( fp, "=============================\n\n");
 }
 
@@ -296,7 +335,7 @@ void ARGS_Help_Info()
       "NUM_ARGS",
       "ARG_TYPE",
       "DESC");
-   for (int i = 0; i < NUM_FLAG_CMDS; i++) {
+   for (int i = 0; i < num_flag_cmds; i++) {
       printf("%-10s\t%-10d\t%-10s\t%s\n", 
          COMMAND_OPTS[i].long_flag,
          COMMAND_OPTS[i].num_args,

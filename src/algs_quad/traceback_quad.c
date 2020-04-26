@@ -16,17 +16,11 @@
 #include <string.h>
 #include <math.h>
 
-/* objects */
-#include "objects/structs.h"
-#include "objects/sequence.h"
-#include "objects/hmm_profile.h"
-#include "objects/alignment.h"
-#include "objects/matrix/matrix_3d.h"
-#include "objects/matrix/matrix_2d.h"
-
 /* local imports */
-#include "utilities/utility.h"
-#include "hmm_parser.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
+#include "algs_quad.h"
 
 /* header */
 #include "traceback_quad.h"
@@ -69,7 +63,7 @@ void traceback_Build(const SEQUENCE*     query,
    bool is_local = target->isLocal;
 
    /* allocate memory for trace */
-   ALIGNMENT_Reuse( aln );
+   ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backalnacing, so C is end state */
    traceback_Append(aln, tr, T_ST, i, j);
@@ -105,14 +99,14 @@ void traceback_Build(const SEQUENCE*     query,
       {
          /* C STATE to {C,E} */
          case C_ST:  /* C(i) comes from C(i-1) or E(i) */
-            if (XMX_M(SP_C, i) == -INF ) {
+            if (XMX(SP_C, i) == -INF ) {
                printf("ERROR: Impossible C_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( XMX_M(SP_C, i), XMX_M(SP_C, i - 1) + XSC(SP_C, SP_LOOP) ) )
+            if ( CMP_TOL( XMX(SP_C, i), XMX(SP_C, i - 1) + XSC(SP_C, SP_LOOP) ) )
                st_cur = C_ST;
-            else if ( CMP_TOL( XMX_M(SP_C, i), XMX_M(SP_E, i) + XSC(SP_E, SP_MOVE) ) )
+            else if ( CMP_TOL( XMX(SP_C, i), XMX(SP_E, i) + XSC(SP_E, SP_MOVE) ) )
                st_cur = E_ST;
             else {
                printf("ERROR: Failed to alnace from B_ST at (%d,%d)\n", i, j);
@@ -122,7 +116,7 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* E STATE to {M,D} */
          case E_ST:  /* E connects from any M state. k set here */
-            if (XMX_M(SP_E, i) == -INF ) {
+            if (XMX(SP_E, i) == -INF ) {
                printf("ERROR: Impossible E_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
@@ -131,8 +125,8 @@ void traceback_Build(const SEQUENCE*     query,
             {
                st_cur = M_ST;    /* can't come from D, in a *local* Viterbi alnace. */
                for (j = T; j >= 1; j--) {
-                  // printf("testing E at (%d, %d) => (%.2f v. %.2f) \n", i, j, XMX_M(SP_E, i), MMX_M(i, j) );
-                  if ( CMP_TOL( XMX_M(SP_E, i), MMX_M(i, j) ) )
+                  // printf("testing E at (%d, %d) => (%.2f v. %.2f) \n", i, j, XMX(SP_E, i), MMX(i, j) );
+                  if ( CMP_TOL( XMX(SP_E, i), MMX(i, j) ) )
                      break;
                }
                if (j == 0) {
@@ -142,11 +136,11 @@ void traceback_Build(const SEQUENCE*     query,
             }
             else     /* glocal mode: we either come from D_M or M_M */
             {
-               if ( CMP_TOL( XMX_M(SP_E, i), MMX_M(i, T) ) ) {
+               if ( CMP_TOL( XMX(SP_E, i), MMX(i, T) ) ) {
                   st_cur = M_ST;
                   j = T;
                }
-               else if ( CMP_TOL( XMX_M(SP_E, i), DMX_M(i, T) ) ) {
+               else if ( CMP_TOL( XMX(SP_E, i), DMX(i, T) ) ) {
                   st_cur = D_ST;
                   j = T;
                }
@@ -159,22 +153,22 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* M STATE to {B,M,I,D} */
          case M_ST:  /* M connects from i-1,k-1, or B */
-            if (MMX_M(i, j) == -INF ) {
+            if (MMX(i, j) == -INF ) {
                printf("ERROR: Impossible M_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( MMX_M(i, j), XMX_M(SP_B, i - 1) + TSC(j - 1, B2M) + MSC(j, A) ) )
+            if ( CMP_TOL( MMX(i, j), XMX(SP_B, i - 1) + TSC(j - 1, B2M) + MSC(j, A) ) )
                st_cur = B_ST;
-            else if ( CMP_TOL( MMX_M(i, j), MMX_M(i - 1, j - 1) + TSC(j - 1, M2M) + MSC(j, A) ) )
+            else if ( CMP_TOL( MMX(i, j), MMX(i - 1, j - 1) + TSC(j - 1, M2M) + MSC(j, A) ) )
                st_cur = M_ST;
-            else if ( CMP_TOL( MMX_M(i, j), IMX_M(i - 1, j - 1) + TSC(j - 1, I2M) + MSC(j, A) ) )
+            else if ( CMP_TOL( MMX(i, j), IMX(i - 1, j - 1) + TSC(j - 1, I2M) + MSC(j, A) ) )
                st_cur = I_ST;
-            else if ( CMP_TOL( MMX_M(i, j), DMX_M(i - 1, j - 1) + TSC(j - 1, D2M) + MSC(j, A) ) )
+            else if ( CMP_TOL( MMX(i, j), DMX(i - 1, j - 1) + TSC(j - 1, D2M) + MSC(j, A) ) )
                st_cur = D_ST;
             else {
                printf("ERROR: Failed to alnace from M_ST at (%d,%d)\n", i, j);
-               printf("TOL: %f vs %f\n", MMX_M(i, j), MMX_M(i - 1, j - 1) + TSC(j - 1, D2M) + MSC(j, A) );
+               printf("TOL: %f vs %f\n", MMX(i, j), MMX(i - 1, j - 1) + TSC(j - 1, D2M) + MSC(j, A) );
                exit(EXIT_FAILURE);
             }
             j--; i--;
@@ -182,14 +176,14 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* D STATE to {M,D} */
          case D_ST:  /* D connects from M,D at i,k-1 */
-            if (DMX_M(i, j) == -INF ) {
+            if (DMX(i, j) == -INF ) {
                printf("ERROR: Impossible D_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( DMX_M(i, j), MMX_M(i, j - 1) + TSC(j - 1, M2D) ) )
+            if ( CMP_TOL( DMX(i, j), MMX(i, j - 1) + TSC(j - 1, M2D) ) )
                st_cur = M_ST;
-            else if ( CMP_TOL( DMX_M(i, j), DMX_M(i, j - 1) + TSC(j - 1, D2D) ) )
+            else if ( CMP_TOL( DMX(i, j), DMX(i, j - 1) + TSC(j - 1, D2D) ) )
                st_cur = D_ST;
             else {
                printf("ERROR: Failed to alnace from D_ST at (%d,%d)\n", i, j);
@@ -200,14 +194,14 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* I STATE to {M,I} */
          case I_ST:  /* I connects from M,I at i-1,k */
-            if (IMX_M(i, j) == -INF ) {
+            if (IMX(i, j) == -INF ) {
                printf("ERROR: Impossible I_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( IMX_M(i, j), MMX_M(i - 1, j) + TSC(j, M2I) + ISC(j, A) ) )
+            if ( CMP_TOL( IMX(i, j), MMX(i - 1, j) + TSC(j, M2I) + ISC(j, A) ) )
                st_cur = M_ST;
-            else if ( CMP_TOL( IMX_M(i, j), IMX_M(i - 1, j) + TSC(j, I2I) + ISC(j, A) ) )
+            else if ( CMP_TOL( IMX(i, j), IMX(i - 1, j) + TSC(j, I2I) + ISC(j, A) ) )
                st_cur = I_ST;
             else {
                printf("ERROR: Failed to alnace from I_ST at (%d,%d)\n", i, j);
@@ -218,7 +212,7 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* N STATE to {N,S} */
          case N_ST:  /* N connects from S, N */
-            if (XMX_M(SP_N, i) == -INF ) {
+            if (XMX(SP_N, i) == -INF ) {
                printf("ERROR: Impossible N_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
@@ -228,9 +222,9 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* B STATE to {N,J} */
          case B_ST:  /* B connects from N, J */
-            if ( CMP_TOL( XMX_M(SP_B, i), XMX_M(SP_N, i) + XSC(SP_N, SP_MOVE) ) )
+            if ( CMP_TOL( XMX(SP_B, i), XMX(SP_N, i) + XSC(SP_N, SP_MOVE) ) )
                st_cur = N_ST;
-            else if ( CMP_TOL( XMX_M(SP_B, i), XMX_M(SP_J, i) + XSC(SP_J, SP_MOVE) ) )
+            else if ( CMP_TOL( XMX(SP_B, i), XMX(SP_J, i) + XSC(SP_J, SP_MOVE) ) )
                st_cur = J_ST;
             else {
                printf("ERROR: Failed to alnace from B_ST at (%d,%d)\n", i, j);
@@ -240,14 +234,14 @@ void traceback_Build(const SEQUENCE*     query,
 
          /* J STATE to {J,E} */
          case J_ST:  /* J connects from E(i) or J(i-1) */
-            if (XMX_M(SP_J, i) == -INF ) {
+            if (XMX(SP_J, i) == -INF ) {
                printf("ERROR: Impossible J_ST reached at (%d,%d)\n", i, j);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( XMX_M(SP_J, i), XMX_M(SP_J, i - 1) + XSC(SP_J, SP_LOOP) ) )
+            if ( CMP_TOL( XMX(SP_J, i), XMX(SP_J, i - 1) + XSC(SP_J, SP_LOOP) ) )
                st_cur = J_ST;
-            else if ( CMP_TOL( XMX_M(SP_J, i), XMX_M(SP_E, i) + XSC(SP_E, SP_LOOP) ) )
+            else if ( CMP_TOL( XMX(SP_J, i), XMX(SP_E, i) + XSC(SP_E, SP_LOOP) ) )
                st_cur = E_ST;
             else {
                printf("ERROR: Failed to alnace from J_ST at (%d,%d)\n", i, j);
@@ -263,10 +257,10 @@ void traceback_Build(const SEQUENCE*     query,
       /* Add new state and (i,j) to trace */
       // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
       // if (st_cur < 3) {
-      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, ST_MX_M(st_MX, state_num[st_cur], i, j) );
+      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, ST_MX(st_MX, state_num[st_cur], i, j) );
       // } 
       // else if (st_cur >= 3 && st_cur < 9) {
-      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, SP_MX_M(sp_MX, state_num[st_cur], i) );
+      //    printf("%s:\t(%d,%d)  \t%f\n", states[st_cur], i, j, MX_2D(sp_MX, state_num[st_cur], i) );
       // }
       // else {
       //    printf("%s:\t(%d,%d)\n", states[st_cur], i, j );
@@ -299,6 +293,19 @@ void traceback_Build(const SEQUENCE*     query,
          break;
       }
    }
+
+   #if DEBUG
+   {
+      MATRIX_2D* cloud_MX = debugger->cloud_MX;
+      MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
+      MATRIX_2D_Fill( cloud_MX, 0 );
+      for ( int i = 0; i < aln->N; i++ ) {
+         TRACE* tr = &(aln->traces[i]);
+         if ( tr->st == M_ST || tr->st == I_ST || tr->st == D_ST )
+            MX_2D( cloud_MX, tr->i, tr->j ) = -1.0;
+      }
+   }
+   #endif
 
    return;
 }

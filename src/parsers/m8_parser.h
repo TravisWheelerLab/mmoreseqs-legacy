@@ -13,4 +13,8 @@
 void RESULTS_M8_Parse( RESULTS* 	results,
 					   char* 		_filename_ );
 
+/* */
+void RESULTS_M8_Plus_Parse( RESULTS* 	results,
+					   		char* 		_filename_ );
+
 #endif /* _M8_PARSER_H */

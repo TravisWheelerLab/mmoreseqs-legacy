@@ -14,7 +14,9 @@
 #include <string.h>
 
 /* local imports */
-#include "objects/structs.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "vector_range.h"

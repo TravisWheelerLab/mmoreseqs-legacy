@@ -1,0 +1,28 @@
+# === FILE INDEX === #
+SOURCE_PATH:	test_input/all.hmm
+LOOKUP_PATH:	(null)
+NUMBER_SEQS:	21
+MMSEQS_NAMES:	false
+>{ID}	{OFF}	{NAME}
+0	0	  3-PAP
+1	62975	  4HBT
+2	100369	  7tm_7
+3	272148	  7TM-7TMR_HD
+4	363049	  AA_kinase
+5	493917	  AraC_E_bind
+6	568557	  fn3
+7	609658	  globins4
+8	679956	  test1_2
+9	687943	  test2_1
+10	758706	  test_2
+11	766692	  test3_2
+12	907205	  Thioesterase
+13	1013430	  Tissue_fac
+14	1064310	  TonB_dep_Rec
+15	1178911	  UbiA
+16	1306519	  Urb2
+17	1410398	  Usp
+18	1476628	  VirB8
+19	1575857	  V-set
+20	1630460	  VWD
+

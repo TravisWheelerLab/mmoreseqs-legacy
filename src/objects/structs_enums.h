@@ -10,19 +10,36 @@
 #define _STRUCTS_ENUMS_H
 
 /* === CONSTANTS === */
-#define CONST_LOG2 0.69314718055994529    /*  */
-#define SCALE_FACTOR 1000                 /* scaling factor for summing logrithm */
-#define INF INFINITY
-#define INT_MIN -2147483648               /* min value of integer */
+#define CONST_LOG2      0.69314718055994529     /* natural log: ln(2) */
+#define SCALE_FACTOR    1000                    /* scaling factor for summing logrithm */
+#define INF             INFINITY                /*  */
+#define INT_MIN         -2147483648             /* min value of integer */
 
-#define STDOUT "/dev/stdout"
-#define STDERR "/dev/stderr"
-#define DEVNULL "/dev/null"
+/* === VERSION === */
+#define BUILD_VERSION   0.1
+#define BUILD_NAME      "alpha"
+#define BUILD_DATE      __DATE__
+
+/* === OUTPUT PIPES === */
+#define STDOUT          "/dev/stdout"
+#define STDERR          "/dev/stderr"
+#define DEVNULL         "/dev/null"
+#define DEBUGOUT        "DEBUG.log"
+#define DEBUG_VIZ       "DEBUG.viz"
+
+#define debugout        debugger->dbfp
  
 /* === ENUMERATIONS === */
 
 /* commandline flags */
-#define NUM_FLAG_CMDS 4
+#define NUM_FLAG_CMDS 11
+
+/* Method of sort for a list */
+typedef enum{
+   SORT_NONE,
+   SORT_ID,
+   SORT_NAME,
+} SORT_TYPE;
 
 /* Flag for which models in file are to be loaded */
 typedef enum {
@@ -78,7 +95,7 @@ typedef enum {
    VERBOSE_LOW    = 1,
    VERBOSE_HIGH   = 2,
    VERBOSE_ALL    = 3
-} VERBOSITY_MODE;
+} VERBOSE_MODE;
 #define NUM_VERBOSITY_MODES 3
 
 /* Search modes (cloud search only supports uniglocal) */
@@ -92,8 +109,9 @@ typedef enum {
 
 /* Flags whether EDGEBOUNDS are stored row-wise or antidiagonal-wise */
 typedef enum {
-   MODE_DIAG = 0,
-   MODE_ROW  = 1,
+   EDG_NONE,
+   EDG_DIAG,
+   EDG_ROW,
 } EDG_MODE;
 
 /* Flags whether using linear, quadratic, or naive algorithm for cloud search (TESTING) */

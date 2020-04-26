@@ -11,13 +11,12 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-/* header */
-#include "structs.h"
-
 /* local imports */
-#include "utilities/utility.h"
-#include "pipeline/pipeline.h"
-#include "parsers/index_parser.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
+#include "parsers.h"
+#include "pipelines.h"
 
 char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 
@@ -152,7 +151,8 @@ char* MODE_NAMES[] = {
 char* VERBOSITY_NAMES[] = {
    "None",
    "Low",
-   "High"
+   "High",
+   "All",
 };
 
 /* Alphabet Names (for hmm files) */
@@ -189,19 +189,26 @@ char* FILE_TYPE_NAMES[] = {
 };
 
 /* commandline arguments */
-ARGS* args;
+ARGS*    args;
+
+/* debugging data structures */
+DEBUG_KIT*  debugger;
 
 /* command line flags and options */
 /* NOTE: update definition of NUM_FLAG_CMDS */
+int   num_flag_cmds = 11;
 FLAG_CMD COMMAND_OPTS[] = {
-   {  "OUTFILE",  2,    DATATYPE_INT,     NULL,    "--output",    "-o",    "Result output file destination [stdout]."  },
-   {  "INFILES",  2,    DATATYPE_STRING,  NULL,    "--input",     "-i",    "Input files: {target,query} [test cases]."  },
-   {  "INDEX",    2,    DATATYPE_STRING,  NULL,    "--index",     "-x",    "Index files: {target,query} [builds on fly]."  },
-   {  "ALPHA",    1,    DATATYPE_FLOAT,   NULL,    "--alpha",     "-a",    "X-drop pruning ratio [20.0]." },
-   {  "BETA",     1,    DATATYPE_INT,     NULL,    "--beta",      "-b",    "Number of passes of cloud search before pruning [5]." },
-   {  "WINDOW",   4,    DATATYPE_INT,     NULL,    "--window",    "-w",    "Examine substring of query and target."  },
-   {  "Q_RANGE",  2,    DATATYPE_INT,     NULL,    "--qrange",    NULL,    "Give range of ids in query file index to search [-1,-1]."  },
-   {  "T_RANGE",  2,    DATATYPE_INT,     NULL,    "--trange",    NULL,    "Give range of ids in target file index to search [-1,-1]."  },
+   {  "OUTFILE",           1,    DATATYPE_INT,     NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
+   {  "INFILES",           2,    DATATYPE_STRING,  NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
+   {  "INDEX",             2,    DATATYPE_STRING,  NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
+   {  "MMSEQS_TMP",        1,    DATATYPE_STRING,  NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
+   {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,  NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
+   {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,  NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
+   {  "ALPHA",             1,    DATATYPE_FLOAT,   NULL,    "--alpha",           "-a",    "X-drop pruning ratio [20.0]." },
+   {  "BETA",              1,    DATATYPE_INT,     NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
+   {  "WINDOW",            4,    DATATYPE_INT,     NULL,    "--window",          "-w",    "Examine substring of query and target."  },
+   {  "Q_RANGE",           2,    DATATYPE_INT,     NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
+   {  "T_RANGE",           2,    DATATYPE_INT,     NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
 };
 
 char* DATATYPE_NAMES[] = {

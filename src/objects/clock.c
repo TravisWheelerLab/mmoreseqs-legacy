@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      clock.c
+ *  FILE:      clok.c
  *  PURPOSE:   CLOCK Object for testing runtimes. 
  *
  *  AUTHOR:    Dave Rich
@@ -18,6 +18,8 @@
 
 /* local imports */
 #include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "clock.h"

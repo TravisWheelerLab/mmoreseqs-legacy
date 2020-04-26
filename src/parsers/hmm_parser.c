@@ -16,16 +16,12 @@
 #include <ctype.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "objects/hmm_profile.h"
-#include "objects/sequence.h"
-#include "objects/mystring.h"
-
-/* utility functions */
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
-#include "hmm_parser.h"
+#include "parsers.h"
 
 
 /* Parse .hmm file and builds a HMM_PROFILE object */
@@ -83,7 +79,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       if ( strcmp( header, "NAME" ) == 0 )
       {
          field = strtok(NULL, delim);
-         STRING_Replace(field, ' ', '_');
+         // STRING_Replace(field, ' ', '_');
          HMM_PROFILE_Set_TextField( &prof->name, field );
       }
       else if ( strcmp( header, "ACC" ) == 0 )
@@ -140,7 +136,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
          }
 
          /* LINE 2: background emission probs */
-         getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+         line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
          token = strtok ( line_buf, delim ); /* get first word */
 
          for ( int j = 0; j < NUM_AMINO && token != NULL; j++)
@@ -160,7 +156,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
          }
 
          /* LINE 3: trans probs (identical for all positions) */
-         getline ( &line_buf, &line_buf_size, fp );  /* get next line */
+         line_size = getline ( &line_buf, &line_buf_size, fp );  /* get next line */
          token = strtok ( line_buf, delim ); /* get first word */
 
          for ( int j = 0; j < NUM_TRANS_STATES && token != NULL; j++ )
@@ -225,7 +221,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       }
 
       /* LINE 2: Insert Emission Line */
-      getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+      line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
       token = strtok ( line_buf, delim ); /* get first word */
 
       for ( int j = 0; j < NUM_AMINO; j++)
@@ -242,7 +238,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       }
 
       /* LINE 3: State Transition Line */
-      getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+      line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
       token = strtok ( line_buf, delim ); /* get first word */
 
       for ( int j = 0; j < NUM_TRANS_STATES - 1; j++)

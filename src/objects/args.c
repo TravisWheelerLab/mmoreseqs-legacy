@@ -15,8 +15,9 @@
 #include <math.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "alignment.h"
@@ -43,6 +44,9 @@ ARGS* ARGS_Create()
    args->mmseqs_res_filepath = NULL;
    args->mmseqs_tmp_filepath = NULL;
 
+   args->t_lookup_filepath = NULL;
+   args->q_lookup_filepath = NULL;
+
    return args;
 }
 
@@ -61,6 +65,9 @@ void ARGS_Destroy(ARGS* args)
 
    free( args->mmseqs_res_filepath );
    free( args->mmseqs_tmp_filepath );
+
+   free( args->t_lookup_filepath );
+   free( args->q_lookup_filepath );
 
    free( args );
    args = NULL;

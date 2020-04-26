@@ -15,8 +15,8 @@ F_INDEX*  F_INDEX_Create();
 void F_INDEX_Destroy(F_INDEX* index);
 
 /* Add INDEX_NODE to F_INDEX nodes array */
-void F_INDEX_PushBack(F_INDEX*      index,
-                      F_INDEX_NODE  node);
+void F_INDEX_Pushback(F_INDEX*      index,
+                      F_INDEX_NODE* node);
 
 /* Resizes the length of the nodes array */
 void F_INDEX_Resize(F_INDEX* index,
@@ -46,9 +46,30 @@ int F_INDEX_Compare_by_Name(const void* a,
 int F_INDEX_Compare_by_Id(const void*  a,
                           const void*  b);
 
-/* binary search for node in array in F_INDEX */
-int F_INDEX_Search(F_INDEX* index,
-                   char*    search_term);
+/* *******************************************************************
+ * FUNCTION:   F_INDEX_Search_Name()
+ * SYNOPSIS:   Binary search (by name) for node in array in F_INDEX.
+ *             Assumes F_INDEX is sorted by Name.
+ * RETURN:     index of search result; -1 if no result found.
+ * *******************************************************************/
+int F_INDEX_Search_Name(F_INDEX* index,
+                        char*    search_term);
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Search_Id()
+ *    DESC:    Binary search (by id) for node in array in F_INDEX. 
+ *             Assumes F_INDEX is sorted by Id.
+ * RETURN:     index of search result; -1 if no result found.
+ * *******************************************************************/
+int F_INDEX_Search_Id( F_INDEX* index,
+                       int      search_term);
+
+/*
+ *    FUNCTION:    F_INDEX_Save()
+ *    SYNOPSIS:    Save F_INDEX data to filepath.
+ */
+void F_INDEX_Save( F_INDEX*   index,
+                   char*      _filename_ );
 
 /* sends F_INDEX data to output file */
 void F_INDEX_Dump(F_INDEX* index,

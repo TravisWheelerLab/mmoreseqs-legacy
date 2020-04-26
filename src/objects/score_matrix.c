@@ -16,8 +16,9 @@
 #include <math.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "score_matrix.h"

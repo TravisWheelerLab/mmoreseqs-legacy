@@ -9,53 +9,53 @@
 #ifndef _STRUCTS_MACROS_H
 #define _STRUCTS_MACROS_H
 
-/* === MACRO FUNCTIONS === */
+/* === BUILD TYPE MACROS === */
+/* set debug macros */
+#ifndef DEBUG
+#define DEBUG true
+#endif
 
-/* === MATRIX OBJECT FUNCTIONS === */
-/* generic access for any matrix */
-#define ST_MX_M(mx,st,i,j)  ( *MATRIX_3D_Get( mx, st, i, j ) )
+/* debug print (eliminated from code when not debugging) */
+#if DEBUG
+#define DBG_PRINTF(...) 	printf(__VA_ARGS__)
+#else
+#define DBG_PRINTF(...) 
+#endif
+#if DEBUG
+#define DBG_FPRINTF(...) 	fprintf(__VA_ARGS__)
+#else
+#define DBG_FPRINTF(...) 
+#endif
+
+/* determines whether output is printed based on verbose_level */
+#define printf_v(v_min,...) 	if ( args->verbose_level >= v_min ) printf(__VA_ARGS__)
+#define printf_vnone(...) 		printf_v(VERBOSE_NONE, __VA_ARGS__)
+#define printf_vlo(...) 		printf_v(VERBOSE_LOW,  __VA_ARGS__)
+#define printf_vhi(...) 		printf_v(VERBOSE_HIGH, __VA_ARGS__)
+#define printf_vall(...) 		printf_v(VERBOSE_ALL,  __VA_ARGS__)
+
+/* errorchecking macros */
+#define malloc_check(...) 	ERRORCHECK_malloc(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
+#define realloc_check(...)	ERRORCHECK_realloc(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
+#define fopen_check(...) 	ERRORCHECK_fopen(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
+/* gets the location where error occurred */
+#define LOCATION 			__FILE__, __LINE__, __FUNCTION__
+
+/* === MATRIX FUNCTIONS === */
+/* generic access for any 3d matrix */
+#define MX_3D(mx,st,i,j)  	( *MATRIX_3D_Get( mx, st, i, j ) )
 /* match, insert, delete for st_MX matrix */
-#define MMX_M(i,j)           ST_MX_M( st_MX, MAT_ST, i, j )
-#define IMX_M(i,j)           ST_MX_M( st_MX, INS_ST, i, j )
-#define DMX_M(i,j)           ST_MX_M( st_MX, DEL_ST, i, j )
-
-/* generic matrix */
-#define ST_MX3_M(mx,st,i,j)  ( *MATRIX_3D_Get(mx,st,i,j) )
+#define MMX(i,j)           	MX_3D( st_MX, MAT_ST, i, j )
+#define IMX(i,j)           	MX_3D( st_MX, INS_ST, i, j )
+#define DMX(i,j)           	MX_3D( st_MX, DEL_ST, i, j )
 /* match, insert, delete for st_MX3 matrix */
-#define MMX3_M(i,j)          ST_MX3_M( st_MX3, MAT_ST, i, j )
-#define IMX3_M(i,j)          ST_MX3_M( st_MX3, INS_ST, i, j )
-#define DMX3_M(i,j)          ST_MX3_M( st_MX3, DEL_ST, i, j )
+#define MMX3(i,j)          MX_3D( st_MX3, MAT_ST, i, j )
+#define IMX3(i,j)          MX_3D( st_MX3, INS_ST, i, j )
+#define DMX3(i,j)          MX_3D( st_MX3, DEL_ST, i, j )
 
-#define SP_MX_M(mx,sp,i)     ( *MATRIX_2D_Get(mx,sp,i) )
-#define XMX_M(sp,i)          SP_MX_M(sp_MX,sp,i)
-
-#define TMX_M(i,j)           ( *MATRIX_3D_Get(test_MX,MAT_ST,i,j) ) 
-
-/* === EDGEBOUNDS OBJECT ACCESS FUNCTION === */
-#define EDG_X(edg,i)		( *EDGEBOUNDS_Get(edg,i) )
-
-/* FLOAT ARRAY FUNCTIONS */
-/* generic access for any matrix */
-#define ST_MX(mx,st,i,j)   ( mx[ ( st*(Q+1)*(T+1) ) + ( (i)*(T+1) ) + (j) ] )
-/* match, insert, delete for st_MX matrix */
-#define MMX(i,j)           ST_MX( st_MX, MAT_ST, i, j )
-#define IMX(i,j)           ST_MX( st_MX, INS_ST, i, j )
-#define DMX(i,j)           ST_MX( st_MX, DEL_ST, i, j )
-
-/* LINEAR DYNAMIC PROGRAMMING MATRIX - ACCESS MACROS ( dim: 3 x (N+M) ) */
-/* generic matrix */
-#define ST_MX3(mx,st,i,j)  ( mx[ ( st*3*((T+1)+(Q+1)) ) + ( (i)*((T+1)+(Q+1)) ) + (j) ] )
-/* match, insert, delete for st_MX3 matrix */
-#define MMX3(i,j)          ST_MX3( st_MX3, MAT_ST, i, j )
-#define IMX3(i,j)          ST_MX3( st_MX3, INS_ST, i, j )
-#define DMX3(i,j)          ST_MX3( st_MX3, DEL_ST, i, j )
-
-/* SPECIAL STATE MATRIX MACROS */
-#define SP_MX(mx,sp,i)     ( mx[ ((sp)*(Q+1)) + (i) ] )
-#define XMX(sp,i)          SP_MX(sp_MX,sp,i)
-
-/* TEST MATRIX */
-#define TMX(i,j)           ( test_MX[ ((i)*(T+1)) + (j) ] ) 
+/* generic access for any 2d matrix */
+#define MX_2D(mx,sp,i)     ( *MATRIX_2D_Get(mx,sp,i) )
+#define XMX(sp,i)          MX_2D(sp_MX,sp,i)
 
 /* TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS */
 /* generic hmm profile functions */
@@ -68,6 +68,12 @@
 #define XSC(sp,tr)            ( target->bg_model->spec[sp][tr] )
 #define MSC(j,A)              ( target->hmm_model[j].match[A] )
 #define ISC(j,A)              ( target->hmm_model[j].insert[A] )
+
+/* edgebounds access */
+#define EDG_X(edg,i) 	 	( *EDGEBOUNDS_Get( edg, i ) )
+
+/* logarithmic sum */
+#define LOGSUM(a,b) 		( logsum( a, b ) )
 
 /* DEBUG MACRO FOR RETREIVING VARIABLE NAME */
 #define getName(var) #var

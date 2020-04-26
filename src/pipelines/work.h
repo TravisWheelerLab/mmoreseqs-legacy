@@ -1,35 +1,13 @@
 /*******************************************************************************
- *  FILE:      pipeline_main.c
- *  PURPOSE:   Pipelines and Subroutines
+ *  FILE:      work.h
+ *  PURPOSE:   Pipelines Workflow Subroutines
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
  *******************************************************************************/
 
-#ifndef _PIPELINE_MAIN_H
-#define _PIPELINE_MAIN_H
-
-/* === MAIN PIPELINES === */
-
-/* standard pipeline */
-void main_pipeline( WORKER* worker );
-
-/* testing pipeline */
-void test_pipeline( WORKER* worker );
-
-/* MMSEQS pipeline */
-void mmseqs_pipeline( WORKER* worker );
-
-/* time trial pipeline */
-void time_pipeline( WORKER* worker );
-
-/* indexing pipeline */
-void index_pipeline( WORKER* worker );
-
-/* unit and integration testing pipeline */
-void utest_pipeline( WORKER* worker );
-
-/* === PIPELINE SUBROUTINES === */
+#ifndef _WORK_H
+#define _WORK_H
 
 /* generic workflow */
 void WORK_workflow( WORKER*  work );
@@ -86,4 +64,4 @@ void WORK_print_result_header( WORKER* worker );
 /* print current result (default) */
 void WORK_print_result_current( WORKER* worker );
 
-#endif /* _PIPELINE_MAIN_H */
+#endif /* _WORK_H */

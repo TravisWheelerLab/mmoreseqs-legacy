@@ -15,8 +15,9 @@
 #include <math.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "utilities/utility.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "alignment.h"
@@ -40,6 +41,9 @@ ALIGNMENT* ALIGNMENT_Create()
    aln->end    = 0;
    aln->traces = NULL;
 
+   aln->Q      = 0;
+   aln->T      = 0;
+
    ALIGNMENT_Resize(aln, min_size);
 
    return aln;
@@ -55,18 +59,29 @@ void ALIGNMENT_Destroy(ALIGNMENT* aln)
    aln = NULL;
 }
 
-/* reuse */
-void ALIGNMENT_Reuse(ALIGNMENT* aln)
+/* reuse alignment by clearing traceback and setting dimensions */
+void ALIGNMENT_Reuse(ALIGNMENT*  aln,
+                     int         Q,
+                     int         T )
 {
    aln->N   = 0;
    aln->beg = -1;
    aln->end = -1;
+   
+   aln->Q   = Q;
+   aln->T   = T;
 }
 
 /* push trace onto end of alignment */
 void ALIGNMENT_Pushback(ALIGNMENT* aln,
                         TRACE*     tr)
 {
+   /* if debugging, do edgechecks */
+   #if DEBUG
+      /* if normal state, check bounds of normal dp matrix */
+      /* if special state, check bounds of special dp matrix */
+   #endif
+
    aln->traces[aln->N] = *tr;
    aln->N++;
 
@@ -96,6 +111,15 @@ void ALIGNMENT_Clear(ALIGNMENT* aln)
 }
 
 /* outputs ALIGNMENT to FILE pointer */
+void ALIGNMENT_Save(ALIGNMENT* aln,
+                    char*      _filename_)
+{
+   FILE* fp = fopen(_filename_, "w");
+   ALIGNMENT_Dump(aln, fp);
+   fclose(fp);
+}
+
+/* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,
                     FILE*      fp)
 {
@@ -107,27 +131,10 @@ void ALIGNMENT_Dump(ALIGNMENT* aln,
       return;
    }
    
+   fprintf(fp, "# ALIGNMENT (length=%d)\n", aln->N );
    for (unsigned int i = 0; i < aln->N; ++i)
    {
       int st = aln->traces[i].st;
       fprintf(fp, "[%d](%s,%d,%d)\n", i, STATE_NAMES[st], aln->traces[i].i, aln->traces[i].j);
    }
-}
-
-/* */
-void ALIGNMENT_Full_Alignment_Dump(ALIGNMENT* aln,
-                                   FILE*      fp)
-{
-   
-}
-
-/* outputs ALIGNMENT to FILE pointer */
-void ALIGNMENT_Save(ALIGNMENT* aln,
-                    char*      _filename_)
-{
-   FILE* fp = fopen(_filename_, "w");
-
-   ALIGNMENT_Dump(aln, fp);
-
-   fclose(fp);
 }

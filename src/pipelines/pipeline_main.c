@@ -16,57 +16,17 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures */
-#include "objects/structs.h"
-#include "utilities/utility.h"
-#include "error_handler.h"
-
-/* file parsers */
-#include "parsers/arg_parser.h"
-#include "parsers/hmm_parser.h"
-#include "parsers/seq_parser.h"
-#include "parsers/m8_parser.h"
-#include "parsers/index_parser.h"
-#include "parsers/seq_to_profile.h"
-
-/* objects */
-#include "objects/f_index.h"
-#include "objects/results.h"
-#include "objects/alignment.h"
-#include "objects/sequence.h"
-#include "objects/hmm_profile.h"
-#include "objects/edgebound.h"
-#include "objects/clock.h"
-#include "objects/matrix/matrix_2d.h"
-#include "objects/matrix/matrix_3d.h"
-#include "objects/mystring.h"
-#include "objects/vectors/vector_range_2d.h"
-
-/* viterbi & fwdbck (quadratic) */
-#include "algs_quad/viterbi_quad.h"
-#include "algs_quad/traceback_quad.h"
-#include "algs_quad/fwdback_quad.h"
-/* viterbi & fwdbck (linear) */
-#include "algs_linear/fwdback_linear.h"
-
-/* cloud search (naive) */
-#include "algs_naive/bounded_fwdbck_naive.h"
-/* cloud search (quadratic space) */
-#include "algs_quad/cloud_search_quad.h"
-#include "algs_quad/merge_reorient_quad.h"
-#include "algs_quad/bounded_fwdbck_quad.h"
-/* cloud search (linear space) */
-#include "algs_linear/cloud_search_linear.h"
-#include "algs_linear/merge_reorient_linear.h"
-#include "algs_linear/bounded_fwdbck_linear.h"
-/* temp test */
-#include "algs_linear/cloud_search_linear_rows.h"
-
-/* debugging methods */
-#include "testing.h"
+/* local imports */
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
+#include "parsers.h"
+#include "algs_linear.h"
+#include "algs_quad.h"
+#include "algs_naive.h"
 
 /* header */
-#include "pipeline.h"
+#include "pipelines.h"
 
 /* standard pipeline */
 void main_pipeline( WORKER* worker ) 
@@ -79,10 +39,6 @@ void main_pipeline( WORKER* worker )
 	REPORT* 	report 		= worker->report;
 	RESULTS* 	results 	= worker->results;
 	RESULT* 	result 		= worker->result;
-
-	/* set file pointer */
-	worker->out_file = fopen( args->output_filepath, "w+" );
-	WORK_print_result_header( worker );
 
 	/* set flags for pipeline tasks */
 	/* linear algs */
@@ -147,15 +103,22 @@ void main_pipeline( WORKER* worker )
 		report->quad_bound_bck_t 	= false;
 	}
 
+	/* set file pointer */
+	worker->out_file = fopen( args->output_filepath, "w+" );
+	if ( worker->out_file == NULL ) {
+		fprintf(stderr, "ERROR: Bad File Pointer.\n");
+		exit(EXIT_FAILURE);
+	}
+	WORK_print_result_header( worker );
+
 	/* initialize data structures needed for tasks */
 	WORK_init( worker );
 
-	/* load target index file */
+	/* load index files */
 	WORK_load_target_index( worker );
-	// F_INDEX_Dump( worker->t_index, stdout );
-	/* load query index file */
 	WORK_load_query_index( worker );
-	// F_INDEX_Dump( worker->q_index, stdout );
+	F_INDEX_Sort_by_Id( worker->t_index );
+   	F_INDEX_Sort_by_Id( worker->q_index );
 
 	/* allocate data structs */
 	worker->t_prof 	= HMM_PROFILE_Create();
@@ -165,17 +128,34 @@ void main_pipeline( WORKER* worker )
 	/* set and verify ranges */
 	WORK_set_ranges( worker );
 
-	/* loop over targets */
-	for (int i = args->t_range.beg; i < args->t_range.end; i++) 
+	printf("target_num: %d, query_num: %d\n", 
+		worker->t_index->N, worker->q_index->N );
+	printf("target_range: (%d,%d), query_range: (%d,%d)\n", 
+		args->t_range.beg, args->t_range.end,
+		args->q_range.beg, args->q_range.end );
+
+	int search_cnt 	= 0;
+	int search_tot 	= (args->t_range.end - args->t_range.beg) * (args->q_range.end - args->q_range.beg);
+
+	int i_beg 	= args->t_range.beg;
+	int i_end 	= args->t_range.end;
+	int j_beg 	= args->q_range.beg;
+	int j_end 	= args->q_range.end;
+
+	/* loop over target range */
+	for (int i = i_beg; i < i_end; i++) 
 	{
 		/* load in next target */
 		WORK_load_target_by_id( worker, i );
 		// HMM_PROFILE_Dump( worker->t_prof, stdout );
 		result->target_id = i;
 
-		/* loop over queries */
-		for (int j = args->q_range.beg; j < args->q_range.end; j++) 
+		/* loop over query range */
+		for (int j = j_beg; j < j_end; j++) 
 		{
+			printf_vlo("Running search (%d) for target (%d of %d) and query (%d of %d)...\n",
+				search_cnt, search_tot, i, i_end, j, j_end);
+
 			/* load in next query */
 			WORK_load_query_by_id( worker, j );
 			// SEQUENCE_Dump( worker->q_seq, stdout );
@@ -184,18 +164,25 @@ void main_pipeline( WORKER* worker )
 			/* resize dp matrices to new query/target */
 			WORK_reuse( worker );
 
+			const int pad = 5;
+			printf_vall(" (%*d) | T_ID: (%*d/%*d) | Q_ID: (%*d/%*d) | T_LEN: %*d | Q_LEN: %*d \n", 
+				pad, search_cnt, pad, i, -pad, i_end, pad, j, -pad, j_end, -pad, worker->t_prof->N, -pad, worker->q_seq->N );
+
 			/* perform given tasks on them */
-			// printf("viterbi...\n");
+			printf_vall("viterbi...\n");
 			WORK_viterbi_and_traceback( worker );
-			// printf("forward-backward...\n");
+			printf_vall("forward-backward...\n");
 			WORK_forward_backward( worker );
-			// printf("cloud search...\n");
+			printf_vall("cloud search...\n");
 			WORK_cloud_search( worker );
 
 			/* output results to file */
 			WORK_print_result_current( worker );
+
+			search_cnt++;
 		}
 	}
+	printf("...done.\n");
 
 	fclose( worker->out_file );
 }

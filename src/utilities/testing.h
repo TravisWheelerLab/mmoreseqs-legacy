@@ -1,153 +1,96 @@
 /*******************************************************************************
- *  @file cloud_search.h
- *  @brief Testing for navigating through the matrices.
+ *  FILE:      cloud_search.h
+ *  PURPOSE:   Testing for navigating through the matrices.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
-
 
 #ifndef _TESTING_H
 #define _TESTING_H
 
-/* test to cycle through all diags */
-void fwd_test_cycle( const int   Q, 
+/*
+ *  FUNCTION:  TEST_set_color()
+ *  SYNOPSIS:  Test output of all colors.
+ */
+void TEST_cycle_colors();
+
+/*
+ *  FUNCTION:  TEST_set_color()
+ *  SYNOPSIS:  Set console text color.
+ */
+void TEST_set_color( char*    color,
+                     bool     bold );
+
+/*
+ *  FUNCTION:  TEST_set_color_num()
+ *  SYNOPSIS:  Set console text color by index number <color> and boolean <bold>.
+ */
+void TEST_set_color_num(  int    color,
+                         bool     bold );
+
+/*
+ *  FUNCTION:  TEST_fwd_cycle()
+ *  SYNOPSIS:  Cycle through all indices in quadratic matrix in forward direction, antidiag-by-antidiag 
+ */
+void TEST_fwd_cycle( const int   Q, 
                      const int   T,
                      MATRIX_3D*  st_MX,
                      MATRIX_2D*  sp_MX,
                      ALIGNMENT*  tr );
 
-/* cycle through all indices in linear matrix, diag-by-diag */
-void fwd_test_cycle3(const int   Q, 
+/*
+ *  FUNCTION:  TEST_fwd_cycle3()
+ *  SYNOPSIS:  Cycle through all indices in linear matrix, antidiag-by-antidiag 
+ */
+void TEST_fwd_cycle3(const int   Q, 
                      const int   T, 
                      MATRIX_3D*  st_MX, 
                      MATRIX_3D*  st_MX3,
                      MATRIX_2D*  sp_MX, 
                      ALIGNMENT*  tr );
 
-/* cycle through all indices in quadratic matrix in reverse, diag-by-diag */
-void bck_test_cycle( const int   Q, 
+/*
+ *  FUNCTION:  TEST_bck_cycle()
+ *  SYNOPSIS:  Cycle through all indices in quadratic matrix in backward direction, antidiag-by-antidiag 
+ */
+void TEST_bck_cycle( const int   Q, 
                      const int   T,
                      MATRIX_3D*  st_MX,
                      MATRIX_2D*  sp_MX,
                      ALIGNMENT*  tr );
 
-/* cycle through all indices in linear matrix in reverse, diag-by-diag */
-void bck_test_cycle3(const int   Q, 
+/*
+ *  FUNCTION:  TEST_bck_cycle3()
+ *  SYNOPSIS:  Cycle through all indices in linear matrix in backward direction, antidiag-by-antidiag 
+ */
+void TEST_bck_cycle3(const int   Q, 
                      const int   T, 
                      MATRIX_3D*  st_MX, 
                      MATRIX_3D*  st_MX3,
                      MATRIX_2D*  sp_MX, 
                      ALIGNMENT*  tr );
 
-/* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Fill(const int   Q, 
-               const int   T,
-               MATRIX_3D*  st_MX,
-               MATRIX_2D*  sp_MX,
-               EDGEBOUNDS* edg,
-               float       val, 
-               int         mode );
+/*
+ *  FUNCTION:  MATRIX_2D_Cloud_Fill()
+ *  SYNOPSIS:  Fill MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
+ */
+int MATRIX_2D_Cloud_Fill(  MATRIX_2D*     cloud_MX,
+                           EDGEBOUNDS*    edg,
+                           float          val );
 
-/* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Solid_Fill(const int      Q, 
-                     const int      T,
-                     MATRIX_3D*     st_MX,
-                     MATRIX_2D*     sp_MX,
-                     EDGEBOUNDS*    edg,
-                     float          val, 
-                     int            mode );
+/*
+ *  FUNCTION:  MATRIX_2D_Cloud_Compare()
+ *  SYNOPSIS:  Compare <cloud_MX_a> and <cloud_MX_b> ( equality is if cells are both positive, negative, or zero ).
+ *             When debugging, stores heatmap of differences into <debugger->cloud_MX>.
+ */
+int MATRIX_2D_Cloud_Compare(  MATRIX_2D*     cloud_MX_a,
+                              MATRIX_2D*     cloud_MX_b );
 
-/* test to show the cloud area, fill with value, return number of used cells  */
-int cloud_Cell_Count(const int   Q, 
-                     const int   T,
-                     MATRIX_3D*  st_MX,
-                     MATRIX_2D*  sp_MX );
-
-/* DP MATRIX FUNCTIONS */
-void dp_matrix_Print(const int         Q, 
-                     const int         T,
-                     MATRIX_3D*        st_MX,
-                     MATRIX_2D*        sp_MX );
-
-void dp_matrix_Print3(  const int         T, 
-                        const int         Q,
-                        const MATRIX_3D*  st_MX3 );
-
-void test_matrix_Print( const int         Q, 
-                        const int         T,
-                        const MATRIX_3D*  test_MX );
-
-/* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear(const int   Q, 
-                     const int   T, 
-                     MATRIX_3D*  st_MX, 
-                     MATRIX_2D*  sp_MX );
-
-/* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear3(  const int   Q, 
-                        const int   T,
-                        MATRIX_3D*  st_MX3,
-                        MATRIX_2D*  sp_MX );
-
-/* Set all matrix values to val */
-void dp_matrix_Clear_X( const int   Q, 
-                        const int   T, 
-                        MATRIX_3D*  st_MX, 
-                        MATRIX_2D*  sp_MX,
-                        float       val );
-
-/* Clear all matrix values to -INF. (for testing) */
-void dp_matrix_Clear_X3(const int   Q, 
-                        const int   T,
-                        MATRIX_3D*  st_MX3,
-                        MATRIX_2D*  sp_MX,
-                        int         val);
-
-/* */
-void dp_matrix_Save( const int         Q, 
-                     const int         T, 
-                     const MATRIX_3D*  st_MX, 
-                     const MATRIX_2D*  sp_MX,
-                     const char*       _filename_ );
-
-/* */
-void dp_matrix_trace_Save( const int         Q, 
-                           const int         T, 
-                           const MATRIX_3D*  st_MX, 
-                           const MATRIX_2D*  sp_MX,
-                           const ALIGNMENT*  tr,
-                           const char*       _filename_ );
-
-/* Copy source matrix into destination matrix */
-void dp_matrix_Copy (const int   Q, 
-                     const int   T,
-                     MATRIX_3D*  st_MX_src,
-                     MATRIX_2D*  sp_MX_src,
-                     MATRIX_3D*  st_MX_dst,
-                     MATRIX_2D*  sp_MX_dst );
-
-/* */
-int dp_matrix_Compare ( const int   Q, 
-                        const int   T,
-                        MATRIX_3D*  st_MX_1,
-                        MATRIX_2D*  sp_MX_1,
-                        MATRIX_3D*  st_MX_2,
-                        MATRIX_2D*  sp_MX_2 );
-
-/* */
-void dp_matrix_Dump( const int         Q, 
-                     const int         T, 
-                     const MATRIX_3D*  st_MX, 
-                     const MATRIX_2D*  sp_MX,
-                     FILE*             fp );
-
-/* */
-void dp_matrix_trace_Save( const int         Q, 
-                           const int         T, 
-                           const MATRIX_3D*  st_MX, 
-                           const MATRIX_2D*  sp_MX,
-                           const ALIGNMENT*  tr,
-                           const char*       _filename_ );
+/*
+ *  FUNCTION:  MATRIX_2D_Cloud_Count()
+ *  SYNOPSIS:  Count number of cells in MATRIX_2D with positive values. 
+ */
+int MATRIX_2D_Cloud_Count(  MATRIX_2D*  cloud_MX );
 
 #endif /* _TESTING_H */

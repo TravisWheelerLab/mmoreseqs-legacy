@@ -16,17 +16,12 @@
 #include <ctype.h>
 
 /* local imports */
-#include "objects/structs.h"
-#include "objects/hmm_profile.h"
-#include "objects/sequence.h"
-#include "objects/score_matrix.h"
-#include "utilities/utility.h"
-
-/* parsers */ 
-#include "parsers/hmm_parser.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* self header */
-#include "seq_to_profile.h"
+#include "parsers.h"
 
 /* converts single SEQUENCE to HMM_PROFILE model */
 void SEQUENCE_to_HMM_PROFILE( SEQUENCE*      seq, 

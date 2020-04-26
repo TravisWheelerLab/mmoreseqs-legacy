@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file VECTOR_INT.c
- *  @brief INT VECTOR Objects
+ *  FILE:      vector_int.c
+ *  PURPOSE:   VECTOR_INT Object Functions
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -14,7 +14,9 @@
 #include <string.h>
 
 /* local imports */
-#include "objects/structs.h"
+#include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "vector_int.h"
@@ -38,20 +40,21 @@ VECTOR_INT* VECTOR_INT_Create()
 }
 
 /* destructor */
-void VECTOR_INT_Destroy( VECTOR_INT *vec )
+void VECTOR_INT_Destroy( VECTOR_INT* vec )
 {
+   if ( vec == NULL ) return;
    free(vec->data);
    free(vec);
 }
 
-/* reuse */
-void VECTOR_INT_Reuse( VECTOR_INT *vec )
+/* reuse by resetting counter*/
+void VECTOR_INT_Reuse( VECTOR_INT* vec )
 {
    vec->N = 0;
 }
 
 /* deep copy */
-VECTOR_INT* VECTOR_INT_Copy( VECTOR_INT *src )
+VECTOR_INT* VECTOR_INT_Copy( VECTOR_INT* src )
 {
    VECTOR_INT* vec = VECTOR_INT_Create();
    VECTOR_INT_Resize( vec, src->Nalloc );
@@ -64,7 +67,8 @@ VECTOR_INT* VECTOR_INT_Copy( VECTOR_INT *src )
 }
 
 /* resize the array */
-void VECTOR_INT_Resize( VECTOR_INT *vec, int size )
+void VECTOR_INT_Resize( VECTOR_INT* vec, 
+                        int         size )
 {
    vec->data = (int *) realloc( vec->data, sizeof(int) * size );
    if ( vec->data == NULL ) {
@@ -75,7 +79,8 @@ void VECTOR_INT_Resize( VECTOR_INT *vec, int size )
 }
 
 /* push element onto end of array */
-void VECTOR_INT_Pushback( VECTOR_INT *vec, int val )
+void VECTOR_INT_Pushback(  VECTOR_INT* vec, 
+                           int         val )
 {
    vec->data[vec->N] = val;
    vec->N++;
@@ -87,7 +92,7 @@ void VECTOR_INT_Pushback( VECTOR_INT *vec, int val )
 }
 
 /* pop element from end of array */
-int VECTOR_INT_Pop( VECTOR_INT *vec )
+int VECTOR_INT_Pop( VECTOR_INT* vec )
 {
    int tmp = vec->data[vec->N-1];
    vec->N -= 1;
@@ -101,19 +106,23 @@ int VECTOR_INT_Pop( VECTOR_INT *vec )
 }
 
 /* set data at index (no bound checks) */
-void VECTOR_INT_Set( VECTOR_INT *vec, int idx, int val )
+void VECTOR_INT_Set( VECTOR_INT* vec, 
+                     int         idx, 
+                     int         val )
 {
    vec->data[idx] = val;
 }
 
 /* get data at index (no checks) */
-int VECTOR_INT_Get( VECTOR_INT *vec, int idx )
+int VECTOR_INT_Get(  VECTOR_INT* vec, 
+                     int         idx )
 {
    return vec->data[idx];
 }
 
 /* compare two VECTOR_INT objects */
-int VECTOR_INT_Compare( VECTOR_INT *vecA, VECTOR_INT *vecB )
+int VECTOR_INT_Compare( VECTOR_INT* vecA, 
+                        VECTOR_INT* vecB )
 {
    for (int i = 0; i < vecA->N; i++) {
       if ( vecA->data[i] != vecB->data[i] ) {
@@ -125,4 +134,16 @@ int VECTOR_INT_Compare( VECTOR_INT *vecA, VECTOR_INT *vecB )
       }
    }
    return 0;
+}
+
+/* output VECTOR_INT to file */
+void VECTOR_INT_Dump(   VECTOR_INT* vec,
+                        FILE*       fp )
+{
+   fprintf(fp, "INTEGER VECTOR:\n");
+   fprintf(fp, "[ ");
+   for ( int i = 0; i < vec->N; i++ ) {
+      fprintf(fp, "%3d ", vec->data[i] );
+   }
+   fprintf(fp, "]\n" );
 }

@@ -16,10 +16,11 @@
 
 /* local imports */
 #include "structs.h"
+#include "utilities.h"
+#include "objects.h"
 
 /* header */
 #include "results.h"
-
 
 /* constructor */
 RESULTS* RESULTS_Create()
@@ -57,7 +58,7 @@ void RESULTS_Destroy( RESULTS* results )
 }
 
 /* add result to results */
-void RESULTS_PushBack( RESULTS*  results, 
+void RESULTS_Pushback( RESULTS*  results, 
                        RESULT*   res )
 {
    results->data[results->N] = *res;
@@ -83,7 +84,7 @@ void RESULTS_Resize( RESULTS* results,
 
 /* output results to file pointer */
 void RESULTS_M8_Dump( RESULTS*   results,
-                      FILE*      fp )
+                           FILE*      fp )
 {
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n");
@@ -103,10 +104,11 @@ void RESULTS_M8_Dump( RESULTS*   results,
       }
    }
 
-   /* headers */
-   fprintf( fp, "# M8 RESULTS:\n");
+   /* print headers */
+   fprintf( fp, "# M8+ RESULTS:\n");
 
    fprintf( fp, "# " );
+   fprintf( fp, "%s\n",    "res_id" );
    fprintf( fp, "%s\t",    "q_id" );
    fprintf( fp, "%s\t",    "t_id" );
 
@@ -127,9 +129,11 @@ void RESULTS_M8_Dump( RESULTS*   results,
    fprintf( fp, "%s\t",    "bit-sc" );
    fprintf( fp, "%s\n",    "cloud-fwd-sc");
 
+   /* print each result */
    for (int i = 0; i < results->N; i++) {
       RESULT* res = &(results->data[i]);
 
+      fprintf( fp, "%d\t",    res->result_id );
       fprintf( fp, "%d\t",    res->query_id );
       fprintf( fp, "%d\t",    res->target_id );
 

@@ -6,16 +6,15 @@
  *  BUG:       
  *******************************************************************************/
 
-#ifndef _FWDBACK_LIN_H
-#define _FWDBACK_LIN_H
+#ifndef _ALGS_LINEAR_H
+#define _ALGS_LINEAR_H
 
 #include "objects/structs.h"
 
 #include "bounded_fwdbck_linear.h"
 #include "cloud_search_linear.h"
-#include "cloud_search_linear_rows.h"
 #include "fwdback_linear.h"
 #include "merge_reorient_linear.h"
-#include "pruning_methods.h"
+#include "pruning_linear.h"
 
-#endif /* _FWDBACK_LIN_H */
+#endif /* _ALGS_LINEAR_H */

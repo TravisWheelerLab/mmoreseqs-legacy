@@ -9,15 +9,31 @@
 #ifndef _ERROR_HANDLER_H
 #define _ERROR_HANDLER_H
 
-/* outputs error to console and terminates program */
-void ERRORCHECK_Handler( const int    error_code,
-		                    const char*  file,
-		                    const int    line,
-		                    const char*  func,
-		                    const char*  note );
+/* realloc and check for null pointer */
+void* ERRORCHECK_realloc( void*         ptr,
+                          const int     size,
+                          const char*   _file_,
+                          const int     _line_,
+                          const char*   _func_ );
 
-void ERRORCHECK_NullPtrCheck( const void*   data,
-                         		int*          error_code,
-                         		const char*   note );
+/* open file and check for null file pointer */ 
+FILE* ERRORCHECK_fopen( char*       filename,
+                        const char* permission,
+                        const char*  _file_,
+                        const int    _line_,
+                        const char*  _func_ );
+
+/* malloc and check for null pointer */
+void* ERRORCHECK_malloc( const int      size,
+                         const char*    _file_,
+                         const int      _line_,
+                         const char*    _func_ );
+
+/* realloc and check for null pointer */
+void* ERRORCHECK_realloc( void*          ptr,
+                          const int      size,
+                          const char*    _file_,
+                          const int      _line_,
+                          const char*    _func_ );
 
 #endif /* _ERROR_HANDLER_H */

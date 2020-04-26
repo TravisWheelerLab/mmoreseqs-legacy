@@ -1,9 +1,9 @@
 /*******************************************************************************
  *  FILE:      application.c
- *  PURPOSE:   Entry Point to Application, Argument Parsing
+ *  PURPOSE:   Entry Point to Application, Argument Parsing, Choose Pipeline
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -16,73 +16,37 @@
 #include <ctype.h>
 #include <time.h>
 
-/* data structures, general utilities, and testing */
-#include "objects/structs.h"
-#include "utilities/utility.h"
-#include "utilities/error_handler.h"
-#include "utilities/testing.h"
-
-/* file parsers */
-#include "parsers/arg_parser.h"
-#include "parsers/hmm_parser.h"
-#include "parsers/seq_parser.h"
-#include "parsers/m8_parser.h"
-#include "parsers/index_parser.h"
-#include "parsers/seq_to_profile.h"
-
-/* objects */
-#include "objects/worker.h"
-#include "objects/f_index.h"
-#include "objects/results.h"
-#include "objects/alignment.h"
-#include "objects/sequence.h"
-#include "objects/hmm_profile.h"
-#include "objects/edgebound.h"
-#include "objects/clock.h"
-#include "objects/mystring.h"
-#include "objects/args.h"
-#include "objects/matrix/matrix_2d.h"
-#include "objects/matrix/matrix_3d.h"
-#include "objects/vectors/vector_range_2d.h"
-
-/* viterbi & fwdbck (quadratic) */
-#include "algs_quad/viterbi_quad.h"
-#include "algs_quad/traceback_quad.h"
-#include "algs_quad/fwdback_quad.h"
-/* viterbi & fwdbck (linear) */
-#include "algs_linear/fwdback_linear.h"
-
-/* cloud search (naive) */
-#include "algs_naive/bounded_fwdbck_naive.h"
-/* cloud search (quadratic space) */
-#include "algs_quad/cloud_search_quad.h"
-#include "algs_quad/merge_reorient_quad.h"
-#include "algs_quad/bounded_fwdbck_quad.h"
-/* cloud search (linear space) */
-#include "algs_linear/cloud_search_linear.h"
-#include "algs_linear/merge_reorient_linear.h"
-#include "algs_linear/bounded_fwdbck_linear.h"
-/* temp test */
-#include "algs_linear/cloud_search_linear_rows.h"
-
-/* set debug macros */
-#ifndef DEBUG
-#define DEBUG false
-#endif
+/* local imports */
+#include "structs.h"
+#include "utilities.h"
+#include "parsers.h"
+#include "pipelines.h"
+#include "objects.h"
 
 /* === HEADER === */
 
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 int main ( int argc, char *argv[] )
 {
+   DBG_PRINTF("In DEBUG mode...\n\n");
+
+   /* initialize debugging toolkit */
    #if DEBUG
-      printf("In DEBUG MODE...\n");
+   {
+      debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
+      debugger->dbfp_path  = DEBUGOUT;
+      debugger->dbfp       = fopen( debugger->dbfp_path, "w+" );
+      debugger->test_MX    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+      debugger->cloud_MX   = MATRIX_2D_Create( 1, 1 ); 
+      /* debugging options */
+      debugger->is_embed   = false;
+      debugger->is_viz     = false;
+   }
    #endif
 
    /* parse command line arguments */
    args = ARGS_Create();
    ARGS_Parse( args, argc, argv );
-   fprintf(stderr, "test\n" );
 
    /* output arguments */
    ARGS_Dump( args, stdout );
@@ -92,9 +56,22 @@ int main ( int argc, char *argv[] )
    worker->args = args;
    worker->tasks = (TASKS*) malloc( sizeof(TASKS) );
 
+   /*
+
    /* jumps to pipeline based on -p flag */
-   printf("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
+   printf_vall("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
    PIPELINES[ args->pipeline_mode ]( worker );
+
+   /* free debugging toolkit */
+   #if DEBUG 
+      MATRIX_3D_Destroy( debugger->test_MX );
+      MATRIX_2D_Destroy( debugger->cloud_MX );
+      fclose( debugout );
+      free( debugger );
+   #endif
+
+   /* clean up allocated data */
+   WORKER_Destroy( worker );
 
    exit(EXIT_SUCCESS);
 }
