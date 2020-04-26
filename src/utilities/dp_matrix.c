@@ -371,6 +371,7 @@ void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
          fprintf(fp, "%*d", -1 * (pad * lbl), j);
    }
    fprintf(fp, "\n");
+   
 
    for ( int i = 0; i < cloud_MX->R; i++ ) {
       if ( i % lbl == 0 )
