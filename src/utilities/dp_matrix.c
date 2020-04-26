@@ -361,10 +361,10 @@ void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
 
    /* symbol lookup table */
    int   sym_tbl_size   = 6;
-   char  syms[5]        = { 'o',  '.', '/',  '\\', 'X', '#' };
+   char  syms[6]        = { 'o',  '.', '/',  '\\', 'X', '#' };
    // char  syms[5]        = { 'o',  '.', '1',  '2', '3', '4' };
    // char  syms[5]        = { 'o',  '.', 176,  177, 178 };
-   int   vals[5]        = { -1.0, 0.0, 1.0,  2.0, 3.0, 4.0 };
+   int   vals[6]        = { -1.0, 0.0, 1.0,  2.0, 3.0, 4.0 };
 
    fprintf(fp, "%*s", -l_pad, "");
    for ( int j = 0; j < cloud_MX->C; j += lbl  ) {
