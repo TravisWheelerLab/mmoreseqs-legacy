@@ -9,11 +9,6 @@
 #ifndef _HMM_PARSER_H
 #define _HMM_PARSER_H
 
-/* === INCLUDES === */
-// #include "objects/structs.c"
-// #include "objects/sequence.c"
-// #include "objects/hmm_profile.c"
-
 /* === FUNCTIONS === */
 
 /* parse .hmm file and build HMM_PROFILE object */

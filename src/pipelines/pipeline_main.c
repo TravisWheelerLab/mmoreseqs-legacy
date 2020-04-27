@@ -153,7 +153,7 @@ void main_pipeline( WORKER* worker )
 		/* loop over query range */
 		for (int j = j_beg; j < j_end; j++) 
 		{
-			printf_vlo("Running search (%d) for target (%d of %d) and query (%d of %d)...\n",
+			printf_vlo("Running search (%d of %d) for target (%d of %d) and query (%d of %d)...\n",
 				search_cnt, search_tot, i, i_end, j, j_end);
 
 			/* load in next query */

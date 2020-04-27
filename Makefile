@@ -36,7 +36,7 @@ CLIBS := -lm
 # suggested flags: -Wall -g -O2 -DDEBUG=1
 CFLAGS := $(INC_FLAGS) -g -pg 
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -g -pg -DDEBUG=1
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -g -pg --std=c17 -DDEBUG=0
 # flags for debugging and profiling
 DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=0
 

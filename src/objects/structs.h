@@ -12,12 +12,18 @@
 /* === STDLIB DATA TYPES === */
 #include <stdbool.h>
 #include <time.h>
+#include <sys/types.h>
 
 /* === MACRO FUNCTIONS === */
 #include "objects/structs_macros.h"
 
 /* === ENUMERATIONS === */
 #include "objects/structs_enums.h"
+
+/* === DECLARE HIDDEN FUNCTIONS === */
+/* (*** c99 standard hides this function from <string.h> ***) */
+extern char* strdup(const char*);
+extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 
 /* === STRUCTS === */
 
