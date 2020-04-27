@@ -22,8 +22,8 @@
 
 /* === DECLARE HIDDEN FUNCTIONS === */
 /* (*** c99 standard hides this function from <string.h> ***) */
-extern char* strdup(const char*);
-extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+// extern char* strdup(const char*);
+// extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 
 /* === STRUCTS === */
 
