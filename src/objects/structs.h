@@ -351,6 +351,44 @@ typedef struct {
    float    naive_bound_bck;  
 } TIMES;
 
+/* times to execute given operations */
+typedef struct {
+   /* load times */
+   long    load_target_index;
+   long    load_query_index;
+
+   long    load_target;
+   long    load_query;
+
+   /* linear algs */
+   long    lin_vit;
+   long    lin_trace;
+   long    lin_fwd;
+   long    lin_bck;
+   long    lin_cloud_fwd;
+   long    lin_cloud_bck;
+   long    lin_merge;
+   long    lin_reorient;
+   long    lin_bound_fwd;
+   long    lin_bound_bck;
+
+   /* quadratic algs */
+   long    quad_vit;
+   long    quad_trace;
+   long    quad_fwd;
+   long    quad_bck;
+   long    quad_cloud_fwd;
+   long    quad_cloud_bck;
+   long    quad_merge;
+   long    quad_reorient;
+   long    quad_bound_fwd;
+   long    quad_bound_bck;  
+
+   /* naive algs */
+   long    naive_bound_fwd;
+   long    naive_bound_bck;  
+} TIMES_RAW;
+
 /* hmm location within file */
 typedef struct {
    int         id;            /* id number, determined by order in file */
@@ -575,6 +613,7 @@ typedef struct {
 
    /* times for tasks */
    TIMES*         times;
+   TIMES_RAW*     times_raw;
    /* scores for algorithms */
    SCORES*        scores;
    /* results from mmseqs */
