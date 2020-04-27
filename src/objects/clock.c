@@ -105,8 +105,10 @@ void CLOCK_pTicks(CLOCK*   cl,
 }
 
 /* Convert a time in ticks (time_t) to msecs (float) */
+/* TODO: temporary fix */
 float ticks_to_msec(time_t t)
 {
-   return ( (float)t * (float)1000.f ) / ( (float)CLOCKS_PER_SEC );
+   // return ( (float)t * (float)1000.f ) / ( (float)CLOCKS_PER_SEC );
+   return (float)t;
 }
 
