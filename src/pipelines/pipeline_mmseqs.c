@@ -49,7 +49,7 @@ void mmseqs_pipeline( WORKER* worker )
    /* set tasks */
    tasks->linear        = true;
    tasks->lin_bound_fwd = true;
-   #if DEBUG
+   // #if DEBUG
    {
       tasks->quadratic  = true;
       tasks->quad_vit   = true;
@@ -57,7 +57,7 @@ void mmseqs_pipeline( WORKER* worker )
       tasks->quad_fwd   = true;
       tasks->quad_bck   = true;
    }
-   #endif
+   // #endif
 
    /* initialize worker data structures */
    WORK_init( worker );
@@ -131,7 +131,7 @@ void mmseqs_pipeline( WORKER* worker )
       printf_vlo("running cloud search for result (%d of %d)...\n", i, i_end );
 
       /* get next result from list */
-      result_in    = &(results_in->data[i]);
+      result_in   = &(results_in->data[i]);
       /* result id */
       res_id      = result_in->result_id;
       /* mmseqs ids from result */
@@ -149,9 +149,9 @@ void mmseqs_pipeline( WORKER* worker )
       //    t_mid, q_mid, t_cid, q_cid );
 
       /* NOTE: query and target are cross-labeled in mmseqs */
-      int swp = q_cid;
-      q_cid = t_cid;
-      t_cid = swp;
+      int swp  = q_cid;
+      q_cid    = t_cid;
+      t_cid    = swp;
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
       if ( t_cid != t_cid_prv )
          WORK_load_target_by_id( worker, t_cid );
@@ -171,16 +171,20 @@ void mmseqs_pipeline( WORKER* worker )
       /* change sizes of data structs */
       WORK_reuse( worker );
 
-     
+      // #if DEBUG
+      {
+         WORK_viterbi_and_traceback( worker );
+         WORK_forward_backward( worker );
+      }
+      // #endif
+
       #if DEBUG
       {
          /* get search window by running viterbi (debug only) */
-         WORK_viterbi_and_traceback( worker );
          tr = worker->traceback;
          beg = &(tr->traces[tr->beg]);
          end = &(tr->traces[tr->end]);
-         // printf(" TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
-         WORK_forward_backward( worker );
+         printf_vall(" TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
       }
       #else 
       {
@@ -255,22 +259,22 @@ void print_header_mmseqs(  WORKER*  worker )
    fprintf(fp, "{%s}\t", "alpha");
    fprintf(fp, "{%s}\t", "beta");
    /* scores */
-   #if DEBUG
+   // #if DEBUG
    {
       fprintf(fp, "{%s}\t", "vit_sc");
       fprintf(fp, "{%s}\t", "fwd_sc");
       fprintf(fp, "{%s}\t", "bck_sc");
    }
-   #endif
+   // #endif
    fprintf(fp, "{%s}\t", "cloud_sc");
    /* times */
-   #if DEBUG 
+   // #if DEBUG 
    {
       fprintf(fp, "{%s}\t", "vit_t");
       fprintf(fp, "{%s}\t", "fwd_t");
       fprintf(fp, "{%s}\t", "bck_t");
    }
-   #endif
+   // #endif
    fprintf(fp, "{%s}\t", "cloud_fwd_t");
    fprintf(fp, "{%s}\t", "cloud_bck_t");
    fprintf(fp, "{%s}\t", "merge_t");
@@ -307,22 +311,22 @@ void print_result_mmseqs(  WORKER*  worker,
    fprintf(fp, "%.3f\t",   args->alpha );
    fprintf(fp, "%d\t",     args->beta );
    /* scores */
-   #if DEBUG
+   // #if DEBUG
    {
       fprintf(fp, "%.5f\t",   scores->quad_vit );
       fprintf(fp, "%.5f\t",   scores->quad_fwd );
       fprintf(fp, "%.5f\t",   scores->quad_bck );
    }
-   #endif
+   // #endif
    fprintf(fp, "%.5f\t",   scores->lin_cloud_fwd );
    /* times */
-   #if DEBUG
+   // #if DEBUG
    {
       fprintf(fp, "%.5f\t",   times->quad_vit );
       fprintf(fp, "%.5f\t",   times->quad_fwd );
       fprintf(fp, "%.5f\t",   times->quad_bck );
    }
-   #endif
+   // #endif
    fprintf(fp, "%.5f\t",   times->lin_cloud_fwd );
    fprintf(fp, "%.5f\t",   times->lin_cloud_bck );
    fprintf(fp, "%.5f\t",   times->lin_merge );
