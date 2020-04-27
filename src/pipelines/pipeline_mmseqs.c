@@ -128,6 +128,7 @@ void mmseqs_pipeline( WORKER* worker )
    /* Look through each input result */
    for (int i = i_beg; i < i_end; i++)
    {
+      result_out->result_id = i;
       printf_vlo("running cloud search for result (%d of %d)...\n", i, i_end );
 
       /* get next result from list */
