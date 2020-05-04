@@ -88,15 +88,15 @@ typedef struct {
    int         T;
 } ALIGNMENT;
 
-/* clock for timing events */
+/* clock for timing events (wrapper for squid stopwatch above) */
 typedef struct {
-   time_t   start;            /* */
-   time_t   stop;             /* */
-   time_t   duration;         /* */
+   double   start;            /* captures start time */
+   double   stop;             /* captures stop time */
+   double   duration;         /* captures difference between start and stop */
 
-   float    N;                /* */
-   float    Nalloc;           /* */
-   float*   stamps;           /* */
+   int      N;                /* current utilized stamp length*/
+   int      Nalloc;           /* allocated stamp length */
+   double*  stamps;           /* for storing multiple durations */
 } CLOCK;
 
 /* distribution parameters */

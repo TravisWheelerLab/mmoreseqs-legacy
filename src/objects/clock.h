@@ -9,29 +9,29 @@
 #ifndef _CLOCK_H
 #define _CLOCK_H
 
-/* constructor */
+/*
+ *  FUNCTION:  CLOCK_Create()
+ *  SYNOPSIS:  Create new CLOCK object and returns pointer.
+ */
 CLOCK* CLOCK_Create();
 
-/* destructor */
-void CLOCK_Destroy(CLOCK* cl);
+/*
+ *  FUNCTION:  CLOCK_Destroy()
+ *  SYNOPSIS:  Destroy CLOCK object.
+ */
+void CLOCK_Destroy( CLOCK* cl );
 
 /* start timer */
-time_t CLOCK_Start(CLOCK* cl);
+double CLOCK_Start( CLOCK* cl );
 
 /* stop timer  */
-time_t CLOCK_Stop(CLOCK* cl);
+double CLOCK_Stop( CLOCK* cl );
 
-/* get duration in ticks */
-time_t CLOCK_Ticks(CLOCK* cl);
+/* Convert duration from ticks to msec */
+float CLOCK_Secs( CLOCK* cl );
 
-/* get duration in msecs */
-float CLOCK_Secs(CLOCK* cl);
 
-/* (test) print duration in ticks */
-void CLOCK_pTicks(CLOCK* 	cl, 
-				  char*		str);
-
-/* convert time in ticks to milliseconds */
-float ticks_to_msec(time_t t);
+/* capture time based on system (pulled directly from easel) */
+double CLOCK_Get_RealTime(void);
 
 #endif /* _CLOCK_H */
