@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  @file bounded.c
+ *  @file bound_fwdbck_naive.c
  *  @brief Bounded Forward-Backward Algorithm for Cloud Search (NAIVE).
  *
  *  @author Dave Rich
@@ -20,7 +20,7 @@
 #include "objects.h"
 
 /* header */
-#include "bounded_fwdbck_naive.h"
+#include "bound_fwdbck_naive.h"
 
 /*  
  *  FUNCTION: bound_Forward_Naive()
@@ -108,10 +108,10 @@ float bound_Forward_Naive(const SEQUENCE*    query,
          {
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            sc1 = prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-            sc2 = prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-            sc3 = prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
-            sc4 = prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
+            prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
+            prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
+            prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+            prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
@@ -135,10 +135,8 @@ float bound_Forward_Naive(const SEQUENCE*    query,
             DMX(i,j) = prev_sum;
 
             /* UPDATE E STATE */
-            sc1 = XMX(SP_E,i);
-            sc2 = prev_mat = MMX(i,j) + sc_E;
-            sc4 = prev_del = DMX(i,j) + sc_E;
-
+            prev_mat = MMX(i,j) + sc_E;
+            prev_del = DMX(i,j) + sc_E;
             XMX(SP_E,i) = logsum( 
                               logsum( prev_mat, prev_del ),
                               XMX(SP_E,i) );
@@ -156,10 +154,10 @@ float bound_Forward_Naive(const SEQUENCE*    query,
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         sc1 = prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-         sc2 = prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-         sc3 = prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
-         sc4 = prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+         prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
+         prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
+         prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+         prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
          /* sum-to-match */
          prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
@@ -179,9 +177,6 @@ float bound_Forward_Naive(const SEQUENCE*    query,
          DMX(i,j) = prev_sum;
 
          /* UPDATE E STATE (unrolled) */
-         sc1 = XMX(SP_E,i);
-         sc2 = MMX(i,j);
-         sc4 = DMX(i,j);
          /* best-to-begin */
          XMX(SP_E,i) = logsum( 
                            logsum( DMX(i,j), MMX(i,j) ),
@@ -274,22 +269,26 @@ float bound_Backward_Naive(const SEQUENCE*      query,
    XMX(SP_C,Q) = XSC(SP_C,SP_MOVE);
    XMX(SP_E,Q) = XMX(SP_C,Q) + XSC(SP_E,SP_MOVE);
 
-   MMX(Q,T) = DMX(Q,T) = XMX(SP_E,Q);
-   IMX(Q,T) = -INF;
+   /* if matrix cell is in the cloud, then compute cell */
+   sc_cloud = *MATRIX_2D_Get( st_MX_cloud, Q, T );
+   if ( sc_cloud > 0 )
+   {
+      MMX(Q,T) = DMX(Q,T) = XMX(SP_E,Q);
+      IMX(Q,T) = -INF;
+   }
 
    for (j = T-1; j >= 1; j--)
    {
-      sc1 = XMX(SP_E,Q) + sc_E;
-      sc2 = DMX(Q,j+1)  + TSC(j,M2D);
-      MMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E, 
-                              DMX(Q,j+1)  + TSC(j,M2D) );
-
-      sc1 = XMX(SP_E,Q) + sc_E;
-      sc2 = DMX(Q,j+1)  + TSC(j,D2D);
-      DMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E,
+      /* if matrix cell is in the cloud, then compute cell */
+      sc_cloud = *MATRIX_2D_Get( st_MX_cloud, Q, j );
+      if ( sc_cloud > 0 )
+      {
+         MMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E, 
+                           DMX(Q,j+1)  + TSC(j,M2D) );
+         DMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E,
                               DMX(Q,j+1)  + TSC(j,D2D) );
-
-      IMX(Q,j) = -INF;
+         IMX(Q,j) = -INF;
+      }
    }
 
    /* MAIN RECURSION */
@@ -306,20 +305,13 @@ float bound_Backward_Naive(const SEQUENCE*      query,
       XMX(SP_B,i) = -INF;
       for (j = 1; j <= T; j++)
       {
-         XMX(SP_B,i) = logsum( XMX(SP_B,i),
+         sc_cloud = *MATRIX_2D_Get( st_MX_cloud, i+1, j );
+         if ( sc_cloud > 0 )
+         {
+            XMX(SP_B,i) = logsum( XMX(SP_B,i),
                                     MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
+         }
       }
-
-      /* B STATE (SPARSE) */
-      // XMX(SP_B,i) = -INF;
-      // for (j = 1; j <= T; j++)
-      // {
-      //    sc_cloud = ST_MX( st_MX_cloud, I_ST, i, j);
-      //    if ( sc_cloud > 0 ) {
-      //       XMX(SP_B,i) = logsum( XMX(SP_B,i),
-      //                                  MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
-      //    }
-      // }
 
       XMX(SP_J,i) = logsum( XMX(SP_J,i+1) + XSC(SP_J,SP_LOOP),
                                  XMX(SP_B,  i) + XSC(SP_J,SP_MOVE) );
@@ -332,8 +324,13 @@ float bound_Backward_Naive(const SEQUENCE*      query,
       XMX(SP_N,i) = logsum( XMX(SP_N,i+1) + XSC(SP_N,SP_LOOP),
                                  XMX(SP_B,  i) + XSC(SP_N,SP_MOVE) );
 
-      MMX(i,T) = DMX(i,T) = XMX(SP_E,i);
-      IMX(i,T) = -INF;
+      /* if matrix cell is in the cloud, then compute cell */
+      sc_cloud = *MATRIX_2D_Get( st_MX_cloud, i, T );
+      if ( sc_cloud > 0 )
+      {
+         MMX(i,T) = DMX(i,T) = XMX(SP_E,i);
+         IMX(i,T) = -INF;
+      }
 
       /* FOR every position in TARGET profile */
       for (j = T-1; j >= 1; j--)

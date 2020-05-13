@@ -234,3 +234,18 @@ int EDGEBOUNDS_Compare_by_Cloud( EDGEBOUNDS*    edg_a,
    MATRIX_2D_Cloud_Fill( mx_b, edg_b, 1 );
    return MATRIX_2D_Cloud_Compare( mx_a, mx_b );
 }
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Compare_by_Cloud_Single()
+ *  SYNOPSIS:  Compares two EDGEBOUNDS by filling single cloud matrix.
+ *             If equal, returns 0.  Else number of inequal cells.
+ */
+int EDGEBOUNDS_Compare_by_Cloud_Single(   MATRIX_2D*     mx,
+                                          EDGEBOUNDS*    edg_a,
+                                          EDGEBOUNDS*    edg_b )
+{
+   MATRIX_2D_Fill( mx, 0 );
+   MATRIX_2D_Cloud_Fill( mx, edg_a, 1 );
+   MATRIX_2D_Cloud_Fill( mx, edg_b, -1 );
+   return MATRIX_2D_Check_Value( mx, 0 );
+}

@@ -38,7 +38,7 @@ CFLAGS := $(INC_FLAGS) -g -pg
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O2 -DDEBUG=1 -std=gnu99
 # flags for debugging and profiling
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=0
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=1
 
 # speial flags for RELEASE or DEBUG
 ifeq ($(RELEASE), 1)

@@ -63,10 +63,23 @@ typedef struct {
    BOUND*         bounds;     /* list of bounded ranges along a row/diag */
    int            edg_mode;   /* whether edges are stored by-row or by-diag */
 
-   /* dimensions of embedded matrix */
+   /* dimensions of embedding matrix */
    int            Q;          
    int            T;
 } EDGEBOUNDS;
+
+/* a vector of each set of bounds for cloud search space which account a specific row */
+typedef struct {
+   int            N;          /* current size of array */
+   int            Nalloc;     /* allocated size of array */
+   int*           rows_N;     /* current number of bounds in row */
+   BOUND*         rows;       /* array of bounds, each for a specific row */
+   int            row_max;    /* maximum number of bounds in row */
+
+   /* dimension of embedding matrix */
+   int            Q;
+   int            T;
+} EDGEBOUND_ROWS;
 
 /* given cell of alignment */
 typedef struct {
@@ -229,6 +242,7 @@ typedef struct {
    int      C;       /* number of rows = number of special states */
    int      Nalloc;  /* flat length of matrix = rows x cols */
    float*   data;    /* */
+   bool     clean;   /* whether data has been cleared / all cells set to -INF */
 } MATRIX_2D;
 
 /* 3-dimensional float matrix */
@@ -238,6 +252,7 @@ typedef struct {
    int      N;       /* number of 3rd dim = number of normal states */
    int      Nalloc;  /* number of total cells alloc'd */
    float*   data;    /* matrix cells */
+   bool     clean;   /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D;
 
 /* commandline arguments */
@@ -316,39 +331,39 @@ typedef struct {
 /* times to execute given operations */
 typedef struct {
    /* load times */
-   float    load_target_index;
-   float    load_query_index;
+   double    load_target_index;
+   double    load_query_index;
 
-   float    load_target;
-   float    load_query;
+   double    load_target;
+   double    load_query;
 
    /* linear algs */
-   float    lin_vit;
-   float    lin_trace;
-   float    lin_fwd;
-   float    lin_bck;
-   float    lin_cloud_fwd;
-   float    lin_cloud_bck;
-   float    lin_merge;
-   float    lin_reorient;
-   float    lin_bound_fwd;
-   float    lin_bound_bck;
+   double    lin_vit;
+   double    lin_trace;
+   double    lin_fwd;
+   double    lin_bck;
+   double    lin_cloud_fwd;
+   double    lin_cloud_bck;
+   double    lin_merge;
+   double    lin_reorient;
+   double    lin_bound_fwd;
+   double    lin_bound_bck;
 
    /* quadratic algs */
-   float    quad_vit;
-   float    quad_trace;
-   float    quad_fwd;
-   float    quad_bck;
-   float    quad_cloud_fwd;
-   float    quad_cloud_bck;
-   float    quad_merge;
-   float    quad_reorient;
-   float    quad_bound_fwd;
-   float    quad_bound_bck;  
+   double    quad_vit;
+   double    quad_trace;
+   double    quad_fwd;
+   double    quad_bck;
+   double    quad_cloud_fwd;
+   double    quad_cloud_bck;
+   double    quad_merge;
+   double    quad_reorient;
+   double    quad_bound_fwd;
+   double    quad_bound_bck;  
 
    /* naive algs */
-   float    naive_bound_fwd;
-   float    naive_bound_bck;  
+   double    naive_bound_fwd;
+   double    naive_bound_bck;  
 } TIMES;
 
 /* times to execute given operations */

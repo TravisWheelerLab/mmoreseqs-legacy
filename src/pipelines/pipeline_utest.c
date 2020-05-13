@@ -29,6 +29,10 @@
 /* header */
 #include "pipelines.h"
 
+/*
+ *  FUNCTION:  utest_pipeline()
+ *  SYNOPSIS:  Pipeline runs unit tests.
+ */
 void utest_pipeline( WORKER* worker ) 
 {
    

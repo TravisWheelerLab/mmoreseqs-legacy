@@ -676,7 +676,7 @@ void WORK_cloud_search( WORKER* worker )
       /* reorient edgebounds */
       printf_vall("=> reorient (lin)...\n");
       CLOCK_Start(clok);
-      EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
+      EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
       times->lin_reorient = CLOCK_Secs(clok);
 
@@ -737,7 +737,7 @@ void WORK_cloud_search( WORKER* worker )
 
       /* reorient edgebounds */
       CLOCK_Start(clok);
-      EDGEBOUNDS_Reorient( Q, T, edg_diag, edg_row );
+      EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
       times->quad_merge = CLOCK_Secs(clok);
       

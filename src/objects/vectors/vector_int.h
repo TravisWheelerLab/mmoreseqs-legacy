@@ -9,21 +9,33 @@
 #ifndef _VECTOR_INT_H
 #define _VECTOR_INT_H
 
-/* constructor */
+/*
+ *  FUNCTION:  VECTOR_INT_Create()
+ *  SYNOPSIS:  Create new VECTOR_INT object and returns pointer.
+ */
 VECTOR_INT* VECTOR_INT_Create();
+
+/*
+ *  FUNCTION:  VECTOR_INT_Create()
+ *  SYNOPSIS:  Create new VECTOR_INT object at specific size and returns pointer.
+ */
+VECTOR_INT* VECTOR_INT_Create_by_Size( int size );
 
 /* destructor */
 void VECTOR_INT_Destroy( VECTOR_INT* 	vec );
 
 /* reuse by resetting counter*/
-void VECTOR_INT_Reuse( VECTOR_INT* 	vec );
+void VECTOR_INT_Reuse( VECTOR_INT* 		vec );
+
+/* set all active indexes to zero */
+void VECTOR_INT_Clear( VECTOR_INT* 		vec );
 
 /* deep copy */
 VECTOR_INT* VECTOR_INT_Copy();
 
 /* resize the array */
 void VECTOR_INT_Resize( VECTOR_INT* 	vec, 
-								int  				size );
+								int  		   	size );
 
 /* push element onto end of array */
 void VECTOR_INT_Pushback( 	VECTOR_INT* 	vec, 
@@ -38,7 +50,7 @@ void VECTOR_INT_Set(	VECTOR_INT* 	vec,
 							int 				val );
 
 /* get data at index (no bound checks) */
-int VECTOR_INT_Get( 	VECTOR_INT* 	vec, 
+int* VECTOR_INT_Get( VECTOR_INT* 	vec, 
 							int 				idx );
 
 /* equality test */

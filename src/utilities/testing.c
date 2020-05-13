@@ -713,7 +713,7 @@ void TEST_bck_cycle3(const int   Q,
 
 /*
  *  FUNCTION:  MATRIX_2D_Cloud_Fill()
- *  SYNOPSIS:  Fill MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
+ *  SYNOPSIS:  Increment MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
  */
 int MATRIX_2D_Cloud_Fill(  MATRIX_2D*     cloud_MX,
                            EDGEBOUNDS*    edg,
@@ -787,9 +787,9 @@ int MATRIX_2D_Cloud_Compare(  MATRIX_2D*     cloud_MX_a,
       {
          float mx_a  = MX_2D( cloud_MX_a, i, j );
          float mx_b  = MX_2D( cloud_MX_b, i, j );
-         bool  zero  = ( mx_a == 0 && mx_b == 0 );
-         bool  pos   = ( mx_a > 0 && mx_b > 0 );
-         bool  neg   = ( mx_a < 0 && mx_b < 0 );
+         bool  zero  = ( mx_a == 0 && mx_b == 0 );    /* both cells are zero */
+         bool  pos   = ( mx_a > 0 && mx_b > 0 );      /* both cells are positive values */
+         bool  neg   = ( mx_a < 0 && mx_b < 0 );      /* both cells are negative values */
 
          /* if both numbers are neither both zero, both positive, or both negative */
          if ( !( zero || pos || neg ) ) {

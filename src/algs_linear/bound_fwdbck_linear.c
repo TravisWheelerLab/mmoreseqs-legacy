@@ -22,7 +22,7 @@
 #include "algs_linear.h"
 
 /* self header */
-#include "bounded_fwdbck_linear.h"
+#include "bound_fwdbck_linear.h"
 
 /*
  *      NOTE: HOW TO CONVERT row-coords to diag-coords
@@ -32,30 +32,28 @@
  */
 
 
-/* ****************************************************************************************** *
- *  FUNCTION:  bound_Forward_Linear()
- *  SYNOPSIS:  
+/* 
+ *  FUNCTION: bound_Forward_Linear()
+ *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
+ *            Runs traditional Forward-Backward Algorithm, but only performs
+ *             computation on cells that fall within the bounds determined by
+ *             the <edg> EDGEBOUNDS object, which stores a series of 
+ *             (left-bound, right-bound) pairs sorted by row.  
+ *            Normal state matrix is stored in linear space.
+ *             <st_MX3> is size [3 * (Q + T + 1)]. Only requires size [2 * (T + 1)],
+ *             but is reused from cloud_forward_().
+ *            Final score produced by Forward is stored in <sc_final>.
  *
- *  ARGS:      <query>        Query sequence, 
- *             <target>       HMM model,
- *             <Q>            Query length, 
- *             <T>            Target length,
- *             <st_MX3>       Normal State (Match, Insert, Delete) Matrix (Linear Space),
- *             <st_MX>        Normal State (Match, Insert, Delete) Matrix (Quadratic Space),
- *             <sp_MX>        Special State (J,N,B,C,E) Matrix,
- *             <edg>          Edgebounds (stored row-wise)
- *             <sc_final>     (OUTPUT) Final Score 
- *
- *  RETURN:    Returns the final score of the Forward Algorithm.
- * ****************************************************************************************** */
-float bound_Forward_Linear(const SEQUENCE*      query, 
-                           const HMM_PROFILE*   target,
-                           const int            Q, 
-                           const int            T, 
-                           MATRIX_3D*           st_MX3,
-                           MATRIX_2D*           sp_MX, 
-                           EDGEBOUNDS*          edg,
-                           float*               sc_final )
+ *  RETURN:   Returns the final score of the Forward Algorithm.
+ */
+float bound_Forward_Linear(   const SEQUENCE*      query,         /* query sequence */
+                              const HMM_PROFILE*   target,        /* target HMM model */
+                              const int            Q,             /* query length */
+                              const int            T,             /* target length */
+                              MATRIX_3D*           st_MX3,        /* normal state matrix */
+                              MATRIX_2D*           sp_MX,         /* special state matrix */
+                              EDGEBOUNDS*          edg,           /* edgebounds */
+                              float*               sc_final )     /* (OUTPUT) final score */
 {
    /* extract data from objects */
    char     a;                               /* store current character in sequence */
@@ -101,7 +99,12 @@ float bound_Forward_Linear(const SEQUENCE*      query,
    /* --------------------------------------------------------------------------------- */
 
    /* clear leftover data */
-   DP_MATRIX_Fill( Q, T, st_MX3, sp_MX, -INF );
+   if ( st_MX3->clean == false ) {
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      st_MX3->clean = true;
+   }
+   /* when this function, all modified cells will be cleared */
+   st_MX3->clean = true;
 
    /* query sequence */
    seq = query->seq;
@@ -117,10 +120,11 @@ float bound_Forward_Linear(const SEQUENCE*      query,
    XMX(SP_E, x_0) = XMX(SP_C, x_0) = XMX(SP_J, x_0) = -INF;    /* need seq to get here (?)  */
 
    /* Initialize first row (top-edge) */
-   for (j = 0; j < T; j++)
-      MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;        /* need seq to get here (?)  */
+   // for (j = 0; j < T; j++) {
+   //    MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;        /* need seq to get here (?)  */
+   // }
 
-   /* pass over top-row (x=0) edgebounds from list */
+   /* ignore top-row (x=0) edgebounds */
    k    = 0;            /* current index in edgebounds */
    r_0b = 0;            /* beginning index for current row in list */
    while ( k < N && EDG_X(edg,k).id == row_cur ) {
@@ -139,18 +143,19 @@ float bound_Forward_Linear(const SEQUENCE*      query,
    /* FOR every position in QUERY sequence (row in matrix) */
    for (x_0 = 1; x_0 <= Q; x_0++)
    {
-      // fprintf(tfp, "(i=%d): ", x_0);
       /* convert quadratic space row index to linear space row index (ex % 2) */
       row_cur = x_0;
       r_0     = x_0 % 2;        /* for use in linear space alg (mod-mapping) */
+      // printf("row_cur = %d, r_0 = %d, x_0 = %d...\n", row_cur, r_0, x_0 );
 
       /* add every edgebound from current row */
       r_0b = k;
-      // fprintf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, EDG_X(edg,k).id);
       while ( k < N && EDG_X(edg,k).id == row_cur ) {
          k++;
       }
       r_0e = k;
+
+      // if ( r_0b >= N ) break;
 
       /* Get next sequence character */
       a = seq[x_1];  /* off-by-one */
@@ -231,12 +236,15 @@ float bound_Forward_Linear(const SEQUENCE*      query,
             prev_mat = MMX3(r_1,j-1)  + TSC(j-1,M2M);
             prev_ins = IMX3(r_1,j-1)  + TSC(j-1,I2M);
             prev_del = DMX3(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,r_1)  + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+            prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M);    /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
                            logsum( prev_del, prev_beg ) );
             MMX3(r_0,j) = prev_sum + MSC(j,A);
+            // printf("(r_0,j)=%d,%d \t MMX=%f, SUM=%f\n", r_0, j, MMX3(r_0,j), MSC(j,A) );
+            // printf("mat: %f, ins: %f, del: %f, beg: %f\n", prev_mat, prev_ins, prev_del, prev_beg );
+            // printf("beg_x: %f, beg_t: %f\n", XMX(SP_B,r_1), TSC(j-1,B2M));
 
             /* FIND SUM OF PATHS TO INSERT STATE */
             IMX3(r_0,j) = -INF;
@@ -290,27 +298,25 @@ float bound_Forward_Linear(const SEQUENCE*      query,
          XMX(SP_B, x_0) = logsum( sc1, sc2 );
       }
 
-      /* SCRUB PREVIOUS (LOOK-BACK-2) ROW VALUES */
+      // /* Naive Scrub */
+      // for (j = 0; j <= T; j++) {
+      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      // }
+
+      /* Scrub 2-back bound data */
       for (i = r_1b; i < r_1e; i++) 
       {
          /* in this context, "diag" represents the "row" */
-         // x = EDG_X(edg,i).id;                 /* NOTE: this is always the same as cur_row, x_0 */
-         y1 = MAX(1, EDG_X(edg,i).lb);          /* can't overflow the left edge */
+         // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
+         y1 = EDG_X(edg,i).lb;          
          y2 = EDG_X(edg,i).rb;
-         y2_re = (y2 > T);                      /* check if cloud touches right edge */
-         y2 = MIN(y2, T);                       /* can't overflow the right edge */
 
          for (j = y1; j <= y2; j++) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
          }
       }
 
-      // /* NAIVE SCRUB (removes all values) - FOR DEBUGGING */
-      // for (j = 0; j <= T; j++) {
-      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      // }
-
-      /* set curr rows to prv rows */
+      /* set current rows to previous rows for next iteration */
       row_prv = row_cur;
       x_1  = x_0;
       r_1  = r_0;
@@ -318,8 +324,28 @@ float bound_Forward_Linear(const SEQUENCE*      query,
       r_1e = r_0e;
    }
 
+   /* Naive Scrub */
+   // for (j = 0; j <= T; j++) {
+   //    MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+   //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+   // }
+
+   /* TODO: Scrub final rows */
+   for (i = r_1b; i < r_1e; i++) 
+   {
+      // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
+      y1 = EDG_X(edg,i).lb;          
+      y2 = EDG_X(edg,i).rb;
+
+      for (j = y1; j <= y2; j++) {
+         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      }
+   }
+
    #if DEBUG
    {
+      int cnt = MATRIX_3D_Check_Clean( st_MX3 );
+      printf("Clean Test? %d\n", cnt);
       fclose(dbfp);
    }
    #endif
@@ -332,31 +358,28 @@ float bound_Forward_Linear(const SEQUENCE*      query,
 }
 
 
-/* ****************************************************************************************** *
- *  FUNCTION:  bound_Backward_Linear()
- *  SYNOPSIS:  
+/* 
+ *  FUNCTION: bound_Forward_Linear()
+ *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
+ *            Runs traditional Forward-Backward Algorithm, but only performs
+ *             computation on cells that fall within the bounds determined by
+ *             the <edg> EDGEBOUNDS object, which stores a series of 
+ *             (left-bound, right-bound) pairs sorted by row.  
+ *            Normal state matrix is stored in linear space.
+ *             <st_MX3> is size [3 * (Q + T + 1)]. Only requires size [2 * (T + 1)],
+ *             but is reused from cloud_forward_().
+ *            Final score produced by Forward is stored in <sc_final>.
  *
- *  ARGS:      <query>        Query sequence, 
- *             <target>       HMM model,
- *             <Q>            Query length, 
- *             <T>            Target length,
- *             <st_MX3>       Normal State (Match, Insert, Delete) Matrix (Linear Space),
- *             <st_MX>        Normal State (Match, Insert, Delete) Matrix (Quadratic Space),
- *             <sp_MX>        Special State (J,N,B,C,E) Matrix,
- *             <edg>          Edgebounds (stored row-wise)
- *             <test>         Toggles DEBUG output
- *             <sc_final>     Final Score (OUTPUT)
- *
- *  RETURN:    Returns the final score of the Backward Algorithm.
- * ****************************************************************************************** */
-float bound_Backward_Linear(  const SEQUENCE*      query, 
-                              const HMM_PROFILE*   target,
-                              const int            Q, 
-                              const int            T, 
-                              MATRIX_3D*           st_MX3,
-                              MATRIX_2D*           sp_MX, 
-                              EDGEBOUNDS*          edg,
-                              float*               sc_final )
+ *  RETURN:   Returns the final score of the Forward Algorithm.
+ */
+float bound_Backward_Linear(  const SEQUENCE*      query,         /* query sequence */
+                              const HMM_PROFILE*   target,        /* target HMM model */
+                              const int            Q,             /* query length */
+                              const int            T,             /* target length */
+                              MATRIX_3D*           st_MX3,        /* normal state matrix */
+                              MATRIX_2D*           sp_MX,         /* special state matrix */
+                              EDGEBOUNDS*          edg,           /* edgebounds */
+                              float*               sc_final )     /* (OUTPUT) final score */
 {
    /* extract data from objects */
    char     a;                               /* store current character in sequence */
@@ -402,7 +425,12 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
    /* --------------------------------------------------------------------------------- */
 
    /* clear leftover data */
-   DP_MATRIX_Fill( Q, T, st_MX3, sp_MX, -INF );
+   if ( st_MX3->clean == false ) {
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      st_MX3->clean = true;
+   }
+   /* when this function, all modified cells will be cleared */
+   st_MX3->clean = true;
 
    /* query sequence */
    seq = query->seq;
@@ -508,18 +536,33 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
       }
 
       XMX(SP_J, x_0) = logsum( XMX(SP_J, x_1) + XSC(SP_J, SP_LOOP),
-                                    XMX(SP_B, x_0) + XSC(SP_J, SP_MOVE) );
+                                 XMX(SP_B, x_0) + XSC(SP_J, SP_MOVE) );
 
       XMX(SP_C, x_0) = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);
 
       XMX(SP_E, x_0) = logsum( XMX(SP_J, x_0) + XSC(SP_E, SP_LOOP),
-                                    XMX(SP_C, x_0) + XSC(SP_E, SP_MOVE) );
+                                 XMX(SP_C, x_0) + XSC(SP_E, SP_MOVE) );
 
       XMX(SP_N, x_0) = logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
-                                    XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
+                                 XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-      MMX3(r_0, T) = DMX3(r_0, T) = XMX(SP_E, x_0);
-      IMX3(r_0, T) = -INF;
+      /* if there is a bound on row and the right-most bound spans T */
+      // if ((r_0b - r_0e > 0)) printf("x_0=%d, rb=%d, T=%d\n", x_0, EDG_X(edg,r_0b).rb, T);
+      if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
+      {
+         MMX3(r_0, T) = DMX3(r_0, T) = XMX(SP_E, x_0);
+         IMX3(r_0, T) = -INF;
+
+         #if DEBUG
+         {
+            /* embed linear row into quadratic test matrix */
+            MX_2D(cloud_MX, x_0, T) = 1.0;
+            MX_3D(test_MX, MAT_ST, x_0, T) = MMX3(r_0, T);
+            MX_3D(test_MX, INS_ST, x_0, T) = IMX3(r_0, T);
+            MX_3D(test_MX, DEL_ST, x_0, T) = DMX3(r_0, T);
+         }
+         #endif
+      }
 
       /* FOR every EDGEBOUND in current ROW */
       for (i = r_0b; i > r_0e; i--)
@@ -542,8 +585,8 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
             prev_end = XMX(SP_E, x_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
-                              logsum( prev_mat, prev_ins ),
-                              logsum( prev_end, prev_del ) );
+                           logsum( prev_mat, prev_ins ),
+                           logsum( prev_end, prev_del ) );
             MMX3(r_0, j) = prev_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
@@ -564,35 +607,36 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
                               prev_mat,
                               logsum( prev_del, prev_end ) );
             DMX3(r_0, j) = prev_sum;
+
+            #if DEBUG
+            {
+               /* embed linear row into quadratic test matrix */
+               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
+               MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
+               MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
+            }
+            #endif
          }
       }
 
-      #if DEBUG
-         /* embed linear row into quadratic test matrix */
-         for (i = 0; i <= T; i++) {
-            MX_3D(test_MX,MAT_ST,x_0,i) = MMX3(r_0,i);
-            MX_3D(test_MX,INS_ST,x_0,i) = IMX3(r_0,i);
-            MX_3D(test_MX,DEL_ST,x_0,i) = DMX3(r_0,i);
-         }
-      #endif
+      /* Naive Scrub */
+      for (j = 0; j <= T; j++) {
+         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      }
 
-      /* SCRUB PREVIOUS ROW VALUES (backward) */
+      /* Scrub Previous Row */
       for (i = r_1b; i > r_1e; i--) 
       {
          /* in this context, "diag" represents the "row" */
          // x  = EDG_X(edg,i).id;
-         y1 = MAX(0, EDG_X(edg,i).lb);       /* can't overflow the left edge */
-         y2 = MIN(EDG_X(edg,i).rb, T);       /* can't overflow the right edge */
+         y1 = EDG_X(edg,i).lb;
+         y2 = EDG_X(edg,i).rb;
 
-         for (j = y2; j >= y1; j--) {
+         for (j = y1; j < y2; j++) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
          }
       }
-
-      // /* NAIVE SCRUB (removes all values) - FOR DEBUGGING */
-      // for (i = 0; i <= T; i++) {
-      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      // }
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       row_prv = row_cur;
@@ -639,12 +683,39 @@ float bound_Backward_Linear(  const SEQUENCE*      query,
    XMX(SP_N, x_0) = logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
                             XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-   // for (j = T; j >= 1; j--) {
-   //    MMX3(x_0, j) = IMX3(x_0, j) = DMX3(x_0, j) = -INF;
-   // }
+   /* Naive scrub */
+   for (j = T; j >= 1; j--) {
+      MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+   }
+
+   /* Scrub final rows */
+   for (i = r_1b; i < r_1e; i++) 
+   {
+      /* in this context, "diag" represents the "row" */
+      // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
+      y1 = EDG_X(edg,i).lb;          
+      y2 = EDG_X(edg,i).rb;
+
+      for (j = y1; j < y2; j++) {
+         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      }
+   }
+   for (i = r_0b; i < r_0e; i++) 
+   {
+      // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
+      y1 = EDG_X(edg,i).lb;          
+      y2 = EDG_X(edg,i).rb;
+
+      for (j = y1; j < y2; j++) {
+         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      } 
+   }
 
    #if DEBUG
    {
+      int cnt = MATRIX_3D_Check_Clean( st_MX3 );
+      printf("Clean Test? %d\n", cnt );
       fclose(dbfp);
    }
    #endif

@@ -34,9 +34,8 @@ void print_result_mmseqs(  WORKER*  worker,
                            RESULT*  result,
                            SCORES*  scores,
                            TIMES*   times );
+
 void print_header_mmseqs(  WORKER*  worker );
-
-
 
 /* mmseqs pipeline */
 void mmseqs_pipeline( WORKER* worker )
@@ -309,31 +308,31 @@ void print_result_mmseqs(  WORKER*  worker,
    fprintf(fp, "%d\t",     result->total_cells );
    fprintf(fp, "%d\t",     result->cloud_cells );
    /* search parameters */
-   fprintf(fp, "%.3f\t",   args->alpha );
+   fprintf(fp, "%.2f\t",   args->alpha );
    fprintf(fp, "%d\t",     args->beta );
    /* scores */
    // #if DEBUG
    {
-      fprintf(fp, "%.5f\t",   scores->quad_vit );
-      fprintf(fp, "%.5f\t",   scores->quad_fwd );
-      fprintf(fp, "%.5f\t",   scores->quad_bck );
+      fprintf(fp, "%.8f\t",   scores->quad_vit );
+      fprintf(fp, "%.8f\t",   scores->quad_fwd );
+      fprintf(fp, "%.8f\t",   scores->quad_bck );
    }
    // #endif
-   fprintf(fp, "%.5f\t",   scores->lin_cloud_fwd );
+   fprintf(fp, "%.8f\t",   scores->lin_cloud_fwd );
    /* times */
    // #if DEBUG
    {
-      fprintf(fp, "%.5f\t",   times->quad_vit );
-      fprintf(fp, "%.5f\t",   times->quad_fwd );
-      fprintf(fp, "%.5f\t",   times->quad_bck );
+      fprintf(fp, "%.8f\t",   times->quad_vit );
+      fprintf(fp, "%.8f\t",   times->quad_fwd );
+      fprintf(fp, "%.8f\t",   times->quad_bck );
    }
    // #endif
-   fprintf(fp, "%.5f\t",   times->lin_cloud_fwd );
-   fprintf(fp, "%.5f\t",   times->lin_cloud_bck );
-   fprintf(fp, "%.5f\t",   times->lin_merge );
-   fprintf(fp, "%.5f\t",   times->lin_reorient );
-   fprintf(fp, "%.5f\t",   times->lin_bound_fwd );
-   fprintf(fp, "%.5f\t",   cloud_tot );
+   fprintf(fp, "%.8f\t",   times->lin_cloud_fwd );
+   fprintf(fp, "%.8f\t",   times->lin_cloud_bck );
+   fprintf(fp, "%.8f\t",   times->lin_merge );
+   fprintf(fp, "%.8f\t",   times->lin_reorient );
+   fprintf(fp, "%.8f\t",   times->lin_bound_fwd );
+   fprintf(fp, "%.8f\t",   cloud_tot );
 
    fprintf(fp, "\n" );
 }

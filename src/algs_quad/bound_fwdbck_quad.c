@@ -21,7 +21,7 @@
 #include "algs_quad.h"
 
 /* header */
-#include "bounded_fwdbck_quad.h"
+#include "bound_fwdbck_quad.h"
 
 /*  
  *  FUNCTION: forward_bounded_Run()
@@ -108,8 +108,9 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
    XMX(SP_E, x_0) = XMX(SP_C, x_0) = XMX(SP_J, x_0) = -INF;    /* need seq to get here (?)  */
 
    /* Initialize zero row (top-edge) */
-   for (j = 0; j < T; j++)
+   for (j = 0; j < T; j++) {
       MMX(r_0, j) = IMX(r_0, j) = DMX(r_0, j) = -INF;          /* need seq to get here (?)  */
+   }
 
    /* pass over top-row (i=0) edgebounds from list */
    k    = 0;            /* current index in edgebounds */
@@ -202,13 +203,16 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
                                     logsum( prev_mat, prev_del ),
                                     XMX(SP_E, x_0) );
 
-            // fprintf(tfp, "PRE (%d,%d) -> E: %f, Esc: %f, MMX: %f, DMX: %f, MSC: %f \n", x_0, j, XMX(SP_E, x_0), sc_E, MMX(r_0, j), DMX(r_0, j), MSC(j,A) );
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, x_0, j) = 1.0;
+            }
+            #endif
          }
 
          /* UNROLLED FINAL LOOP ITERATION */
          if ( y2_re ) 
          {
-            // fprintf(tfp, "%d!...", j);
             j = T; 
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
@@ -216,13 +220,15 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
             prev_mat = MMX(r_1,j-1)  + TSC(j-1,M2M);
             prev_ins = IMX(r_1,j-1)  + TSC(j-1,I2M);
             prev_del = DMX(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,r_1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+            prev_beg = XMX(SP_B,x_1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                               logsum( prev_mat, prev_ins ),
-                              logsum( prev_del, prev_beg )
-                        );
+                              logsum( prev_del, prev_beg ) );
             MMX(r_0,j) = prev_sum + MSC(j,A);
+            // printf("(r_0,j)=%d,%d \t MMX=%f, MSC=%f\n", r_0, j, MMX(r_0,j), MSC(j,A) );
+            // printf("mat: %f, ins: %f, del: %f, beg: %f\n", prev_mat, prev_ins, prev_del, prev_beg );
+            // printf("beg_x: %f, beg_t: %f\n", XMX(SP_B,r_1), TSC(j-1,B2M));
 
             /* FIND SUM OF PATHS TO INSERT STATE */
             IMX(r_0,j) = -INF;
@@ -241,6 +247,12 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
             XMX(SP_E, x_0) = logsum( 
                                  logsum( prev_mat, prev_del ),
                                  XMX(SP_E, x_0) );
+
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, x_0, j) = 1.0;
+            }
+            #endif
          }
       }
 
@@ -313,10 +325,10 @@ float bound_Backward_Quad( const SEQUENCE*      query,
    char   a;                              /* store current character in sequence */
    int    A;                              /* store int value of character */
    int    i,j,k = 0;                      /* row, column indices */
-   char   *seq = query->seq;              /* alias for getting seq */
+   char*  seq;                           /* alias for getting seq */
    int    N = edg->N;                     /* length of edgebound list */
 
-   int    x, y1, y2;                    /* row, leftcol and rightcol bounds in row */
+   int    x, y1, y2;                      /* row, leftcol and rightcol bounds in row */
    int    x_0, row_cur, x_1, row_prv;     /* real index of current and previous rows */
    int    r_0, r_1;                       /* row offset -> r_0: row_cur % 2, r_1: row_prv % 2 */
    int    r_0b, r_0e, r_1b, r_1e;         /* begin and end indices for row in edgebound list */
@@ -333,6 +345,12 @@ float bound_Backward_Quad( const SEQUENCE*      query,
 
    /* --------------------------------------------------------------------------------- */
 
+   /* clear leftover data */
+   DP_MATRIX_Fill( Q, T, st_MX, sp_MX, -INF );
+
+   /* query sequence */
+   seq = query->seq;
+
    /* Initialize the Q row. */
    row_cur = Q;         
    x_0 = Q;             /* current row in matrix */
@@ -343,9 +361,6 @@ float bound_Backward_Quad( const SEQUENCE*      query,
    XMX(SP_C, x_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, x_0) = XMX(SP_C, x_0) + XSC(SP_E, SP_MOVE);
 
-   MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
-   IMX(r_0, T) = -INF;
-
    /* pass over (Q) bottom-row edgebounds from list */
    k    = N-1;          /* current index in edgebounds */
    r_0b = N-1;          /* beginning index for current row in list */
@@ -354,7 +369,14 @@ float bound_Backward_Quad( const SEQUENCE*      query,
    }
    r_0e = k;            /* ending index for current row in list */
 
-   // /* Initialize normal states */
+   /* if there is a bound on row and the right-most bound spans T */
+   if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
+   {
+      MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
+      IMX(r_0, T) = -INF;
+   }
+
+   // /* Initialize normal states (naive) */
    // for (j = T-1; j >= 1; j--)
    // {
    //    sc1 = XMX(SP_E, x_0) + sc_E;
@@ -370,7 +392,7 @@ float bound_Backward_Quad( const SEQUENCE*      query,
    //    // IMX(r_0,j) = -INF;
    // }
 
-   /* Initialize normal states */
+   /* Initialize normal states (sparse) */
    for (i = r_0b; i > r_0e; i--) 
    {
       y1 = MAX(0, EDG_X(edg,i).lb);     /* can't overflow the left edge */
@@ -454,8 +476,12 @@ float bound_Backward_Quad( const SEQUENCE*      query,
       XMX(SP_N, x_0) = logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
                                     XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-      MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
-      IMX(r_0, T) = -INF;
+      /* if there is a bound on row and the right-most bound spans T */
+      if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
+      {
+         MMX(r_0, T) = DMX(r_0, T) = XMX(SP_E, x_0);
+         IMX(r_0, T) = -INF;
+      }
 
       /* FOR every EDGEBOUND in current ROW */
       for (i = r_0b; i > r_0e; i--)
@@ -500,34 +526,6 @@ float bound_Backward_Quad( const SEQUENCE*      query,
             DMX(r_0, j) = prev_sum;
          }
       }
-
-      // /* EMBED LINEAR MX into QUAD MX - FOR DEBUGGING */
-      // if (test) {
-      //    for (i = 0; i <= T; i++) {
-      //       MMX(x_0,i) = MMX3(r_0,i);
-      //       IMX(x_0,i) = IMX3(r_0,i);
-      //       DMX(x_0,i) = DMX3(r_0,i);
-      //    }
-      // }
-
-      // /* SCRUB PREVIOUS ROW VALUES (backward) */
-      // for (i = r_1b; i > r_1e; i--) 
-      // {
-      //    // printf("SCRUB x_0: %d, x_1: %d, r_0: %d, r_1: %d => y1: %d, y2: %d \n", x_0, x_1, r_0, r_1, y1, y2);
-      //    /* in this context, "diag" represents the "row" */
-      //    // x  = EDG_X(edg,i).id;
-      //    y1 = MAX(0, EDG_X(edg,i).lb);       /* can't overflow the left edge */
-      //    y2 = MIN(EDG_X(edg,i).rb, T);       /* can't overflow the right edge */
-
-      //    for (j = y2; j >= y1; j--) {
-      //       MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      //    }
-      // }
-
-      // /* NAIVE SCRUB (removes all values) - FOR DEBUGGING */
-      // for (i = 0; i <= T; i++) {
-      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      // }
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       row_prv = row_cur;
@@ -582,8 +580,6 @@ float bound_Backward_Quad( const SEQUENCE*      query,
    // for (j = T; j >= 1; j--) {
    //    MMX(x_0, j) = IMX(x_0, j) = DMX(x_0, j) = -INF;
    // }
-
-   // fprintf(tfp, "a=%d, A=%d, MSC=%f\n", a, A, MSC(1,A) );
 
    sc_best = XMX(SP_N,0);
    *sc_final = sc_best;

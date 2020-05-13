@@ -9,7 +9,7 @@
 #ifndef _ALGS_QUAD_H
 #define _ALGS_QUAD_H
 
-#include "bounded_fwdbck_quad.h"
+#include "bound_fwdbck_quad.h"
 #include "cloud_search_quad.h"
 #include "fwdback_quad.h"
 #include "merge_reorient_quad.h"

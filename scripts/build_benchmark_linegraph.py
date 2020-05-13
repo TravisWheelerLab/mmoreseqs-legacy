@@ -1,5 +1,4 @@
  #!/usr/bin/env python
-
  ###############################################################################
  #  @file  benchmark_linegraph
  #  @brief Render benchmark scores as a line graph

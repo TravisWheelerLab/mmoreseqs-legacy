@@ -16,6 +16,12 @@
 EDGEBOUNDS* EDGEBOUNDS_Create( void );
 
 /*
+ *  FUNCTION:  EDGEBOUNDS_Create()
+ *  SYNOPSIS:  Create new EDGEBOUNDS object with chosen size and returns pointer.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size );
+
+/*
  *  FUNCTION: EDGEBOUNDS_Destroy()
  *  SYNOPSIS: Frees all memory from EDGEBOUNDS object.
  */
@@ -33,8 +39,8 @@ void EDGEBOUNDS_Reuse( EDGEBOUNDS*   edg,
  *  FUNCTION: EDGEBOUNDS_Copy()
  *  SYNOPSIS: Create a deep copy of <edg_src> and store it in <edg_dest>.
  */
-EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*    edg_dest,
-                              EDGEBOUNDS*    edg_src );
+EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*         edg_dest,
+                              const EDGEBOUNDS*   edg_src );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Get()
@@ -78,6 +84,13 @@ void EDGEBOUNDS_Delete( EDGEBOUNDS*  edg,
  *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list.
  */
 void EDGEBOUNDS_Clear( EDGEBOUNDS* edg );
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Resize()
+ *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object (does not downsize).
+ */
+void EDGEBOUNDS_GrowTo( EDGEBOUNDS* edg,
+                        int         size );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Resize()

@@ -31,6 +31,19 @@ EDGEBOUNDS* EDGEBOUNDS_Create( void )
    EDGEBOUNDS* edg      = NULL;
    const int   min_size = 8;
 
+   edg = EDGEBOUNDS_Create_by_Size( min_size );
+
+   return edg;
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Create()
+ *  SYNOPSIS:  Create new EDGEBOUNDS object with chosen size and returns pointer.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
+{
+   EDGEBOUNDS* edg      = NULL;
+
    edg = (EDGEBOUNDS*) malloc( sizeof(EDGEBOUNDS) );
    if (edg == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc for EDGEBOUNDS.\n");
@@ -50,7 +63,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create( void )
    edg->heads     = VECTOR_INT_Create();
    edg->edg_mode  = EDG_NONE;
 
-   EDGEBOUNDS_Resize(edg, min_size);
+   EDGEBOUNDS_Resize(edg, size);
 
    return edg;
 }
@@ -86,8 +99,8 @@ void EDGEBOUNDS_Reuse( EDGEBOUNDS*   edg,
  *  FUNCTION: EDGEBOUNDS_Copy()
  *  SYNOPSIS: Create a deep copy of <edg_src> and store it in <edg_dest>.
  */
-EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*    edg_dest,
-                              EDGEBOUNDS*    edg_src )
+EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
+                              const EDGEBOUNDS*    edg_src )
 {
    BOUND*   bnd;
 
@@ -96,11 +109,15 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*    edg_dest,
    } 
    EDGEBOUNDS_Reuse( edg_dest, edg_src->Q, edg_src->T );
 
+   edg_dest->edg_mode = edg_src->edg_mode;
+
    for ( int i = 0; i < edg_src->N; i++ ) 
    {
       bnd = &(edg_src->bounds[i]);
       EDGEBOUNDS_Pushback( edg_dest, bnd );
    }
+
+   return edg_dest;
 }
 
 /*
@@ -174,15 +191,15 @@ void EDGEBOUNDS_Insert( EDGEBOUNDS*    edg,
 
 /*
  *  FUNCTION: EDGEBOUNDS_Delete()
- *  SYNOPSIS: Delete BOUND at <i> index and fill from end of list.
+ *  SYNOPSIS: Delete BOUND at <i> index and fill from end of list <N-1>, then decrement list size.
  */
 void EDGEBOUNDS_Delete( EDGEBOUNDS*    edg,
                         int            i )
 {
    int N = edg->N;
-   edg->bounds[i].id = edg->bounds[N].id;
-   edg->bounds[i].lb = edg->bounds[N].lb;
-   edg->bounds[i].rb = edg->bounds[N].rb;
+   edg->bounds[i].id = edg->bounds[N-1].id;
+   edg->bounds[i].lb = edg->bounds[N-1].lb;
+   edg->bounds[i].rb = edg->bounds[N-1].rb;
    edg->N -= 1;
 }
 
@@ -197,7 +214,18 @@ void EDGEBOUNDS_Clear( EDGEBOUNDS* edg )
 
 /*
  *  FUNCTION: EDGEBOUNDS_Resize()
- *  SYNOPSIS: Resize number of BOUNDS in EDGEBOUND object.
+ *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object (does not downsize).
+ */
+void EDGEBOUNDS_GrowTo( EDGEBOUNDS* edg,
+                        int         size )
+{
+   if ( edg->Nalloc < size )
+      EDGEBOUNDS_Resize( edg, size );
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Resize()
+ *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object .
  */
 void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
                        int         size)
@@ -213,7 +241,7 @@ void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
 void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
 {
    BOUND tmp;
-   for (int i = 0; i <= (edg->N / 2); ++i)
+   for (int i = 0; i <= (edg->N / 2) - 1; ++i)
    {
       tmp.id = edg->bounds[i].id;
       tmp.lb = edg->bounds[i].lb;
@@ -228,8 +256,6 @@ void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
       edg->bounds[edg->N - i - 1].rb = tmp.rb;
    }
 }
-
-/* TODO: Sorting function? */
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Index()
@@ -267,8 +293,11 @@ void EDGEBOUNDS_Dump(EDGEBOUNDS* edg,
       return;
    }
 
-   fprintf(fp, "\n");
-   fprintf(fp, "N: %d, Nalloc: %d\n", edg->N, edg->Nalloc);
+   char* edg_mode_text[] = { "EDGE_NONE", "EDGE_ANTIDIAG", "EDGE_ROW" };
+
+   fprintf(fp, "# N: %d, Nalloc: %d\n", edg->N, edg->Nalloc);
+   fprintf(fp, "# ORIENTATION: %s\n", edg_mode_text[edg->edg_mode] );
+   fprintf(fp, "# Q=%d, T=%d\n", edg->Q, edg->T );
    for (unsigned int i = 0; i < edg->N; ++i)
    {
       BOUND bnd = edg->bounds[i];
@@ -302,6 +331,11 @@ int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
    BOUND* bnd_a;
    BOUND* bnd_b;
 
+   if ( edg_a->edg_mode != edg_b->edg_mode ) {
+      printf("EDGEBOUNDS ARE NOT SAME ORIENTATION: edg_a = %d, edg_b = %d\n", 
+         edg_a->edg_mode, edg_b->edg_mode );
+   }
+
    for (int i = 0; i < edg_a->N; i++)
    {
       bnd_a = &(edg_a->bounds[i]);
@@ -309,7 +343,7 @@ int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
       if ( bnd_a->id != bnd_b->id || bnd_a->lb != bnd_b->lb || bnd_a->rb != bnd_b->rb ) {
          #if DEBUG
          {
-            printf("EDGEBOUND INEQUALITY at %d: (%d,%d,%d) vs (%d,%d,%d)\n", i, 
+            printf("EDGEBOUND INEQUALITY at %d: edg_a = (%d,%d,%d), edg_b = (%d,%d,%d)\n", i, 
                bnd_a->id, bnd_a->lb, bnd_a->rb, 
                bnd_b->id, bnd_b->lb, bnd_b->rb);
          } 

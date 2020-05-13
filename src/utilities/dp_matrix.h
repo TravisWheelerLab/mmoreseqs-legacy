@@ -42,6 +42,15 @@ void DP_MATRIX_Fill (const int   Q,
                      const float val );
 
 /*
+ *  FUNCTION:  DP_MATRIX_Clean()
+ *  SYNOPSIS:  Fill entire dynamic programming matrix with clean.
+ */
+void DP_MATRIX_Clean(   const int   Q, 
+                        const int   T,
+                        MATRIX_3D*  st_MX,
+                        MATRIX_2D*  sp_MX );
+
+/*
  *  FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS: Compare two dynamic programming matrices.
  */
@@ -103,6 +112,21 @@ void DP_MATRIX_Trace_Dump( const int         Q,
                            MATRIX_2D*        sp_MX,
                            ALIGNMENT*        tr,
                            FILE*             fp );
+
+/*
+ *  FUNCTION:  DP_MATRIX_VIZ_Compare()
+ *  SYNOPSIS:  Projects two EDGEBOUNDS onto 2D_MATRIX.
+ */
+void DP_MATRIX_VIZ_Compare(   MATRIX_2D*        cloud_MX,
+                              EDGEBOUNDS*       edg_1,
+                              EDGEBOUNDS*       edg_2 );
+
+/*
+ *  FUNCTION:  DP_MATRIX_VIZ_Save()
+ *  SYNOPSIS:  Saves simple visualization to filename.
+ */
+void DP_MATRIX_VIZ_Save(   MATRIX_2D*        cloud_MX,
+                           char*             filename );
 
 /*
  *  FUNCTION:  DP_MATRIX_VIZ_Dump()

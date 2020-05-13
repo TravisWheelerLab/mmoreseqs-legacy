@@ -40,7 +40,7 @@ void DP_MATRIX_Get_Bounds( const int   Q,
  *  FUNCTION:  DP_MATRIX_Copy()
  *  SYNOPSIS:  Copy dynamic programming matrix into destination.
  */
-void DP_MATRIX_Copy (const int   Q,
+void DP_MATRIX_Copy( const int   Q,
                      const int   T,
                      MATRIX_3D*  st_MX_src,
                      MATRIX_2D*  sp_MX_src,
@@ -66,7 +66,7 @@ void DP_MATRIX_Copy (const int   Q,
  *  FUNCTION:  DP_MATRIX_Fill()
  *  SYNOPSIS:  Fill entire dynamic programming matrix with value
  */
-void DP_MATRIX_Fill (const int   Q, 
+void DP_MATRIX_Fill( const int   Q, 
                      const int   T,
                      MATRIX_3D*  st_MX,
                      MATRIX_2D*  sp_MX,
@@ -74,6 +74,19 @@ void DP_MATRIX_Fill (const int   Q,
 {
    MATRIX_3D_Fill( st_MX, val );
    MATRIX_2D_Fill( sp_MX, val );
+}
+
+/*
+ *  FUNCTION:  DP_MATRIX_Clean()
+ *  SYNOPSIS:  Fill entire dynamic programming matrix with clean.
+ */
+void DP_MATRIX_Clean(   const int   Q, 
+                        const int   T,
+                        MATRIX_3D*  st_MX,
+                        MATRIX_2D*  sp_MX )
+{
+   MATRIX_3D_Clean( st_MX );
+   MATRIX_2D_Clean( sp_MX );
 }
 
 /*
@@ -178,7 +191,7 @@ void DP_MATRIX_Dump( const int         Q,
       {
          fprintf(fp, "%9.4f ", DMX(i, j) );
       }
-      fprintf(fp, "\n");
+      fprintf(fp, "\n\n");
    }
    fprintf(fp, "/\n\n");
 
@@ -330,6 +343,19 @@ void DP_MATRIX_Trace_Dump( const int         Q,
 }
 
 /*
+ *  FUNCTION:  DP_MATRIX_VIZ_Compare()
+ *  SYNOPSIS:  Projects two EDGEBOUNDS onto 2D_MATRIX.
+ */
+void DP_MATRIX_VIZ_Compare(   MATRIX_2D*        cloud_MX,
+                              EDGEBOUNDS*       edg_1,
+                              EDGEBOUNDS*       edg_2 )
+{
+   MATRIX_2D_Fill( cloud_MX, 0 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_1, 1 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_2, 2 );
+}
+
+/*
  *  FUNCTION:  DP_MATRIX_VIZ_Trace()
  *  SYNOPSIS:  Adds trace to visulization of dp matrix.
  */
@@ -340,6 +366,19 @@ void DP_MATRIX_VIZ_Trace(  MATRIX_2D*        cloud_MX,
       TRACE* tr = &(aln->traces[i]);
       if ( tr->st == M_ST )
          MX_2D( cloud_MX, tr->i, tr->j ) = -1.0;
+   }
+}
+
+/*
+ *  FUNCTION:  DP_MATRIX_VIZ_Save()
+ *  SYNOPSIS:  Saves simple visualization to filename.
+ */
+void DP_MATRIX_VIZ_Save(   MATRIX_2D*        cloud_MX,
+                           char*             filename )
+{
+   FILE* fp = fopen( filename, "w+" );
+   if ( fp == NULL ) {
+      
    }
 }
 

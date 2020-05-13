@@ -25,8 +25,8 @@
 #include "matrix_2d.h"
 
 /* constructor */
-MATRIX_2D* MATRIX_2D_Create(int  R,
-                            int  C)
+MATRIX_2D* MATRIX_2D_Create(  int  R,
+                              int  C )
 {
    MATRIX_2D* mx = NULL;
 
@@ -47,7 +47,19 @@ MATRIX_2D* MATRIX_2D_Create(int  R,
    mx->data    = NULL;
 
    MATRIX_2D_Resize( mx, R, C );
+   mx->clean = false;
 
+   return mx;
+}
+
+/* constructor with all values set to -INF */
+MATRIX_2D* MATRIX_2D_Create_Clean(  int  R,
+                                    int  C )
+{
+   MATRIX_2D* mx;
+   mx = MATRIX_2D_Create( R, C );
+   MATRIX_2D_Clean( mx );
+   mx->clean = true;
    return mx;
 }
 
@@ -86,8 +98,8 @@ MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,
 }
 
 /* fill MATRIX_2D with values */
-MATRIX_2D* MATRIX_2D_Fill(MATRIX_2D*  mx,
-                          float       val)
+void MATRIX_2D_Fill( MATRIX_2D*     mx,
+                     float          val)
 {
    for (int i = 0; i < mx->R; i++) {
       for (int j = 0; j < mx->C; j++) {
@@ -95,6 +107,34 @@ MATRIX_2D* MATRIX_2D_Fill(MATRIX_2D*  mx,
       }
    }
 }
+
+/* fill MATRIX_2D with -INF */
+void MATRIX_2D_Clean( MATRIX_2D*   mx)
+{
+   MATRIX_2D_Fill( mx, -INF );
+   mx->clean = true;
+}
+
+/* check that all cells are filled with given value */
+int MATRIX_2D_Check_Value(  MATRIX_2D*     mx,
+                           float          val)
+{
+   int cnt = 0;
+   for (int i = 0; i < mx->R; i++) {
+      for (int j = 0; j < mx->C; j++) {
+         if ( *MATRIX_2D_Get(mx, i, j) != val )
+            cnt++;
+      }
+   }
+   return cnt;
+}
+
+/* fill MATRIX_2D with -INF */
+int MATRIX_2D_Check_Clean( MATRIX_2D*   mx)
+{
+   return MATRIX_2D_Check_Value( mx, -INF );
+}
+
 
 /* getter pointer for index in MATRIX */
 inline
@@ -118,6 +158,25 @@ float* MATRIX_2D_Get(MATRIX_2D*  mx,
    return data;
 }
 
+/* getter pointer for index in MATRIX (input in 1D-coords) */
+inline
+float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
+                           int         n )
+{
+   /* if debugging, do edgechecks */
+   #if DEBUG
+      int used = mx->R * mx->C;
+      if ( n < 0|| n >= used ) {
+         fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
+         fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
+         exit(EXIT_FAILURE);
+      }
+   #endif
+
+   float* data = &( mx->data[ n ] );
+   return data;
+}
+
 /* convert 2D-coords to 1D-coords */
 inline
 int MATRIX_2D_to_1D(MATRIX_2D*  mx,
@@ -129,19 +188,46 @@ int MATRIX_2D_to_1D(MATRIX_2D*  mx,
 }
 
 /* reuse MATRIX_2D by resizing only if new matrix requires more memory */
-float MATRIX_2D_Reuse(MATRIX_2D*  mx,
-                      int         R,
-                      int         C)
+float MATRIX_2D_Reuse(  MATRIX_2D*  mx,
+                        int         R,
+                        int         C )
 {
    if (R * C > mx->Nalloc) {
-      MATRIX_2D_Resize(mx, R, C);
+      MATRIX_2D_Resize( mx, R, C );
    }
    else
    {
       mx->R = R;
       mx->C = C;
    }
+   mx->clean = false;
 }
+
+/* reuse MATRIX_2D by resizing only if new matrix requires more memory.  All new matrix values are cleaned. */
+float MATRIX_2D_Reuse_Clean(  MATRIX_2D*  mx,
+                              int         R,
+                              int         C )
+{
+   if ( mx->clean == false )
+      MATRIX_2D_Clean( mx );
+
+   int N_prv = mx->R * mx->C;
+
+   if (R * C > mx->Nalloc) {
+      MATRIX_2D_Resize( mx, R, C );
+   }
+   else
+   {
+      mx->R = R;
+      mx->C = C;
+   }
+
+   for ( int i = N_prv; i < mx->Nalloc; i++ ) {
+      *MATRIX_2D_Get_1D( mx, i ) = -INF;
+   }
+   mx->clean = true;
+}
+
 
 /* resize MATRIX_2D to new dimensions */
 float MATRIX_2D_Resize(MATRIX_2D*  mx,
@@ -158,6 +244,7 @@ float MATRIX_2D_Resize(MATRIX_2D*  mx,
       exit(EXIT_FAILURE);
    }
 }
+
 /* Outputs MATRIX_2D out to FILE POINTER */
 void MATRIX_2D_Dump( MATRIX_2D*  mx,
                      FILE*       fp )

@@ -13,6 +13,10 @@
 MATRIX_2D* MATRIX_2D_Create(int  R, 
                             int  C );
 
+/* constructor with all values set to -INF */
+MATRIX_2D* MATRIX_2D_Create_Clean(  int  R,
+                                    int  C );
+
 /* destructor */
 void MATRIX_2D_Destroy(MATRIX_2D*  mx);
 
@@ -20,14 +24,28 @@ void MATRIX_2D_Destroy(MATRIX_2D*  mx);
 MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,
                            MATRIX_2D*     src );
 
-/* fill */
-MATRIX_2D* MATRIX_2D_Fill(MATRIX_2D*  mx,
-                          float       val);
+/* fill matrix with value */
+void MATRIX_2D_Fill( MATRIX_2D*  mx,
+                     float       val);
+
+/* fill MATRIX_2D with -INF */
+void MATRIX_2D_Clean( MATRIX_2D*  mx);
+
+/* check that all cells are filled with given value */
+int MATRIX_2D_Check_Value(  MATRIX_2D*     mx,
+                            float          val);
+
+/* Check MATRIX_2D data filled with -INF */
+int MATRIX_2D_Check_Clean( MATRIX_2D*   mx);
 
 /* getter for index */
 float* MATRIX_2D_Get(MATRIX_2D*  mx, 
                      int         i, 
                      int         j);
+
+/* getter pointer for index in MATRIX (input in 1D-coords) */
+float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
+                           int         n );
 
 /* convert 2D-coords to 1D-coords */
 int MATRIX_2D_to_1D(MATRIX_2D*  mx, 
@@ -38,6 +56,11 @@ int MATRIX_2D_to_1D(MATRIX_2D*  mx,
 float MATRIX_2D_Reuse(MATRIX_2D*  mx, 
                       int         R, 
                       int         C);
+
+/* reuse MATRIX_2D by resizing only if new matrix requires more memory.  All new matrix values are cleaned. */
+float MATRIX_2D_Reuse_Clean(  MATRIX_2D*  mx,
+                              int         R,
+                              int         C );
 
 /* resize matrix  */
 float MATRIX_2D_Resize(MATRIX_2D*  mx, 

@@ -47,13 +47,13 @@ void EDGEBOUNDS_Reflect(EDGEBOUNDS *edg)
 /*
  *  FUNCTION:  EDGEBOUNDS_Merge()
  *  SYNOPSIS:  Combine two edgebound lists into one. 
- *             Assumes both lists are sorted.
+ *             Assumes input lists are sorted and both oriented by-antidiagonal.
  */
 void EDGEBOUNDS_Merge(const int           Q,             /* query length */
                       const int           T,             /* target length */
                       const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
-                      const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sored ascending) */
-                      EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds */
+                      const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                      EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
 {
    int         i, j;                /* indexes */
    int         x, y;                /* indexes */
@@ -64,7 +64,7 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
 
    bool        has_merged  = false;                /* checks whether to merge or add bounds */
    const int   tol         = 0;                    /* if clouds are within tolerance range, clouds are merged */
-   const int   num_input   = 2;                    /* number of input edgebounds */
+   const int   num_input   = 2;                    /* number of input edgebounds (current locked to two) */
    int         starts[]    = {0,0};                /* head pointers for current edgebound ranges */
 
    /* edgebound meta data */
@@ -76,12 +76,43 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
 
    /* list of edgebound sets */
    const EDGEBOUNDS* edg_in[]  = {edg_in_1, edg_in_2};
+
    /* reset output edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
-   edg_out->edg_mode =  EDG_DIAG;
+   /* verify that all input edgebounds are the same mode */
+   #if DEBUG 
+   {
+      for ( i = 0; i < num_input - 1; i++ ) {
+         if ( edg_in[i]->edg_mode != edg_in[i+1]->edg_mode ) {
+            printf("ERROR: Not all edgebounds being merged have same orientation!");
+            exit(0);
+         }
+      }
+   }
+   #endif
+   edg_out->edg_mode = edg_in_1->edg_mode;
 
    /* new edgebounds which the two old edgebounds will be merged into */
    EDGEBOUNDS* edg_cur  = EDGEBOUNDS_Create();
+
+   /* assert edgebounds are sorted */
+   #if DEBUG
+   {
+      for ( int i = 0; i < num_input; i++ ) 
+      {
+         edg = edg_in[i];
+         for ( int j = 1; j < edg->N; j++ ) 
+         {
+            if ( edg->bounds[j].id < edg->bounds[j-1].id ) {
+               fprintf(stderr, "ERROR: edgebounds are not sorted.\n");
+               fprintf(stderr, "EDG[%d]: [%d].id = %d VS [%d].id = %d\n", 
+                  i, j-1, edg->bounds[j-1].id, j, edg->bounds[j].id );
+               exit(EXIT_FAILURE);
+            }
+         }
+      }
+   }
+   #endif 
 
    /* iterate over all diags */
    st_y = 0;
@@ -100,22 +131,30 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
          end_x  = edg->N;
          for (x = st_x; x < edg->N; x++) 
          {
-            if (edg->bounds[x].id != d) {
+            /* if edge has surpassed the current diagonal, then break */
+            if (edg->bounds[x].id > d) {
                break;
-            } else {
+            } 
+            // /* if edge preceeds the current, skip to next diagonal (should never occur) */
+            // else if (edg->bounds[x].id < d) {
+            //    continue;
+            // }
+            /* otherwise, add edgebound to list and increment starting location */
+            else {
                EDGEBOUNDS_Pushback(edg_cur, &(edg->bounds[x]) );
                st_x++;
             }
          }
+         /* update next starting location to the end location of the last */
          starts[i] = st_x;
       }
 
       /* merge down current list as much as possible (loop until no merges occur) */
       has_merged = true;
-      while (has_merged)
+      while ( has_merged )
       {
          has_merged = false;
-         /* check if merge possible for all pairs */
+         /* check if merge possible for all pairs (n^2 in number of bounds in ) */
          for (int i = 0; i < edg_cur->N; i++) 
          {
             bnd_1 = edg_cur->bounds[i];
@@ -125,18 +164,23 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
                 /* if bounds overlap, then merge them */
                if ( (bnd_1.lb <= bnd_2.rb) && (bnd_2.lb <= bnd_1.rb) ) 
                {
+                  /* take mins and maxes to build new range */
                   lb = MIN(bnd_1.lb, bnd_2.lb);
                   rb = MAX(bnd_1.rb, bnd_2.rb);
+                  /* replace the edgebound at first index */
                   EDGEBOUNDS_Insert(edg_cur, i, &( (BOUND){d,lb,rb} ) );
+                  /* delete the edgebound at the second index (backfills from end of list) */
                   EDGEBOUNDS_Delete(edg_cur, j);
+                  /* flag that a merge has occurred */
                   has_merged = true;
+                  /* go back to start of list */
                   continue;
                }
             }
          }
       }
 
-      /* TODO: sort list (not necess) */
+      /* TODO: sort list (not necessary, since inputs assumed to be sorted) */
       // edgbounds_Sort(edg_cur);
 
       /* insert all in current list into the output list */
@@ -153,13 +197,13 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
 
 
 /*
- *  FUNCTION: EDGEBOUNDS_Reorient()
+ *  FUNCTION: EDGEBOUNDS_Reorient_to_Row()
  *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.       
  */
-void EDGEBOUNDS_Reorient(const int           Q,          /* query length */
-                         const int           T,          /* target length */
-                         const EDGEBOUNDS*   edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                         EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
+void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length */
+                                 const int           T,          /* target length */
+                                 const EDGEBOUNDS*   edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
+                                 EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    int       x, y;                              /* indexes into edgebounds */
    int       y_st, y_end;                       /* index range */
@@ -167,9 +211,20 @@ void EDGEBOUNDS_Reorient(const int           Q,          /* query length */
    int       d,lb,rb;                           /* diag/row, left-bound, right-bound */
    BOUND     bnd_in     = (BOUND){0,0,0};       /* */
    BOUND     bnd_out    = (BOUND){0,0,0};       /* */
-   bool      in_cloud   = false;                /* */
+   bool      in_cloud   = false;                /* flags whether currently extending bounds along a row */
    bool      is_covered = false;                /* */
    const int tol        = 0;                    /* max distance between two row indexes to merge */
+
+   /* first, verify that input edgebounds are stored by-diagonal */
+   if ( edg_in->edg_mode != EDG_DIAG ) {
+      // /* if not, then swap pointers and return */
+      // EDGEBOUNDS* swap = edg_in;
+      // edg_in = edg_out;
+      // edg_out = swap;
+      /* if not, make a copy of input edgebounds for output */
+      EDGEBOUNDS_Copy( edg_out, edg_in );
+      return;
+   }
 
    /* reuse edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );

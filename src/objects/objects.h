@@ -30,6 +30,7 @@
 #include "bound.h"
 #include "clock.h"
 #include "edgebound.h"
+#include "edgebound_rows.h"
 #include "f_index.h"
 #include "hmm_profile.h"
 #include "mystring.h"

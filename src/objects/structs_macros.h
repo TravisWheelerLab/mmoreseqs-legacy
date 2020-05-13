@@ -9,11 +9,35 @@
 #ifndef _STRUCTS_MACROS_H
 #define _STRUCTS_MACROS_H
 
-/* === BUILD TYPE MACROS === */
-/* set debug macros */
+#define TRUE  1
+#define FALSE 0
+
+/* === BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
+/* set default debug build */
 #ifndef DEBUG
-#define DEBUG true
+#define DEBUG FALSE
 #endif
+
+/* whether to use function calls for matrix accesses or explicit array accesses */
+#define MATRIX_FUNCTIONS FALSE
+
+/* type of cloud pruning methods */
+#define PRUNER_NONE 			FALSE 
+#define PRUNER_XDROP_EDGETRIM 	1
+#define PRUNER_XDROP_SPLIT		2
+/* set default  of pruner method */
+#ifndef PRUNER
+#define PRUNER  PRUNER_XDROP_EDGETRIM	
+#endif
+
+/* set whether to store bounds as rows or antidiags in cloud search */
+#define CLOUD_ROWS 		0
+#define CLOUD_DIAGS 	1
+#ifndef CLOUD_METHOD
+#define CLOUD_METHOD  CLOUD_ROWS
+#endif
+
+/* ============================================================================== */
 
 /* debug print (eliminated from code when not debugging) */
 #if DEBUG
@@ -42,20 +66,42 @@
 #define LOCATION 			__FILE__, __LINE__, __FUNCTION__
 
 /* === MATRIX FUNCTIONS === */
+/* => by default, use MATRIX_3D and MATRIX_2D function calls */
+#if ( MATRIX_FUNCTIONS == TRUE )
 /* generic access for any 3d matrix */
 #define MX_3D(mx,st,i,j)  	( *MATRIX_3D_Get( mx, st, i, j ) )
+#endif
+
+/* => else, use direct array access */
+#if ( MATRIX_FUNCTIONS == FALSE )
+/* generic access for any 3d matrix */
+#define MX_3D(mx,st,i,j)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (i) * (mx->N)) + (j) ] )
+#endif
+
 /* match, insert, delete for st_MX matrix */
 #define MMX(i,j)           	MX_3D( st_MX, MAT_ST, i, j )
 #define IMX(i,j)           	MX_3D( st_MX, INS_ST, i, j )
 #define DMX(i,j)           	MX_3D( st_MX, DEL_ST, i, j )
 /* match, insert, delete for st_MX3 matrix */
-#define MMX3(i,j)          MX_3D( st_MX3, MAT_ST, i, j )
-#define IMX3(i,j)          MX_3D( st_MX3, INS_ST, i, j )
-#define DMX3(i,j)          MX_3D( st_MX3, DEL_ST, i, j )
+#define MMX3(i,j)          	MX_3D( st_MX3, MAT_ST, i, j )
+#define IMX3(i,j)          	MX_3D( st_MX3, INS_ST, i, j )
+#define DMX3(i,j)          	MX_3D( st_MX3, DEL_ST, i, j )
 
 /* generic access for any 2d matrix */
-#define MX_2D(mx,sp,i)     ( *MATRIX_2D_Get(mx,sp,i) )
-#define XMX(sp,i)          MX_2D(sp_MX,sp,i)
+/* => by default, use MATRIX_3D and MATRIX_2D function calls */
+#if ( MATRIX_FUNCTIONS == TRUE )
+/* generic access for any 3d matrix */
+#define MX_2D(mx,st,i,j)  	( *MATRIX_2D_Get( mx, sp, i ) )
+#endif
+
+/* => else, use direct array access */
+#if ( MATRIX_FUNCTIONS == FALSE )
+/* generic access for any 3d matrix */
+#define MX_2D(mx,st,i)  	( mx->data[ ((st) * (mx->C)) + (i) ] )
+#endif
+
+#define XMX(sp,i)          	MX_2D(sp_MX,sp,i)
+
 
 /* TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS */
 /* generic hmm profile functions */

@@ -28,7 +28,7 @@ double CLOCK_Start( CLOCK* cl );
 double CLOCK_Stop( CLOCK* cl );
 
 /* Convert duration from ticks to msec */
-float CLOCK_Secs( CLOCK* cl );
+double CLOCK_Secs( CLOCK* cl );
 
 
 /* capture time based on system (pulled directly from easel) */

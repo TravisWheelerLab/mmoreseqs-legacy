@@ -9,16 +9,16 @@
 #ifndef _STRUCTS_ENUMS_H
 #define _STRUCTS_ENUMS_H
 
+/* === VERSION === */
+#define BUILD_VERSION   0.1
+#define BUILD_NAME      "alpha"
+#define BUILD_DATE      __DATE__
+
 /* === CONSTANTS === */
 #define CONST_LOG2      0.69314718055994529     /* natural log: ln(2) */
 #define SCALE_FACTOR    1000                    /* scaling factor for summing logrithm */
 #define INF             INFINITY                /*  */
 #define INT_MIN         -2147483648             /* min value of integer */
-
-/* === VERSION === */
-#define BUILD_VERSION   0.1
-#define BUILD_NAME      "alpha"
-#define BUILD_DATE      __DATE__
 
 /* === OUTPUT PIPES === */
 #define STDOUT          "/dev/stdout"

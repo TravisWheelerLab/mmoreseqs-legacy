@@ -21,10 +21,22 @@
 /* header */
 #include "vector_int.h"
 
-/* constructor */
+/*
+ *  FUNCTION:  VECTOR_INT_Create()
+ *  SYNOPSIS:  Create new VECTOR_INT object and returns pointer.
+ */
 VECTOR_INT* VECTOR_INT_Create()
 {
    const int init_size = 8;
+   return VECTOR_INT_Create_by_Size( init_size );
+}
+
+/*
+ *  FUNCTION:  VECTOR_INT_Create()
+ *  SYNOPSIS:  Create new VECTOR_INT object at specific size and returns pointer.
+ */
+VECTOR_INT* VECTOR_INT_Create_by_Size( int size )
+{
    VECTOR_INT *vec = NULL;
    vec         = (VECTOR_INT *) malloc( sizeof(VECTOR_INT) );
    if ( vec == NULL ) {
@@ -34,7 +46,7 @@ VECTOR_INT* VECTOR_INT_Create()
    vec->data   = NULL;
    vec->N      = 0;
    vec->Nalloc = 0;
-   VECTOR_INT_Resize( vec, init_size );
+   VECTOR_INT_Resize( vec, size );
 
    return vec;
 }
@@ -51,6 +63,14 @@ void VECTOR_INT_Destroy( VECTOR_INT* vec )
 void VECTOR_INT_Reuse( VECTOR_INT* vec )
 {
    vec->N = 0;
+}
+
+/* set all active indexes to zero */
+void VECTOR_INT_Fill( VECTOR_INT* vec, int val )
+{
+   for ( int i = 0; i < vec->N; i++ ) {
+      vec->data[i] = val;
+   }
 }
 
 /* deep copy */
@@ -104,20 +124,20 @@ int VECTOR_INT_Pop( VECTOR_INT* vec )
 
    return tmp;
 }
-
-/* set data at index (no bound checks) */
-void VECTOR_INT_Set( VECTOR_INT* vec, 
-                     int         idx, 
-                     int         val )
-{
-   vec->data[idx] = val;
-}
-
 /* get data at index (no checks) */
-int VECTOR_INT_Get(  VECTOR_INT* vec, 
-                     int         idx )
+int* VECTOR_INT_Get( VECTOR_INT*  vec, 
+                     int          idx )
 {
-   return vec->data[idx];
+   /* if debugging, do edgebound checks */
+   #if DEBUG 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_INT access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
 }
 
 /* compare two VECTOR_INT objects */

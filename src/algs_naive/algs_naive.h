@@ -9,6 +9,6 @@
 #ifndef _ALGS_NAIVE_H
 #define _ALGS_NAIVE_H
 
-#include "bounded_fwdbck_naive.h"
+#include "bound_fwdbck_naive.h"
 
 #endif /* _ALGS_NAIVE_H */
