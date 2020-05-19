@@ -34,8 +34,11 @@
 #define CLOUD_ROWS 		0
 #define CLOUD_DIAGS 	1
 #ifndef CLOUD_METHOD
-#define CLOUD_METHOD  CLOUD_ROWS
+#define CLOUD_METHOD  CLOUD_DIAGS
 #endif
+
+#define DIRTY_VAL 1.0
+#define SCRUB_VAL 2.0
 
 /* ============================================================================== */
 
@@ -91,7 +94,7 @@
 /* => by default, use MATRIX_3D and MATRIX_2D function calls */
 #if ( MATRIX_FUNCTIONS == TRUE )
 /* generic access for any 3d matrix */
-#define MX_2D(mx,st,i,j)  	( *MATRIX_2D_Get( mx, sp, i ) )
+#define MX_2D(mx,st,i)  	( *MATRIX_2D_Get( mx, st, i ) )
 #endif
 
 /* => else, use direct array access */

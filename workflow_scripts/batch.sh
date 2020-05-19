@@ -1,4 +1,10 @@
- #!/usr/local/bin/bash
+#!/usr/local/bin/bash
+###########################################################################
+#  NAME:       batch.sh
+#  DESC:       Run fb-pruner in batches.
+#
+#  AUTHOR:     David Rich
+###########################################################################
 
 BATCH="bash /Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/scripts/batch_benchmarks.sh"
 TEST_DIR="/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data/test_list"

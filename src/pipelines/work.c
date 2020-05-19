@@ -661,32 +661,36 @@ void WORK_cloud_search( WORKER* worker )
       /* cloud forward */
       printf_vall("=> cloud forward (lin)...\n");
       CLOCK_Start(clok);
-      #if ( CLOUD_METHOD == CLOUD_ROWS )
+      #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
          cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_fwd, alpha, beta );
       }
-      #elif ( CLOUD_METHOD == CLOUD_DIAGS )
+      #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
          cloud_Forward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, alpha, beta );
       }
       #endif
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* cloud backward */
       printf_vall("=> cloud backward (lin)...\n");
       CLOCK_Start(clok);
-      #if ( CLOUD_METHOD == CLOUD_ROWS )
+      #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
+         printf("cloud bck diag...\n");
          cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_bck, alpha, beta );
       }
-      #elif ( CLOUD_METHOD == CLOUD_DIAGS )
+      #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
+         printf("cloud bck row-wise...\n");
          cloud_Backward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, alpha, beta );
       }
       #endif
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* merge edgebounds */
       printf_vall("=> merge (lin)...\n");
@@ -698,6 +702,7 @@ void WORK_cloud_search( WORKER* worker )
       /* reorient edgebounds */
       printf_vall("=> reorient (lin)...\n");
       CLOCK_Start(clok);
+      int precount  = EDGEBOUNDS_Count( edg_row );
       EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
       times->lin_reorient = CLOCK_Secs(clok);
@@ -717,6 +722,7 @@ void WORK_cloud_search( WORKER* worker )
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
+      printf("COUNT TEST: %d vs %d\n", precount, result->cloud_cells);
    }
    /* bounded forward */
    if ( tasks->lin_bound_fwd ) {
@@ -726,6 +732,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
    /* bounded backward */
    if ( tasks->lin_bound_bck ) {
@@ -735,6 +742,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->lin_bound_bck = CLOCK_Secs(clok);
       scores->lin_cloud_bck = sc;
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
 
    /* if performing quadratic bounded forward or backward  */

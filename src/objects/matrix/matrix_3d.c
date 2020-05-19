@@ -129,9 +129,11 @@ int MATRIX_3D_Check_Value( MATRIX_3D*     mx,
 {
    int cnt = 0;
    int N = mx->R * mx->C * mx->N;
-   for ( int i = 0; i < N; i++ )
-      if ( *MATRIX_3D_Get_1D( mx, i ) != val )
-         cnt++;
+   for ( int i = 0; i < mx->R; i++ )
+      for ( int j = 0; j < mx->C; j++ )
+         for ( int k = 0; k < mx->N; k++ )
+            if ( *MATRIX_3D_Get( mx, i, j, k ) != val )
+               cnt++;
 
    return cnt;
 }

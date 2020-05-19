@@ -58,7 +58,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
    /* extract data from objects */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
-   int      i, j, k;                         /* row, column indices */
+   int      b, d, i, j, k;                   /* diagonal, row, column indices */
    char*    seq;                             /* alias for getting seq */
    int      N = edg->N;                      /* length of edgebound list */
 
@@ -98,13 +98,22 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
 
    /* --------------------------------------------------------------------------------- */
 
-   /* clear leftover data */
    if ( st_MX3->clean == false ) {
+      /* clear leftover data if necessary */
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
       st_MX3->clean = true;
    }
-   /* when this function, all modified cells will be cleared */
    st_MX3->clean = true;
+
+   #if DEBUG
+   {
+      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
+      printf("PRE-CHECK CLEAN  -> BOUND FWD?\t %d\n", cmp);
+      if ( cmp != 0 ) {
+         MATRIX_3D_Clean( st_MX3 );
+      }
+   }
+   #endif 
 
    /* query sequence */
    seq = query->seq;
@@ -162,7 +171,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      MMX3(r_0, 0) = IMX3(r_0, 0) = DMX3(r_0, 0) = -INF;
+      // MMX3(r_0, 0) = IMX3(r_0, 0) = DMX3(r_0, 0) = -INF;
       XMX(SP_E, x_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
@@ -218,7 +227,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_2D(cloud_MX, x_0, j) += DIRTY_VAL;
                MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
                MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
                MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
@@ -267,7 +276,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_2D(cloud_MX, x_0, j) += DIRTY_VAL;
                MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
                MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
                MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
@@ -303,7 +312,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
       //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
       // }
 
-      /* Scrub 2-back bound data */
+      /* Scrub 1-back bound data */
       for (i = r_1b; i < r_1e; i++) 
       {
          /* in this context, "diag" represents the "row" */
@@ -313,6 +322,11 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
 
          for (j = y1; j <= y2; j++) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, x_1, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -330,22 +344,57 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
    //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
    // }
 
-   /* TODO: Scrub final rows */
+   /* TODO: Scrub final row */
    for (i = r_1b; i < r_1e; i++) 
    {
-      // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
+      // x = EDG_X(edg,i).id;       /* NOTE: this is always the same as cur_row, x_0 */
       y1 = EDG_X(edg,i).lb;          
       y2 = EDG_X(edg,i).rb;
 
-      for (j = y1; j <= y2; j++) {
+      for (j = y1; j <= y2; j++) 
+      {
          MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+         #if DEBUG
+         {
+            MX_2D( cloud_MX, x_1, j ) += SCRUB_VAL;
+         }
+         #endif
+      }
+   }
+   for (i = r_0b; i < r_0e; i++) 
+   {
+      // x = EDG_X(edg,i).id;       /* NOTE: this is always the same as cur_row, x_0 */
+      y1 = EDG_X(edg,i).lb;          
+      y2 = EDG_X(edg,i).rb;
+
+      for (j = y1; j <= y2; j++) 
+      {
+         MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+         #if DEBUG
+         {
+            MX_2D( cloud_MX, x_0, j ) += SCRUB_VAL;
+         }
+         #endif
       }
    }
 
    #if DEBUG
    {
-      int cnt = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("Clean Test? %d\n", cnt);
+      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
+
+      /* final test that all cells are cleared */
+      int cmp = MATRIX_3D_Check_Clean( st_MX3 );
+      printf("POST-CHECK CLEAN -> CLOUD FWD?\t %d\n", cmp );
+      if ( cmp != 0 )  {
+         // MATRIX_3D_Dump( st_MX3, stdout );
+         MATRIX_3D_Clean( st_MX3 );
+      }
+   }
+   #endif
+   #if DEBUG 
+   {
+      /* close debugger tools */
       fclose(dbfp);
    }
    #endif
@@ -384,7 +433,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
    /* extract data from objects */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
-   int      i, j, k;                         /* row, column indices */
+   int      b, d, i, j, k;                   /* row, column indices */
    char*    seq;                             /* alias for getting seq */
    int      N = edg->N;                      /* length of edgebound list */
 
@@ -429,8 +478,18 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
       st_MX3->clean = true;
    }
-   /* when this function, all modified cells will be cleared */
    st_MX3->clean = true;
+
+   /* verify data is clean */
+   #if DEBUG
+   {
+      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
+      printf("PRE-CHECK CLEAN  -> BOUND BCK?\t %d\n", cmp);
+      if ( cmp != 0 ) {
+         MATRIX_3D_Clean( st_MX3 );
+      }
+   }
+   #endif 
 
    /* query sequence */
    seq = query->seq;
@@ -477,7 +536,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
          /* embed linear row into quadratic test matrix */
          #if DEBUG
          {
-            MX_2D(cloud_MX, x_0, j) = 1.0;
+            MX_2D(cloud_MX, x_0, j) += DIRTY_VAL;
             MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
             MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
             MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
@@ -499,7 +558,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
    {
       /* convert quadratic space row index to linear space row index */
       row_cur = x_0;             
-      r_0 = x_0 % 2;                 /* for use in linear space alg (mod-mapping) */
+      r_0 = x_0 % 2;    /* for use in linear space alg (mod-mapping) */
 
       /* add every edgebound from current row */
       r_0b = k;
@@ -556,7 +615,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
          #if DEBUG
          {
             /* embed linear row into quadratic test matrix */
-            MX_2D(cloud_MX, x_0, T) = 1.0;
+            MX_2D(cloud_MX, x_0, T) += DIRTY_VAL;
             MX_3D(test_MX, MAT_ST, x_0, T) = MMX3(r_0, T);
             MX_3D(test_MX, INS_ST, x_0, T) = IMX3(r_0, T);
             MX_3D(test_MX, DEL_ST, x_0, T) = DMX3(r_0, T);
@@ -611,7 +670,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
             #if DEBUG
             {
                /* embed linear row into quadratic test matrix */
-               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_2D(cloud_MX, x_0, j) += DIRTY_VAL;
                MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
                MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
                MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
@@ -621,9 +680,9 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
       }
 
       /* Naive Scrub */
-      for (j = 0; j <= T; j++) {
-         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      }
+      // for (j = 0; j <= T; j++) {
+      //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+      // }
 
       /* Scrub Previous Row */
       for (i = r_1b; i > r_1e; i--) 
@@ -635,6 +694,11 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
 
          for (j = y1; j < y2; j++) {
             MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, x_1, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -683,13 +747,13 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
    XMX(SP_N, x_0) = logsum( XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP),
                             XMX(SP_B, x_0) + XSC(SP_N, SP_MOVE) );
 
-   /* Naive scrub */
-   for (j = T; j >= 1; j--) {
-      MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
-      MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
-   }
+   // /* Naive scrub */
+   // for (j = T; j >= 1; j--) {
+   //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+   //    MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+   // }
 
-   /* Scrub final rows */
+   /* Scrub final 2 rows */
    for (i = r_1b; i < r_1e; i++) 
    {
       /* in this context, "diag" represents the "row" */
@@ -699,6 +763,11 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
 
       for (j = y1; j < y2; j++) {
          MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+         #if DEBUG
+         {
+            MX_2D( cloud_MX, x_1, j ) += SCRUB_VAL;
+         }
+         #endif
       }
    }
    for (i = r_0b; i < r_0e; i++) 
@@ -708,15 +777,27 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
       y2 = EDG_X(edg,i).rb;
 
       for (j = y1; j < y2; j++) {
-         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+         MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+         #if DEBUG
+         {
+            MX_2D( cloud_MX, x_0, j ) += SCRUB_VAL;
+         }
+         #endif
       } 
    }
 
    #if DEBUG
    {
-      int cnt = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("Clean Test? %d\n", cnt );
-      fclose(dbfp);
+      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
+
+      /* final test that all cells are cleared */
+      int cmp = MATRIX_3D_Check_Clean( st_MX3 );
+      printf("POST-CHECK CLEAN -> BOUND BCK?\t %d\n", cmp );
+      if ( cmp != 0 ) {
+         // MATRIX_3D_Dump( st_MX3, stdout );
+         MATRIX_3D_Clean( st_MX3 );
+      }
    }
    #endif
 

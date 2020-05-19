@@ -1,8 +1,9 @@
 #!/usr/local/bin/bash
 ###########################################################################
-#	NAME: 		mmseqs_plus.sh	
-#	AUTHOR:		David Rich
-#	DESC: 		Run main fb-pruner pipeline
+#  NAME:       batch.sh
+#  DESC:       Run main fb-pruner pipeline
+#
+#  AUTHOR:     David Rich
 ###########################################################################
 
 BENCH_DIR=$(pwd)/;

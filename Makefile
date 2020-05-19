@@ -10,6 +10,7 @@
 # define C compiler to use
 CC = gcc
 CXX = g++
+DBG = 0
 
 # final executable
 TARGET_EXEC ?= fb-pruner
@@ -34,11 +35,11 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CLIBS := -lm
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -DDEBUG=1
-CFLAGS := $(INC_FLAGS) -g -pg 
+CFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=$(DBG) -std=gnu99
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -DDEBUG=0 -std=gnu99
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -DDEBUG=$(DBG) -std=gnu99
 # flags for debugging and profiling
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=0
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=1
 
 # speial flags for RELEASE or DEBUG
 ifeq ($(RELEASE), 1)

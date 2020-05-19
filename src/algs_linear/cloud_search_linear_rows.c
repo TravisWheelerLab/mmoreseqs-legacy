@@ -130,9 +130,18 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       /* clear leftover data */
       DP_MATRIX_Fill( Q, T, st_MX3, sp_MX, -INF );
       st_MX3->clean = false;
-   } else {
-      int clean =  MATRIX_3D_Check_Clean( st_MX3 );
+   } 
+   st_MX3->clean = true;
+
+   #if DEBUG
+   {
+      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
+      printf("PRE-CHECK CLEAN  -> CLOUD FWD?\t %d\n", cmp);
+      if ( cmp != 0 ) {
+         MATRIX_3D_Clean( st_MX3 );
+      }
    }
+   #endif 
    
    /* set edgebound dimensions and orientation */
    edg->Q         = Q;
@@ -289,7 +298,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       }
 
       /* MAIN RECURSION */
-      /* Iterate the ranges of the antidiagonal */
+      /* Iterate the bound ranges of the current antidiagonal */
       for ( b = 0; b < lb_vec[0]->N; b++ ) 
       {
          lb_0 = lb_vec[0]->data[b];
@@ -340,7 +349,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
             /* embed cell data in quadratic matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, i, j ) = 1.0;
+               MX_2D( cloud_MX, i, j ) += DIRTY_VAL;
                MX_3D( test_MX, MAT_ST, i, j ) = MMX3(d0, k);
                MX_3D( test_MX, INS_ST, i, j ) = IMX3(d0, k);
                MX_3D( test_MX, DEL_ST, i, j ) = DMX3(d0, k);
@@ -365,6 +374,11 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
             i = k;
             j = d_2 - i;
             MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, i, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -388,7 +402,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    }
 
    /* TODO: Scrub last two rows */
-   for (d = d_end; d < (d_end + 2); d++)
+   for (d = (d_end + 1); d < (d_end + 3); d++)
    {
       d_0 = d;          /* current antidiagonal */
       d_1 = (d-1);      /* look back 1 antidiagonal */
@@ -409,6 +423,11 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
             i = k;
             j = d_2 - i;
             MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, i, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -450,17 +469,18 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    #if DEBUG
    {
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
-      // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
-      /* test that all cells are cleared */
-      // MATRIX_3D_Clean( st_MX3 );
+
+      /* final test that all cells are cleared */
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("Clear Check?\t%d\n", cmp );
-   }
-   #endif 
-   /* close necessary debugger tools */
-   #if DEBUG
-   {
+      printf("POST-CHECK CLEAN -> CLOUD FWD?\t %d\n", cmp );
+      if ( cmp != 0 )  {
+         // MATRIX_3D_Dump( st_MX3, stdout );
+         MATRIX_3D_Clean( st_MX3 );
+      }
+
+      /* close debugger tools */
       fclose( dbfp );
    }
    #endif
@@ -557,11 +577,23 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
 
    /* --------------------------------------------------------------------------------- */
 
+   /* clear leftover data if necessary */
    if ( st_MX3->clean == false ) {
-      /* clear leftover data */
       DP_MATRIX_Fill( Q, T, st_MX3, sp_MX, -INF );
-      st_MX3->clean = false;
+      st_MX3->clean = true;
    }
+   st_MX3->clean = true;
+
+   /* verify data is clean */
+   #if DEBUG
+   {
+      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
+      printf("PRE-CHECK CLEAN  -> CLOUD BCK?\t %d\n", cmp);
+      if ( cmp != 0 ) {
+         MATRIX_3D_Clean( st_MX3 );
+      }
+   }
+   #endif 
    
    /* set edgebound dimensions and orientation */
    edg->Q         = Q;
@@ -725,12 +757,13 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       }
 
       /* MAIN RECURSION */
+      /* Iterate through the range bounds of the current antidiagonal */
       for ( b = 0; b < lb_vec[0]->N; b++ )
       {
          lb_0 = lb_vec[0]->data[b];
          rb_0 = rb_vec[0]->data[b];
 
-         /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
+         /* Iterate through cells in current bound */
          for ( k = lb_0; k < rb_0; k++ )
          {
             /* get x-y coords */
@@ -784,7 +817,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
             /* embed cell data in quadratic matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, i, j ) = 1.0;
+               MX_2D( cloud_MX, i, j ) += DIRTY_VAL;
                MX_3D( test_MX, MAT_ST, i, j ) = MMX3(d0, k);
                MX_3D( test_MX, INS_ST, i, j ) = IMX3(d0, k);
                MX_3D( test_MX, DEL_ST, i, j ) = DMX3(d0, k);
@@ -809,6 +842,11 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
             i = k;
             j = d_2 - i;
             MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, i, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -835,7 +873,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    EDGEBOUNDS_Reverse(edg);
 
    /* TODO: scrub last two rows */
-   for (d = d_st; d > (d_st - 2); d--)
+   for (d = (d_st - 1); d > (d_st - 3); d--)
    {
       d_0 = d;       /* current diagonal */
       d_1 = (d+1);   /* look back 1 diagonal */
@@ -856,6 +894,11 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
             i = k;
             j = d_2 - i;
             MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            #if DEBUG
+            {
+               MX_2D( cloud_MX, i, j ) += SCRUB_VAL;
+            }
+            #endif
          }
       }
 
@@ -893,16 +936,20 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       }
    }
    #endif
-   /* show visualization of search cloud */
    #if DEBUG
    {
+      /* show visualization of search cloud */
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
-      // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
-      /* test that all cells are cleared */
-      // MATRIX_3D_Clean( st_MX3 );
+
+      /* final test that all cells are cleared */
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("Clear Check?\t%d\n", cmp );
+      printf("POST-CHECK CLEAN -> CLOUD BCK?\t %d\n", cmp );
+      if ( cmp != 0 ) {
+         // MATRIX_3D_Dump( st_MX3, stdout );
+         MATRIX_3D_Clean( st_MX3 );
+      }
    }
    #endif 
    #if DEBUG
