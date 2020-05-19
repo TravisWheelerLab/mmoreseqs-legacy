@@ -51,6 +51,15 @@ void DP_MATRIX_Clean(   const int   Q,
                         MATRIX_2D*  sp_MX );
 
 /*
+ *  FUNCTION:  DP_MATRIX_Clean_Verify()
+ *  SYNOPSIS:  Check whether there are clean.  If clean, returns true.
+ */
+bool DP_MATRIX_Clean_Verify(  const int   Q, 
+                              const int   T,
+                              MATRIX_3D*  st_MX,
+                              MATRIX_2D*  sp_MX );
+
+/*
  *  FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS: Compare two dynamic programming matrices.
  */

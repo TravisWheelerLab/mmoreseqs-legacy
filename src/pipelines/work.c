@@ -66,6 +66,8 @@ void WORK_init( WORKER* worker )
    worker->edg_diag     = EDGEBOUNDS_Create();
    worker->edg_row      = EDGEBOUNDS_Create();
 
+   worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
+
    /* create necessary dp matrices */
    if ( tasks->quadratic ) {
       worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
@@ -93,21 +95,23 @@ void WORK_reuse( WORKER* worker )
    EDGEBOUNDS_Reuse( worker->edg_diag, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_row, Q, T );
 
+   EDGEBOUND_ROWS_Reuse( worker->edg_rows_tmp, Q, T );
+
    /* reuse necessary dp matrices (only reallocs if new size is larger) */
    if ( tasks->quadratic ) {
-      MATRIX_3D_Reuse( worker->st_MX, NUM_NORMAL_STATES,  Q+1, T+1 );
+      MATRIX_3D_Reuse_Clean( worker->st_MX, NUM_NORMAL_STATES,  Q+1, T+1 );
    }
    if ( tasks->linear ) {
-      MATRIX_3D_Reuse( worker->st_MX3, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
+      MATRIX_3D_Reuse_Clean( worker->st_MX3, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
    }
    if ( tasks->quadratic || tasks->linear ) {
-      MATRIX_2D_Reuse( worker->sp_MX, NUM_SPECIAL_STATES, Q+1);
+      MATRIX_2D_Reuse_Clean( worker->sp_MX, NUM_SPECIAL_STATES, Q+1);
    }
 
    #if DEBUG 
    {
-      MATRIX_2D_Reuse( debugger->cloud_MX, Q+1, T+1 );
-      MATRIX_3D_Reuse( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
+      MATRIX_2D_Reuse_Clean( debugger->cloud_MX, Q+1, T+1 );
+      MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
    }
    #endif
 }
@@ -650,19 +654,37 @@ void WORK_cloud_search( WORKER* worker )
    EDGEBOUNDS*    edg_diag = worker->edg_diag;
    EDGEBOUNDS*    edg_row  = worker->edg_row;
 
+   EDGEBOUND_ROWS*   edg_rows_tmp = worker->edg_rows_tmp;
+
    /* if performing linear bounded forward or backward  */
    if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) {
       /* cloud forward */
       printf_vall("=> cloud forward (lin)...\n");
       CLOCK_Start(clok);
-      cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_fwd, alpha, beta );
+      #if ( CLOUD_METHOD == CLOUD_ROWS )
+      {
+         cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_fwd, alpha, beta );
+      }
+      #elif ( CLOUD_METHOD == CLOUD_DIAGS )
+      {
+         cloud_Forward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, alpha, beta );
+      }
+      #endif
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
 
       /* cloud backward */
       printf_vall("=> cloud backward (lin)...\n");
       CLOCK_Start(clok);
-      cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_bck, alpha, beta );
+      #if ( CLOUD_METHOD == CLOUD_ROWS )
+      {
+         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_bck, alpha, beta );
+      }
+      #elif ( CLOUD_METHOD == CLOUD_DIAGS )
+      {
+         cloud_Backward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, alpha, beta );
+      }
+      #endif
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
 
@@ -901,22 +923,22 @@ void WORK_print_result_current( WORKER* worker )
    fprintf(fp, "%d\t",     worker->t_prof->N );
    fprintf(fp, "%d\t",     worker->q_seq->N );
 
-   fprintf(fp, "%9.4f\t",  args->alpha );
+   fprintf(fp, "%f\t",  args->alpha );
    fprintf(fp, "%d\t",     args->beta );
 
    fprintf(fp, "%d\t",     worker->result->total_cells );
    fprintf(fp, "%d\t",     worker->result->cloud_cells );
 
-   fprintf(fp, "%9.4f\t",  scores->quad_vit );
-   fprintf(fp, "%9.4f\t",  scores->lin_cloud_fwd );
+   fprintf(fp, "%f\t",  scores->quad_vit );
+   fprintf(fp, "%f\t",  scores->lin_cloud_fwd );
 
-   fprintf(fp, "%9.4f\t",  times->quad_vit );
-   fprintf(fp, "%9.4f\t",  times->quad_trace );
-   fprintf(fp, "%9.4f\t",  times->lin_cloud_fwd );
-   fprintf(fp, "%9.4f\t",  times->lin_cloud_bck );
-   fprintf(fp, "%9.4f\t",  times->lin_merge );
-   fprintf(fp, "%9.4f\t",  times->lin_reorient );
-   fprintf(fp, "%9.4f\t",  times->lin_bound_fwd );
+   fprintf(fp, "%f\t",  times->quad_vit );
+   fprintf(fp, "%f\t",  times->quad_trace );
+   fprintf(fp, "%f\t",  times->lin_cloud_fwd );
+   fprintf(fp, "%f\t",  times->lin_cloud_bck );
+   fprintf(fp, "%f\t",  times->lin_merge );
+   fprintf(fp, "%f\t",  times->lin_reorient );
+   fprintf(fp, "%f\t",  times->lin_bound_fwd );
 
    fprintf(fp, "\n");
 }

@@ -25,8 +25,11 @@ else:
    sys.exit(0)
 
 # load mmseqs lookup file
-def load_mmseqs_lookup( filename ):
-	data = []
+def load_mmseqs_lookup_list( filename, ftype = "dict" ):
+	if ftype == "list":
+		data = []
+	elif ftype == "dict":
+		data = {}
 
 	with open( filename, "r" ) as fp:
 		for line in fp:
@@ -40,16 +43,23 @@ def load_mmseqs_lookup( filename ):
 			# get data fields
 			mid  = line[0]
 			name = line[1]
-			#insert into list
-			data.append( (mid, name) )
+
+			#insert into database
+			if ftype == "list": 
+				data.append( (mid, name) )
+			elif ftype == "dict":
+				data[mid] = "name"
 
 	# sort ids according to names 
 	data.sort( key = lambda x: x[1] )
 	return data
 
 # load cloud lookup file
-def load_cloud_lookup( filename ):
-	data = []
+def load_cloud_lookup( filename, ftype = "dict" ):
+	if ftype == "list":
+		data = []
+	elif ftype == "dict":
+		data = {}
 
 	with open( filename, "r" ) as fp:
 		for line in fp:
@@ -64,12 +74,25 @@ def load_cloud_lookup( filename ):
 			cid	    = line[0]
 			offset 	= line[1]
 			name 	= line[2]
-			# insert into dictionary
-			data.append( (cid, offset, name) )
+
+			# insert into database
+			if ftype == "list":
+				data.append( (cid, offset, name) )
+			elif ftype == "dict":
+				data[cid] = (name, offset)
 
 	# sort ids according to names 
 	data.sort( key = lambda x: x[2] )
 	return data
+
+# join mmseqs and cloud lookup tables
+def join_lookup_dicts( mmseqs_dict, cloud_dict ):
+	joint_dict = {}
+	for key in mmseqs_dict.keys():
+		if key in cloud_dict.keys():
+			joint_dict[key] = ( mmseqs_dict[key], cloud_dict[key] )
+
+	return joint_dict
 
 # load joint lookup file
 def load_joint_lookup( filename ):

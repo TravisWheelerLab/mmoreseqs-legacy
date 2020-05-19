@@ -41,16 +41,14 @@
  *
  *  RETURN: 
  */
-float forward_Quad(const SEQUENCE*   query, 
-                  const HMM_PROFILE* target, 
-                  const int          Q, 
-                  const int          T, 
-                  MATRIX_3D*         st_MX, 
-                  MATRIX_2D*         sp_MX,
-                  float*             sc_final)
+float forward_Quad(  const SEQUENCE*   query, 
+                     const HMM_PROFILE* target, 
+                     const int          Q, 
+                     const int          T, 
+                     MATRIX_3D*         st_MX, 
+                     MATRIX_2D*         sp_MX,
+                     float*             sc_final )
 {
-   logsum_Init();
-
    char   a;           /* store current character in sequence */
    int    A;           /* store int value of character */
    int    i,j,k = 0;   /* row, column indices */
@@ -67,6 +65,9 @@ float forward_Quad(const SEQUENCE*   query,
    float  sc_E = (is_local) ? 0 : -INF;
 
    /* --------------------------------------------------------------------------------- */
+
+   /* initialize logsum table if it hasn't been yet (debug?) */
+   logsum_Init();
 
    /* initialize special states (?) */
    XMX(SP_N,0) = 0;                                         /* S->N, p=1             */
@@ -94,16 +95,15 @@ float forward_Quad(const SEQUENCE*   query,
       {
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         sc1 = prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-         sc2 = prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-         sc3 = prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
-         sc4 = prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
+         prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
+         prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
+         prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+         prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
 
          /* best-to-match */
          prev_sum = logsum( 
                         logsum( prev_mat, prev_ins ),
-                        logsum( prev_beg, prev_del )
-                     );
+                        logsum( prev_beg, prev_del ) );
          MMX(i,j) = prev_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -123,9 +123,8 @@ float forward_Quad(const SEQUENCE*   query,
          DMX(i,j) = prev_sum;
 
          /* UPDATE E STATE */
-         sc1 = XMX(SP_E,i);
-         sc2 = prev_mat = MMX(i,j) + sc_E;
-         sc4 = prev_del = DMX(i,j) + sc_E;
+         prev_mat = MMX(i,j) + sc_E;
+         prev_del = DMX(i,j) + sc_E;
          XMX(SP_E,i) = logsum( 
                            logsum( prev_mat, prev_del ),
                            XMX(SP_E,i) );
@@ -136,15 +135,14 @@ float forward_Quad(const SEQUENCE*   query,
 
       /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
       /* best previous state transition (match takes the diag element of each prev state) */
-      sc1 = prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
-      sc2 = prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
-      sc3 = prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
-      sc4 = prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+      prev_mat = MMX(i-1,j-1)  + TSC(j-1,M2M);
+      prev_ins = IMX(i-1,j-1)  + TSC(j-1,I2M);
+      prev_del = DMX(i-1,j-1)  + TSC(j-1,D2M);
+      prev_beg = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
       /* sum-to-match */
       prev_sum = logsum( 
-                        logsum( prev_mat, prev_ins ),
-                        logsum( prev_del, prev_beg )
-                     );
+                     logsum( prev_mat, prev_ins ),
+                     logsum( prev_del, prev_beg ) );
       MMX(i,j) = prev_sum + MSC(j,A);
 
       /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */

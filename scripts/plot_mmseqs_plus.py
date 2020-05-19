@@ -20,30 +20,30 @@ import matplotlib.patches as patches
 # loads .mym8 file, fwdbck is True if fwdbck
 def load_mym8( filename ):
  	# field counter
- 	f_cnt = 0
+	f_cnt = 0
 	data = []
 
- 	with open( filename, "r" ) as fp:
- 		for line in fp:
- 			# check for comment lines or empty lines
- 			if ( (line[0] == ">") or (line[0] == "#") ):
- 				continue
+	with open( filename, "r" ) as fp:
+		for line in fp:
+			# check for comment lines or empty lines
+			if ( (line[0] == ">") or (line[0] == "#") ):
+				continue
 
- 			# break up line
- 			fields = line.split()
+			# break up line
+			fields = line.split()
 
- 		# 	# ids
- 		# 	result_id 	= fields[f_cnt]
- 		# 	t_id 		= fields[1]
- 		# 	q_id  		= fields[2]
+		# 	# ids
+		# 	result_id 	= fields[f_cnt]
+		# 	t_id 		= fields[1]
+		# 	q_id  		= fields[2]
 
- 		# 	# problem size
- 		# 	t_len		= fields[3]
- 		# 	q_len		= fields[4]
- 		# 	total_cells = fields[5]
- 		# 	cloud_cells = fields[6]
+		# 	# problem size
+		# 	t_len		= fields[3]
+		# 	q_len		= fields[4]
+		# 	total_cells = fields[5]
+		# 	cloud_cells = fields[6]
 
- 		# 	# parameters
+		# 	# parameters
  		# 	alpha 		= fields[7]
  		# 	beta 		= fields[8]
 
@@ -66,13 +66,13 @@ def load_mym8( filename ):
  		# 	bnd_fwd_t 	= fields[20]
  		# 	total_t 	= fields[21]
 
- 			data.append(fields)
- 			continue
+			data.append(fields)
+			continue
 
- 	return data
+	return data
 
 # load hmmer 
-def load_hmmer_time( filename ):
+def load_hmmer( filename ):
 	# field counter
 	f_cnt = 0
 	data = []
@@ -80,19 +80,19 @@ def load_hmmer_time( filename ):
 	with open( filename, "r" ) as fp:
 		for line in fp:
 			# check for comment lines or empty lines
- 			if ( line.startswith("##") ):
- 				continue
- 			fields 		= line.split()
- 			# check that there are a proper number of fields 
- 			if ( len(fields) != 7 ):
- 				continue
+			if ( line.startswith("##") ):
+				continue
+			fields 		= line.split()
+			# check that there are a proper number of fields 
+			if ( len(fields) != 7 ):
+				continue
 
- 			total_cells = ( int(fields[0])+1 ) * ( int(fields[2])+1 )
- 			fields.append( total_cells )
+			total_cells = ( int(fields[0])+1 ) * ( int(fields[2])+1 )
+			fields.append( total_cells )
 
- 			data.append( fields )
- 			continue
- 	return data
+			data.append( fields )
+			continue
+	return data
 
 # # get the length of each bin on the y-axis data
 # def bin_lengths( data_y, bin_list ):
@@ -122,13 +122,32 @@ def load_hmmer_time( filename ):
 ###########################         MAIN         #############################
 ##############################################################################
 
-if ( len(sys.argv) <= 1 ):
-	print( "Usage: <mmseqs_plus_fname> <hmmer_time_fname>" )
-	exit(0)
+if ( len(sys.argv) != 3 ):
+	print( "Usage: <mmseqs_plus_time_fname> <hmmer_time_fname>" )
+	# exit(0)
+else:
+	# get args
+	mmseqs_fname  	= sys.argv[1]
+	hmmer_fname 	= sys.argv[2]
 
-# load data
-mmseqs_plus_fname  	= sys.argv[1]
-mmseqs_plus_data = load_mym8(mmseqs_plus_fname)
+# Set it to None to display all columns in the dataframe
+pd.set_option('display.max_columns', None)
+
+# default args
+mmseqs_fname 	= "/home/devreckas/Data/profmark-benchmark/final_results/final.result.12.0.mym8"
+hmmer_fname 	= "/home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/scripts/hmmer-times.csv"
+
+# set headers
+mmseqs_header 	= ["result_id", "target_id", "query_id", "target_length", "query_length", "total_cells", "cloud_cells", "alpha", "beta", "viterbi_score", "forward_score", "backward_score", "cloud_score", "viterbi_time", "forward_time", "backward_time", "cloud_forward_time", "cloud_backward_time", "merge_time", "reorient_time", "bound_forward_time", "total_time" ]
+hmmer_header 	= ["result_id", "target_id", "query_id", "target_length", "target_name", "query_length", "query_name", "forward_time", "forward_score", "backward_score" ]
+
+# load data 
+mmseqs_data = pd.read_csv( mmseqs_fname, sep="\t", header=None, skiprows=[0], names=mmseqs_header, index_col=False, verbose=True )
+hmmer_data 	= pd.read_csv( hmmer_fname, sep=" ", header=None, skiprows=[174085,174086], names=hmmer_header, verbose=True )
+
+exit(0)
+
+mmseqs_plus_data 	= load_mym8(mmseqs_plus_fname)
 
 # linear spacing
 x = range( len(mmseqs_plus_data) )

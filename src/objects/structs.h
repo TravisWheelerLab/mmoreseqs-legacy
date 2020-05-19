@@ -617,6 +617,9 @@ typedef struct {
    EDGEBOUNDS*    edg_diag;
    EDGEBOUNDS*    edg_row;
 
+   /* edgebound row object; helper for reorientation of edgebounds */
+   EDGEBOUND_ROWS*   edg_rows_tmp;
+
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;
 

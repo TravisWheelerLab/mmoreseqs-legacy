@@ -218,11 +218,11 @@ void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length
    /* first, verify that input edgebounds are stored by-diagonal */
    if ( edg_in->edg_mode != EDG_DIAG ) {
       // /* if not, then swap pointers and return */
-      // EDGEBOUNDS* swap = edg_in;
-      // edg_in = edg_out;
-      // edg_out = swap;
+      EDGEBOUNDS* swap = edg_in;
+      edg_in = edg_out;
+      edg_out = swap;
       /* if not, make a copy of input edgebounds for output */
-      EDGEBOUNDS_Copy( edg_out, edg_in );
+      // EDGEBOUNDS_Copy( edg_out, edg_in );
       return;
    }
 
