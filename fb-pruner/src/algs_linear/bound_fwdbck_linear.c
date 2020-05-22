@@ -199,7 +199,6 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
                            logsum( prev_mat, prev_ins ),
                            logsum( prev_del, prev_beg ) );
             MMX3(r_0,j) = prev_sum + MSC(j,A);
-            // fprintf(tfp, "MMX3(%d,%d): m=%f, i=%f, d=%f, b=%f\n", x_0, j, sc1, sc2, sc3, sc4 );
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
