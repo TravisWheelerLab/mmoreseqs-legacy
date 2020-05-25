@@ -1288,21 +1288,25 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    // pli->n_past_vit++;
 
    /* DAVID RICH EDIT start */
-   // ESL_STOPWATCH* watch = esl_stopwatch_Create();
-   // double fwd_time, bck_time;
-   // float  bcksc;
+   ESL_STOPWATCH* watch = esl_stopwatch_Create();
+   /* optimized and generic times */
+   double o_vit_time, o_fwd_time, o_bck_time;
+   double g_vit_time, g_fwd_time, g_bck_time;
+   /* optimized and generic scores */
+   float  o_vitsc, o_fwdsc, o_bcksc;
+   float  g_vitsc, g_fwdsc, g_bcksc;
 
-   // esl_stopwatch_Start( watch );
+   /* RUN ALL OPTIMIZED ALGORITHMS */
 
+   esl_stopwatch_Start( watch );
    // /* Parse it with Forward and obtain its real Forward score. */
-   // p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &fwdsc);
-   // seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
-   // P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
+   p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &o_fwdsc);
+   seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
+   P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
    // // if (P > pli->F3) return eslOK;
    // pli->n_past_fwd++;
-
-   // esl_stopwatch_Stop( watch );
-   // fwd_time = esl_stopwatch_GetElapsed( watch );
+   esl_stopwatch_Stop( watch );
+   o_fwd_time = esl_stopwatch_GetElapsed( watch );
 
    // esl_stopwatch_Start( watch );
 
@@ -1313,15 +1317,22 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    // esl_stopwatch_Stop( watch );
    // double my_time = esl_stopwatch_GetElapsed( watch );
 
-   /* RUN ALL GENERAL ALGORITHMS */
-   float g_vit, g_fwd, g_bck;
-   // p7_GViterbi(sq->dsq, sq->n, gm, gmx, &g_vit);
-   p7_GForward(sq->dsq, sq->n, gm, gmx, &g_fwd);
-   // p7_GBackward(sq->dsq, sq->n, gm, gmx, &g_bck);
+   /* RUN ALL GENERIC ALGORITHMS */
+   // p7_GViterbi(sq->dsq, sq->n, gm, gmx, &g_vitsc);
 
-   printf("##_TIMES_: %d %s %lu %s %f\n", 
-      om->M, om->name, sq->n, sq->name, g_fwd);
+   esl_stopwatch_Start( watch );
+   p7_GForward(sq->dsq, sq->n, gm, gmx, &g_fwdsc);
+   esl_stopwatch_Stop( watch );
+   g_fwd_time = esl_stopwatch_GetElapsed( watch );
+
+   // p7_GBackward(sq->dsq, sq->n, gm, gmx, &g_bcksc);
+
+   printf("##_TIMES_: %d %s %lu %s %f %f %f %f %f\n", 
+      om->M, om->name, sq->n, sq->name, g_fwd_time, g_fwdsc, o_fwd_time, o_fwdsc, seq_score);
+
+   /* skip rest of pipeline */
    return eslOK;
+
    /* DAVID RICH EDIT end */
 
    status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
