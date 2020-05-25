@@ -759,7 +759,7 @@ conftest.c:82:6: warning: conflicting types for built-in function 'erfc'; expect
 conftest.c:70:1: note: 'erfc' is declared in header '<math.h>'
    69 | # include <limits.h>
    70 | #else
-/usr/bin/ld: /tmp/ccTFkzzO.o: in function `main':
+/usr/bin/ld: /tmp/ccmSnp3H.o: in function `main':
 conftest.c:(.text.startup+0xb): undefined reference to `erfc'
 collect2: error: ld returned 1 exit status
 configure:6575: $? = 1
