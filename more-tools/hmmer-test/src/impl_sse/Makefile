@@ -3,7 +3,7 @@ srcdir      = .
 
 SHELL       = /bin/sh
 
-prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/tools_test/hmmer-test/build
+prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test/build
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 bindir      = ${exec_prefix}/bin
