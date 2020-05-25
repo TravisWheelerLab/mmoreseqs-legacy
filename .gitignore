@@ -10,6 +10,7 @@ test_output/
 output/
 fb-pruner/build/
 more-tools/hmmer-test/build/
+more-tools/hmmer-test/easel/
 more-tools/mmseqs-test/build/
 more-tools/mmseqs-pruner-plus/build/
 
