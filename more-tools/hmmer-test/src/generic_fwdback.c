@@ -145,10 +145,10 @@ p7_GForward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float *
    }
 
    /* PRINT resulting dp matrix */
-   printf("=== FORWARD MATRIX FINAL ===\n");
-   fp = fopen("output/hmmer.forward.tsv", "w+");
-   dpMatrix_Dump(L, M, dsq, gm, gx, fp);
-   fclose(fp);
+   // printf("=== FORWARD MATRIX FINAL ===\n");
+   // fp = fopen("test_output/hmmer.forward.tsv", "w+");
+   // dpMatrix_Dump(L, M, dsq, gm, gx, fp);
+   // fclose(fp);
 
    if (opt_sc != NULL) *opt_sc = XMX(L, p7G_C) + gm->xsc[p7P_C][p7P_MOVE];
    gx->M = M;

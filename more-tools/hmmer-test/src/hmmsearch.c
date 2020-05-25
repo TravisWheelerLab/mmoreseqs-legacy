@@ -442,9 +442,9 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
   hstatus = p7_hmmfile_Read(hfp, &abc, &hmm);
 
   /* DAVID RICH EDIT */
-  fp = fopen("test_output/hmmer.hmm.tsv", "w+");
-  p7_hmm_Dump(fp, hmm);
-  fclose(fp);
+  // fp = fopen("test_output/hmmer.hmm.tsv", "w+");
+  // p7_hmm_Dump(fp, hmm);
+  // fclose(fp);
 
   printf("test...\n");
   
@@ -459,9 +459,9 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 	  info[i].bg    = p7_bg_Create(abc);
 
    /* DAVID RICH EDIT */
-   fp = fopen("test_output/hmmer.bg.tsv", "w+");
-   p7_bg_Dump(fp, info[i].bg);
-   fclose(fp);
+   // fp = fopen("test_output/hmmer.bg.tsv", "w+");
+   // p7_bg_Dump(fp, info[i].bg);
+   // fclose(fp);
     
 
 #ifdef HMMER_THREADS
@@ -526,9 +526,9 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       /* DAVID RICH EDIT */
       printf("=== PROFILE CONFIG ===\n");
       printf("saving profile config...\n");
-      fp = fopen("test_output/hmmer.profile_config.tsv", "w+");
-      profileConfig_Dump(hmm, info->bg, gm, fp);
-      fclose(fp);
+      // fp = fopen("test_output/hmmer.profile_config.tsv", "w+");
+      // profileConfig_Dump(hmm, info->bg, gm, fp);
+      // fclose(fp);
       printf("...profile config saved.\n");
 
       for (i = 0; i < infocnt; ++i)
