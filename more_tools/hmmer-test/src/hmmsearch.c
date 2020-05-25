@@ -1348,8 +1348,8 @@ serial_loop(WORKER_INFO *info, ESL_SQFILE *dbfp, int n_targetseqs)
       
       /* DAVID RICH EDIT */
       // p7_Pipeline(info->pli, info->om, info->bg, dbsq, NULL, info->th);
-      // p7_Pipeline_TIMED(info->pli, info->om, info->bg, dbsq, NULL, info->th);
-      p7_Pipeline_TEST(info->pli, info->om, info->bg, dbsq, NULL, info->th, info->gm);
+      p7_Pipeline_TIMED(info->pli, info->om, info->bg, dbsq, NULL, info->th, info->gm);
+      // p7_Pipeline_TEST(info->pli, info->om, info->bg, dbsq, NULL, info->th, info->gm);
 
       seq_cnt++;
       esl_sq_Reuse(dbsq);

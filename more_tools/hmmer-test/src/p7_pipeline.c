@@ -971,13 +971,13 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    /* Second level filter: ViterbiFilter(), multihit with <om> */
    //if (P > pli->F2) {
 
+   float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
+
    printf("=== VITERBI ===\n");
    // /* OPTIMIZED VITERBI: */
    p7_ViterbiFilter(sq->dsq, sq->n, om, pli->oxf, &vfsc);
    // // /* DAVID RICH EDITS begin */
    printf("viterbi logscore: \t %f \n", vfsc);
-
-   
 
    /* UNOPTIMIZED VITERBI */
    float opt_sc;
@@ -985,7 +985,6 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    p7_GViterbi(sq->dsq, sq->n, gm, gmx, &opt_sc);
 
    /* HMM PROFILE */
-   printf("saving hmm...\n");
    fp = fopen("test_output/hmmer.hmm_profile.tsv", "w+");
    hmmProf_Dump(sq->dsq, sq->n, gm, gmx, fp);
    fclose(fp);
@@ -1022,11 +1021,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("=== FORWARD-BACKWARD ===\n");
    /* Parse it with Forward and obtain its real Forward score. */
    p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &fwdsc);
-   printf("RAW FORWARD SCORE:\t %.9f \n", fwdsc);
    // printf("\n\n");
    seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
-   printf("filtersc= %.9f, eslCONST_LOG2= %.9f, adjusted_fwdsc= %.9f\n", filtersc, eslCONST_LOG2, fwdsc / eslCONST_LOG2);
-   printf("PROCESSED FORWARD SCORE: \t %.9f \n", seq_score);
    // P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
    // if (P > pli->F3) return eslOK;
    // pli->n_past_fwd++;
@@ -1034,6 +1030,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // /* ok, it's for real. Now a Backwards parser pass, and hand it to domain definition workflow */
    // p7_omx_GrowTo(pli->oxb, om->M, 0, sq->n);
    // p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, NULL);
+
+
 
    /* DAVID RICH EDIT */
    printf("=== FORWARD -> START ===\n");
@@ -1226,7 +1224,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
  * Synopsis:  HMMER3's accelerated seq/profile comparison pipeline.
  */
 int
-p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist)
+p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, /* DAVID RICH EDIT */ P7_PROFILE *gm)
 {
    P7_HIT          *hit     = NULL;     /* ptr to the current hit output data      */
    float            usc, vfsc, fwdsc;   /* filter scores                           */
@@ -1250,6 +1248,8 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
 
    /* Base null model score (we could calculate this in NewSeq(), for a scan pipeline) */
    p7_bg_NullOne  (bg, sq->dsq, sq->n, &nullsc);
+
+   P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
 
    /* First level filter: the MSV filter, multihit with <om> */
    // p7_MSVFilter(sq->dsq, sq->n, om, pli->oxf, &usc);
@@ -1288,33 +1288,40 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    // pli->n_past_vit++;
 
    /* DAVID RICH EDIT start */
-   ESL_STOPWATCH* watch = esl_stopwatch_Create();
-   double fwd_time, bck_time;
-   float  bcksc;
+   // ESL_STOPWATCH* watch = esl_stopwatch_Create();
+   // double fwd_time, bck_time;
+   // float  bcksc;
 
-   esl_stopwatch_Start( watch );
+   // esl_stopwatch_Start( watch );
 
-   /* Parse it with Forward and obtain its real Forward score. */
-   p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &fwdsc);
-   seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
-   P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
-   // if (P > pli->F3) return eslOK;
-   pli->n_past_fwd++;
+   // /* Parse it with Forward and obtain its real Forward score. */
+   // p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &fwdsc);
+   // seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
+   // P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
+   // // if (P > pli->F3) return eslOK;
+   // pli->n_past_fwd++;
 
-   esl_stopwatch_Stop( watch );
-   fwd_time = esl_stopwatch_GetElapsed( watch );
+   // esl_stopwatch_Stop( watch );
+   // fwd_time = esl_stopwatch_GetElapsed( watch );
 
-   esl_stopwatch_Start( watch );
+   // esl_stopwatch_Start( watch );
 
-   /* ok, it's for real. Now a Backwards parser pass, and hand it to domain definition workflow */
-   p7_omx_GrowTo(pli->oxb, om->M, 0, sq->n);
-   p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, &bcksc);
+   // /* ok, it's for real. Now a Backwards parser pass, and hand it to domain definition workflow */
+   // p7_omx_GrowTo(pli->oxb, om->M, 0, sq->n);
+   // p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, &bcksc);
 
-   esl_stopwatch_Stop( watch );
-   double my_time = esl_stopwatch_GetElapsed( watch );
+   // esl_stopwatch_Stop( watch );
+   // double my_time = esl_stopwatch_GetElapsed( watch );
 
-   printf("##_TIMES_: %d %s %lu %s %f %f %f %f\n", 
-      om->M, om->name, sq->n, sq->name, fwd_time, bck_time, fwdsc, bcksc );
+   /* RUN ALL GENERAL ALGORITHMS */
+   float g_vit, g_fwd, g_bck;
+   // p7_GViterbi(sq->dsq, sq->n, gm, gmx, &g_vit);
+   p7_GForward(sq->dsq, sq->n, gm, gmx, &g_fwd);
+   // p7_GBackward(sq->dsq, sq->n, gm, gmx, &g_bck);
+
+   printf("##_TIMES_: %d %s %lu %s %f\n", 
+      om->M, om->name, sq->n, sq->name, g_fwd);
+   return eslOK;
    /* DAVID RICH EDIT end */
 
    status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
