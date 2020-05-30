@@ -1343,11 +1343,8 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    // p7_GBackward(sq->dsq, sq->n, gm, gmx, &g_bcksc);
 
    printf("##_TIMES_: %d %s %lu %s %f %f %f %f %f\n", 
-      om->M, om->name, sq->n, sq->name, g_fwd_time, g_fwdsc, o_fwd_time, o_fwdsc, seq_score);
-
-   printf("##_COMPARE_: %d %s %lu %s - %f %f %f\n", 
       om->M, om->name, sq->n, sq->name, 
-      o_fwdsc, g_fwdsc, b_fwdsc );
+      g_fwd_time, g_fwdsc, o_fwd_time, o_fwdsc, seq_score);
 
 
    /* skip rest of pipeline */
