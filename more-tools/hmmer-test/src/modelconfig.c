@@ -84,9 +84,6 @@ p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int 
    for (z = 0; z < p7_NCUTOFFS; z++) gm->cutoff[z]  = hmm->cutoff[z];
    for (z = 0; z < p7_MAXABET;  z++) gm->compo[z]   = hmm->compo[z];
 
-   /* TEST */
-   printf("Multi? %d\t Local? %d\n", p7_profile_IsLocal(gm), p7_profile_IsMultihit(gm));
-
    /* Entry scores. */
    if (p7_profile_IsLocal(gm))
    {

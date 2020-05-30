@@ -423,7 +423,7 @@ void WORK_load_target_by_id( WORKER* worker,
    // HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
 
    /* end and save time */
-   CLOCK_Start(clok);
+   CLOCK_Stop(clok);
    times->load_target = CLOCK_Secs(clok);
 }
 
@@ -434,10 +434,11 @@ void WORK_load_query_by_id( WORKER* worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   CLOCK*         clok          = worker->clok;
+   CLOCK*         clok           = worker->clok;
    RESULTS*       results        = worker->results;
    RESULT*        result         = worker->result;
 
+   HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
 
    F_INDEX*       q_index        = worker->q_index;
@@ -474,8 +475,18 @@ void WORK_load_query_by_id( WORKER* worker,
       exit(EXIT_FAILURE);
    }
 
+   if ( t_prof != NULL ) 
+   {
+      HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   }
+   else
+   {
+      fprintf(stderr, "ERROR: Target profile must be loaded before Query Sequence. Currently NULL.\n");
+      exit(EXIT_FAILURE);
+   }
+
    /* end and save time */
-   CLOCK_Start(clok);
+   CLOCK_Stop(clok);
    times->load_query = CLOCK_Secs(clok);
 }
 
@@ -722,7 +733,7 @@ void WORK_cloud_search( WORKER* worker )
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
-      printf("COUNT TEST: %d vs %d\n", precount, result->cloud_cells);
+      // printf("COUNT TEST: %d vs %d\n", precount, result->cloud_cells);
    }
    /* bounded forward */
    if ( tasks->lin_bound_fwd ) {
@@ -876,10 +887,10 @@ void WORK_print_result_header( WORKER* worker )
    ARGS*    args  = worker->args;
 
    /* open file */
-   fprintf(fp, "TARGET_SOURCE:\t%s\n", args->t_filepath);
-   fprintf(fp, "QUERY_SOURCE:\t%s\n",  args->q_filepath);
-   fprintf(fp, "TARGET_INDEX:\t%s\n",  args->t_indexpath);
-   fprintf(fp, "QUERY_INDEX:\t%s\n",   args->q_indexpath);
+   fprintf(fp, "# TARGET_SOURCE:\t%s\n", args->t_filepath);
+   fprintf(fp, "# QUERY_SOURCE:\t%s\n",  args->q_filepath);
+   fprintf(fp, "# TARGET_INDEX:\t%s\n",  args->t_indexpath);
+   fprintf(fp, "# QUERY_INDEX:\t%s\n",   args->q_indexpath);
 
    /* print header */
    int pad = 0;
@@ -915,8 +926,6 @@ void WORK_print_result_header( WORKER* worker )
 /* print current result (default) */
 void WORK_print_result_current( WORKER* worker )
 {
-   
-   
    FILE*    fp       = worker->out_file;
    ARGS*    args     = worker->args;
    TIMES*   times    = worker->times;

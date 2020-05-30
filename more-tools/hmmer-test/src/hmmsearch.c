@@ -445,8 +445,6 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
   // fp = fopen("test_output/hmmer.hmm.tsv", "w+");
   // p7_hmm_Dump(fp, hmm);
   // fclose(fp);
-
-  printf("test...\n");
   
   if (hstatus == eslOK)
     {
@@ -522,6 +520,9 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       // p7_ProfileConfig(hmm, info->bg, gm, 100, p7_LOCAL); /* DEFAULT: 100 is a dummy length for now; and MSVFilter requires local mode */
       p7_ProfileConfig(hmm, info->bg, gm, 100, mode);    /* CLOUD requires p7_UNILOCAL (no jumps) */
       p7_oprofile_Convert(gm, om);                       /* <om> is now p7_LOCAL, multihit */
+
+      /* compare opt to gen profile */
+
 
       /* DAVID RICH EDIT */
       printf("=== PROFILE CONFIG ===\n");
@@ -1345,6 +1346,7 @@ serial_loop(WORKER_INFO *info, ESL_SQFILE *dbfp, int n_targetseqs)
       p7_pli_NewSeq(info->pli, dbsq);
       p7_bg_SetLength(info->bg, dbsq->n);
       p7_oprofile_ReconfigLength(info->om, dbsq->n);
+      p7_ReconfigLength(info->gm, dbsq->n);
       
       /* DAVID RICH EDIT */
       // p7_Pipeline(info->pli, info->om, info->bg, dbsq, NULL, info->th);

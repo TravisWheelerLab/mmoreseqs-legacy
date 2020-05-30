@@ -1292,9 +1292,14 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    /* optimized and generic times */
    double o_vit_time, o_fwd_time, o_bck_time;
    double g_vit_time, g_fwd_time, g_bck_time;
+   double b_vit_time, b_fwd_time, b_bck_time;
+   double s_vit_time, s_fwd_time, s_bck_time;
+
    /* optimized and generic scores */
    float  o_vitsc, o_fwdsc, o_bcksc;
    float  g_vitsc, g_fwdsc, g_bcksc;
+   float  b_vitsc, b_fwdsc, b_bcksc;
+   float  s_vitsc, s_fwdsc, s_bcksc;
 
    /* RUN ALL OPTIMIZED ALGORITHMS */
 
@@ -1317,7 +1322,7 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    // esl_stopwatch_Stop( watch );
    // double my_time = esl_stopwatch_GetElapsed( watch );
 
-   /* RUN ALL GENERIC ALGORITHMS */
+   /* RUN ALL ALTERNATE ALGORITHMS */
    // p7_GViterbi(sq->dsq, sq->n, gm, gmx, &g_vitsc);
 
    esl_stopwatch_Start( watch );
@@ -1325,10 +1330,25 @@ p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq
    esl_stopwatch_Stop( watch );
    g_fwd_time = esl_stopwatch_GetElapsed( watch );
 
+   // esl_stopwatch_Start( watch );
+   // p7_GForwardBanded(sq->dsq, sq->n, gm, gmx, &b_fwdsc);
+   // esl_stopwatch_Stop( watch );
+   // b_fwd_time = esl_stopwatch_GetElapsed( watch );
+
+   // esl_stopwatch_Start( watch );
+   // p7_GForwardOdds(sq->dsq, sq->n, gm, gmx, &s_fwdsc);
+   // esl_stopwatch_Stop( watch );
+   // s_fwd_time = esl_stopwatch_GetElapsed( watch );
+
    // p7_GBackward(sq->dsq, sq->n, gm, gmx, &g_bcksc);
 
    printf("##_TIMES_: %d %s %lu %s %f %f %f %f %f\n", 
       om->M, om->name, sq->n, sq->name, g_fwd_time, g_fwdsc, o_fwd_time, o_fwdsc, seq_score);
+
+   printf("##_COMPARE_: %d %s %lu %s - %f %f %f\n", 
+      om->M, om->name, sq->n, sq->name, 
+      o_fwdsc, g_fwdsc, b_fwdsc );
+
 
    /* skip rest of pipeline */
    return eslOK;

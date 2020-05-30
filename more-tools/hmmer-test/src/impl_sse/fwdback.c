@@ -284,12 +284,37 @@ forward_engine(int do_full, const ESL_DSQ *dsq, int L, const P7_OPROFILE *om, P7
   xB    = ox->xmx[p7X_B] = om->xf[p7O_N][p7O_MOVE];
   xC    = ox->xmx[p7X_C] = 0.;
 
+/* test */
+  printf("OPT-TEST:\n");
+  for (int i = 0; i < p7O_NXSTATES; i++) {
+    for (int j = 0; j < p7O_NXTRANS; j++) {
+      printf("%f\t", om->xf[i][j]);
+    }
+    printf("\n");
+  }
+  printf("---\n");
+
+  /* test */
+  printf("OPT-TEST (log):\n");
+  for (int i = 0; i < p7O_NXSTATES; i++) {
+    for (int j = 0; j < p7O_NXTRANS; j++) {
+      printf("%f\t", log(om->xf[i][j]) );
+    }
+    printf("\n");
+  }
+  printf("---\n");
+
   ox->xmx[p7X_SCALE] = 1.0;
   ox->totscale       = 0.0;
+
+  int logify = TRUE;
 
 #if eslDEBUGLEVEL > 0
   if (ox->debugging) p7_omx_DumpFBRow(ox, TRUE, 0, 9, 5, xE, xN, xJ, xB, xC);	/* logify=TRUE, <rowi>=0, width=8, precision=5*/
 #endif
+  ox->dfp = fopen("hmmer.forward-opt.tsv", "w+");
+  p7_omx_DumpFBRow(ox, logify, 0, 9, 5, xE, xN, xJ, xB, xC);  /* logify=TRUE, <rowi>=0, width=8, precision=5*/
+  fclose(ox->dfp);
 
   for (i = 1; i <= L; i++)
     {
@@ -447,6 +472,10 @@ forward_engine(int do_full, const ESL_DSQ *dsq, int L, const P7_OPROFILE *om, P7
 #if eslDEBUGLEVEL > 0
       if (ox->debugging) p7_omx_DumpFBRow(ox, TRUE, i, 9, 5, xE, xN, xJ, xB, xC);	/* logify=TRUE, <rowi>=i, width=8, precision=5*/
 #endif
+
+      ox->dfp = fopen("hmmer.forward-opt.tsv", "a+");
+      p7_omx_DumpFBRow(ox, logify, i, 9, 5, xE, xN, xJ, xB, xC);  /* logify=TRUE, <rowi>=0, width=8, precision=5*/
+      fclose(ox->dfp);
     } /* end loop over sequence residues 1..L */
 
   /* finally C->T, and flip total score back to log space (nats) */

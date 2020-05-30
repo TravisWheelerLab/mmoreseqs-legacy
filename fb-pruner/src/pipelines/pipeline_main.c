@@ -52,12 +52,12 @@ void main_pipeline( WORKER* worker )
 		tasks->lin_bound_bck 	= true;
 		/* quadratic algs */
 		tasks->quadratic 		= true;		/* if any other quadratic tasks are flagged, this must be too */
-		tasks->quad_fwd 		= false;
-		tasks->quad_bck 		= false;
-		tasks->quad_vit 		= true;		/* cloud search depends on viterbi */
-		tasks->quad_trace 		= true;		/* cloud search depends on traceback */
-		tasks->quad_bound_fwd 	= false;
-		tasks->quad_bound_bck 	= false;
+		tasks->quad_fwd 		= true;		/* optional */
+		tasks->quad_bck 		= true;		/* optional */
+		tasks->quad_vit 		= true;		/* viterbi required for cloud search */
+		tasks->quad_trace 		= true;		/* traceback required for cloud search  */
+		tasks->quad_bound_fwd 	= true;		/* required step of cloud search */
+		tasks->quad_bound_bck 	= false;	/* */
 	}
 
 	/* set flags for reporting */
@@ -70,7 +70,7 @@ void main_pipeline( WORKER* worker )
 		report->lin_bound_fwd_sc 	= true;
 		report->lin_bound_bck_sc 	= true;
 		/* quadratic algs */
-	 	report->quad_fwd_sc 		= false;
+	 	report->quad_fwd_sc 		= true;
 		report->quad_bck_sc 		= false;
 		report->quad_vit_sc 		= false;
 		report->quad_bound_fwd_sc 	= false;
@@ -178,6 +178,7 @@ void main_pipeline( WORKER* worker )
 
 			/* output results to file */
 			WORK_print_result_current( worker );
+			printf("FWD_SC: %f\n", worker->scores->quad_fwd);
 
 			search_cnt++;
 		}

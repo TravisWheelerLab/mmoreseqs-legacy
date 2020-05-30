@@ -142,6 +142,7 @@ void test_pipeline( WORKER* worker )
       HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
       HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
       HMM_PROFILE_Config( t_prof, mode );
+      HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
    }
    else if ( t_filetype == FILE_FASTA )
    {
@@ -285,6 +286,7 @@ void test_pipeline( WORKER* worker )
       printf("Forward:\tVALUES?\t\t%s\n", cmp ? "PASS" : "FAIL" );
       printf("=== FORWARD -> END ===\n\n");
    }
+   exit(0);
 
    /* run backward */
    {
