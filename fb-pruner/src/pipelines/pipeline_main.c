@@ -178,8 +178,10 @@ void main_pipeline( WORKER* worker )
 
 			/* output results to file */
 			WORK_print_result_current( worker );
+			STRING_Replace( worker->t_prof->name, ' ', '_' );
+			STRING_Replace( worker->q_seq->name, ' ', '_' );
 			fprintf( stdout, 
-				"##_SCORES_TIMES_: %d %d %s %d %d %s : %d %d : %f %f %f %f %f %f ",
+				"##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %f %f %f %f ",
 				worker->t_id, worker->t_prof->N, worker->t_prof->name, 
 				worker->q_id, worker->q_seq->N, worker->q_seq->name,
 				result->total_cells, result->cloud_cells, 
