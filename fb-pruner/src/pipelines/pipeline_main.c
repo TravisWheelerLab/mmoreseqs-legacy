@@ -178,7 +178,14 @@ void main_pipeline( WORKER* worker )
 
 			/* output results to file */
 			WORK_print_result_current( worker );
-			printf("FWD_SC: %f\n", worker->scores->quad_fwd);
+			fprintf( stdout, 
+				"##_SCORES_TIMES_: %d %d %s %d %d %s : %d %d : %f %f %f %f %f %f ",
+				worker->t_id, worker->t_prof->N, worker->t_prof->name, 
+				worker->q_id, worker->q_seq->N, worker->q_seq->name,
+				result->total_cells, result->cloud_cells, 
+				times->quad_vit, scores->quad_vit, 
+				times->quad_fwd, scores->quad_fwd, 
+				times->lin_total_cloud, scores->lin_cloud_fwd );
 
 			search_cnt++;
 		}

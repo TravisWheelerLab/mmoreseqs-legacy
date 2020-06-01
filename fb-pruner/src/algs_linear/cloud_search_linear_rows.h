@@ -32,8 +32,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
                                  const ALIGNMENT*   tr,           /* viterbi traceback */
                                  EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                                  EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                                 const float        alpha,        /* PARAM: pruning drop */
-                                 const int          beta );       /* PARAM: free passes before pruning */
+                                 CLOUD_PARAMS*      params );     /* pruning parameters */
 
 /*
  *  FUNCTION: cloud_Backward_Linear()
@@ -56,7 +55,6 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
                                     const ALIGNMENT*   tr,           /* viterbi traceback */
                                     EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                                     EDGEBOUNDS*        edg,          /* (OUTPUT) edgebounds */
-                                    const float        alpha,        /* PARAM: pruning drop */
-                                    const int          beta );       /* PARAM: free passes before pruning */
+                                    CLOUD_PARAMS*      params );     /* pruning parameters */
 
 #endif /* _CLOUD_SEARCH_LINEAR_ROWS_H */

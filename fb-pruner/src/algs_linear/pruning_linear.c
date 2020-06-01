@@ -148,9 +148,9 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
  * 				Uses x-drop and trims all cells which fall below pruning threshold
  * 				(1) Computes the diag_max on the given antidiagonal.
  * 				(2) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
- * 		      	(3) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
- * 				(4) Performs pruning from right-edge, moving left.
- * 				(5) Stores edgebounds in left and right bound list.
+ * 		      	(3) Performs pruning from left-edge.
+ * 				(3a) When cells go from below to above threshold, position added to left-bound list.
+ * 				(3b) When a cell go from above to below threshold, position added to right-bound list.
  */
 inline
 void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
@@ -266,36 +266,38 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
  *  FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
- *				Alpha: 	value determining whether cells are pruned in antidiagonal
- *				Beta:  	number of free passes before pruning
- * 				Omega: 	value determining whether search is terminated
+ *				Alpha: 		value determining whether cells are pruned in antidiagonal
+ * 				Alpha-Max: 	value determining whether search is terminated
+ *				Beta:  		number of free passes before pruning
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
+ * 				(1b) If diag_max falls below score global threshold, terminate entire search.
  * 		      	(2) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
  * 				(3) Performs pruning from right-edge, moving left.
  * 				(4) Stores edgebounds in left and right bound list.
  */
 inline
-void prune_via_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
-		                            			MATRIX_2D* 		sp_MX,			/* special state matrix */
-			                                	const float     alpha,			/* x-drop value for by-diag prune */
-												const float 	omega,			/* x-drop value for global prune */
-			                                	const int       beta,			/* number of antidiagonals before pruning */
-			                                	const int 		d_1,			/* previous antidiagonal */
-			                                	const int 		d_0,			/* current antidiagonal */
-			                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-			                                	const int 		d0, 			/* current antidiag (mod-mapped) */
-			                                	const int 		d_cnt, 			/* number of antidiags traversed */
-			                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
-			                                	const int 		re,				/* left edge of dp matrix on current antidiag */
-			                                	float*    		total_max,		/* (UPDATED) current maximum score */
-			                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
-			                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
+void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
+			                            			MATRIX_2D* 		sp_MX,			/* special state matrix */
+				                                	const float     alpha,			/* x-drop value for by-diag prune */
+													const float 	alpha_max, 		/* x-drop value for global prune */
+				                                	const int       beta,			/* number of antidiagonals before pruning */
+				                                	const int 		d_1,			/* previous antidiagonal */
+				                                	const int 		d_0,			/* current antidiagonal */
+				                                	const int 		d1,				/* previous antidiag (mod-mapped) */
+				                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+				                                	const int 		d_cnt, 			/* number of antidiags traversed */
+				                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
+				                                	const int 		re,				/* left edge of dp matrix on current antidiag */
+				                                	float*    		total_max,		/* (UPDATED) current maximum score */
+				                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
+				                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
 	int 		b, i, j, k; 				/* indexes */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
 	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
-	float 		diag_limit, total_limit; 	/* pruning thresholds for current limit */
+	float 		diag_limit 	= -INF;			/* pruning threshold based on global max */
+	float 		total_limit = -INF; 		/* termination threshold based on antidiag max */
 
 	/* reset int vectors */
 	VECTOR_INT_Reuse( lb_vec[0] );
@@ -321,8 +323,15 @@ void prune_via_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 		*total_max = MAX( *total_max, diag_max );
 	}
 
+	/* Set score for termination */
+	total_limit = *total_max - alpha_max;
 	/* Set score threshold for pruning */
-	total_limit = *total_max - alpha;
+	diag_limit = diag_max - alpha;
+
+	/* if entire diagonal falls below termination threshold (total_limit), then remove all branches */
+	if ( diag_max < total_limit ) {
+		return;
+	}
 
 	/* All edgebounds in previous antidiagonal */
 	for ( b = 0; b < lb_vec[1]->N; b++ )
@@ -352,7 +361,7 @@ void prune_via_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
 
 				/* prune in left edgebound */
-				if ( cell_max >= total_limit )
+				if ( cell_max >= diag_limit )
 				{
 					lb_0 = i;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
@@ -374,7 +383,7 @@ void prune_via_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
 
 				/* prune in right edgebound */
-				if ( cell_max >= total_limit )
+				if ( cell_max >= diag_limit )
 				{
 					rb_0 = i + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );

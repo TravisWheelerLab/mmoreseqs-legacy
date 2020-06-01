@@ -55,10 +55,9 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
                                  MATRIX_3D*         st_MX3,       /* normal state matrix */
                                  MATRIX_2D*         sp_MX,        /* special state matrix */
                                  const ALIGNMENT*   tr,           /* viterbi traceback */
-                                 EDGEBOUND_ROWS*    rows,         /* temporary helper edgebounds by-row */
+                                 EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                                  EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                                 const float        alpha,        /* PARAM: pruning drop */
-                                 const int          beta )        /* PARAM: free passes before pruning */
+                                 CLOUD_PARAMS*      params )      /* pruning parameters */
 {
    /* vars for navigating matrix */
    int            b, d, i, j, k;             /* diagonal, row, column indices */
@@ -93,6 +92,11 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
+
+   /* pruning params */
+   float alpha       = params->alpha;
+   float alpha_max   = params->alpha_max;
+   int beta          = params->beta;
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;
@@ -142,6 +146,8 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       }
    }
    #endif 
+
+   if ( alpha_max == -INF ) alpha_max == alpha;
    
    /* set edgebound dimensions and orientation */
    edg->Q         = Q;
@@ -242,9 +248,15 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
          /* prune bounds using x-drop, no bifurcating */
          prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
-      #elif ( PRUNER == PRUNER_XDROP_SPLIT )
+      #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
+         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
+      {
+         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
+         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, alpha_max, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #endif
 
@@ -510,8 +522,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
                                     const ALIGNMENT*   tr,           /* viterbi traceback */
                                     EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                                     EDGEBOUNDS*        edg,          /* (OUTPUT) edgebounds */
-                                    const float        alpha,        /* PARAM: pruning drop */
-                                    const int          beta )        /* PARAM: free passes before pruning */
+                                    CLOUD_PARAMS*      params )      /* pruning parameters */
 {
    /* vars for navigating matrix */
    int            b, d, i, j, k;             /* diagonal, row, column indices */
@@ -546,6 +557,11 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
+
+   /* pruning params */
+   float alpha       = params->alpha;
+   float alpha_max   = params->alpha_max;
+   int beta          = params->beta;
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;

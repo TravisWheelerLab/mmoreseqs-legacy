@@ -68,6 +68,10 @@ void WORK_init( WORKER* worker )
 
    worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
 
+   worker->cloud_params.alpha = worker->args->alpha;
+   worker->cloud_params.alpha_max = worker->args->alpha_max;
+   worker->cloud_params.beta = worker->args->beta;
+
    /* create necessary dp matrices */
    if ( tasks->quadratic ) {
       worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
@@ -649,8 +653,9 @@ void WORK_cloud_search( WORKER* worker )
    int   Q     = q_seq->N;
    int   T     = t_prof->N;
 
-   float    alpha    = args->alpha;
-   int      beta     = args->beta;
+   float    alpha       = args->alpha;
+   float    alpha_max   = args->alpha_max;
+   int      beta        = args->beta;
    float    sc;
 
    MATRIX_3D*     st_MX       = worker->st_MX;
@@ -678,7 +683,7 @@ void WORK_cloud_search( WORKER* worker )
       }
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
-         cloud_Forward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, alpha, beta );
+         cloud_Forward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
       }
       #endif
       CLOCK_Stop(clok);
@@ -696,7 +701,7 @@ void WORK_cloud_search( WORKER* worker )
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
          printf("cloud bck row-wise...\n");
-         cloud_Backward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, alpha, beta );
+         cloud_Backward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
       }
       #endif
       CLOCK_Stop(clok);
@@ -744,6 +749,10 @@ void WORK_cloud_search( WORKER* worker )
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+
+      times->lin_total_cloud =   times->lin_cloud_fwd + times->lin_cloud_bck  + 
+                                 times->lin_merge     + times->lin_reorient   +
+                                 times->lin_bound_fwd + times->lin_bound_bck;
    }
    /* bounded backward */
    if ( tasks->lin_bound_bck ) {
@@ -794,6 +803,10 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->quad_bound_fwd = CLOCK_Secs(clok);
       scores->quad_cloud_fwd = sc;
+
+      times->quad_total_cloud =  times->quad_cloud_fwd   + times->quad_cloud_bck + 
+                                 times->quad_merge +
+                                 times->quad_bound_fwd   + times->quad_bound_bck;
    }
    /* bounded backward */
    if ( tasks->quad_bound_bck ) {
@@ -804,6 +817,7 @@ void WORK_cloud_search( WORKER* worker )
       times->quad_bound_bck = CLOCK_Secs(clok);
       scores->quad_cloud_bck = sc;
    }
+
 }
 
 /* TODO: fill result header based on task flags */
@@ -940,22 +954,22 @@ void WORK_print_result_current( WORKER* worker )
    fprintf(fp, "%d\t",     worker->t_prof->N );
    fprintf(fp, "%d\t",     worker->q_seq->N );
 
-   fprintf(fp, "%f\t",  args->alpha );
+   fprintf(fp, "%f\t",     args->alpha );
    fprintf(fp, "%d\t",     args->beta );
 
    fprintf(fp, "%d\t",     worker->result->total_cells );
    fprintf(fp, "%d\t",     worker->result->cloud_cells );
 
-   fprintf(fp, "%f\t",  scores->quad_vit );
-   fprintf(fp, "%f\t",  scores->lin_cloud_fwd );
+   fprintf(fp, "%f\t",     scores->quad_vit );
+   fprintf(fp, "%f\t",     scores->lin_cloud_fwd );
 
-   fprintf(fp, "%f\t",  times->quad_vit );
-   fprintf(fp, "%f\t",  times->quad_trace );
-   fprintf(fp, "%f\t",  times->lin_cloud_fwd );
-   fprintf(fp, "%f\t",  times->lin_cloud_bck );
-   fprintf(fp, "%f\t",  times->lin_merge );
-   fprintf(fp, "%f\t",  times->lin_reorient );
-   fprintf(fp, "%f\t",  times->lin_bound_fwd );
+   fprintf(fp, "%f\t",     times->quad_vit );
+   fprintf(fp, "%f\t",     times->quad_trace );
+   fprintf(fp, "%f\t",     times->lin_cloud_fwd );
+   fprintf(fp, "%f\t",     times->lin_cloud_bck );
+   fprintf(fp, "%f\t",     times->lin_merge );
+   fprintf(fp, "%f\t",     times->lin_reorient );
+   fprintf(fp, "%f\t",     times->lin_bound_fwd );
 
    fprintf(fp, "\n");
 }

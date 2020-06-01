@@ -286,6 +286,7 @@ typedef struct {
 
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
+   float    alpha_max;              /* cloud search: x-drop maximum drop before termination */
    int      beta;                   /* cloud search: number of antidiag passes before pruning  */
 
    /* pipeline options */
@@ -348,6 +349,7 @@ typedef struct {
    double    lin_reorient;
    double    lin_bound_fwd;
    double    lin_bound_bck;
+   double    lin_total_cloud;
 
    /* quadratic algs */
    double    quad_vit;
@@ -360,6 +362,7 @@ typedef struct {
    double    quad_reorient;
    double    quad_bound_fwd;
    double    quad_bound_bck;  
+   double    quad_total_cloud;
 
    /* naive algs */
    double    naive_bound_fwd;
@@ -473,7 +476,10 @@ typedef struct {
    int      bit_score;
    /* */
    float    cloud_fwd_sc;
+   /* number of cells computed */
+   int      cpu_cloud_cells;
    int      cloud_cells;
+   int      cpu_total_cells;
    int      total_cells;
 } RESULT;
 
@@ -491,7 +497,7 @@ typedef struct {
    char*    alph;
    int      alph_len;
    int      map[256];
-   float*   scores;
+   float*   scores; 
 } SCORE_MATRIX;
 
 /* data struct for passing debugger data */
@@ -585,6 +591,13 @@ typedef struct {
    bool     quad_bound_bck_sc;  
 } REPORT;
 
+/* collection of all tuning parameters for cloud search */
+typedef struct {
+   float       alpha;         /* x-drop for local,  */
+   float       alpha_max;     /* x-drop for global, determines when to terminate search. looser (larger) than alpha. */
+   float       beta;          /* number of traversed antidiags before pruning begins */
+} CLOUD_PARAMS;
+
 /* worker contains the necessary data structures to conduct search */
 /* unnecessary components will be left NULL */
 typedef struct {
@@ -619,6 +632,9 @@ typedef struct {
 
    /* edgebound row object; helper for reorientation of edgebounds */
    EDGEBOUND_ROWS*   edg_rows_tmp;
+
+   /* cloud pruning parameters */
+   CLOUD_PARAMS  cloud_params;
 
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;

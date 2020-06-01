@@ -332,7 +332,7 @@ void test_pipeline( WORKER* worker )
       /* cloud forward (linear) */
       printf("=== CLOUD FORWARD (linear) -> START ===\n");
       // cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_fwd_lin, alpha, beta);
-      cloud_Forward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, alpha, beta);
+      cloud_Forward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       if ( debugger->verbose_level >= VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_lin, debugger->cloud_MX );
@@ -393,7 +393,7 @@ void test_pipeline( WORKER* worker )
       /* cloud backward (linear) */
       printf("=== CLOUD BACKWARD (linear) -> START ===\n");
       // cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_bck_lin, alpha, beta);
-      cloud_Backward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, alpha, beta);
+      cloud_Backward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       if ( debugger->verbose_level >=  VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_lin, debugger->cloud_MX );

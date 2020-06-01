@@ -51,7 +51,7 @@ char* STRING_Concat( const char*   str1,
    return str;
 }
 
-/* replace old character with new character in string */
+/* replace old character with new character in string (NOTE: Cannot be a string literal) */
 void STRING_Replace( char*          str,
                      const char     ch_old,
                      const char     ch_new )

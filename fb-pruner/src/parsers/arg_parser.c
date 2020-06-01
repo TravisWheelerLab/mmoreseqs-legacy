@@ -121,6 +121,16 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--alpha-max") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->alpha_max = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
          else if ( strcmp(argv[i], (flag = "--verbose") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -243,8 +253,6 @@ void   ARGS_Parse( ARGS*   args,
 /* SET DEFAULT ARGUMENTS (for testing) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-
-
    args->t_filepath              = strdup("test_input/test1_2.hmm");
    args->q_filepath              = strdup("test_input/test1_1.fa");
 
@@ -261,6 +269,7 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->mmseqs_tmp_filepath     = NULL;
 
    args->alpha                   = 20.0f;
+   args->alpha_max               = -INF;
    args->beta                    = 5;
 
    args->pipeline_mode           = PIPELINE_TEST;
@@ -290,6 +299,7 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level] );
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
    fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           args->alpha );
+   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA_MAX",           args->alpha_max );
    fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",            args->beta );
    fprintf( fp, "\n" );
    /* inputs */

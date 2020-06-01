@@ -23,11 +23,13 @@
 
 /* type of cloud pruning methods */
 #define PRUNER_NONE 			FALSE 
-#define PRUNER_XDROP_EDGETRIM 	1
-#define PRUNER_XDROP_SPLIT		2
+#define PRUNER_XDROP_EDGETRIM 				1
+#define PRUNER_XDROP_BIFURCATE				2
+#define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
+
 /* set default  of pruner method */
 #ifndef PRUNER
-#define PRUNER  PRUNER_XDROP_EDGETRIM	
+#define PRUNER  PRUNER_DBL_XDROP_EDGETRIM_OR_DIE
 #endif
 
 /* set whether to store bounds as rows or antidiags in cloud search */
