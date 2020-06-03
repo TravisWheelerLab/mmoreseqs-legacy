@@ -67,16 +67,6 @@ p7_GForward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float *
    for (k = 0; k <= M; k++)
       MMX(0, k) = IMX(0, k) = DMX(0, k) = -eslINFINITY;         /* need seq to get here */
 
-   /* test */
-  printf("GEN-TEST:\n");
-  for (int i = 0; i < p7P_NXSTATES; i++) {
-    for (int j = 0; j < p7P_NXTRANS; j++) {
-      printf("%f\t", gm->xsc[i][j]);
-    }
-    printf("\n");
-  }
-  printf("---\n");
-
    /* Recursion. Done as a pull.
     * Note some slightly wasteful boundary conditions:
     *    tsc[0] = impossible for all eight transitions (no node 0)
@@ -154,11 +144,11 @@ p7_GForward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float *
                                  XMX(i,  p7G_J) + gm->xsc[p7P_J][p7P_MOVE]);
    }
 
-   /* PRINT resulting dp matrix */
-   printf("=== FORWARD MATRIX FINAL ===\n");
-   fp = fopen("hmmer.forward-gen.tsv", "w+");
-   dpMatrix_Dump(L, M, dsq, gm, gx, fp);
-   fclose(fp);
+   // /* PRINT resulting dp matrix */
+   // printf("=== FORWARD MATRIX FINAL ===\n");
+   // fp = fopen("hmmer.forward-gen.tsv", "w+");
+   // dpMatrix_Dump(L, M, dsq, gm, gx, fp);
+   // fclose(fp);
 
    if (opt_sc != NULL) *opt_sc = XMX(L, p7G_C) + gm->xsc[p7P_C][p7P_MOVE];
    gx->M = M;

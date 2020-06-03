@@ -273,6 +273,8 @@ typedef struct {
    /* for specified range of targets/queries in file */
    RANGE    t_range;                /* start-end range of targets in file (inclusive) */
    RANGE    q_range;                /* start-end range of queries in file (inclusive) */
+   /* temporary work folder */
+   char*    tmp_folderpath;         /* location to build a temporary work folder */
 
    /* mmseqs-plus search params */
    char*    mmseqs_res_filepath;       /* filepath to mmseqs .m8 results file */
