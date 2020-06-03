@@ -44,20 +44,20 @@ void main_pipeline( WORKER* worker )
 	/* linear algs */
 	{
 		tasks->linear 			= true;		/* if any other linear tasks are flagged, this must be too */
-		tasks->lin_fwd 			= true;
-		tasks->lin_bck 			= true;
+		tasks->lin_fwd 			= false;	/* currently not supported */
+		tasks->lin_bck 			= false;	/* currently not supported */
 		tasks->lin_vit 			= false;	/* currently not supported */
 		tasks->lin_trace 		= false;	/* currently not supported */
 		tasks->lin_bound_fwd 	= true;
 		tasks->lin_bound_bck 	= true;
 		/* quadratic algs */
 		tasks->quadratic 		= true;		/* if any other quadratic tasks are flagged, this must be too */
-		tasks->quad_fwd 		= true;		/* optional */
-		tasks->quad_bck 		= true;		/* optional */
+		tasks->quad_fwd 		= false;	/* optional */
+		tasks->quad_bck 		= false;	/* optional */
 		tasks->quad_vit 		= true;		/* viterbi required for cloud search */
 		tasks->quad_trace 		= true;		/* traceback required for cloud search  */
-		tasks->quad_bound_fwd 	= true;		/* required step of cloud search */
-		tasks->quad_bound_bck 	= false;	/* */
+		tasks->quad_bound_fwd 	= false;	/* required step of cloud search */
+		tasks->quad_bound_bck 	= false;	/* optional */
 	}
 
 	/* set flags for reporting */
@@ -70,7 +70,7 @@ void main_pipeline( WORKER* worker )
 		report->lin_bound_fwd_sc 	= true;
 		report->lin_bound_bck_sc 	= true;
 		/* quadratic algs */
-	 	report->quad_fwd_sc 		= true;
+	 	report->quad_fwd_sc 		= false;
 		report->quad_bck_sc 		= false;
 		report->quad_vit_sc 		= false;
 		report->quad_bound_fwd_sc 	= false;
@@ -181,12 +181,12 @@ void main_pipeline( WORKER* worker )
 			STRING_Replace( worker->t_prof->name, ' ', '_' );
 			STRING_Replace( worker->q_seq->name, ' ', '_' );
 			fprintf( stdout, 
-				"##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %f %f %f %f ",
+				"##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f \n",
 				worker->t_id, worker->t_prof->N, worker->t_prof->name, 
 				worker->q_id, worker->q_seq->N, worker->q_seq->name,
 				result->total_cells, result->cloud_cells, 
-				times->quad_vit, scores->quad_vit, 
-				times->quad_fwd, scores->quad_fwd, 
+				args->alpha, args->alpha_max, args->beta,
+				times->quad_vit, scores->quad_vit,
 				times->lin_total_cloud, scores->lin_cloud_fwd );
 
 			search_cnt++;
@@ -195,4 +195,13 @@ void main_pipeline( WORKER* worker )
 	printf("...done.\n");
 
 	fclose( worker->out_file );
+}
+
+/*
+ *  FUNCTION: 	
+ *  SYNOPSIS: 	
+ */
+void main_pipeline_set_flags()
+{
+	
 }

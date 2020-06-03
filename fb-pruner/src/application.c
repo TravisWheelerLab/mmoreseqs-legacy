@@ -56,8 +56,6 @@ int main ( int argc, char *argv[] )
    worker->args = args;
    worker->tasks = (TASKS*) malloc( sizeof(TASKS) );
 
-   /*
-
    /* jumps to pipeline based on -p flag */
    printf_vall("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
    PIPELINES[ args->pipeline_mode ]( worker );
