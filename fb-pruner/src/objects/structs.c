@@ -95,7 +95,9 @@ void (*PIPELINES[])(WORKER*) = {
    test_pipeline,
    time_pipeline,
    mmseqs_pipeline,
-   index_pipeline
+   index_pipeline,
+   utest_pipeline,
+   vizualization_pipeline
 };
 
 /* pipeline names (for outputs) */
@@ -106,7 +108,8 @@ char* PIPELINE_NAMES[] = {
    "time",
    "mmseqs",
    "index",
-   "utest"
+   "utest",
+   "viz"
 };
 
 /* full names of the all states */

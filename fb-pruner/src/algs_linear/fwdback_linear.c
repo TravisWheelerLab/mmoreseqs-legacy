@@ -339,13 +339,11 @@ float backward_Linear(const SEQUENCE*    query,
       /* SPECIAL STATES */
       j = 1; int x_0 = i; 
       XMX(SP_B,i) = MMX3(r_1,j) + TSC(j-1,B2M) + MSC(j,A);
-      // printf("B(%d)\t (%d)%f\t", x_0, j, XMX(SP_B, x_0) );
 
       /* B -> MATCH */
       for (j = 2; j <= T; j++) {
          XMX(SP_B,i) = logsum( XMX(SP_B,i),
                                     MMX3(r_1,j) + TSC(j-1,B2M) + MSC(j,A) );
-         // printf("B(%d,%d): B=%f, M=%f, TSC=%f, MSC=%f\n", x_0, j, XMX(SP_B, x_0), MMX3(i+1, j), TSC(j-1, B2M), MSC(j, A) );
       }
       // printf("\n");
 
@@ -364,14 +362,12 @@ float backward_Linear(const SEQUENCE*    query,
       IMX3(r_0,T) = -INF;
 
       x_0 = i;
-      // printf("x_0: %d -> B: %f, J: %f, C: %f, E: %f, N: %f, MSC(%d): %f \n", x_0, XMX(SP_B, x_0), XMX(SP_J, x_0), XMX(SP_C, x_0),  XMX(SP_E, x_0), XMX(SP_N, x_0), A, MSC(j, A));
 
       /* FOR every position in TARGET profile */
       for (j = T-1; j >= 1; j--)
       {
          sc_M = MSC(j+1,A);
          sc_I = ISC(j,A);
-         // printf("(%d,%d): A=%d, MSC=%f, ISC=%f\n", x_0, j, A, sc_M, sc_I);
 
          /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
          sc1 = prev_mat = MMX3(r_1,j+1) + TSC(j,M2M) + sc_M;
@@ -384,18 +380,12 @@ float backward_Linear(const SEQUENCE*    query,
                            logsum( prev_end, prev_del ) );
          MMX3(r_0,j) = prev_sum;
 
-         // printf("M (%d,%d)  \tMM: %.5f\t IM: %.5f\t DM: %.5f\t BM: %.5f\t MSC: %.5f\t ISC: %.5f\t M2M: %.5f\t M2I: %.5f\t M2D: %.5f\t DMX: %.5f\n", 
-         //    i, j, sc1, sc2, sc3, sc4, sc_M, sc_I, TSC(j,M2M), TSC(j,M2I), TSC(j,M2D), DMX3(i,j+1) );
-
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
          sc1 = prev_mat = MMX3(r_1,j+1) + TSC(j,I2M) + sc_M;
          sc2 = prev_ins = IMX3(r_1,j)   + TSC(j,I2I) + sc_I;
          /* best-to-insert */
          prev_sum = logsum( prev_mat, prev_ins );
          IMX3(r_0,j) = prev_sum;
-
-         // printf("I (%d,%d)  \tIM: %.5f\t II: %.5f\t I2M: %.5f\t I2I: %.5f\n", 
-            // i, j, sc1, sc2, TSC(j,I2M), TSC(j,I2I) );
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
          sc1 = prev_mat = MMX3(r_1,j+1) + TSC(j,D2M) + sc_M;

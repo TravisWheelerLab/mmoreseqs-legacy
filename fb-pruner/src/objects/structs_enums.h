@@ -86,8 +86,9 @@ typedef enum {
    PIPELINE_MMSEQS   = 4,
    PIPELINE_INDEX    = 5,
    PIPELINE_UTEST    = 6,
+   PIPELINE_VIZ      = 7,
 } PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 7
+#define NUM_PIPELINE_MODES 8
 
 /* Verbosity Modes */
 typedef enum {

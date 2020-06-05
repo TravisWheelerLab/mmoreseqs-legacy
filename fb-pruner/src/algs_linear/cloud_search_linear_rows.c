@@ -113,7 +113,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    {
       printf("CLOUD_METHOD: %d\n", CLOUD_METHOD);
 
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbfp_path, "a+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -473,7 +473,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       printf("COMPARE (rows vs antidiag):\t%s\n", (cmp == 0) ? "PASS" : "FAIL");
       if ( cmp != 0 ) {
          DP_MATRIX_VIZ_Compare( cloud_MX, edg, test_edg );
-         DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+         // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       }
    }
    #endif
@@ -481,7 +481,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    #if DEBUG
    {
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
-      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */
@@ -948,7 +948,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       printf("COMPARE (rows vs antidiag):\t%s\n", (cmp == 0) ? "PASS" : "FAIL");
       if ( cmp != 0 ) {
          DP_MATRIX_VIZ_Compare( cloud_MX, edg, test_edg );
-         DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+         DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
       }
    }
    #endif
@@ -956,7 +956,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    {
       /* show visualization of search cloud */
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
-      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */

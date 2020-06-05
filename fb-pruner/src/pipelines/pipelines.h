@@ -15,7 +15,11 @@
 
 /* === MAIN PIPELINES === */
 
-/* standard pipeline */
+/*
+ *  FUNCTION:  	main_pipeline()
+ *  SYNOPSIS:  	Pipeline runs main
+ * 				Can optionally run viterbi, forward-backward, and/or pruned forward-backward.
+ */
 void main_pipeline( WORKER* worker );
 
 /*
@@ -26,7 +30,11 @@ void main_pipeline( WORKER* worker );
  */
 void test_pipeline( WORKER* worker );
 
-/* MMSEQS pipeline */
+/*
+ *  FUNCTION:  	mmseqs_pipeline()
+ *  SYNOPSIS:  	Pipeline for MMSeqs-Plus.
+ * 				
+ */
 void mmseqs_pipeline( WORKER* worker );
 
 /* time trial pipeline */
@@ -37,5 +45,12 @@ void index_pipeline( WORKER* worker );
 
 /* unit and integration testing pipeline */
 void utest_pipeline( WORKER* worker );
+
+/*
+ *  FUNCTION:  vizualization_pipeline()
+ *  SYNOPSIS:  Pipeline runs viterbi, forward/backward, and cloud search.  
+ *             Output visualizations for python scripts.
+ */
+void vizualization_pipeline( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

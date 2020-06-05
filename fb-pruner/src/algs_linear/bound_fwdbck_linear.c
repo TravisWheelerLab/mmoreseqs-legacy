@@ -86,7 +86,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
    /* initialize debugging data tools */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbfp_path, "a+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -379,7 +379,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
 
    #if DEBUG
    {
-      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */
@@ -460,7 +460,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
    /* initialize debugging data tools */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbfp_path, "a+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -787,7 +787,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
 
    #if DEBUG
    {
-      DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
+      DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */
@@ -797,6 +797,9 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
          // MATRIX_3D_Dump( st_MX3, stdout );
          MATRIX_3D_Clean( st_MX3 );
       }
+
+      /* clean up debugger */
+      fclose(dbfp);
    }
    #endif
 

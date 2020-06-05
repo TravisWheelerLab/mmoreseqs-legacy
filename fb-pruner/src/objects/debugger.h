@@ -13,6 +13,6 @@
 DEBUG_KIT* DEBUGGER_Create();
 
 /* destructor */
-void DEBUGGER_Destroy(DEBUG_KIT* debugger);
+void DEBUGGER_Destroy( DEBUG_KIT* debugger );
 
-#endif /* ARGS_H_ */
+#endif /* _DEBUGGER_H */

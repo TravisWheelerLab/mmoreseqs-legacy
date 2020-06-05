@@ -262,10 +262,10 @@ void DP_MATRIX_Trace_Dump( const int         Q,
 {
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
-   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+   fprintf(fp, "X_DIM\t%d\t%d\n\n", Q, T);
 
    /* Traceback */
-   fprintf(fp, "XTRACE\n");
+   fprintf(fp, "X_TRACE\n");
    /* Traceback */
    for (int i = 0; i < tr->N; i++)
    {
@@ -278,7 +278,7 @@ void DP_MATRIX_Trace_Dump( const int         Q,
 
    /* Header */
    fprintf(fp, "##### NORMAL STATES #####\n");
-   fprintf(fp, "XMATRIX\n");
+   fprintf(fp, "X_MATRIX\n");
    /* Header Indices */
    fprintf(fp, "#\t");
    for (int i = 0; i <= T; i++)
@@ -314,7 +314,7 @@ void DP_MATRIX_Trace_Dump( const int         Q,
    fprintf(fp, "/\n\n");
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "XSPECIAL\n");
+   fprintf(fp, "X_SPECIAL\n");
       /* Header Indices */
    fprintf(fp, "#\t");
    for (int i = 0; i <= Q; i++)

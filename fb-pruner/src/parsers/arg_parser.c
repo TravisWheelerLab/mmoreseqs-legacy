@@ -234,6 +234,16 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               args->output_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
          else {
             fprintf(stderr, "ERROR: '%s' is not a recognized flag.\n", argv[i]);
             exit(EXIT_FAILURE);
@@ -268,6 +278,10 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->mmseqs_plus_filepath    = NULL;
    args->mmseqs_tmp_filepath     = NULL;
 
+   args->tmp_folderpath          = NULL;
+   args->tmp_remove              = false;
+   // args->dbg_folderpath          = strdup("debug_output/");
+
    args->alpha                   = 20.0f;
    args->alpha_max               = -INF;
    args->beta                    = 5;
@@ -295,8 +309,8 @@ void ARGS_Dump( ARGS*    args,
 
    fprintf( fp, "=== ARGS =====================\n");
    /* parameters */
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level] );
+   fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode],   args->pipeline_mode );
+   fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
    fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           args->alpha );
    fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA_MAX",           args->alpha_max );

@@ -15,6 +15,8 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /* local imports */
 #include "structs.h"
@@ -34,13 +36,24 @@ int main ( int argc, char *argv[] )
    #if DEBUG
    {
       debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
+      /* debugging folder */
+      // mkdir(DEBUG_FOLDER)
+      // debugger->folderpath = DEBUG_FOLDER;
+      /* default debugger filepath */
       debugger->dbfp_path  = DEBUGOUT;
-      debugger->dbfp       = fopen( debugger->dbfp_path, "w+" );
+      // debugger->dbfp       = fopen( debugger->dbfp_path, "w+" );
       debugger->test_MX    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
       debugger->cloud_MX   = MATRIX_2D_Create( 1, 1 ); 
       /* debugging options */
-      debugger->is_embed   = false;
-      debugger->is_viz     = false;
+      // debugger->is_heatmap = true;
+      debugger->is_embed   = true;
+      debugger->is_viz     = true;
+
+      char* test_folder = "test_output/";
+      if ( mkdir(test_folder, 0777) == -1 ) {
+         // fprintf(stderr, "Could not create folder: %s\n", test_folder);
+         // exit(EXIT_FAILURE);
+      }   
    }
    #endif
 
@@ -57,14 +70,14 @@ int main ( int argc, char *argv[] )
    worker->tasks = (TASKS*) malloc( sizeof(TASKS) );
 
    /* jumps to pipeline based on -p flag */
-   printf_vall("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
+   printf_vlo("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
    PIPELINES[ args->pipeline_mode ]( worker );
 
    /* free debugging toolkit */
    #if DEBUG 
       MATRIX_3D_Destroy( debugger->test_MX );
-      MATRIX_2D_Destroy( debugger->cloud_MX );
-      fclose( debugout );
+      // MATRIX_2D_Destroy( debugger->cloud_MX );
+      // fclose( debugout );
       free( debugger );
    #endif
 

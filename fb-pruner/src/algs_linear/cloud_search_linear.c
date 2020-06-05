@@ -104,7 +104,7 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbfp_path, "a+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -466,7 +466,7 @@ float cloud_Backward_Linear(  const SEQUENCE*   query,         /* query sequence
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbfp_path, "a+" );
       cloud_MX = debugger->cloud_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
       MATRIX_2D_Fill( cloud_MX, 0 );

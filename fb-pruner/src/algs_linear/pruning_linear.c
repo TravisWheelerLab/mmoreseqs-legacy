@@ -266,8 +266,8 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
  *  FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
- *				Alpha: 		value determining whether cells are pruned in antidiagonal
- * 				Alpha-Max: 	value determining whether search is terminated
+ *				Alpha: 		x-drop value determining whether cells are pruned in antidiagonal
+ * 				Alpha-Max: 	x-drop value determining whether search is terminated
  *				Beta:  		number of free passes before pruning
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
  * 				(1b) If diag_max falls below score global threshold, terminate entire search.
@@ -299,11 +299,11 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	float 		diag_limit 	= -INF;			/* pruning threshold based on global max */
 	float 		total_limit = -INF; 		/* termination threshold based on antidiag max */
 
-	/* reset int vectors */
+	/* clear data int vectors (which will be used to create edgebounds) */
 	VECTOR_INT_Reuse( lb_vec[0] );
 	VECTOR_INT_Reuse( rb_vec[0] );
 
-	/* Update maximum score using antidiagonal */
+	/* (1) update maximum score using antidiagonal */
 	for ( b = 0; b < lb_vec[1]->N; b++ ) {
 		lb_1 = lb_vec[1]->data[b];
 		rb_1 = rb_vec[1]->data[b];
@@ -323,12 +323,12 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 		*total_max = MAX( *total_max, diag_max );
 	}
 
-	/* Set score for termination */
+	/* Set score limit for terminating search */
 	total_limit = *total_max - alpha_max;
-	/* Set score threshold for pruning */
+	/* Set score limit threshold for pruning */
 	diag_limit = diag_max - alpha;
 
-	/* if entire diagonal falls below termination threshold (total_limit), then remove all branches */
+	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
 	if ( diag_max < total_limit ) {
 		return;
 	}
@@ -339,7 +339,7 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 		lb_1 = lb_vec[1]->data[b];
 		rb_1 = rb_vec[1]->data[b];
 
-		/* If free passes are not complete, do no pruning */
+		/* If free passes are not complete, skip pruning */
 		if ( beta >= d_cnt )
 		{
 			VECTOR_INT_Pushback( lb_vec[0], lb_1 );

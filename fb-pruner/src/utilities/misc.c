@@ -179,3 +179,13 @@ bool cmp_tol_cust(const float a,
    /* acceptable tolerance range for "equality tests" */
    return ( fabs( a - b ) < tol );
 }
+
+/*
+ *  FUNCTION:  cmp_tol()
+ *  SYNOPSIS:  Checks whether two floats <a> and <b> are within custom tolerance <tol> of eachother.
+ *    RETURN:  Returns <1> on success, <0> on failure
+ */
+int my_mkdir( const char* folderpath )
+{
+  
+}
