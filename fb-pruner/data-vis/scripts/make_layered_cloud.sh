@@ -2,7 +2,7 @@
 
 # parse commandline
 NUM_ARGS=$#
-if (( $NUM_ARGS != 2 )); then
+if (( $NUM_ARGS != 3 )); then
 	echo "NUM_ARGS = $NUM_ARGS"
 	echo "Usage: <target_dir> <query_dir>"
 	exit
