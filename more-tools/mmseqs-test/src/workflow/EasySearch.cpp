@@ -129,7 +129,6 @@ int doeasysearch(int argc, const char **argv, const Command &command, bool linse
     std::string program = tmpDir + "/easysearch.sh";
     FileUtil::writeFile(program, easysearch_sh, easysearch_sh_len);
     /* DAVID RICH */
-    std::cout << "<CALL EXECUTING FN>" << std::endl;
     cmd.execProgram(program.c_str(), par.filenames);
 
     // Should never get here

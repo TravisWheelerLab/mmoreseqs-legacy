@@ -114,33 +114,26 @@ void main_pipeline( WORKER* worker )
 	/* initialize data structures needed for tasks */
 	WORK_init( worker );
 
-	/* load index files */
-	WORK_load_target_index( worker );
-	WORK_load_query_index( worker );
-	F_INDEX_Sort_by_Id( worker->t_index );
-   	F_INDEX_Sort_by_Id( worker->q_index );
+	/* load or build, then sort target and query index files */
+	WORK_index( worker );
 
-	/* allocate data structs */
-	worker->t_prof 	= HMM_PROFILE_Create();
-	worker->t_seq	= SEQUENCE_Create();
-	worker->q_seq	= SEQUENCE_Create();
-
-	/* set and verify ranges */
+	/* set and verify index ranges */
 	WORK_set_ranges( worker );
-
-	printf("target_num: %d, query_num: %d\n", 
+	/* report ranges */
+	printf_vlo("target_num: %d, query_num: %d\n", 
 		worker->t_index->N, worker->q_index->N );
-	printf("target_range: (%d,%d), query_range: (%d,%d)\n", 
+	printf_vlo("target_range: (%d,%d), query_range: (%d,%d)\n", 
 		args->t_range.beg, args->t_range.end,
 		args->q_range.beg, args->q_range.end );
 
-	int search_cnt 	= 0;
-	int search_tot 	= (args->t_range.end - args->t_range.beg) * (args->q_range.end - args->q_range.beg);
-
-	int i_beg 	= args->t_range.beg;
-	int i_end 	= args->t_range.end;
-	int j_beg 	= args->q_range.beg;
-	int j_end 	= args->q_range.end;
+	int i_beg, i_end, j_beg, j_end;
+	int search_cnt, search_tot;
+	i_beg 	= args->t_range.beg;
+	i_end 	= args->t_range.end;
+	j_beg 	= args->q_range.beg;
+	j_end 	= args->q_range.end;
+	search_cnt 	= 0;
+	search_tot 	= (i_end - i_beg) * (j_end - j_beg);
 
 	/* loop over target range */
 	for (int i = i_beg; i < i_end; i++) 

@@ -23,12 +23,30 @@ QUERY="$1"
 TARGET="$2"
 TMP_PATH="$4"
 
+# LINEAR SEARCH
+echo "## LINSEARCH [BEGIN]"
+
+# COMMAND #1: K=mer Search
+echo "## COMMAND #1: K-mer Search"
+echo "## $RUNNER "$MMSEQS" kmersearch "$QUERY" "$TARGET" "${TMP_PATH}/pref" ${KMERSEARCH_PAR}"
+echo "## TIME $(($(date +%s%N)/1000000))"
+
 # 1. Finding exact $k$-mer matches.
 if notExists "${TMP_PATH}/pref.dbtype"; then
     # shellcheck disable=SC2086
     $RUNNER "$MMSEQS" kmersearch "$QUERY" "$TARGET" "${TMP_PATH}/pref" ${KMERSEARCH_PAR} \
         || fail "kmermatcher died"
 fi
+
+# COMMAND #2: 
+echo "## COMMAND #2: Rescore Diagonal (Ungapped alignment filtering)"
+echo "## $RUNNER "$MMSEQS" rescorediagonal "$TARGET" "$QUERY" "${RESULTDB}" "${TMP_PATH}/reverse_ungapaln" ${RESCORE_FILTER_PAR}"
+echo "## TIME $(($(date +%s%N)/1000000))"
+
+# COMMAND #3
+echo "## COMMAND #3: Filter DB (Ungapped alignment filtering)"
+echo "## "$MMSEQS" filterdb "${TMP_PATH}/pref" "${TMP_PATH}/pref_filter" --filter-file "${TMP_PATH}/reverse_ungapaln" --positive-filter 0"
+echo "## TIME $(($(date +%s%N)/1000000))"
 
 # 1. Ungapped alignment filtering
 RESULTDB="${TMP_PATH}/pref"
@@ -46,6 +64,10 @@ if [ -n "$FILTER" ]; then
     RESULTDB="${TMP_PATH}/pref_filter"
 fi
 
+# COMMAND #4
+echo "## COMMAND #4: Local gapped sequence alignment"
+echo "## $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$TARGET" "$QUERY" "${RESULTDB}" "${TMP_PATH}/reverse_aln" ${ALIGNMENT_PAR}"
+echo "## TIME $(($(date +%s%N)/1000000))"
 
 # 2. Local gapped sequence alignment.
 if notExists "${TMP_PATH}/reverse_aln.dbtype"; then
@@ -54,6 +76,10 @@ if notExists "${TMP_PATH}/reverse_aln.dbtype"; then
         || fail "Alignment step died"
 fi
 
+# COMMAND #4
+echo "## COMMAND #5: Swap Logic"
+echo "## $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$TARGET" "$QUERY" "${RESULTDB}" "${TMP_PATH}/reverse_aln" ${ALIGNMENT_PAR}"
+echo "## TIME $(($(date +%s%N)/1000000))"
 
 # 3. swap logic
 if [ -n "$NUCL" ]; then
@@ -92,12 +118,16 @@ else
     fi
 fi
 
+echo "## COMMAND #6: Remove Files (off)"
+echo "## "$MMSEQS" rmdb "${TMP_PATH}/pref" ${VERBOSITY}"
 
+# keep temporary files
+# if [ -n "$REMOVE_TMP" ]; then
+#     # shellcheck disable=SC2086
+#     "$MMSEQS" rmdb "${TMP_PATH}/pref" ${VERBOSITY}
+#     # shellcheck disable=SC2086
+#     "$MMSEQS" rmdb "${TMP_PATH}/reverse_aln" ${VERBOSITY}
+#     rm -f "${TMP_PATH}/linsearch.sh"
+# fi
 
-if [ -n "$REMOVE_TMP" ]; then
-    # shellcheck disable=SC2086
-    "$MMSEQS" rmdb "${TMP_PATH}/pref" ${VERBOSITY}
-    # shellcheck disable=SC2086
-    "$MMSEQS" rmdb "${TMP_PATH}/reverse_aln" ${VERBOSITY}
-    rm -f "${TMP_PATH}/linsearch.sh"
-fi
+echo "## LINSEARCH [END]"

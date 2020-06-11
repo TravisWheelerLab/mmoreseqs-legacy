@@ -25,8 +25,15 @@ STEP=0
 STEPS="${STEPS:-1}"
 ALN_RES_MERGE="$TMP_PATH/aln_0"
 while [ "$STEP" -lt "$STEPS" ]; do
+
+    echo "## STEP = $STEP, STEPS = $STEPS"
+
     SENS_PARAM=SENSE_${STEP}
     eval SENS="\$$SENS_PARAM"
+
+    echo "## COMMAND #1 - PREFILTER "
+    echo "## $RUNNER "$MMSEQS" prefilter "$INPUT" "$TARGET" "$TMP_PATH/pref_$STEP" $PREFILTER_PAR -s "$SENS""
+
     # call prefilter module
     if notExists "$TMP_PATH/pref_$STEP.dbtype"; then
         # shellcheck disable=SC2086
@@ -37,6 +44,10 @@ while [ "$STEP" -lt "$STEPS" ]; do
     # call alignment module
     if [ "$STEPS" -eq 1 ]; then
         if notExists "$3.dbtype"; then
+
+            echo "## COMMAND #2 - ALIGN MODULE = ${ALIGN_MODULE}"
+            echo "## $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR"
+
             # shellcheck disable=SC2086
             $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR  \
                 || fail "Alignment died"
@@ -44,6 +55,10 @@ while [ "$STEP" -lt "$STEPS" ]; do
         break
     else
         if notExists "$TMP_PATH/aln_$STEP.dbtype"; then
+
+            echo "## COMMAND #2 - ALIGN MODULE = ${ALIGN_MODULE}"
+            echo "## $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR"
+
             # shellcheck disable=SC2086
             $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$TMP_PATH/aln_$STEP" $ALIGNMENT_PAR  \
                 || fail "Alignment died"
@@ -98,21 +113,21 @@ while [ "$STEP" -lt "$STEPS" ]; do
     STEP="$((STEP+1))"
 done
 
-if [ -n "$REMOVE_TMP" ]; then
-    STEP=0
-    while [ "$STEP" -lt "$STEPS" ]; do
-        # shellcheck disable=SC2086
-        "$MMSEQS" rmdb "${TMP_PATH}/pref_$STEP" ${VERBOSITY}
-        # shellcheck disable=SC2086
-        "$MMSEQS" rmdb "${TMP_PATH}/aln_$STEP" ${VERBOSITY}
-        # shellcheck disable=SC2086
-        "$MMSEQS" rmdb "${TMP_PATH}/input_$STEP" ${VERBOSITY}
-        rm -f "${TMP_PATH}/order_$STEP"
-        STEP="$((STEP+1))"
-    done
-    # shellcheck disable=SC2086
-    "$MMSEQS" rmdb "${TMP_PATH}/aln_merge" ${VERBOSITY}
-    rm -f "$TMP_PATH/blastp.sh"
-fi
+# if [ -n "$REMOVE_TMP" ]; then
+#     STEP=0
+#     while [ "$STEP" -lt "$STEPS" ]; do
+#         # shellcheck disable=SC2086
+#         "$MMSEQS" rmdb "${TMP_PATH}/pref_$STEP" ${VERBOSITY}
+#         # shellcheck disable=SC2086
+#         "$MMSEQS" rmdb "${TMP_PATH}/aln_$STEP" ${VERBOSITY}
+#         # shellcheck disable=SC2086
+#         "$MMSEQS" rmdb "${TMP_PATH}/input_$STEP" ${VERBOSITY}
+#         rm -f "${TMP_PATH}/order_$STEP"
+#         STEP="$((STEP+1))"
+#     done
+#     # shellcheck disable=SC2086
+#     "$MMSEQS" rmdb "${TMP_PATH}/aln_merge" ${VERBOSITY}
+#     rm -f "$TMP_PATH/blastp.sh"
+# fi
 
 

@@ -75,7 +75,7 @@ void   ARGS_Parse( ARGS*   args,
    }
 
    /* set number of main arguments based on given pipeline */
-   num_main_args = 2;
+   num_main_args = PIPELINE_NUM_ARGS[args->pipeline_mode];
    /* check proper number of main args remain */
    if ( argc < 2 + num_main_args ) {
       fprintf(stderr, "ERROR: Improper number of main args. [required: %d]\n", num_main_args);
@@ -87,12 +87,21 @@ void   ARGS_Parse( ARGS*   args,
       #endif
    }
 
-   /* TODO: make dynamic number of args based on pipeline */
-   /* second arg is query */
-   args->t_filepath = strdup(argv[2]);
-   /* third arg is target */
-   args->q_filepath = strdup(argv[3]);
+   /* number of args based on pipeline */
+   if ( num_main_args == 2 )
+   {
+      /* second arg is query */
+      args->t_filepath = strdup(argv[2]);
+      /* third arg is target */
+      args->q_filepath = strdup(argv[3]);
+   }
+   else if ( num_main_args == 1 )
+   {
+      /* second arg is query */
+      args->t_filepath = strdup(argv[2]);
+   }
 
+   /* parse flags and options */
    for (int i = 2 + num_main_args; i < argc; ++i)
    {
       /* if long flag */

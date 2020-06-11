@@ -17,7 +17,7 @@
 
 /*
  *  FUNCTION:  	main_pipeline()
- *  SYNOPSIS:  	Pipeline runs main
+ *  SYNOPSIS:  	Main pipeline:
  * 				Can optionally run viterbi, forward-backward, and/or pruned forward-backward.
  */
 void main_pipeline( WORKER* worker );
@@ -32,18 +32,26 @@ void test_pipeline( WORKER* worker );
 
 /*
  *  FUNCTION:  	mmseqs_pipeline()
- *  SYNOPSIS:  	Pipeline for MMSeqs-Plus.
- * 				
+ *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: Runs Cloud Search using results from main MMSeqs Search..	
  */
 void mmseqs_pipeline( WORKER* worker );
 
-/* time trial pipeline */
+/*
+ *  FUNCTION:  	time_pipeline()
+ *  SYNOPSIS:  	Time Trial Pipeline: runs all algorithms and reports times.
+ */
 void time_pipeline( WORKER* worker );
 
-/* indexing pipeline */
+/*
+ *  FUNCTION:  	index_pipeline()
+ *  SYNOPSIS:   Index Pipeline: Indexes FASTA or HMM files.
+ */
 void index_pipeline( WORKER* worker );
 
-/* unit and integration testing pipeline */
+/*
+ *  FUNCTION:  	utest_pipeline()
+ *  SYNOPSIS:  	Unit Test Pipeline: runs all unit tests.
+ */
 void utest_pipeline( WORKER* worker );
 
 /*
@@ -52,5 +60,11 @@ void utest_pipeline( WORKER* worker );
  *             Output visualizations for python scripts.
  */
 void vizualization_pipeline( WORKER* worker );
+
+/*
+ *  FUNCTION:  hmmbuild_pipeline()
+ *  SYNOPSIS:  Pipeline that builds HMM model from FASTA file.
+ */
+void hmmbuild_pipeline( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

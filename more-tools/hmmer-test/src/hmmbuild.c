@@ -1044,6 +1044,8 @@ mpi_worker(const ESL_GETOPTS *go, struct cfg_s *cfg)
 static void
 serial_loop(WORKER_INFO *info, struct cfg_s *cfg, const ESL_GETOPTS *go)
 {
+  printf("=== HMMBUILD SERIAL LOOP ===\n");
+
   P7_BUILDER *bld         = NULL;
   ESL_MSA    *msa         = NULL;
   ESL_SQ     *sq          = NULL;
@@ -1066,8 +1068,10 @@ serial_loop(WORKER_INFO *info, struct cfg_s *cfg, const ESL_GETOPTS *go)
 
       /*         bg   new-HMM trarr gm   om  */
       if ( msa->nseq == 1 && esl_opt_IsUsed(go, "--singlemx")) {
+        printf("=== SINGLE MX === HMM NULL TEST? %d === \n", hmm == NULL);
         if ((status = esl_sq_FetchFromMSA(msa, 0, &sq)) != eslOK) p7_Fail("build failed: %s", bld->errbuf);
         if ((status = p7_SingleBuilder(info->bld, sq, info->bg, &hmm, NULL, NULL, NULL)) != eslOK) p7_Fail("build failed: %s", bld->errbuf);
+        printf("=== MX BUILT ===\n");
         esl_sq_Destroy(sq);
         sq = NULL;
         hmm->eff_nseq = 1;
@@ -1081,8 +1085,6 @@ serial_loop(WORKER_INFO *info, struct cfg_s *cfg, const ESL_GETOPTS *go)
       }
       entropy = p7_MeanMatchRelativeEntropy(hmm, info->bg);
       if ((status = output_result(cfg, errmsg, cfg->nali, msa, hmm, postmsa, entropy))         != eslOK) p7_Fail(errmsg);
-
-
 
       p7_hmm_Destroy(hmm);
       esl_msa_Destroy(msa);

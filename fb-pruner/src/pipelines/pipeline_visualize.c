@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  FILE:      pipeline_test.c
- *  PURPOSE:   Test Cloud Search Pipeline.
+ *  FILE:      pipeline_vizualize.c
+ *  PURPOSE:   Vizualization Cloud Search Pipeline.
  *             Requires -DDEBUG=1 for full functionality.
  *
  *  AUTHOR:    Dave Rich

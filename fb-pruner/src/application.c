@@ -45,7 +45,6 @@ int main ( int argc, char *argv[] )
       debugger->test_MX    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
       debugger->cloud_MX   = MATRIX_2D_Create( 1, 1 ); 
       /* debugging options */
-      // debugger->is_heatmap = true;
       debugger->is_embed   = true;
       debugger->is_viz     = true;
 

@@ -272,6 +272,7 @@ p7_SingleBuilder( P7_BUILDER*    bld,
                   P7_PROFILE**   opt_gm, 
                   P7_OPROFILE**  opt_om )
 {
+  printf("=== SINGLEBUILDER ===\n");
   P7_HMM   *hmm = NULL;
   P7_TRACE *tr  = NULL;
   int       k;
@@ -350,6 +351,7 @@ p7_Seqmodel( const ESL_ALPHABET* abc,
                    double        pextend,
                   P7_HMM**       ret_hmm)
 {
+  printf("=== SEQ_MODEL ===\n");
   int     status;
   P7_HMM *hmm    = NULL;
   char   *logmsg = "[HMM created from a query sequence]";

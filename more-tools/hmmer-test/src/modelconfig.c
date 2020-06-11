@@ -47,7 +47,7 @@
 int
 p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int mode)
 {
-   printf("=== PROFILE CONFIG ===\n");
+   printf("=== PROFILE CONFIG in modelconfig.c ===\n");
 
    int   k, x, z;  /* counters over states, residues, annotation */
    int   status;
@@ -232,10 +232,6 @@ p7_ReconfigLength(P7_PROFILE *gm, int L)
    gm->xsc[p7P_N][p7P_LOOP] =  gm->xsc[p7P_C][p7P_LOOP] = gm->xsc[p7P_J][p7P_LOOP] = log(ploop);
    gm->xsc[p7P_N][p7P_MOVE] =  gm->xsc[p7P_C][p7P_MOVE] = gm->xsc[p7P_J][p7P_MOVE] = log(pmove);
    gm->L = L;
-
-   /* DAVID RICH EDIT */
-   printf("=== RECONFIG LENGTH (%d) ===\n", L);
-   printf("nj = %.3f, pmove = %.3f %.3f, ploop = %.3f %.3f\n", gm->nj, pmove, log(pmove), ploop, log(ploop));
 
    return eslOK;
 }

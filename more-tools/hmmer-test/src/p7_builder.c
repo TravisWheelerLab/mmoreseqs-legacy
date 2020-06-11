@@ -495,6 +495,7 @@ int
 p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq, P7_BG *bg, P7_HMM **opt_hmm,
 		 P7_TRACE **opt_tr, P7_PROFILE **opt_gm, P7_OPROFILE **opt_om)
 {
+  printf("=== SINGLEBUILDER IN p7_builder.c ===\n");
   P7_HMM   *hmm = NULL;
   P7_TRACE *tr  = NULL;
   int       k;
@@ -503,19 +504,23 @@ p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq, P7_BG *bg, P7_HMM **opt_hmm,
   bld->errbuf[0] = '\0';
   if (! bld->Q) ESL_XEXCEPTION(eslEINVAL, "score system not initialized");
 
+  printf("=> set seq_model\n");
   if ((status = p7_Seqmodel(bld->abc, sq->dsq, sq->n, sq->name, bld->Q, bg->f, bld->popen, bld->pextend, &hmm)) != eslOK) goto ERROR;
-
+  printf("=> set composition\n");
   if ((status = p7_hmm_SetComposition(hmm))                                                                     != eslOK) goto ERROR;
+  printf("=> set consensus\n");
   if ((status = p7_hmm_SetConsensus(hmm, sq))                                                                   != eslOK) goto ERROR; 
+  printf("=> calibrate\n");
   if ((status = calibrate(bld, hmm, bg, opt_gm, opt_om))                                                        != eslOK) goto ERROR;
 
+  printf("=> builder max_length\n");
   if ( bld->abc->type == eslDNA ||  bld->abc->type == eslRNA ) {
     if (bld->w_len > 0)           hmm->max_length = bld->w_len;
     else if (bld->w_beta == 0.0)  hmm->max_length = hmm->M *4;
     else if ( (status =  p7_Builder_MaxLength(hmm, bld->w_beta)) != eslOK) goto ERROR;
   }
 
-
+  printf("=> set trace\n");
   /* build a faux trace: relative to core model (B->M_1..M_L->E) */
   if (opt_tr != NULL) 
     {
@@ -527,6 +532,12 @@ p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq, P7_BG *bg, P7_HMM **opt_hmm,
       tr->M = sq->n;
       tr->L = sq->n;
     }
+
+    /* DAVID RICH EDIT */
+    printf("=== PRINT EXAMPLE SINGLEBUILDER ===\n");
+    // FILE* fp = fopen("example/my_test.hmm", "w+");
+    // p7_hmm_Dump( fp, hmm );
+    // fclose(fp);
 
   /* note that <opt_gm> and <opt_om> were already set by calibrate() call above. */
   if (opt_hmm   != NULL) *opt_hmm = hmm; else p7_hmm_Destroy(hmm);

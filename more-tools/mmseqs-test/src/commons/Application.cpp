@@ -211,7 +211,9 @@ int shellcompletion(int argc, const char **argv) {
 }
 
 int main(int argc, const char **argv) {
-    printf("<ENTRY POINT INTO MMSEQS>\n");
+
+    std::cout << "<ENTRY POINT INTO MMSEQS>" << std::endl;
+    
     checkCpu();
 
     if (argc < 2) {

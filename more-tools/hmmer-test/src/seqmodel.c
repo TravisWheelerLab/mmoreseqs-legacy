@@ -49,6 +49,7 @@ p7_Seqmodel(const ESL_ALPHABET *abc, ESL_DSQ *dsq, int M, char *name,
 	    ESL_DMATRIX *Q, float *f, double popen, double pextend,
 	    P7_HMM **ret_hmm)
 {
+  printf("=== SEQ_MODEL in seqmodel.c ===\n");
   int     status;
   P7_HMM *hmm    = NULL;
   char   *logmsg = "[HMM created from a query sequence]";

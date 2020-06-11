@@ -34,13 +34,6 @@ void WORK_workflow( WORKER*  work )
 
 }
 
-/* initial output printed before search */
-/* for verbose output */
-void WORK_print_header( WORKER*  worker ) 
-{
-
-}
-
 /* initialize dynamic programming matrices, edgebounds,  */
 void WORK_init( WORKER* worker )
 {
@@ -120,7 +113,16 @@ void WORK_reuse( WORKER* worker )
    #endif
 }
 
-/* load target index (or build them) */
+/* load or build target and query index files */
+void WORK_index( WORKER* worker )
+{
+   WORK_load_target_index( worker );
+   WORK_load_query_index( worker );
+   F_INDEX_Sort_by_Id( worker->t_index );
+   F_INDEX_Sort_by_Id( worker->q_index );
+}
+
+/* load target index (or build them if argument missing) */
 void WORK_load_target_index( WORKER* worker ) 
 {
    FILE*    fp       = NULL;
@@ -373,7 +375,7 @@ void WORK_load_target_by_id( WORKER* worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   CLOCK*         clok          = worker->clok;
+   CLOCK*         clok           = worker->clok;
    RESULTS*       results        = worker->results;
    RESULT*        result         = worker->result;
 
@@ -404,27 +406,23 @@ void WORK_load_target_by_id( WORKER* worker,
    // printf("search_id: %d, node_id: %d, node_name: %s\n", term, node->id, node->name );
    t_offset = node->offset;
 
-   /* load target profile */
-   if ( t_filetype == FILE_HMM ) 
+   /* load target profile by file type */
+   switch ( t_filetype )
    {
-      HMM_PROFILE_Parse( t_prof, t_filepath, t_offset ); 
-      HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
-      HMM_PROFILE_Config( t_prof, mode );
+      case FILE_HMM:
+         HMM_PROFILE_Parse( t_prof, t_filepath, t_offset ); 
+         HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
+         HMM_PROFILE_Config( t_prof, mode );
+         break;
+      case FILE_FASTA:
+         SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
+         SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
+         HMM_PROFILE_Dump( t_seq, stdout );
+         break;
+      default:
+         fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
+         exit(EXIT_FAILURE);
    }
-   else if ( t_filetype == FILE_FASTA )
-   {
-      fprintf(stderr, "ERROR: Fasta file not currently supported.\n");
-      exit(EXIT_FAILURE);
-
-      SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
-      SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
-   }
-   else
-   {
-      fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
-      exit(EXIT_FAILURE);
-   }
-   // HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
 
    /* end and save time */
    CLOCK_Stop(clok);
@@ -465,20 +463,22 @@ void WORK_load_query_by_id( WORKER* worker,
    F_INDEX_NODE*  node;
    term  = F_INDEX_Search_Id(q_index, id);
    node = &(q_index->nodes[ term ]);
-   // printf("search_id: %d, node_id: %d node_name: %s\n", term, node->id, node->name );
    q_offset = node->offset;
 
-   /* load query */
-   if ( q_filetype == FILE_FASTA ) 
+   /* load query by file type */
+   switch ( q_filetype )
    {
-      SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
-   }
-   else 
-   {
-      fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
-      exit(EXIT_FAILURE);
+      /* fasta only supported file type */
+      case FILE_FASTA:
+         SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
+         break;
+      case FILE_HMM:
+      default:
+         fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
+         exit(EXIT_FAILURE);
    }
 
+   /* set special state transitions based on query sequence length */
    if ( t_prof != NULL ) 
    {
       HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
@@ -972,4 +972,11 @@ void WORK_print_result_current( WORKER* worker )
    fprintf(fp, "%f\t",     times->lin_bound_fwd );
 
    fprintf(fp, "\n");
+}
+
+/* initial output printed before search */
+/* for verbose output */
+void WORK_print_header( WORKER*  worker ) 
+{
+
 }

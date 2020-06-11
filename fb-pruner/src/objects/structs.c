@@ -97,7 +97,8 @@ void (*PIPELINES[])(WORKER*) = {
    mmseqs_pipeline,
    index_pipeline,
    utest_pipeline,
-   vizualization_pipeline
+   vizualization_pipeline,
+   hmmbuild_pipeline
 };
 
 /* pipeline names (for outputs) */
@@ -109,7 +110,21 @@ char* PIPELINE_NAMES[] = {
    "mmseqs",
    "index",
    "utest",
-   "viz"
+   "viz",
+   "hmm-build"
+};
+
+/* number of primary arguments for each pipeline */
+int PIPELINE_NUM_ARGS[] = {
+   0,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   1
 };
 
 /* full names of the all states */

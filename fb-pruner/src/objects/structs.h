@@ -672,6 +672,7 @@ extern char*   STATE_FULL_NAMES[];
 
 extern char*   PIPELINE_NAMES[];
 extern void    (*PIPELINES[])(WORKER*);
+extern int     PIPELINE_NUM_ARGS[];
 
 extern char*   MODE_NAMES[];
 extern char*   VERBOSITY_NAMES[];

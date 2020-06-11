@@ -455,9 +455,9 @@ forward_engine(int do_full, const ESL_DSQ *dsq, int L, const P7_OPROFILE *om, P7
       if (ox->debugging) p7_omx_DumpFBRow(ox, TRUE, i, 9, 5, xE, xN, xJ, xB, xC);	/* logify=TRUE, <rowi>=i, width=8, precision=5*/
 #endif
 
-      ox->dfp = fopen("hmmer.forward-opt.tsv", "a+");
-      p7_omx_DumpFBRow(ox, logify, i, 9, 5, xE, xN, xJ, xB, xC);  /* logify=TRUE, <rowi>=0, width=8, precision=5*/
-      fclose(ox->dfp);
+      // ox->dfp = fopen("hmmer.forward-opt.tsv", "a+");
+      // p7_omx_DumpFBRow(ox, logify, i, 9, 5, xE, xN, xJ, xB, xC);  /* logify=TRUE, <rowi>=0, width=8, precision=5*/
+      // fclose(ox->dfp);
     } /* end loop over sequence residues 1..L */
 
   /* finally C->T, and flip total score back to log space (nats) */

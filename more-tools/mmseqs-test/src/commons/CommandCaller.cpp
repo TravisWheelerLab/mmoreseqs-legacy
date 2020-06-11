@@ -75,6 +75,13 @@ void CommandCaller::execProgram(const char* program, const std::vector<std::stri
     }
     pArgv[argv.size() + 1] = NULL;
 
+    /* DAVID RICH edit */
+    std::cout << "### DAVID RICH TEST <EXECUTE PROGRAM>" << std::endl;
+    std::cout << "### ==> PROGRAM => " << program << std::endl;
+    for ( std::string str : argv ) {
+        std::cout << "### --> " << str << std::endl;
+    }
+
     int res = execvp(program, (char * const *) pArgv);
 
     if (res == -1) {
