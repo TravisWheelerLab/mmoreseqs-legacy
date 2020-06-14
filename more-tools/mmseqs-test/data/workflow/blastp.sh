@@ -17,6 +17,8 @@ notExists() {
 [   -f "$3.dbtype" ] && echo "$3.dbtype exists already!" && exit 1;
 [ ! -d "$4" ] &&  echo "tmp directory $4 not found!" && mkdir -p "$4";
 
+echo "## BLASTP.SH [START]"
+
 INPUT="$1"
 TARGET="$2"
 TMP_PATH="$4"
@@ -112,6 +114,8 @@ while [ "$STEP" -lt "$STEPS" ]; do
     INPUT="$NEXTINPUT"
     STEP="$((STEP+1))"
 done
+
+echo "## BLASTP.SH [END]"
 
 # if [ -n "$REMOVE_TMP" ]; then
 #     STEP=0

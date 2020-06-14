@@ -46,89 +46,72 @@ def build_matrix( m, n ):
 
 # Load edgebounds from file
 def load_edg( filename ):
-   edges = {}
+   edg = {}
    fp = open( filename, "r" )
 
    for line in fp:
+      line = line.replace(","," ")
+      
       if line.startswith("#"):
          fields = line.split()
-      else:
+         if fields[1].startswith("N:"):
+            edg["N"] = fields[2]
+         if fields[1].startswith("ORIENTATION:"):
+            edg["orientation"] = fields[2]
+         if fields[1].startswith("Q="):
+            Q = int(fields[1].split("=")[1])
+            T = int(fields[2].split("=")[1])
+            edg["Q"] = Q
+            edg["T"] = T
+      
+      if line.startswith("["):
          fields = line.split()
-         my_id = int(fields[3].replace(",",""))
-         my_lb = int(fields[5].replace(",",""))
-         my_rb = int(fields[5].replace(",",""))
+         my_id = int(fields[3])
+         my_lb = int(fields[5])
+         my_rb = int(fields[5])
 
-         edg[my_id] = [ my_lb, my_rb ]
+         edg[my_id] = ( my_lb, my_rb )
 
-   return edges
+   print(edg)
+
+   return edg
 
 # Add edgebounds to matrix
 def add_edgebounds_to_matrix( mx, edges ):
    
    for my_id in edges.keys():
       bounds = edges[my_id]
-
+      lb = bounds[0]
+      rb = bounds[1]
       for i in range(lb, rb):
-         mx[my_id, ]
+         mx[my_id, i] += 1
 
    return
 
-# Output matrix at heatmap
-def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax, file="", default="test"):
-   fig, ( (ax1, ax2), (ax3, ax4) ) = plt.subplots(2, 2)
-
-   ax1.set_title( title )
-   ax1.imshow( MAT_MX, cmap='jet', interpolation='nearest' )
-   ax2.set_title( "INSERT" )
-   ax2.imshow( INS_MX, cmap='jet', interpolation='nearest' )
-   ax3.set_title( "DELETE" )
-   ax3.imshow( DEL_MX, cmap='jet', interpolation='nearest' )
-   ax4.set_title( "SPECIAL" )
-   im = ax4.imshow( SP_MX, cmap='jet', interpolation='nearest' )
-
-   # Add legend
-   cbar = ax1.figure.colorbar(im, ax=ax4)
-
-   plt.tight_layout()
-   if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
-      plt.savefig(dest)
-      print("Figure saved to '{}'...".format(dest))
-
-   plt.show()
-   return None
-
 # Output heatmap of single matrix with traceback on top
-def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
+def output_heatmap( mx ):
    fig, ax1 = plt.subplots(1, 1)
 
    # plot heatmap
-   ax1.set_title( title )
-   im = ax1.imshow( MAT_MX, cmap='jet', interpolation='nearest' )
+   # ax1.set_title( title )
+   im = ax1.imshow( mx, cmap='jet', interpolation='nearest' )
 
-   # plot viterbi traceback
-   tr_len = len(TR[0])-1
+   # # plot viterbi traceback
+   # tr_len = len(TR[0])-1
 
-   # draw the viterbi trace
-   if tr_len > 2:
-        ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
-        ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
+   # # draw the viterbi trace
+   # if tr_len > 2:
+   #      ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
+   #      ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
 
-        #ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
-        ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
-        ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
+   #      #ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
+   #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
+   #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
 
-      # Create a Rectangle patch for Viterbi window
-      # rect = patches.Rectangle((50,100),40,30,linewidth=1,edgecolor='r',facecolor=None)
-      # ax1.add_patch(rect)
-
-      # Add legend
-      #cbar = ax1.figure.colorbar(im, ax=ax1)
-
-   if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
-      plt.savefig(dest)
-      print("Figure saved to '{}'...".format(dest))
+   # if (opts["-S"]):
+   #    dest = "{}/{}.TR_FIG.jpg".format(file, name)
+   #    plt.savefig(dest)
+   #    print("Figure saved to '{}'...".format(dest))
 
    plt.show()
    return None
@@ -139,21 +122,46 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
 ##############################################################################
 
 # default location to save files
-file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
+out_file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
+in_files = []
 
 # Parse args
-if (len(sys.argv) == 1):
-   print("Usage: <tsv_matrix_1>");
-   sys.exit(0);
+if (len(sys.argv) <= 1):
+   print("Usage: <edg_file_1> <...>");
+   sys.exit(1);
 else:
    i = 1
    while (i < len(sys.argv) ):
-      arg = sys.argv[i];
-      # apply options
-      if (arg.startswith("-")):
-         if arg in opts.keys():
-            opts[arg] = True;
-      else:
-         tsv_matrix.append(sys.argv[i]);
+      in_files.append(sys.argv[i])
       i += 1
 
+edges = []
+
+# load in edgebounds
+for i in range(len(in_files)):
+   print("{}: {}".format(i, in_files[i]))
+   in_file = in_files[i]
+   edg = load_edg(in_file)
+   edges.append(edg)
+   pass
+
+# verify all edgebounds
+Q = edges[i]["Q"]
+T = edges[i]["T"] 
+for i in range(len(edges)):
+   edg = edges[i]
+   if (Q != edg["Q"]) or (T != edg["T"]):
+      print("Error: not all edges are the same dimension.")
+      sys.exit(1)
+   pass
+
+# create matrix
+mx = build_matrix(Q,T)
+
+# add edgebounds 
+for i in range(len(edges)):
+   edg = edges[i]
+   add_edgebounds_to_matrix( mx, edg )
+
+# output results
+output_heatmap( mx )
