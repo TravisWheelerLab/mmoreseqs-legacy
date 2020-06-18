@@ -9,6 +9,7 @@
 ###############################################################################
 
 import sys
+import os
 import numpy as np
 import cv2 as cv
 from PIL import Image
@@ -47,6 +48,8 @@ def build_matrix( m, n ):
 # Load edgebounds from file
 def load_edg( filename ):
    edg = {}
+   edg["FILE"] = filename;
+   edg["DATA"] = {}
    fp = open( filename, "r" )
 
    for line in fp:
@@ -57,7 +60,7 @@ def load_edg( filename ):
          if fields[1].startswith("N:"):
             edg["N"] = fields[2]
          if fields[1].startswith("ORIENTATION:"):
-            edg["orientation"] = fields[2]
+            edg["ORIENTATION"] = fields[2]
          if fields[1].startswith("Q="):
             Q = int(fields[1].split("=")[1])
             T = int(fields[2].split("=")[1])
@@ -65,27 +68,24 @@ def load_edg( filename ):
             edg["T"] = T
       
       if line.startswith("["):
-         fields = line.split()
-         my_id = int(fields[3])
-         my_lb = int(fields[5])
-         my_rb = int(fields[5])
+         fields   = line.split()
+         row      = int(fields[3])
+         my_lb    = int(fields[5])
+         my_rb    = int(fields[7])
 
-         edg[my_id] = ( my_lb, my_rb )
-
-   print(edg)
+         edg["DATA"][row] = ( my_lb, my_rb )
 
    return edg
 
 # Add edgebounds to matrix
-def add_edgebounds_to_matrix( mx, edges ):
-   
-   for my_id in edges.keys():
-      bounds = edges[my_id]
+def add_edgebounds_to_matrix( mx, edg ):
+   for row in edg["DATA"].keys():
+      bounds = edg["DATA"][row]
       lb = bounds[0]
       rb = bounds[1]
-      for i in range(lb, rb):
-         mx[my_id, i] += 1
-
+      
+      for col in range(lb, rb):
+         mx[row,col] += 1
    return
 
 # Output heatmap of single matrix with traceback on top
@@ -94,7 +94,7 @@ def output_heatmap( mx ):
 
    # plot heatmap
    # ax1.set_title( title )
-   im = ax1.imshow( mx, cmap='jet', interpolation='nearest' )
+   im = ax1.imshow( mx, cmap='jet' )
 
    # # plot viterbi traceback
    # tr_len = len(TR[0])-1
@@ -108,12 +108,14 @@ def output_heatmap( mx ):
    #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
    #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
 
-   # if (opts["-S"]):
-   #    dest = "{}/{}.TR_FIG.jpg".format(file, name)
-   #    plt.savefig(dest)
-   #    print("Figure saved to '{}'...".format(dest))
+   if save_fig:
+      dest = "{}/{}.LAYMAP.jpg".format(out_file, name)
+      plt.savefig(dest)
+      print("Figure saved to '{}'...".format(dest))
 
-   plt.show()
+   if show_fig:
+      plt.show()
+   
    return None
 
 
@@ -122,8 +124,11 @@ def output_heatmap( mx ):
 ##############################################################################
 
 # default location to save files
-out_file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
+out_file = os.getcwd()
 in_files = []
+name = "layer-map"
+show_fig = True
+save_fig = True
 
 # Parse args
 if (len(sys.argv) <= 1):
@@ -132,7 +137,16 @@ if (len(sys.argv) <= 1):
 else:
    i = 1
    while (i < len(sys.argv) ):
-      in_files.append(sys.argv[i])
+      arg = sys.argv[i]
+      if arg.startswith("--"):
+         i += 1
+         opt = sys.argv[i]
+         if arg == "--name":
+            name = opt 
+         if arg == "--no-show":
+            show_fig = False
+      else:
+         in_files.append(sys.argv[i])
       i += 1
 
 edges = []
@@ -156,7 +170,7 @@ for i in range(len(edges)):
    pass
 
 # create matrix
-mx = build_matrix(Q,T)
+mx = build_matrix(Q+1,T+1)
 
 # add edgebounds 
 for i in range(len(edges)):
