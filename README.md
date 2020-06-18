@@ -13,6 +13,6 @@ To clone your own copy of the fb-pruner repository for the first time:
 ```
 
 For more information about gitflow, see the
-[fb-pruner wiki](https://github.com/TravisWheelerLab/fb-pruner/wiki).
+[fb-pruner wiki](https://github.com/TravisWheelerLab/fb-pruner/wiki)
 
 
