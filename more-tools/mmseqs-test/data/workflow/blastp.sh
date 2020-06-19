@@ -1,4 +1,7 @@
 #!/bin/sh -e
+echo "# BASH_SCRIPT: $0"
+set -x #echo on
+
 # Sequence search workflow script
 fail() {
     echo "Error: $1"
@@ -46,7 +49,7 @@ while [ "$STEP" -lt "$STEPS" ]; do
 
     # call alignment module
     if [ "$STEPS" -eq 1 ]; then
-        if notExists "$3.dbtype"; then
+        if notExists "$3.dbtype"; do
 
             echo "## COMMAND #2 - ALIGN MODULE = ${ALIGN_MODULE}"
             echo "## $RUNNER "$MMSEQS" "${ALIGN_MODULE}" "$INPUT" "$TARGET${ALIGNMENT_DB_EXT}" "$TMP_PATH/pref_$STEP" "$3" $ALIGNMENT_PAR"

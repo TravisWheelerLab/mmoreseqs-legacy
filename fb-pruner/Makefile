@@ -34,12 +34,12 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # Any C linked libraries I want to include
 CLIBS := -lm
 # standard C compiler flags to be run
-# suggested flags: -Wall -g -O2 -DDEBUG=1
+# suggested flags: -Wall -g -O2 -DDEBUG=1 -fsanitize=address
 CFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=$(DBG) -std=gnu99
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -DDEBUG=$(DBG) -std=gnu99
 # flags for debugging and profiling
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=1
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=1 -fsanitize=address
 
 # speial flags for RELEASE or DEBUG
 ifeq ($(RELEASE), 1)

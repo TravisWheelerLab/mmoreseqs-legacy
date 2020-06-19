@@ -1,4 +1,7 @@
 #!/bin/sh -e
+echo "# BASH_SCRIPT: $0"
+set -x #echo on
+
 # Iterative sequence search workflow script
 fail() {
     echo "Error: $1"

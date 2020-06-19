@@ -1,4 +1,7 @@
 #!/bin/sh -e
+echo "# BASH_SCRIPT: $0"
+set -x #echo on
+
 fail() {
     echo "Error: $1"
     exit 1
