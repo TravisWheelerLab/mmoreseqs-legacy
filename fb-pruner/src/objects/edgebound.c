@@ -72,14 +72,17 @@ EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
  *  FUNCTION: EDGEBOUNDS_Destroy()
  *  SYNOPSIS: Frees all memory from EDGEBOUNDS object.
  */
-void EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
+void* EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
 {
-   if ( edg == NULL ) return;
+   if ( edg == NULL ) return edg;
 
    VECTOR_INT_Destroy( edg->ids );
    VECTOR_INT_Destroy( edg->heads );
    free(edg->bounds);
+   edg->bounds = NULL;
    free(edg);
+   edg = NULL;
+   return edg;
 }
 
 /*

@@ -38,9 +38,6 @@ WORKER* WORKER_Create()
    worker->tasks     = NULL;
    worker->report    = NULL;
 
-   worker->t_index   = NULL;
-   worker->q_index   = NULL;
-
    worker->t_file    = NULL;
    worker->q_file    = NULL;
 
@@ -48,10 +45,14 @@ WORKER* WORKER_Create()
    worker->t_prof    = NULL;
    worker->q_seq     = NULL;
 
-   worker->edg_fwd   = NULL;
-   worker->edg_bck   = NULL;
-   worker->edg_diag  = NULL;
-   worker->edg_row   = NULL;
+   worker->t_index   = NULL;
+   worker->q_index   = NULL;
+
+   worker->edg_fwd      = NULL;
+   worker->edg_bck      = NULL;
+   worker->edg_diag     = NULL;
+   worker->edg_row      = NULL;
+   worker->edg_rows_tmp = NULL;
 
    worker->traceback = NULL;
 
@@ -59,70 +60,57 @@ WORKER* WORKER_Create()
    worker->sp_MX     = NULL;
    worker->st_MX3    = NULL;
 
-   worker->times     = NULL;
-   worker->scores    = NULL;
-   worker->results   = NULL;
-   worker->clok     = NULL;
+   worker->times        = NULL;
+   worker->scores       = NULL;
+   worker->results      = NULL;
+   worker->results_in   = NULL;
+   worker->result       = NULL;
+   worker->clok         = NULL;
+
+   /* create complex data structs */
+   worker->clok      = CLOCK_Create();
 
    /* malloc all basic data structures */
    worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) );    /* sets all tasks to false */
-   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) );  /* sets all tasks to false */
-   worker->times        = (TIMES*) malloc( sizeof(TIMES) );
-   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );
-   worker->results      = (RESULTS*) malloc( sizeof(RESULTS) );
-   worker->result       = (RESULT*) calloc( 1, sizeof(RESULT) );  /* sets all results to zero */
-   if ( worker->tasks == NULL || worker->report == NULL || worker->times == NULL || 
-        worker->scores == NULL || worker->results == NULL || worker->result == NULL ) {
+   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) );  /* sets all report fields to false */
+   worker->times        = (TIMES*) malloc( sizeof(TIMES) );       
+   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );     
+
+   if ( worker->tasks == NULL || worker->report == NULL || worker->times == NULL || worker->scores == NULL ) 
+   {
       fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
       exit(EXIT_FAILURE);
    }
 
-   /* create edgebounds objects */
-   worker->edg_fwd   = EDGEBOUNDS_Create();
-   worker->edg_bck   = EDGEBOUNDS_Create();
-   worker->edg_diag  = EDGEBOUNDS_Create();
-   worker->edg_row   = EDGEBOUNDS_Create();
+   return worker;
+}
 
-   worker->clok     = CLOCK_Create();
+/* constructor with args supplied */
+WORKER* WORKER_Create_with_Args( ARGS* args )
+{
+   WORKER* worker = NULL;
+   worker = WORKER_Create();
+   worker->args = args;
 
    return worker;
 }
 
 /* destructor */
-void WORKER_Destroy( WORKER* worker )
+void* WORKER_Destroy( WORKER* worker )
 {
-   if (worker == NULL) return;
+   if (worker == NULL) return worker;
 
    ARGS_Destroy( worker->args );
-   free( worker->tasks );
+   worker->args = NULL;
 
-   F_INDEX_Destroy( worker->q_index );
-   F_INDEX_Destroy( worker->t_index );
+   worker->clok      = CLOCK_Destroy( worker->clok );
 
-   free( worker->q_file );
-   free( worker->t_file );
-
-   SEQUENCE_Destroy( worker->q_seq );
-   SEQUENCE_Destroy( worker->t_seq );
-   HMM_PROFILE_Destroy( worker->t_prof );
-
-   EDGEBOUNDS_Destroy( worker->edg_fwd  );
-   EDGEBOUNDS_Destroy( worker->edg_bck  );
-   EDGEBOUNDS_Destroy( worker->edg_diag );
-   EDGEBOUNDS_Destroy( worker->edg_row  );
-   ALIGNMENT_Destroy( worker->traceback );
-
-   MATRIX_3D_Destroy( worker->st_MX3 );
-   MATRIX_3D_Destroy( worker->st_MX  );
-   MATRIX_2D_Destroy( worker->sp_MX  );
-
+   free( worker->tasks   );
+   free( worker->report  );
    free( worker->times   );
    free( worker->scores  );
-   free( worker->results );
-   free( worker->result  );
-
-   CLOCK_Destroy( worker->clok   );
 
    free( worker );
    worker = NULL;
+   return worker;
 }

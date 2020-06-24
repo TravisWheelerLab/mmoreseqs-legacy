@@ -22,13 +22,6 @@
  */
 void main_pipeline( WORKER* worker );
 
-/*
- *  FUNCTION:  test_pipeline()
- *  SYNOPSIS:  Pipeline runs integration tests. 
- *             Runs optimized and unoptimized versions of search algs and compares results.
- *             For full functionality, must be compiled in DEBUG mode.
- */
-void test_pipeline( WORKER* worker );
 
 /*
  *  FUNCTION:  	mmseqs_pipeline()
@@ -48,6 +41,21 @@ void time_pipeline( WORKER* worker );
  */
 void index_pipeline( WORKER* worker );
 
+
+/*
+ *  FUNCTION:  hmmbuild_pipeline()
+ *  SYNOPSIS:  Pipeline that builds HMM model from FASTA file.
+ */
+void hmmbuild_pipeline( WORKER* worker );
+
+/*
+ *  FUNCTION:  itest_pipeline()
+ *  SYNOPSIS:  Pipeline runs integration tests. 
+ *             Runs optimized and unoptimized versions of search algs and compares results.
+ *             For full functionality, must be compiled in DEBUG mode.
+ */
+void itest_pipeline( WORKER* worker );
+
 /*
  *  FUNCTION:  	utest_pipeline()
  *  SYNOPSIS:  	Unit Test Pipeline: runs all unit tests.
@@ -62,9 +70,9 @@ void utest_pipeline( WORKER* worker );
 void vizualization_pipeline( WORKER* worker );
 
 /*
- *  FUNCTION:  hmmbuild_pipeline()
- *  SYNOPSIS:  Pipeline that builds HMM model from FASTA file.
+ *  FUNCTION:  null_pipeline()
+ *  SYNOPSIS:  Pipeline does nothing.
  */
-void hmmbuild_pipeline( WORKER* worker );
+void null_pipeline( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

@@ -51,7 +51,7 @@ endif
 
 # compile each object file before executable
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS) $(CLIBS)
+	$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
 
 # assembly
 $(BUILD_DIR)/%.s.o: %.s

@@ -52,11 +52,15 @@ VECTOR_INT* VECTOR_INT_Create_by_Size( int size )
 }
 
 /* destructor */
-void VECTOR_INT_Destroy( VECTOR_INT* vec )
+void* VECTOR_INT_Destroy( VECTOR_INT* vec )
 {
-   if ( vec == NULL ) return;
+   if ( vec == NULL ) return vec;
    free(vec->data);
+   // vec->data = NULL;
+
    free(vec);
+   vec = NULL;
+   return vec;
 }
 
 /* reuse by resetting counter*/

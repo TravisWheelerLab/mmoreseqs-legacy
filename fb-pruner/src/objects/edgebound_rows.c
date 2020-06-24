@@ -66,13 +66,16 @@ EDGEBOUND_ROWS* EDGEBOUND_ROWS_Create_by_Size(  int   Q,
  *  FUNCTION: EDGEBOUND_ROWS_Destroy()
  *  SYNOPSIS: Frees all memory from EDGEBOUND_ROWS object.
  */
-void EDGEBOUND_ROWS_Destroy( EDGEBOUND_ROWS*  edg )
+void* EDGEBOUND_ROWS_Destroy( EDGEBOUND_ROWS*  edg )
 {
-   if ( edg == NULL ) return;
+   if ( edg == NULL ) return edg;
 
    free( edg->rows );
    free( edg->rows_N );
+   
    free( edg );
+   edg = NULL;
+   return edg;
 }
 
 /*

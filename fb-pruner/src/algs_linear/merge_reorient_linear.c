@@ -202,7 +202,7 @@ void EDGEBOUNDS_Merge(const int           Q,             /* query length */
  */
 void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length */
                                  const int           T,          /* target length */
-                                 const EDGEBOUNDS*   edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
+                                 EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
                                  EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    int       x, y;                              /* indexes into edgebounds */

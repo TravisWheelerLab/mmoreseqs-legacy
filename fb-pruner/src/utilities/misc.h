@@ -14,6 +14,13 @@
 #define LOGSUM_TBL 16000
 
 /*
+ *  FUNCTION:  my_free()
+ *  SYNOPSIS:  Frees memory and sets pointer to NULL.  
+ *             Requires dereferenced pointer.
+ */
+float my_free( void** ptr_to_ptr );
+
+/*
  *  FUNCTION:  calc_Max()
  *  SYNOPSIS:  Returns maximum value of two floats.
  */

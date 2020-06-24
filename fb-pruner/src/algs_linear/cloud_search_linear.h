@@ -23,16 +23,16 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
 /* ****************************************************************************************** */
-float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
+float cloud_Forward_Linear( const SEQUENCE*    query,        /* query sequence */
                            const HMM_PROFILE* target,       /* target hmm model */
                            const int          Q,            /* query length */
                            const int          T,            /* target length */
                            MATRIX_3D*         st_MX3,       /* normal state matrix */
                            MATRIX_2D*         sp_MX,        /* special state matrix */
                            const ALIGNMENT*   tr,           /* viterbi traceback */
+                           EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                            EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                           const float        alpha,        /* PARAM: pruning drop */
-                           const int          beta );       /* PARAM: free passes before pruning */
+                           CLOUD_PARAMS*      params );     /* pruning parameters */
 
 /* ****************************************************************************************** *
  *  FUNCTION: cloud_Backward_Linear()
@@ -46,15 +46,15 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
 /* ****************************************************************************************** */
-float cloud_Backward_Linear(const SEQUENCE*   query,        /* query sequence */
-                           const HMM_PROFILE* target,       /* target hmm model */
-                           const int          Q,            /* query length */
-                           const int          T,            /* target length */
-                           MATRIX_3D*         st_MX3,       /* normal state matrix */
-                           MATRIX_2D*         sp_MX,        /* special state matrix */
-                           const ALIGNMENT*   tr,           /* viterbi traceback */
-                           EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                           const float        alpha,        /* PARAM: pruning drop */
-                           const int          beta );       /* PARAM: free passes before pruning */
+float cloud_Backward_Linear( const SEQUENCE*    query,        /* query sequence */
+                              const HMM_PROFILE* target,       /* target hmm model */
+                              const int          Q,            /* query length */
+                              const int          T,            /* target length */
+                              MATRIX_3D*         st_MX3,       /* normal state matrix */
+                              MATRIX_2D*         sp_MX,        /* special state matrix */
+                              const ALIGNMENT*   tr,           /* viterbi traceback */
+                              EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
+                              EDGEBOUNDS*        edg,          /* (OUTPUT) */
+                              CLOUD_PARAMS*      params );     /* pruning parameters */
 
 #endif /* _CLOUD_SEARCH_LINEAR_H */

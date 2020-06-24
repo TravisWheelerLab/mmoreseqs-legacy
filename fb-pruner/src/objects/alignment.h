@@ -13,7 +13,7 @@
 ALIGNMENT* ALIGNMENT_Create();
 
 /* destructor */
-void ALIGNMENT_Destroy(ALIGNMENT *aln);
+void* ALIGNMENT_Destroy(ALIGNMENT *aln);
 
 /* reuse alignment by clearing traceback and setting dimensions */
 void ALIGNMENT_Reuse(ALIGNMENT*  aln,

@@ -18,7 +18,7 @@ MATRIX_2D* MATRIX_2D_Create_Clean(  int  R,
                                     int  C );
 
 /* destructor */
-void MATRIX_2D_Destroy(MATRIX_2D*  mx);
+void* MATRIX_2D_Destroy(MATRIX_2D*  mx);
 
 /* deep copy: returns dest matrix, will allocate if null */
 MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,

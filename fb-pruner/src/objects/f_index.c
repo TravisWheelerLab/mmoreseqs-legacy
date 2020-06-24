@@ -40,7 +40,7 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
  *    DESC:    Creates an instance of F_INDEX.
  *             Initial node length set to min_size.  
  * *******************************************************************/
-F_INDEX*  F_INDEX_Create()
+F_INDEX*  F_INDEX_Create( )
 {
    F_INDEX*   index    = NULL;
    const int  min_size = 32;
@@ -76,9 +76,9 @@ F_INDEX*  F_INDEX_Create()
  *    FUNC:    F_INDEX_Create()
  *    DESC:    Destroys instance of F_INDEX and frees memory.
  * *******************************************************************/
-void F_INDEX_Destroy(F_INDEX* index)
+void* F_INDEX_Destroy(F_INDEX* index)
 {
-   if (index == NULL) return;
+   if (index == NULL) return index;
 
    for (int i = 0; i < index->N; i++) {
       free(index->nodes[i].name);
@@ -92,7 +92,28 @@ void F_INDEX_Destroy(F_INDEX* index)
 
    free(index);
    index = NULL;
+   return index;
 }
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Reuse()
+ *    DESC:    Reuse an instance of F_INDEX.
+ * *******************************************************************/
+void F_INDEX_Reuse( F_INDEX* index )
+{
+   index->N             = 0;
+
+   free(index->index_path);
+   index->lookup_path   = NULL;
+   free(index->source_path);
+   index->source_path   = NULL;
+   free(index->delim);
+   index->delim         = NULL;
+
+   index->sort_type     = SORT_NONE;
+   index->mmseqs_names  = false;
+}
+
 
 /* *******************************************************************
  *    FUNC:    F_INDEX_Pushback()
@@ -390,7 +411,8 @@ void F_INDEX_Dump( F_INDEX*   index,
  * *******************************************************************/
 void F_INDEX_Utest()
 {
-   F_INDEX* f_index = F_INDEX_Fasta_Build("src/test.txt");
+   F_INDEX* f_index = NULL;
+   F_INDEX_Fasta_Build( f_index, "src/test.txt" );
    F_INDEX_Sort_by_Name(f_index);
    F_INDEX_Dump(f_index, stdout);
 

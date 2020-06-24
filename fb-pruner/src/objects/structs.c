@@ -90,9 +90,9 @@ double BG_MODEL_log[] = {
 
 /* function pointers to all pipelines */
 void (*PIPELINES[])(WORKER*) = {
-   NULL,
+   null_pipeline,
    main_pipeline,
-   test_pipeline,
+   itest_pipeline,
    time_pipeline,
    mmseqs_pipeline,
    index_pipeline,
@@ -105,7 +105,7 @@ void (*PIPELINES[])(WORKER*) = {
 char* PIPELINE_NAMES[] = {
    "null",
    "main",
-   "test",
+   "itest",
    "time",
    "mmseqs",
    "index",
@@ -213,7 +213,6 @@ ARGS*    args;
 DEBUG_KIT*  debugger;
 
 /* command line flags and options */
-/* NOTE: update definition of NUM_FLAG_CMDS */
 int   num_flag_cmds = 11;
 FLAG_CMD COMMAND_OPTS[] = {
    {  "OUTFILE",           1,    DATATYPE_INT,     NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },

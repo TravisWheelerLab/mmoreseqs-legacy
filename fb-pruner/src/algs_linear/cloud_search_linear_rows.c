@@ -309,6 +309,10 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
          #endif
       }
 
+      /* If diagonal set is empty, then all branches have been pruned, so we're done */
+      // printf("lb_vec_length: %d\n", lb_vec[0]->N );
+      if ( lb_vec[0]->N <= 0 ) break;
+
       /* MAIN RECURSION */
       /* Iterate the bound ranges of the current antidiagonal */
       for ( b = 0; b < lb_vec[0]->N; b++ ) 

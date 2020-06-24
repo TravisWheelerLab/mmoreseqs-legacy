@@ -57,13 +57,15 @@ CLOCK* CLOCK_Create()
 }
 
 /* destructor */
-void CLOCK_Destroy(CLOCK*cl)
+void* CLOCK_Destroy( CLOCK* cl )
 {
-   if (cl == NULL) return;
+   if (cl == NULL) return cl;
 
    free(cl->stamps);
+
    free(cl);
    cl = NULL;
+   return cl;
 }
 
 /* Set the Stopwatch */

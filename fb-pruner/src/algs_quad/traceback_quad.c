@@ -307,6 +307,7 @@ void traceback_Build(const SEQUENCE*     query,
    }
    #endif
 
+   free(tr);
    return;
 }
 

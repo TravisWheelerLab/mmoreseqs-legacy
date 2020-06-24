@@ -19,7 +19,7 @@ CLOCK* CLOCK_Create();
  *  FUNCTION:  CLOCK_Destroy()
  *  SYNOPSIS:  Destroy CLOCK object.
  */
-void CLOCK_Destroy( CLOCK* cl );
+void* CLOCK_Destroy( CLOCK* cl );
 
 /* start timer */
 double CLOCK_Start( CLOCK* cl );

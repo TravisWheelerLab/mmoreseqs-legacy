@@ -12,7 +12,10 @@
 /* constructor */
 WORKER* WORKER_Create();
 
+/* constructor with args supplied */
+WORKER* WORKER_Create_with_Args( ARGS* args );
+
 /* destructor */
-void WORKER_Destroy( WORKER* worker );
+void* WORKER_Destroy( WORKER* worker );
 
 #endif /* _WORKER_H */

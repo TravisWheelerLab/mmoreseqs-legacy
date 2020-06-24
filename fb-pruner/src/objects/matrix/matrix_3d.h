@@ -20,7 +20,7 @@ MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
                                     const int  N );
 
 /* destructor */
-void MATRIX_3D_Destroy( MATRIX_3D*  mx );
+void* MATRIX_3D_Destroy( MATRIX_3D*  mx );
 
 /* deep copy */
 MATRIX_3D* MATRIX_3D_Copy( MATRIX_3D*     dest,

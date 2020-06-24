@@ -36,9 +36,6 @@ int main ( int argc, char *argv[] )
    #if DEBUG
    {
       debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
-      /* debugging folder */
-      // mkdir(DEBUG_FOLDER)
-      // debugger->folderpath = DEBUG_FOLDER;
       /* default debugger filepath */
       debugger->dbfp_path  = DEBUGOUT;
       // debugger->dbfp       = fopen( debugger->dbfp_path, "w+" );
@@ -50,7 +47,7 @@ int main ( int argc, char *argv[] )
 
       char* test_folder = "test_output/";
       if ( mkdir(test_folder, 0777) == -1 ) {
-         // fprintf(stderr, "Could not create folder: %s\n", test_folder);
+         fprintf(stderr, "Could not create folder: %s\n", test_folder);
          // exit(EXIT_FAILURE);
       }   
    }
@@ -64,9 +61,7 @@ int main ( int argc, char *argv[] )
    ARGS_Dump( args, stdout );
 
    /* build worker */
-   WORKER* worker = WORKER_Create();
-   worker->args = args;
-   worker->tasks = (TASKS*) malloc( sizeof(TASKS) );
+   WORKER* worker = WORKER_Create_with_Args( args );
 
    /* jumps to pipeline based on -p flag */
    printf_vlo("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
@@ -75,7 +70,7 @@ int main ( int argc, char *argv[] )
    /* free debugging toolkit */
    #if DEBUG 
       MATRIX_3D_Destroy( debugger->test_MX );
-      // MATRIX_2D_Destroy( debugger->cloud_MX );
+      MATRIX_2D_Destroy( debugger->cloud_MX );
       // fclose( debugout );
       free( debugger );
    #endif
@@ -83,5 +78,6 @@ int main ( int argc, char *argv[] )
    /* clean up allocated data */
    WORKER_Destroy( worker );
 
+   printf("...exited successfully.\n");
    exit(EXIT_SUCCESS);
 }

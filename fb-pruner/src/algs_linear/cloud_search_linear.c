@@ -47,16 +47,16 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
-                           const HMM_PROFILE* target,       /* target hmm model */
-                           const int          Q,            /* query length */
-                           const int          T,            /* target length */
-                           MATRIX_3D*         st_MX3,       /* normal state matrix */
-                           MATRIX_2D*         sp_MX,        /* special state matrix */
-                           const ALIGNMENT*   tr,           /* viterbi traceback */
-                           EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                           const float        alpha,        /* PARAM: pruning drop */
-                           const int          beta )        /* PARAM: free passes before pruning */
+float cloud_Forward_Linear(   const SEQUENCE*    query,        /* query sequence */
+                              const HMM_PROFILE* target,       /* target hmm model */
+                              const int          Q,            /* query length */
+                              const int          T,            /* target length */
+                              MATRIX_3D*         st_MX3,       /* normal state matrix */
+                              MATRIX_2D*         sp_MX,        /* special state matrix */
+                              const ALIGNMENT*   tr,           /* viterbi traceback */
+                              EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
+                              EDGEBOUNDS*        edg,          /* (OUTPUT) */
+                              CLOUD_PARAMS*      params )     /* pruning parameters */
 {
    /* vars for navigating matrix */
    int            b, d, i, j, k;             /* diagonal, row, column indices */
@@ -91,6 +91,11 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
    VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
+
+   /* pruning params */
+   float alpha       = params->alpha;
+   float alpha_max   = params->alpha_max;
+   int beta          = params->beta;
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;
@@ -204,7 +209,22 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
       re_0 = le_0 + num_cells;
 
       /* Prune bounds */
-      prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
+      {
+         /* prune bounds using x-drop, no bifurcating */
+         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
+      {
+         /* prune bounds using x-drop, bifurcating */
+         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
+      {
+         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
+         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, alpha_max, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #endif
 
       /* Add pruned bounds to edgebound list */
       for ( b = 0; b < lb_vec[0]->N; b++ )
@@ -237,6 +257,10 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
          /* Add new bounds to edgebounds */
          EDGEBOUNDS_Pushback( edg, &( (BOUND){d_0,lb_0,rb_0} ) );
       }
+
+      /* If diagonal set is empty, then all branches have been pruned, so we're done */
+      // printf("lb_vec_length: %d\n", lb_vec[0]->N );
+      if ( lb_vec[0]->N <= 0 ) break;
 
       /* MAIN RECURSION */
       /* Iterate the ranges of the antidiagonal */
@@ -384,6 +408,7 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
       // MATRIX_3D_Clean( st_MX3 );
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("Clear Check?\t%d\n", cmp );
+      EDGEBOUNDS_Dump( edg, stdout );
    }
    #endif 
    /* close necessary debugger tools */
@@ -409,16 +434,16 @@ float cloud_Forward_Linear(const SEQUENCE*    query,        /* query sequence */
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-float cloud_Backward_Linear(  const SEQUENCE*   query,         /* query sequence */
+float cloud_Backward_Linear(  const SEQUENCE*    query,        /* query sequence */
                               const HMM_PROFILE* target,       /* target hmm model */
                               const int          Q,            /* query length */
                               const int          T,            /* target length */
                               MATRIX_3D*         st_MX3,       /* normal state matrix */
                               MATRIX_2D*         sp_MX,        /* special state matrix */
                               const ALIGNMENT*   tr,           /* viterbi traceback */
+                              EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
                               EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                              const float        alpha,        /* PARAM: pruning drop */
-                              const int          beta )        /* PARAM: free passes before pruning */
+                              CLOUD_PARAMS*      params )      /* pruning parameters */
 {
    /* vars for navigating matrix */
    int            b, d, i, j, k;             /* diagonal, row, column indices */
@@ -453,6 +478,11 @@ float cloud_Backward_Linear(  const SEQUENCE*   query,         /* query sequence
    VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
+
+   /* pruning params */
+   float alpha       = params->alpha;
+   float alpha_max   = params->alpha_max;
+   int beta          = params->beta;
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;
@@ -567,7 +597,22 @@ float cloud_Backward_Linear(  const SEQUENCE*   query,         /* query sequence
       re_0 = le_0 + num_cells;
 
       /* Prune bounds */
-      prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
+      {
+         /* prune bounds using x-drop, no bifurcating */
+         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
+      {
+         /* prune bounds using x-drop, bifurcating */
+         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
+      {
+         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
+         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, alpha_max, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #endif
 
       /* Add pruned bounds to edgebound list */
       for ( b = 0; b < lb_vec[0]->N; b++ )
@@ -600,6 +645,10 @@ float cloud_Backward_Linear(  const SEQUENCE*   query,         /* query sequence
          /* Add new bounds to edgebounds */
          EDGEBOUNDS_Pushback( edg, &( (BOUND){d_0,lb_0,rb_0} ) );
       }
+
+      /* If diagonal set is empty, then all branches have been pruned, so we're done */
+      // printf("lb_vec_length: %d\n", lb_vec[0]->N );
+      if ( lb_vec[0]->N <= 0 ) break;
 
       /* MAIN RECURSION */
       for ( b = 0; b < lb_vec[0]->N; b++ )

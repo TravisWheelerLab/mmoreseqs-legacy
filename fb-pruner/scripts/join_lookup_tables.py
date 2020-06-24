@@ -2,7 +2,7 @@
  ###############################################################################
  #     FILE:  	sync_lookup_ids.py
  #  PURPOSE: 	Pairs mmseqs lookup ID with cloudsearch lookup ID.
- # 				Outputs as ID pairs
+ # 				Outputs as ID pairs.
  #
  #   AUTHOR: 	Dave Rich
  #     BUGS: 	
@@ -25,7 +25,7 @@ else:
    sys.exit(0)
 
 # load mmseqs lookup file
-def load_mmseqs_lookup_list( filename, ftype = "dict" ):
+def load_mmseqs_lookup( filename, ftype = "dict" ):
 	if ftype == "list":
 		data = []
 	elif ftype == "dict":
@@ -51,7 +51,8 @@ def load_mmseqs_lookup_list( filename, ftype = "dict" ):
 				data[mid] = "name"
 
 	# sort ids according to names 
-	data.sort( key = lambda x: x[1] )
+	if ftype == "list"
+		data.sort( key = lambda x: x[1] )
 	return data
 
 # load cloud lookup file
@@ -82,7 +83,8 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 				data[cid] = (name, offset)
 
 	# sort ids according to names 
-	data.sort( key = lambda x: x[2] )
+	if ftype == "list"
+		data.sort( key = lambda x: x[2] )
 	return data
 
 # join mmseqs and cloud lookup tables

@@ -64,13 +64,14 @@ MATRIX_2D* MATRIX_2D_Create_Clean(  int  R,
 }
 
 /* destructor */
-void MATRIX_2D_Destroy(MATRIX_2D*  mx)
+void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
 {
-   if (mx == NULL) return;
+   if (mx == NULL) return mx;
 
    free(mx->data);
    free(mx);
    mx = NULL;
+   return mx;
 }
 
 /* deep copy: returns dest matrix, will allocate if null */

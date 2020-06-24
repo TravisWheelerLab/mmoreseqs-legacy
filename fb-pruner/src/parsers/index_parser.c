@@ -34,10 +34,10 @@
  *
  *  RETURN:    F_INDEX object containing index of file
 /* ****************************************************************************************** */
-F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
+F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
+                        const char* _filename_ )
 {
    FILE*          fp             = NULL;
-   F_INDEX*       f_index        = NULL;
    F_INDEX_NODE   node;
 
    int            line_count     = 0;
@@ -54,8 +54,14 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
    char*          name           = NULL;
    int            mmseqs_id      = -1;
 
-   /* first pass */
-   f_index = F_INDEX_Create();
+   /* create index object if necessary */
+   if ( f_index == NULL ) {
+      f_index = F_INDEX_Create();
+   } else {
+      F_INDEX_Reuse( f_index );
+   }
+
+   free( f_index->source_path );
    f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
@@ -121,10 +127,10 @@ F_INDEX* F_INDEX_Hmm_Build( const char* _filename_ )
  *
  *  RETURN:    F_INDEX object containing index of file  
 /* ****************************************************************************************** */
-F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
+F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
+                              const char* _filename_ )
 {
    FILE*          fp             = NULL;
-   F_INDEX*       f_index        = NULL;
    F_INDEX_NODE   node;
 
    int            line_count     = 0;
@@ -141,8 +147,15 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
    char*          name           = NULL;
    int            mmseqs_id      = -1;
 
-   /* create index */
-   f_index = F_INDEX_Create(_filename_);
+   /* create index object if necessary */
+   if ( f_index == NULL ) {
+      f_index = F_INDEX_Create();
+   } else {
+      F_INDEX_Reuse( f_index );
+   }
+
+   /* use filename as source path */
+   free( f_index->source_path );
    f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
@@ -197,10 +210,10 @@ F_INDEX* F_INDEX_Fasta_Build( const char*    _filename_ )
  *
  *  RETURN:    F_INDEX object containing index of file  
 /* ****************************************************************************************** */
-F_INDEX* F_INDEX_Load( const char*   _filename_ )
+F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
+                       const char*  _filename_ )
 {
    FILE*          fp             = NULL;
-   F_INDEX*       f_index        = NULL;
    F_INDEX_NODE   node;
 
    int            line_count     = 0;
@@ -217,8 +230,13 @@ F_INDEX* F_INDEX_Load( const char*   _filename_ )
    char*          name           = NULL;
    int            mmseqs_id      = -1;
 
-   /* create index */
-   f_index = F_INDEX_Create(_filename_);
+   /* create index object if necessary */
+   if ( f_index == NULL ) {
+      f_index = F_INDEX_Create();
+   } else {
+      F_INDEX_Reuse( f_index );
+   }
+
    f_index->index_path = strdup( _filename_ );
 
    /* file open */
@@ -392,10 +410,10 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
 }
 
 /* load index file */
-F_INDEX* F_INDEX_Plus_Load( const char*   _filename_ )
+F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
+                              const char*    _filename_ )
 {
    FILE*          fp             = NULL;
-   F_INDEX*       f_index        = NULL;
    F_INDEX_NODE   node;
 
    int            line_count     = 0;
@@ -412,8 +430,13 @@ F_INDEX* F_INDEX_Plus_Load( const char*   _filename_ )
    char*          name           = NULL;
    int            mmseqs_id      = -1;
 
-   /* create index */
-   f_index = F_INDEX_Create(_filename_);
+   /* create index object if necessary */
+   if ( f_index == NULL ) {
+      f_index = F_INDEX_Create();
+   } else {
+      F_INDEX_Reuse( f_index );
+   }
+
    f_index->index_path = strdup( _filename_ );
 
    /* file open */

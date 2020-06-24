@@ -50,13 +50,14 @@ ALIGNMENT* ALIGNMENT_Create()
 }
 
 /* destructor */
-void ALIGNMENT_Destroy(ALIGNMENT* aln)
+void* ALIGNMENT_Destroy(ALIGNMENT* aln)
 {
-   if (aln == NULL) return;
+   if (aln == NULL) return aln;
    
    free(aln->traces);
    free(aln);
    aln = NULL;
+   return aln;
 }
 
 /* reuse alignment by clearing traceback and setting dimensions */

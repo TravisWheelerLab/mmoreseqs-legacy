@@ -24,7 +24,7 @@
 SEQUENCE* SEQUENCE_Create();
 
 /* Destructor */
-void SEQUENCE_Destroy(SEQUENCE*  seq);
+void* SEQUENCE_Destroy(SEQUENCE*  seq);
 
 /* Reuse sequence by reinitializing all fields except seq field */
 void SEQUENCE_Reuse(SEQUENCE* seq);

@@ -31,6 +31,17 @@ static float LOGSUM_LOOKUP[LOGSUM_TBL];
 bool LOGSUM_INITIALIZED = false;
 
 /*
+ *  FUNCTION:  my_free()
+ *  SYNOPSIS:  Frees memory and sets pointer to NULL.  
+ *             Requires dereferenced pointer.
+ */
+float my_free( void** ptr_to_ptr )
+{
+   free( *ptr_to_ptr );
+   *ptr_to_ptr = NULL;
+}
+
+/*
  *  FUNCTION:  calc_Max()
  *  SYNOPSIS:  Returns maximum value of two floats.
  */

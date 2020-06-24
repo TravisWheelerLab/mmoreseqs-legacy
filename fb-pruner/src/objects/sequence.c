@@ -48,9 +48,9 @@ SEQUENCE* SEQUENCE_Create()
 }
 
 /* Destructor */
-void SEQUENCE_Destroy(SEQUENCE *seq)
+void* SEQUENCE_Destroy(SEQUENCE *seq)
 {
-   if ( seq == NULL ) return;
+   if ( seq == NULL ) return seq;
 
    free(seq->filename);
    free(seq->name);
@@ -58,6 +58,8 @@ void SEQUENCE_Destroy(SEQUENCE *seq)
    free(seq->seq);
 
    free(seq);
+   seq = NULL;
+   return seq;
 }
 
 /* Reuse sequence by reinitializing all fields except seq field */

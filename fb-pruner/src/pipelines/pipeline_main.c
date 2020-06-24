@@ -31,6 +31,9 @@
 /* standard pipeline */
 void main_pipeline( WORKER* worker ) 
 {
+	/* initialize data structures needed for tasks */
+	WORK_init( worker );
+
 	/* worker objects */
 	ARGS* 		args 		= worker->args;
 	TASKS* 		tasks 		= worker->tasks;
@@ -41,8 +44,9 @@ void main_pipeline( WORKER* worker )
 	RESULT* 	result 		= worker->result;
 
 	/* set flags for pipeline tasks */
-	/* linear algs */
+	/* TASKS */
 	{
+		/* linear algs */
 		tasks->linear 			= true;		/* if any other linear tasks are flagged, this must be too */
 		tasks->lin_fwd 			= false;	/* currently not supported */
 		tasks->lin_bck 			= false;	/* currently not supported */
@@ -52,7 +56,7 @@ void main_pipeline( WORKER* worker )
 		tasks->lin_bound_bck 	= true;
 		/* quadratic algs */
 		tasks->quadratic 		= true;		/* if any other quadratic tasks are flagged, this must be too */
-		tasks->quad_fwd 		= true;	/* optional */
+		tasks->quad_fwd 		= true;		/* optional */
 		tasks->quad_bck 		= false;	/* optional */
 		tasks->quad_vit 		= true;		/* viterbi required for cloud search */
 		tasks->quad_trace 		= true;		/* traceback required for cloud search  */
@@ -111,21 +115,18 @@ void main_pipeline( WORKER* worker )
 	}
 	WORK_print_result_header( worker );
 
-	/* initialize data structures needed for tasks */
-	WORK_init( worker );
-
 	/* load or build, then sort target and query index files */
 	WORK_index( worker );
 
 	/* set and verify index ranges */
 	WORK_set_ranges( worker );
 	/* report ranges */
-	printf_vlo("target_num: %d, query_num: %d\n", 
+	printf_vlo("num_targets: %d, num_queries: %d\n", 
 		worker->t_index->N, worker->q_index->N );
 	printf_vlo("target_range: (%d,%d), query_range: (%d,%d)\n", 
 		args->t_range.beg, args->t_range.end,
 		args->q_range.beg, args->q_range.end );
-
+	/* get loop ranges */
 	int i_beg, i_end, j_beg, j_end;
 	int search_cnt, search_tot;
 	i_beg 	= args->t_range.beg;
@@ -140,18 +141,16 @@ void main_pipeline( WORKER* worker )
 	{
 		/* load in next target */
 		WORK_load_target_by_id( worker, i );
-		// HMM_PROFILE_Dump( worker->t_prof, stdout );
 		result->target_id = i;
 
 		/* loop over query range */
 		for (int j = j_beg; j < j_end; j++) 
 		{
 			printf_vlo("Running search (%d of %d) for target (%d of %d) and query (%d of %d)...\n",
-				search_cnt, search_tot, i, i_end, j, j_end);
+				search_cnt+1, search_tot, i+1, i_end, j+1, j_end);
 
 			/* load in next query */
 			WORK_load_query_by_id( worker, j );
-			// SEQUENCE_Dump( worker->q_seq, stdout );
 			result->query_id = j;
 
 			/* resize dp matrices to new query/target */
@@ -186,9 +185,8 @@ void main_pipeline( WORKER* worker )
 			search_cnt++;
 		}
 	}
-	printf("...done.\n");
-
 	fclose( worker->out_file );
+	WORK_cleanup( worker );
 }
 
 /*

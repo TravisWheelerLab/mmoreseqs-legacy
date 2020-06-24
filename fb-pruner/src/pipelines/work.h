@@ -15,8 +15,14 @@ void WORK_workflow( WORKER*  work );
 /* initialize dp matrices */
 void WORK_init( WORKER* worker );
 
+/* clean up data structs */
+void WORK_cleanup( WORKER* worker );
+
 /* resize dp matrices if necessary */
 void WORK_reuse( WORKER* worker );
+
+/* load or build target and query index files */
+void WORK_index( WORKER* worker );
 
 /* load query and target indexes (or build them) */
 void WORK_load_target_index( WORKER* worker );

@@ -323,8 +323,8 @@ void vizualization_pipeline( WORKER* worker )
    }
 
    /* set edgebounds equivalent for merge/reorient testing */
-   EDGEBOUNDS_Copy( edg_fwd_lin, edg_fwd_quad );
-   EDGEBOUNDS_Copy( edg_bck_lin, edg_bck_quad );
+   EDGEBOUNDS_Copy( edg_fwd_quad, edg_fwd_lin );
+   EDGEBOUNDS_Copy( edg_bck_quad, edg_bck_lin );
    /* visualize forward and backward clouds */
    {
       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_fwd_lin, edg_bck_quad );

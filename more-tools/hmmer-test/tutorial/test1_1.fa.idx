@@ -1,6 +1,0 @@
-# === FILE INDEX === #
-FILE_NAME:	data/test1_1.fa
-NUMBER_SEQS:	1
-# {ID}	{OFF}	{NAME}
-0	0	>random sequence 1 consisting of 15 residues. (Added 4 to begin and end)
-

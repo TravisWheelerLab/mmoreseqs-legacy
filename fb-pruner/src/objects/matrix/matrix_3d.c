@@ -66,13 +66,15 @@ MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
 }
 
 /* destructor */
-void MATRIX_3D_Destroy( MATRIX_3D*  mx )
+void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 {
-   if (mx == NULL) return;
+   if (mx == NULL) return mx;
 
    free(mx->data);
+   // mx->data = NULL;
    free(mx);
    mx = NULL;
+   return mx;
 }
 
 /* deep copy: returns dest matrix, will allocate if null */
@@ -233,7 +235,7 @@ float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
    for ( int i = prv_dim; i < new_dim; i++ ) {
       *MATRIX_3D_Get_1D( mx, i ) = -INF;
    }
-   mx->clean;
+   mx->clean = true;
 }
 
 /* resize MATRIX_3D to new dimensions */

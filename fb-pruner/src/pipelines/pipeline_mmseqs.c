@@ -101,10 +101,10 @@ void mmseqs_pipeline( WORKER* worker )
 
    /* === INDEX FILES === */
    printf_vall("Loading index file at: '%s'\n", args->t_indexpath );
-   worker->t_index = F_INDEX_Load( args->t_indexpath );
+   worker->t_index = F_INDEX_Load( worker->t_index, args->t_indexpath );
 
    printf_vall("Loading index file at: '%s'\n", args->q_indexpath );
-   worker->q_index = F_INDEX_Load( args->q_indexpath );
+   worker->q_index = F_INDEX_Load( worker->q_index, args->q_indexpath );
    /* sort indexes by id */
    F_INDEX_Sort_by_Id( worker->t_index );
    F_INDEX_Sort_by_Id( worker->q_index );

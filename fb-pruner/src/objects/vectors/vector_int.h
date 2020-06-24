@@ -22,7 +22,7 @@ VECTOR_INT* VECTOR_INT_Create();
 VECTOR_INT* VECTOR_INT_Create_by_Size( int size );
 
 /* destructor */
-void VECTOR_INT_Destroy( VECTOR_INT* 	vec );
+void* VECTOR_INT_Destroy( VECTOR_INT* 	vec );
 
 /* reuse by resetting counter*/
 void VECTOR_INT_Reuse( VECTOR_INT* 		vec );

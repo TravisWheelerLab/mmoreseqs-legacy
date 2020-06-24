@@ -55,6 +55,7 @@ void ARGS_Destroy(ARGS* args)
 {
    if (args == NULL) return;
    
+   /* free all strings */
    free( args->t_filepath );
    free( args->q_filepath );
 

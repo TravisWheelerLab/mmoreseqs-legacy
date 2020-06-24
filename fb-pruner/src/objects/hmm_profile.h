@@ -13,7 +13,7 @@
 HMM_PROFILE* HMM_PROFILE_Create();
 
 /* Destructor */
-void HMM_PROFILE_Destroy( HMM_PROFILE* prof );
+void* HMM_PROFILE_Destroy( HMM_PROFILE* prof );
 
 /* reuse profile by setting length of length of profile to zero */
 void HMM_PROFILE_Reuse( HMM_PROFILE* prof );

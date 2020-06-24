@@ -13,7 +13,7 @@
 RESULTS* RESULTS_Create();
 
 /* destructor */
-void RESULTS_Destroy( RESULTS* res );
+void* RESULTS_Destroy( RESULTS* res );
 
 /* add result to list */
 void RESULTS_Pushback( RESULTS*  res, 

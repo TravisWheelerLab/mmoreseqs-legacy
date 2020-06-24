@@ -1,7 +1,7 @@
  #!/usr/bin/env python
  ###############################################################################
  #     FILE:  	m8_id_appender.py
- #  PURPOSE: 	Reformats .m8 file to include 
+ #  PURPOSE: 	Reformats .m8 file to include ids.
  # 				Adds target id and query id fields to .m8 file and prints results. 
  #
  #   AUTHOR: 	Dave Rich

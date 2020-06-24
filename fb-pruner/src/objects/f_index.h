@@ -11,8 +11,15 @@
 
 /* Constructor */
 F_INDEX*  F_INDEX_Create();
+
 /* Destructor */
-void F_INDEX_Destroy(F_INDEX* index);
+void* F_INDEX_Destroy(F_INDEX* index);
+
+/*
+ *    FUNC:    F_INDEX_Reuse()
+ *    DESC:    Reuse an instance of F_INDEX.
+ */
+void F_INDEX_Reuse( F_INDEX* index );
 
 /* Add INDEX_NODE to F_INDEX nodes array */
 void F_INDEX_Pushback(F_INDEX*      index,

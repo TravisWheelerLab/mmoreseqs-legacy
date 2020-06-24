@@ -1,0 +1,6 @@
+# N: 2, Nalloc: 8
+# ORIENTATION: EDGE_ROW
+# Q=643, T=78
+[0] { id: 335, lb: 34, rb: 36 }
+[1] { id: 336, lb: 34, rb: 35 }
+

@@ -59,9 +59,9 @@ HMM_PROFILE* HMM_PROFILE_Create()
 }
 
 /* Destructor */
-void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
+void* HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 {
-   if (prof == NULL) return;
+   if (prof == NULL) return prof;
    
    free(prof->filepath);
    free(prof->name);
@@ -74,6 +74,7 @@ void HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 
    free(prof);
    prof = NULL;
+   return prof;
 }
 
 /* reuse profile by setting length of length of profile to zero */

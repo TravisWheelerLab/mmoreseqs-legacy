@@ -167,22 +167,22 @@ void RESULTS_M8_Plus_Parse( RESULTS*  results,
    printf("m8+ results file: %s\n", _filename_);
 
    /* initialize temporary vars */
-   // res_tmp.result_id    = 0
-   // res_tmp.target_id    = 0;
-   // res_tmp.result_id    = 0;
-   // res_tmp.target_name  = NULL;
-   // res_tmp.query_name   = NULL;
-   // res_tmp.perc_id      = 0.f;
-   // res_tmp.aln_len      = 0;
-   // res_tmp.mismatch     = 0;
-   // res_tmp.aln_len      = 0;
-   // res_tmp.gap_openings = 0.f;
-   // res_tmp.query_start  = 0;
-   // res_tmp.query_end    = 0;
-   // res_tmp.target_start = 0;
-   // res_tmp.target_end   = 0;
-   // res_tmp.e_value      = 0.f;
-   // res_tmp.bit_score    = 0;
+   res_tmp.result_id    = 0;
+   res_tmp.target_id    = 0;
+   res_tmp.result_id    = 0;
+   res_tmp.target_name  = NULL;
+   res_tmp.query_name   = NULL;
+   res_tmp.perc_id      = 0.f;
+   res_tmp.aln_len      = 0;
+   res_tmp.mismatch     = 0;
+   res_tmp.aln_len      = 0;
+   res_tmp.gap_openings = 0.f;
+   res_tmp.query_start  = 0;
+   res_tmp.query_end    = 0;
+   res_tmp.target_start = 0;
+   res_tmp.target_end   = 0;
+   res_tmp.e_value      = 0.f;
+   res_tmp.bit_score    = 0;
 
 
    while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1 )
@@ -231,12 +231,12 @@ void RESULTS_M8_Plus_Parse( RESULTS*  results,
 
       /* [1] query_name */ 
       token = strtok_r(line_ptr, " \t", &line_ptr);
-      // if (res_tmp.query_name != NULL) free(res_tmp.query_name);
+      free(res_tmp.query_name);
       res_tmp.query_name = strdup(token);
 
       /* [2] target_name */
       token = strtok_r(line_ptr, " \t", &line_ptr);
-      // if (res_tmp.target_name != NULL) free(res_tmp.target_name);
+      free(res_tmp.target_name);
       res_tmp.target_name = strdup(token);
 
       /* [3] percent id */

@@ -91,8 +91,10 @@ void   ARGS_Parse( ARGS*   args,
    if ( num_main_args == 2 )
    {
       /* second arg is query */
+      free( args->t_filepath );
       args->t_filepath = strdup(argv[2]);
       /* third arg is target */
+      free( args->q_filepath );
       args->q_filepath = strdup(argv[3]);
    }
    else if ( num_main_args == 1 )
@@ -307,6 +309,10 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_range                 = (RANGE) { -1, -1 };    
    args->q_range                 = (RANGE) { -1, -1 };
    args->mmseqs_range            = (RANGE) { -1, -1 };
+
+   // args->run_single              = false;
+   // args->run_first               = false;
+   // args->run_all                 = true;
 }
 
 /* sends ARGS data to FILE POINTER */
@@ -320,27 +326,27 @@ void ARGS_Dump( ARGS*    args,
    /* parameters */
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode],   args->pipeline_mode );
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
-   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA",           args->alpha );
-   fprintf( fp, "%*s:\t%.3f\n",  align * pad,  "ALPHA_MAX",           args->alpha_max );
-   fprintf( fp, "%*s:\t%d\n",    align * pad,  "BETA",            args->beta );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
+   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "ALPHA",           args->alpha );
+   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "ALPHA_MAX",       args->alpha_max );
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "BETA",            args->beta );
    fprintf( fp, "\n" );
    /* inputs */
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILEPATH", args->t_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILEPATH",  args->q_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILEPATH", args->t_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILEPATH",  args->q_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
    fprintf( fp, "\n" );
    /* index input */
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "T_INDEX_PATH",    args->t_indexpath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "T_INDEX_PATH",    args->t_indexpath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
    fprintf( fp, "\n" );
    /* mmseqs input */
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_RESULTS",  args->mmseqs_res_filepath );
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "MMSEQS_TEMP",     args->mmseqs_tmp_filepath );  
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_RESULTS",  args->mmseqs_res_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_TEMP",     args->mmseqs_tmp_filepath );  
    fprintf( fp, "\n" );
    /* output */
-   fprintf( fp, "%*s:\t%s\n",    align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
    fprintf( fp, "=============================\n\n");
 }
 
@@ -362,12 +368,28 @@ int ARGS_Find_FileType( char* _filename_ )
 /* output help info */
 void ARGS_Help_Info()
 {
+   /* basic usage */
    printf("Usage: ./fb-pruner <command> <target_hmm_file> <query_fasta_file>\n\n");
+
+   /* command help */
+   // printf("%-10s\t%-10s\t%s\n",
+   //    "COMMANDS",
+   //    "NUM_MAIN_ARGS",
+   //    "DESC");
+   // for (int i = 0; i < num_flag_cmds; i++) {
+   //    printf("%-10s\t%-10d\t%-10s\t%s\n", 
+   //       COMMAND_OPTS[i].long_flag,
+   //       COMMAND_OPTS[i].num_args,
+   //       DATATYPE_NAMES[COMMAND_OPTS[i].data_type],
+   //       COMMAND_OPTS[i].desc );
+   // }
+
+   /* option help */
    printf("%-10s\t%-10s\t%-10s\t%s\n",
       "FLAG",
       "NUM_ARGS",
       "ARG_TYPE",
-      "DESC");
+      "DESCRIPTION");
    for (int i = 0; i < num_flag_cmds; i++) {
       printf("%-10s\t%-10d\t%-10s\t%s\n", 
          COMMAND_OPTS[i].long_flag,

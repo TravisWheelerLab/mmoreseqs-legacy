@@ -29,15 +29,15 @@
 #include "pipelines.h"
 
 /* generic workflow */
-void WORK_workflow( WORKER*  work )
+void WORK_workflow( WORKER*  worker )
 {
 
 }
 
-/* initialize dynamic programming matrices, edgebounds,  */
+/* initialize data structs: dynamic programming matrices, edgebounds, etc */
 void WORK_init( WORKER* worker )
 {
-   TASKS*   tasks    = worker->tasks;
+   TASKS* tasks = worker->tasks;
 
    /* initialize logrithmic sum table */
    logsum_Init();
@@ -46,19 +46,21 @@ void WORK_init( WORKER* worker )
    worker->q_seq        = SEQUENCE_Create();
    worker->t_seq        = SEQUENCE_Create();
    worker->t_prof       = HMM_PROFILE_Create();
-
+   /* target and profile indexes */
+   worker->q_index      = F_INDEX_Create();
+   worker->t_index      = F_INDEX_Create();
    /* results in from mmseqs and out for general searches */
    worker->results_in   = RESULTS_Create();
    worker->results      = RESULTS_Create();
-
-   /* data structs for cloud search */
+   worker->result       = (RESULT*) malloc( sizeof(RESULT) );
+   /* data structs for viterbi alignment search */
    worker->traceback    = ALIGNMENT_Create();
-
+   /* data structs for cloud edgebounds */
    worker->edg_fwd      = EDGEBOUNDS_Create();
    worker->edg_bck      = EDGEBOUNDS_Create();
    worker->edg_diag     = EDGEBOUNDS_Create();
    worker->edg_row      = EDGEBOUNDS_Create();
-
+   /* row-wise edgebounds */
    worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
 
    worker->cloud_params.alpha = worker->args->alpha;
@@ -66,32 +68,61 @@ void WORK_init( WORKER* worker )
    worker->cloud_params.beta = worker->args->beta;
 
    /* create necessary dp matrices */
-   if ( tasks->quadratic ) {
-      worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   }
-   if ( tasks->linear ) {
-      worker->st_MX3 = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   }
-   if ( tasks->quadratic || tasks->linear ) {
-      worker->sp_MX  = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
-   }
+   worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX3 = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->sp_MX  = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+}
+
+/* clean up data structs */
+void WORK_cleanup( WORKER* worker )
+{
+   TASKS* tasks = worker->tasks;
+
+   /* target and profile structures */
+   worker->q_seq        = SEQUENCE_Destroy( worker->q_seq );
+   worker->t_seq        = SEQUENCE_Destroy( worker->t_seq );
+   worker->t_prof       = HMM_PROFILE_Destroy( worker->t_prof );
+   /* target and profile indexes */
+   worker->q_index      = F_INDEX_Destroy( worker->q_index );
+   worker->t_index      = F_INDEX_Destroy( worker->t_index );
+   /* results in from mmseqs and out for general searches */
+   worker->results_in   = RESULTS_Destroy( worker->results_in );
+   worker->results      = RESULTS_Destroy( worker->results );
+   free( worker->result );
+   worker->result = NULL;
+   /* data structs for viterbi alignment */
+   worker->traceback    = ALIGNMENT_Destroy( worker->traceback );
+   /* data structs for cloud edgebounds */
+   worker->edg_fwd      = EDGEBOUNDS_Destroy( worker->edg_fwd );
+   worker->edg_bck      = EDGEBOUNDS_Destroy( worker->edg_bck );
+   worker->edg_diag     = EDGEBOUNDS_Destroy( worker->edg_diag );
+   worker->edg_row      = EDGEBOUNDS_Destroy( worker->edg_row );
+   /* row-wise edgebounds */
+   worker->edg_rows_tmp  = EDGEBOUND_ROWS_Destroy( worker->edg_rows_tmp );
+
+   /* create necessary dp matrices */
+   worker->st_MX = MATRIX_3D_Destroy( worker->st_MX );
+   worker->st_MX3 = MATRIX_3D_Destroy( worker->st_MX3 );
+   worker->sp_MX  = MATRIX_2D_Destroy( worker->sp_MX );
 }
 
 /* initialize dynamic programming matrices */
 void WORK_reuse( WORKER* worker )
 {
+   printf("reuse...\n");
    TASKS*   tasks    = worker->tasks; 
 
    int   T  = worker->t_prof->N;
    int   Q  = worker->q_seq->N;
 
-   /* clear traceback and edgebound data */
+   /* clear traceback and resize */
    ALIGNMENT_Reuse( worker->traceback, Q, T );
+   /* clear edgebounds and resize */
    EDGEBOUNDS_Reuse( worker->edg_fwd, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_bck, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_diag, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_row, Q, T );
-
+   /* clear row-wise edgebounds and resize */
    EDGEBOUND_ROWS_Reuse( worker->edg_rows_tmp, Q, T );
 
    /* reuse necessary dp matrices (only reallocs if new size is larger) */
@@ -116,8 +147,10 @@ void WORK_reuse( WORKER* worker )
 /* load or build target and query index files */
 void WORK_index( WORKER* worker )
 {
+   /* build file indexes */
    WORK_load_target_index( worker );
    WORK_load_query_index( worker );
+   /* sort file indexes */
    F_INDEX_Sort_by_Id( worker->t_index );
    F_INDEX_Sort_by_Id( worker->q_index );
 }
@@ -130,7 +163,7 @@ void WORK_load_target_index( WORKER* worker )
    ARGS*    args     = worker->args;
    TASKS*   tasks    = worker->tasks;
    TIMES*   times    = worker->times;
-   CLOCK*   clok    = worker->clok;
+   CLOCK*   clok     = worker->clok;
 
    /* begin time */
    CLOCK_Start(clok);
@@ -150,22 +183,22 @@ void WORK_load_target_index( WORKER* worker )
    /* load or build target file index */
    if (args->t_indexpath != NULL) {
       /* load file passed by commandline */
-      printf("loading indexpath from commandline...\n");
-      worker->t_index = F_INDEX_Load(args->t_indexpath);
+      printf_vhi("loading indexpath from commandline...\n");
+      worker->t_index = F_INDEX_Load( worker->t_index, args->t_indexpath );
    }
    else if ( access( t_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
-      printf("found index at database location...\n");
-      worker->t_index = F_INDEX_Load( t_indexpath_tmp );
+      printf_vhi("found index at database location...\n");
+      worker->t_index = F_INDEX_Load( worker->t_index, t_indexpath_tmp );
    }
    else {
       /* build index on the fly */
       printf("building index of file...\n");
       if (args->t_filetype == FILE_HMM) {
-         worker->t_index = F_INDEX_Hmm_Build(args->t_filepath);
+         worker->t_index = F_INDEX_Hmm_Build( worker->t_index, args->t_filepath );
       }
       else if (args->t_filetype == FILE_FASTA) {
-         worker->t_index = F_INDEX_Fasta_Build(args->t_filepath);
+         worker->t_index = F_INDEX_Fasta_Build( worker->t_index, args->t_filepath );
       }
       else {
          fprintf(stderr, "ERROR: target filetype is not supported.\n" );
@@ -184,7 +217,7 @@ void WORK_load_target_index( WORKER* worker )
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
    if ( tasks->mmseqs_lookup && worker->t_index->mmseqs_names ) {
-      printf("updating query with mmseqs lookup...\n");
+      printf_vhi("updating query with mmseqs lookup...\n");
       if ( args->t_lookup_filepath != NULL ) {
          /* if filepath given directly as argument, do nothing */
       }
@@ -234,22 +267,22 @@ void WORK_load_query_index( WORKER* worker )
    if (args->q_indexpath != NULL) {
       /* load file passed by commandline */
       printf_vhi("loading indexpath from commandline...\n");
-      worker->q_index = F_INDEX_Load(args->q_indexpath);
+      worker->q_index = F_INDEX_Load( worker->q_index, args->q_indexpath );
    } 
    else if ( access( q_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
       printf_vhi("found index at database location...\n");
       args->q_indexpath = strdup( q_indexpath_tmp );
-      worker->q_index = F_INDEX_Load( q_indexpath_tmp );
+      worker->q_index = F_INDEX_Load( worker->q_index, q_indexpath_tmp );
    }  
    else {
       /* build index on the fly */
       printf_vhi("building index of file...\n");
       if (args->q_filetype == FILE_HMM) {
-         worker->q_index = F_INDEX_Hmm_Build(args->q_filepath);
+         worker->q_index = F_INDEX_Hmm_Build( worker->q_index, args->q_filepath );
       }
       else if (args->q_filetype == FILE_FASTA) {
-         worker->q_index = F_INDEX_Fasta_Build(args->q_filepath);
+         worker->q_index = F_INDEX_Fasta_Build( worker->q_index, args->q_filepath );
       }
       else {
          fprintf(stderr, "ERROR: query filetype is not supported.\n" );
@@ -294,7 +327,7 @@ void WORK_output_target_index( WORKER* worker )
    FILE*    fp    = NULL;
    ARGS*    args  = worker->args;
 
-   /* determine the method of output for target index */
+   /* determine the output file to save to */
    if ( args->t_indexpath == NULL ) {
       /* if no output name is given, append ".idx" and save in same directory */
       const char* ext = ".idx";
@@ -308,7 +341,6 @@ void WORK_output_target_index( WORKER* worker )
    /* output target index */
    fp = fopen( args->t_indexpath, "w" );
    F_INDEX_Dump( worker->t_index, fp );
-   // F_INDEX_Sort_by_Name( worker->t_index );
    fclose(fp);
 }
 
@@ -318,7 +350,7 @@ void WORK_output_query_index( WORKER* worker )
    FILE*    fp    = NULL;
    ARGS*    args  = worker->args;
 
-   /* determine the method of output for query index */
+   /* determine the output file to save to */
    if ( args->q_indexpath == NULL ) {
       /* if no output name is given, append ".idx" and save in same directory */
       const char* ext = ".idx";
@@ -332,7 +364,6 @@ void WORK_output_query_index( WORKER* worker )
    /* output query index */
    fp = fopen( args->q_indexpath, "w" );
    F_INDEX_Dump( worker->q_index, fp );
-   // F_INDEX_Sort_by_Name( worker->q_index );
    fclose(fp);
 }
 
@@ -395,9 +426,6 @@ void WORK_load_target_by_id( WORKER* worker,
    /* begin time */
    CLOCK_Start(clok);
 
-   /* add id to result report */
-   result->target_id = id;
-
    /* get offset into by checking index */
    int            term;
    F_INDEX_NODE*  node;
@@ -417,7 +445,7 @@ void WORK_load_target_by_id( WORKER* worker,
       case FILE_FASTA:
          SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
          SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
-         HMM_PROFILE_Dump( t_seq, stdout );
+         HMM_PROFILE_Dump( t_prof, stdout );
          break;
       default:
          fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
@@ -454,9 +482,6 @@ void WORK_load_query_by_id( WORKER* worker,
 
    /* begin time */
    CLOCK_Start(clok);
-
-   /* add id to result report */
-   result->query_id = id;
 
    /* get offset into by checking index */
    int            term;
@@ -679,7 +704,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
-         cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_fwd, alpha, beta );
+         cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
       }
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
@@ -696,7 +721,7 @@ void WORK_cloud_search( WORKER* worker )
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
          printf("cloud bck diag...\n");
-         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_bck, alpha, beta );
+         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
       }
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
