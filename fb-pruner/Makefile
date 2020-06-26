@@ -8,9 +8,14 @@
 #################################################################################
 
 # define C compiler to use
+SHELL = /bin/sh
 CC = gcc
 CXX = g++
-DBG = 0
+
+# package information 
+PACKAGE = FB-PRUNER 
+PACKAGE_VERSION = 0.1A
+PACKAGE_TARNAME = fb-pruner
 
 # final executable
 TARGET_EXEC ?= fb-pruner
@@ -34,19 +39,27 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 # Any C linked libraries I want to include
 CLIBS := -lm
 # standard C compiler flags to be run
-# suggested flags: -Wall -g -O2 -DDEBUG=1 -fsanitize=address
-CFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=$(DBG) -std=gnu99
+# suggested flags: -Wall -g -O2 -fsanitize=address
+CFLAGS := $(INC_FLAGS) -std=gnu99 -O2
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -O3 -DDEBUG=$(DBG) -std=gnu99
+# suggested flags: -MMD -MP -O3
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=gnu99 -O2
 # flags for debugging and profiling
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -O2 -DDEBUG=1 -fsanitize=address
+# suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1 -fsanitize=address
+# flags for release version
+RELEASEFLAGS := $(INC_FLAGS) -Wall -O3
 
-# speial flags for RELEASE or DEBUG
-ifeq ($(RELEASE), 1)
+# special flags for RELEASE 
+ifeq ($(BUILD), RELEASE)
+# 	$(info RELEASE FLAGGED)
+	CFLAGS+=$(RELEASEFLAGS)
+	CPPFLAGS+=$(RELEASEFLAGS)
 endif
-
-ifeq ($(DEBUG), 1)
+# special flags for DEBUG
+ifeq ($(BUILD), DEBUG)
 	CFLAGS+=$(DEBUGFLAGS)
+	CPPFLAGS+=$(DEBUGFLAGS)
 endif
 
 # compile each object file before executable
@@ -68,12 +81,15 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(MKDIR_P) $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-
-.PHONY: clean
+.PHONY: clean install
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(BUILD_DIR) make_out.txt gmon.out
 
 -include $(DEPS)
 
 MKDIR_P ?= mkdir -p
+
+install:
+	PATH=$PATH:~/opt/bin
+	$

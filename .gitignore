@@ -5,12 +5,14 @@
 *.sublime-project
 *.sublime-workspace
 
-# testing output and bytecode folders
-test_output/
-output/
+# test output folders
+*/test_output/*
+*/output/*
+
+# binary folders
+more-tools/hmmer-test/easel/
 fb-pruner/build/
 more-tools/hmmer-test/build/
-more-tools/hmmer-test/easel/
 more-tools/mmseqs-test/build/
 more-tools/mmseqs-pruner-plus/build/
 
