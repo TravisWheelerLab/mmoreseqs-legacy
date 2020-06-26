@@ -96,7 +96,6 @@ float cloud_Forward_Linear(   const SEQUENCE*    query,        /* query sequence
    float alpha       = params->alpha;
    float alpha_max   = params->alpha_max;
    int beta          = params->beta;
-   printf("# ALPHA: %9.4f, ALPHA_MAX %9.4f\n", alpha, alpha_max);
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;

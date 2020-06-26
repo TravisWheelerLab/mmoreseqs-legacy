@@ -292,8 +292,6 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 				                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 				                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
-	printf("PRUNING...\n");
-
 	int 		b, i, j, k; 				/* indexes */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
@@ -331,14 +329,14 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	diag_limit = diag_max - alpha;
 
 	// // #if DEBUG
-	{
-		printf("DIAG: %d\n", d_0);
-		printf("ALPHA: %9.4f, ALPHA_MAX: %9.4f\n", alpha, alpha_max);
-		printf("DIAG_MAX: %9.4f, DIAG_LIMIT: %9.4f\n", 
-			diag_max, diag_limit);
-		printf("TOT_MAX:  %9.4f, TOT_LIMIT:  %9.4f\n", 
-			*total_max, total_limit);
-	}
+	// {
+	// 	printf("DIAG: %d\n", d_0);
+	// 	printf("ALPHA: %9.4f, ALPHA_MAX: %9.4f\n", alpha, alpha_max);
+	// 	printf("DIAG_MAX: %9.4f, DIAG_LIMIT: %9.4f\n", 
+	// 		diag_max, diag_limit);
+	// 	printf("TOT_MAX:  %9.4f, TOT_LIMIT:  %9.4f\n", 
+	// 		*total_max, total_limit);
+	// }
 	// // #endif
 
 	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */

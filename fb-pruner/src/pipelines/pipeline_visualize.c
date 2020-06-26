@@ -122,6 +122,10 @@ void vizualization_pipeline( WORKER* worker )
    printf("%*s: %d\n", pad, "BETA",             beta);
    printf("\n");
 
+   worker->cloud_params.alpha = worker->args->alpha;
+   worker->cloud_params.alpha_max = worker->args->alpha_max;
+   worker->cloud_params.beta = worker->args->beta;
+
    printf("=== BUILD HMM_PROFILE / QUERY -> START ===\n");
 
    /* build q_seq sequence */
@@ -284,6 +288,7 @@ void vizualization_pipeline( WORKER* worker )
       printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
       /* cloud forward (linear) */
       printf("=== CLOUD FORWARD (linear) -> START ===\n");
+      printf("# OUTSIDE: alpha = %9.4f, alpha_max = %9.4f\n", worker->cloud_params.alpha, worker->cloud_params.alpha_max );
       cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
       // cloud_Forward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
