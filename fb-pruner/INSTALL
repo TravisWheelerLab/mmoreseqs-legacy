@@ -1,0 +1,12 @@
+# Brief installation instructions 
+FB-PRUNER (June 2020)
+Version 0.1 alpha
+
+# Install Release Build
+make BUILD=RELEASE
+
+# Install Debug Build
+make BUILD=DEBUG
+
+# Uninstall
+make clean

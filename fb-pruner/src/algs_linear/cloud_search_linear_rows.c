@@ -146,8 +146,6 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       }
    }
    #endif 
-
-   if ( alpha_max == -INF ) alpha_max == alpha;
    
    /* set edgebound dimensions and orientation */
    edg->Q         = Q;
@@ -484,8 +482,8 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
    /* show visualization of search cloud */
    #if DEBUG
    {
-      DP_MATRIX_VIZ_Trace( cloud_MX, tr );
-      DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
+      // DP_MATRIX_VIZ_Trace( cloud_MX, tr );
+      // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */
@@ -497,6 +495,9 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
       }
 
       /* close debugger tools */
+      printf("# EDGEBOUNDS:\n");
+      EDGEBOUNDS_Dump( edg, stdout );
+      test_edg = EDGEBOUNDS_Destroy( test_edg );
       fclose( dbfp );
    }
    #endif
@@ -975,6 +976,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    #if DEBUG
    {
       /* close necessary debugger tools */
+      test_edg = EDGEBOUNDS_Destroy( test_edg );
       fclose(dbfp);
    }
    #endif

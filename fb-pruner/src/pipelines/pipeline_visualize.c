@@ -55,6 +55,7 @@ void vizualization_pipeline( WORKER* worker )
    ARGS*          args           = worker->args;
 
    float          alpha          = args->alpha;
+   float          alpha_max      = args->alpha_max;
    int            beta           = args->beta;
 
    char*          t_filepath     = args->t_filepath;
@@ -117,6 +118,7 @@ void vizualization_pipeline( WORKER* worker )
    printf("%*s: %s\n", pad, "HMM_FILENAME",     t_filepath);
    printf("%*s: %s\n", pad, "FASTA_FILENAME",   q_filepath);
    printf("%*s: %f\n", pad, "ALPHA",            alpha);
+   printf("%*s: %f\n", pad, "ALPHA-MAX",        alpha_max);
    printf("%*s: %d\n", pad, "BETA",             beta);
    printf("\n");
 
@@ -282,8 +284,8 @@ void vizualization_pipeline( WORKER* worker )
       printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
       /* cloud forward (linear) */
       printf("=== CLOUD FORWARD (linear) -> START ===\n");
-      // cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_fwd_lin, alpha, beta);
-      cloud_Forward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
+      cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
+      // cloud_Forward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, &(worker->cloud_params) );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.cloud_fwd.lin.diags.mx");
@@ -309,8 +311,8 @@ void vizualization_pipeline( WORKER* worker )
       printf("=== CLOUD BACKWARD (quadratic) -> END ===\n\n");
       /* cloud backward (linear) */
       printf("=== CLOUD BACKWARD (linear) -> START ===\n");
-      // cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_bck_lin, alpha, beta);
-      cloud_Backward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );
+      cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );
+      // cloud_Backward_Linear_Rows(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.cloud_bck.lin.diags.mx");
@@ -323,8 +325,8 @@ void vizualization_pipeline( WORKER* worker )
    }
 
    /* set edgebounds equivalent for merge/reorient testing */
-   EDGEBOUNDS_Copy( edg_fwd_quad, edg_fwd_lin );
-   EDGEBOUNDS_Copy( edg_bck_quad, edg_bck_lin );
+   edg_fwd_quad = EDGEBOUNDS_Copy( edg_fwd_quad, edg_fwd_lin );
+   edg_bck_quad = EDGEBOUNDS_Copy( edg_bck_quad, edg_bck_lin );
    /* visualize forward and backward clouds */
    {
       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_fwd_lin, edg_bck_quad );
@@ -359,7 +361,7 @@ void vizualization_pipeline( WORKER* worker )
    MATRIX_2D_Fill( cloud_MX_naive, 0 );
    MATRIX_2D_Cloud_Fill( cloud_MX_naive, edg_row_lin, 1 );
    // DP_MATRIX_VIZ_Dump( cloud_MX_naive, stdout );
-   // EDGEBOUNDS_Dump( edg_row_lin, stdout );
+   EDGEBOUNDS_Dump( edg_row_lin, stdout );
 
    /* bounded forward */
    printf("=== BOUNDED FORWARD -> START ===\n");
@@ -400,4 +402,53 @@ void vizualization_pipeline( WORKER* worker )
    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_bck.lin.mx");
    printf("=== BOUNDED BACKWARD -> END ===\n\n");
+
+   /* CLEAN-UP */
+   /* PROFILE & SEQUENCE */
+   t_prof         = HMM_PROFILE_Destroy( t_prof );
+   t_seq          = SEQUENCE_Destroy( t_seq );  /* only used if target is a fasta file */
+   q_seq          = SEQUENCE_Destroy( q_seq );
+
+   /* EDGEBOUNDS & ALIGNMENTS */
+   tr             = ALIGNMENT_Destroy( tr );
+
+   edg_fwd_lin    = EDGEBOUNDS_Destroy( edg_fwd_lin );
+   edg_bck_lin    = EDGEBOUNDS_Destroy( edg_bck_lin );
+   edg_row_lin    = EDGEBOUNDS_Destroy( edg_row_lin );
+   edg_diag_lin   = EDGEBOUNDS_Destroy( edg_diag_lin );
+
+   edg_fwd_quad   = EDGEBOUNDS_Destroy( edg_fwd_quad );
+   edg_bck_quad   = EDGEBOUNDS_Destroy( edg_bck_quad );
+   edg_row_quad   = EDGEBOUNDS_Destroy( edg_row_quad );
+   edg_diag_quad  = EDGEBOUNDS_Destroy( edg_diag_quad );
+
+   /* temporary edgebound object for storing row-wise edgebounds during cloud search */
+   edg_row_tmp   = EDGEBOUND_ROWS_Destroy( edg_row_tmp );
+
+   /* te memory for quadratic algs */
+   st_MX_naive    = MATRIX_3D_Destroy( st_MX_naive );
+   sp_MX_naive    = MATRIX_2D_Destroy( sp_MX_naive );
+   cloud_MX_naive = MATRIX_2D_Destroy( cloud_MX_naive );
+   /* allocate memory for quadratic algs */
+   st_MX_quad     = MATRIX_3D_Destroy( st_MX_quad );
+   sp_MX_quad     = MATRIX_2D_Destroy( sp_MX_quad );
+   cloud_MX_quad  = MATRIX_2D_Destroy( cloud_MX_quad );
+   /* allocate memory for comparing row-wise algs */
+   cloud_MX_rows  = MATRIX_2D_Destroy( cloud_MX_rows );
+   /* allocate memory for linear algs */
+   st_MX_lin      = MATRIX_3D_Destroy( st_MX_lin );
+   st_MX3_lin     = MATRIX_3D_Destroy( st_MX3_lin );
+   sp_MX_lin      = MATRIX_2D_Destroy( sp_MX_lin );
+   cloud_MX_lin   = MATRIX_2D_Destroy( cloud_MX_lin );
+   /* allocate memory for testing */
+   st_MX_diff     = MATRIX_3D_Destroy( st_MX_diff );
+   st_MX3_diff    = MATRIX_3D_Destroy( st_MX3_diff );
+   sp_MX_diff     = MATRIX_2D_Destroy( sp_MX_diff );
+   cloud_MX_diff  = MATRIX_2D_Destroy( cloud_MX_diff );
+
+   /* allocate full search cloud */
+   full_cloud_MX  = MATRIX_2D_Destroy( full_cloud_MX );
+   full_cloud_edg = EDGEBOUNDS_Destroy( full_cloud_edg );
+
+   WORK_cleanup( worker );
 }

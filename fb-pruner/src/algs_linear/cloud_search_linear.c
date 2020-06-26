@@ -96,6 +96,7 @@ float cloud_Forward_Linear(   const SEQUENCE*    query,        /* query sequence
    float alpha       = params->alpha;
    float alpha_max   = params->alpha_max;
    int beta          = params->beta;
+   printf("# ALPHA: %9.4f, ALPHA_MAX %9.4f\n", alpha, alpha_max);
 
    /* local or global? (multiple alignments) */
    bool   is_local   = target->isLocal;
@@ -402,6 +403,7 @@ float cloud_Forward_Linear(   const SEQUENCE*    query,        /* query sequence
    #if DEBUG
    {
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
+      // printf("# DEBUG OUTPUT:\n");
       // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
       /* test that all cells are cleared */
