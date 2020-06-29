@@ -787,7 +787,7 @@ float bound_Backward_Linear(  const SEQUENCE*      query,         /* query seque
 
    #if DEBUG
    {
-      DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
+      // DP_MATRIX_VIZ_Dump( cloud_MX, dbfp );
       // DP_MATRIX_Trace_Dump( Q, T, test_MX, sp_MX, tr, stdout );
 
       /* final test that all cells are cleared */

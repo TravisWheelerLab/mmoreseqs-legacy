@@ -246,29 +246,29 @@ void vizualization_pipeline( WORKER* worker )
       scores->quad_fwd = sc;
       DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.fwd.quad.mx");
       /* ==> forward (linear) */
-      forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
-      printf("Forward Score  (lin):\t%f\n", sc);
-      scores->lin_fwd = sc;
-      MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
-      DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
-      printf("=== FORWARD -> END ===\n\n");
+      // forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
+      // printf("Forward Score  (lin):\t%f\n", sc);
+      // scores->lin_fwd = sc;
+      // MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+      // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
+      // printf("=== FORWARD -> END ===\n\n");
    }
 
    /* run backward */
    {
-      printf("=== BACKWARD -> START ===\n");
-      /* ==> backward (quadratic) */
-      backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
-      printf("Backward Score (quad):\t%f\n", sc);
-      scores->quad_bck = sc;
-      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bck.quad.mx");
+      // printf("=== BACKWARD -> START ===\n");
+      // /* ==> backward (quadratic) */
+      // backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
+      // printf("Backward Score (quad):\t%f\n", sc);
+      // scores->quad_bck = sc;
+      // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bck.quad.mx");
       /* ==> backward (linear) */
-      backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
-      printf("Backward Score  (lin):\t%f\n", sc);
-      scores->lin_bck = sc;
-      MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
-      DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bck.lin.mx");
-      printf("=== BACKWARD -> END ===\n\n");
+      // backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
+      // printf("Backward Score  (lin):\t%f\n", sc);
+      // scores->lin_bck = sc;
+      // MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+      // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bck.lin.mx");
+      // printf("=== BACKWARD -> END ===\n\n");
    }
 
    /* need to clean matrix after fwd/bck */
@@ -277,15 +277,15 @@ void vizualization_pipeline( WORKER* worker )
    /* run cloud forward */
    {
       /* cloud forward (quadratic) */
-      printf("=== CLOUD FORWARD (quadratic) -> START ===\n");
-      cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_fwd_quad, alpha, beta);
-      if ( debugger->verbose_level >= VERBOSE_ALL ) {
-         MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
-         DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
-      }
-      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_fwd.quad.mx");
-      EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
-      printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
+      // printf("=== CLOUD FORWARD (quadratic) -> START ===\n");
+      // cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_fwd_quad, alpha, beta);
+      // if ( debugger->verbose_level >= VERBOSE_ALL ) {
+      //    MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
+      //    DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
+      // }
+      // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_fwd.quad.mx");
+      // EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
+      // printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
       /* cloud forward (linear) */
       printf("=== CLOUD FORWARD (linear) -> START ===\n");
       printf("# OUTSIDE: alpha = %9.4f, alpha_max = %9.4f\n", worker->cloud_params.alpha, worker->cloud_params.alpha_max );
@@ -305,15 +305,15 @@ void vizualization_pipeline( WORKER* worker )
    /* run cloud backward */
    {
       /* cloud backward (quadratic) */
-      printf("=== CLOUD BACKWARD (quadratic) -> START ===\n");
-      cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_bck_quad, alpha, beta);
-      if ( debugger->verbose_level >=  VERBOSE_ALL ) {
-         MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
-         DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
-      }
-      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_bck.quad.mx");
-      EDGEBOUNDS_Save(edg_bck_quad, "test_output/my.cloud_bck.quad.diags.edg");
-      printf("=== CLOUD BACKWARD (quadratic) -> END ===\n\n");
+      // printf("=== CLOUD BACKWARD (quadratic) -> START ===\n");
+      // cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_bck_quad, alpha, beta);
+      // if ( debugger->verbose_level >=  VERBOSE_ALL ) {
+      //    MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
+      //    DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
+      // }
+      // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_bck.quad.mx");
+      // EDGEBOUNDS_Save(edg_bck_quad, "test_output/my.cloud_bck.quad.diags.edg");
+      // printf("=== CLOUD BACKWARD (quadratic) -> END ===\n\n");
       /* cloud backward (linear) */
       printf("=== CLOUD BACKWARD (linear) -> START ===\n");
       cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );
@@ -366,20 +366,20 @@ void vizualization_pipeline( WORKER* worker )
    MATRIX_2D_Fill( cloud_MX_naive, 0 );
    MATRIX_2D_Cloud_Fill( cloud_MX_naive, edg_row_lin, 1 );
    // DP_MATRIX_VIZ_Dump( cloud_MX_naive, stdout );
-   EDGEBOUNDS_Dump( edg_row_lin, stdout );
+   // EDGEBOUNDS_Dump( edg_row_lin, stdout );
 
    /* bounded forward */
    printf("=== BOUNDED FORWARD -> START ===\n");
    /* bounded forward (naive) */
-   bound_Forward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
-   printf("Bounded Forward Score (naive):\t%f\n", sc);
-   scores->naive_cloud_fwd = sc;
-   DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_fwd.naive.mx");
-   /* bounded forward (quadratic) */
-   bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
-   printf("Bounded Forward Score  (quad):\t%f\n", sc);
-   scores->quad_cloud_fwd = sc;
-   DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_fwd.quad.mx");
+   // bound_Forward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
+   // printf("Bounded Forward Score (naive):\t%f\n", sc);
+   // scores->naive_cloud_fwd = sc;
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_fwd.naive.mx");
+   // /* bounded forward (quadratic) */
+   // bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
+   // printf("Bounded Forward Score  (quad):\t%f\n", sc);
+   // scores->quad_cloud_fwd = sc;
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_fwd.quad.mx");
    /* bounded forward (comparison) */
    bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
    printf("Bounded Forward Score   (lin):\t%f\n", sc);
@@ -388,25 +388,35 @@ void vizualization_pipeline( WORKER* worker )
    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_fwd.lin.mx");
    printf("=== BOUNDED FORWARD -> END ===\n\n");
 
-   /* bounded backward */
-   printf("=== BOUNDED BACKWARD -> START ===\n");
-   /* bounded backward (naive) */
-   bound_Backward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
-   printf("Bounded Backward Score (naive):\t%f\n", sc);
-   scores->naive_cloud_bck = sc;
-   DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_bck.naive.mx");
-   /* bounded backward (quadratic) */
-   bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
-   printf("Bounded Backward Score  (quad):\t%f\n", sc);
-   scores->quad_cloud_fwd = sc;
-   DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_bck.quad.mx");
-   /* bounded backward (linear) */
-   bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX_lin, sp_MX_lin, edg_row_lin, &sc);
-   printf("Bounded Backward Score   (lin):\t%f\n", sc);
-   scores->lin_cloud_fwd = sc;
-   MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_bck.lin.mx");
-   printf("=== BOUNDED BACKWARD -> END ===\n\n");
+   // /* bounded backward */
+   // printf("=== BOUNDED BACKWARD -> START ===\n");
+   // /* bounded backward (naive) */
+   // bound_Backward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
+   // printf("Bounded Backward Score (naive):\t%f\n", sc);
+   // scores->naive_cloud_bck = sc;
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_bck.naive.mx");
+   // /* bounded backward (quadratic) */
+   // bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
+   // printf("Bounded Backward Score  (quad):\t%f\n", sc);
+   // scores->quad_cloud_fwd = sc;
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_bck.quad.mx");
+   // /* bounded backward (linear) */
+   // bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX_lin, sp_MX_lin, edg_row_lin, &sc);
+   // printf("Bounded Backward Score   (lin):\t%f\n", sc);
+   // scores->lin_cloud_fwd = sc;
+   // MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_bck.lin.mx");
+   // printf("=== BOUNDED BACKWARD -> END ===\n\n");
+
+
+   /* output results */
+   STRING_Replace( t_prof->name, ' ', '_' );
+   STRING_Replace( q_seq->name, ' ', '_' );
+   printf("## %s %s %s %s %5.1f %5.1f %9.4f %9.4f %9.4f\n", 
+      t_filepath, q_filepath, t_prof->name, q_seq->name,
+      alpha, alpha_max,
+      scores->quad_vit, scores->quad_fwd, scores->lin_cloud_fwd);
+
 
    /* CLEAN-UP */
    /* PROFILE & SEQUENCE */

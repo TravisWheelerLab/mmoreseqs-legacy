@@ -409,7 +409,7 @@ float cloud_Forward_Linear(   const SEQUENCE*    query,        /* query sequence
       // MATRIX_3D_Clean( st_MX3 );
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("Clear Check?\t%d\n", cmp );
-      EDGEBOUNDS_Dump( edg, stdout );
+      // EDGEBOUNDS_Dump( edg, stdout );
    }
    #endif 
    /* close necessary debugger tools */
