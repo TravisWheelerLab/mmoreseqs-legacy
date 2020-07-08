@@ -43,6 +43,4 @@ void hmmbuild_pipeline( WORKER* worker )
       exit(EXIT_FAILURE);
    }
 
-   /* */
-
 }

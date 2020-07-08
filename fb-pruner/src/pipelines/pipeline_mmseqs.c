@@ -72,7 +72,10 @@ void mmseqs_pipeline( WORKER* worker )
    worker->results_in = RESULTS_Create();
    RESULTS*    results_in = worker->results_in;
    RESULT*     result_in;
-   RESULT*     result_out = worker->result;
+   /* output results from fb-pruner */
+   RESULT*     result      = worker->result;
+   RESULT*     result_out  = worker->result;
+
 
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Plus_Parse( results_in, args->mmseqs_res_filepath );

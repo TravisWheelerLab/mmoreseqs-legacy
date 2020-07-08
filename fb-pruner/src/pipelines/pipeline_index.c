@@ -29,6 +29,9 @@
 /* header */
 #include "pipelines.h"
 
+/* set default args for index pipeline */
+
+
 /* ****************************************************************************************** *
  *  FUNCTION:  index_pipeline()
  *  SYNOPSIS:  Indexing workflow pipeline.
@@ -59,4 +62,9 @@ void index_pipeline( WORKER* worker )
    WORK_output_query_index( worker );
    /* clean up worker data structs */
    WORK_cleanup( worker );
+}
+
+void index_set_args( WORKER* worker )
+{
+
 }
