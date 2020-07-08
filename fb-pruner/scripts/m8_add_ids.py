@@ -10,11 +10,6 @@
 
 import sys, os
 import numpy as np
-import cv2 as cv
-from PIL import Image
-import matplotlib
-import matplotlib.pyplot as plt
-
 
 # load mmseqs lookup from file
 def load_mmseqs_lookup( filename ):
