@@ -225,6 +225,7 @@ void mmseqs_pipeline( WORKER* worker )
       }
       #endif
 
+      /* results */
       STRING_Replace( worker->t_prof->name, ' ', '_' );
       STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
@@ -236,6 +237,15 @@ void mmseqs_pipeline( WORKER* worker )
             times->quad_vit, scores->quad_vit,
             times->lin_total_cloud, scores->lin_cloud_fwd,
             times->quad_fwd, scores->quad_fwd );
+
+      /* capture */
+      char filename[100];
+      sprintf( filename, "edgebounds.%d.edg", i );
+      FILE* f_edg = fopen( filename, "w" );
+      fprintf( f_edg, "##>_START_EDGEBOUNDS_%d\n", i );
+      EDGEBOUNDS_Dump( worker->edg_row, f_edg );
+      fprintf( f_edg, "##>_END_EDGEBOUNDS_%d\n", i );
+      fclose( f_edg );
 
       // /* if it clears scoring threshold, add to results */
       // if ( scores->lin_cloud_fwd > threshold_sc || report_all ) {
