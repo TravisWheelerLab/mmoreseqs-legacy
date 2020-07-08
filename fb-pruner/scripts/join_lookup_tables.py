@@ -26,10 +26,7 @@ else:
 
 # load mmseqs lookup file
 def load_mmseqs_lookup( filename, ftype = "dict" ):
-	if ftype == "list":
-		data = []
-	elif ftype == "dict":
-		data = {}
+	data = {}
 
 	with open( filename, "r" ) as fp:
 		for line in fp:
@@ -45,22 +42,13 @@ def load_mmseqs_lookup( filename, ftype = "dict" ):
 			name = line[1]
 
 			#insert into database
-			if ftype == "list": 
-				data.append( (mid, name) )
-			elif ftype == "dict":
-				data[mid] = "name"
+			data[mid] = name
 
-	# sort ids according to names 
-	if ftype == "list"
-		data.sort( key = lambda x: x[1] )
 	return data
 
 # load cloud lookup file
 def load_cloud_lookup( filename, ftype = "dict" ):
-	if ftype == "list":
-		data = []
-	elif ftype == "dict":
-		data = {}
+	data = {}
 
 	with open( filename, "r" ) as fp:
 		for line in fp:
@@ -77,14 +65,8 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 			name 	= line[2]
 
 			# insert into database
-			if ftype == "list":
-				data.append( (cid, offset, name) )
-			elif ftype == "dict":
-				data[cid] = (name, offset)
+			data[cid] = (name, offset)
 
-	# sort ids according to names 
-	if ftype == "list"
-		data.sort( key = lambda x: x[2] )
 	return data
 
 # join mmseqs and cloud lookup tables
