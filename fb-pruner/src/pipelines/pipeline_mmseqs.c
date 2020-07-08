@@ -222,6 +222,16 @@ void mmseqs_pipeline( WORKER* worker )
       }
       #endif
 
+      fprintf( stdout, 
+            "##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
+            worker->t_id, worker->t_prof->N, worker->t_prof->name, 
+            worker->q_id, worker->q_seq->N, worker->q_seq->name,
+            result->total_cells, result->cloud_cells, 
+            args->alpha, args->alpha_max, args->beta,
+            times->quad_vit, scores->quad_vit,
+            times->lin_total_cloud, scores->lin_cloud_fwd,
+            times->quad_fwd, scores->quad_fwd );
+
       // /* if it clears scoring threshold, add to results */
       // if ( scores->lin_cloud_fwd > threshold_sc || report_all ) {
       //    RESULTS_Pushback( worker->results, result );

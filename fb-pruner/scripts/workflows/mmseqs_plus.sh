@@ -91,6 +91,11 @@ time $CLOUD index $TARGET $QUERY
 time mv $TARGET.idx $TMP_CLOUD/target.idx 
 time mv $QUERY.idx $TMP_CLOUD/query.idx
 
+# capture database size
+NUM_TARGETS=$( grep "#" -v $TMP_CLOUD/target.idx | wc -l )
+NUM_QUERIES=$( grep "#" -v $TMP_CLOUD/query.idx | wc -l )
+DB_SIZE=$((NUM_TARGETS * NUM_QUERIES))
+
 # ==== MMSEQS SEARCH ======= $
 echo "# (4/7) Performing MMSEQS Search..."
 # --format-output STR       	CSV list of output columns from: query,target,evalue,gapopen,pident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,raw,bits,cigar,qseq,tseq,qheader,theader,qaln,taln,qframe,tframe,mismatch,qcov,tcov,qset,qsetid,tset,tsetid,taxid,taxname,taxlineage  [query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits]
@@ -106,7 +111,9 @@ echo "# (4/7) Performing MMSEQS Search..."
 FORMAT_OUTPUT="--format-output qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
 K_SCORE="75"
 SENSITIVITY="7.5"
-E_VALUE="10000.0"
+P_VALUE=0.001
+
+E_VALUE=$(( P_VALUE * DB_SIZE ))
 MIN_UNGAPPED_SCORE="0"
 time $MMSEQS search $QUERY_MMSEQS $TARGET_MMSEQS $RESULT_RAW_MMSEQS $TMP_MMSEQS -k $KMER --split $SPLIT --min-ungapped-score $MIN_UNGAPPED_SCORE -e $E_VALUE --k-score $K_SCORE --remove-tmp-files 0
 exit

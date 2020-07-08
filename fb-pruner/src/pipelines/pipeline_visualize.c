@@ -237,22 +237,22 @@ void vizualization_pipeline( WORKER* worker )
    /* run forward/backward algorithms */
    logsum_Init();
 
-   /* run forward */
-   {
-      printf("=== FORWARD -> START ===\n");
-      /* ==> forward (quadratic) */
-      forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
-      printf("Forward Score (quad):\t%f\n", sc);
-      scores->quad_fwd = sc;
-      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.fwd.quad.mx");
-      /* ==> forward (linear) */
-      // forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
-      // printf("Forward Score  (lin):\t%f\n", sc);
-      // scores->lin_fwd = sc;
-      // MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
-      // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
-      // printf("=== FORWARD -> END ===\n\n");
-   }
+   // /* run forward */
+   // {
+   //    printf("=== FORWARD -> START ===\n");
+   //    /* ==> forward (quadratic) */
+   //    forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
+   //    printf("Forward Score (quad):\t%f\n", sc);
+   //    scores->quad_fwd = sc;
+   //    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.fwd.quad.mx");
+   //    /* ==> forward (linear) */
+   //    forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
+   //    printf("Forward Score  (lin):\t%f\n", sc);
+   //    scores->lin_fwd = sc;
+   //    MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+   //    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
+   //    printf("=== FORWARD -> END ===\n\n");
+   // }
 
    /* run backward */
    {
@@ -415,6 +415,7 @@ void vizualization_pipeline( WORKER* worker )
    printf("## %s %s %s %s %5.1f %5.1f %9.4f %9.4f %9.4f\n", 
       t_filepath, q_filepath, t_prof->name, q_seq->name,
       alpha, alpha_max,
+      
       scores->quad_vit, scores->quad_fwd, scores->lin_cloud_fwd);
 
 

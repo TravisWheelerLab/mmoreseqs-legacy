@@ -271,11 +271,13 @@ void   ARGS_Parse( ARGS*   args,
    args->q_filetype  = ARGS_Find_FileType( args->q_filepath );
 }
 
-/* SET DEFAULT ARGUMENTS (for testing) */
+/* SET DEFAULT ARGUMENTS (generic) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->t_filepath              = strdup("test_input/test1_2.hmm");
-   args->q_filepath              = strdup("test_input/test1_1.fa");
+   args->qt_search_space         = QT_ALL_V_ALL;
+
+   args->t_filepath              = strdup("test-input/test1_2.hmm");
+   args->q_filepath              = strdup("test-input/test1_1.fa");
 
    args->t_indexpath             = NULL;
    args->q_indexpath             = NULL;
@@ -309,11 +311,8 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->t_range                 = (RANGE) { -1, -1 };    
    args->q_range                 = (RANGE) { -1, -1 };
    args->mmseqs_range            = (RANGE) { -1, -1 };
-
-   // args->run_single              = false;
-   // args->run_first               = false;
-   // args->run_all                 = true;
 }
+
 
 /* sends ARGS data to FILE POINTER */
 void ARGS_Dump( ARGS*    args,

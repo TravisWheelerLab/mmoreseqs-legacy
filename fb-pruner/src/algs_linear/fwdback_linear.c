@@ -433,9 +433,3 @@ float backward_Linear(const SEQUENCE*    query,
 }
 
 
-
-
-
-
-
-

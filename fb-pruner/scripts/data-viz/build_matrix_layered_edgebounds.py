@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 ###############################################################################
 #  @file prob_to_bitmap
 #  @brief Takes in tsv of dp matrix and creates a bitmap.
@@ -16,6 +15,7 @@ from PIL import Image
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import re
 
 # set resolution of output
 mpl.rcParams['figure.dpi'] = 200
@@ -73,7 +73,9 @@ def load_edg( filename ):
          my_lb    = int(fields[5])
          my_rb    = int(fields[7])
 
-         edg["DATA"][row] = ( my_lb, my_rb )
+         if row not in edg["DATA"]:
+            edg["DATA"][row] = []
+         edg["DATA"][row].append( ( my_lb, my_rb ) )
 
    return edg
 
@@ -81,12 +83,38 @@ def load_edg( filename ):
 def add_edgebounds_to_matrix( mx, edg ):
    for row in edg["DATA"].keys():
       bounds = edg["DATA"][row]
+
+      for bound in bounds:
+         lb = bound[0]
+         rb = bound[1]
+      
+         for col in range(lb, rb):
+            mx[row,col] += 1
+   return
+
+# count cells
+def cell_count( edg ):
+   count = 0
+   for row in edg["DATA"].keys():
+      bounds = edg["DATA"][row]
       lb = bounds[0]
       rb = bounds[1]
-      
-      for col in range(lb, rb):
-         mx[row,col] += 1
-   return
+      count += ( rb - lb )
+   return count
+
+# Load trace file
+def load_trace( trace_file ):
+   TR = [[],[]]
+
+   with open( trace_file, "r" ) as fp:
+      for line in fp:
+         if line.startswith("#"):
+            continue
+         fields = line.replace("(", ",").replace(")", ",").split(",")
+         TR[0].append( fields[2] )
+         TR[1].append( fields[3] )
+
+   return TR
 
 # Output heatmap of single matrix with traceback on top
 def output_heatmap( mx ):
@@ -96,20 +124,25 @@ def output_heatmap( mx ):
    # ax1.set_title( title )
    im = ax1.imshow( mx, cmap='jet' )
 
-   # # plot viterbi traceback
-   # tr_len = len(TR[0])-1
+   # plot viterbi traceback
+   if trace != None:
+      tr_end = len(trace[0])-1
 
-   # # draw the viterbi trace
-   # if tr_len > 2:
-   #      ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
-   #      ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
+      # draw the viterbi trace
+      if tr_len > 2:
+           ax1.scatter( trace[0][0], trace[1][0], c='white', s=3 )
+           ax1.scatter( trace[0][tr_end], trace[1][tr_end], c='white', s=3 )
 
-   #      #ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
-   #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
-   #      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
+           ax1.plot( trace[0], trace[1], linestyle='-', linewidth=2, color='white')
+           ax1.plot( trace[0], trace[1], linestyle='-', linewidth=1, color='black')
+
+
+   plt.xlabel( t_name )
+   plt.ylabel( q_name )
+   plt.title( title )
 
    if save_fig:
-      dest = "{}/{}.LAYMAP.jpg".format(out_file, name)
+      dest = "{}/{}".format(out_folder, out_file)
       plt.savefig(dest)
       print("Figure saved to '{}'...".format(dest))
 
@@ -124,11 +157,18 @@ def output_heatmap( mx ):
 ##############################################################################
 
 # default location to save files
-out_file = os.getcwd()
+out_folder = os.getcwd()
 in_files = []
-name = "layer-map"
+out_file = "layer-map.LAYMAP.jpg"
+
 show_fig = True
 save_fig = True
+trace_file = None
+trace = None
+
+title = "Alpha/Beta Heatmap"
+t_name = "TARGET"
+q_name = "QUERY"
 
 # Parse args
 if (len(sys.argv) <= 1):
@@ -139,15 +179,31 @@ else:
    while (i < len(sys.argv) ):
       arg = sys.argv[i]
       if arg.startswith("--"):
-         i += 1
          opt = sys.argv[i]
-         if arg == "--name":
-            name = opt 
+         if arg == "--output":
+            i += 1
+            out_file = sys.argv[i]
+         if arg == "--title":
+            i += 1
+            title = sys.argv[i]
+         if arg == "--trace":
+            i += 1
+            trace_file = sys.argv[i] 
+         if arg == "--tname":
+            i += 1
+            t_name = sys.argv[i]
+         if arg == "--qname":
+            i += 1
+            q_name = sys.argv[i]
          if arg == "--no-show":
             show_fig = False
+         if arg == "--no-save":
+            save_fig = False
+
       else:
          in_files.append(sys.argv[i])
       i += 1
+
 
 edges = []
 
@@ -158,6 +214,10 @@ for i in range(len(in_files)):
    edg = load_edg(in_file)
    edges.append(edg)
    pass
+
+# load in trace
+if trace_file != None:
+   trace = load_trace( trace_file )
 
 # verify all edgebounds
 Q = edges[i]["Q"]

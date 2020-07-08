@@ -44,7 +44,7 @@ void itest_pipeline( WORKER* worker )
    }
    #else
    {
-      fprintf(stdout, "Test pipeline only supported in DEBUG build, not PRODUCTION build.  Recompile with -DDEBUG=1.\n" );
+      fprintf(stdout, "Test pipeline only supported in DEBUG build, not PRODUCTION build.  Recompile with BUILD=DEBUG.\n" );
       exit(EXIT_FAILURE);
    }
    #endif 

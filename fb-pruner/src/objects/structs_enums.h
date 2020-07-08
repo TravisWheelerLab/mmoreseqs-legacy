@@ -99,6 +99,14 @@ typedef enum {
 } VERBOSE_MODE;
 #define NUM_VERBOSITY_MODES 3
 
+/* describes which targets and which queries to search */
+typedef enum {
+   QT_NONE;
+   QT_ALL_V_ALL;
+   QT_FIRST_V_FIRST;
+   QT_SEARCH_LIST;
+} QT_SEARCH_SPACE;
+
 /* Search modes (cloud search only supports uniglocal) */
 typedef enum {
    MODE_NULL        = 0,    /* NO APPLICATIONS */

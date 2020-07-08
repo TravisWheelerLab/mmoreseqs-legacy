@@ -27,10 +27,31 @@
 
 /* === STRUCTS === */
 
+/* */
+typedef union {
+   int      i;
+   float    f;
+   char*    c;
+} DATA;
+
+/* node for UNORDERED_MAP */
+typedef struct {
+   char*    key;
+   DATA     value;
+   int      type;
+} UMAP_NODE;
+
+/* unordered map */
+typedef struct {
+   int         N;       /* number of nodes */
+   int         Nalloc;  /* number of nodes allocated */
+   UMAP_NODE*  nodes;   /* key-value pairs */
+} UMAP;
+
 /* integer ranges */
 typedef struct {
-   int beg;
-   int end;
+   int   beg;
+   int   end;
 } RANGE;
 
 /* coordinates in matrix */
@@ -257,7 +278,11 @@ typedef struct {
 
 /* commandline arguments */
 typedef struct {
+   /* index */
    bool     is_index_given;         /* is an index file supplied? */
+
+   /* type of searches */
+   bool     qt_search_space;        /* which queries vs which targets? */
 
    /* file paths */
    char*    t_filepath;             /* filepath to target (hmm or fasta) file */
