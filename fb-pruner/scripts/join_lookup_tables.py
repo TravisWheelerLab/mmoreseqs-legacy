@@ -141,6 +141,6 @@ for i in range(N):
 	# format; cloud_id, cloud_offset, (cloud_name), mmseqs_id, mmseqs_name
 	# print(f'{cloud_id}\t {cloud_offset}\t {cloud_name}\t {mmseqs_id}\t {mmseqs_name}')
 	# print(f'{cloud_name}\t {mmseqs_name}\t')
-	print(f'{cloud_id}\t {mmseqs_id}\t {mmseqs_name}')
+	print( "{}\t {}\t {}".format(cloud_id, mmseqs_id, mmseqs_name) )
 
 	continue

@@ -12,6 +12,7 @@
 # binary folders
 more-tools/hmmer-test/easel/
 fb-pruner/build/
+fb-pruner/bin/
 more-tools/hmmer-test/build/
 more-tools/mmseqs-test/build/
 more-tools/mmseqs-pruner-plus/build/
