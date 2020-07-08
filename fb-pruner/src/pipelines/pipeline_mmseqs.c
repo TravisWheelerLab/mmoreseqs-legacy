@@ -225,6 +225,8 @@ void mmseqs_pipeline( WORKER* worker )
       }
       #endif
 
+      STRING_Replace( worker->t_prof->name, ' ', '_' );
+      STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
             "##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
             worker->t_id, worker->t_prof->N, worker->t_prof->name, 
