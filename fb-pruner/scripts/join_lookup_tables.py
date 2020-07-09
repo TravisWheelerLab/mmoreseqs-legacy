@@ -100,6 +100,18 @@ def rootname_match( mmseqs_name, cloud_name ):
 	same_name = ( cloud_name[0:min_len] == mmseqs_name[0:min_len] )
 	return same_name
 
+def print_joint_data( joint_data ):
+	# print header
+	print('#cloud_id\t #mmseqs_id\t #cloud_name')
+
+	# pair ids from each 
+	for name in joint_data.keys():
+
+		data = joint_data[name]
+		print( "{}\t{}\t{}".format( data[0], data[1], name ) )
+
+	return
+
 ##############################################################################
 ###########################         MAIN         #############################
 ##############################################################################
@@ -126,14 +138,4 @@ match_cnt = 0
 # get length 
 N = len(mmseqs_data)
 
-# print header
-print('#cloud_id\t #mmseqs_id\t #cloud_name')
-
-# pair ids from each 
-for name in joint_data.keys():
-
-	data = joint_data[name]
-
-	print( "{}\t {}\t {}".format( data[0], data[1], name ) )
-
-	continue
+print_joint_data( joint_data )
