@@ -42,7 +42,7 @@ def load_mmseqs_lookup( filename, ftype = "dict" ):
 			name = line[1]
 
 			#insert into database
-			data[mid] = name
+			data[name] = mid
 
 	return data
 
@@ -65,16 +65,16 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 			name 	= line[2]
 
 			# insert into database
-			data[cid] = (name, offset)
+			data[name] = cid
 
 	return data
 
 # join mmseqs and cloud lookup tables
 def join_lookup_dicts( mmseqs_dict, cloud_dict ):
 	joint_dict = {}
-	for key in mmseqs_dict.keys():
-		if key in cloud_dict.keys():
-			joint_dict[key] = ( mmseqs_dict[key], cloud_dict[key] )
+	for name in mmseqs_dict.keys():
+		if name in cloud_dict.keys():
+			joint_dict[name] = ( mmseqs_dict[name], cloud_dict[name] )
 
 	return joint_dict
 
@@ -126,9 +126,9 @@ N = len(mmseqs_data)
 # print('#cloud_id\t #mmseqs_id\t #cloud_name')
 
 # pair ids from each 
-for key in joint_data.keys():
-	data = joint_data[key]
+for name in joint_data.keys():
+	data = joint_data[name]
 
-	print( "{}\t {}\t {}".format( data[0], data[1], key ) )
+	print( "{}\t {}\t {}".format( data[0], data[1], name ) )
 
 	continue
