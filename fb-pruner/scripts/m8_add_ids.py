@@ -58,7 +58,7 @@ def load_cloud_lookup( filename ):
 
 # load joint lookup from file
 def load_joint_lookup( filename ):
-	data = []
+	data = {}
 
 	with open( filename, "r" ) as fp:
 		for line in fp:
