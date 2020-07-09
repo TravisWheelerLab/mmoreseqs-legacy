@@ -80,16 +80,31 @@ def load_joint_lookup( filename ):
 	# data.sort( key = lambda x: x[2] )
 	return data
 
-# create lookup based
-def create_joint_lookup_dict( joint_data ):
-	name_to_id = {}
+def add_ids_to_m8( m8_file, t_lookup, q_lookup ):
+	res_id = 0
 
-	for i in range( len(joint_data) ):
-		cid, mid, name = joint_data[i]
-		name_to_id[ name ] = ( cid, mid ) 
-		pass
+	# m8 file
+	with open( m8_file, "r" ) as fp:
+		for line in fp:
+			fields = line.split()
 
-	return name_to_id
+			# extract fields from result
+			q_name 	= fields[0]
+			t_name 	= fields[1]
+
+			# look up the ids
+			t_id = t_lookup[t_name]
+			q_id = q_lookup[q_name]
+
+			line = line.strip()
+
+			# append result id, query id, target id to front of results line
+			print( "{}\t{}\t{}\t{}\t{}\t{}".format(res_id, q_id, t_id, q_id, t_id, line) )
+
+			res_id += 1
+
+	return
+
 
 
 ##############################################################################
@@ -109,24 +124,4 @@ else:
 t_lookup = load_mmseqs_lookup(t_lookup_file)
 q_lookup = load_mmseqs_lookup(q_lookup_file)
 
-res_id = 0
-
-# m8 file
-with open( m8_file, "r" ) as fp:
-	for line in fp:
-		fields = line.split()
-
-		# extract fields from result
-		q_name 	= fields[0]
-		t_name 	= fields[1]
-
-		# look up the ids
-		t_id = t_lookup[t_name]
-		q_id = q_lookup[q_name]
-
-		line = line.strip()
-
-		# append result id, query id, target id to front of results line
-		print( "{}\t{}\t{}\t{}\t{}\t{}".format(res_id, q_id, t_id, q_id, t_id, line) )
-
-		res_id += 1
+add_ids_to_m8( m8_file, t_lookup, q_lookup )
