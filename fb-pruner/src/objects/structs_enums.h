@@ -99,13 +99,15 @@ typedef enum {
 } VERBOSE_MODE;
 #define NUM_VERBOSITY_MODES 3
 
-/* describes which targets and which queries to search */
+/* select which targets and which queries to perform search against */
 typedef enum {
-   QT_NONE,
-   QT_ALL_V_ALL,
-   QT_FIRST_V_FIRST,
-   QT_SEARCH_LIST
-} QT_SEARCH_SPACE;
+   SELECT_NONE,            /* NO SEARCHES */
+   SELECT_ALL_V_ALL,       /* Search all targets vs all queries */
+   SELECT_FIRST_V_FIRST,   /* Search first target vs first query in file */
+   SELECT_MMSEQS_LIST,     /* Search list of mmseqs hitlist (for mmseqs+) */
+   SELECT_NAME_LIST,       /* Search list of names from targets/queries */
+   SELECT_ID_LIST          /* Search list of ids from targets/queries */
+} SELECT_SEARCH;
 
 /* Search modes (cloud search only supports uniglocal) */
 typedef enum {

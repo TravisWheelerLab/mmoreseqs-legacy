@@ -15,15 +15,6 @@ import numpy as np
 # import matplotlib
 # import matplotlib.pyplot as plt
 
-# parse commandline args
-pwd = os.getcwd()
-if len(sys.argv) == 3:
-	lookup_mmseqs = sys.argv[1]
-	lookup_cloud  = sys.argv[2]	
-else:
-   print('Usage: <lookup_mmseqs> <lookup_cloud>')
-   sys.exit(0)
-
 # load mmseqs lookup file
 def load_mmseqs_lookup( filename, ftype = "dict" ):
 	data = {}
@@ -113,9 +104,21 @@ def rootname_match( mmseqs_name, cloud_name ):
 ###########################         MAIN         #############################
 ##############################################################################
 
+# parse commandline args
+pwd = os.getcwd()
+if len(sys.argv) == 3:
+	lookup_mmseqs = sys.argv[1]
+	lookup_cloud  = sys.argv[2]	
+else:
+   print('Usage: <lookup_mmseqs> <lookup_cloud> <output_file>')
+   sys.exit(0)
+
 # load data
+print("# load mmseqs...")
 mmseqs_data = load_mmseqs_lookup( lookup_mmseqs )
+print("# load cloud....")
 cloud_data = load_cloud_lookup( lookup_cloud )
+print("# join data...")
 joint_data = join_lookup_dicts( mmseqs_data, cloud_data )
 
 # number of proper matches
