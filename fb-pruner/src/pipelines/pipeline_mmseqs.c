@@ -229,7 +229,8 @@ void mmseqs_pipeline( WORKER* worker )
       STRING_Replace( worker->t_prof->name, ' ', '_' );
       STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
-            "##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
+            "##_SCORES_TIMES_: %d %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
+            res_id,
             worker->t_id, worker->t_prof->N, worker->t_prof->name, 
             worker->q_id, worker->q_seq->N, worker->q_seq->name,
             result->total_cells, result->cloud_cells, 
