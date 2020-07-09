@@ -63,6 +63,17 @@ void STRING_Replace( char*          str,
    }
 }
 
+/* terminates string at given char */
+void STRING_Terminate_At(  char*       str,
+                           const char  ch )
+{
+   char* p = NULL;
+   int i = 0;
+   for ( p = str; *p != '\0'; p++ ) {
+      if ( *p == ch ) *p = '\0';
+   }
+}
+
 /* compares first n chars of string 1 and string 2 */ 
 int STRING_BeginsWith( const char*     str1,
                        const char*     str2,
