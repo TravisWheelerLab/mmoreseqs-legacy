@@ -64,8 +64,8 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 # join mmseqs and cloud lookup tables
 def join_lookup_dicts( mmseqs_dict, cloud_dict ):
 	joint_dict = {}
-	mmseqs_names = set( mmseqs_dict.keys() )
-	cloud_names = set( cloud_dict.keys() )
+	mmseqs_names = set( mmseqs_dict.keys().sort() )
+	cloud_names = set( cloud_dict.keys().sort() )
 	for name in mmseqs_names:
 		if name in cloud_names:
 			joint_dict[name] = ( cloud_dict[name], mmseqs_dict[name] )
