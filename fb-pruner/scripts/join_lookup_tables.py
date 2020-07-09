@@ -67,6 +67,8 @@ def join_lookup_dicts( mmseqs_dict, cloud_dict ):
 	for name in mmseqs_dict.keys():
 		if name in cloud_dict.keys():
 			joint_dict[name] = ( cloud_dict[name], mmseqs_dict[name] )
+		else:
+			print("# ERROR: '{}' from mmseqs_dict not found in cloud_dict.".format(name) )
 
 	return joint_dict
 
