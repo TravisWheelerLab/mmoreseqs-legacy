@@ -74,7 +74,7 @@ def load_joint_lookup( filename ):
 			mid 	= line[1]
 			name 	= line[2]
 			# insert into dictionary
-			data.append( (cid, mid, name) )
+			data[name] = (cid, mid )
 
 	# sort ids according to names 
 	# data.sort( key = lambda x: x[2] )
@@ -121,7 +121,7 @@ else:
    print('Usage: <m8_results_file> <t_lookup> <q_lookup>')
    sys.exit(0)
 
-t_lookup = load_mmseqs_lookup(t_lookup_file)
-q_lookup = load_mmseqs_lookup(q_lookup_file)
+t_lookup = load_joint_lookup(t_lookup_file)
+q_lookup = load_joint_lookup(q_lookup_file)
 
 add_ids_to_m8( m8_file, t_lookup, q_lookup )
