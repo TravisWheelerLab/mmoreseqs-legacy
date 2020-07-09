@@ -34,12 +34,13 @@ def load_mmseqs_lookup( filename, ftype = "dict" ):
 			if line.startswith("#"):
 				continue
 			# check for proper number of fields
-			line = line.split()
-			if len(line) < 3:
+			fields = line.split()
+			if len(fields) < 3:
 				continue
 			# get data fields
-			mid  = line[0]
-			name = line[1]
+			mid  = fields[0]
+			name = fields[1]
+			offset = fields[2]
 
 			#insert into database
 			data[name] = mid
@@ -56,13 +57,13 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 			if line.startswith("#"):
 				continue
 			# check for proper number of fields
-			line 	= line.split()
-			if len(line) < 3:
+			fields  = line.split()
+			if len(fields) < 3:
 				continue
 			# get data fields
-			cid	    = line[0]
-			offset 	= line[1]
-			name 	= line[2]
+			cid	    = fields[0]
+			offset 	= fields[1]
+			name 	= fields[2]
 
 			# insert into database
 			data[name] = cid
