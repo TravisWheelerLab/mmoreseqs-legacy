@@ -148,8 +148,8 @@ void mmseqs_pipeline( WORKER* worker )
       t_name      = result_in->target_name;
 
       /* list mmseqs and cloud ids */
-      // printf("t_mid: %d, q_mid: %d, t_cid: %d, q_cid: %d\n",
-      //    t_mid, q_mid, t_cid, q_cid );
+      printf("# t_mid: %d, q_mid: %d, t_cid: %d, q_cid: %d\n",
+         t_mid, q_mid, t_cid, q_cid );
 
       /* NOTE: query and target are cross-labeled in mmseqs */
       int swp  = q_cid;
