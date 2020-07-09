@@ -115,8 +115,7 @@ def rootname_match( mmseqs_name, cloud_name ):
 # load data
 mmseqs_data = load_mmseqs_lookup( lookup_mmseqs )
 cloud_data = load_cloud_lookup( lookup_cloud )
-# print( "mmseqs_data_len: ", len(mmseqs_data) )
-# print( "cloud_data_len:", len(cloud_data) )
+joint_data = join_lookup_dicts( mmseqs_data, cloud_data )
 
 # number of proper matches
 match_cnt = 0
@@ -127,20 +126,9 @@ N = len(mmseqs_data)
 # print('#cloud_id\t #mmseqs_id\t #cloud_name')
 
 # pair ids from each 
-for i in range(N):
-	cloud  	 = cloud_data[i]
-	mmseqs 	 = mmseqs_data[i]
-	cloud_id, cloud_offset, cloud_name = cloud
-	mmseqs_id, mmseqs_name = mmseqs
+for key in joint_data.keys():
+	data = joint_data[key]
 
-	# test check if mmseqs and cloud names have the same root
-	# name_check = rootname_match( mmseqs_name, cloud_name )
-	# if same_name == False:
-	# 	print(f'{i}\t {cloud_name}\t {mmseqs_name}\t')
-
-	# format; cloud_id, cloud_offset, (cloud_name), mmseqs_id, mmseqs_name
-	# print(f'{cloud_id}\t {cloud_offset}\t {cloud_name}\t {mmseqs_id}\t {mmseqs_name}')
-	# print(f'{cloud_name}\t {mmseqs_name}\t')
-	print( "{}\t {}\t {}".format(cloud_id, mmseqs_id, mmseqs_name) )
+	print( "{}\t {}\t {}".format( data[0], data[1], mmseqs ) )
 
 	continue
