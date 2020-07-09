@@ -129,6 +129,6 @@ N = len(mmseqs_data)
 for key in joint_data.keys():
 	data = joint_data[key]
 
-	print( "{}\t {}\t {}".format( data[0], data[1], mmseqs ) )
+	print( "{}\t {}\t {}".format( data[0], data[1], key ) )
 
 	continue
