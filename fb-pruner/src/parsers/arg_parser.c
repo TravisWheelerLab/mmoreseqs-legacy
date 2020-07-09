@@ -134,6 +134,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( strcmp(argv[i], (flag = "--alpha-max") ) == 0 ) {
             req_args = 1;
+            printf("## CHANGED ALPHA_MAX!!\n");
             if (i+req_args < argc) {
                i++;
                args->alpha_max = atof(argv[i]);
