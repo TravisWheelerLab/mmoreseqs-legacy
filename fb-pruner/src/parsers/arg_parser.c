@@ -274,7 +274,7 @@ void   ARGS_Parse( ARGS*   args,
 /* SET DEFAULT ARGUMENTS (generic) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->qt_search_space         = QT_ALL_V_ALL;
+   args->qt_search_space         = SELECT_ALL_V_ALL;
 
    args->t_filepath              = strdup("test-input/test1_2.hmm");
    args->q_filepath              = strdup("test-input/test1_1.fa");
