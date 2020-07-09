@@ -64,8 +64,9 @@ def load_cloud_lookup( filename, ftype = "dict" ):
 # join mmseqs and cloud lookup tables
 def join_lookup_dicts( mmseqs_dict, cloud_dict ):
 	joint_dict = {}
+	cloud_names = set( cloud_dict.keys() )
 	for name in mmseqs_dict.keys():
-		if name in cloud_dict.keys():
+		if name in cloud_names:
 			joint_dict[name] = ( cloud_dict[name], mmseqs_dict[name] )
 		else:
 			print("# ERROR: '{}' from mmseqs_dict not found in cloud_dict.".format(name) )
