@@ -74,7 +74,7 @@ def join_lookup_dicts( mmseqs_dict, cloud_dict ):
 	joint_dict = {}
 	for name in mmseqs_dict.keys():
 		if name in cloud_dict.keys():
-			joint_dict[name] = ( mmseqs_dict[name], cloud_dict[name] )
+			joint_dict[name] = ( cloud_dict[name], mmseqs_dict[name] )
 
 	return joint_dict
 
@@ -123,10 +123,11 @@ match_cnt = 0
 N = len(mmseqs_data)
 
 # print header
-# print('#cloud_id\t #mmseqs_id\t #cloud_name')
+print('#cloud_id\t #mmseqs_id\t #cloud_name')
 
 # pair ids from each 
 for name in joint_data.keys():
+
 	data = joint_data[name]
 
 	print( "{}\t {}\t {}".format( data[0], data[1], name ) )
