@@ -99,7 +99,7 @@ def add_ids_to_m8( m8_file, t_lookup, q_lookup ):
 			line = line.strip()
 
 			# append result id, query id, target id to front of results line
-			print( "{}\t{}\t{}\t{}\t{}\t{}".format(res_id, q_id, t_id, q_id, t_id, line) )
+			print( "{}\t{}\t{}\t{}\t{}\t{}".format(res_id, q_id[0], t_id[0], q_id[1], t_id[1], line) )
 
 			res_id += 1
 
