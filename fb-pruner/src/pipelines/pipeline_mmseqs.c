@@ -239,15 +239,17 @@ void mmseqs_pipeline( WORKER* worker )
             times->lin_total_cloud, scores->lin_cloud_fwd,
             times->quad_fwd, scores->quad_fwd );
 
-      /* capture */
-      char filename[100];
-      sprintf( filename, "test-edges/edgebounds.%06d.edg", i );
-      FILE* f_edg = fopen( filename, "w" );
-      fprintf( f_edg, "##>_START_EDGEBOUNDS_%d\n", i );
-      fprintf( f_edg, "# TARGET: %s\n", worker->t_prof->name );
-      fprintf( f_edg, "# QUERY: %s\n", worker->q_seq->name );
-      EDGEBOUNDS_Dump( worker->edg_row, f_edg );
-      fclose( f_edg );
+      /* capture edgebounds */
+      // {
+      //    char filename[100];
+      //    sprintf( filename, "test-edges/edgebounds.%06d.edg", i );
+      //    FILE* f_edg = fopen( filename, "w" );
+      //    fprintf( f_edg, "##>_START_EDGEBOUNDS_%d\n", i );
+      //    fprintf( f_edg, "# TARGET: %s\n", worker->t_prof->name );
+      //    fprintf( f_edg, "# QUERY: %s\n", worker->q_seq->name );
+      //    EDGEBOUNDS_Dump( worker->edg_row, f_edg );
+      //    fclose( f_edg );
+      // }
 
       // /* if it clears scoring threshold, add to results */
       // if ( scores->lin_cloud_fwd > threshold_sc || report_all ) {
