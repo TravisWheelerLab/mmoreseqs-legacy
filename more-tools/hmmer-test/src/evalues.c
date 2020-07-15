@@ -55,7 +55,7 @@
  * Xref:      J4/41
  */
 int
-p7_Calibrate(P7_ashlynnHMM *hmm, P7_BUILDER *cfg_b, ESL_RANDOMNESS **byp_rng, P7_BG **byp_bg, P7_PROFILE **byp_gm, P7_OPROFILE **byp_om)
+p7_Calibrate(P7_HMM *hmm, P7_BUILDER *cfg_b, ESL_RANDOMNESS **byp_rng, P7_BG **byp_bg, P7_PROFILE **byp_gm, P7_OPROFILE **byp_om)
 {
   P7_BG          *bg     = (esl_byp_IsProvided(byp_bg)  ? *byp_bg  : NULL); 
   P7_PROFILE     *gm     = (esl_byp_IsProvided(byp_gm)  ? *byp_gm  : NULL); 

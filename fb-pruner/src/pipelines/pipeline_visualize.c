@@ -44,7 +44,7 @@ void vizualization_pipeline( WORKER* worker )
    }
    #else
    {
-      fprintf(stdout, "Test pipeline only supported in DEBUG build, not PRODUCTION build.  Recompile with -DDEBUG=1.\n" );
+      fprintf(stdout, "Test pipeline only supported in DEBUG build, not PRODUCTION build.  Recompile with -BUILD=DEBUG.\n" );
       exit(EXIT_FAILURE);
    }
    #endif 
@@ -237,22 +237,22 @@ void vizualization_pipeline( WORKER* worker )
    /* run forward/backward algorithms */
    logsum_Init();
 
-   // /* run forward */
-   // {
-   //    printf("=== FORWARD -> START ===\n");
-   //    /* ==> forward (quadratic) */
-   //    forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
-   //    printf("Forward Score (quad):\t%f\n", sc);
-   //    scores->quad_fwd = sc;
-   //    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.fwd.quad.mx");
-   //    /* ==> forward (linear) */
-   //    forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
-   //    printf("Forward Score  (lin):\t%f\n", sc);
-   //    scores->lin_fwd = sc;
-   //    MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
-   //    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
-   //    printf("=== FORWARD -> END ===\n\n");
-   // }
+   /* run forward */
+   {
+      printf("=== FORWARD -> START ===\n");
+      /* ==> forward (quadratic) */
+      forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
+      printf("Forward Score (quad):\t%f\n", sc);
+      scores->quad_fwd = sc;
+      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.fwd.quad.mx");
+      /* ==> forward (linear) */
+      forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
+      printf("Forward Score  (lin):\t%f\n", sc);
+      scores->lin_fwd = sc;
+      MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+      DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.fwd.lin.mx");
+      printf("=== FORWARD -> END ===\n\n");
+   }
 
    /* run backward */
    {
@@ -277,15 +277,15 @@ void vizualization_pipeline( WORKER* worker )
    /* run cloud forward */
    {
       /* cloud forward (quadratic) */
-      // printf("=== CLOUD FORWARD (quadratic) -> START ===\n");
-      // cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_fwd_quad, alpha, beta);
-      // if ( debugger->verbose_level >= VERBOSE_ALL ) {
-      //    MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
-      //    DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
-      // }
-      // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_fwd.quad.mx");
-      // EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
-      // printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
+      printf("=== CLOUD FORWARD (quadratic) -> START ===\n");
+      cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_fwd_quad, alpha, beta);
+      if ( debugger->verbose_level >= VERBOSE_ALL ) {
+         MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
+         DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
+      }
+      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_fwd.quad.mx");
+      EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
+      printf("=== CLOUD FORWARD (quadratic) -> END ===\n\n");
       /* cloud forward (linear) */
       printf("=== CLOUD FORWARD (linear) -> START ===\n");
       printf("# OUTSIDE: alpha = %9.4f, alpha_max = %9.4f\n", worker->cloud_params.alpha, worker->cloud_params.alpha_max );
@@ -305,15 +305,15 @@ void vizualization_pipeline( WORKER* worker )
    /* run cloud backward */
    {
       /* cloud backward (quadratic) */
-      // printf("=== CLOUD BACKWARD (quadratic) -> START ===\n");
-      // cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_bck_quad, alpha, beta);
-      // if ( debugger->verbose_level >=  VERBOSE_ALL ) {
-      //    MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
-      //    DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
-      // }
-      // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_bck.quad.mx");
-      // EDGEBOUNDS_Save(edg_bck_quad, "test_output/my.cloud_bck.quad.diags.edg");
-      // printf("=== CLOUD BACKWARD (quadratic) -> END ===\n\n");
+      printf("=== CLOUD BACKWARD (quadratic) -> START ===\n");
+      cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_bck_quad, alpha, beta);
+      if ( debugger->verbose_level >=  VERBOSE_ALL ) {
+         MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
+         DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
+      }
+      DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_bck.quad.mx");
+      EDGEBOUNDS_Save(edg_bck_quad, "test_output/my.cloud_bck.quad.diags.edg");
+      printf("=== CLOUD BACKWARD (quadratic) -> END ===\n\n");
       /* cloud backward (linear) */
       printf("=== CLOUD BACKWARD (linear) -> START ===\n");
       cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, &(worker->cloud_params) );

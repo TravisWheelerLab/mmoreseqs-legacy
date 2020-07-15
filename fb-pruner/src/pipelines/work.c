@@ -34,6 +34,12 @@ void WORK_workflow( WORKER*  worker )
 
 }
 
+/* debug workflow */
+void WORK_debug_workflow( WORKER*  worker )
+{
+   
+}
+
 /* initialize data structs: dynamic programming matrices, edgebounds, etc */
 void WORK_init( WORKER* worker )
 {

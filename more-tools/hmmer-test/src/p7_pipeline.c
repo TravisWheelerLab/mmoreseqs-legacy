@@ -947,6 +947,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // if (P > pli->F1) return eslOK;
    pli->n_past_msv++;
 
+   printf("## MSV seq_score: %f\t ev_param: %f %f\t", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+   printf("P: %f\n", P);
+
    /* biased composition HMM filtering */
    if (pli->do_biasfilter)
    {
@@ -955,9 +958,14 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       seq_score = (usc - filtersc) / eslCONST_LOG2;
       P = esl_gumbel_surv(seq_score,  om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
    //    if (P > pli->F1) return eslOK;
+
+      printf("## BIAS seq_score: %f\t ev_param: %f %f\t", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+      printf("P: %f\n", P);
    }
    else filtersc = nullsc;
    pli->n_past_bias++;
+
+   printf("usc: %f\t nullsc: %f\t filtersc: %f\n", usc, nullsc, filtersc );
 
    // /* In scan mode, if it passes the MSV filter, read the rest of the profile */
    // if (pli->mode == p7_SCAN_MODELS)
@@ -978,7 +986,6 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    p7_ViterbiFilter(sq->dsq, sq->n, om, pli->oxf, &vfsc);
    // // /* DAVID RICH EDITS begin */
    printf("viterbi logscore: \t %f \n", vfsc);
-
    /* UNOPTIMIZED VITERBI */
    float opt_sc;
    P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
@@ -1011,8 +1018,12 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    fclose(fp);
    /* DAVID RICH EDITS end */
 
-   // seq_score = (vfsc - filtersc) / eslCONST_LOG2;
-   // P  = esl_gumbel_surv(seq_score,  om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
+   seq_score = (vfsc - filtersc) / eslCONST_LOG2;
+   printf("## vfsc: %f\t filtersc: %f\n", vfsc, filtersc);
+   P  = esl_gumbel_surv(seq_score,  om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
+   printf("## seq_score: %f\t ev_param: %f %f\t", seq_score, om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
+   printf("P: %f\n", P);
+
    // if (P > pli->F2) return eslOK;
    // //}
    // pli->n_past_vit++;

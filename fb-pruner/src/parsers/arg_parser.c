@@ -106,8 +106,6 @@ void   ARGS_Parse( ARGS*   args,
    /* parse flags and options */
    for (int i = 2 + num_main_args; i < argc; ++i)
    {
-      printf("ARG #%d: %s\n", i, argv[i]);
-
       /* if long flag */
       if ( strncmp(argv[i], "--", 2) == 0 ) 
       {
@@ -136,7 +134,6 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( strcmp(argv[i], (flag = "--alpha-max") ) == 0 ) {
             req_args = 1;
-            printf("## CHANGED ALPHA_MAX!!\n");
             if (i+req_args < argc) {
                i++;
                args->alpha_max = atof(argv[i]);

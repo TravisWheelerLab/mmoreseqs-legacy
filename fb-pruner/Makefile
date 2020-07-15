@@ -46,7 +46,7 @@ CFLAGS := $(INC_FLAGS) -std=gnu99 -O2
 CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=gnu99 -O2
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1
 # flags for release version
 RELEASEFLAGS := $(INC_FLAGS) -Wall -O3
 
