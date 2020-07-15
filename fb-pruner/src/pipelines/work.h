@@ -10,7 +10,10 @@
 #define _WORK_H
 
 /* generic workflow */
-void WORK_workflow( WORKER*  work );
+void WORK_main_workflow( WORKER*  work );
+
+/* debugger workflow */
+void WORK_debug_workflow( WORKER* work );
 
 /* initialize dp matrices */
 void WORK_init( WORKER* worker );

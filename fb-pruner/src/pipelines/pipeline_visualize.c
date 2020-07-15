@@ -415,7 +415,6 @@ void vizualization_pipeline( WORKER* worker )
    printf("## %s %s %s %s %5.1f %5.1f %9.4f %9.4f %9.4f\n", 
       t_filepath, q_filepath, t_prof->name, q_seq->name,
       alpha, alpha_max,
-      
       scores->quad_vit, scores->quad_fwd, scores->lin_cloud_fwd);
 
 

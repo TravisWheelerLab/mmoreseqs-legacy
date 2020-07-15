@@ -29,7 +29,7 @@
 #include "pipelines.h"
 
 /* generic workflow */
-void WORK_workflow( WORKER*  worker )
+void WORK_main_workflow( WORKER*  worker )
 {
 
 }
@@ -37,7 +37,7 @@ void WORK_workflow( WORKER*  worker )
 /* debug workflow */
 void WORK_debug_workflow( WORKER*  worker )
 {
-   
+
 }
 
 /* initialize data structs: dynamic programming matrices, edgebounds, etc */
@@ -763,6 +763,7 @@ void WORK_cloud_search( WORKER* worker )
          DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
+         EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.quad.rows.edg");
       }
       #endif
 
@@ -777,6 +778,14 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
+      #if DEBUG
+      {
+         MATRIX_3D* st_MX_lin = debugger->test_MX;
+         char outfile[100];
+         sprintf( outfile, "test_output/my.bound_fwd.%s.%s.mx", worker->t_prof->name, worker->q_seq->name );
+         DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, outfile);
+      }
+      #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
