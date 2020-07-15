@@ -319,7 +319,7 @@ F_INDEX_NODE* F_INDEX_Get_by_Id( F_INDEX* index,
  * RETURN:     index of search result; -1 if no result found.
  * *******************************************************************/
 int F_INDEX_Search_Id( F_INDEX* index,
-                       int      search_term)
+                       int      search_term )
 {
    int lo  = 0;
    int mid = 0;

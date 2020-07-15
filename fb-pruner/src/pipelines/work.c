@@ -428,6 +428,7 @@ void WORK_load_target_by_id( WORKER* worker,
 
    /* set current target id */
    worker->t_id = id;
+   printf_vhi("# loading target by id: %d..\n", id);
 
    /* begin time */
    CLOCK_Start(clok);
@@ -485,6 +486,7 @@ void WORK_load_query_by_id( WORKER* worker,
 
    /* set current query id */
    worker->q_id = id;
+   printf_vhi("# loading query by id: %d..\n", id);
 
    /* begin time */
    CLOCK_Start(clok);
