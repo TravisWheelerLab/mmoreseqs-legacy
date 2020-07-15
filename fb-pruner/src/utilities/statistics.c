@@ -25,6 +25,8 @@
 /* header */
 #include "utilities.h"
 
+#define SMALLX1 0.001
+
 /*
  *  FUNCTION:  	gumbel_pdf()
  *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(x). 
@@ -83,7 +85,7 @@ double gumbel_surv(double x, double mu, double lambda)
 	double ey = -exp(-y);
 
 	/* Use 1-e^x ~ -x approximation here when e^-y is small. */
-	if (fabs(ey) < eslSMALLX1) 
+	if (fabs(ey) < SMALLX1) 
 		return -ey;
 	else                       
 		return 1 - exp(ey);
@@ -104,9 +106,9 @@ double gumbel_log_surv(double x, double mu, double lambda)
 	* and log of that gives us -y.
 	* For "small y", exp(-exp(-y) is small, and we can use log(1-x) ~ -x. 
 	*/
-	if      (fabs(ey)      < eslSMALLX1) 
+	if      (fabs(ey)      < SMALLX1) 
 		return -y;
-	else if (fabs(exp(ey)) < eslSMALLX1) 
+	else if (fabs(exp(ey)) < SMALLX1) 
 		return -exp(ey);
 	else
 		return log(1-exp(ey));
