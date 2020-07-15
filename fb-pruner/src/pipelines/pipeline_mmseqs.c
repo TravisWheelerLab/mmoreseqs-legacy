@@ -111,6 +111,11 @@ void mmseqs_pipeline( WORKER* worker )
    /* sort indexes by id */
    F_INDEX_Sort_by_Id( worker->t_index );
    F_INDEX_Sort_by_Id( worker->q_index );
+   /* output index */
+   if ( args->verbose_level >= VERBOSE_ALL ) {
+      F_INDEX_Dump( worker->t_index, stdout );
+      F_INDEX_Dump( worker->q_index, stdout );
+   }
 
    /* get result range */
    int i_beg = 0;
