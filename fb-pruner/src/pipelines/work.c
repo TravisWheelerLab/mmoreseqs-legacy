@@ -782,8 +782,8 @@ void WORK_cloud_search( WORKER* worker )
       {
          MATRIX_3D* st_MX_lin = debugger->test_MX;
          char outfile[100];
-         sprintf( outfile, "test_output/my.bound_fwd.%s.%s.mx", worker->t_prof->name, worker->q_seq->name );
-         DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, outfile);
+         // sprintf( outfile, "test_output/my.bound_fwd.%s.%s.mx", worker->t_prof->name, worker->q_seq->name );
+         DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, "test_output/my.bound_fwd.mx");
       }
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
