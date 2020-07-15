@@ -30,7 +30,7 @@
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 int main ( int argc, char *argv[] )
 {
-   DBG_PRINTF("In DEBUG mode...\n\n");
+   DBG_PRINTF("=== IN DEBUG MODE ===\n\n");
 
    /* initialize debugging toolkit */
    #if DEBUG

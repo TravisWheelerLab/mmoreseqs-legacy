@@ -763,7 +763,7 @@ void WORK_cloud_search( WORKER* worker )
          DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
-         EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.quad.rows.edg");
+         // EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.quad.rows.edg");
       }
       #endif
 
@@ -781,9 +781,7 @@ void WORK_cloud_search( WORKER* worker )
       #if DEBUG
       {
          MATRIX_3D* st_MX_lin = debugger->test_MX;
-         char outfile[100];
-         // sprintf( outfile, "test_output/my.bound_fwd.%s.%s.mx", worker->t_prof->name, worker->q_seq->name );
-         DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, "test_output/my.bound_fwd.mx");
+         // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, "test_output/my.bound_fwd.mx");
       }
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
