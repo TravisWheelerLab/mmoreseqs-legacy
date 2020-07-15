@@ -6,6 +6,25 @@
  *  BUG:
  *******************************************************************************/
 
+/* imports */
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+
+/* objects */
+#include "objects/structs.h"
+#include "objects/edgebound.h"
+
+/* local imports */
+#include "structs.h"
+#include "objects.h"
+
+/* header */
+#include "utilities.h"
+
 /*
  *  FUNCTION:  	gumbel_pdf()
  *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(x). 
