@@ -438,7 +438,7 @@ void WORK_load_target_by_id( WORKER* worker,
    F_INDEX_NODE*  node;
    term  = F_INDEX_Search_Id(t_index, id);
    node = &(t_index->nodes[ term ]);
-   // printf("search_id: %d, node_id: %d, node_name: %s\n", term, node->id, node->name );
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s\n", id, term, node->id, node->name );
    t_offset = node->offset;
 
    /* load target profile by file type */
