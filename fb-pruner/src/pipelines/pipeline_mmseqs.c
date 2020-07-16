@@ -157,9 +157,9 @@ void mmseqs_pipeline( WORKER* worker )
          t_mid, q_mid, t_cid, q_cid );
 
       /* NOTE: query and target are cross-labeled in mmseqs */
-      // int swp  = q_cid;
-      // q_cid    = t_cid;
-      // t_cid    = swp;
+      int swp  = q_cid;
+      q_cid    = t_cid;
+      t_cid    = swp;
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
       if ( t_cid != t_cid_prv )
          WORK_load_target_by_id( worker, t_cid );
