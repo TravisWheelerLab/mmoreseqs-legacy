@@ -438,8 +438,10 @@ void WORK_load_target_by_id( WORKER* worker,
    F_INDEX_NODE*  node;
    term  = F_INDEX_Search_Id(t_index, id);
    node = &(t_index->nodes[ term ]);
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s\n", id, term, node->id, node->name );
    t_offset = node->offset;
+
+   /* print results */
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %d\n", id, term, node->id, node->name, t_offset );
    F_INDEX_Node_Dump( t_index, term, stdout );
 
    /* load target profile by file type */
@@ -497,8 +499,10 @@ void WORK_load_query_by_id( WORKER* worker,
    F_INDEX_NODE*  node;
    term  = F_INDEX_Search_Id( q_index, id );
    node = &(q_index->nodes[ term ]);
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s\n", id, term, node->id, node->name );
    q_offset = node->offset;
+
+   /* print results */
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %d\n", id, term, node->id, node->name, q_offset );
    F_INDEX_Node_Dump( q_index, term, stdout );
 
    /* load query by file type */

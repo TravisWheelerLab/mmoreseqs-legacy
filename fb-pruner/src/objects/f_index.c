@@ -423,11 +423,11 @@ void F_INDEX_Node_Dump( F_INDEX*    index,
    }
    
    /* print index */
-   fprintf(fp, "=== F_INDEX_NODE ===\n")
+   fprintf(fp, "=== F_INDEX_NODE ===\n");
    fprintf(fp, "INDEX: %d\n", id);
-   node = &(index->nodes[i]);
+   node = &(index->nodes[id]);
    name = strtok(node->name, delim);
-   fprintf(fp, "%d\t%ld\t%s\t", i, node->offset, name );
+   fprintf(fp, "%d\t%ld\t%s\t", id, node->offset, name );
    fprintf(fp, "\n");
 }
 
