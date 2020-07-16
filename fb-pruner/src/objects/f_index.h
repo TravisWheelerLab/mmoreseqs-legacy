@@ -82,5 +82,13 @@ void F_INDEX_Save( F_INDEX*   index,
 void F_INDEX_Dump(F_INDEX* index,
                   FILE*    fp);
 
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Node_Dump()
+ *    DESC:    Output F_INDEX node data to file pointer at index.
+ * *******************************************************************/
+void F_INDEX_Node_Dump( F_INDEX*    index,
+                        int         id,
+                        FILE*       fp );
+
 #endif /* _FILE_INDEX_H_ */
 

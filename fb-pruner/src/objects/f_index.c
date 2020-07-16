@@ -368,7 +368,7 @@ void F_INDEX_Save( F_INDEX*   index,
 }
 
 /* *******************************************************************
- *    FUNC:    F_INDEX_Save()
+ *    FUNC:    F_INDEX_Dump()
  *    DESC:    Send F_INDEX data to file.
  * *******************************************************************/
 void F_INDEX_Dump( F_INDEX*   index,
@@ -403,6 +403,32 @@ void F_INDEX_Dump( F_INDEX*   index,
       fprintf(fp, "%d\t%ld\t%s\t", i, node->offset, name );
       fprintf(fp, "\n");
    }
+}
+
+/* *******************************************************************
+ *    FUNC:    F_INDEX_Node_Dump()
+ *    DESC:    Output F_INDEX node data to file pointer at index.
+ * *******************************************************************/
+void F_INDEX_Node_Dump( F_INDEX*    index,
+                        int         id,
+                        FILE*       fp )
+{
+   F_INDEX_NODE*  node;
+   char*          name;
+   char*          delim = " \t";    /* whitespace */
+
+   if (fp == NULL) {
+      fprintf(stderr, "ERROR: Unable to open file.\n" );
+      exit(EXIT_FAILURE);
+   }
+   
+   /* print index */
+   fprintf(fp, "=== F_INDEX_NODE ===\n")
+   fprintf(fp, "INDEX: %d\n", id);
+   node = &(index->nodes[i]);
+   name = strtok(node->name, delim);
+   fprintf(fp, "%d\t%ld\t%s\t", i, node->offset, name );
+   fprintf(fp, "\n");
 }
 
 /* *******************************************************************
