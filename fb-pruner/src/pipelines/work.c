@@ -451,13 +451,13 @@ void WORK_load_target_by_id( WORKER* worker,
          HMM_PROFILE_Parse( t_prof, t_filepath, t_offset ); 
          HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
          HMM_PROFILE_Config( t_prof, mode );
-         printf("=== HMM PROFILE ===\n");
-         HMM_PROFILE_Dump( t_prof, stdout );
+         // printf("=== HMM PROFILE ===\n");
+         // HMM_PROFILE_Dump( t_prof, stdout );
          break;
       case FILE_FASTA:
          SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
          SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
-         HMM_PROFILE_Dump( t_prof, stdout );
+         // HMM_PROFILE_Dump( t_prof, stdout );
          break;
       default:
          fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
@@ -513,8 +513,8 @@ void WORK_load_query_by_id( WORKER* worker,
       /* fasta only supported file type */
       case FILE_FASTA:
          SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
-         printf("=== SEQUENCE ===\n");
-         SEQUENCE_Dump( q_seq, stdout );
+         // printf("=== SEQUENCE ===\n");
+         // SEQUENCE_Dump( q_seq, stdout );
          break;
       case FILE_HMM:
       default:
