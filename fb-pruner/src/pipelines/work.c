@@ -441,7 +441,7 @@ void WORK_load_target_by_id( WORKER* worker,
    t_offset = node->offset;
 
    /* print results */
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %d\n", id, term, node->id, node->name, t_offset );
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", id, term, node->id, node->name, t_offset );
    F_INDEX_Node_Dump( t_index, term, stdout );
 
    /* load target profile by file type */
@@ -451,6 +451,8 @@ void WORK_load_target_by_id( WORKER* worker,
          HMM_PROFILE_Parse( t_prof, t_filepath, t_offset ); 
          HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
          HMM_PROFILE_Config( t_prof, mode );
+         printf("=== HMM PROFILE ===\n");
+         HMM_PROFILE_Dump( t_prof, stdout );
          break;
       case FILE_FASTA:
          SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
@@ -502,7 +504,7 @@ void WORK_load_query_by_id( WORKER* worker,
    q_offset = node->offset;
 
    /* print results */
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %d\n", id, term, node->id, node->name, q_offset );
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", id, term, node->id, node->name, q_offset );
    F_INDEX_Node_Dump( q_index, term, stdout );
 
    /* load query by file type */
@@ -511,6 +513,8 @@ void WORK_load_query_by_id( WORKER* worker,
       /* fasta only supported file type */
       case FILE_FASTA:
          SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
+         printf("=== SEQUENCE ===\n");
+         SEQUENCE_Dump( q_seq, stdout );
          break;
       case FILE_HMM:
       default:
