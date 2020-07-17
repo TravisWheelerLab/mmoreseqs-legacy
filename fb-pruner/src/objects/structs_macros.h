@@ -13,34 +13,45 @@
 #define FALSE 0
 
 /* === BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
+
 /* set default debug build */
 #ifndef DEBUG
 #define DEBUG FALSE
 #endif
 
+#ifndef VIZ
+#define VIZ DEBUG
+#endif
+
+#ifndef MEMCHECK
+#define MEMCHECK DEBUG
+#endif
+
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS FALSE
+#define MATRIX_FUNCTIONS  	FALSE
 
 /* type of cloud pruning methods */
-#define PRUNER_NONE 			FALSE 
+#define PRUNER_NONE  	FALSE 
 #define PRUNER_XDROP_EDGETRIM 				1
 #define PRUNER_XDROP_BIFURCATE				2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
 
 /* set default  of pruner method */
+/* PRUNER METHODS: PRUNER_DBL_XDROP_EDGETRIM_OR_DIE, PRUNER_XDROP_EDGETRIM  */
 #ifndef PRUNER
-#define PRUNER  PRUNER_DBL_XDROP_EDGETRIM_OR_DIE
+#define PRUNER  	PRUNER_DBL_XDROP_EDGETRIM_OR_DIE
 #endif
 
 /* set whether to store bounds as rows or antidiags in cloud search */
 #define CLOUD_ROWS 		0
 #define CLOUD_DIAGS 	1
+
 #ifndef CLOUD_METHOD
-#define CLOUD_METHOD  CLOUD_DIAGS
+#define CLOUD_METHOD 	CLOUD_DIAGS
 #endif
 
 #define DIRTY_VAL 1.0
-#define SCRUB_VAL 2.0
+#define SCRUB_VAL 1.0
 
 /* ============================================================================== */
 

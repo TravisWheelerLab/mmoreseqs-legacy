@@ -36,11 +36,6 @@ int main ( int argc, char *argv[] )
    #if DEBUG
    {
       debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
-      /* default debugger filepath */
-      debugger->dbfp_path  = DEBUGOUT;
-      // debugger->dbfp       = fopen( debugger->dbfp_path, "w+" );
-      debugger->test_MX    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
-      debugger->cloud_MX   = MATRIX_2D_Create( 1, 1 ); 
       /* debugging options */
       debugger->is_embed   = true;
       debugger->is_viz     = true;
@@ -69,10 +64,10 @@ int main ( int argc, char *argv[] )
 
    /* free debugging toolkit */
    #if DEBUG 
-      MATRIX_3D_Destroy( debugger->test_MX );
-      MATRIX_2D_Destroy( debugger->cloud_MX );
+   {
       // fclose( debugout );
       free( debugger );
+   }
    #endif
 
    /* clean up allocated data */

@@ -985,7 +985,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // /* OPTIMIZED VITERBI: */
    p7_ViterbiFilter(sq->dsq, sq->n, om, pli->oxf, &vfsc);
    // // /* DAVID RICH EDITS begin */
-   printf("viterbi logscore: \t %f \n", vfsc);
+   printf("Viterbi Logscore: \t %f \n", vfsc);
    /* UNOPTIMIZED VITERBI */
    float opt_sc;
    P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
@@ -1047,17 +1047,17 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    /* DAVID RICH EDIT */
    printf("=== FORWARD -> START ===\n");
    p7_GForward(sq->dsq, sq->n, gm, gmx, &opt_sc);
-   printf("ACTUAL FORWARD SCORE: \t %.9f \n", opt_sc);
+   printf("Forward Score: \t %.9f \n", opt_sc);
    fp = fopen("test_output/hmmer.forward.tsv", "w+");
    dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
 
    printf("=== BACKWARD -> START ===\n");
    p7_GBackward(sq->dsq, sq->n, gm, gmx, &opt_sc);
-   printf("ACTUAL BACKWARD SCORE: \t %.9f \n", opt_sc);
-   fp = fopen("test_output/hmmer.backward.tsv", "w+");
-   dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
-   fclose(fp);
+   printf("Backward Score: \t %.9f \n", opt_sc);
+   // fp = fopen("test_output/hmmer.backward.tsv", "w+");
+   // dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   // fclose(fp);
    /* DAVID RICH EDIT end */
 
    status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);

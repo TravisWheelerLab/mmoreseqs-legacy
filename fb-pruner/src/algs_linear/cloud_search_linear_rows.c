@@ -48,7 +48,7 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query sequence */
+int  cloud_Forward_Linear_Rows(  const SEQUENCE*    query,        /* query sequence */
                                  const HMM_PROFILE* target,       /* target hmm model */
                                  const int          Q,            /* query length */
                                  const int          T,            /* target length */
@@ -518,7 +518,7 @@ float cloud_Forward_Linear_Rows( const SEQUENCE*    query,        /* query seque
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query sequence */
+int cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* query sequence */
                                     const HMM_PROFILE* target,       /* target hmm model */
                                     const int          Q,            /* query length */
                                     const int          T,            /* target length */
@@ -581,8 +581,6 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    /* initialize debugging matrix */
    #if DEBUG
    {
-      printf("CLOUD_METHOD: %d\n", CLOUD_METHOD);
-
       dbfp     = fopen( debugger->dbfp_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -619,6 +617,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
    /* set edgebound dimensions and orientation */
    edg->Q         = Q;
    edg->T         = T;
+
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
       EDGEBOUNDS_Reuse( edg, Q, T );
@@ -631,11 +630,6 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       edg->edg_mode  = EDG_ROW;
    }
    #endif
-
-   /* set edgebound dimensions and orientation */
-   edg->Q         = Q;
-   edg->T         = T;
-   edg->edg_mode  = EDG_DIAG;
 
    /* malloc dynamic memory */
    dp_bound = (BOUND*) malloc( sizeof(BOUND) );
@@ -957,6 +951,7 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       }
    }
    #endif
+
    #if DEBUG
    {
       /* show visualization of search cloud */
@@ -973,13 +968,6 @@ float cloud_Backward_Linear_Rows(   const SEQUENCE*   query,         /* query se
       }
    }
    #endif 
-   #if DEBUG
-   {
-      /* close necessary debugger tools */
-      test_edg = EDGEBOUNDS_Destroy( test_edg );
-      fclose(dbfp);
-   }
-   #endif
 
    return total_max;
 }

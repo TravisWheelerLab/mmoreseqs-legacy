@@ -40,6 +40,20 @@ void WORK_debug_workflow( WORKER*  worker )
 
 }
 
+/* search workflow */
+void WORK_search_all_v_all( WORKER* worker )
+{
+
+}
+
+/* search via list */
+void WORK_search_list( WORKER* worker )
+{
+
+}
+
+
+
 /* initialize data structs: dynamic programming matrices, edgebounds, etc */
 void WORK_init( WORKER* worker )
 {
@@ -77,6 +91,17 @@ void WORK_init( WORKER* worker )
    worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3 = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->sp_MX  = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+
+   #if DEBUG
+   {
+      debugger->cloud_MX   = MATRIX_2D_Create( 1, 1 ); 
+      debugger->cloud_MX3  = MATRIX_2D_Create( 1, 1 ); 
+      debugger->test_MX    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+      debugger->test_MX3   = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+
+      debugger->test_edg = EDGEBOUNDS_Create();
+   }
+   #endif
 }
 
 /* clean up data structs */
@@ -110,12 +135,22 @@ void WORK_cleanup( WORKER* worker )
    worker->st_MX = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX3 = MATRIX_3D_Destroy( worker->st_MX3 );
    worker->sp_MX  = MATRIX_2D_Destroy( worker->sp_MX );
+
+   #if DEBUG
+   {
+      debugger->cloud_MX   = MATRIX_2D_Destroy( debugger->cloud_MX ); 
+      debugger->cloud_MX3  = MATRIX_2D_Destroy( debugger->cloud_MX3 ); 
+      debugger->test_MX    = MATRIX_3D_Destroy( debugger->test_MX );
+      debugger->test_MX3   = MATRIX_3D_Destroy( debugger->test_MX3 );
+
+      debugger->test_edg   = EDGEBOUNDS_Destroy( debugger->test_edg );
+   }
+   #endif
 }
 
 /* initialize dynamic programming matrices */
 void WORK_reuse( WORKER* worker )
 {
-   printf("reuse...\n");
    TASKS*   tasks    = worker->tasks; 
 
    int   T  = worker->t_prof->N;
@@ -145,6 +180,8 @@ void WORK_reuse( WORKER* worker )
    #if DEBUG 
    {
       MATRIX_2D_Reuse_Clean( debugger->cloud_MX, Q+1, T+1 );
+      MATRIX_2D_Reuse_Clean( debugger->cloud_MX3, 3, (Q+1)+(T+1) );
+      MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
       MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
    }
    #endif
@@ -723,13 +760,14 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
-         cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
+         int status = cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
       }
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
-         cloud_Forward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
+         int status = cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
       }
       #endif
+
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
@@ -739,13 +777,12 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       #if ( CLOUD_METHOD == CLOUD_DIAGS )
       {
-         printf("cloud bck diag...\n");
          cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
       }
       #elif ( CLOUD_METHOD == CLOUD_ROWS )
       {
          printf("cloud bck row-wise...\n");
-         cloud_Backward_Linear_Rows( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
+         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
       }
       #endif
       CLOCK_Stop(clok);
@@ -799,12 +836,12 @@ void WORK_cloud_search( WORKER* worker )
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       times->lin_total_cloud =   times->lin_cloud_fwd + times->lin_cloud_bck  + 
                                  times->lin_merge     + times->lin_reorient   +
                                  times->lin_bound_fwd + times->lin_bound_bck;
    }
+
    /* bounded backward */
    if ( tasks->lin_bound_bck ) {
       printf_vall("=> bound backward (lin)...\n");
@@ -846,6 +883,7 @@ void WORK_cloud_search( WORKER* worker )
       result->cloud_cells = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
    }
+
    /* bounded forward */
    if ( tasks->quad_bound_fwd ) {
       printf_vall("=> bound forward (quad)...\n");

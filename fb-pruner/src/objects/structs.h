@@ -541,7 +541,10 @@ typedef struct {
    FILE*          dbfp;             /* debugger output file pointer */
    /* data structs */
    MATRIX_3D*     test_MX;          /* quadratic testing matrix */
+   MATRIX_3D*     test_MX3;         /* lin-space testing matrix */
    MATRIX_2D*     cloud_MX;         /* cloud matrix for visualizing */
+   MATRIX_2D*     cloud_MX3;        /* cloud matrix for visualizing */
+   EDGEBOUNDS*    test_edg;         /* edgebounds for comparing diags to rows */
 } DEBUG_KIT;
 
 /* bools of all tasks to be executed by WORKER */
@@ -661,6 +664,9 @@ typedef struct {
 
    /* edgebound row object; helper for reorientation of edgebounds */
    EDGEBOUND_ROWS*   edg_rows_tmp;
+   /* int vector for cloud search */
+   VECTOR_INT*       lb_vec[3];
+   VECTOR_INT*       rb_vec[3];
 
    /* cloud pruning parameters */
    CLOUD_PARAMS  cloud_params;

@@ -4,6 +4,7 @@
 #	DESC:	Builds both DEBUG and PRODUCTION binaries
 # #######################################################
 
+rm -r bin
 mkdir bin
 make clean
 

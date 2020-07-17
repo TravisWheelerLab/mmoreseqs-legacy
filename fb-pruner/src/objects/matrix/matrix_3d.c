@@ -134,8 +134,10 @@ int MATRIX_3D_Check_Value( MATRIX_3D*     mx,
    for ( int i = 0; i < mx->R; i++ )
       for ( int j = 0; j < mx->C; j++ )
          for ( int k = 0; k < mx->N; k++ )
-            if ( *MATRIX_3D_Get( mx, i, j, k ) != val )
-               cnt++;
+            if ( *MATRIX_3D_Get( mx, i, j, k ) != val ) {
+               cnt++; 
+               printf("#> CHECK VALUE ERROR: at (%d,%d,%d) = %9.4f \n", i,j,k, *MATRIX_3D_Get(mx, i,j,k) );
+            }
 
    return cnt;
 }
@@ -236,6 +238,12 @@ float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
       *MATRIX_3D_Get_1D( mx, i ) = -INF;
    }
    mx->clean = true;
+
+   #if DEBUG
+   {
+      MATRIX_3D_Clean( mx );
+   }
+   #endif
 }
 
 /* resize MATRIX_3D to new dimensions */

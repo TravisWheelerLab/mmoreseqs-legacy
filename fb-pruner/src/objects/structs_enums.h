@@ -49,15 +49,23 @@ typedef enum {
    LOAD_FIRST        /* load the first model in file */
 } LOAD_TYPE;
 
+/* Status Flags (for function returns) */
+typedef enum {
+   STATUS_SUCCESS,
+   STATUS_FAILURE
+} STATUS_FLAGS;
+#define NUM_STATUS_FLAGS 2
+
 /* Error Flags */
 typedef enum {
+   ERROR_NONE,
    ERROR_UNKNOWN,
    ERROR_MALLOC,
    ERROR_REALLOC,
    ERROR_FILE_IO,
    ERROR_UNSUPPORTED_FUNC,
 } ERROR_FLAGS;
-#define NUM_ERROR_FLAGS 5
+#define NUM_ERROR_FLAGS 6
 
 /* Number Format of HMM_PROFILE */
 typedef enum {

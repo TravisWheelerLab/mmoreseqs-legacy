@@ -192,7 +192,7 @@ void mmseqs_pipeline( WORKER* worker )
          tr = worker->traceback;
          beg = &(tr->traces[tr->beg]);
          end = &(tr->traces[tr->end]);
-         printf_vall(" TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
+         printf_vall("MY TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
       }
       #else 
       {

@@ -36,4 +36,6 @@ void* ERRORCHECK_realloc( void*          ptr,
                           const int      _line_,
                           const char*    _func_ );
 
+void memcheck_error( int row, int col, float mat, float ins, float del );
+
 #endif /* _ERROR_HANDLER_H */

@@ -295,8 +295,8 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->tmp_remove              = false;
    // args->dbg_folderpath          = strdup("debug_output/");
 
-   args->alpha                   = 20.0f;
-   args->alpha_max               = -INF;
+   args->alpha                   = 12.0f;
+   args->alpha_max               = 20.0f;
    args->beta                    = 5;
 
    args->pipeline_mode           = PIPELINE_TEST;

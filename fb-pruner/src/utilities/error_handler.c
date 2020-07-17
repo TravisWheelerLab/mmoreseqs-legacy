@@ -107,3 +107,9 @@ void ERRORCHECK_unsupported_op( const char*     _file_,
 {
 
 }
+
+void memcheck_error( int row, int col, float mat, float ins, float del )
+{
+   printf( "#> ERROR: Memory at position (%d,%d) not cleared. Value = ( %9.4f %9.4f %9.4f )\n", 
+      row, col, mat, ins, del );
+}

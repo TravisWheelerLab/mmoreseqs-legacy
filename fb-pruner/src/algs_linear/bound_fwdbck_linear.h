@@ -24,7 +24,7 @@
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-float bound_Forward_Linear(   const SEQUENCE*      query,         /* query sequence */
+int bound_Forward_Linear(     const SEQUENCE*      query,         /* query sequence */
                               const HMM_PROFILE*   target,        /* target HMM model */
                               const int            Q,             /* query length */
                               const int            T,             /* target length */
@@ -47,7 +47,7 @@ float bound_Forward_Linear(   const SEQUENCE*      query,         /* query seque
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-float bound_Backward_Linear(  const SEQUENCE*      query,         /* query sequence */
+int bound_Backward_Linear(    const SEQUENCE*      query,         /* query sequence */
                               const HMM_PROFILE*   target,        /* target HMM model */
                               const int            Q,             /* query length */
                               const int            T,             /* target length */

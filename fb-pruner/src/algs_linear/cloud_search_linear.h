@@ -23,7 +23,7 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
 /* ****************************************************************************************** */
-float cloud_Forward_Linear( const SEQUENCE*    query,        /* query sequence */
+int cloud_Forward_Linear(  const SEQUENCE*    query,        /* query sequence */
                            const HMM_PROFILE* target,       /* target hmm model */
                            const int          Q,            /* query length */
                            const int          T,            /* target length */
@@ -46,7 +46,7 @@ float cloud_Forward_Linear( const SEQUENCE*    query,        /* query sequence *
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
 /* ****************************************************************************************** */
-float cloud_Backward_Linear( const SEQUENCE*    query,        /* query sequence */
+int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence */
                               const HMM_PROFILE* target,       /* target hmm model */
                               const int          Q,            /* query length */
                               const int          T,            /* target length */

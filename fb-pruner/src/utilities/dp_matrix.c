@@ -407,8 +407,10 @@ void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
    int   lbl   = 10;
    /* left edge padding for labels */
    int   l_pad = 5;
-
-   /* shaded square
+   /* checks if value is covered by symbols */
+   bool  key_found;
+   float val;
+   char  unknown_sym = '?';
 
    /* symbol lookup table */
    int   sym_tbl_size   = 6;
@@ -430,9 +432,16 @@ void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
       else
          fprintf(fp, "%*s", -l_pad, "");
       for ( int j = 0; j < cloud_MX->C; j++ ) {
+         key_found = false;
+         val = MX_2D( cloud_MX, i, j );
          for ( int k = 0; k < sym_tbl_size; k++ ) {
-            if ( MX_2D( cloud_MX, i, j ) == vals[k] )
+            if ( val == vals[k] ) {
                fprintf(fp, "%*c", pad, syms[k]);
+               key_found = true;
+            }
+         }
+         if ( key_found == false ) {
+            fprintf(fp, "%*c", pad, unknown_sym );
          }
       }
       fprintf(fp, "\n");

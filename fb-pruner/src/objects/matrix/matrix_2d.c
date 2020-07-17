@@ -164,15 +164,15 @@ inline
 float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
                            int         n )
 {
-   /* if debugging, do edgechecks */
-   #if DEBUG
-      int used = mx->R * mx->C;
-      if ( n < 0|| n >= used ) {
-         fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
-         fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-         exit(EXIT_FAILURE);
-      }
-   #endif
+   // /* if debugging, do edgechecks */
+   // #if DEBUG
+   //    int used = mx->R * mx->C;
+   //    if ( n < 0|| n >= used ) {
+   //       fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
+   //       fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
+   //       exit(EXIT_FAILURE);
+   //    }
+   // #endif
 
    float* data = &( mx->data[ n ] );
    return data;
