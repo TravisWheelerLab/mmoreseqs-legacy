@@ -349,6 +349,12 @@ float backward_Quad( const SEQUENCE*    query,
       MMX(i,j) = IMX(i,j) = DMX(i,j) = -INF;
    }
 
+   #if DEBUG 
+   {
+      
+   }
+   #endif
+
    sc_best = XMX(SP_N,0);
    *sc_final = sc_best;
    return sc_best;

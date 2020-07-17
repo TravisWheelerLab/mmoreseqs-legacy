@@ -702,6 +702,12 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Stop(clok);
       times->quad_fwd   = CLOCK_Secs(clok);
       scores->quad_fwd  = sc;
+      #if DEBUG 
+      {
+         printf("# printing forward quadratic...\n");
+         DP_MATRIX_Trace_Save(Q, T, st_MX, sp_MX, tr, "test_output/my.fwd.quad.mx");
+      }
+      #endif
    }
 
    /* backward */
@@ -720,6 +726,11 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Stop(clok);
       times->quad_bck   = CLOCK_Secs(clok);
       scores->quad_bck  = sc;
+      #if DEBUG 
+      {
+         DP_MATRIX_Trace_Save(Q, T, st_MX, sp_MX, tr, "test_output/my.bck.lin.mx");
+      }
+      #endif
    }
 }
 
@@ -812,13 +823,14 @@ void WORK_cloud_search( WORKER* worker )
       /* if debugging, print the cloud */
       #if DEBUG
       {
-         MATRIX_2D_Fill( debugger->cloud_MX, 0 );
-         MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_fwd, 1 );
-         MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_bck, 2 );
-         DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
+         // MATRIX_2D_Fill( debugger->cloud_MX, 0 );
+         // MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_fwd, 1 );
+         // MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_bck, 2 );
+         // DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
-         // EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.quad.rows.edg");
+         printf("# printing cloud rows...\n");
+         EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif
 
@@ -836,7 +848,8 @@ void WORK_cloud_search( WORKER* worker )
       #if DEBUG
       {
          MATRIX_3D* st_MX_lin = debugger->test_MX;
-         // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, "test_output/my.bound_fwd.mx");
+         printf("# printing linear bound forward...\n");
+         DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX, tr, "test_output/my.bound_fwd.lin.mx");
       }
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
