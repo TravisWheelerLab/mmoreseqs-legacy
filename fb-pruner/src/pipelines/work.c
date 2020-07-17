@@ -185,6 +185,11 @@ void WORK_reuse( WORKER* worker )
       MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
    }
    #endif
+
+   /* TODO: remove this */
+   MATRIX_3D_Clean( worker->st_MX );
+   MATRIX_3D_Clean( worker->st_MX3 );
+   MATRIX_2D_Clean( worker->sp_MX );
 }
 
 /* load or build target and query index files */
