@@ -186,24 +186,31 @@ void mmseqs_pipeline( WORKER* worker )
       }
       // #endif
 
-      #if DEBUG
-      {
-         /* get search window by running viterbi (debug only) */
-         tr = worker->traceback;
-         beg = &(tr->traces[tr->beg]);
-         end = &(tr->traces[tr->end]);
-         printf_vall("MY TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
-      }
-      #else 
-      {
-         /* get search window from mmseqs results */
-         ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
-         ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
-         ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
-         tr->beg = 0;
-         tr->end = 1;
-      }
-      #endif
+      // #if DEBUG
+      // {
+      //    /* get search window by running viterbi (debug only) */
+      //    tr = worker->traceback;
+      //    beg = &(tr->traces[tr->beg]);
+      //    end = &(tr->traces[tr->end]);
+      //    printf_vall("MY TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
+      // }
+      // #else 
+      // {
+      //    /* get search window from mmseqs results */
+      //    ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
+      //    ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
+      //    ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
+      //    tr->beg = 0;
+      //    tr->end = 1;
+      // }
+      // #endif
+
+      /* get search window from mmseqs results */
+      ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
+      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
+      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
+      tr->beg = 0;
+      tr->end = 1;
 
       /* print search terms */
       const int pad = 10;
