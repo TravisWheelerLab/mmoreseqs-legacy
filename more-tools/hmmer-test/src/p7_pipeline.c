@@ -998,7 +998,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
 
    /* PRINT resulting dp matrix */
    fp = fopen("test_output/hmmer.viterbi.tsv", "w+");
-   dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
 
    printf("actual viterbi score: \t %.9f \n", opt_sc);
@@ -1014,7 +1014,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    trace_Dump(om->L, om->M, sq->dsq, gm, gmx, tr, fp);
    fclose(fp);
    fp = fopen("test_output/hmmer.traceback.tsv", "w+");
-   dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
    /* DAVID RICH EDITS end */
 
@@ -1043,21 +1043,20 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, NULL);
 
 
-
    /* DAVID RICH EDIT */
    printf("=== FORWARD -> START ===\n");
    p7_GForward(sq->dsq, sq->n, gm, gmx, &opt_sc);
    printf("Forward Score: \t %.9f \n", opt_sc);
    fp = fopen("test_output/hmmer.forward.tsv", "w+");
-   dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
 
    printf("=== BACKWARD -> START ===\n");
    p7_GBackward(sq->dsq, sq->n, gm, gmx, &opt_sc);
    printf("Backward Score: \t %.9f \n", opt_sc);
-   // fp = fopen("test_output/hmmer.backward.tsv", "w+");
-   // dpMatrix_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
-   // fclose(fp);
+   fp = fopen("test_output/hmmer.backward.tsv", "w+");
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   fclose(fp);
    /* DAVID RICH EDIT end */
 
    status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);

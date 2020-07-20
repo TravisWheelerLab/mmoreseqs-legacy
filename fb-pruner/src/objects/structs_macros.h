@@ -28,7 +28,7 @@
 #endif
 
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS  	FALSE
+#define MATRIX_FUNCTIONS  	TRUE
 
 /* type of cloud pruning methods */
 #define PRUNER_NONE  	FALSE 

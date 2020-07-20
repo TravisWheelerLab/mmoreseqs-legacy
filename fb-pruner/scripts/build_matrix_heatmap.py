@@ -43,7 +43,8 @@ opts = {
    "-diff": False,
    "-add": False,
    "-eq": False,
-   "-S": False
+   "-S": False,   # save figure
+   "-N": False    # noshow figure
 };
 
 tsv_matrix = [];
@@ -314,11 +315,16 @@ def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax, file="", de
 
    plt.tight_layout()
    if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      # dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      dest = "heatmap.4.jpg"
       plt.savefig(dest)
       print("Figure saved to '{}'...".format(dest))
 
-   plt.show()
+   
+   if not (opts["-N"]):
+      # plt.show()
+      pass
+
    return None
 
 # Output heatmap of single matrix with traceback on top
@@ -349,11 +355,15 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
       #cbar = ax1.figure.colorbar(im, ax=ax1)
 
    if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      # dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      dest = "heatmap.tr.map"
       plt.savefig(dest)
       print("Figure saved to '{}'...".format(dest))
 
-   plt.show()
+   if not (opts["-N"]):
+      # plt.show()
+      pass
+
    return None
 
 

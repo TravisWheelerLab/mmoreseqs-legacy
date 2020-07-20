@@ -43,7 +43,9 @@ opts = {
    "-diff": False,
    "-add": False,
    "-eq": False,
-   "-S": False
+   "-title": False,
+   "-S": False,   # save figure
+   "-ND": False   # no display
 };
 
 tsv_matrix = [];
@@ -314,11 +316,15 @@ def output_heatmap(title, MAT_MX, INS_MX, DEL_MX, SP_MX, vmin, vmax, file="", de
 
    plt.tight_layout()
    if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      dest = "{}".format(name)
+      dest = "heatmap.jpg"
       plt.savefig(dest)
       print("Figure saved to '{}'...".format(dest))
 
-   plt.show()
+   if not (opts["-ND"]):
+      print("Displaying figure...")
+      plt.show()
+
    return None
 
 # Output heatmap of single matrix with traceback on top
@@ -333,13 +339,14 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
    tr_len = len(TR[0])-1
 
    # draw the viterbi trace
-   if tr_len > 2:
-        ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
-        ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
+   if tr_len >= 2:
+      print("making trace...\n")
+      ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
+      ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
 
-        #ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
-        ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
-        ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
+      #ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
+      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=2, color='white')
+      ax1.plot( TR[0], TR[1], linestyle='-', linewidth=1, color='black')
 
       # Create a Rectangle patch for Viterbi window
       # rect = patches.Rectangle((50,100),40,30,linewidth=1,edgecolor='r',facecolor=None)
@@ -349,11 +356,15 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
       #cbar = ax1.figure.colorbar(im, ax=ax1)
 
    if (opts["-S"]):
-      dest = "{}/{}.TR_FIG.jpg".format(file, name)
+      dest = "{}".format(name)
+      dest = "heatmap.jpg"
       plt.savefig(dest)
       print("Figure saved to '{}'...".format(dest))
 
-   plt.show()
+   if not (opts["-ND"]):
+      print("Displaying figure...")
+      plt.show()
+
    return None
 
 
@@ -362,7 +373,8 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
 ##############################################################################
 
 # default location to save files
-file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
+# file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
+file = ""
 
 # Parse args
 if (len(sys.argv) == 1):
@@ -373,7 +385,10 @@ else:
    while (i < len(sys.argv) ):
       arg = sys.argv[i];
       # apply options
-      if (arg.startswith("-")):
+      if (arg == "-title"):
+         i += 1
+         title = sys.argv[i]
+      elif (arg.startswith("-")):
          if arg in opts.keys():
             opts[arg] = True;
       else:
@@ -421,7 +436,7 @@ if opts["-diff"]:
       N -= 1
    else:
       print("To use -diff, requires two matrices")
-      exit(EXIT_SUCCESS)
+      exit()
 
 # if add, then take the sum of the two matrices
 if opts["-add"]:
@@ -433,7 +448,7 @@ if opts["-add"]:
       N -= 1
    else:
       print("To use -diff, requires two matrices")
-      exit(EXIT_SUCCESS)
+      exit()
 
 # if eq, then compare equality of two matrices
 if opts["-eq"]:
@@ -445,11 +460,7 @@ if opts["-eq"]:
       N -= 1
    else:
       print("To use -eq, requires two matrices")
-      exit(EXIT_SUCCESS)
-
-# title
-title1 = "MATCH\n(min=%f, max=%f)" % (min_val, max_val)
-title2 = title1
+      exit()
 
 # # Normalize matrix
 # for i in range(N):
@@ -494,7 +505,7 @@ for i in range(N):
    name = name[len(name)-1]
 
    if opts["-4"]:
-      output_heatmap(title1, MAT_MX[i], INS_MX[i], DEL_MX[i], SP_MX[i], min_val, max_val, file, name)
+      output_heatmap(title, MAT_MX[i], INS_MX[i], DEL_MX[i], SP_MX[i], min_val, max_val, file, name)
    if opts["-tr"]:
-      output_heatmap_trace(title2, MAT_MX[i], TRACE[i], min_val, max_val, file, name)
+      output_heatmap_trace(title, MAT_MX[i], TRACE[i], min_val, max_val, file, name)
    next

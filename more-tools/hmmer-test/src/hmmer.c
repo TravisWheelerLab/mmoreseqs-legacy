@@ -28,12 +28,12 @@
  *             <sp_MX>     Special State (J,N,B,C,E) Matrix
  *             <f>         Filename
  */
-void dpMatrix_Dump(  const int   Q, 
-                     const int   T,
-                     ESL_DSQ*    dsq,
-                     P7_PROFILE* gm,
-                     P7_GMX*     gx,
-                     FILE*       fp)
+void DP_MATRIX_Dump(  const int   Q, 
+                      const int   T,
+                      ESL_DSQ*    dsq,
+                      P7_PROFILE* gm,
+                      P7_GMX*     gx,
+                      FILE*       fp )
 {
    float const *tsc  = gm->tsc;
    float      **dp   = gx->dp;
@@ -45,57 +45,59 @@ void dpMatrix_Dump(  const int   Q,
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
    /* Header */
    fprintf(fp, "#\t");
-   for (int i = 0; i <= T; i++)
-   {
+   for (int i = 0; i <= T; i++) {
       fprintf(fp, "%d\t", i);
    }
    fprintf(fp, "\n");
 
    /* Row-by-Row */
-   for (int i = 0; i < Q + 1; i++)
+   for (int i = 0; i <= Q; i++)
    {
       fprintf(fp, "M %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", MMX(i, j) );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", MMX(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "I %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", IMX(i, j) );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", IMX(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "D %d\t", i );
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%.3f\t", DMX(i, j) );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", DMX(i, j) );
       }
       fprintf(fp, "\n\n");
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
    fprintf(fp, "N\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(i, p7G_N) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_N)  ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "J\t");
    for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(i, p7G_J) ); }
+   { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_J) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "E\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(i, p7G_E) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_E) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "C\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(i, p7G_C) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_C) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "B\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%.3f\t", XMX(i, p7G_B) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_B) ); 
+   }
    fprintf(fp, "\n");
 }
 
@@ -389,18 +391,18 @@ void profileConfig_Dump(P7_HMM*        hmm,
       fprintf(fp, "%d\tM\t", i);
       for (int k = 0; k < K; k++) {
           float const *rsc = gm->rsc[k];
-          fprintf(fp, "%9.4f ", MSC(i) );
+          fprintf(fp, "%.3f ", MSC(i) );
       } 
       fprintf(fp, "\n");
       fprintf(fp, "\tI\t");
       for (int k = 0; k < K; k++) {
           float const *rsc = gm->rsc[k];
-          fprintf(fp, "%9.4f ", ISC(i) );
+          fprintf(fp, "%.3f ", ISC(i) );
       }
       fprintf(fp, "\n");
       fprintf(fp, "\tT\t");
       for (int k = 0; k < 8; k++) {
-         fprintf(fp, "%9.4f ", TSC(k, i) );
+         fprintf(fp, "%.3f ", TSC(k, i) );
       }
       fprintf(fp, "\n");
    }
@@ -409,8 +411,8 @@ void profileConfig_Dump(P7_HMM*        hmm,
    char* spec = "ENJC";
    for (int i = 0; i < p7P_NXSTATES; i++) {
       fprintf(fp, "%c\t", spec[i]);
-      fprintf(fp, "%9.4f ", gm->xsc[i][p7P_LOOP]);
-      fprintf(fp, "%9.4f ", gm->xsc[i][p7P_MOVE]);
+      fprintf(fp, "%.3f ", gm->xsc[i][p7P_LOOP]);
+      fprintf(fp, "%.3f ", gm->xsc[i][p7P_MOVE]);
       fprintf(fp, "\n");
    }
    fprintf(fp, "===================\n");

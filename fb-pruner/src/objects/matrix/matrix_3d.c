@@ -226,6 +226,11 @@ float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
                               const int   C,
                               const int   N )
 {
+   /* TODO: fix this function */
+   MATRIX_3D_Reuse( mx, R, C, N );
+   MATRIX_3D_Clean( mx );
+   return 0.0;
+
    if ( mx->clean == false ) {
       MATRIX_3D_Clean( mx );
    }

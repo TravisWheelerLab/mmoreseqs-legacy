@@ -1799,12 +1799,12 @@ extern int fm_getOccCount     (const FM_DATA *fm, const FM_CFG *cfg, int pos, ui
 extern int fm_getOccCountLT   (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c, uint32_t *cnteq, uint32_t *cntlt);
 
 /* DAVID RICH EDIT */
-void dpMatrix_Dump(  const int   Q, 
-                     const int   T,
-                     ESL_DSQ*    dsq,
-                     P7_PROFILE* gm,
-                     P7_GMX*     gx,
-                     FILE*       fp );
+void DP_MATRIX_Dump(  const int   Q, 
+                      const int   T,
+                      ESL_DSQ*    dsq,
+                      P7_PROFILE* gm,
+                      P7_GMX*     gx,
+                      FILE*       fp );
 
 void trace_Build( const int   L, 
                   const int   M,

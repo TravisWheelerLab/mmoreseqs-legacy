@@ -55,28 +55,27 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
                               EDGEBOUNDS*          edg,           /* edgebounds */
                               float*               sc_final )     /* (OUTPUT) final score */
 {
-   /* extract data from objects */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
    int      b, d, i, j, k;                   /* diagonal, row, column indices */
    char*    seq;                             /* alias for getting seq */
-   int      N = edg->N;                      /* length of edgebound list */
+   int      N;                               /* length of edgebound list */
+   bool     is_local;                        /* whether using local or global alignments */
 
+   int      row_cur, row_prv;                /* current and previous rows */
    int      x, y1, y2;                       /* row, leftcol and rightcol bounds in row */
-   int      x_0, row_cur, x_1, row_prv;      /* real index of current and previous rows */
+   int      x_0, x_1;                        /* real index of current and previous rows */
    int      r_0, r_1;                        /* row offset -> r_0: row_cur % 2, r_1: row_prv % 2 */
+   int      c_0, c_1;                        /* real index of current and previous columns */
    int      r_0b, r_0e, r_1b, r_1e;          /* begin and end indices for row in edgebound list */
    int      d_0, d_1, d_2;                   /* d (mod 3) for assigning diag array ptrs */
    bool     y2_re;                           /* checks if edge touches rightbound */
 
    float    prev_mat, prev_del, prev_ins;    /* temp placeholder sums */
-   float    prev_beg, prev_end, prev_sum;    /* temp placeholder sums */
-   float    sc, sc1, sc2, sc3, sc4;          /* temp placeholder sums (testing) */
-   float    sc_M, sc_I, sc_D;                /* match, insert, delete scores */
-
-   /* local or global? (multiple alignments) */
-   bool     is_local    = target->isLocal;
-   float    sc_E        = (is_local) ? 0 : -INF;
+   float    prev_beg, prev_end, prev_esc;    /* temp placeholder sums */
+   float    prev_loop, prev_move, prev_sum;  /* temp placeholder sums */
+   float    sc, sc_1, sc_2, sc_3, sc_4;      /* temp placeholder sums */
+   float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, e-state scores */
 
    /* debugger tools */
    FILE*       dbfp;
@@ -117,16 +116,7 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
    }
    #endif
 
-   /* --------------------------------------------------------------------------------- */
-
-   /* clear leftover data if necessary */
-   if ( st_MX3->clean == false ) {
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
-      st_MX3->clean = true;
-   }
-   st_MX3->clean = true;
-
-   /* verify memory is clean */
+   /* verify memory is clean (all cells set to -INF) */
    #if MEMCHECK
    {
       int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
@@ -137,8 +127,25 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
    }
    #endif 
 
+   /* --------------------------------------------------------------------------------- */
+
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
+
    /* query sequence */
    seq = query->seq;
+   /* get length of edgebounds list */
+   N = edg->N;  
+   /* local or global alignments? */
+   is_local    = target->isLocal;
+   sc_E        = (is_local) ? 0 : -INF;
+
+   /* clear leftover data if necessary */
+   if ( st_MX3->clean == false ) {
+      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      st_MX3->clean = true;
+   }
+   st_MX3->clean = true;
 
    /* Clear top-row */
    row_cur = 0;
@@ -209,12 +216,15 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
          /* FOR every position in TARGET profile */
          for (j = y1; j < y2; j++)
          {
+            c_0 = j;
+            c_1 = j-1;
+
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            sc1 = prev_mat = MMX3(r_1,j-1)  + TSC(j-1,M2M);
-            sc2 = prev_ins = IMX3(r_1,j-1)  + TSC(j-1,I2M);
-            sc3 = prev_del = DMX3(r_1,j-1)  + TSC(j-1,D2M);
-            sc4 = prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
+            prev_mat = MMX3(r_1,j-1)  + TSC(j-1,M2M);
+            prev_ins = IMX3(r_1,j-1)  + TSC(j-1,I2M);
+            prev_del = DMX3(r_1,j-1)  + TSC(j-1,D2M);
+            prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
@@ -317,22 +327,22 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
       {
          /* SPECIAL STATES */
          /* J state */
-         sc1 = XMX(SP_J, x_1) + XSC(SP_J, SP_LOOP);   /* J->J */
-         sc2 = XMX(SP_E, x_0) + XSC(SP_E, SP_LOOP);   /* E->J is E's "loop" */
-         XMX(SP_J, x_0) = logsum( sc1, sc2 );
+         prev_loop = XMX(SP_J, x_1) + XSC(SP_J, SP_LOOP);   /* J->J */
+         prev_move = XMX(SP_E, x_0) + XSC(SP_E, SP_LOOP);   /* E->J is E's "loop" */
+         XMX(SP_J, x_0) = logsum( prev_loop, prev_move );
 
          /* C state */
-         sc1 = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);
-         sc2 = XMX(SP_E, x_0) + XSC(SP_E, SP_MOVE);
-         XMX(SP_C, x_0) = logsum( sc1, sc2 );
+         prev_loop = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);   /* C->C */
+         prev_move = XMX(SP_E, x_0) + XSC(SP_E, SP_MOVE);   /* C->E */
+         XMX(SP_C, x_0) = logsum( prev_loop, prev_move );
 
          /* N state */
-         XMX(SP_N, x_0) = XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP);
+         XMX(SP_N, x_0) = XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP); /* N can only loop */
 
          /* B state */
-         sc1 = XMX(SP_N, x_0) + XSC(SP_N, SP_MOVE);       /* N->B is N's move */
-         sc2 = XMX(SP_J, x_0) + XSC(SP_J, SP_MOVE);       /* J->B is J's move */
-         XMX(SP_B, x_0) = logsum( sc1, sc2 );
+         sc_1 = XMX(SP_N, x_0) + XSC(SP_N, SP_MOVE);       /* N->B is N's move */
+         sc_2 = XMX(SP_J, x_0) + XSC(SP_J, SP_MOVE);       /* J->B is J's move */
+         XMX(SP_B, x_0) = logsum( sc_1, sc_2 );
       }
 
       // /* Naive Scrub */
@@ -501,28 +511,27 @@ int bound_Backward_Linear(    const SEQUENCE*      query,         /* query seque
                               EDGEBOUNDS*          edg,           /* edgebounds */
                               float*               sc_final )     /* (OUTPUT) final score */
 {
-   /* extract data from objects */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
-   int      b, d, i, j, k;                   /* row, column indices */
+   int      b, d, i, j, k;                   /* diagonal, row, column indices */
    char*    seq;                             /* alias for getting seq */
-   int      N = edg->N;                      /* length of edgebound list */
+   int      N;                               /* length of edgebound list */
+   bool     is_local;                        /* whether using local or global alignments */
 
+   int      row_cur, row_prv;                /* current and previous rows */
    int      x, y1, y2;                       /* row, leftcol and rightcol bounds in row */
-   int      x_0, row_cur, x_1, row_prv;      /* real index of current and previous rows */
+   int      x_0, x_1;                        /* real index of current and previous rows */
    int      r_0, r_1;                        /* row offset -> r_0: row_cur % 2, r_1: row_prv % 2 */
+   int      c_0, c_1;                        /* real index of current and previous columns */
    int      r_0b, r_0e, r_1b, r_1e;          /* begin and end indices for row in edgebound list */
    int      d_0, d_1, d_2;                   /* d (mod 3) for assigning diag array ptrs */
    bool     y2_re;                           /* checks if edge touches rightbound */
 
    float    prev_mat, prev_del, prev_ins;    /* temp placeholder sums */
-   float    prev_beg, prev_end, prev_sum;    /* temp placeholder sums */
-   float    sc, sc1, sc2, sc3, sc4;          /* temp placeholder sums (testing) */
-   float    sc_M, sc_I, sc_D;                /* match, insert, delete scores */
-
-   /* local or global? (multiple alignments) */
-   bool   is_local   = target->isLocal;
-   float  sc_E       = (is_local) ? 0 : -INF;
+   float    prev_beg, prev_end, prev_esc;    /* temp placeholder sums */
+   float    prev_loop, prev_move, prev_sum;  /* temp placeholder sums */
+   float    sc, sc_1, sc_2, sc_3, sc_4;      /* temp placeholder sums */
+   float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, e-state scores */
 
    /* debugger tools */
    FILE*       dbfp;
@@ -563,7 +572,29 @@ int bound_Backward_Linear(    const SEQUENCE*      query,         /* query seque
    }
    #endif
 
+   /* verify memory is clean (all cells set to -INF) */
+   #if MEMCHECK
+   {
+      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
+      printf("PRE-CHECK CLEAN -> BOUND FWD?\t%d\n", cmp);
+      if ( cmp != 0 ) {
+         MATRIX_3D_Clean( st_MX3 );
+      }
+   }
+   #endif 
+
    /* --------------------------------------------------------------------------------- */
+
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
+
+   /* query sequence */
+   seq = query->seq;
+   /* get length of edgebounds list */
+   N = edg->N;  
+   /* local or global alignments? */
+   is_local    = target->isLocal;
+   sc_E        = (is_local) ? 0 : -INF;
 
    /* clear leftover data */
    if ( st_MX3->clean == false ) {
@@ -571,20 +602,6 @@ int bound_Backward_Linear(    const SEQUENCE*      query,         /* query seque
       st_MX3->clean = true;
    }
    st_MX3->clean = true;
-
-   /* verify data is clean */
-   #if DEBUG
-   {
-      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
-      printf("PRE-CHECK CLEAN  -> BOUND BCK?\t%d\n", cmp);
-      if ( cmp != 0 ) {
-         MATRIX_3D_Clean( st_MX3 );
-      }
-   }
-   #endif 
-
-   /* query sequence */
-   seq = query->seq;
 
    /* Initialize the Q row. */
    row_cur = Q;         
@@ -613,15 +630,19 @@ int bound_Backward_Linear(    const SEQUENCE*      query,         /* query seque
 
       for (j = y2; j >= y1; j--)
       {
-         sc1 = XMX(SP_E, x_0) + sc_E;
-         sc2 = DMX3(r_0, j+1)  + TSC(j, M2D);
-         MMX3(r_0, j) = logsum( XMX(SP_E, x_0) + sc_E, 
-                                DMX3(r_0, j+1)  + TSC(j, M2D) );
+         c_0 = j;
+         c_1 = j+1;
+         
+         /* NOTE: should this delete state or match state */
+         prev_esc = XMX(SP_E, x_0) + sc_E;
+         prev_del = DMX3(r_0, j+1) + TSC(j, M2D);
+         MMX3(r_0, j) = logsum( prev_esc, 
+                                prev_del );
 
-         sc1 = XMX(SP_E, x_0) + sc_E;
-         sc2 = DMX3(r_0, j+1) + TSC(j, D2D);
-         DMX3(r_0, j) = logsum( XMX(SP_E, x_0) + sc_E,
-                                DMX3(r_0, j+1)  + TSC(j, D2D) );
+         prev_esc = XMX(SP_E, x_0) + sc_E;
+         prev_del = DMX3(r_0, j+1) + TSC(j, D2D);
+         DMX3(r_0, j) = logsum( prev_esc,
+                                prev_del );
 
          IMX3(r_0,j) = -INF;
 
@@ -949,7 +970,7 @@ int bound_Backward_Linear(    const SEQUENCE*      query,         /* query seque
    #endif
 
    /* final N state */
-   *sc_final   = XMX(SP_N, 0);
+   *sc_final = XMX(SP_N, 0);
 
    return STATUS_SUCCESS;
 }

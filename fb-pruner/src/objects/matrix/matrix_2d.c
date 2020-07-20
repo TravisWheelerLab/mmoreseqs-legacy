@@ -37,7 +37,7 @@ MATRIX_2D* MATRIX_2D_Create(  int  R,
 
    mx = (MATRIX_2D*) ERRORCHECK_malloc( sizeof(MATRIX_2D), __FILE__, __LINE__, __FUNCTION__ );
    if (mx == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc MATRIX_3D.\n");
+      fprintf(stderr, "ERROR: Unable to malloc MATRIX_2D.\n");
       exit(EXIT_FAILURE);
    }
 
@@ -209,6 +209,11 @@ float MATRIX_2D_Reuse_Clean(  MATRIX_2D*  mx,
                               int         R,
                               int         C )
 {
+   /* TODO: fix this function */
+   MATRIX_2D_Reuse( mx, R, C );
+   MATRIX_2D_Clean( mx );
+   return 0.0;
+
    if ( mx->clean == false )
       MATRIX_2D_Clean( mx );
 
@@ -241,7 +246,7 @@ float MATRIX_2D_Resize(MATRIX_2D*  mx,
 
    mx->data = (float*) realloc( mx->data, sizeof(float) * (R * C) );
    if (mx->data == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc DATA for MATRIX_3D.\n");
+      fprintf(stderr, "ERROR: Unable to malloc DATA for MATRIX_2D.\n");
       exit(EXIT_FAILURE);
    }
 }

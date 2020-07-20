@@ -728,7 +728,7 @@ void WORK_forward_backward( WORKER*  worker )
       scores->quad_bck  = sc;
       #if DEBUG 
       {
-         DP_MATRIX_Trace_Save(Q, T, st_MX, sp_MX, tr, "test_output/my.bck.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, st_MX, sp_MX, tr, "test_output/my.bck.quad.mx");
       }
       #endif
    }

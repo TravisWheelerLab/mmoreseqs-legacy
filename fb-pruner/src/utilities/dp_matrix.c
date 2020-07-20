@@ -162,71 +162,64 @@ void DP_MATRIX_Dump( const int         Q,
                      MATRIX_2D*        sp_MX,
                      FILE*             fp )
 {
-   /* padding between numbers */
-   int pad     = 9;
-   int r_pad   = 4;
-
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
 
    /* Header */
-   fprintf(fp, "##### NORMAL STATES #####\n");
-   fprintf(fp, "XMATRIX\n");
-   /* Header Indices */
-   fprintf(fp, "%*s   ", -3, "#");
-   for (int i = 0; i <= T; i++)
-   {
-      fprintf(fp, "%9d ", i);
+   fprintf(fp, "#\t");
+   for (int i = 0; i <= T; i++) {
+      fprintf(fp, "%d\t", i);
    }
    fprintf(fp, "\n");
 
-   /* Row-by-Row Values */
+   /* Row-by-Row */
    for (int i = 0; i <= Q; i++)
    {
-      fprintf(fp, "%*d M ", -r_pad, i);
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%9.4f ", MMX(i, j) );
+      fprintf(fp, "M %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", MMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "%*s I ", -r_pad, "");
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%9.4f ", IMX(i, j) );
+      fprintf(fp, "I %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", IMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "%*s D ", -r_pad, "");
-      for (int j = 0; j <= T; j++)
-      {
-         fprintf(fp, "%9.4f ", DMX(i, j) );
+      fprintf(fp, "D %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", DMX(i, j) );
       }
       fprintf(fp, "\n\n");
    }
-   fprintf(fp, "/\n\n");
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
    fprintf(fp, "N\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%9.4f ", XMX(SP_N, i) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_N, i) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "J\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%9.4f ", XMX(SP_J, i) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_J, i) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "E\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%9.4f ", XMX(SP_E, i) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_E, i) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "C\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%9.4f ", XMX(SP_C, i) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_C, i) ); 
+   }
    fprintf(fp, "\n");
    fprintf(fp, "B\t");
-   for (int i = 0; i <= Q; i++)
-   { fprintf(fp, "%9.4f ", XMX(SP_B, i) ); }
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_B, i) ); 
+   }
    fprintf(fp, "\n");
 }
 

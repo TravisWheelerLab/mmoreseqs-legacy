@@ -17,5 +17,6 @@
 #include "fwdback_linear.h"
 #include "merge_reorient_linear.h"
 #include "pruning_linear.h"
+#include "viterbi_linear.h"
 
 #endif /* _ALGS_LINEAR_H */
