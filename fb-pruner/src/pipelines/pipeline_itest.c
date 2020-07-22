@@ -299,8 +299,8 @@ void itest_pipeline( WORKER* worker )
       printf("==> forward linear\n");
       forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
       printf("Forward Score  (lin):\t%f\n", sc);
-      scores->lin_fwd = sc;
-      MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+      scores->lin_fwd = sc;  
+      MATRIX_3D_Copy( st_MX_lin, debugger->test_MX ); 
       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.fwd.lin.mx");
       /* ==> forward (comparison) */
       printf("==> forward comparison: quadratic v. linear\n");
@@ -330,7 +330,7 @@ void itest_pipeline( WORKER* worker )
       backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
       printf("Backward Score  (lin):\t%f\n", sc);
       scores->lin_bck = sc;
-      MATRIX_3D_Copy( debugger->test_MX, st_MX_lin );
+      MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.bck.lin.mx");
       /* ==> backward (comparison) */
       printf("==> backward comparison: quadratic v. linear\n");

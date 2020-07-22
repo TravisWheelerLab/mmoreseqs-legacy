@@ -344,7 +344,7 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
             prev_mat = MMX3(d2,k-1)  + TSC(j-1,M2M);
             prev_ins = IMX3(d2,k-1)  + TSC(j-1,I2M);
             prev_del = DMX3(d2,k-1)  + TSC(j-1,D2M);
-            /* free to begin match state (new alignment) */
+            /* Free to begin match state (new alignment) */
             /* NOTE: only allow begin transition at start of viterbi alignment */
             // prev_beg = 0; /* assigned once at start */
             /* best-to-match */
@@ -474,8 +474,6 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
             #endif
          }
       }
-      // DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
-      // DP_MATRIX_VIZ_Dump( cloud_MX3, stdout );
 
       /* Shift bounds */
       lb_vec_tmp  = lb_vec[2];

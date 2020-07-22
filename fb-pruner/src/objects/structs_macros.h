@@ -28,10 +28,10 @@
 #endif
 
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS  	TRUE
+#define MATRIX_FUNCTIONS  	FALSE
 
 /* type of cloud pruning methods */
-#define PRUNER_NONE  	FALSE 
+#define PRUNER_NONE  		FALSE 
 #define PRUNER_XDROP_EDGETRIM 				1
 #define PRUNER_XDROP_BIFURCATE				2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3

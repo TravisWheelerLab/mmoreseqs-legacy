@@ -81,6 +81,16 @@ void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 MATRIX_3D* MATRIX_3D_Copy( MATRIX_3D*     dest,
                            MATRIX_3D*     src )
 {
+   /* verify dest and src have same dimensions */
+   #if DEBUG
+   {
+      if ( dest->R != src->R || dest->C != src->C || dest->N != src->N ) {
+         printf("ERROR: src and dest do not have the same dimensions.\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+   #endif
+
    /* dim */
    int R = src->R;
    int C = src->C;
@@ -136,7 +146,8 @@ int MATRIX_3D_Check_Value( MATRIX_3D*     mx,
          for ( int k = 0; k < mx->N; k++ )
             if ( *MATRIX_3D_Get( mx, i, j, k ) != val ) {
                cnt++; 
-               printf("#> CHECK VALUE ERROR: at (%d,%d,%d) = %9.4f \n", i,j,k, *MATRIX_3D_Get(mx, i,j,k) );
+               /* NOTE: turn on? */
+               // printf("#> CHECK VALUE ERROR: at (%d,%d,%d) = %9.4f \n", i,j,k, *MATRIX_3D_Get(mx, i,j,k) );
             }
 
    return cnt;

@@ -39,17 +39,17 @@ UMAP* UMAP_Create( )
 	return umap;
 }
 
-void UMAP_Add_Node( UMAP* 	umap, 
-					char* 	key,
-					DATA 	value )
+void UMAP_Add_Node( UMAP* 		umap, 
+					char* 		key,
+					GEN_DATA 	value )
 {
 
 }	
 
-DATA UMAP_Get_Value( UMAP* 	umap,
-					 char*	key )
+GEN_DATA UMAP_Get_Value( 	UMAP* 	umap,
+					 		char*	key )
 {
-	DATA data;
+	GEN_DATA data;
 	data.i = 0;
 	return data;
 }

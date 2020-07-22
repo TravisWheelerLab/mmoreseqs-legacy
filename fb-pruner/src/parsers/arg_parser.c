@@ -399,3 +399,9 @@ void ARGS_Help_Info()
    printf("\n");
    exit(EXIT_SUCCESS);
 }
+
+/* output version info */
+void ARGS_Version_Info()
+{
+   
+}

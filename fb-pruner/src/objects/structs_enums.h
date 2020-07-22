@@ -77,11 +77,14 @@ typedef enum {
 
 /* Data Type */
 typedef enum {
-   DATATYPE_NONE     = 0,
-   DATATYPE_INT      = 1,
-   DATATYPE_FLOAT    = 2,
-   DATATYPE_STRING   = 3,
-   DATATYPE_BOOL     = 4,
+   DATATYPE_NONE,
+   DATATYPE_INT,
+   DATATYPE_FLOAT,
+   DATATYPE_DOUBLE,
+   DATATYPE_LONG,
+   DATATYPE_STRING,
+   DATATYPE_CHAR,
+   DATATYPE_BOOL,
 } DATATYPES;
 #define NUM_DATATYPES 5
 

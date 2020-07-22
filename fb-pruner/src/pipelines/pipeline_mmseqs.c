@@ -280,6 +280,13 @@ void mmseqs_pipeline( WORKER* worker )
    // if (fp != stdout) fclose(fp);
 }
 
+/* execute the mmseqs script */
+void mmseqs_execute_script( WORKER* worker )
+{
+
+}
+
+
 /* report results of mmseqs */
 inline
 void print_header_mmseqs(  WORKER*  worker )

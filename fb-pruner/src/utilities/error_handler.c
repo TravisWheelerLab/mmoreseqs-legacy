@@ -8,8 +8,10 @@
 
 /* imports */
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <execinfo.h>
+
+#include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
@@ -108,8 +110,28 @@ void ERRORCHECK_unsupported_op( const char*     _file_,
 
 }
 
+/* reports an incorrect value encountered in matrix */
 void memcheck_error( int row, int col, float mat, float ins, float del )
 {
    printf( "#> ERROR: Memory at position (%d,%d) not cleared. Value = ( %9.4f %9.4f %9.4f )\n", 
       row, col, mat, ins, del );
+}
+
+/* print a stacktrace in the event of an error */
+void ERRORCHECK_stacktrace()
+{
+    void*   array[10];
+    size_t  size;
+    char**  strings;
+    size_t  i;
+
+    size = backtrace(array, 10);
+    strings = backtrace_symbols(array, size);
+
+    printf("Obtained %ld stack frames.\n", size);
+
+    for (i = 0; i < size; i++)
+        printf ("%s\n", strings[i]);
+
+    free (strings);
 }

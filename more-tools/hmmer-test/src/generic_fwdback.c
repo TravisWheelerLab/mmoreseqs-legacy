@@ -199,23 +199,13 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
     */
    p7_FLogsumInit();
 
-   // printf("=== i D2M D2D ===\n");
-   // for (i = 0; i < M; ++i) {
-   //    printf("%d \t%.5f \t%.5f \n", i, TSC(p7P_DM, i), TSC(p7P_DD, i) );
-   // }
-   // exit(0);
-
    /* Initialize the L row.  */
    XMX(L, p7G_J) = XMX(L, p7G_B) = XMX(L, p7G_N) = -eslINFINITY;
    XMX(L, p7G_C) = gm->xsc[p7P_C][p7P_MOVE];                /* C<-T          */
    XMX(L, p7G_E) = XMX(L, p7G_C) + gm->xsc[p7P_E][p7P_MOVE]; /* E<-C, no tail */
 
-   // printf("(%d) C: %.4f E: %.4f Cm: %.4f Em: %.4f\n", L, XMX(L, p7G_C), XMX(L, p7G_E), gm->xsc[p7P_C][p7P_MOVE], gm->xsc[p7P_E][p7P_MOVE]);
-
    MMX(L, M) = DMX(L, M) = XMX(L, p7G_E); /* {MD}_M <- E (prob 1.0) */
    IMX(L, M) = -eslINFINITY;       /* no I_M state        */
-
-   // printf("(Q,T) M: %.4f D: %.4f I: %4.f\n", MMX(L, M), DMX(L, M), IMX(L, M) );
 
    for (k = M - 1; k >= 1; k--) {
       sc1 = XMX(L, p7G_E) + esc;
@@ -223,16 +213,10 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
       MMX(L, k) = p7_FLogsum( XMX(L, p7G_E) + esc,
                               DMX(L, k + 1)  + TSC(p7P_MD, k) );
 
-      // printf("M (%d, %d)  \tMB: %.5f\t MD: %.5f\t M2D: %.5f\t MMX: %.5f\n", 
-      //    L, k, sc1, sc2, TSC(p7P_MD, k), MMX(L, k) );
-
       sc1 = XMX(L, p7G_E) + esc;
       sc2 = DMX(L, k + 1)  + TSC(p7P_DD, k);
       DMX(L, k) = p7_FLogsum( XMX(L, p7G_E) + esc,
                               DMX(L, k + 1)  + TSC(p7P_DD, k) );
-
-      // printf("D (%d, %d)  \tMB: %.5f\t MD: %.5f\t D2D: %.5f\t DMX: %.5f\n", 
-      //    L, k, sc1, sc2, TSC(p7P_DD, k), DMX(L, k) );
 
       IMX(L, k) = -eslINFINITY;
    }
@@ -243,15 +227,22 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
       rsc = gm->rsc[dsq[i + 1]];
 
       XMX(i, p7G_B) = MMX(i + 1, 1) + TSC(p7P_BM, 0) + MSC(1); /* t_BM index is 0 because it's stored off-by-one. */
-      
-      // printf("B (%d,%d)  \t%.5f  \t%.5f  \t%.5f  \t%.5f  \n", i, 1, XMX(i, p7G_B), MMX(i + 1, 1), TSC(p7P_BM, 0), MSC(1));
-
+      // if (i == L-2 || 1) {
+      //    printf("B: i,k=(%d,%d),\tmmx=%f,\tb2m(%d)=%f,\tmsc=%f,\tb_new=%f\n",
+      //       i, k,
+      //       MMX(i + 1, k), k-1, TSC(p7P_BM, k - 1), MSC(k), XMX(i, p7G_B) );
+      // }
       for (k = 2; k <= M; k++)
       {
-         // printf("B (%d,%d)  \t%.5f  \t%.5f  \t%.5f  \t%.5f  \n", i, k, XMX(i, p7G_B), MMX(i + 1, k), TSC(p7P_BM, k - 1), MSC(k));
-
+         sc1 = XMX(i, p7G_B);
          XMX(i, p7G_B) = p7_FLogsum( XMX(i, p7G_B),
                                      MMX(i + 1, k) + TSC(p7P_BM, k - 1) + MSC(k));
+
+         // if (i == L-2 || 1) {
+         //    printf("B: i,k=(%d,%d),\tb_old=%f,\tmmx=%f,\tb2m=%f,\tmsc=%f,\tb_new=%f\n",
+         //       i, k,
+         //       sc1, MMX(i + 1, k), TSC(p7P_BM, k - 1), MSC(k), XMX(i, p7G_B) );
+         // }
       }
 
       XMX(i, p7G_J) = p7_FLogsum( XMX(i + 1, p7G_J) + gm->xsc[p7P_J][p7P_LOOP],
@@ -269,34 +260,33 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
       MMX(i, M) = DMX(i, M) = XMX(i, p7G_E);
       IMX(i, M) = -eslINFINITY;
 
-      // printf("J: %.8f\t C: %.8f\t E: %.8f\t N: %.8f\n", XMX(i, p7G_J), XMX(i, p7G_C), XMX(i, p7G_E), XMX(i, p7G_N) );
-
-      // printf("M (%d,%d)  \tMMX: %.8f \tDMX: %.8f\n", i, M, MMX(i,M), DMX(i,M) );
-
       for (k = M - 1; k >= 1; k--)
       {
+         // printf("i,k=(%d,%d),\tMSC(k)=%f,\tMSC(k+1)=%f,\tISC(k)=%f,\tISC(k+1)=%f\n", 
+         //    i, k, 
+         //    MSC(k), MSC(k+1), ISC(k), ISC(k+1) );
+
          sc1 = MMX(i + 1, k + 1) + TSC(p7P_MM, k) + MSC(k + 1);
-         sc2 = IMX(i + 1, k)   + TSC(p7P_MI, k) + ISC(k);
-         sc4 = XMX(i, p7G_E) + esc;
+         sc2 = IMX(i + 1, k)   + TSC(p7P_MI, k) + ISC(k + 1);
          sc3 = DMX(i,  k + 1) + TSC(p7P_MD, k);
+         sc4 = XMX(i, p7G_E) + esc;
 
          MMX(i, k) = p7_FLogsum( p7_FLogsum( MMX(i + 1, k + 1) + TSC(p7P_MM, k) + MSC(k + 1),
                                              IMX(i + 1, k)   + TSC(p7P_MI, k) + ISC(k + 1) ),
                                  p7_FLogsum( XMX(i, p7G_E) + esc,
-                                             DMX(i,  k + 1) + TSC(p7P_MD, k) )
-                               );
+                                             DMX(i,  k + 1) + TSC(p7P_MD, k) ) );
 
-         // printf("M (%d,%d)  \tMM: %.5f\t IM: %.5f\t DM: %.5f\t BM: %.5f\t MSC: %.5f\t ISC: %.5f\t M2M: %.5f\t M2I: %.5f\t M2D: %.5f\t DMX: %.5f\n", 
-         //    i, k, sc1, sc2, sc3, sc4, MSC(k+1), ISC(k), TSC(p7P_MM, k), TSC(p7P_MI, k), TSC(p7P_MD, k), DMX(i,  k + 1) );
+         // if (k == M-2) {
+         //    printf("i,k=(%d,%d), old_mat=%f, ins=%f, del=%f, esc=%f, new_mat=%f\n",
+         //       i, k, 
+         //       sc1, sc2, sc3, sc4, MMX(i,k) );
+         // }
 
          sc1 = MMX(i + 1, k + 1) + TSC(p7P_IM, k) + MSC(k + 1);
          sc2 = IMX(i + 1, k)   + TSC(p7P_II, k) + ISC(k);
 
          IMX(i, k) = p7_FLogsum( MMX(i + 1, k + 1) + TSC(p7P_IM, k) + MSC(k + 1),
                                  IMX(i + 1, k)   + TSC(p7P_II, k) + ISC(k) );
-
-         // printf("I (%d,%d)  \tIM: %.5f\t II: %.5f\t I2M: %.5f\t I2I: %.5f\n", 
-         //    i, k, sc1, sc2, TSC(p7P_IM, k), TSC(p7P_II, k) );
 
          sc1 = MMX(i + 1, k + 1) + TSC(p7P_DM, k) + MSC(k + 1);
          sc2 = DMX(i,  k + 1)  + TSC(p7P_DD, k);
@@ -305,20 +295,27 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
          DMX(i, k) = p7_FLogsum( MMX(i + 1, k + 1) + TSC(p7P_DM, k) + MSC(k + 1),
                                  p7_FLogsum( DMX(i,  k + 1)  + TSC(p7P_DD, k),
                                              XMX(i, p7G_E) + esc) );
-
-         // printf("D (%d,%d)  \tDM: %.5f\t DD: %.5f\t DB: %.5f\t D2M: %.5f\t D2D: %.5f\t DMX: %.5f\t %.5f\n", 
-         //    i, k, sc1, sc2, sc3, TSC(p7P_DM, k), TSC(p7P_DD, k), DMX(i,k+1), DMX(i, k) );
       }
    }
+
+   printf("FINAL ROW:\n");
 
    /* At i=0, only N,B states are reachable. */
    rsc = gm->rsc[dsq[1]];
 
    XMX(0, p7G_B) = MMX(1, 1) + TSC(p7P_BM, 0) + MSC(1); /* t_BM index is 0 because it's stored off-by-one. */
-
-   for (k = 2; k <= M; k++)
+   // printf("B: i,k=(%d,%d),\tmmx=%f,\tb2m(%d)=%f,\tmsc=%f,\tb_new=%f\n",
+   //          i, k,
+   //          MMX(1, 1), 0, TSC(p7P_BM, 0), MSC(1), XMX(0, p7G_B) );
+   for (k = 2; k <= M; k++) {
+      sc1 = XMX(0, p7G_B);
       XMX(0, p7G_B) = p7_FLogsum( XMX(0, p7G_B),
                                   MMX(1, k) + TSC(p7P_BM, k - 1) + MSC(k) );
+      // printf("B: i,k=(%d,%d),\tb_old=%f,\tmmx=%f,\tb2m=%f,\tmsc=%f,\tb_new=%f\n",
+      //          i, k,
+      //          sc1, MMX(i + 1, k), TSC(p7P_BM, k - 1), MSC(k), XMX(0, p7G_B) );
+   }
+
    XMX(i, p7G_J) = -eslINFINITY;
    XMX(i, p7G_C) = -eslINFINITY;
    XMX(i, p7G_E) = -eslINFINITY;
@@ -332,11 +329,6 @@ p7_GBackward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float 
    fp = fopen("output/hmmer.backward.tsv", "w+");
    DP_MATRIX_Dump(L, M, dsq, gm, gx, fp);
    fclose(fp);
-
-   // printf("i\tN\tJ\tC\tE\tB\n");
-   // for (i = 0; i < L; ++i) {
-   //    printf("%d\t %.5f\t %.5f\t %.5f\t %.5f\t %.5f\n", i, XMX(i,  p7G_N), XMX(i,  p7G_J), XMX(i,  p7G_C), XMX(i,  p7G_E), XMX(i,  p7G_B));
-   // }
 
    if (opt_sc != NULL) *opt_sc = XMX(0, p7G_N);
    gx->M = M;

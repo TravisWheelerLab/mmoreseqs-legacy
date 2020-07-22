@@ -27,18 +27,22 @@
 
 /* === STRUCTS === */
 
-/* */
+/* generic datatype */
 typedef union {
    int      i;
    float    f;
-   char*    c;
-} DATA;
+   double   d;
+   long     l;
+   char*    s;
+   char     c;
+   bool     b;
+} GEN_DATA;
 
 /* node for UNORDERED_MAP */
 typedef struct {
-   char*    key;
-   DATA     value;
-   int      type;
+   char*       key;
+   GEN_DATA    value;
+   int         type;
 } UMAP_NODE;
 
 /* unordered map */

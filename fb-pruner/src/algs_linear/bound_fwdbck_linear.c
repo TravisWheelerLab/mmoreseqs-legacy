@@ -31,7 +31,6 @@
  *       MMX3(i,  j  ) => MMX3(, d_1)
  */
 
-
 /* 
  *  FUNCTION: bound_Forward_Linear()
  *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
@@ -182,8 +181,11 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
    for (x_0 = 1; x_0 <= Q; x_0++)
    {
       /* convert quadratic space row index to linear space row index (ex % 2) */
-      row_cur = x_0;
-      r_0     = x_0 % 2;        /* for use in linear space alg (mod-mapping) */
+      x_1 = x_0 + 1;
+      r_0 = x_0 % 2;
+      r_1 = x_1 % 2;
+
+      c_0 = 0;
 
       /* add every edgebound from current row */
       r_0b = k;
@@ -199,13 +201,13 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      // MMX3(r_0, 0) = IMX3(r_0, 0) = DMX3(r_0, 0) = -INF;
+      // MMX3(r_0, c_0) = IMX3(r_0, c_0) = DMX3(r_0, c_0) = -INF;
       XMX(SP_E, x_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
       for (i = r_0b; i < r_0e; i++)
       {
-         /* in this context, "diag" represents the "row" */
+         /* in this context, "id" represents the "row" */
          x =  EDG_X(edg,i).id;                 /* NOTE: this is always the same as cur_row, x_0 */
          y1 = MAX(1, EDG_X(edg,i).lb);        /* can't overflow the left edge */
          y2 = EDG_X(edg,i).rb;
@@ -221,10 +223,10 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prev_mat = MMX3(r_1,j-1)  + TSC(j-1,M2M);
-            prev_ins = IMX3(r_1,j-1)  + TSC(j-1,I2M);
-            prev_del = DMX3(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
+            prev_mat = MMX3(r_1, c_1) + TSC(c_1, M2M);
+            prev_ins = IMX3(r_1, c_1) + TSC(c_1, I2M);
+            prev_del = DMX3(r_1, c_1) + TSC(c_1, D2M);
+            prev_beg = XMX(SP_B, x_1) + TSC(c_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
@@ -233,36 +235,37 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX3(r_1,j) + TSC(j,M2I);
-            prev_ins = IMX3(r_1,j) + TSC(j,I2I);
+            prev_mat = MMX3(r_1, c_0) + TSC(c_0, M2I);
+            prev_ins = IMX3(r_1, c_0) + TSC(c_0, I2I);
             /* best-to-insert */
             prev_sum = logsum( prev_mat, prev_ins );
-            IMX3(r_0,j) = prev_sum + ISC(j,A);
+            IMX3(r_0, c_0) = prev_sum + ISC(c_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX3(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX3(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX3(r_0, c_1) + TSC(c_1, M2D);
+            prev_del = DMX3(r_0, c_1) + TSC(c_1, D2D);
             /* best-to-delete */
             prev_sum = logsum(prev_mat, prev_del);
-            DMX3(r_0,j) = prev_sum;
+            DMX3(r_0, c_0) = prev_sum;
 
             /* UPDATE E STATE */
-            prev_mat = MMX3(r_0, j) + sc_E;
-            prev_del = DMX3(r_0, j) + sc_E;
+            prev_esc = XMX(SP_E, x_0);
+            prev_mat = MMX3(r_0, c_0) + sc_E;
+            prev_del = DMX3(r_0, c_0) + sc_E;
             XMX(SP_E, x_0) = logsum( 
                                  logsum( prev_mat, prev_del ),
-                                 XMX(SP_E, x_0) );
+                                 prev_esc );
 
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D(cloud_MX, x_0, j) += 1.0;
-               MX_2D(cloud_MX3, r_0, j) += 1.0;
+               MX_2D(cloud_MX, x_0, c_0)  += 1.0;
+               MX_2D(cloud_MX3, r_0, c_0) += 1.0;
 
-               MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
-               MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
-               MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
+               MX_3D(test_MX, MAT_ST, x_0, c_0) = MMX3(r_0, c_0);
+               MX_3D(test_MX, INS_ST, x_0, c_0) = IMX3(r_0, c_0);
+               MX_3D(test_MX, DEL_ST, x_0, c_0) = DMX3(r_0, c_0);
 
                num_writes += 1;
             }
@@ -273,36 +276,35 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
          if ( y2_re ) 
          {
             j = T; 
+            c_0 = j;
+            c_1 = j-1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prev_mat = MMX3(r_1,j-1)  + TSC(j-1,M2M);
-            prev_ins = IMX3(r_1,j-1)  + TSC(j-1,I2M);
-            prev_del = DMX3(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+            prev_mat = MMX3(r_1, c_1)  + TSC(c_1, M2M);
+            prev_ins = IMX3(r_1, c_1)  + TSC(c_1, I2M);
+            prev_del = DMX3(r_1, c_1)  + TSC(c_1, D2M);
+            prev_beg = XMX(SP_B, x_1)  + TSC(c_1, B2M);    /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
                            logsum( prev_del, prev_beg ) );
-            MMX3(r_0,j) = prev_sum + MSC(j,A);
-            // printf("(r_0,j)=%d,%d \t MMX=%f, SUM=%f\n", r_0, j, MMX3(r_0,j), MSC(j,A) );
-            // printf("mat: %f, ins: %f, del: %f, beg: %f\n", prev_mat, prev_ins, prev_del, prev_beg );
-            // printf("beg_x: %f, beg_t: %f\n", XMX(SP_B,r_1), TSC(j-1,B2M));
+            MMX3(r_0, c_0) = prev_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE */
-            IMX3(r_0,j) = -INF;
+            IMX3(r_0, c_0) = -INF;
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX3(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX3(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX3(r_0, c_1) + TSC(c_1, M2D);
+            prev_del = DMX3(r_0, c_1) + TSC(c_1, D2D);
             /* best-to-delete */
             prev_sum = logsum( prev_mat, prev_del );
-            DMX3(r_0,j) = prev_sum;
+            DMX3(r_0, c_0) = prev_sum;
 
             /* UPDATE E STATE */
-            prev_mat = MMX3(r_0, j);
-            prev_del = DMX3(r_0, j);
+            prev_mat = MMX3(r_0, c_0);
+            prev_del = DMX3(r_0, c_0);
             XMX(SP_E, x_0) = logsum( 
                                  logsum( prev_mat, prev_del ),
                                  XMX(SP_E, x_0) );
@@ -310,12 +312,12 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, x_0, j ) += 1.0;
-               MX_2D( cloud_MX3, r_0, j ) += 1.0;
+               MX_2D( cloud_MX, x_0, c_0 ) += 1.0;
+               MX_2D( cloud_MX3, r_0, c_0 ) += 1.0;
 
-               MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j);
-               MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j);
-               MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j);
+               MX_3D(test_MX, MAT_ST, x_0, c_0) = MMX3(r_0, c_0);
+               MX_3D(test_MX, INS_ST, x_0, c_0) = IMX3(r_0, c_0);
+               MX_3D(test_MX, DEL_ST, x_0, c_0) = DMX3(r_0, c_0);
 
                num_writes += 1;
             }
@@ -403,26 +405,30 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
 
    /* Naive Scrub */
    // for (j = 0; j <= T; j++) {
-   //    MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
-   //    MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+   //    c_0 = j;
+   //    MMX3(r_0, c_0) = IMX3(r_0, c_0) = DMX3(r_0, c_0) = -INF;
+   //    MMX3(r_1, c_0) = IMX3(r_1, c_0) = DMX3(r_1, c_0) = -INF;
    // }
 
    /* Final Row Scrub */
    for (i = r_1b; i < r_1e; i++) 
    {
-      // x = EDG_X(edg,i).id;          /* NOTE: this is always the same as cur_row, x_0 */
-      y1 = MAX(1, EDG_X(edg,i).lb);        /* can't overflow the left edge */
+      // x = EDG_X(edg,i).id;             /* NOTE: this is always the same as cur_row, x_0 */
+      y1 = MAX(1, EDG_X(edg,i).lb);       /* can't overflow the left edge */
       y2 = EDG_X(edg,i).rb;
-      // y2_re = (y2 > T);                      /* check if cloud touches right edge */
-      y2 = MIN(y2, T+1);                       /* can't overflow the right edge */
+      // y2_re = (y2 > T);                /* check if cloud touches right edge */
+      y2 = MIN(y2, T+1);                  /* can't overflow the right edge */
 
       for (j = y1; j < y2; j++) 
       {
-         MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+         c_0 = j;
+         c_1 = j-1;
+
+         MMX3(r_1, c_0) = IMX3(r_1, c_0) = DMX3(r_1, c_0) = -INF;
          #if DEBUG
          {
-            MX_2D( cloud_MX, x_1, j ) += 2.0;
-            MX_2D( cloud_MX3, r_1, j ) = 0.0;
+            MX_2D( cloud_MX, x_1, c_0 ) += 2.0;
+            MX_2D( cloud_MX3, r_1, c_0 ) = 0.0;
 
             num_clears += 1;
          }
@@ -438,24 +444,26 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
 
       for (int j = 0; j < (Q+1)+(T+1); j++) 
       {
+         c_0 = j;
+
          is_clean = false;
-         is_clean += (( MMX3(r_0, j) == -INF ) == false);
-         is_clean += (( MMX3(r_0, j) == -INF ) == false);
-         is_clean += (( DMX3(r_0, j) == -INF ) == false);
+         is_clean += (( MMX3(r_0, c_0) == -INF ) == false);
+         is_clean += (( MMX3(r_0, c_0) == -INF ) == false);
+         is_clean += (( DMX3(r_0, c_0) == -INF ) == false);
          if ( is_clean != 0 ) {
-            memcheck_error( x_0, j, MMX3(r_0, j), IMX3(r_0, j), DMX3(r_0, j) );
+            memcheck_error( x_0, c_0, MMX3(r_0, c_0), IMX3(r_0, c_0), DMX3(r_0, c_0) );
             printf("#> r_0=%d, x_0=%d\n", r_0, x_0);
-            MMX3(r_0, j) = IMX3(r_0, j) = DMX3(r_0, j) = -INF;
+            MMX3(r_0, c_0) = IMX3(r_0, c_0) = DMX3(r_0, c_0) = -INF;
          }
 
          is_clean = false;
-         is_clean += (( MMX3(r_1, j) == -INF ) == false);
-         is_clean += (( MMX3(r_1, j) == -INF ) == false);
-         is_clean += (( DMX3(r_1, j) == -INF ) == false);
+         is_clean += (( MMX3(r_1, c_0) == -INF ) == false);
+         is_clean += (( MMX3(r_1, c_0) == -INF ) == false);
+         is_clean += (( DMX3(r_1, c_0) == -INF ) == false);
          if ( is_clean != 0 ) {
-            memcheck_error( x_1, j, MMX3(r_1, j), IMX3(r_1, j), DMX3(r_1, j) );
+            memcheck_error( x_1, c_0, MMX3(r_1, c_0), IMX3(r_1, c_0), DMX3(r_1, c_0) );
             printf("#> r_1=%d, x_1=%d\n", r_0, x_0);
-            MMX3(r_1, j) = IMX3(r_1, j) = DMX3(r_1, j) = -INF;
+            MMX3(r_1, c_0) = IMX3(r_1, c_0) = DMX3(r_1, c_0) = -INF;
          }
       }
    }

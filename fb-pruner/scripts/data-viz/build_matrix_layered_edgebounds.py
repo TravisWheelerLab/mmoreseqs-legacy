@@ -118,6 +118,7 @@ def load_trace( trace_file ):
 
 # Output heatmap of single matrix with traceback on top
 def output_heatmap( mx ):
+   mx = mx.T
    fig, ax1 = plt.subplots(1, 1)
 
    # plot heatmap

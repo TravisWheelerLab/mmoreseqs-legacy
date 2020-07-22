@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file viterbi_linear.c
- *  @brief The Viterbi Algorithm and Traceback for Sequence Alignment Search.
+ *  FILE:      viterbi_linear.c
+ *  PURPOSE:   The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -51,16 +51,16 @@ int viterbi_Linear(     const SEQUENCE*    query,
    int      i,j,k = 0;  /* row, column indices */
    char*    seq;        /* alias for getting seq */
 
-   float    prev_mat, prev_del, prev_ins; 
-   float    prev_beg, prev_end, prev_sum;
+   float    prev_mat, prev_del, prev_ins;    /* temp placeholder sums */
+   float    prev_beg, prev_end, prev_esc;    /* temp placeholder sums */
+   float    prev_loop, prev_move, prev_sum;  /* temp placeholder sums */
    float    prev_best;
    float    sc, sc_1, sc_2;
    float    sc_max, sc_best;
-   float    sc1, sc2, sc3, sc4;
    float    sc_M, sc_I, sc_D;
    int      x_0, x_1;
    int      r_0, r_1;                 /* d (mod 3) for assigning prev array ptrs */
-   int      j_0, j_1;
+   int      c_0, c_1;
 
    /* local or global (multiple alignments) */
    bool   is_local = target->isLocal;
@@ -98,8 +98,8 @@ int viterbi_Linear(     const SEQUENCE*    query,
 
    /* initialize zero row (top-edge) */
    for (j = 0; j <= T; j++) { 
-      j_0 = j;
-      MMX3(r_0, j_0) = IMX3(r_0, j_0) = DMX3(r_0, j_0) = -INF;          /* need seq to get here  */
+      c_0 = j;
+      MMX3(r_0, c_0) = IMX3(r_0, c_0) = DMX3(r_0, c_0) = -INF;          /* need seq to get here  */
    }
 
    /* FOR every position in QUERY seq */
@@ -110,98 +110,98 @@ int viterbi_Linear(     const SEQUENCE*    query,
       r_0 = x_0 % 2;
       r_1 = x_1 % 2;
 
-      j_0 = 0;
+      c_0 = 0;
 
       /* Get next character in Query */
       a = seq[i-1];
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      MMX3(r_0, j_0) = IMX3(r_0, j_0) = DMX3(r_0, j_0) = -INF;
+      MMX3(r_0, c_0) = IMX3(r_0, c_0) = DMX3(r_0, c_0) = -INF;
       XMX(SP_E, x_0) = -INF;
 
       /* FOR every position in TARGET profile */
       for (j = 1; j < T; j++)
       {
-         j_0 = j;
-         j_1 = j-1;
+         c_0 = j;
+         c_1 = j-1;
 
          /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         prev_mat = MMX3(r_1, j_1) + TSC(j_1, M2M);
-         prev_ins = IMX3(r_1, j_1) + TSC(j_1, I2M);
-         prev_del = DMX3(r_1, j_1) + TSC(j_1, D2M);
-         prev_beg = XMX(SP_B, x_1) + TSC(j_1, B2M); /* from begin match state (new alignment) */
-
+         prev_mat = MMX3(r_1, c_1) + TSC(c_1, M2M);
+         prev_ins = IMX3(r_1, c_1) + TSC(c_1, I2M);
+         prev_del = DMX3(r_1, c_1) + TSC(c_1, D2M);
+         prev_beg = XMX(SP_B, x_1) + TSC(c_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
          prev_best = calc_Max( 
                         calc_Max( prev_mat, prev_ins ), 
                         calc_Max( prev_del, prev_beg ) );
-         MMX3(r_0, j_0)  = prev_best + MSC(j, A);
+         MMX3(r_0, c_0)  = prev_best + MSC(c_0, A);
 
          /* FIND BEST PATH TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX3(r_1, j_0) + TSC(j_0, M2I);
-         prev_ins = IMX3(r_1, j_0) + TSC(j_0, I2I);
+         prev_mat = MMX3(r_1, c_0) + TSC(c_0, M2I);
+         prev_ins = IMX3(r_1, c_0) + TSC(c_0, I2I);
          /* best-to-insert */
          prev_best = calc_Max(prev_mat, prev_ins);
-         IMX3(r_0, j_0) = prev_best + ISC(j_0, A);
+         IMX3(r_0, c_0) = prev_best + ISC(c_0, A);
 
          /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
-         prev_mat = MMX3(r_0, j_1) + TSC(j_1, M2D);
-         prev_del = DMX3(r_0, j_1) + TSC(j_1, D2D);
+         prev_mat = MMX3(r_0, c_1) + TSC(c_1, M2D);
+         prev_del = DMX3(r_0, c_1) + TSC(c_1, D2D);
          /* best-to-delete */
          prev_best = calc_Max(prev_mat, prev_del);
-         DMX3(r_0, j_0) = prev_best;
+         DMX3(r_0, c_0) = prev_best;
 
          /* UPDATE E STATE */
-         sc1 = XMX(SP_E, x_0);
-         sc2 = MMX3(r_0, j_0) + sc_E;
-         sc4 = XMX(SP_E, x_0) = calc_Max( XMX(SP_E, x_0), MMX3(r_0, j_0) + sc_E );
+         prev_esc = XMX(SP_E, x_0);
+         prev_mat = MMX3(r_0, c_0) + sc_E;
+         /* best-to-e-state */
+         XMX(SP_E, x_0) = calc_Max( prev_esc, prev_mat );
 
          /* embed linear row into quadratic test matrix */
          #if DEBUG
          {
             MX_2D(cloud_MX, x_0, j) = 1.0;
-            MX_3D(test_MX, MAT_ST, x_0, j_0) = MMX3(r_0, j_0);
-            MX_3D(test_MX, INS_ST, x_0, j_0) = IMX3(r_0, j_0);
-            MX_3D(test_MX, DEL_ST, x_0, j_0) = DMX3(r_0, j_0);
+            MX_3D(test_MX, MAT_ST, x_0, c_0) = MMX3(r_0, c_0);
+            MX_3D(test_MX, INS_ST, x_0, c_0) = IMX3(r_0, c_0);
+            MX_3D(test_MX, DEL_ST, x_0, c_0) = DMX3(r_0, c_0);
          }
          #endif
       }
 
       /* UNROLLED FINAL LOOP ITERATION */
       j = T;
-      j_0 = j;
-      j_1 = j-1;
+      c_0 = j;
+      c_1 = j-1;
 
       /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
       /* best previous state transition (match takes the diag element of each prev state) */
-      prev_mat = MMX3(r_1, j_1)  + TSC(j_1, M2M);
-      prev_ins = IMX3(r_1, j_1)  + TSC(j_1, I2M);
-      prev_del = DMX3(r_1, j_1)  + TSC(j_1, D2M);
-      prev_beg = XMX(SP_B, x_1)  + TSC(j_1, B2M); /* from begin match state (new alignment) */
+      prev_mat = MMX3(r_1, c_1)  + TSC(c_1, M2M);
+      prev_ins = IMX3(r_1, c_1)  + TSC(c_1, I2M);
+      prev_del = DMX3(r_1, c_1)  + TSC(c_1, D2M);
+      prev_beg = XMX(SP_B, x_1)  + TSC(c_1, B2M); /* from begin match state (new alignment) */
       /* best-to-match */
       prev_best = calc_Max(
                      calc_Max( prev_mat, prev_ins ),
                      calc_Max( prev_del, prev_beg ) );
-      MMX3(r_0, j_0) = prev_best + MSC(j_0, A);
+      MMX3(r_0, c_0) = prev_best + MSC(c_0, A);
 
       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
       /* previous states (match takes the left element of each state) */
-      prev_mat = MMX3(r_0, j_1) + TSC(j_1, M2D);
-      prev_del = DMX3(r_0, j_1) + TSC(j_1, D2D);
+      prev_mat = MMX3(r_0, c_1) + TSC(c_1, M2D);
+      prev_del = DMX3(r_0, c_1) + TSC(c_1, D2D);
       /* best-to-delete */
       prev_best = calc_Max( prev_mat, prev_del );
-      DMX3(r_0, j_0) = prev_best;
+      DMX3(r_0, c_0) = prev_best;
 
       /* UPDATE E STATE */
-      sc1 = XMX(SP_E, x_0);
-      sc2 = MMX3(r_0, j_0);
-      sc3 = DMX3(r_0, j_0);
-      XMX(SP_E, x_0) = calc_Max( sc1, 
-                           calc_Max( sc2, sc3 ) );
+      prev_esc = XMX(SP_E, x_0);
+      prev_mat = MMX3(r_0, c_0);
+      prev_del = DMX3(r_0, c_0);
+      XMX(SP_E, x_0) = calc_Max( prev_esc, 
+                           calc_Max( prev_mat, prev_del ) );
 
       /* SPECIAL STATES */
       /* J state */
@@ -225,10 +225,10 @@ int viterbi_Linear(     const SEQUENCE*    query,
       /* embed linear row into quadratic test matrix */
       #if DEBUG
       {
-         MX_2D(cloud_MX, x_0, j_0) = 1.0;
-         MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, j_0);
-         MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, j_0);
-         MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, j_0);
+         MX_2D(cloud_MX, x_0, c_0) = 1.0;
+         MX_3D(test_MX, MAT_ST, x_0, j) = MMX3(r_0, c_0);
+         MX_3D(test_MX, INS_ST, x_0, j) = IMX3(r_0, c_0);
+         MX_3D(test_MX, DEL_ST, x_0, j) = DMX3(r_0, c_0);
       }
       #endif
    }

@@ -3,7 +3,7 @@
 #	NAME: 	MMSEQS_REBUILD.sh
 # 	DESC: 	Script for performing a complete rebuild of the mmseqs binaries
 #		from source.
-# 	AUTH: 	David Rich
+# 	AUTH: 	
 ##################################################################################
 set -x #echo on
 

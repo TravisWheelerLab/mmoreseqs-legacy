@@ -1,10 +1,8 @@
 /*******************************************************************************
+ *  FILE:    	viterbi_linear.h
+ *  PURPOSE: 	The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *
- *  FILE:    viterbi.h
- *  PURPOSE: The Viterbi Algorithm and Traceback for Sequence Alignment Search.
- *
- *  AUTHOR:  Dave Rich
- *
+ *  AUTHOR:  	Dave Rich
  *******************************************************************************/
 
 #ifndef _VITERBI_LINEAR_H

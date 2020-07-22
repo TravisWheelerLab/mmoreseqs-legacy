@@ -53,19 +53,22 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
    char     *seq = query->seq;               /* alias for getting seq */
    int      N = edg->N;                      /* length of edgebound list */
 
-   int      x, y1, y2;                         /* row, left-edge and right-edge bounds in row */
-   int      x_0, row_cur, x_1, row_prv;        /* real index of current and previous rows */
-   int      r_0, r_1;                          /* row offset -> r_0: row_cur % 2, r_1: row_prv % 2 */
-   int      r_0b, r_0e, r_1b, r_1e;            /* begin and end indices for row in edgebound list */
+   int      x, y1, y2;                       /* row, left-edge and right-edge bounds in row */
+   int      row_cur, row_prv;                /* real index of current and previous rows */
+   int      x_0, x_1;
+   int      r_0, r_1;                        /* row offset -> r_0: row_cur % 2, r_1: row_prv % 2 */
+   int      c_0, c_1;
+   int      r_0b, r_0e, r_1b, r_1e;          /* begin and end indices for row in edgebound list */
    bool     y2_re;
 
-   float    prev_mat, prev_del, prev_ins;      /* temp placeholder sums */
-   float    prev_beg, prev_end, prev_sum;      /* temp placeholder sums */
-   float    sc, sc1, sc2, sc3, sc4;            /* temp placeholder sums (testing) */
-   float    sc_best;                           /* alignment score (return value) */
+   float    prev_mat, prev_del, prev_ins;    /* temp placeholder sums */
+   float    prev_beg, prev_end, prev_esc;    /* temp placeholder sums */
+   float    prev_loop, prev_move, prev_sum;  /* temp placeholder sums */
+   float    sc, sc1, sc2, sc3, sc4;          /* temp placeholder sums (testing) */
+   float    sc_best;                         /* alignment score (return value) */
    float    sc_M, sc_I, sc_D;
 
-   int      d_mod3, d_0, d_1, d_2;             /* d (mod 3) for assigning prev array ptrs */
+   int      d_mod3, d_0, d_1, d_2;           /* d (mod 3) for assigning prev array ptrs */
 
    /* local or global? (multiple alignments) */
    bool     is_local = target->isLocal;
@@ -79,7 +82,6 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
    /* initialize debugging data tools */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -131,14 +133,12 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
    /* FOR every position in QUERY sequence (row in matrix) */
    for (x_0 = 1; x_0 <= Q; x_0++)
    {
-      // fprintf(tfp, "(i=%d): ", x_0);
       /* convert quadratic space row index to linear space row index (ex % 2) */
       row_cur = x_0;
       r_0     = x_0;        /* for use in linear space alg (mod-mapping) */
 
       /* add every edgebound from current row */
       r_0b = k;
-      // fprintf("k: %d => row_cur: %d, k.id: %d\n", k, row_cur, EDG_X(edg,k).id);
       while ( k < N && EDG_X(edg,k).id == row_cur ) {
          k++;
       }
@@ -166,46 +166,51 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
          /* FOR every position in TARGET profile */
          for (j = y1; j < y2; j++)
          {
-            // fprintf(tfp, "%d...", j);
+            c_0 = j;
+            c_1 = j-1;
+
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            sc1 = prev_mat = MMX(r_1,j-1)   + TSC(j-1,M2M);
-            sc2 = prev_ins = IMX(r_1,j-1)   + TSC(j-1,I2M);
-            sc3 = prev_del = DMX(r_1,j-1)   + TSC(j-1,D2M);
-            sc4 = prev_beg = XMX(SP_B,x_1)  + TSC(j-1,B2M); /* from begin match state (new alignment) */
+            prev_mat = MMX(r_1, c_1)  + TSC(c_1, M2M);
+            prev_ins = IMX(r_1, c_1)  + TSC(c_1, I2M);
+            prev_del = DMX(r_1, c_1)  + TSC(c_1, D2M);
+            prev_beg = XMX(SP_B, x_1) + TSC(c_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                            logsum( prev_mat, prev_ins ),
                            logsum( prev_del, prev_beg ) );
-            MMX(r_0,j) = prev_sum + MSC(j,A);
-            // fprintf(tfp, "MMX(%d,%d): m=%f, i=%f, d=%f, b=%f\n", x_0, j, sc1, sc2, sc3, sc4 );
+            MMX(r_0, c_0) = prev_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_1,j) + TSC(j,M2I);
-            prev_ins = IMX(r_1,j) + TSC(j,I2I);
+            prev_mat = MMX(r_1, c_0) + TSC(j,M2I);
+            prev_ins = IMX(r_1, c_0) + TSC(j,I2I);
             /* best-to-insert */
             prev_sum = logsum( prev_mat, prev_ins );
-            IMX(r_0,j) = prev_sum + ISC(j,A);
+            IMX(r_0, c_0) = prev_sum + ISC(c_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX(r_0, c_1) + TSC(c_1, M2D);
+            prev_del = DMX(r_0, c_1) + TSC(c_1, D2D);
             /* best-to-delete */
             prev_sum = logsum(prev_mat, prev_del);
-            DMX(r_0,j) = prev_sum;
+            DMX(r_0, c_0) = prev_sum;
 
             /* UPDATE E STATE */
+            prev_esc = XMX(SP_E, x_0);
             prev_mat = MMX(r_0, j) + sc_E;
             prev_del = DMX(r_0, j) + sc_E;
             XMX(SP_E, x_0) = logsum( 
                                     logsum( prev_mat, prev_del ),
-                                    XMX(SP_E, x_0) );
+                                       prev_esc );
 
             #if DEBUG 
             {
-               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_2D(cloud_MX, x_0, c_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, x_0, c_0) = MMX(r_0, c_0);
+               MX_3D(test_MX, INS_ST, x_0, c_0) = IMX(r_0, c_0);
+               MX_3D(test_MX, DEL_ST, x_0, c_0) = DMX(r_0, c_0);
             }
             #endif
          }
@@ -214,43 +219,46 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
          if ( y2_re ) 
          {
             j = T; 
+            c_0 = j;
+            c_1 = j-1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prev_mat = MMX(r_1,j-1)  + TSC(j-1,M2M);
-            prev_ins = IMX(r_1,j-1)  + TSC(j-1,I2M);
-            prev_del = DMX(r_1,j-1)  + TSC(j-1,D2M);
-            prev_beg = XMX(SP_B,x_1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
+            prev_mat = MMX(r_1, c_1)  + TSC(c_1, M2M);
+            prev_ins = IMX(r_1, c_1)  + TSC(c_1, I2M);
+            prev_del = DMX(r_1, c_1)  + TSC(c_1, D2M);
+            prev_beg = XMX(SP_B, x_1) + TSC(c_1, B2M);    /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = logsum( 
                               logsum( prev_mat, prev_ins ),
                               logsum( prev_del, prev_beg ) );
-            MMX(r_0,j) = prev_sum + MSC(j,A);
-            // printf("(r_0,j)=%d,%d \t MMX=%f, MSC=%f\n", r_0, j, MMX(r_0,j), MSC(j,A) );
-            // printf("mat: %f, ins: %f, del: %f, beg: %f\n", prev_mat, prev_ins, prev_del, prev_beg );
-            // printf("beg_x: %f, beg_t: %f\n", XMX(SP_B,r_1), TSC(j-1,B2M));
+            MMX(r_0, c_0) = prev_sum + MSC(c_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE */
-            IMX(r_0,j) = -INF;
+            IMX(r_0, c_0) = -INF;
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
-            prev_mat = MMX(r_0,j-1) + TSC(j-1,M2D);
-            prev_del = DMX(r_0,j-1) + TSC(j-1,D2D);
+            prev_mat = MMX(r_0, c_1) + TSC(c_1, M2D);
+            prev_del = DMX(r_0, c_1) + TSC(c_1, D2D);
             /* best-to-delete */
             prev_sum = logsum( prev_mat, prev_del );
-            DMX(r_0,j) = prev_sum;
+            DMX(r_0, c_0) = prev_sum;
 
             /* UPDATE E STATE */
-            prev_mat = MMX(r_0, j);
-            prev_del = DMX(r_0, j);
+            prev_esc = XMX(SP_E, x_0);
+            prev_mat = MMX(r_0, c_0);
+            prev_del = DMX(r_0, c_0);
             XMX(SP_E, x_0) = logsum( 
                                  logsum( prev_mat, prev_del ),
-                                 XMX(SP_E, x_0) );
+                                 prev_esc );
 
             #if DEBUG 
             {
-               MX_2D(cloud_MX, x_0, j) = 1.0;
+               MX_2D(cloud_MX, x_0, c_0) += 1.0;
+               MX_3D(test_MX, MAT_ST, x_0, c_0) = MMX(r_0, c_0);
+               MX_3D(test_MX, INS_ST, x_0, c_0) = IMX(r_0, c_0);
+               MX_3D(test_MX, DEL_ST, x_0, c_0) = DMX(r_0, c_0);
             }
             #endif
          }
@@ -267,7 +275,6 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
       sc1 = XMX(SP_C, x_1) + XSC(SP_C, SP_LOOP);
       sc2 = XMX(SP_E, x_0) + XSC(SP_E, SP_MOVE);
       XMX(SP_C, x_0) = logsum( sc1, sc2 );
-      // printf("x_0: %d -> C(-1): %f, Cloop: %f, E(0): %f, Emove: %f\n", x_0, XMX(SP_C, x_1), XSC(SP_C, SP_LOOP), XMX(SP_E, x_0), XSC(SP_E, SP_MOVE) );
 
       /* N state */
       XMX(SP_N, x_0) = XMX(SP_N, x_1) + XSC(SP_N, SP_LOOP);
@@ -276,7 +283,6 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
       sc1 = XMX(SP_N, x_0) + XSC(SP_N, SP_MOVE);       /* N->B is N's move */
       sc2 = XMX(SP_J, x_0) + XSC(SP_J, SP_MOVE);       /* J->B is J's move */
       XMX(SP_B, x_0) = logsum( sc1, sc2 );
-      // printf("x_0: %d -> J: %f, C: %f, N: %f, B: %f\n", x_0, XMX(SP_J, x_0), XMX(SP_C, x_0), XMX(SP_N, x_0), XMX(SP_N, x_0));
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       row_prv = row_cur;
@@ -289,7 +295,7 @@ float bound_Forward_Quad(  const SEQUENCE*      query,
    /* T state */
    sc_best = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
    *sc_final = sc_best;
-   // fclose(tfp);
+
    return sc_best;
 }
 
