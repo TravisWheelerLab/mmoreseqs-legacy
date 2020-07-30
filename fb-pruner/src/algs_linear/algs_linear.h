@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      bounded_fwdbck_linear.c
- *  PURPOSE:   All /algs_linear/ header.
+ *  PURPOSE:   All algorithms with Linear Space implementations.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -13,7 +13,6 @@
 
 #include "bound_fwdbck_linear.h"
 #include "cloud_search_linear.h"
-#include "cloud_search_linear_rows.h"
 #include "fwdback_linear.h"
 #include "merge_reorient_linear.h"
 #include "pruning_linear.h"

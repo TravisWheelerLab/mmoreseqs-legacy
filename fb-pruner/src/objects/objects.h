@@ -23,6 +23,7 @@
 #include "vector_range.h"
 #include "vector_range_2d.h"
 #include "vector_trace.h"
+#include "vector_char.h"
 
 /* objects */
 #include "alignment.h"

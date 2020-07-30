@@ -10,7 +10,7 @@
 #define _BOUNDED_FWDBCK_NAIVE_H
 
 /* === FUNCTIONS === */
-float bound_Forward_Naive(const SEQUENCE*    query, 
+float run_Bound_Forward_Naive(const SEQUENCE*    query, 
                           const HMM_PROFILE* target, 
                           const int          Q, 
                           const int          T, 
@@ -19,7 +19,7 @@ float bound_Forward_Naive(const SEQUENCE*    query,
                           MATRIX_2D*         st_MX_cloud, 
                           float*             sc_final);
 
-float bound_Backward_Naive(const SEQUENCE*    query, 
+float run_Bound_Backward_Naive(const SEQUENCE*    query, 
                           const HMM_PROFILE* target, 
                           const int          Q, 
                           const int          T, 

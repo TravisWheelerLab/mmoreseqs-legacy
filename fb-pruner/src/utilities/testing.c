@@ -138,8 +138,8 @@ void TEST_fwd_cycle( const int   Q,
    DP_MATRIX_Fill( Q, T, st_MX, sp_MX, 0 );
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if (beg->i == 0 || beg->j == 0) {
@@ -295,8 +295,8 @@ void TEST_fwd_cycle3(const int   Q,
    DP_MATRIX_Fill( Q, T, st_MX, sp_MX, 0 );
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if (beg->i == 0 || beg->j == 0) {
@@ -454,8 +454,8 @@ void TEST_bck_cycle( const int   Q,
    DP_MATRIX_Fill( Q, T, st_MX, sp_MX, 0 );
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if (end->i == Q || end->j == T) {
@@ -600,8 +600,8 @@ void TEST_bck_cycle3(const int   Q,
    DP_MATRIX_Fill( Q, T, st_MX, sp_MX, 0 );
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if (end->i == Q || end->j == T) {
@@ -829,5 +829,37 @@ int MATRIX_2D_Cloud_Count(  MATRIX_2D*  cloud_MX )
       }
    }
    return num_cells;
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Compare_by_Cloud()
+ *  SYNOPSIS: Compare two EDGEBOUNDS by filling cloud matrices.
+ */
+int EDGEBOUNDS_Compare_by_Cloud( EDGEBOUNDS*    edg_a,
+                                 MATRIX_2D*     mx_a,
+                                 EDGEBOUNDS*    edg_b,
+                                 MATRIX_2D*     mx_b )
+{
+   MATRIX_2D_Fill( mx_a, 0 );
+   MATRIX_2D_Cloud_Fill( mx_a, edg_a, 1 );
+   MATRIX_2D_Fill( mx_b, 0 );
+   MATRIX_2D_Cloud_Fill( mx_b, edg_b, 1 );
+   return MATRIX_2D_Cloud_Compare( mx_a, mx_b );
+}
+
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Compare_by_Cloud_Single()
+ *  SYNOPSIS:  Compares two EDGEBOUNDS by filling single cloud matrix.
+ *             If equal, returns 0.  Else number of inequal cells.
+ */
+int EDGEBOUNDS_Compare_by_Cloud_Single(   MATRIX_2D*     mx,
+                                          EDGEBOUNDS*    edg_a,
+                                          EDGEBOUNDS*    edg_b )
+{
+   MATRIX_2D_Fill( mx, 0 );
+   MATRIX_2D_Cloud_Fill( mx, edg_a, 1 );
+   MATRIX_2D_Cloud_Fill( mx, edg_b, -1 );
+   return MATRIX_2D_Check_Value( mx, 0 );
 }
 

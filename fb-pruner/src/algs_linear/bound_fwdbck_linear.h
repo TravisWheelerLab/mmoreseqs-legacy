@@ -11,7 +11,7 @@
 #define _BOUNDED_FWDBCK_LINEAR_H
 
 /* 
- *  FUNCTION: bound_Forward_Linear()
+ *  FUNCTION: run_Bound_Forward_Linear()
  *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
  *            Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
@@ -24,17 +24,17 @@
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-int bound_Forward_Linear(     const SEQUENCE*      query,         /* query sequence */
-                              const HMM_PROFILE*   target,        /* target HMM model */
-                              const int            Q,             /* query length */
-                              const int            T,             /* target length */
-                              MATRIX_3D*           st_MX3,        /* normal state matrix */
-                              MATRIX_2D*           sp_MX,         /* special state matrix */
-                              EDGEBOUNDS*          edg,           /* edgebounds */
-                              float*               sc_final );    /* (OUTPUT) final score */
+int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query sequence */
+                                 const HMM_PROFILE*   target,        /* target HMM model */
+                                 const int            Q,             /* query length */
+                                 const int            T,             /* target length */
+                                 MATRIX_3D*           st_MX3,        /* normal state matrix */
+                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 EDGEBOUNDS*          edg,           /* edgebounds */
+                                 float*               sc_final );    /* (OUTPUT) final score */
 
 /* 
- *  FUNCTION: bound_Forward_Linear()
+ *  FUNCTION: run_Bound_Forward_Linear()
  *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
  *            Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
@@ -47,13 +47,13 @@ int bound_Forward_Linear(     const SEQUENCE*      query,         /* query seque
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-int bound_Backward_Linear(    const SEQUENCE*      query,         /* query sequence */
-                              const HMM_PROFILE*   target,        /* target HMM model */
-                              const int            Q,             /* query length */
-                              const int            T,             /* target length */
-                              MATRIX_3D*           st_MX3,        /* normal state matrix */
-                              MATRIX_2D*           sp_MX,         /* special state matrix */
-                              EDGEBOUNDS*          edg,           /* edgebounds */
-                              float*               sc_final );    /* (OUTPUT) final score */
+int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query sequence */
+                                 const HMM_PROFILE*   target,        /* target HMM model */
+                                 const int            Q,             /* query length */
+                                 const int            T,             /* target length */
+                                 MATRIX_3D*           st_MX3,        /* normal state matrix */
+                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 EDGEBOUNDS*          edg,           /* edgebounds */
+                                 float*               sc_final );    /* (OUTPUT) final score */
 
 #endif /* _BOUNDED_FWDBCK_LINEAR_H */

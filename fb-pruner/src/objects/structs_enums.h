@@ -170,7 +170,7 @@ typedef enum {
    B_ST = 7,   /* BEGIN STATE */
    S_ST = 8,   /*  */
    T_ST = 9,   /*  */
-   X_ST = 10   /*  */
+   X_ST = 10   /* UNKNOWN STATE */
 } ALL_STATES;
 #define NUM_ALL_STATES 9
 

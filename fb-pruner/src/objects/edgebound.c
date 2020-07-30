@@ -55,12 +55,11 @@ EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
    edg->Q         = 0;
    edg->T         = 0;
 
-   edg->ids       = NULL;
-   edg->heads     = NULL;
-   edg->bounds    = NULL;
+   edg->ids       = VECTOR_INT_Create();
+   edg->ids_idx   = VECTOR_INT_Create();
 
    edg->ids       = VECTOR_INT_Create();
-   edg->heads     = VECTOR_INT_Create();
+   edg->ids_idx   = VECTOR_INT_Create();
    edg->edg_mode  = EDG_NONE;
 
    EDGEBOUNDS_Resize(edg, size);
@@ -77,10 +76,10 @@ void* EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
    if ( edg == NULL ) return edg;
 
    VECTOR_INT_Destroy( edg->ids );
-   VECTOR_INT_Destroy( edg->heads );
-   free(edg->bounds);
+   VECTOR_INT_Destroy( edg->ids_idx );
+   free( edg->bounds );
    edg->bounds = NULL;
-   free(edg);
+   free( edg );
    edg = NULL;
    return edg;
 }
@@ -108,9 +107,12 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
    BOUND*   bnd;
 
    if ( edg_dest == NULL ) {
-      edg_dest = EDGEBOUNDS_Create();
+      edg_dest = EDGEBOUNDS_Create_by_Size( edg_src->Nalloc );
    } 
-   EDGEBOUNDS_Reuse( edg_dest, edg_src->Q, edg_src->T );
+   edg_dest->Q          = edg_src->Q;
+   edg_dest->T          = edg_src->T;
+   edg_dest->edg_mode   = edg_src->edg_mode;
+
 
    edg_dest->edg_mode = edg_src->edg_mode;
 
@@ -165,18 +167,6 @@ void EDGEBOUNDS_Pushback( EDGEBOUNDS*  edg,
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_Pushback_Head()
- *  SYNOPSIS: Add head index and row/diag id to lists.
- */
-void EDGEBOUNDS_Pushback_Head( EDGEBOUNDS* edg,
-                               int         id,
-                               int         head )
-{
-   VECTOR_INT_Pushback(edg->ids, id);
-   VECTOR_INT_Pushback(edg->heads, head);
-}
-
-/*
  *  FUNCTION: EDGEBOUNDS_Insert()
  *  SYNOPSIS: Insert/Overwrite bound into <i> index of Edgebound list.
  */
@@ -187,9 +177,7 @@ void EDGEBOUNDS_Insert( EDGEBOUNDS*    edg,
    BOUND*   edg_bnd;
 
    edg_bnd = &(edg->bounds[i]);
-   edg_bnd->id = bnd->id;
-   edg_bnd->lb = bnd->lb;
-   edg_bnd->rb = bnd->rb;
+   *edg_bnd = *bnd;
 }
 
 /*
@@ -200,9 +188,7 @@ void EDGEBOUNDS_Delete( EDGEBOUNDS*    edg,
                         int            i )
 {
    int N = edg->N;
-   edg->bounds[i].id = edg->bounds[N-1].id;
-   edg->bounds[i].lb = edg->bounds[N-1].lb;
-   edg->bounds[i].rb = edg->bounds[N-1].rb;
+   edg->bounds[i] = edg->bounds[N-1];
    edg->N -= 1;
 }
 
@@ -210,7 +196,7 @@ void EDGEBOUNDS_Delete( EDGEBOUNDS*    edg,
  *  FUNCTION: EDGEBOUNDS_Clear()
  *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list (no realloc).
  */
-void EDGEBOUNDS_Clear( EDGEBOUNDS* edg )
+void EDGEBOUNDS_Clear( EDGEBOUNDS*  edg )
 {
    edg->N = 0;
 }
@@ -219,8 +205,8 @@ void EDGEBOUNDS_Clear( EDGEBOUNDS* edg )
  *  FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object (does not downsize).
  */
-void EDGEBOUNDS_GrowTo( EDGEBOUNDS* edg,
-                        int         size )
+void EDGEBOUNDS_GrowTo( EDGEBOUNDS*    edg,
+                        int            size )
 {
    if ( edg->Nalloc < size )
       EDGEBOUNDS_Resize( edg, size );
@@ -230,8 +216,8 @@ void EDGEBOUNDS_GrowTo( EDGEBOUNDS* edg,
  *  FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object .
  */
-void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
-                       int         size)
+void EDGEBOUNDS_Resize( EDGEBOUNDS*    edg,
+                        int            size )
 {
    edg->Nalloc = size;
    edg->bounds = (BOUND*) realloc( edg->bounds, sizeof(BOUND) * size );
@@ -241,52 +227,71 @@ void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
  *  FUNCTION:  EDGEBOUNDS_Reverse()
  *  SYNOPSIS:  Reverse order of edgebound list.
  */
-void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Reverse( EDGEBOUNDS*   edg )
 {
    BOUND tmp;
+   /* iterate over half of list */
    for (int i = 0; i <= (edg->N / 2) - 1; ++i)
    {
-      tmp.id = edg->bounds[i].id;
-      tmp.lb = edg->bounds[i].lb;
-      tmp.rb = edg->bounds[i].rb;
-
-      edg->bounds[i].id = edg->bounds[edg->N - i - 1].id;
-      edg->bounds[i].lb = edg->bounds[edg->N - i - 1].lb;
-      edg->bounds[i].rb = edg->bounds[edg->N - i - 1].rb;
-
-      edg->bounds[edg->N - i - 1].id = tmp.id;
-      edg->bounds[edg->N - i - 1].lb = tmp.lb;
-      edg->bounds[edg->N - i - 1].rb = tmp.rb;
+      /* swap bound from front and back of list. */
+      tmp = edg->bounds[i];
+      edg->bounds[i] = edg->bounds[edg->N - i - 1];
+      edg->bounds[edg->N - i - 1] = tmp;
    }
 }
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Index()
  *  SYNOPSIS:  Index locations in EDGEBOUND list that start each unique BOUND id.
- *             List must be sorted by BOUND id.
+ *             Assumes <edg> is sorted.
  */
 void EDGEBOUNDS_Index(EDGEBOUNDS *edg)
 {
-   int id;
-   id = edg->bounds[0].id;
-   VECTOR_INT_Pushback(edg->ids, id);
-   VECTOR_INT_Pushback(edg->heads, 0);
+   /* TODO */
+}
 
-   for (int i = 1; i < edg->N; i++) {
-      if (edg->bounds[i - 1].id != edg->bounds[i].id) {
-         id = edg->bounds[i].id;
-         VECTOR_INT_Pushback(edg->ids, id);
-         VECTOR_INT_Pushback(edg->heads, i);
-      }
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort()
+ *  SYNOPSIS:  Sort <edg> bound list by id, lb, rb.
+ */
+void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg )
+{
+   /* TODO */
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Merge()
+ *  SYNOPSIS:  Merge <edg> bound list by combining overlapping ranges.
+ *             Assumes that <edg> is sorted.
+ */
+void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg )
+{
+   /* TODO */
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Count_Cells()
+ *  SYNOPSIS:  Count the number of cells covered by <edg>.
+ *             Assumes <edg> is sorted and merged.
+ */
+int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg )
+{
+   int count = 0;
+   for (int i = 0; i < edg->N; i++) {
+      BOUND* bnd = &(edg->bounds[i]);
+      count += (bnd->rb - bnd->lb);
    }
+
+   return count;
 }
 
 /*
  *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Dump(EDGEBOUNDS* edg,
-                     FILE*       fp)
+void EDGEBOUNDS_Dump( EDGEBOUNDS*   edg,
+                      FILE*         fp )
 {
    /* test for bad file pointer */
    if (fp == NULL) {

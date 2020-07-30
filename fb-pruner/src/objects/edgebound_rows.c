@@ -22,9 +22,6 @@
 /* header */
 #include "edgebound_rows.h"
 
-/* can be overridden at compile time */
-#define MAX_BOUNDS_PER_ROW_SUPPORTED 10
-
 /*
  *  FUNCTION:  EDGEBOUND_ROWS_Create()
  *  SYNOPSIS:  Create new EDGEBOUND_ROWS object and returns pointer.
@@ -56,7 +53,7 @@ EDGEBOUND_ROWS* EDGEBOUND_ROWS_Create_by_Size(  int   Q,
    edg->Nalloc    = 0;
    edg->rows_N    = NULL;
    edg->rows      = NULL;
-   edg->row_max   = MAX_BOUNDS_PER_ROW_SUPPORTED;
+   edg->row_max   = MAX_BOUNDS_PER_ROW;
 
    EDGEBOUND_ROWS_Resize( edg, Q+1 );
    return edg;

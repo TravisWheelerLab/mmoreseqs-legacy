@@ -108,9 +108,29 @@ void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg);
 /*
  *  FUNCTION:  EDGEBOUNDS_Index()
  *  SYNOPSIS:  Index locations in EDGEBOUND list that start each unique BOUND id.
- *             List must be sorted by BOUND id.
+ *             Assumes <edg> is sorted.
  */
 void EDGEBOUNDS_Index(EDGEBOUNDS *edg);
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort()
+ *  SYNOPSIS:  Sort <edg> bound list by id, lb, rb.
+ */
+void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Merge()
+ *  SYNOPSIS:  Merge <edg> bound list by combining overlapping ranges.
+ *             Assumes that <edg> is sorted.
+ */
+void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Count_Cells()
+ *  SYNOPSIS:  Count the number of cells covered by <edg>.
+ *             Assumes <edg> is sorted and merged.
+ */
+int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Print()

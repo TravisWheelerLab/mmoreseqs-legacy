@@ -82,10 +82,10 @@ void WORK_init( WORKER* worker )
    worker->edg_row      = EDGEBOUNDS_Create();
    /* row-wise edgebounds */
    worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
-
-   worker->cloud_params.alpha = worker->args->alpha;
-   worker->cloud_params.alpha_max = worker->args->alpha_max;
-   worker->cloud_params.beta = worker->args->beta;
+   /* cloud search parameters */
+   worker->cloud_params.alpha    = worker->args->alpha;
+   worker->cloud_params.beta     = worker->args->beta;
+   worker->cloud_params.gamma    = worker->args->gamma;
 
    /* create necessary dp matrices */
    worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
@@ -639,7 +639,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
    if ( tasks->quad_vit ) {
       printf_vall("=> viterbi (quad)...\n");
       CLOCK_Start(clok);
-      viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+      run_Viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clok);
       times->quad_vit = CLOCK_Secs(clok);
       scores->quad_vit = sc;
@@ -651,14 +651,14 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       exit(EXIT_FAILURE);
       // TODO: linear traceback goes here
       // CLOCK_Start(clok);
-      // traceback_Build(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
+      // run_Traceback_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
       // CLOCK_Stop(clok);
       // times->lin_trace = CLOCK_Secs(clok);
    }
    if ( tasks->quad_trace ) {
       printf_vall("=> traceback (quad)...\n");
       CLOCK_Start(clok);
-      traceback_Build( q_seq, t_prof, Q, T, st_MX, sp_MX, tr );
+      run_Traceback_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr );
       CLOCK_Stop(clok);
       times->quad_trace = CLOCK_Secs(clok);
    }
@@ -690,7 +690,7 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->lin_fwd ) {
       printf_vall("=> forward (lin)...\n");
       CLOCK_Start(clok);
-      backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      run_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
       CLOCK_Stop(clok);
       times->lin_fwd    = CLOCK_Secs(clok);
       scores->lin_fwd   = sc;
@@ -698,7 +698,7 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->quad_fwd ) {
       printf_vall("=> forward (quad)...\n");
       CLOCK_Start(clok);
-      forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+      run_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clok);
       times->quad_fwd   = CLOCK_Secs(clok);
       scores->quad_fwd  = sc;
@@ -714,7 +714,7 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->lin_bck ) {
       printf_vall("=> backward (lin)...\n");
       CLOCK_Start(clok);
-      backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      run_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
       CLOCK_Stop(clok);
       times->lin_bck    = CLOCK_Secs(clok);
       scores->lin_bck   = sc;
@@ -722,7 +722,7 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->quad_bck ) {
       printf_vall("=> backward (quad)...\n");
       CLOCK_Start(clok);
-      forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+      run_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clok);
       times->quad_bck   = CLOCK_Secs(clok);
       scores->quad_bck  = sc;
@@ -751,8 +751,8 @@ void WORK_cloud_search( WORKER* worker )
    int   T     = t_prof->N;
 
    float    alpha       = args->alpha;
-   float    alpha_max   = args->alpha_max;
-   int      beta        = args->beta;
+   float    beta        = args->beta;
+   int      gamma       = args->gamma;
    float    sc;
 
    MATRIX_3D*     st_MX       = worker->st_MX;
@@ -767,23 +767,17 @@ void WORK_cloud_search( WORKER* worker )
    EDGEBOUNDS*    edg_diag = worker->edg_diag;
    EDGEBOUNDS*    edg_row  = worker->edg_row;
 
-   EDGEBOUND_ROWS*   edg_rows_tmp = worker->edg_rows_tmp;
+   EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
+   CLOUD_PARAMS*     cloud_params   = &(worker->cloud_params);
+
+   int status;
 
    /* if performing linear bounded forward or backward  */
    if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) {
       /* cloud forward */
       printf_vall("=> cloud forward (lin)...\n");
       CLOCK_Start(clok);
-      #if ( CLOUD_METHOD == CLOUD_DIAGS )
-      {
-         int status = cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
-      }
-      #elif ( CLOUD_METHOD == CLOUD_ROWS )
-      {
-         int status = cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, &(worker->cloud_params) );
-      }
-      #endif
-
+      run_Cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
@@ -791,16 +785,7 @@ void WORK_cloud_search( WORKER* worker )
       /* cloud backward */
       printf_vall("=> cloud backward (lin)...\n");
       CLOCK_Start(clok);
-      #if ( CLOUD_METHOD == CLOUD_DIAGS )
-      {
-         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
-      }
-      #elif ( CLOUD_METHOD == CLOUD_ROWS )
-      {
-         printf("cloud bck row-wise...\n");
-         cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, &(worker->cloud_params) );
-      }
-      #endif
+      run_Cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
@@ -808,7 +793,7 @@ void WORK_cloud_search( WORKER* worker )
       /* merge edgebounds */
       printf_vall("=> merge (lin)...\n");
       CLOCK_Start(clok);
-      EDGEBOUNDS_Merge( Q, T, edg_fwd, edg_bck, edg_diag );
+      EDGEBOUNDS_Merge_Together( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
       times->lin_merge = CLOCK_Secs(clok);
 
@@ -837,13 +822,12 @@ void WORK_cloud_search( WORKER* worker )
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
-      // printf("COUNT TEST: %d vs %d\n", precount, result->cloud_cells);
    }
    /* bounded forward */
    if ( tasks->lin_bound_fwd ) {
       printf_vall("=> bound forward (lin)...\n");
       CLOCK_Start(clok);
-      bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
       #if DEBUG
       {
@@ -864,7 +848,7 @@ void WORK_cloud_search( WORKER* worker )
    if ( tasks->lin_bound_bck ) {
       printf_vall("=> bound backward (lin)...\n");
       CLOCK_Start(clok);
-      bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
       times->lin_bound_bck = CLOCK_Secs(clok);
       scores->lin_cloud_bck = sc;
@@ -875,19 +859,19 @@ void WORK_cloud_search( WORKER* worker )
    if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) {
       /* cloud forward */
       CLOCK_Start(clok);
-      cloud_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_fwd, alpha, beta );
+      run_Cloud_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
       CLOCK_Stop(clok);
       times->quad_cloud_fwd = CLOCK_Secs(clok);
 
       /* cloud backward */
       CLOCK_Start(clok);
-      cloud_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_bck, alpha, beta );
+      run_Cloud_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
       CLOCK_Stop(clok);
       times->quad_cloud_bck = CLOCK_Secs(clok);
 
       /* merge edgebounds */
       CLOCK_Start(clok);
-      EDGEBOUNDS_Merge( Q, T, edg_fwd, edg_bck, edg_diag );
+      EDGEBOUNDS_Merge_Together( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
       times->quad_merge = CLOCK_Secs(clok);
 
@@ -906,7 +890,7 @@ void WORK_cloud_search( WORKER* worker )
    if ( tasks->quad_bound_fwd ) {
       printf_vall("=> bound forward (quad)...\n");
       CLOCK_Start(clok);
-      bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
+      run_Bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
       times->quad_bound_fwd = CLOCK_Secs(clok);
       scores->quad_cloud_fwd = sc;
@@ -919,7 +903,7 @@ void WORK_cloud_search( WORKER* worker )
    if ( tasks->quad_bound_bck ) {
       printf_vall("=> bound backward (quad)...\n");
       CLOCK_Start(clok);
-      bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
+      run_Bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
       times->quad_bound_bck = CLOCK_Secs(clok);
       scores->quad_cloud_bck = sc;
@@ -1061,8 +1045,9 @@ void WORK_print_result_current( WORKER* worker )
    fprintf(fp, "%d\t",     worker->t_prof->N );
    fprintf(fp, "%d\t",     worker->q_seq->N );
 
-   fprintf(fp, "%f\t",     args->alpha );
-   fprintf(fp, "%d\t",     args->beta );
+   fprintf(fp, "%.1f\t",    args->alpha );
+   fprintf(fp, "%.1f\t",    args->beta );
+   fprintf(fp, "%d\t",      args->gamma );
 
    fprintf(fp, "%d\t",     worker->result->total_cells );
    fprintf(fp, "%d\t",     worker->result->cloud_cells );

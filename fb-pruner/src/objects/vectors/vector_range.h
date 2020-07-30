@@ -24,27 +24,37 @@ typedef struct {
 VECTOR_RANGE* VECTOR_RANGE_Create();
 
 /* destructor */
-void VECTOR_RANGE_Destroy( VECTOR_RANGE *vec );
+void VECTOR_RANGE_Destroy( VECTOR_RANGE* vec );
 
 /* deep copy */
 VECTOR_RANGE* VECTOR_RANGE_Copy();
 
 /* resize the array */
-void VECTOR_RANGE_Resize( VECTOR_RANGE *vec, const float growth_factor );
+void VECTOR_RANGE_Resize( 	VECTOR_RANGE* 	vec, 
+									const float 	growth_factor );
 
 /* push element onto end of array */
-void VECTOR_RANGE_Pushback( VECTOR_RANGE *vec, const RANGE val );
+void VECTOR_RANGE_Pushback( 	VECTOR_RANGE* 	vec, 
+										const RANGE 	val );
 
 /* pop element from end of array */
-RANGE VECTOR_RANGE_Pop( VECTOR_RANGE *vec );
+RANGE VECTOR_RANGE_Pop( VECTOR_RANGE* vec );
 
 /* set data at index (no bound checks) */
-void VECTOR_RANGE_Set( VECTOR_RANGE *vec, const int idx, const RANGE val );
+void VECTOR_RANGE_Set( 	VECTOR_RANGE* 	vec, 
+								const int 		idx, 
+								const RANGE 	val );
 
 /* get data at index (no bound checks) */
-RANGE VECTOR_RANGE_Get( VECTOR_RANGE *vec, const int idx );
+RANGE VECTOR_RANGE_Get( VECTOR_RANGE* 	vec, 
+								const int 		idx );
 
 /* equality test */
-int VECTOR_RANGE_Compare( const VECTOR_RANGE *vecA, const VECTOR_RANGE *vecB );
+int VECTOR_RANGE_Compare(	const VECTOR_RANGE* 	vec_A, 
+									const VECTOR_RANGE* 	vec_B );
+
+/* comparison test for RANGE */
+int RANGE_Compare( 	const RANGE*	rng_A, 
+							const RANGE*	rng_B );
 
 #endif /* _VECTOR_RANGE_H */

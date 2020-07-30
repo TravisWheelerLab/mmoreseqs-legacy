@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  @file VECTOR_FLOAT.c
+ *  @file VECTOR_FLT.c
  *  @brief FLOAT VECTOR objects
  *
  *  @author Dave Rich
@@ -22,11 +22,11 @@
 #include "vector_float.h"
 
 /* constructor */
-VECTOR_FLOAT* VECTOR_FLOAT_Create()
+VECTOR_FLT* VECTOR_FLT_Create()
 {
-   VECTOR_FLOAT *vec;
+   VECTOR_FLT *vec;
    const int init_size = 8;
-   vec = (VECTOR_FLOAT *) malloc( sizeof(VECTOR_FLOAT) );
+   vec = (VECTOR_FLT *) malloc( sizeof(VECTOR_FLT) );
    vec->data = (float *) malloc( sizeof(float) * init_size );
    vec->N = 0;
    vec->Nalloc = init_size;
@@ -34,19 +34,20 @@ VECTOR_FLOAT* VECTOR_FLOAT_Create()
 }
 
 /* destructor */
-void VECTOR_FLOAT_Destroy( VECTOR_FLOAT *vec )
+void VECTOR_FLT_Destroy( VECTOR_FLT*   vec )
 {
    free(vec->data);
    free(vec);
 }
 
 /* deep copy */
-VECTOR_FLOAT* VECTOR_FLOAT_Copy( VECTOR_FLOAT *src )
+VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*    dest,
+                              VECTOR_FLT*    src )
 {
-   VECTOR_FLOAT *vec;
-   vec = (VECTOR_FLOAT *) malloc( sizeof(VECTOR_FLOAT) );
+   VECTOR_FLT *vec;
+   vec = (VECTOR_FLT *) malloc( sizeof(VECTOR_FLT) );
    /* copy base data */
-   memcpy( vec, src, sizeof(VECTOR_FLOAT) );
+   memcpy( vec, src, sizeof(VECTOR_FLT) );
    /* copy variable-sized data */
    vec->data = (float *) malloc( sizeof(float) * src->Nalloc );
    memcpy( vec->data, src->data, sizeof(float) * src->N );
@@ -55,56 +56,64 @@ VECTOR_FLOAT* VECTOR_FLOAT_Copy( VECTOR_FLOAT *src )
 }
 
 /* resize the array */
-void VECTOR_FLOAT_Resize( VECTOR_FLOAT *vec, const float growth_factor )
+void VECTOR_FLT_Resize( VECTOR_FLT*    vec, 
+                        const int      size )
 {
-   vec->data = (float *) realloc( vec->data, sizeof(float) * vec->Nalloc * growth_factor );
-   vec->Nalloc *= growth_factor;
+   if ( size > vec->Nalloc ) {
+      vec->data = (float *) realloc( vec->data, sizeof(float) * size );
+      vec->Nalloc = size;
+   }
 }
 
 /* push element onto end of array */
-void VECTOR_FLOAT_Pushback( VECTOR_FLOAT *vec, const float val )
+void VECTOR_FLT_Pushback(  VECTOR_FLT*    vec, 
+                           const float    val )
 {
    vec->data[vec->N] = val;
    vec->N++;
 
    /* if array is full, resize */
    if (vec->N >= vec->Nalloc - 1) {
-      VECTOR_FLOAT_Resize( vec, 2 );
+      VECTOR_FLT_Resize( vec, 2 );
    }
 }
 
 /* pop element from end of array */
-float VECTOR_FLOAT_Pop( VECTOR_FLOAT *vec )
+float VECTOR_FLT_Pop( VECTOR_FLT*   vec )
 {
    float tmp = vec->data[vec->N-1];
    vec->N -= 1;
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
-      VECTOR_FLOAT_Resize( vec, 0.5 );
+      VECTOR_FLT_Resize( vec, 0.5 );
    }
 
    return tmp;
 }
 
 /* set data at index (no bound checks) */
-void VECTOR_FLOAT_Set( VECTOR_FLOAT *vec, const int idx, const float val )
+void VECTOR_FLT_Set( VECTOR_FLT*    vec, 
+                     const int      idx, 
+                     const float    val )
 {
    vec->data[idx] = val;
 }
 
 /* get data at index (no checks) */
-float VECTOR_FLOAT_Get( VECTOR_FLOAT *vec, const int idx )
+float VECTOR_FLT_Get(   VECTOR_FLT*    vec, 
+                        const int      idx )
 {
    return vec->data[idx];
 }
 
-/* compare two VECTOR_FLOAT objects */
-int VECTOR_FLOAT_Compare( const VECTOR_FLOAT *vecA, const VECTOR_FLOAT *vecB )
+/* compare two VECTOR_FLT objects */
+int VECTOR_FLT_Compare( const VECTOR_FLT*    vec_A, 
+                        const VECTOR_FLT*    vec_B )
 {
-   for (int i = 0; i < vecA->N; i++) {
-      if ( vecA->data[i] != vecB->data[i] ) {
-         if ( vecA->data[i] > vecB->data[i] ) {
+   for (int i = 0; i < vec_A->N; i++) {
+      if ( vec_A->data[i] != vec_B->data[i] ) {
+         if ( vec_A->data[i] > vec_B->data[i] ) {
             return 1;
          } else {
             return -1;

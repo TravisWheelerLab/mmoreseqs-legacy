@@ -1,50 +1,45 @@
 /*******************************************************************************
- *  @file VECTOR_FLOAT.c
+ *  @file VECTOR_FLT.c
  *  @brief CHARACTER VECTOR objects
  *
  *  @author Dave Rich
  *  @bug Lots.
  *******************************************************************************/
 
-#ifndef _VECTOR_FLOAT_H
-#define _VECTOR_FLOAT_H
-
-/* import datatypes */
-#include "objects/structs.h"
-
-/* Vector struct */
-typedef struct {
-   float *data;      /* array of data type */
-   int N;            /* current length of array in use */
-   int Nalloc;       /* current length of array allocated */
-}  VECTOR_FLOAT;
-
+#ifndef _VECTOR_FLT_H
+#define _VECTOR_FLT_H
 
 /* constructor */
-VECTOR_FLOAT* VECTOR_FLOAT_Create();
+VECTOR_FLT* VECTOR_FLT_Create();
 
 /* destructor */
-void VECTOR_FLOAT_Destroy( VECTOR_FLOAT *vec );
+void VECTOR_FLT_Destroy( VECTOR_FLT* 	vec );
 
 /* deep copy */
-VECTOR_FLOAT* VECTOR_FLOAT_Copy();
+VECTOR_FLT* VECTOR_FLT_Copy();
 
 /* resize the array */
-void VECTOR_FLOAT_Resize( VECTOR_FLOAT *vec, const float growth_factor );
+void VECTOR_FLT_Resize( VECTOR_FLT* 	vec, 
+						const int 		size );
 
 /* push element onto end of array */
-void VECTOR_FLOAT_Pushback( VECTOR_FLOAT *vec, const float val );
+void VECTOR_FLT_Pushback( VECTOR_FLT* 	vec, 
+						  const float 	val );
 
 /* pop element from end of array */
-float VECTOR_FLOAT_Pop( VECTOR_FLOAT *vec );
+float VECTOR_FLT_Pop( VECTOR_FLT* 	vec );
 
 /* set data at index (no bound checks) */
-void VECTOR_FLOAT_Set( VECTOR_FLOAT *vec, const int idx, const float val );
+void VECTOR_FLT_Set( VECTOR_FLT* 	vec, 
+					 const int 		idx, 
+					 const float 	val );
 
 /* get data at index (no bound checks) */
-float VECTOR_FLOAT_Get( VECTOR_FLOAT *vec, const int idx );
+float VECTOR_FLT_Get( 	VECTOR_FLT* 	vec, 
+						const int 		idx );
 
 /* equality test */
-int VECTOR_FLOAT_Compare( const VECTOR_FLOAT *vecA, const VECTOR_FLOAT *vecB );
+int VECTOR_FLT_Compare( const VECTOR_FLT* 	vec_A, 
+						const VECTOR_FLT* 	vec_B );
 
-#endif /* _VECTOR_FLOAT_H */
+#endif /* _VECTOR_FLT_H */

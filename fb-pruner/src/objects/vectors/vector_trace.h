@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file VECTOR_TRACE.c
- *  @brief TRACE VECTOR objects
+ *  FILE:      vector_trace.c
+ *  PURPOSE:   VECTOR_TRACE objects
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _VECTOR_TRACE_H

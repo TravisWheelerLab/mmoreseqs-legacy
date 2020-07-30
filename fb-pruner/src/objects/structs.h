@@ -54,8 +54,8 @@ typedef struct {
 
 /* integer ranges */
 typedef struct {
-   int   beg;
-   int   end;
+   int   beg;      /* begin: left bound */
+   int   end;      /* end: right bound */
 } RANGE;
 
 /* coordinates in matrix */
@@ -64,12 +64,26 @@ typedef struct {
    int j; /* col index */
 } COORDS;
 
+/* vector of characters */
+typedef struct {
+   char*    data;             /* array of data type */
+   int      N;                /* current length of array in use */
+   int      Nalloc;           /* current length of array allocated */
+}  VECTOR_CHAR;
+
 /* vector of integers */
 typedef struct {
    int*     data;             /* array of data type */
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_INT;
+
+/* vector of floats */
+typedef struct {
+   float*   data;             /* array of data type */
+   int      N;                /* current length of array in use */
+   int      Nalloc;           /* current length of array allocated */
+}  VECTOR_FLT;
 
 /* bound for single row or diagonal */
 typedef struct {
@@ -78,19 +92,42 @@ typedef struct {
    int      rb;               /* top-right (upper) edge-bound */
 } BOUND;
 
+/* vector of edgebounds  */
+typedef struct {
+   BOUND*   data;    /* array of data type */
+   int      N;       /* current length of array in use */
+   int      Nalloc;  /* current length of array allocated */
+}  VECTOR_BOUND;
+
+/* given cell of alignment */
+typedef struct {
+   int         i;             /* index in query */
+   int         j;             /* index in target */
+   int         st;            /* state at index */
+} TRACE;
+
+/* vector of structs */
+typedef struct {
+   TRACE*   data;     /* array of data type */
+   int      N;        /* current length of array in use */
+   int      Nalloc;   /* current length of array allocated */
+}  VECTOR_TRACE;
+
 /* set of bounds for cloud search space */
 typedef struct {
-   int            N;          /* current size of bounds array */
-   int            Nalloc;     /* allocated size of bounds array */
-
-   VECTOR_INT*    ids;        /* identity of each row/diag */
-   VECTOR_INT*    heads;      /* indexes the heads of each row/diag */
-   BOUND*         bounds;     /* list of bounded ranges along a row/diag */
-   int            edg_mode;   /* whether edges are stored by-row or by-diag */
-
+   /* size of edgebounds */
+   int            N;             /* current size of bounds array */
+   int            Nalloc;        /* allocated size of bounds array */
    /* dimensions of embedding matrix */
    int            Q;          
    int            T;
+   /* whether edges are stored by-row or by-diag */
+   int            edg_mode;   
+   /* row/antidiagonal indexes */
+   VECTOR_INT*    ids;           /* identity of each row/diag */
+   VECTOR_INT*    ids_idx;       /* array of indexes the heads of each row/diag */
+   /* data */
+   BOUND*         bounds;        /* array of bounded ranges along a row/diag */
 } EDGEBOUNDS;
 
 /* a vector of each set of bounds for cloud search space which account a specific row */
@@ -106,21 +143,19 @@ typedef struct {
    int            T;
 } EDGEBOUND_ROWS;
 
-/* given cell of alignment */
-typedef struct {
-   int         i;             /* index in query */
-   int         j;             /* index in target */
-   int         st;            /* state at index */
-} TRACE;
-
 /* alignment for viterbi traceback */
 typedef struct {
-   int         N;             /* current length */
-   int         Nalloc;        /* allocated length */
-   int         beg;           /* position in trace for first MID state */
-   int         end;           /* position in trace for last MID state */
-   TRACE*      traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
-
+   /* consensus data (for alignment output) */
+   VECTOR_INT*    seq_beg;       /* index of beginnings of each alignment in sequence */
+   VECTOR_INT*    seq_end;       /* index of endings of each alignment in sequence */
+   VECTOR_CHAR*   sequence;      /* character sequence showing alignment between two sequences */
+   /* data */
+   VECTOR_INT*    tr_beg;        /* index of every alignment begin (B state) in traceback */
+   VECTOR_INT*    tr_end;        /* index of every alignment end (E state) in traceback */
+   VECTOR_TRACE*  traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
+   /* trace endpoints */
+   int            beg;           /* current beginning index in traces */
+   int            end;           /* current end index in traces */
    /* dimensions of embedded matrix */
    int         Q;
    int         T;
@@ -236,29 +271,15 @@ typedef struct {
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
 
-/* vector of edgebounds  */
-typedef struct {
-   BOUND*   data;    /* array of data type */
-   int      N;       /* current length of array in use */
-   int      Nalloc;  /* current length of array allocated */
-}  VECTOR_BOUND;
-
-/* vector of structs */
-typedef struct {
-   TRACE*   data;     /* array of data type */
-   int      N;        /* current length of array in use */
-   int      Nalloc;   /* current length of array allocated */
-}  VECTOR_TRACE;
-
 /* sequence */
 typedef struct {
    int      N;          /* length of sequence */
    int      Nalloc;     /* allocated memory length */
+   char*    seq;        /* genomic sequence */
    /* meta data */
    char*    filename;   /* filename of sequence */
-   char*    name;       /* */
-   char*    alph;       /* */
-   char*    seq;        /* */
+   char*    name;       /* name of sequence */
+   char*    alph;       /* alphabet (currently only supports AMINO) */
 } SEQUENCE;
 
 /* 2-dimensional float matrix */
@@ -272,13 +293,33 @@ typedef struct {
 
 /* 3-dimensional float matrix */
 typedef struct {
-   int      R;       /* number of rows = length of query */
-   int      C;       /* number of columns = length of target  */
+   int      R;       /* number of 1st dim = length of query */
+   int      C;       /* number of 2nd dim = length of target  */
    int      N;       /* number of 3rd dim = number of normal states */
+
    int      Nalloc;  /* number of total cells alloc'd */
    float*   data;    /* matrix cells */
    bool     clean;   /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D;
+
+/* 3-dimensional sparse float matrix */
+typedef struct {
+   int            D1;          /* number of rows = length of query */
+   int            D2;          /* number of columns = length of target  */
+   int            D3;          /* number of 3rd dim = number of normal states */
+
+   int            N;          /* number of cells in sparse matrix */
+   int            Nalloc;     /* number of total cells alloc'd */
+
+   EDGEBOUNDS*    edg_inner;  /* edgebounds which describe of active cells of sparse matrix */
+   EDGEBOUNDS*    edg_outer;  /* edgebounds which describe the shape of sparse matrix */
+
+   VECTOR_INT*    rows;       /* */
+   VECTOR_INT*    offsets;    /* */
+
+   VECTOR_FLT*    data;       /* matrix cells */
+   bool           clean;      /* whether data has been cleared / all cells set to -INF */
+} MATRIX_3D_SPARSE;
 
 /* commandline arguments */
 typedef struct {
@@ -319,12 +360,12 @@ typedef struct {
 
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
-   float    alpha_max;              /* cloud search: x-drop maximum drop before termination */
-   int      beta;                   /* cloud search: number of antidiag passes before pruning  */
+   float    beta;                   /* cloud search: x-drop maximum drop before termination */
+   int      gamma;                  /* cloud search: number of antidiag passes before pruning  */
 
    /* pipeline options */
    int      pipeline_mode;          /* which workflow pipeline to use */
-   int      verbose_level;         /* levels of verbosity */
+   int      verbose_level;          /* levels of verbosity */
    int      search_mode;            /* alignment search mode */
    bool     is_testing;             /* determines whether debug statements appear */
 
@@ -491,7 +532,7 @@ typedef struct {
    /* name */
    char*    target_name;
    char*    query_name;
-   /* */
+   /* characteristics  */
    float    perc_id;
    int      aln_len;
    int      mismatch;
@@ -514,14 +555,24 @@ typedef struct {
    int      cloud_cells;
    int      cpu_total_cells;
    int      total_cells;
+   /* alignment */
+   ALIGNMENT* aln;
 } RESULT;
 
-/* array of results */
+/* results and stats */
 typedef struct {
-   int      N;
-   int      Nalloc;
-   RESULT*  data;
-   char*    filepath;
+   /* results */
+   int      N;             /* number of current results in queue */
+   int      Nalloc;        /* allocated space in queue */
+   RESULT*  data;          /* result queue */
+   /* aggregate stats */
+   int      num_searches;  /* total number of searches */
+   int      num_hits;      /* total number of searches to pass threshold */
+   float    reporting_threshold;
+   /* output */
+   int      max_in_queue;  /* number of results to keep in memory before dumping to file */
+   char*    filepath;      /* path to write file */
+   FILE*    fp;            /* file to write to */
 } RESULTS;
 
 /* substitution/scoring matrix */
@@ -630,8 +681,8 @@ typedef struct {
 /* collection of all tuning parameters for cloud search */
 typedef struct {
    float       alpha;         /* x-drop for local,  */
-   float       alpha_max;     /* x-drop for global, determines when to terminate search. looser (larger) than alpha. */
-   float       beta;          /* number of traversed antidiags before pruning begins */
+   float       beta;          /* x-drop for global, determines when to terminate search. looser (larger) than alpha. */
+   float       gamma;         /* number of traversed antidiags before pruning begins */
 } CLOUD_PARAMS;
 
 /* worker contains the necessary data structures to conduct search */

@@ -177,7 +177,7 @@ void main_pipeline( WORKER* worker )
 				worker->t_id, worker->t_prof->N, worker->t_prof->name, 
 				worker->q_id, worker->q_seq->N, worker->q_seq->name,
 				result->total_cells, result->cloud_cells, 
-				args->alpha, args->alpha_max, args->beta,
+				args->alpha, args->beta, args->gamma,
 				times->quad_vit, scores->quad_vit,
 				times->lin_total_cloud, scores->lin_cloud_fwd,
 				times->quad_fwd, scores->quad_fwd );

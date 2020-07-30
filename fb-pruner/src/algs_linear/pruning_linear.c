@@ -36,11 +36,11 @@ inline
 void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
                             			MATRIX_2D* 		sp_MX,			/* special state matrix */
 	                                	const float     alpha,			/* x-drop value */
-	                                	const int       beta,			/* number of antidiagonals before pruning */
+	                                	const int       gamma,			/* number of antidiagonals before pruning */
 	                                	const int 		d_1,			/* previous antidiagonal */
 	                                	const int 		d_0,			/* current antidiagonal */
-	                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-	                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+	                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
+	                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
 	                                	const int 		d_cnt, 			/* number of antidiags traversed */
 	                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
 	                                	const int 		re,				/* left edge of dp matrix on current antidiag */
@@ -48,7 +48,10 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
 	                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 	                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
-	int 		b, i, j, k; 				/* indexes */
+	int 		i, j, k; 					/* indexes */
+	int 		q_0;						/* row index (query position) */
+	int 		t_0;						/* column index (target position) */
+	int 		k_0;						/* offset into antidiagonal */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
 	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
@@ -59,19 +62,19 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
 	VECTOR_INT_Reuse( rb_vec[0] );
 
 	/* Update maximum score using antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ ) {
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+	for ( i = 0; i < lb_vec[1]->N; i++ ) {
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		diag_max = -INF;
-		for ( k = lb_1; k < rb_1; k++ )
+		for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 		{
-			i = k;
-			j = d_1 - i;    /* looking back one diag */
+			q_0 = k_0;
+			t_0 = d_1 - k_0;    /* looking back one diag */
 			
 			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX3(d1, k) ),
-			               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+			               calc_Max( diag_max, MMX3(dx1, k_0) ),
+			               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -82,36 +85,36 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
 	total_limit = *total_max - alpha;
 
 	/* All edgebounds in previous antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ )
+	for ( i = 0; i < lb_vec[1]->N; i++ )
 	{
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		/* If free passes are not complete, do no pruning */
-		if ( beta >= d_cnt )
+		if ( gamma >= d_cnt )
 		{
 			VECTOR_INT_Pushback( lb_vec[0], lb_1 );
 			VECTOR_INT_Pushback( rb_vec[0], rb_1 );
 		}
-		else /* If free passes are complete (beta < d), prune and set new edgebounds */
+		else /* If free passes are complete (gamma < d), prune and set new edgebounds */
 		{
 			/* impossible state */
 			lb_0 = INT_MIN;
 			rb_0 = INT_MIN;
 
 			/* Find the first cell from the left which passes above threshold */
-			for ( k = lb_1; k < rb_1; k++ )
+			for ( q_0 = lb_1; q_0 < rb_1; q_0++ )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
 				{
-					lb_0 = i;
+					lb_0 = k_0;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
 					break;
 				}
@@ -124,16 +127,16 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
 			/* Find the first cell from the right which passes above threshold */
 			for ( k = rb_1 - 1; k >= lb_1; k-- )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0 ) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
 				{
-					rb_0 = i + 1;
+					rb_0 = k_0 + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );
 					break;
 				}
@@ -156,11 +159,11 @@ inline
 void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
                             			MATRIX_2D* 		sp_MX,			/* special state matrix */
 	                                	const float     alpha,			/* x-drop value */
-	                                	const int       beta,			/* number of antidiagonals before pruning */
+	                                	const int       gamma,			/* number of antidiagonals before pruning */
 	                                	const int 		d_1,			/* previous antidiagonal */
 	                                	const int 		d_0,			/* current antidiagonal */
-	                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-	                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+	                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
+	                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
 	                                	const int 		d_cnt, 			/* number of antidiags traversed */
 	                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
 	                                	const int 		re,				/* left edge of dp matrix on current antidiag */
@@ -168,7 +171,10 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 	                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 	                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
-	int 		b, i, j, k; 				/* indexes */
+	int 		i, j, k; 					/* indexes */
+	int 		q_0;						/* row index (query position) */
+	int 		t_0;						/* column index (target position) */
+	int 		k_0;						/* offset into antidiagonal */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
 	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
@@ -179,19 +185,19 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 	VECTOR_INT_Reuse( rb_vec[0] );
 
 	/* Update maximum score using antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ ) {
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+	for ( i = 0; i < lb_vec[1]->N; i++ ) {
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		diag_max = -INF;
-		for ( k = lb_1; k < rb_1; k++ )
+		for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 		{
-			i = k;
-			j = d_1 - i;    /* looking back one diag */
+			q_0 = k_0;
+			t_0 = d_1 - k_0;    /* looking back one diag */
 			
 			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX3(d1, k) ),
-			               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+			               calc_Max( diag_max, MMX3(dx1, k) ),
+			               calc_Max( IMX3(dx1, k), DMX3(dx1, k) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -202,18 +208,18 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 	total_limit = *total_max - alpha;
 
 	/* All edgebounds in previous antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ )
+	for ( i = 0; i < lb_vec[1]->N; i++ )
 	{
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		/* If free passes are not complete, do no pruning */
-		if ( beta >= d_cnt )
+		if ( gamma >= d_cnt )
 		{
 			VECTOR_INT_Pushback( lb_vec[0], lb_1 );
 			VECTOR_INT_Pushback( rb_vec[0], rb_1 );
 		}
-		else /* If free passes are complete (beta < d), prune and set new edgebounds */
+		else /* If free passes are complete (gamma < d), prune and set new edgebounds */
 		{
 			/* impossible state */
 			lb_0 = INT_MIN;
@@ -222,16 +228,16 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 			/* Find the first cell from the left which passes above threshold */
 			for ( k = lb_1; k < rb_1; k++ )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
 				{
-					lb_0 = i;
+					lb_0 = k_0;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
 					break;
 				}
@@ -242,18 +248,18 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 				continue;
 
 			/* Find the first cell from the right which passes above threshold */
-			for ( k = rb_1 - 1; k >= lb_1; k-- )
+			for ( k_0 = rb_1 - 1; k_0 >= lb_1; k_0-- )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
 				{
-					rb_0 = i + 1;
+					rb_0 = k_0 + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );
 					break;
 				}
@@ -279,12 +285,12 @@ inline
 void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 			                            			MATRIX_2D* 		sp_MX,			/* special state matrix */
 				                                	const float     alpha,			/* x-drop value for by-diag prune */
-													const float 	alpha_max, 		/* x-drop value for global prune */
-				                                	const int       beta,			/* number of antidiagonals before pruning */
+													const float 	beta, 			/* x-drop value for global prune */
+				                                	const int       gamma,			/* number of antidiagonals before pruning */
 				                                	const int 		d_1,			/* previous antidiagonal */
 				                                	const int 		d_0,			/* current antidiagonal */
-				                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-				                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+				                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
+				                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
 				                                	const int 		d_cnt, 			/* number of antidiags traversed */
 				                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
 				                                	const int 		re,				/* left edge of dp matrix on current antidiag */
@@ -292,7 +298,10 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 				                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 				                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
-	int 		b, i, j, k; 				/* indexes */
+	int 		i, j, k; 					/* indexes */
+	int 		q_0;						/* row index (query position) */
+	int 		t_0;						/* column index (target position) */
+	int 		k_0;						/* offset into antidiagonal */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
 	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
@@ -304,19 +313,19 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	VECTOR_INT_Reuse( rb_vec[0] );
 
 	/* (1) update maximum score using antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ ) {
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+	for ( i = 0; i < lb_vec[1]->N; i++ ) {
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		diag_max = -INF;
-		for ( k = lb_1; k < rb_1; k++ )
+		for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 		{
-			i = k;
-			j = d_1 - i;    /* looking back one diag */
+			q_0 = k_0;
+			t_0 = d_1 - k_0;    /* looking back one diag */
 			
 			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX3(d1, k) ),
-			               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+			               calc_Max( diag_max, MMX3(dx1, k_0) ),
+			               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -324,9 +333,9 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	}
 
 	/* Set score limit for terminating search */
-	total_limit = *total_max - alpha_max;
+	total_limit = *total_max - beta;
 	/* Set score limit threshold for pruning */
-	diag_limit = diag_max - alpha;
+	diag_limit 	= diag_max - alpha;
 
 	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
 	if ( diag_max < total_limit ) {
@@ -334,36 +343,36 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	}
 
 	/* All edgebounds in previous antidiagonal */
-	for ( b = 0; b < lb_vec[1]->N; b++ )
+	for ( i = 0; i < lb_vec[1]->N; i++ )
 	{
-		lb_1 = lb_vec[1]->data[b];
-		rb_1 = rb_vec[1]->data[b];
+		lb_1 = lb_vec[1]->data[i];
+		rb_1 = rb_vec[1]->data[i];
 
 		/* If free passes are not complete, skip pruning */
-		if ( beta >= d_cnt )
+		if ( gamma >= d_cnt )
 		{
 			VECTOR_INT_Pushback( lb_vec[0], lb_1 );
 			VECTOR_INT_Pushback( rb_vec[0], rb_1 );
 		}
-		else /* If free passes are complete (beta < d), prune and set new edgebounds */
+		else /* If free passes are complete (gamma < d), prune and set new edgebounds */
 		{
 			/* impossible state */
 			lb_0 = INT_MIN;
 			rb_0 = INT_MIN;
 
 			/* Find the first cell from the left which passes above threshold */
-			for ( k = lb_1; k < rb_1; k++ )
+			for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= diag_limit )
 				{
-					lb_0 = i;
+					lb_0 = k_0;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
 					break;
 				}
@@ -374,18 +383,18 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 				continue;
 
 			/* Find the first cell from the right which passes above threshold */
-			for ( k = rb_1 - 1; k >= lb_1; k-- )
+			for ( k_0 = rb_1 - 1; k_0 >= lb_1; k_0-- )
 			{
-				i = k;
-				j = d_1 - i; 	/* looking back one diag */
+				q_0 = k_0;
+				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(d1, k),
-				               calc_Max( IMX3(d1, k), DMX3(d1, k) ) );
+				cell_max = 	calc_Max( MMX3(dx1, k_0),
+				               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= diag_limit )
 				{
-					rb_0 = i + 1;
+					rb_0 = k_0 + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );
 					break;
 				}

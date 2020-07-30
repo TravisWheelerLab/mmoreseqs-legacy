@@ -1204,7 +1204,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
        * [xref J5/92]
        */
       if (pli->use_bit_cutoffs)
-      {
+      {DAV
          if (p7_pli_TargetReportable(pli, hit->score, hit->lnP))
          {
             hit->flags |= p7_IS_REPORTED;

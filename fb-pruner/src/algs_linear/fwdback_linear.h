@@ -10,7 +10,7 @@
 #ifndef _FWDBACK_LIN_H
 #define _FWDBACK_LIN_H
 
-int forward_Linear(  const SEQUENCE*   query, 
+int run_Forward_Linear(  const SEQUENCE*   query, 
                      const HMM_PROFILE* target, 
                      const int          Q, 
                      const int          T, 
@@ -18,7 +18,7 @@ int forward_Linear(  const SEQUENCE*   query,
                      MATRIX_2D*         sp_MX,
                      float*             sc_final);
 
-int backward_Linear( const SEQUENCE*    query, 
+int run_Backward_Linear( const SEQUENCE*    query, 
                      const HMM_PROFILE* target, 
                      const int          Q, 
                      const int          T, 

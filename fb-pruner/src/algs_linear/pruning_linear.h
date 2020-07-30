@@ -21,11 +21,11 @@
 void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 										MATRIX_2D* 		sp_MX,			/* special state matrix */
 		                               	const float     alpha,			/* x-drop value */
-		                               	const int       beta,			/* number of antidiagonals before pruning */
+		                               	const int       gamma,			/* number of antidiagonals before pruning */
 										const int 		d_1,			/* previous antidiagonal */
 										const int 		d_0,			/* current antidiagonal */
-										const int 		d1,				/* previous antidiag (mod-mapped) */
-										const int 		d0, 			/* current antidiag (mod-mapped) */
+										const int 		dx1,			/* previous antidiag (mod-mapped) */
+										const int 		dx0, 			/* current antidiag (mod-mapped) */
 										const int 		d_cnt, 			/* number of antidiags traversed */
 										const int 		le, 			/* right edge of dp matrix on current antidiag */
 										const int 		re,				/* left edge of dp matrix on current antidiag */
@@ -47,11 +47,11 @@ void prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state ma
 void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
                             			MATRIX_2D* 		sp_MX,			/* special state matrix */
 	                                	const float     alpha,			/* x-drop value */
-	                                	const int       beta,			/* number of antidiagonals before pruning */
+	                                	const int       gamma,			/* number of antidiagonals before pruning */
 	                                	const int 		d_1,			/* previous antidiagonal */
 	                                	const int 		d_0,			/* current antidiagonal */
-	                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-	                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+	                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
+	                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
 	                                	const int 		d_cnt, 			/* number of antidiags traversed */
 	                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
 	                                	const int 		re,				/* left edge of dp matrix on current antidiag */
@@ -75,12 +75,12 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
 void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 			                            			MATRIX_2D* 		sp_MX,			/* special state matrix */
 				                                	const float     alpha,			/* x-drop value for by-diag prune */
-													const float 	alpha_max, 		/* x-drop value for global prune */
-				                                	const int       beta,			/* number of antidiagonals before pruning */
+													const float 	beta, 			/* x-drop value for global prune */
+				                                	const int       gamma,			/* number of antidiagonals before pruning */
 				                                	const int 		d_1,			/* previous antidiagonal */
 				                                	const int 		d_0,			/* current antidiagonal */
-				                                	const int 		d1,				/* previous antidiag (mod-mapped) */
-				                                	const int 		d0, 			/* current antidiag (mod-mapped) */
+				                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
+				                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
 				                                	const int 		d_cnt, 			/* number of antidiags traversed */
 				                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
 				                                	const int 		re,				/* left edge of dp matrix on current antidiag */

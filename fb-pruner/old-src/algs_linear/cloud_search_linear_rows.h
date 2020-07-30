@@ -12,7 +12,7 @@
 #define _CLOUD_SEARCH_LINEAR_ROWS_H
 
 /*
- *  FUNCTION: cloud_Forward_Linear()
+ *  FUNCTION: run_Cloud_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment beginning.  
@@ -23,19 +23,19 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-int cloud_Forward_Linear_Rows(   const SEQUENCE*    query,        /* query sequence */
-                                 const HMM_PROFILE* target,       /* target hmm model */
-                                 const int          Q,            /* query length */
-                                 const int          T,            /* target length */
-                                 MATRIX_3D*         st_MX3,       /* normal state matrix */
-                                 MATRIX_2D*         sp_MX,        /* special state matrix */
-                                 const ALIGNMENT*   tr,           /* viterbi traceback */
-                                 EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
-                                 EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                                 CLOUD_PARAMS*      params );     /* pruning parameters */
+int run_Cloud_Forward_Linear_Rows(     const SEQUENCE*    query,        /* query sequence */
+                                       const HMM_PROFILE* target,       /* target hmm model */
+                                       const int          Q,            /* query length */
+                                       const int          T,            /* target length */
+                                       MATRIX_3D*         st_MX3,       /* normal state matrix */
+                                       MATRIX_2D*         sp_MX,        /* special state matrix */
+                                       const ALIGNMENT*   tr,           /* viterbi traceback */
+                                       EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
+                                       EDGEBOUNDS*        edg,          /* (OUTPUT) */
+                                       CLOUD_PARAMS*      params );     /* pruning parameters */
 
 /*
- *  FUNCTION: cloud_Backward_Linear()
+ *  FUNCTION: run_Cloud_Backward_Linear()
  *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment ending.  
@@ -46,7 +46,7 @@ int cloud_Forward_Linear_Rows(   const SEQUENCE*    query,        /* query seque
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-int cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* query sequence */
+int run_Cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* query sequence */
                                     const HMM_PROFILE* target,       /* target hmm model */
                                     const int          Q,            /* query length */
                                     const int          T,            /* target length */

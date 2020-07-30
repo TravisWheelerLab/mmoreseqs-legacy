@@ -45,15 +45,15 @@ void EDGEBOUNDS_Reflect(EDGEBOUNDS *edg)
 
 
 /*
- *  FUNCTION:  EDGEBOUNDS_Merge()
+ *  FUNCTION:  EDGEBOUNDS_Merge_Together()
  *  SYNOPSIS:  Combine two edgebound lists into one. 
  *             Assumes input lists are sorted and both oriented by-antidiagonal.
  */
-void EDGEBOUNDS_Merge(const int           Q,             /* query length */
-                      const int           T,             /* target length */
-                      const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
-                      const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
-                      EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
+void EDGEBOUNDS_Merge_Together(      const int           Q,             /* query length */
+                                    const int           T,             /* target length */
+                                    const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
+                                    const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                                    EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
 {
    int         i, j;                /* indexes */
    int         x, y;                /* indexes */

@@ -159,8 +159,8 @@ void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof,
    }
 }
 
-/* Determine the consensus sequence using HMM_PROFILE */
-char* HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
+/* Determine the consensus sequence (highest likelihood output) using HMM_PROFILE */
+void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
 {
    float       best_val; 
    float       new_val;
@@ -186,8 +186,6 @@ char* HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
       prof->consensus[i-1] = best_amino;
    }
    prof->consensus[prof->N] = '\0';
-
-   return prof->consensus;
 }
 
 /* Set Distribution Parameters for HMM_PROFILE */

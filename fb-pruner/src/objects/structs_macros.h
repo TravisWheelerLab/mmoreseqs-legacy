@@ -6,65 +6,80 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
+/* vectorization */
+#include <xmmintrin.h>     /* SSE  */
+#include <emmintrin.h>     /* SSE2 */
+
 #ifndef _STRUCTS_MACROS_H
 #define _STRUCTS_MACROS_H
 
 #define TRUE  1
 #define FALSE 0
 
-/* === BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
+/* === SET BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
 
 /* set default debug build */
 #ifndef DEBUG
-#define DEBUG FALSE
+#define DEBUG 	FALSE
 #endif
-
+/* set visualization build (subset of debug build) */
 #ifndef VIZ
-#define VIZ DEBUG
+#define VIZ 	DEBUG
 #endif
-
+/* set memory checks (subset of debug build) */
 #ifndef MEMCHECK
-#define MEMCHECK DEBUG
+#define MEMCHECK 	DEBUG
 #endif
 
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS  	FALSE
+#define MATRIX_FUNCTIONS 	FALSE
 
-/* type of cloud pruning methods */
-#define PRUNER_NONE  		FALSE 
+/* types of cloud pruning methods */
+#define PRUNER_NONE  						0 
 #define PRUNER_XDROP_EDGETRIM 				1
 #define PRUNER_XDROP_BIFURCATE				2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
-
+/* if bifurcation is allowed, set max limit on forking paths */
+#define MAX_BOUNDS_PER_ROW 		10
 /* set default  of pruner method */
 /* PRUNER METHODS: PRUNER_DBL_XDROP_EDGETRIM_OR_DIE, PRUNER_XDROP_EDGETRIM  */
 #ifndef PRUNER
 #define PRUNER  	PRUNER_DBL_XDROP_EDGETRIM_OR_DIE
 #endif
 
-/* set whether to store bounds as rows or antidiags in cloud search */
-#define CLOUD_ROWS 		0
-#define CLOUD_DIAGS 	1
-
+/* types of cloud search: whether to store bounds as rows or antidiags */
+#define CLOUD_NONE 		0
+#define CLOUD_ROWS 		1
+#define CLOUD_DIAGS 	2
+/* set default cloud search method */
 #ifndef CLOUD_METHOD
 #define CLOUD_METHOD 	CLOUD_DIAGS
 #endif
 
-#define DIRTY_VAL 1.0
-#define SCRUB_VAL 1.0
+/* types of simd vectorization method */
+#define SIMD_NONE 		0
+#define SIMD_SSE		1
+/* set default vectorization method */
+#ifndef SIMD_METHOD
+#define SIMD_METHOD 	SIMD_SSE
+#endif
 
 /* ============================================================================== */
 
+/* values used for testing matrix accesses */
+#define DIRTY_VAL 1.0
+#define SCRUB_VAL 1.0
+
 /* debug print (eliminated from code when not debugging) */
 #if DEBUG
-#define DBG_PRINTF(...) 	printf(__VA_ARGS__)
+	#define DBG_PRINTF(...) 	printf(__VA_ARGS__)
 #else
-#define DBG_PRINTF(...) 
+	#define DBG_PRINTF(...) 
 #endif
 #if DEBUG
-#define DBG_FPRINTF(...) 	fprintf(__VA_ARGS__)
+	#define DBG_FPRINTF(...) 	fprintf(__VA_ARGS__)
 #else
-#define DBG_FPRINTF(...) 
+	#define DBG_FPRINTF(...) 
 #endif
 
 /* determines whether output is printed based on verbose_level */
@@ -84,14 +99,13 @@
 /* === MATRIX FUNCTIONS === */
 /* => by default, use MATRIX_3D and MATRIX_2D function calls */
 #if ( MATRIX_FUNCTIONS == TRUE )
-/* generic access for any 3d matrix */
-#define MX_3D(mx,st,i,j)  	( *MATRIX_3D_Get( mx, st, i, j ) )
+	/* generic access for any 3d matrix */
+	#define MX_3D(mx,st,i,j)  	( *MATRIX_3D_Get( mx, st, i, j ) )
 #endif
-
 /* => else, use direct array access */
 #if ( MATRIX_FUNCTIONS == FALSE )
-/* generic access for any 3d matrix */
-#define MX_3D(mx,st,i,j)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (i) * (mx->N)) + (j) ] )
+	/* generic access for any 3d matrix */
+	#define MX_3D(mx,st,i,j)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (i) * (mx->N)) + (j) ] )
 #endif
 
 /* match, insert, delete for st_MX matrix */
@@ -106,18 +120,16 @@
 /* generic access for any 2d matrix */
 /* => by default, use MATRIX_3D and MATRIX_2D function calls */
 #if ( MATRIX_FUNCTIONS == TRUE )
-/* generic access for any 3d matrix */
-#define MX_2D(mx,st,i)  	( *MATRIX_2D_Get( mx, st, i ) )
+	/* generic access for any 3d matrix */
+	#define MX_2D(mx,st,i)  	( *MATRIX_2D_Get( mx, st, i ) )
 #endif
-
 /* => else, use direct array access */
 #if ( MATRIX_FUNCTIONS == FALSE )
-/* generic access for any 3d matrix */
-#define MX_2D(mx,st,i)  	( mx->data[ ((st) * (mx->C)) + (i) ] )
+	/* generic access for any 3d matrix */
+	#define MX_2D(mx,st,i)  	( mx->data[ ((st) * (mx->C)) + (i) ] )
 #endif
 
 #define XMX(sp,i)          	MX_2D(sp_MX,sp,i)
-
 
 /* TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS */
 /* generic hmm profile functions */
@@ -149,5 +161,29 @@
 
 #define Test_IsLocal(mode)  (mode == MODE_MULTILOCAL || mode == MODE_UNILOCAL)
 #define Test_IsMulti(mode)  (mode == MODE_MULTILOCAL || mode == MODE_MULTIGLOCAL)
+
+/* === SIMD VECTORIZATION FUNCTIONS === */
+#if ( SIMD_METHOD == SIMD_SSE )
+	#define VECTOR_WIDTH 	128
+	typedef __m128i 		__VECTOR_INT;
+	typedef __m128 			__VECTOR_FLT;	
+	typedef __m128d			__VECTOR_DBL;
+#endif
+
+#define BITS_PER_BYTE		8
+#define CHAR_BITS			1 * BITS_PER_BYTE
+#define INT_BITS 			4 * BITS_PER_BYTE
+#define FLOAT_BITS 			4 * BITS_PER_BYTE
+
+#define CHARS_PER_VEC 	 	VECTOR_WIDTH / CHAR_BITS
+#define INTS_PER_VEC 		VECTOR_WIDTH / INT_BITS
+#define FLOATS_PER_VEC 		VECTOR_WIDTH / FLOAT_BITS
+
+/* number of float vectors per sequence (striped implementation requires at least two vectors) */
+#define NUM_VEC_FOR_SEQ(seq_length, data_per_vec)  calc_Max( 2, (seq_length / data_per_vec) + 1 )
+
+/* matrix access functions */
+#define MX_3D_VEC(mx,st,i,j)	
+#define MMV(i,j) 				MX_3D_VEC(  )
 
 #endif /* _STRUCTS_MACROS_H */

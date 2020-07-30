@@ -176,7 +176,7 @@ EDGEBOUNDS* VECTOR_RANGE_2D_Convert_to_Edgebound( VECTOR_RANGE_2D *vec )
 //       for (int j = 0; j < row.N; j++)
 //       {
 //          range = row.data[j];
-//          EDGEBOUNDS_Pushback( edg, (BOUND){i, range.beg, range.end} );
+//          EDGEBOUNDS_Pushback( edg, (BOUND){i, range.lb, range.rb} );
 //       }
 //    }
 

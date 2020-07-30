@@ -33,6 +33,9 @@ void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof,
 void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof, 
                                char*        alph_name );
 
+/* Determine the consensus sequence (highest likelihood output) using HMM_PROFILE */
+void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof );
+
 /* Set Distribution Parameters for HMM_PROFILE */
 void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof, 
                                           float        param1, 

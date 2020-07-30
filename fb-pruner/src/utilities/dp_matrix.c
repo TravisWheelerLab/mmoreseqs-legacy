@@ -253,6 +253,12 @@ void DP_MATRIX_Trace_Dump( const int         Q,
                            ALIGNMENT*        tr,
                            FILE*             fp )
 {
+   int N;
+   TRACE* trace;
+
+   N     = tr->traces->N;
+   trace = tr->traces->data;
+
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "X_DIM\t%d\t%d\n\n", Q, T);
@@ -260,11 +266,11 @@ void DP_MATRIX_Trace_Dump( const int         Q,
    /* Traceback */
    fprintf(fp, "X_TRACE\n");
    /* Traceback */
-   for (int i = 0; i < tr->N; i++)
+   for (int i = 0; i < N; i++)
    {
-      int st = tr->traces[i].st;
+      int st = trace[i].st;
       if ( st == M_ST ) {
-         fprintf(fp, "[%d]%s\t%d\t%d\n", i, STATE_NAMES[st], tr->traces[i].i, tr->traces[i].j);
+         fprintf(fp, "[%d]%s\t%d\t%d\n", i, STATE_NAMES[st], trace[i].i, trace[i].j);
       }
    }
    fprintf(fp, "/\n\n");
@@ -367,8 +373,8 @@ void DP_MATRIX_VIZ_Compare(   MATRIX_2D*        cloud_MX,
 void DP_MATRIX_VIZ_Trace(  MATRIX_2D*        cloud_MX,
                            const ALIGNMENT*  aln )
 {
-   for ( int i = 0; i < aln->N; i++ ) {
-      TRACE* tr = &(aln->traces[i]);
+   for ( int i = 0; i < aln->traces->N; i++ ) {
+      TRACE* tr = &(aln->traces->data[i]);
       if ( tr->st == M_ST )
          MX_2D( cloud_MX, tr->i, tr->j ) = -1.0;
    }

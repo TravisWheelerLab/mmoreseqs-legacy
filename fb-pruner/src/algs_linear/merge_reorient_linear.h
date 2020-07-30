@@ -21,11 +21,11 @@ void EDGEBOUNDS_Reflect(	EDGEBOUNDS* 	edg );
  *  FUNCTION: EDGEBOUNDS_Merge()
  *  SYNOPSIS: Combine two edgebound lists into one. Assumes both lists are sorted.
  */
-void EDGEBOUNDS_Merge(	const int           Q,             /* query length */
-                      	const int           T,             /* target length */
-                      	const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
-                      	const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sored ascending) */
-                      	EDGEBOUNDS*         edg_out );     /* OUTPUT: merged edgebounds */
+void EDGEBOUNDS_Merge_Together(      const int           Q,             /* query length */
+                                    const int           T,             /* target length */
+                                    const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
+                                    const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                                    EDGEBOUNDS*         edg_out );     /* OUTPUT: merged edgebounds (sorted ascending) */
 
 /*
  *  FUNCTION: EDGEBOUNDS_Reorient_to_Row()

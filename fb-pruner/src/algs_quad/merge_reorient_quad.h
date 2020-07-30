@@ -33,22 +33,5 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
                                  MATRIX_2D*     cloud_MX,
                                  int            mode );
 
-/*
- *  FUNCTION: EDGEBOUNDS_Compare_by_Cloud()
- *  SYNOPSIS: Compare two EDGEBOUNDS by filling cloud matrices.
- */
-int EDGEBOUNDS_Compare_by_Cloud( EDGEBOUNDS*    edg_a,
-                                 MATRIX_2D*     mx_a,
-                                 EDGEBOUNDS*    edg_b,
-                                 MATRIX_2D*     mx_b );
-
-/*
- *  FUNCTION:  EDGEBOUNDS_Compare_by_Cloud_Single()
- *  SYNOPSIS:  Compares two EDGEBOUNDS by filling single cloud matrix.
- *             If equal, returns 0.  Else number of inequal cells.
- */
-int EDGEBOUNDS_Compare_by_Cloud_Single(   MATRIX_2D*     mx,
-                                          EDGEBOUNDS*    edg_a,
-                                          EDGEBOUNDS*    edg_b );
 
 #endif /* _MERGE_REORIENT_QUAD_H */

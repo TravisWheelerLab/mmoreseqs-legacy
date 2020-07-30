@@ -100,7 +100,7 @@ RANGE VECTOR_RANGE_Get( VECTOR_RANGE *vec, const int idx )
 }
 
 /* compare two VECTOR_RANGE objects */
-int VECTOR_RANGE_Compare( const VECTOR_RANGE *vecA, const VECTOR_RANGE *vecB )
+int VECTOR_RANGE_Compare( const VECTOR_RANGE *vec_A, const VECTOR_RANGE *vec_B )
 {
    // for (int i = 0; i < vecA->N; i++) {
    //    if ( vecA->data[i] != vecB->data[i] ) {
@@ -114,7 +114,20 @@ int VECTOR_RANGE_Compare( const VECTOR_RANGE *vecA, const VECTOR_RANGE *vecB )
    return 0;
 }
 
-void VECTOR_RANGE_Dump(FILE *fp, VECTOR_RANGE *vec)
+/* comparison test for RANGE */
+int RANGE_Compare(   const RANGE*   rng_A, 
+                     const RANGE*   rng_B )
+{
+   int cmp;
+   cmp = rng_A->beg - rng_B->beg;
+   if ( cmp == 0 ) 
+      return cmp;
+   cmp = rng_A->end - rng_B->end;
+   return cmp;
+}
+
+void VECTOR_RANGE_Dump( FILE*          fp, 
+                        VECTOR_RANGE*  vec )
 {
    for (int i = 0; i < vec->N; i++)
    {

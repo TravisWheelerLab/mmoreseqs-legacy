@@ -126,17 +126,17 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->beta = atoi(argv[i]);
+               args->beta = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--alpha-max") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--gamma") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->alpha_max = atof(argv[i]);
+               args->gamma = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -245,16 +245,6 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--") ) == 0 ) {
-            req_args = 1;
-            if (i+req_args <= argc) {
-               i++;
-               args->output_filepath = strdup(argv[i]);
-            } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
-            }
-         }
          else {
             fprintf(stderr, "ERROR: '%s' is not a recognized flag.\n", argv[i]);
             exit(EXIT_FAILURE);
@@ -296,8 +286,8 @@ void  ARGS_Set_Defaults( ARGS* args )
    // args->dbg_folderpath          = strdup("debug_output/");
 
    args->alpha                   = 12.0f;
-   args->alpha_max               = 20.0f;
-   args->beta                    = 5;
+   args->beta                    = 20.0f;
+   args->gamma                   = 5;
 
    args->pipeline_mode           = PIPELINE_TEST;
    args->verbose_level           = VERBOSE_LOW;
@@ -327,8 +317,8 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
    fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "ALPHA",           args->alpha );
-   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "ALPHA_MAX",       args->alpha_max );
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "BETA",            args->beta );
+   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "BETA",            args->beta );
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "GAMMA",           args->gamma );
    fprintf( fp, "\n" );
    /* inputs */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILEPATH", args->t_filepath );

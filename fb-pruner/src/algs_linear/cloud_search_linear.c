@@ -45,7 +45,7 @@
  */
 
 /*
- *  FUNCTION: cloud_Forward_Linear()
+ *  FUNCTION: run_Cloud_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment beginning.  
@@ -54,46 +54,66 @@
  *            from search space.  Terminates when reaches the final cell in dp matrix or 
  *            all cells in current antidiag have been pruned.  
  *            Stores final edgebound data in <edg>.
- *  RETURN:   Maximum score.
+ *  RETURN:   Returns <STATUS_SUCCESS> if no errors.
  */
-int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence */
-                              const HMM_PROFILE* target,       /* target hmm model */
-                              const int          Q,            /* query length */
-                              const int          T,            /* target length */
-                              MATRIX_3D*         st_MX3,       /* normal state matrix */
-                              MATRIX_2D*         sp_MX,        /* special state matrix */
-                              const ALIGNMENT*   tr,           /* viterbi traceback */
-                              EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
-                              EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                              CLOUD_PARAMS*      params )     /* pruning parameters */
+int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query sequence */
+                                 const HMM_PROFILE* target,       /* target hmm model */
+                                 const int          Q,            /* query length */
+                                 const int          T,            /* target length */
+                                 MATRIX_3D*         st_MX3,       /* normal state matrix */
+                                 MATRIX_2D*         sp_MX,        /* special state matrix */
+                                 const ALIGNMENT*   tr,           /* viterbi traceback */
+                                 EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row vector */
+                                 EDGEBOUNDS*        edg,          /* OUTPUT: edgebounds of cloud search space */
+                                 CLOUD_PARAMS*      params )      /* pruning parameters */
 {
-   /* vars for navigating matrix */
-   int            b, d, i, j, k;             /* diagonal, row, column indices */
-   int            le_0, re_0;                /* right/left matrix bounds of current diag */
-   int            le_1, re_1;                /* right/left matrix bounds of prev diag */
-   int            le_2, re_2;                /* right/left matrix bounds of prev diag */
-   int            lb_0, rb_0;                /* bounds of current diag */
-   int            lb_1, rb_1;                /* bounds of previous diag */
-   int            lb_2, rb_2;                /* bounds of 2-back diag */
-   int            num_cells;                 /* number of cells in diagonal */
-   int            d_st, d_end, d_cnt;        /* starting and ending diagonal indices */
-   int            d_last;                    /* last antidiagonal in cloud */
-   int            dim_min, dim_max;          /* diagonal index where num cells reaches highest point and diminishing point */ 
-   int            dim_T, dim_Q, dim_TOT;     /* dimensions of submatrix being searched */
+   /* vars for accessing query/target data structs */
+   char     a;                               /* store current character in sequence */
+   int      A;                               /* store int value of character */
+   char*    seq;                             /* alias for getting seq */
+   int      N;                               /* length of edgebound list */
+   bool     is_local;                        /* whether using local or global alignments */
+
+   /* vars for indexing into data matrices by row-col */
+   int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
+   int      q_0, q_1;                        /* real index of current and previous rows (query) */
+   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      t_0, t_1;                        /* real index of current and previous columns (target) */
+
+   /* vars for indexing into data matrices by anti-diag */
+   int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
+   int      dx0, dx1, dx2;                   /* mod mapping of antidiagonal index into data matrix */
+   int      k_0, k_1;                        /* offset into antidiagonal */
+   int      d_st, d_end, d_cnt, d_last;      /* starting and ending diagonal indices */
+   int      dim_T, dim_Q, dim_TOT;           /* dimensions of submatrix being searched */
+   int      dim_min, dim_max;                /* diagonal index where num cells reaches highest point and diminishing point */ 
+   int      num_cells;                       /* number of cells in current diagonal */
+
+   /* vars for indexing into edgebound lists */
+   BOUND*   bnd;                             /* current bound */
+   BOUND    bnd_new;                         /* for adding new bound to edgebound list */
+   int      id;                              /* id in edgebound list (row/diag) */
+   int      r_0;                             /* current index in edgebound list */
+   int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
+   int      le_0, re_0;                      /* right/left matrix bounds of current diag */
+   int      lb_0, rb_0;                      /* bounds of current search space on current diag */
+   int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
+   int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
+   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+
+   /* vars for recurrance scores */
+   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prev_loop, prev_move;            /* previous loop and move for special states */
+   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    sc_best;                         /* final best scores */
+   float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
+
+   /* vars for traceback */
    TRACE*         beg;                       /* beginning of the alignment */
    TRACE*         end;                       /* end of the alignment */
-
-   /* vars for computing cells */
-   char           a;                         /* store current character in sequence */
-   int            A;                         /* store int value of character */
-   char*          seq;                       /* alias for getting seq */
-
-   /* vars for recurrance */
-   int            d_0, d_1, d_2;             /* for assigning prev array ptrs */
-   int            d0, d1, d2;                /* for assigning prev array ptrs (in mod3 for linear space) */
-   float          prev_mat, prev_del, prev_ins, prev_beg, prev_end, prev_sum;
-   float          sc, sc_1, sc_2, sc_best, sc_max;
-   float          sc_M, sc_I, sc_D;
 
    /* vars for pruning */
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
@@ -104,33 +124,27 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
-   /* pruning params */
-   float alpha       = params->alpha;
-   float beta        = params->alpha_max;
-   int   gamma       = params->beta;
-
-   /* local or global? (multiple alignments) */
-   bool   is_local   = target->isLocal;
-   float  sc_E       = (is_local) ? 0 : -INF;
+   /* pruning parameters */
+   float alpha;
+   float beta;
+   int   gamma;
 
    /* debugger tools */
    FILE*       dbfp;
-
    MATRIX_2D*  cloud_MX;
    MATRIX_2D*  cloud_MX3;
    MATRIX_3D*  test_MX;
    MATRIX_3D*  test_MX3;
+   int         num_writes;
+   int         num_clears;
 
-   EDGEBOUNDS* test_edg;
-
-   /* initialize debugging tools */
+   /* initialize debugging matrix */
    #if DEBUG
    {
       cloud_MX    = debugger->cloud_MX;
       cloud_MX3   = debugger->cloud_MX3;
       test_MX     = debugger->test_MX;
       test_MX3    = debugger->test_MX3;
-      test_edg    = debugger->test_edg;
 
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
       MATRIX_2D_Fill( cloud_MX, 0 );
@@ -141,35 +155,37 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
       MATRIX_3D_Reuse( test_MX3, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
       MATRIX_3D_Fill( test_MX3, -INF );
 
-      EDGEBOUNDS_Reuse( test_edg, Q, T );
-      test_edg->edg_mode = EDG_DIAG;
+      num_writes = 0;
+      num_clears = 0;
    }
    #endif
 
    /* --------------------------------------------------------------------------------- */
 
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
+
+   /* clear all old data from data matrix if necessary */
+   if ( st_MX3->clean = false ) {
+      MATRIX_3D_Clean( st_MX3 );
+   }
+
+   /* query sequence */
+   seq         = query->seq;
+   /* local or global alignments? */
+   is_local    = target->isLocal;
+   sc_E        = (is_local) ? 0 : -INF;
+
+   /* get pruning parameters */
+   alpha       = params->alpha;
+   beta        = params->beta;
+   gamma       = params->gamma;
+
    /* initialize edges and bounds */
-   le_0 = le_1 = le_2 = 0;
-   re_0 = re_0 = re_2 = 0;
+   le_0 = 0;
+   re_0 = 0;
    lb_0 = lb_1 = lb_2 = 0;
    rb_0 = rb_1 = rb_2 = 0;
-
-   /* clear leftover data if necessary */
-   if ( st_MX3->clean == false ) {
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
-      st_MX3->clean = true;
-   }
-
-   /* verify memory is clean */
-   #if MEMCHECK
-   {
-      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
-      printf("PRE-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp);
-      if ( cmp != 0 ) {
-         MATRIX_3D_Clean( st_MX3 );
-      }
-   }
-   #endif 
 
    /* set edgebound dimensions and orientation */
    EDGEBOUNDS_Reuse( edg, Q, T );
@@ -193,8 +209,8 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    seq = query->seq;
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if ( beg->i == 0 || beg->j == 0 ) {
@@ -233,19 +249,18 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    d_cnt = 0;
 
    /* begin state probability begins at zero (free to start alignment) */
-   prev_beg = 0;
-   // prev_end = 0;
+   prv_B = 0;
+   // prv_E = 0;
 
    /* ITERATE THROUGH ANTI-DIAGONALS */
-   for (d = d_st; d <= d_end; d++, d_cnt++)
+   for (d_0 = d_st; d_0 <= d_end; d_0++, d_cnt++)
    {
-      d_0 = d;          /* current antidiagonal */
-      d_1 = (d-1);      /* look back 1 antidiagonal */
-      d_2 = (d-2);      /* look back 2 antidiagonal */
+      d_1   = d_0 - 1;      /* look back 1 antidiagonal */
+      d_2   = d_0 - 2;      /* look back 2 antidiagonal */
       /* mod-mapping of antidiagonals into linear space */
-      d0  = d_0 % 3; 
-      d1  = d_1 % 3;
-      d2  = d_2 % 3;
+      dx0   = d_0 % 3; 
+      dx1   = d_1 % 3;
+      dx2   = d_2 % 3;
 
       /* is dp matrix diagonal growing or shrinking? */
       if ( d_0 <= dim_min )
@@ -261,25 +276,25 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
-         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
-         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
-         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #endif
 
       /* Add pruned bounds to edgebound list */
-      for ( b = 0; b < lb_vec[0]->N; b++ )
+      for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* Update bounds (spans all cells adjacent to previous antidiagonals cells that were not pruned) */
          lb_0 = lb_0;
@@ -293,24 +308,24 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
          lb_vec[0]->data[b] = lb_0;
          rb_vec[0]->data[b] = rb_0;
 
-         BOUND bnd = (BOUND){d_0,lb_0,rb_0};
+         bnd_new = (BOUND){d_0,lb_0,rb_0};
 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
             /* add new bounds to edgebounds as antidiag-wise */
-            EDGEBOUNDS_Pushback( edg, &bnd );
+            EDGEBOUNDS_Pushback( edg, &bnd_new );
          }
          #endif
 
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_Integrate_Antidiag_Fwd( rows, &bnd );
+            EDGEBOUND_ROWS_Integrate_Antidiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
             {
-               EDGEBOUNDS_Pushback( test_edg, &bnd );
+               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
             }
             #endif
          }
@@ -318,88 +333,90 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
       }
 
       /* If diagonal set is empty, then all branches have been pruned, so we're done */
-      // printf("lb_vec_length: %d\n", lb_vec[0]->N );
       if ( lb_vec[0]->N <= 0 ) break;
 
       /* MAIN RECURSION */
       /* Iterate the ranges of the antidiagonal */
-      for ( b = 0; b < lb_vec[0]->N; b++ ) 
+      for ( i = 0; i < lb_vec[0]->N; i++ ) 
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* Iterate through cells in range */
-         for ( k = lb_0; k < rb_0; k++ )
+         for ( k_0 = lb_0; k_0 < rb_0; k_0++ )
          {
-            /* quadratic coords */
-            i = k;
-            j = d_0 - i;
+            k_1 = k_0 - 1;
 
-            a = seq[i];
+            /* row-col coords */
+            q_0 = k_0;
+            t_0 = d_0 - k_0;
+            t_1 = t_0 - 1;
+
+            a = seq[q_0];
             A = AA_REV[a];
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
             /* NOTE: Convert (i-1,j-1) <=> (d-2,k-1) */ 
-            prev_mat = MMX3(d2,k-1)  + TSC(j-1,M2M);
-            prev_ins = IMX3(d2,k-1)  + TSC(j-1,I2M);
-            prev_del = DMX3(d2,k-1)  + TSC(j-1,D2M);
+            prv_M = MMX3(dx2, k_1)  + TSC(t_1, M2M);
+            prv_I = IMX3(dx2, k_1)  + TSC(t_1, I2M);
+            prv_D = DMX3(dx2, k_1)  + TSC(t_1, D2M);
             /* Free to begin match state (new alignment) */
             /* NOTE: only allow begin transition at start of viterbi alignment */
-            // prev_beg = 0; /* assigned once at start */
+            // prv_B = 0; /* assigned once at start */
             /* best-to-match */
             prev_sum = logsum( 
-                           logsum( prev_mat, prev_ins ),
-                           logsum( prev_del, prev_beg ) );
-            MMX3(d0,k) = prev_sum + MSC(j,A);
+                           logsum( prv_M, prv_I ),
+                           logsum( prv_D, prv_B ) );
+            MMX3(dx0, k_0) = prev_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
             /* NOTE: Convert (i-1,j) <=> (d-1,k-1) */
-            prev_mat = MMX3(d1,k-1) + TSC(j,M2I);
-            prev_ins = IMX3(d1,k-1) + TSC(j,I2I);
+            prv_M = MMX3(dx1, k_1) + TSC(t_0, M2I);
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I);
             /* best-to-insert */
-            prev_sum = logsum( prev_mat, prev_ins );
-            IMX3(d0,k) = prev_sum + ISC(j,A);
+            prev_sum = logsum( prv_M, prv_I );
+            IMX3(dx0, k_0) = prev_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             /* NOTE: Convert (i,j-1) <=> (d-1, k) */
-            prev_mat = MMX3(d1,k) + TSC(j-1,M2D);
-            prev_del = DMX3(d1,k) + TSC(j-1,D2D);
+            prv_M = MMX3(dx1, k_0) + TSC(t_1, M2D);
+            prv_D = DMX3(dx1, k_0) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum(prev_mat, prev_del);
-            DMX3(d0,k) = prev_sum;
+            prev_sum = logsum(prv_M, prv_D);
+            DMX3(dx0, k_0) = prev_sum;
 
             /* embed cell data in quadratic matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, i, j ) += 1.0;
-               MX_2D( cloud_MX3, d0, k ) += 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 1.0;
+               MX_2D( cloud_MX3, dx0, k_0 ) += 1.0;
 
-               MX_3D( test_MX, MAT_ST, i, j ) = MMX3(d0, k);
-               MX_3D( test_MX, INS_ST, i, j ) = IMX3(d0, k);
-               MX_3D( test_MX, DEL_ST, i, j ) = DMX3(d0, k);
+               MX_3D( test_MX, MAT_ST, q_0, t_0 ) = MMX3(dx0, k_0);
+               MX_3D( test_MX, INS_ST, q_0, t_0 ) = IMX3(dx0, k_0);
+               MX_3D( test_MX, DEL_ST, q_0, t_0 ) = DMX3(dx0, k_0);
             }
             #endif 
          }
       }
 
       /* Scrub 2-back bound data */
-      for ( b = 0; b < lb_vec[2]->N; b++ )
+      for ( i = 0; i < lb_vec[2]->N; i++ )
       {
-         lb_2 = lb_vec[2]->data[b];
-         rb_2 = rb_vec[2]->data[b];
+         lb_2 = lb_vec[2]->data[i];
+         rb_2 = rb_vec[2]->data[i];
 
-         for ( k = lb_2; k < rb_2; k++ ) 
+         for ( k_0 = lb_2; k_0 < rb_2; k_0++ ) 
          {
-            i = k;
-            j = d_2 - i;
-            MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            q_0 = k_0;
+            t_0 = d_2 - k_0;
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             #if DEBUG 
             {
-               MX_2D( cloud_MX, i, j ) += 2.0;
-               MX_2D( cloud_MX3, d2, k ) -= 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
+               MX_2D( cloud_MX3, dx2, k_0 ) -= 1.0;
             }
             #endif
          }
@@ -410,15 +427,15 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
       {
          bool is_clean = false;
          
-         for (int j = 0; j < (Q+1)+(T+1); j++) 
+         for (int k_0 = 0; k_0 < (Q+1)+(T+1); k_0++) 
          {
             is_clean = false;
-            is_clean += (( MMX3(d2, j) == -INF ) == false);
-            is_clean += (( MMX3(d2, j) == -INF ) == false);
-            is_clean += (( DMX3(d2, j) == -INF ) == false);
+            is_clean += (( MMX3(dx2, k_0) == -INF ) == false);
+            is_clean += (( MMX3(dx2, k_0) == -INF ) == false);
+            is_clean += (( DMX3(dx2, k_0) == -INF ) == false);
             if ( is_clean != 0 ) {
-               memcheck_error( d_2, j, MMX3(d2, j), IMX3(d2, j), DMX3(d2, j) );
-               MMX3(d2, j) = IMX3(d2, j) = DMX3(d2, j) = -INF;
+               memcheck_error( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
+               MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             }
          }
       }
@@ -439,37 +456,36 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
       VECTOR_INT_Reuse( rb_vec[0] );
 
       /* disallow starting new alignments after first pass */
-      prev_beg = -INF;
-      // prev_end = -INF;
+      prv_B = -INF;
+      // prv_E = -INF;
    }
 
    /* Scrub last two rows */
-   d_last = d;
-   for (d = d_last; d < d_last + 2; d++)
+   d_last = d_0;
+   for (d_0 = d_last; d_0 < d_last + 2; d_0++)
    {
-      d_0 = d;          /* current antidiagonal */
-      d_1 = (d-1);      /* look back 1 antidiagonal */
-      d_2 = (d-2);      /* look back 2 antidiagonal */
+      d_1 = d_0 - 1;      /* look back 1 antidiagonal */
+      d_2 = d_0 - 2;      /* look back 2 antidiagonal */
       /* mod-mapping of antidiagonals into linear space */
-      d0  = d_0 % 3; 
-      d1  = d_1 % 3;
-      d2  = d_2 % 3;
+      dx0  = d_0 % 3; 
+      dx1  = d_1 % 3;
+      dx2  = d_2 % 3;
 
       /* Scrub 2-back bound data */
-      for ( b = 0; b < lb_vec[2]->N; b++ )
+      for ( i = 0; i < lb_vec[2]->N; i++ )
       {
-         lb_2 = lb_vec[2]->data[b];
-         rb_2 = rb_vec[2]->data[b];
+         lb_2 = lb_vec[2]->data[i];
+         rb_2 = rb_vec[2]->data[i];
 
-         for ( k = lb_2; k < rb_2; k++ ) 
+         for ( k_0 = lb_2; k_0 < rb_2; k_0++ ) 
          {
-            i = k;
-            j = d_2 - k;
-            MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            q_0 = k;
+            t_0 = d_2 - k;
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             #if DEBUG
             {
-               MX_2D( cloud_MX, i, j ) += 2.0;
-               MX_2D( cloud_MX3, d2, k ) -= 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
+               MX_2D( cloud_MX3, dx2, k_0 ) -= 1.0;
             }
             #endif
          }
@@ -491,15 +507,18 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    {
       bool is_clean = false;
 
-      for (int j = 0; j < (Q+1)+(T+1); j++) 
+      for (dx0 = 0; dx0 < 3; dx0++)
       {
-         is_clean = false;
-         is_clean += (( MMX3(d2, j) == -INF ) == false);
-         is_clean += (( MMX3(d2, j) == -INF ) == false);
-         is_clean += (( DMX3(d2, j) == -INF ) == false);
-         if ( is_clean != 0 ) {
-            memcheck_error( d_2, j, MMX3(d2, j), IMX3(d2, j), DMX3(d2, j) );
-            MMX3(d2, j) = IMX3(d2, j) = DMX3(d2, j) = -INF;
+         for (int k_0 = 0; k_0 < (Q+1)+(T+1); k_0++) 
+         {
+            is_clean = false;
+            is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
+            is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
+            is_clean += (( DMX3(dx0, k_0) == -INF ) == false);
+            if ( is_clean != 0 ) {
+               memcheck_error( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
+               MMX3(dx0, k_0) = IMX3(dx0, k_0) = DMX3(dx0, k_0) = -INF;
+            }
          }
       }
    }
@@ -544,7 +563,6 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    }
    #endif
    
-
    /* show visualization of search cloud */
    #if DEBUG
    {
@@ -560,12 +578,14 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
    }
    #endif 
 
+   st_MX3->clean = true;
+
    return STATUS_SUCCESS;
 }
 
 
 /*
- *  FUNCTION: cloud_Backward_Linear()
+ *  FUNCTION: run_Cloud_Backward_Linear()
  *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment ending.  
@@ -576,44 +596,64 @@ int cloud_Forward_Linear(     const SEQUENCE*    query,        /* query sequence
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence */
-                              const HMM_PROFILE* target,       /* target hmm model */
-                              const int          Q,            /* query length */
-                              const int          T,            /* target length */
-                              MATRIX_3D*         st_MX3,       /* normal state matrix */
-                              MATRIX_2D*         sp_MX,        /* special state matrix */
-                              const ALIGNMENT*   tr,           /* viterbi traceback */
-                              EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
-                              EDGEBOUNDS*        edg,          /* (OUTPUT) */
-                              CLOUD_PARAMS*      params )      /* pruning parameters */
+int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query sequence */
+                                 const HMM_PROFILE* target,       /* target hmm model */
+                                 const int          Q,            /* query length */
+                                 const int          T,            /* target length */
+                                 MATRIX_3D*         st_MX3,       /* normal state matrix */
+                                 MATRIX_2D*         sp_MX,        /* special state matrix */
+                                 const ALIGNMENT*   tr,           /* viterbi traceback */
+                                 EDGEBOUND_ROWS*    rows,         /* temporary edgebounds by-row */
+                                 EDGEBOUNDS*        edg,          /* (OUTPUT) */
+                                 CLOUD_PARAMS*      params )      /* pruning parameters */
 {
-   /* vars for navigating matrix */
-   int            b, d, i, j, k;             /* diagonal, row, column indices */
-   int            le_0, re_0;                /* right/left matrix bounds of current diag */
-   int            le_1, re_1;                /* right/left matrix bounds of prev diag */
-   int            le_2, re_2;                /* right/left matrix bounds of prev diag */
-   int            lb_0, rb_0;                /* bounds of current diag */
-   int            lb_1, rb_1;                /* bounds of previous diag */
-   int            lb_2, rb_2;                /* bounds of 2-back diag */
-   int            num_cells;                 /* number of cells in diagonal */
-   int            d_st, d_end, d_cnt;        /* starting and ending diagonal indices */
-   int            d_last;                    /* last antidiagonal in cloud */
-   int            dim_min, dim_max;          /* diagonal index where num cells reaches highest point and diminishing point */ 
-   int            dim_T, dim_Q, dim_TOT;     /* dimensions of submatrix being searched */
+   /* vars for accessing query/target data structs */
+   char     a;                               /* store current character in sequence */
+   int      A;                               /* store int value of character */
+   char*    seq;                             /* alias for getting seq */
+   int      N;                               /* length of edgebound list */
+   bool     is_local;                        /* whether using local or global alignments */
+
+   /* vars for indexing into data matrices by row-col */
+   int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
+   int      q_0, q_1;                        /* real index of current and previous rows (query) */
+   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      t_0, t_1;                        /* real index of current and previous columns (target) */
+
+   /* vars for indexing into data matrices by anti-diag */
+   int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
+   int      dx0, dx1, dx2;                   /* mod mapping of antidiagonal index into data matrix */
+   int      k_0, k_1;                        /* real index offset into diagonals */
+   int      d_st, d_end, d_cnt, d_last;      /* starting and ending diagonal indices */
+   int      dim_T, dim_Q, dim_TOT;           /* dimensions of submatrix being searched */
+   int      dim_min, dim_max;                /* diagonal index where num cells reaches highest point and diminishing point */ 
+   int      num_cells;                       /* number of cells in current diagonal */
+
+   /* vars for indexing into edgebound lists */
+   BOUND*   bnd;                             /* current bound */
+   BOUND    bnd_new;                         /* for adding new bound to edgebound list */
+   int      id;                              /* id in edgebound list (row/diag) */
+   int      r_0;                             /* current index in edgebound list */
+   int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
+   int      le_0, re_0;                      /* right/left matrix bounds of current diag */
+   int      lb_0, rb_0;                      /* bounds of current search space on current diag */
+   int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
+   int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
+   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+
+   /* vars for recurrance scores */
+   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prev_loop, prev_move;            /* previous loop and move for special states */
+   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    sc_best;                         /* final best scores */
+   float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
+
+   /* vars for traceback */
    TRACE*         beg;                       /* beginning of the alignment */
    TRACE*         end;                       /* end of the alignment */
-
-   /* vars for computing cells */
-   char           a;                         /* store current character in sequence */
-   int            A;                         /* store int value of character */
-   char*          seq;                       /* alias for getting seq */
-
-   /* vars for recurrance */
-   int            d_0, d_1, d_2;             /* for assigning prev array ptrs */
-   int            d0, d1, d2;                /* for assigning prev array ptrs (in mod3 for linear space) */
-   float          prev_mat, prev_del, prev_ins, prev_beg, prev_end, prev_sum;
-   float          sc, sc_1, sc_2, sc_best, sc_max;
-   float          sc_M, sc_I, sc_D;
 
    /* vars for pruning */
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
@@ -624,26 +664,23 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
-   /* pruning params */
-   float alpha       = params->alpha;
-   float alpha_max   = params->alpha_max;
-   int beta          = params->beta;
-
-   /* local or global? (multiple alignments) */
-   bool   is_local   = target->isLocal;
-   float  sc_E       = (is_local) ? 0 : -INF;
+   /* pruning parameters */
+   float alpha;
+   float beta;
+   int   gamma;
 
    /* debugger tools */
    FILE*       dbfp;
-
    MATRIX_2D*  cloud_MX;
    MATRIX_2D*  cloud_MX3;
    MATRIX_3D*  test_MX;
    MATRIX_3D*  test_MX3;
-
    EDGEBOUNDS* test_edg;
 
-   /* initialize debugging tools */
+   int         num_writes;
+   int         num_clears;
+
+   /* initialize debugging matrix */
    #if DEBUG
    {
       cloud_MX    = debugger->cloud_MX;
@@ -660,35 +697,39 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       MATRIX_3D_Fill( test_MX, -INF );
       MATRIX_3D_Reuse( test_MX3, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
       MATRIX_3D_Fill( test_MX3, -INF );
-
       EDGEBOUNDS_Reuse( test_edg, Q, T );
-      test_edg->edg_mode = EDG_DIAG;
+
+      num_writes = 0;
+      num_clears = 0;
    }
    #endif
 
    /* --------------------------------------------------------------------------------- */
 
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
+
+   /* clear all old data from data matrix if necessary */
+   if ( st_MX3->clean = false ) {
+      MATRIX_3D_Clean( st_MX3 );
+   }
+
+   /* query sequence */
+   seq         = query->seq;
+   /* local or global alignments? */
+   is_local    = target->isLocal;
+   sc_E        = (is_local) ? 0 : -INF;
+
+   /* get pruning parameters */
+   alpha       = params->alpha;
+   beta        = params->beta;
+   gamma       = params->gamma;
+
    /* initialize edges and bounds */
-   le_0 = le_1 = le_2 = 0;
-   re_0 = re_0 = re_2 = 0;
+   le_0 = 0;
+   re_0 = 0;
    lb_0 = lb_1 = lb_2 = 0;
    rb_0 = rb_1 = rb_2 = 0;
-
-   /* clear leftover data */
-   if ( st_MX3->clean == false ) {
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
-      st_MX3->clean = true;
-   }
-
-   #if MEMCHECK
-   {
-      int cmp =  MATRIX_3D_Check_Clean( st_MX3 );
-      printf("PRE-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp);
-      if ( cmp != 0 ) {
-         MATRIX_3D_Clean( st_MX3 );
-      }
-   }
-   #endif 
 
    /* set edgebound dimensions and orientation */
    EDGEBOUNDS_Reuse( edg, Q, T );
@@ -713,8 +754,8 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
    seq = query->seq;
 
    /* get start and end points of viterbi alignment */
-   beg = &(tr->traces[tr->beg]);
-   end = &(tr->traces[tr->end]);
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if (end->i == Q || end->j == T) {
@@ -753,19 +794,18 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
    d_cnt    = 0;
 
    /* begin state probability begins at zero (free to start alignment) */
-   // prev_beg = 0;
-   prev_end = 0;
+   // prv_B = 0;
+   prv_E = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
-   for (d = d_end; d >= d_st; d--, d_cnt++)
+   for (d_0 = d_end; d_0 >= d_st; d_0--, d_cnt++)
    {
-      d_0 = d;       /* current diagonal */
-      d_1 = (d+1);   /* look back 1 diagonal */
-      d_2 = (d+2);   /* look back 2 diagonals */
+      d_1 = d_0 + 1;   /* look back 1 diagonal */
+      d_2 = d_0 + 2;   /* look back 2 diagonals */
       /* mod-mapping of antidiagonals into linear space */
-      d0  = d_0 % 3; 
-      d1  = d_1 % 3;
-      d2  = d_2 % 3;
+      dx0  = d_0 % 3; 
+      dx1  = d_1 % 3;
+      dx2  = d_2 % 3;
 
       /* Is dp matrix diagonal growing or shrinking? */
       if (d >= dim_max)
@@ -781,25 +821,26 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
-         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_edgetrim_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
-         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_bifurcate_Linear( st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
-         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, alpha_max, beta, d_1, d_0, d1, d0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_dbl_xdrop_edgetrim_or_die_Linear( st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #endif
 
       /* Add pruned bounds to edgebound list */
-      for ( b = 0; b < lb_vec[0]->N; b++ )
+      for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         /* pull bounds from list */
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* Update bounds (spans all cells adjacent to previous antidiagonals cells that were not pruned) */
          lb_0 = lb_0 - 1;
@@ -810,27 +851,27 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
          rb_0 = MIN(rb_0, re_0);
 
          /* Update changes to list */
-         lb_vec[0]->data[b] = lb_0;
-         rb_vec[0]->data[b] = rb_0;
+         lb_vec[0]->data[i] = lb_0;
+         rb_vec[0]->data[i] = rb_0;
 
-         BOUND bnd = (BOUND){d_0,lb_0,rb_0};
+         bnd_new = (BOUND){d_0,lb_0,rb_0};
 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
             /* add new bounds to edgebounds as antidiag-wise */
-            EDGEBOUNDS_Pushback( edg, &bnd );
+            EDGEBOUNDS_Pushback( edg, &bnd_new );
          }
          #endif
 
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_Integrate_Antidiag_Bck( rows, &bnd );
+            EDGEBOUND_ROWS_Integrate_Antidiag_Bck( rows, &bnd_new );
 
-            /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
             {
-               EDGEBOUNDS_Pushback( test_edg, &bnd );
+               /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
+               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
             }
             #endif
          }
@@ -842,17 +883,21 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       if ( lb_vec[0]->N <= 0 ) break;
 
       /* MAIN RECURSION */
-      for ( b = 0; b < lb_vec[0]->N; b++ )
+      for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
-         for ( k = lb_0; k < rb_0; k++ )
+         for ( k_0 = lb_0; k_0 < rb_0; k_0++ )
          {
+            k_1 = k_0 + 1;
+
             /* get x-y coords */
-            i = k;
-            j = d_0 - i;
+            q_0 = k_0;
+            q_1 = k_0 + 1;
+            t_0 = d_0 - k_0;
+            t_1 = t_0 + 1;
 
             /*    
              *    === ROW-WISE to DIAG_WISE ===
@@ -862,72 +907,72 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
              */
 
             /* next sequence character */
-            a = seq[i];
+            a = seq[q_0];
             A = AA_REV[a];
 
             /* match and insertion scores */
-            sc_M = MSC(j+1, A);
-            sc_I = ISC(j+1, A);
+            sc_M = MSC(t_1, A);
+            sc_I = ISC(t_1, A);
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-            prev_mat = MMX3(d2, k+1) + TSC(j, M2M) + sc_M;
-            prev_ins = IMX3(d1, k+1) + TSC(j, M2I) + sc_I;
-            prev_del = DMX3(d1, k  ) + TSC(j, M2D);
-            // prev_end = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
-            // prev_end = sc_E;
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, M2M) + sc_M;
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, M2I) + sc_I;
+            prv_D = DMX3(dx1, k_1) + TSC(t_0, M2D);
+            // prv_E = sc_E;
             /* best-to-match */
             prev_sum = logsum( 
-                           logsum( prev_mat, prev_ins ),
-                           logsum( prev_del, prev_end ) );
-            MMX3(d0,k) = prev_sum;
+                           logsum( prv_M, prv_I ),
+                           logsum( prv_D, prv_E ) );
+            MMX3(dx0, k_0) = prev_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-            sc_I = ISC(j, A);
+            sc_I = ISC(t_0, A);
 
-            prev_mat = MMX3(d2, k+1) + TSC(j, I2M) + sc_M;
-            prev_ins = IMX3(d1, k+1) + TSC(j, I2I) + sc_I;
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, I2M) + sc_M;
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I) + sc_I;
             /* best-to-insert */
-            prev_sum = logsum( prev_mat, prev_ins );
-            IMX3(d0,k) = prev_sum;
+            prev_sum = logsum( prv_M, prv_I );
+            IMX3(dx0, k_0) = prev_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prev_mat = MMX3(d2, k+1) + TSC(j, D2M) + sc_M;
-            prev_del = DMX3(d1, k  ) + TSC(j, D2D);
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, D2M) + sc_M;
+            prv_D = DMX3(dx1, k_0) + TSC(t_0, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prev_mat, prev_del );
-            prev_sum = logsum( prev_sum, prev_end );
-            DMX3(d0,k) = prev_sum;
+            prev_sum = logsum( prv_M, prv_D );
+            prev_sum = logsum( prev_sum, prv_E );
+            DMX3(dx0, k_0) = prev_sum;
 
             /* embed cell data in quadratic matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, i, j ) += 1.0;
-               MX_2D( cloud_MX3, d0, k ) += 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 1.0;
+               MX_2D( cloud_MX3, dx0, k_0 ) += 1.0;
 
-               MX_3D( test_MX, MAT_ST, i, j ) = MMX3(d0, k);
-               MX_3D( test_MX, INS_ST, i, j ) = IMX3(d0, k);
-               MX_3D( test_MX, DEL_ST, i, j ) = DMX3(d0, k);
+               MX_3D( test_MX, MAT_ST, q_0, t_0 ) = MMX3(dx0, k_0);
+               MX_3D( test_MX, INS_ST, q_0, t_0 ) = IMX3(dx0, k_0);
+               MX_3D( test_MX, DEL_ST, q_0, t_0 ) = DMX3(dx0, k_0);
             }
             #endif 
          }
       }
 
       /* Scrub 2-back bound data */
-      for ( b = 0; b < lb_vec[2]->N; b++ )
+      for ( i = 0; i < lb_vec[2]->N; i++ )
       {
-         lb_2 = lb_vec[2]->data[b];
-         rb_2 = rb_vec[2]->data[b];
+         lb_2 = lb_vec[2]->data[i];
+         rb_2 = rb_vec[2]->data[i];
 
-         for ( k = lb_2; k < rb_2; k++ ) 
+         for ( k_0 = lb_2; k_0 < rb_2; k_0++ ) 
          {
-            i = k;
-            j = d_2 - i;
-            MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            q_0 = k_0;
+            t_0 = d_2 - q_0;
+
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
 
             #if DEBUG 
             {
-               MX_2D( cloud_MX, i, j ) += 2.0;
-               MX_2D( cloud_MX3, d2, k ) -= 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
+               MX_2D( cloud_MX3, dx2, k_0 ) -= 1.0;
             }
             #endif
          }
@@ -938,15 +983,17 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       {
          bool is_clean = false;
 
-         for (int j = 0; j < (Q+1)+(T+1); j++) 
+         for (int k_0 = 0; k_0 < (Q+1)+(T+1); k_0++) 
          {
             is_clean = false;
-            is_clean += (( MMX3(d2, j) == -INF ) == false);
-            is_clean += (( MMX3(d2, j) == -INF ) == false);
-            is_clean += (( DMX3(d2, j) == -INF ) == false);
+            is_clean += (( MMX3(dx2, k_0) == -INF ) == false);
+            is_clean += (( MMX3(dx2, k_0) == -INF ) == false);
+            is_clean += (( DMX3(dx2, k_0) == -INF ) == false);
+
             if ( is_clean != 0 ) {
-               memcheck_error( d_2, j, MMX3(d2, j), IMX3(d2, j), DMX3(d2, j) );
-               MMX3(d2, j) = IMX3(d2, j) = DMX3(d2, j) = -INF;
+               memcheck_error( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
+               MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
+               is_clean = 0;
             }
          }
       }
@@ -967,38 +1014,38 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       VECTOR_INT_Reuse( rb_vec[0] );
 
       /* disallow starting new alignments after first pass */
-      // prev_beg = -INF;
-      prev_end = -INF;
+      // prv_B = -INF;
+      prv_E = -INF;
    }
 
    /* scrub last two rows */
-   d_last = d;
-   for (d = d_last; d > d_last - 2; d--)
+   d_last = d_0;
+   for (d_0 = d_last; d_0 > d_last - 2; d_0--)
    {
-      d_0 = d;       /* current diagonal */
-      d_1 = (d+1);   /* look back 1 diagonal */
-      d_2 = (d+2);   /* look back 2 diagonals */
+      d_1 = d_0 + 1;   /* look back 1 diagonal */
+      d_2 = d_0 + 2;   /* look back 2 diagonals */
       /* mod-mapping of antidiagonals into linear space */
-      d0  = d_0 % 3; 
-      d1  = d_1 % 3;
-      d2  = d_2 % 3;
+      dx0  = d_0 % 3; 
+      dx1  = d_1 % 3;
+      dx2  = d_2 % 3;
 
       /* Scrub 2-back bound data */
-      for ( b = 0; b < lb_vec[2]->N; b++ )
+      for ( i = 0; i < lb_vec[2]->N; i++ )
       {
-         lb_2 = lb_vec[2]->data[b];
-         rb_2 = rb_vec[2]->data[b];
+         lb_2 = lb_vec[2]->data[i];
+         rb_2 = rb_vec[2]->data[i];
 
-         for ( k = lb_2; k < rb_2; k++ ) 
+         for ( k_0 = lb_2; k_0 < rb_2; k_0++ ) 
          {
-            i = k;
-            j = d_2 - i;
-            MMX3(d2,k) = IMX3(d2,k) = DMX3(d2,k) = -INF;
+            q_0 = k_0;
+            t_0 = d_2 - q_0;
+
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
 
             #if DEBUG 
             {
-               MX_2D( cloud_MX, i, j ) += 2.0;
-               MX_2D( cloud_MX3, d2, k ) -= 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
+               MX_2D( cloud_MX3, dx2, k_0 ) -= 1.0;
             }
             #endif
          }
@@ -1020,15 +1067,18 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
    {
       bool is_clean = false;
 
-      for (int j = 0; j < (Q+1)+(T+1); j++) 
+      for (dx0 = 0; dx0 < 3; dx0++)
       {
-         is_clean = false;
-         is_clean += (( MMX3(d2, j) == -INF ) == false);
-         is_clean += (( MMX3(d2, j) == -INF ) == false);
-         is_clean += (( DMX3(d2, j) == -INF ) == false);
-         if ( is_clean != 0 ) {
-            memcheck_error( d_2, j, MMX3(d2, j), IMX3(d2, j), DMX3(d2, j) );
-            MMX3(d2, j) = IMX3(d2, j) = DMX3(d2, j) = -INF;
+         for (int k_0 = 0; k_0 < (Q+1)+(T+1); k_0++) 
+         {
+            is_clean = false;
+            is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
+            is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
+            is_clean += (( DMX3(dx0, k_0) == -INF ) == false);
+            if ( is_clean != 0 ) {
+               memcheck_error( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
+               MMX3(dx0, k_0) = IMX3(dx0, k_0) = DMX3(dx0, k_0) = -INF;
+            }
          }
       }
    }
@@ -1057,7 +1107,7 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
             EDGEBOUNDS_Dump( edg, stdout );
             EDGEBOUNDS_Dump( test_edg, stdout );
 
-            printf("=== ROW-WISE ===\n");
+            printf("=== DIAG-WISE ===\n");
             MATRIX_2D_Fill( cloud_MX, 0 );
             MATRIX_2D_Cloud_Fill( cloud_MX, edg, 1 );
             DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
@@ -1090,6 +1140,8 @@ int cloud_Backward_Linear(    const SEQUENCE*    query,        /* query sequence
       // EDGEBOUNDS_Dump( edg, stdout );
    }
    #endif
+
+   st_MX3->clean = true;
 
    return STATUS_SUCCESS;
 }

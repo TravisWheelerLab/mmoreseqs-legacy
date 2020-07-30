@@ -37,7 +37,7 @@
  *
  *  ARGS:      <args>     parsed commandline arguments
  *
- *  RETURN:    No Return.
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  *
 /* ****************************************************************************************** */
 void time_pipeline( WORKER* worker ) 
