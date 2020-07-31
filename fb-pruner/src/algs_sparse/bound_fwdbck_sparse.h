@@ -7,8 +7,8 @@
  *  BUG:       
  *******************************************************************************/
 
-#ifndef _BOUNDED_FWDBCK_SPARSE_H
-#define _BOUNDED_FWDBCK_SPARSE_H
+#ifndef _BOUND_FWDBCK_SPARSE_H
+#define _BOUND_FWDBCK_SPARSE_H
 
 /* 
  *  FUNCTION: run_Bound_Forward_Sparse()
@@ -56,4 +56,4 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  float*               sc_final );    /* (OUTPUT) final score */
 
-#endif /* _BOUNDED_FWDBCK_LINEAR_H */
+#endif /* _BOUND_FWDBCK_LINEAR_H */
