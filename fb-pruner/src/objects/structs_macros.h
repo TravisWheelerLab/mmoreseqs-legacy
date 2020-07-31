@@ -96,7 +96,8 @@
 /* gets the location where error occurred */
 #define LOCATION 			__FILE__, __LINE__, __FUNCTION__
 
-/* === MATRIX FUNCTIONS === */
+/* === MATRIX FUNCTIONS AND MACROS === */
+
 /* => by default, use MATRIX_3D and MATRIX_2D function calls */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for any 3d matrix */
@@ -108,14 +109,21 @@
 	#define MX_3D(mx,st,i,j)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (i) * (mx->N)) + (j) ] )
 #endif
 
-/* match, insert, delete for st_MX matrix */
+/* match, insert, delete for st_MX matrix (quadratic space matrix) */
 #define MMX(i,j)           	MX_3D( st_MX, MAT_ST, i, j )
 #define IMX(i,j)           	MX_3D( st_MX, INS_ST, i, j )
 #define DMX(i,j)           	MX_3D( st_MX, DEL_ST, i, j )
-/* match, insert, delete for st_MX3 matrix */
+
+/* match, insert, delete for st_MX3 matrix (linear space matrix) */
 #define MMX3(i,j)          	MX_3D( st_MX3, MAT_ST, i, j )
 #define IMX3(i,j)          	MX_3D( st_MX3, INS_ST, i, j )
 #define DMX3(i,j)          	MX_3D( st_MX3, DEL_ST, i, j )
+
+/* match, insert, delete for st_SMX matrix (sparse matrix) */
+#define SMX(bnd_loc, bnd_offset, st) 		( mx->data->data[ bnd_loc + (bnd_offset * NUM_NORMAL_STATES) + st ] )
+#define MSMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, MAT_ST) )
+#define ISMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, INS_ST) )
+#define DSMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, DEL_ST) )
 
 /* generic access for any 2d matrix */
 /* => by default, use MATRIX_3D and MATRIX_2D function calls */
@@ -129,9 +137,10 @@
 	#define MX_2D(mx,st,i)  	( mx->data[ ((st) * (mx->C)) + (i) ] )
 #endif
 
+/* special state */
 #define XMX(sp,i)          	MX_2D(sp_MX,sp,i)
 
-/* TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS */
+/* === TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS === */
 /* generic hmm profile functions */
 #define TSC_HMM(prof,j,tr)    ( prof->hmm_model[j].trans[tr] )
 #define XSC_HMM(prof,sp,tr)   ( prof->bg_model->spec[sp][tr] )

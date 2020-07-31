@@ -77,6 +77,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -170,6 +171,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    rb_0 = rb_1 = rb_2 = 0;
 
    /* set edgebound dimensions and orientation */
+   EDGEBOUND_ROWS_Reuse( rows, Q, T );
    EDGEBOUNDS_Reuse( edg, Q, T );
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
@@ -290,7 +292,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
          lb_vec[0]->data[b] = lb_0;
          rb_vec[0]->data[b] = rb_0;
 
-         bnd_new = (BOUND){d_0,lb_0,rb_0};
+         bnd_new = (BOUND){d_0, lb_0, rb_0};
 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
@@ -331,6 +333,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
 
             /* row-col coords */
             q_0 = k_0;
+            q_1 = q_0 - 1;
             t_0 = d_0 - k_0;
             t_1 = t_0 - 1;
 
@@ -339,9 +342,9 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MMX(q_1, t_1) + TSC(q_1, M2M);
-            prv_I = IMX(q_1, t_1) + TSC(q_1, I2M);
-            prv_D = DMX(q_1, t_1) + TSC(q_1, D2M);
+            prv_M = MMX(q_1, t_1) + TSC(t_1, M2M);
+            prv_I = IMX(q_1, t_1) + TSC(t_1, I2M);
+            prv_D = DMX(q_1, t_1) + TSC(t_1, D2M);
             /* free to begin match state (new alignment) */
             // prv_B = 0; /* assigned once at start */
             /* best-to-match */
@@ -358,17 +361,18 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
             prev_sum = logsum( prv_M, prv_I );
             IMX(q_0, t_0) = prev_sum + ISC(t_0, A);
 
+
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
             prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum(prv_M, prv_D);
+            prev_sum = logsum( prv_M, prv_D );
             DMX(q_0, t_0) = prev_sum;
 
             /* set each cell accessed */
             #if DEBUG
-               MX_2D( cloud_MX, i, j ) = 1.0;
+               MX_2D( cloud_MX, q_0, t_0 ) = 1.0;
                MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(q_0, t_0);
                MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(q_0, t_0);
                MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(q_0, t_0);
@@ -454,6 +458,7 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -540,10 +545,24 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    beta  = params->beta;
    gamma = params->gamma;
 
+   /* initialize edges and bounds */
+   le_0 = 0;
+   re_0 = 0;
+   lb_0 = lb_1 = lb_2 = 0;
+   rb_0 = rb_1 = rb_2 = 0;
+
    /* set edgebound dimensions and orientation */
-   edg->Q         = Q;
-   edg->T         = T;
-   edg->edg_mode  = EDG_DIAG;
+   EDGEBOUND_ROWS_Reuse( rows, Q, T );
+   EDGEBOUNDS_Reuse( edg, Q, T );
+   #if ( CLOUD_METHOD == CLOUD_DIAGS )
+   {
+      edg->edg_mode  = EDG_DIAG;
+   }
+   #elif ( CLOUD_METHOD == CLOUD_ROWS )
+   {
+      edg->edg_mode  = EDG_ROW;
+   }
+   #endif
 
    /* malloc dynamic memory */
    dp_bound = (BOUND*) malloc( sizeof(BOUND) );
@@ -600,20 +619,19 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    prv_E = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
-   for ( d = d_end; d >= d_st; d--, d_cnt++ )
+   for ( d_0 = d_end; d_0 >= d_st; d_0--, d_cnt++ )
    {
-      d_0 = d;       /* current diagonal */
-      d_1 = (d+1);   /* look back 1 diagonal */
-      d_2 = (d+2);   /* look back 2 diagonals */
+      d_1 = d_0 + 1;    /* look back 1 diagonal */
+      d_2 = d_0 + 2;    /* look back 2 diagonals */
       /* mod-mapping of antidiagonals into linear space */
       dx0 = d_0 % 3; 
       dx1 = d_1 % 3;
       dx2 = d_2 % 3;
 
       /* Is dp matrix diagonal growing or shrinking? */
-      if ( d >= dim_max )
+      if ( d_0 >= dim_max )
          num_cells++;
-      if ( d < dim_min )
+      if ( d_0 < dim_min )
          num_cells--;
 
       /* TODO: is there a closed form for edges, aka not using num_cells? */
@@ -652,7 +670,7 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
          lb_vec[0]->data[b] = lb_0;
          rb_vec[0]->data[b] = rb_0;
 
-
+         bnd_new = (BOUND){d_0, lb_0, rb_0};
 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
@@ -676,11 +694,14 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
          #endif
       }
 
+      /* If diagonal set is empty, then all branches have been pruned, so we're done */
+      if ( lb_vec[0]->N <= 0 ) break;
+
       /* MAIN RECURSION */
-      for ( b = 0; b < lb_vec[0]->N; b++ )
+      for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
          for ( k = lb_0; k < rb_0; k++ )

@@ -69,24 +69,27 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
    int      num_cells;                       /* number of cells in current diagonal */
 
    /* vars for indexing into edgebound lists */
-   int      x, y1, y2;                       /* row, leftcol and rightcol bounds in row (edgebounds) */
-   int      r_0b, r_0e;                      /* (begin,end] range indices for current row in edgebound list */
-   int      r_1b, r_1e;                      /* (begin,end] range indices for current row in edgebound list */
+   BOUND*   bnd;                             /* current bound */
+   int      id;                              /* id in edgebound list (row/diag) */
+   int      r_0;                             /* current index for current row */
+   int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
+   int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
    int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
-   bool     y2_re;                           /* checks if edge touches right bound of matrix */
+   bool     rb_T;                            /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
-   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
-   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
-   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
    float    prev_loop, prev_move;            /* previous loop and move for special states */
    float    prev_sum, prev_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
-
+   
    /* debugger tools */
    FILE*       dbfp;
    MATRIX_2D*  cloud_MX;
@@ -142,7 +145,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
    /* FOR every position in QUERY seq */
    for (q_0 = 1; q_0 <= Q; q_0++)
    {
-      q_1 = q_0 - 1;
+      q_1 = q_0-1;
       qx0 = q_0;
       qx1 = q_1;
 
@@ -159,7 +162,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
       /* FOR every position in TARGET profile */
       for (t_0 = 1; t_0 < T; t_0++)
       {
-         t_1 = t_0 - 1;
+         t_1 = t_0-1;
 
          /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
@@ -208,7 +211,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
 
       /* UNROLLED FINAL LOOP ITERATION */
       t_0 = T;
-      t_1 = t_0-1;
+      t_1 = t_0 - 1;
 
       /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
       /* best previous state transition (match takes the diag element of each prev state) */

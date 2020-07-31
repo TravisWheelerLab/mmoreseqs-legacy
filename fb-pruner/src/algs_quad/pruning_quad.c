@@ -252,7 +252,7 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
 				continue;
 
 			/* Find the first cell from the right which passes above threshold */
-			for ( k = rb_1 - 1; k >= lb_1; k-- )
+			for ( k_0 = rb_1 - 1; k_0 >= lb_1; k_0-- )
 			{
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
@@ -343,7 +343,7 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 	diag_limit 	= diag_max - alpha;
 
 	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
-	if ( diag_max < total_limit ) {
+	if ( gamma >= d_cnt && diag_max < total_limit ) {
 		return;
 	}
 
@@ -354,7 +354,7 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 		rb_1 = rb_vec[1]->data[i];
 
 		/* If free passes are not complete, do no pruning */
-		if ( beta >= d_cnt )
+		if ( gamma >= d_cnt )
 		{
 			VECTOR_INT_Pushback( lb_vec[0], lb_1 );
 			VECTOR_INT_Pushback( rb_vec[0], rb_1 );
@@ -375,7 +375,7 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 				                      calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 
 				/* prune in left edgebound */
-				if ( cell_max >= total_limit )
+				if ( cell_max >= diag_limit )
 				{
 					lb_0 = k_0;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
@@ -388,7 +388,7 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 				continue;
 
 			/* Find the first cell from the right which passes above threshold */
-			for ( k = rb_1 - 1; k >= lb_1; k-- )
+			for ( k_0 = rb_1 - 1; k_0 >= lb_1; k_0-- )
 			{
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
@@ -397,7 +397,7 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 				                      calc_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
 
 				/* prune in right edgebound */
-				if ( cell_max >= total_limit )
+				if ( cell_max >= diag_limit )
 				{
 					rb_0 = k_0 + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );

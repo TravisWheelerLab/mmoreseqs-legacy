@@ -79,8 +79,9 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    /* vars for indexing into edgebound lists */
    BOUND*   bnd;                             /* current bound */
    int      id;                              /* id in edgebound list (row/diag) */
-   int      r_0;                             /* current index in edgebound list */
+   int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -205,10 +206,10 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
       XMX(SP_E, q_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
-      for (i = r_0b; i < r_0e; i++)
+      for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, 0);
+         bnd   = &EDG_X(edg, r_0);
          id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
          lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
          rb_0  = bnd->rb;
@@ -341,10 +342,10 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
       XMX(SP_B, q_0) = logsum( prv_N, prv_J );    
 
       /* SCRUB PREVIOUS ROW */
-      for (i = r_1b; i < r_1e; i++) 
+      for (r_1 = r_1b; r_1 < r_1e; r_1++) 
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, i);        /* NOTE: this is always the same as cur_row, q_0 */
+         bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
          lb_1  = bnd->lb;               /* can't overflow the left edge */
          rb_1  = bnd->rb;
 
@@ -364,10 +365,10 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    qx1 = Q % 2;
 
    /* SCRUB FINAL ROW */
-   for (i = r_1b; i < r_1e; i++) 
+   for (r_1 = r_1b; r_1 < r_1e; r_1++) 
    {
       /* in this context, "id" represents the "row" */
-      bnd   = &EDG_X(edg, i);        /* NOTE: this is always the same as cur_row, q_0 */
+      bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
       lb_1  = bnd->lb;               /* can't overflow the left edge */
       rb_1  = bnd->rb;
 
@@ -446,9 +447,10 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    /* vars for indexing into edgebound lists */
    BOUND*   bnd;                             /* current bound */
    int      id;                              /* id in edgebound list (row/diag) */
-   int      r_0;                             /* current index in edgebound list */
+   int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
-   int      r_1b, r_1e;                      /* begin and end indices for previous row in edgebound list */
+   int      r_1;                             /* current index for previous row */
+   int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
@@ -571,9 +573,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    // }
 
    /* Initialize normal states (sparse) */
-   for (i = r_0b; i > r_0e; i--) 
+   for (r_0 = r_0b; r_0 > r_0e; r_0--) 
    {
-      bnd = &EDG_X(edg, i);            /* bounds for current bound */
+      bnd = &EDG_X(edg, r_0);            /* bounds for current bound */
       lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
       rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
@@ -642,9 +644,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
 
       /* B STATE (sparse) */
       XMX(SP_B, q_0) = -INF;
-      for (i = r_1b; i > r_1e; i--) 
+      for (r_1 = r_1b; r_1 > r_1e; r_1--) 
       {
-         bnd = &EDG_X(edg, i);            /* bounds for current bound */
+         bnd = &EDG_X(edg, r_1);          /* bounds for current bound */
          lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
          rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
@@ -673,7 +675,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
       /* if there is a bound on row and the right-most bound spans T */
-      if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
+      if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
       {
          t_0 = T;
          MMX3(qx0, T) = DMX3(qx0, T) = XMX(SP_E, q_0);
@@ -690,9 +692,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       }
 
       /* FOR every EDGEBOUND in current ROW */
-      for (i = r_0b; i > r_0e; i--)
+      for (r_0 = r_0b; r_0 > r_0e; r_0--)
       {
-         bnd = &EDG_X(edg, i);            /* bounds for current bound */
+         bnd = &EDG_X(edg, r_0);          /* bounds for current bound */
          lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
          rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
@@ -740,9 +742,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       }
 
       /* SCRUB PREVIOUS ROW */
-      for (i = r_1b; i > r_1e; i--) 
+      for (r_1 = r_1b; r_1 > r_1e; r_1--) 
       {
-         bnd   = &EDG_X(edg, i);        /* NOTE: this is always the same as cur_row, q_0 */
+         bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
          lb_1  = bnd->lb;               /* can't overflow the left edge */
          rb_1  = bnd->rb;
 
@@ -792,9 +794,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
 
    /* B STATE (SPARSE) */
    XMX(SP_B, q_0) = -INF;
-   for (i = r_1b; i > r_1e; i--) 
+   for (r_1 = r_1b; r_1 > r_1e; r_1--) 
    {
-      bnd = &EDG_X(edg, i);            /* bounds for current bound */
+      bnd = &EDG_X(edg, r_1);          /* bounds for current bound */
       lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
       rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
@@ -820,9 +822,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    // }
 
    /* SCRUB FINAL ROW */
-   for (i = r_1b; i > r_1e; i--) 
+   for (r_1 = r_1b; r_1 > r_1e; r_1--) 
    {
-      bnd   = &EDG_X(edg, i);        /* NOTE: this is always the same as cur_row, q_0 */
+      bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
       lb_1  = bnd->lb;               /* can't overflow the left edge */
       rb_1  = bnd->rb;
 

@@ -75,6 +75,7 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -189,10 +190,10 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
       XMX(SP_E, q_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
-      for (i = r_0b; i < r_0e; i++)
+      for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, 0);
+         bnd   = &EDG_X(edg, r_0);
          id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
          lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
          rb_0  = bnd->rb;

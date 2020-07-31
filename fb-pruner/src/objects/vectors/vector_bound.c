@@ -49,6 +49,12 @@ void VECTOR_BOUND_Destroy( VECTOR_BOUND*  vec )
    free(vec);
 }
 
+/* destructor */
+void VECTOR_BOUND_Reuse( VECTOR_BOUND*  vec )
+{
+  vec->N = 0;
+}
+
 /* deep copy */
 VECTOR_BOUND* VECTOR_BOUND_Copy( VECTOR_BOUND*  src )
 {
@@ -77,6 +83,16 @@ void VECTOR_BOUND_Resize( VECTOR_BOUND*   vec,
    }
    vec->Nalloc = size;
 }
+
+/* resize the array if smaller than new size */
+void VECTOR_BOUND_GrowTo( VECTOR_BOUND*   vec, 
+                          int             size )
+{
+   if ( size > vec->N ) {
+      VECTOR_BOUND_Resize( vec, size );
+   }
+}
+
 
 /* push element onto end of array */
 void VECTOR_BOUND_Pushback( VECTOR_BOUND *vec, BOUND val )
@@ -133,4 +149,10 @@ int VECTOR_BOUND_Compare( VECTOR_BOUND*  vecA,
    //    }
    // }
    return 0;
+}
+
+/* sort vector ascending */
+int VECTOR_BOUND_sort( VECTOR_BOUND*   vec )
+{
+   /* TODO */
 }

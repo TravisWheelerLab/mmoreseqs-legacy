@@ -41,15 +41,15 @@ UMAP* UMAP_Create( )
 
 void UMAP_Add_Node( UMAP* 		umap, 
 					char* 		key,
-					GEN_DATA 	value )
+					GENERIC 	value )
 {
 
 }	
 
-GEN_DATA UMAP_Get_Value( 	UMAP* 	umap,
+GENERIC UMAP_Get_Value( 	UMAP* 	umap,
 					 		char*	key )
 {
-	GEN_DATA data;
+	GENERIC data;
 	data.i = 0;
 	return data;
 }

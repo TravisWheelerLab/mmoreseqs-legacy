@@ -24,12 +24,19 @@
 /* constructor */
 VECTOR_FLT* VECTOR_FLT_Create()
 {
-   VECTOR_FLT *vec;
-   const int init_size = 8;
-   vec = (VECTOR_FLT *) malloc( sizeof(VECTOR_FLT) );
-   vec->data = (float *) malloc( sizeof(float) * init_size );
+   const int init_size = VECTOR_INIT_SIZE;
+
+   VECTOR_FLT* vec;
+   vec = (VECTOR_FLT*) malloc( sizeof(VECTOR_FLT) );
+   if ( vec == NULL ) {
+      fprintf(stderr, "ERROR: Memory Allocation error.\n");
+      exit(EXIT_FAILURE);
+   }
+
    vec->N = 0;
    vec->Nalloc = init_size;
+   VECTOR_FLT_Resize( vec, init_size );
+
    return vec;
 }
 
@@ -40,19 +47,38 @@ void VECTOR_FLT_Destroy( VECTOR_FLT*   vec )
    free(vec);
 }
 
+/* empty vector */
+void VECTOR_FLT_Reuse( VECTOR_FLT*   vec )
+{
+   vec->N = 0;
+}
+
+/* set all active indexes to val */
+void VECTOR_FLT_Fill(  VECTOR_FLT*   vec, 
+                       FLT           val )
+{
+   for ( int i = 0; i < vec->N; i++ ) {
+      vec->data[i] = val;
+   }
+}
+
 /* deep copy */
 VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*    dest,
                               VECTOR_FLT*    src )
 {
-   VECTOR_FLT *vec;
-   vec = (VECTOR_FLT *) malloc( sizeof(VECTOR_FLT) );
+   if ( dest == NULL ) {
+      dest = (VECTOR_FLT*) malloc( sizeof(VECTOR_FLT) );
+   }
+   
    /* copy base data */
-   memcpy( vec, src, sizeof(VECTOR_FLT) );
-   /* copy variable-sized data */
-   vec->data = (float *) malloc( sizeof(float) * src->Nalloc );
-   memcpy( vec->data, src->data, sizeof(float) * src->N );
+   dest->N = src->N;
+   dest->Nalloc = src->Nalloc;
 
-   return vec;
+   /* copy variable-sized data */
+   dest->data = (FLT*) malloc( sizeof(FLT) * src->Nalloc );
+   memcpy( dest->data, src->data, sizeof(FLT) * src->N );
+
+   return dest;
 }
 
 /* resize the array */
@@ -60,14 +86,14 @@ void VECTOR_FLT_Resize( VECTOR_FLT*    vec,
                         const int      size )
 {
    if ( size > vec->Nalloc ) {
-      vec->data = (float *) realloc( vec->data, sizeof(float) * size );
+      vec->data = (FLT*) realloc( vec->data, sizeof(FLT) * size );
       vec->Nalloc = size;
    }
 }
 
 /* push element onto end of array */
 void VECTOR_FLT_Pushback(  VECTOR_FLT*    vec, 
-                           const float    val )
+                           const FLT      val )
 {
    vec->data[vec->N] = val;
    vec->N++;
@@ -79,7 +105,7 @@ void VECTOR_FLT_Pushback(  VECTOR_FLT*    vec,
 }
 
 /* pop element from end of array */
-float VECTOR_FLT_Pop( VECTOR_FLT*   vec )
+FLT VECTOR_FLT_Pop( VECTOR_FLT*   vec )
 {
    float tmp = vec->data[vec->N-1];
    vec->N -= 1;
@@ -101,8 +127,8 @@ void VECTOR_FLT_Set( VECTOR_FLT*    vec,
 }
 
 /* get data at index (no checks) */
-float VECTOR_FLT_Get(   VECTOR_FLT*    vec, 
-                        const int      idx )
+FLT VECTOR_FLT_Get(  VECTOR_FLT*    vec, 
+                     const int      idx )
 {
    return vec->data[idx];
 }

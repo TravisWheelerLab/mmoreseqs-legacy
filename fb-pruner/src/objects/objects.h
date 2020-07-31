@@ -15,6 +15,7 @@
 /* matrix */
 #include "matrix_2d.h"
 #include "matrix_3d.h"
+#include "matrix_3d_sparse.h"
 
 /* vectors */
 #include "vector_bound.h"

@@ -49,7 +49,7 @@ void EDGEBOUNDS_Reflect(EDGEBOUNDS *edg)
  *  SYNOPSIS:  Combine two edgebound lists into one. 
  *             Assumes input lists are sorted and both oriented by-antidiagonal.
  */
-void EDGEBOUNDS_Merge_Together(      const int           Q,             /* query length */
+void EDGEBOUNDS_Merge_Together(     const int           Q,             /* query length */
                                     const int           T,             /* target length */
                                     const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
                                     const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
@@ -79,6 +79,7 @@ void EDGEBOUNDS_Merge_Together(      const int           Q,             /* query
 
    /* reset output edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
+   
    /* verify that all input edgebounds are the same mode */
    #if DEBUG 
    {
@@ -101,13 +102,21 @@ void EDGEBOUNDS_Merge_Together(      const int           Q,             /* query
       for ( int i = 0; i < num_input; i++ ) 
       {
          edg = edg_in[i];
-         for ( int j = 1; j < edg->N; j++ ) 
+
+         if ( edg->N > 1)
          {
-            if ( edg->bounds[j].id < edg->bounds[j-1].id ) {
-               fprintf(stderr, "ERROR: edgebounds are not sorted.\n");
-               fprintf(stderr, "EDG[%d]: [%d].id = %d VS [%d].id = %d\n", 
-                  i, j-1, edg->bounds[j-1].id, j, edg->bounds[j].id );
-               exit(EXIT_FAILURE);
+            for ( int j = 1; j < edg->N; j++ ) 
+            {
+               if ( edg->bounds[j].id < edg->bounds[j-1].id ) {
+                  fprintf(stderr, "ERROR: edgebounds are not sorted.\n");
+                  fprintf(stderr, "EDG->N = %d\n", edg->N );
+                  fprintf(stderr, "EDG[%d]: [%d].id = %d VS [%d].id = %d\n", 
+                     i, j-1, edg->bounds[j-1].id, j, edg->bounds[j].id );
+
+                  EDGEBOUNDS_Dump( edg, stderr );
+                  
+                  exit(EXIT_FAILURE);
+               }
             }
          }
       }

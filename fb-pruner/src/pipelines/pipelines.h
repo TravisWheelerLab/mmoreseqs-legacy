@@ -10,8 +10,8 @@
 #define _PIPELINE_MAIN_H
 
 /* === PIPELINE SUBROUTINES === */
-
 #include "work.h"
+#include "report.h"
 
 /* === MAIN PIPELINES === */
 

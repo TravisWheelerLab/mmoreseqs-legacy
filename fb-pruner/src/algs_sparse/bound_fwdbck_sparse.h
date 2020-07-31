@@ -28,7 +28,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
                                  const HMM_PROFILE*   target,        /* target HMM model */
                                  const int            Q,             /* query length */
                                  const int            T,             /* target length */
-                                 MATRIX_3D*           st_MX3,        /* normal state matrix */
+                                 MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  float*               sc_final );    /* (OUTPUT) final score */
@@ -51,7 +51,7 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
                                  const HMM_PROFILE*   target,        /* target HMM model */
                                  const int            Q,             /* query length */
                                  const int            T,             /* target length */
-                                 MATRIX_3D*           st_MX3,        /* normal state matrix */
+                                 MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  float*               sc_final );    /* (OUTPUT) final score */

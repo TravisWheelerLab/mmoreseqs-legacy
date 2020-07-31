@@ -62,6 +62,8 @@ EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
    edg->ids_idx   = VECTOR_INT_Create();
    edg->edg_mode  = EDG_NONE;
 
+   edg->bounds    = NULL;
+
    EDGEBOUNDS_Resize(edg, size);
 
    return edg;
@@ -77,10 +79,13 @@ void* EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
 
    VECTOR_INT_Destroy( edg->ids );
    VECTOR_INT_Destroy( edg->ids_idx );
+
    free( edg->bounds );
    edg->bounds = NULL;
+
    free( edg );
    edg = NULL;
+
    return edg;
 }
 
@@ -152,12 +157,7 @@ BOUND* EDGEBOUNDS_Get( EDGEBOUNDS*   edg,
 void EDGEBOUNDS_Pushback( EDGEBOUNDS*  edg,
                           BOUND*       bnd )
 {
-   BOUND*   edg_bnd;
-
-   edg_bnd = &(edg->bounds[edg->N]);
-   edg_bnd->id = bnd->id;
-   edg_bnd->lb = bnd->lb;
-   edg_bnd->rb = bnd->rb; 
+   edg->bounds[edg->N] = *bnd;
    edg->N++;
 
    /* resize if necessary */
@@ -247,7 +247,32 @@ void EDGEBOUNDS_Reverse( EDGEBOUNDS*   edg )
  */
 void EDGEBOUNDS_Index(EDGEBOUNDS *edg)
 {
-   /* TODO */
+   int      i;       /* index of edgebound list */
+   int      id_0;    /* current id */
+   BOUND*   b_0;     /* pointer to current bound in list */
+
+   VECTOR_INT_Reuse( edg->ids );
+   VECTOR_INT_Reuse( edg->ids_idx );
+
+   i     = 0;
+   id_0  = edg->bounds[0].id;
+   b_0   = &(edg->bounds[0]);
+
+   VECTOR_INT_Pushback( edg->ids, id_0 );
+   VECTOR_INT_Pushback( edg->ids_idx, i );
+
+   for (i; i < edg->N; i++, b_0++)
+   {
+      if ( b_0->id != id_0 ) {
+         id_0 = b_0->id;
+         VECTOR_INT_Pushback( edg->ids, id_0 );
+         VECTOR_INT_Pushback( edg->ids_idx, i );
+      }
+   }
+
+   id_0 = b_0->id;
+   VECTOR_INT_Pushback( edg->ids, id_0 );
+   VECTOR_INT_Pushback( edg->ids_idx, edg->N );
 }
 
 
@@ -267,7 +292,34 @@ void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg )
  */
 void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg )
 {
+   /* if one or less edgebounds, its already sorted */
+   if ( edg->N <= 1 ) return;
+
    /* TODO */
+   BOUND*      b_0;           /* current bound */
+   BOUND*      b_1;           /* previous bound */
+   int         num_merges;    /* number of holes caused by  */
+
+   b_0 = &(edg->bounds[1]);
+   b_1 = &(edg->bounds[0]);
+
+   /* iterate through all adjacent pairs of bounds. bc they are sorted, they can only merge with neighbors */
+   for (int i = 1; i < edg->N; i++, b_0++, b_1++)
+   {
+      /* if on same row/diag and overlap, then merge */
+      if ( b_1->id != b_0->id && b_1->rb >= b_0->lb ) {
+         b_0->lb = b_1->lb;
+         num_merges++;
+      } 
+      /* if not, then move previous bound to proper position */
+      else 
+      {
+         /* to fill holes created by merging, move bound left by that amount */
+         edg->bounds[ (i-1) - num_merges ] = *b_1;
+      }
+   }
+   /* every merge step removes one bound from list */
+   edg->N -= num_merges;
 }
 
 /*
@@ -277,10 +329,14 @@ void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg )
  */
 int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg )
 {
-   int count = 0;
-   for (int i = 0; i < edg->N; i++) {
-      BOUND* bnd = &(edg->bounds[i]);
-      count += (bnd->rb - bnd->lb);
+   BOUND* b_0;    /* current bound */
+   int count;     /* total cells to current bound */
+
+   count = 0;
+   b_0   = &(edg->bounds[0]);
+
+   for (int i = 0; i < edg->N; i++, b_0++) {
+      count += (b_0->rb - b_0->lb);
    }
 
    return count;

@@ -36,6 +36,12 @@ void* ERRORCHECK_realloc( void*          ptr,
                           const int      _line_,
                           const char*    _func_ );
 
+/* print a stacktrace in the event of an error */
+void ERRORCHECK_stacktrace();
+
+/* close program and print stacktrace */
+void ERRORCHECK_exit( int exit_flag );
+
 void memcheck_error( int row, int col, float mat, float ins, float del );
 
 #endif /* _ERROR_HANDLER_H */

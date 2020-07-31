@@ -338,7 +338,7 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	diag_limit 	= diag_max - alpha;
 
 	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
-	if ( diag_max < total_limit ) {
+	if ( gamma >= d_cnt && diag_max < total_limit ) {
 		return;
 	}
 

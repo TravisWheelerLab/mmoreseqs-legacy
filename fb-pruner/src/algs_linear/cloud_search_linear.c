@@ -95,6 +95,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query seque
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -103,9 +104,9 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query seque
    bool     rb_T;                            /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
-   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
-   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
-   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
    float    prev_loop, prev_move;            /* previous loop and move for special states */
    float    prev_sum, prev_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
@@ -188,6 +189,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query seque
    rb_0 = rb_1 = rb_2 = 0;
 
    /* set edgebound dimensions and orientation */
+   EDGEBOUND_ROWS_Reuse( rows, Q, T );
    EDGEBOUNDS_Reuse( edg, Q, T );
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
@@ -349,6 +351,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query seque
 
             /* row-col coords */
             q_0 = k_0;
+            q_1 = q_0 - 1;
             t_0 = d_0 - k_0;
             t_1 = t_0 - 1;
 
@@ -385,7 +388,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*    query,        /* query seque
             prv_M = MMX3(dx1, k_0) + TSC(t_1, M2D);
             prv_D = DMX3(dx1, k_0) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum(prv_M, prv_D);
+            prev_sum = logsum( prv_M, prv_D );
             DMX3(dx0, k_0) = prev_sum;
 
             /* embed cell data in quadratic matrix */
@@ -635,6 +638,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
@@ -643,9 +647,9 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
    bool     rb_T;                            /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
-   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
-   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
-   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
    float    prev_loop, prev_move;            /* previous loop and move for special states */
    float    prev_sum, prev_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
@@ -732,6 +736,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
    rb_0 = rb_1 = rb_2 = 0;
 
    /* set edgebound dimensions and orientation */
+   EDGEBOUND_ROWS_Reuse( rows, Q, T );
    EDGEBOUNDS_Reuse( edg, Q, T );
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
@@ -808,9 +813,9 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
       dx2  = d_2 % 3;
 
       /* Is dp matrix diagonal growing or shrinking? */
-      if (d >= dim_max)
+      if (d_0 >= dim_max)
          num_cells++;
-      if (d < dim_min)
+      if (d_0 < dim_min)
          num_cells--;
 
       /* Edgecheck updates: determine antidiag indices within matrix bounds */
@@ -854,7 +859,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
          lb_vec[0]->data[i] = lb_0;
          rb_vec[0]->data[i] = rb_0;
 
-         bnd_new = (BOUND){d_0,lb_0,rb_0};
+         bnd_new = (BOUND){d_0, lb_0, rb_0};
 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
@@ -879,7 +884,6 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*    query,        /* query seque
       }
 
       /* If diagonal set is empty, then all branches have been pruned, so we're done */
-      // printf("lb_vec_length: %d\n", lb_vec[0]->N );
       if ( lb_vec[0]->N <= 0 ) break;
 
       /* MAIN RECURSION */

@@ -27,7 +27,16 @@
 
 /* === STRUCTS === */
 
-/* generic datatype */
+/* template datatype */
+#define TMP          int
+/* alias datatypes */
+#define INT          int
+#define FLT          float
+#define CHAR         char 
+#define DBL          double
+
+
+/* generic datatype that can hold most basic datatypes */
 typedef union {
    int      i;
    float    f;
@@ -36,21 +45,13 @@ typedef union {
    char*    s;
    char     c;
    bool     b;
+} GENERIC;
+
+/* generic data with specified type */
+typedef struct {
+   GENERIC        data;
+   DATATYPES      type;
 } GEN_DATA;
-
-/* node for UNORDERED_MAP */
-typedef struct {
-   char*       key;
-   GEN_DATA    value;
-   int         type;
-} UMAP_NODE;
-
-/* unordered map */
-typedef struct {
-   int         N;       /* number of nodes */
-   int         Nalloc;  /* number of nodes allocated */
-   UMAP_NODE*  nodes;   /* key-value pairs */
-} UMAP;
 
 /* integer ranges */
 typedef struct {
@@ -60,9 +61,35 @@ typedef struct {
 
 /* coordinates in matrix */
 typedef struct {
-   int i; /* row index */
-   int j; /* col index */
+   int i;   /* row index */
+   int j;   /* col index */
 } COORDS;
+
+/* bound for single row or diagonal */
+typedef struct {
+   int      id;               /* current anti-diagonal OR row */
+   int      lb;               /* bottom-left (lower) edge-bound range */
+   int      rb;               /* top-right (upper) edge-bound range */
+} BOUND;
+
+/* given cell of alignment */
+typedef struct {
+   int         i;             /* index in query */
+   int         j;             /* index in target */
+   int         st;            /* state at index */
+} TRACE;
+
+/* === VECTORS === */
+
+/* default size of vectors when created */
+#define VECTOR_INIT_SIZE 32
+
+/* vector of template data */
+typedef struct {
+   TMP*        data;     /* array of data type */
+   int         N;        /* current length of array in use */
+   int         Nalloc;   /* current length of array allocated */
+}  VECTOR_TMP;
 
 /* vector of characters */
 typedef struct {
@@ -85,13 +112,6 @@ typedef struct {
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_FLT;
 
-/* bound for single row or diagonal */
-typedef struct {
-   int      id;               /* current anti-diagonal OR row */
-   int      lb;               /* bottom-left (lower) edge-bound */
-   int      rb;               /* top-right (upper) edge-bound */
-} BOUND;
-
 /* vector of edgebounds  */
 typedef struct {
    BOUND*   data;    /* array of data type */
@@ -99,19 +119,28 @@ typedef struct {
    int      Nalloc;  /* current length of array allocated */
 }  VECTOR_BOUND;
 
-/* given cell of alignment */
-typedef struct {
-   int         i;             /* index in query */
-   int         j;             /* index in target */
-   int         st;            /* state at index */
-} TRACE;
-
 /* vector of structs */
 typedef struct {
    TRACE*   data;     /* array of data type */
    int      N;        /* current length of array in use */
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
+
+/* === MAP === */
+
+/* node for UMAP */
+typedef struct {
+   char*       key;
+   GENERIC     value;
+   int         type;
+} UMAP_NODE;
+
+/* unordered map */
+typedef struct {
+   int         N;       /* number of nodes */
+   int         Nalloc;  /* number of nodes allocated */
+   UMAP_NODE*  nodes;   /* key-value pairs */
+} UMAP;
 
 /* set of bounds for cloud search space */
 typedef struct {
@@ -135,6 +164,7 @@ typedef struct {
    int            N;          /* current size of array */
    int            Nalloc;     /* allocated size of array */
    int*           rows_N;     /* current number of bounds in row */
+   
    BOUND*         rows;       /* array of bounds, each for a specific row */
    int            row_max;    /* maximum number of bounds in row */
 
@@ -314,10 +344,14 @@ typedef struct {
    EDGEBOUNDS*    edg_inner;  /* edgebounds which describe of active cells of sparse matrix */
    EDGEBOUNDS*    edg_outer;  /* edgebounds which describe the shape of sparse matrix */
 
-   VECTOR_INT*    rows;       /* */
-   VECTOR_INT*    offsets;    /* */
+   VECTOR_INT*    imap_prv;    /* maps edg_inner to offsets into data, at previous row */
+   VECTOR_INT*    imap_cur;    /* maps edg_inner to offsets into data, at current row */
+   VECTOR_INT*    imap_nxt;    /* maps edg_inner to offsets into data, at next row */
+
+   VECTOR_INT*    omap_cur;  /* maps edg_outer to offsets into data */
 
    VECTOR_FLT*    data;       /* matrix cells */
+
    bool           clean;      /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D_SPARSE;
 
@@ -682,7 +716,7 @@ typedef struct {
 typedef struct {
    float       alpha;         /* x-drop for local,  */
    float       beta;          /* x-drop for global, determines when to terminate search. looser (larger) than alpha. */
-   float       gamma;         /* number of traversed antidiags before pruning begins */
+   int         gamma;         /* number of traversed antidiags before pruning begins */
 } CLOUD_PARAMS;
 
 /* worker contains the necessary data structures to conduct search */

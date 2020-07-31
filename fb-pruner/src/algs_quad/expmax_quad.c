@@ -79,6 +79,7 @@ int run_ExpMax_Quad(    const SEQUENCE*      query,
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index in edgebound list */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   int      r_1;                             /* current index for previous row */
    int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
    int      le_0, re_0;                      /* right/left matrix bounds of current diag */
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
