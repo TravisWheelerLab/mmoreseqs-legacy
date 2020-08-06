@@ -99,7 +99,7 @@ void VECTOR_DBL_Set(   VECTOR_DBL*     vec,
  *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  */
-DBL* VECTOR_DBL_Get(    VECTOR_DBL*   vec, 
+DBL VECTOR_DBL_Get(    VECTOR_DBL*   vec, 
                         int           idx );
 
 /*

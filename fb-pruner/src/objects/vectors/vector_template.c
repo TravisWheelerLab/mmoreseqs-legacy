@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      vector_template.c
- *  PURPOSE:   VECTOR_TMP Object Functions
+ *  PURPOSE:   VECTOR_XXX Object Functions
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -22,23 +22,23 @@
 #include "vector_template.h"
 
 /*
- *  FUNCTION:  VECTOR_TMP_Create()
- *  SYNOPSIS:  Create new VECTOR_TMP object and returns pointer.
+ *  FUNCTION:  VECTOR_XXX_Create()
+ *  SYNOPSIS:  Create new VECTOR_XXX object and returns pointer.
  */
-VECTOR_TMP* VECTOR_TMP_Create()
+VECTOR_XXX* VECTOR_XXX_Create()
 {
    const int init_size = VECTOR_INIT_SIZE;
-   return VECTOR_TMP_Create_by_Size( init_size );
+   return VECTOR_XXX_Create_by_Size( init_size );
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Create()
- *  SYNOPSIS:  Create new VECTOR_TMP object at specific size and returns pointer.
+ *  FUNCTION:  VECTOR_XXX_Create()
+ *  SYNOPSIS:  Create new VECTOR_XXX object at specific size and returns pointer.
  */
-VECTOR_TMP* VECTOR_TMP_Create_by_Size( int    size )
+VECTOR_XXX* VECTOR_XXX_Create_by_Size( int    size )
 {
-   VECTOR_TMP *vec = NULL;
-   vec         = (VECTOR_TMP *) malloc( sizeof(VECTOR_TMP) );
+   VECTOR_XXX *vec = NULL;
+   vec = (VECTOR_XXX *) malloc( sizeof(VECTOR_XXX) );
    if ( vec == NULL ) {
       fprintf(stderr, "ERROR: Failure to malloc.\n");
       exit(EXIT_FAILURE);
@@ -48,16 +48,16 @@ VECTOR_TMP* VECTOR_TMP_Create_by_Size( int    size )
    vec->N      = 0;
    vec->Nalloc = 0;
 
-   VECTOR_TMP_Resize( vec, size );
+   VECTOR_XXX_Resize( vec, size );
 
    return vec;
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Destroy()
- *  SYNOPSIS:  Frees all data associated with VECTOR_TMP.
+ *  FUNCTION:  VECTOR_XXX_Destroy()
+ *  SYNOPSIS:  Frees all data associated with VECTOR_XXX.
  */
-void* VECTOR_TMP_Destroy( VECTOR_TMP*   vec )
+void* VECTOR_XXX_Destroy( VECTOR_XXX*   vec )
 {
    if ( vec == NULL ) return vec;
    free(vec->data);
@@ -68,20 +68,20 @@ void* VECTOR_TMP_Destroy( VECTOR_TMP*   vec )
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Reuse()
- *  SYNOPSIS:  Reuse VECTOR_TMP object by resetting size counter (no realloc) .
+ *  FUNCTION:  VECTOR_XXX_Reuse()
+ *  SYNOPSIS:  Reuse VECTOR_XXX object by resetting size counter (no realloc) .
  */
-void VECTOR_TMP_Reuse( VECTOR_TMP*   vec )
+void VECTOR_XXX_Reuse( VECTOR_XXX*   vec )
 {
    vec->N = 0;
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Fill()
- *  SYNOPSIS:  Fill VECTOR_TMP object with val.
+ *  FUNCTION:  VECTOR_XXX_Fill()
+ *  SYNOPSIS:  Fill VECTOR_XXX object with val.
  */
-void VECTOR_TMP_Fill(   VECTOR_TMP*   vec, 
-                        TMP           val )
+void VECTOR_XXX_Fill(   VECTOR_XXX*   vec, 
+                        XXX           val )
 {
    for ( int i = 0; i < vec->N; i++ ) {
       vec->data[i] = val;
@@ -89,21 +89,21 @@ void VECTOR_TMP_Fill(   VECTOR_TMP*   vec,
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Copy()
+ *  FUNCTION:  VECTOR_XXX_Copy()
  *  SYNOPSIS:  Create deep copy of <src> object. 
- *             Creates new VECTOR_TMP for <dest> if <dest> is NULL.
+ *             Creates new VECTOR_XXX for <dest> if <dest> is NULL.
  */
-VECTOR_TMP* VECTOR_TMP_Copy(  VECTOR_TMP*   src, 
-                              VECTOR_TMP*   dest )
+VECTOR_XXX* VECTOR_XXX_Copy(  VECTOR_XXX*   src, 
+                              VECTOR_XXX*   dest )
 {
 
    if ( dest == NULL ) {
-      dest = VECTOR_TMP_Create();
+      dest = VECTOR_XXX_Create();
    }
    /* allocate variable-sized data */
-   VECTOR_TMP_Resize( dest, src->Nalloc );
+   VECTOR_XXX_Resize( dest, src->Nalloc );
    /* copy variable-sized data */
-   memcpy( dest->data, src->data, sizeof(TMP) * src->N );
+   memcpy( dest->data, src->data, sizeof(XXX) * src->N );
    /* copy base data */
    dest->N = src->N;
 
@@ -111,13 +111,13 @@ VECTOR_TMP* VECTOR_TMP_Copy(  VECTOR_TMP*   src,
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Resize()
+ *  FUNCTION:  VECTOR_XXX_Resize()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>. 
  */
-void VECTOR_TMP_Resize(    VECTOR_TMP*   vec, 
+void VECTOR_XXX_Resize(    VECTOR_XXX*   vec, 
                            int           size )
 {
-   vec->data = (TMP*) realloc( vec->data, sizeof(TMP) * size );
+   vec->data = (XXX*) realloc( vec->data, sizeof(XXX) * size );
    if ( vec->data == NULL ) {
       fprintf(stderr, "ERROR: Failure to malloc.\n" );
       exit(EXIT_FAILURE);
@@ -126,66 +126,79 @@ void VECTOR_TMP_Resize(    VECTOR_TMP*   vec,
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_GrowTo()
+ *  FUNCTION:  VECTOR_XXX_GrowTo()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
  *             only if current array length is less than <size>. 
  */
-void VECTOR_TMP_GrowTo( VECTOR_TMP*   vec, 
+void VECTOR_XXX_GrowTo( VECTOR_XXX*   vec, 
                         int           size )
 {
    if ( vec->Nalloc < size ) {
-      VECTOR_TMP_Resize( vec, size );
+      VECTOR_XXX_Resize( vec, size );
    }
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Pushback()
- *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
- *             and resize array if array is full.
+ *  FUNCTION:  VECTOR_XXX_Push()
+ *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
+ *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().
  */
-void VECTOR_TMP_Pushback(  VECTOR_TMP*   vec, 
-                           TMP           val )
+inline
+void VECTOR_XXX_Push(   VECTOR_XXX*   vec, 
+                        XXX           val )
 {
    vec->data[vec->N] = val;
    vec->N++;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Pushback()
+ *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
+ *             and resize array if array is full.
+ */
+inline
+void VECTOR_XXX_Pushback(  VECTOR_XXX*   vec, 
+                           XXX           val )
+{
+   VECTOR_XXX_Push( vec, val );
 
    /* if array is full, resize */
    if (vec->N >= vec->Nalloc - 1) {
-      VECTOR_TMP_Resize( vec, vec->N * 2 );
+      VECTOR_XXX_Resize( vec, vec->N * 2 );
    }
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Pop()
+ *  FUNCTION:  VECTOR_XXX_Pop()
  *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
  */
 inline
-TMP VECTOR_TMP_Pop( VECTOR_TMP*   vec )
+XXX VECTOR_XXX_Pop( VECTOR_XXX*   vec )
 {
-   TMP data = vec->data[vec->N-1];
+   XXX data = vec->data[vec->N-1];
    vec->N -= 1;
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
-      VECTOR_TMP_Resize( vec, vec->N / 2 );
+      VECTOR_XXX_Resize( vec, vec->N / 2 );
    }
 
    return data;
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Set()
+ *  FUNCTION:  VECTOR_XXX_Set()
  *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  */
-void VECTOR_TMP_Set(    VECTOR_TMP*   vec, 
+void VECTOR_XXX_Set(    VECTOR_XXX*   vec, 
                         int           idx, 
-                        TMP           val )
+                        XXX           val )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG 
    if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TMP access out-of-bounds.\n");
+      fprintf(stderr, "ERROR: VECTOR_XXX access out-of-bounds.\n");
       fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
       exit(EXIT_FAILURE);
    }
@@ -195,40 +208,18 @@ void VECTOR_TMP_Set(    VECTOR_TMP*   vec,
 }
 
 /*
- *  FUNCTION:  VECTOR_TMP_Get()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
+ *  FUNCTION:  VECTOR_XXX_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
+ *  RETURN:    Return data at <idx>.
  */
 inline
-TMP VECTOR_TMP_Get(  VECTOR_TMP*   vec, 
+XXX VECTOR_XXX_Get(  VECTOR_XXX*   vec, 
                      int           idx )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG 
    if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TMP access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return vec->data[idx];
-}
-
-
-/*
- *  FUNCTION:  VECTOR_TMP_Get_Ref()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-inline
-TMP* VECTOR_TMP_Get_Ref(   VECTOR_TMP*   vec, 
-                           int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if DEBUG 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TMP access out-of-bounds.\n");
+      fprintf(stderr, "ERROR: VECTOR_XXX access out-of-bounds.\n");
       fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
       exit(EXIT_FAILURE);
    }
@@ -237,48 +228,300 @@ TMP* VECTOR_TMP_Get_Ref(   VECTOR_TMP*   vec,
    return &(vec->data[idx]);
 }
 
+/*
+ *  FUNCTION:  VECTOR_XXX_Get_X()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ *  RETURN:    Pointer to location to <vec> idx.
+ */
+inline
+XXX* VECTOR_XXX_Get_X(  VECTOR_XXX*   vec, 
+                        int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if DEBUG 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_XXX access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
+}
 
 /*
- *  FUNCTION:  VECTOR_TMP_Compare()
+ *  FUNCTION:  VECTOR_XXX_Get_Size()
+ *  SYNOPSIS:  Get utilized length of <vec>.
+ */
+inline
+XXX VECTOR_XXX_Get_Size(   VECTOR_XXX*   vec )
+{
+   return vec->N;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Set_Size()
+ *  SYNOPSIS:  Set utilized length of <vec>
+ *  RETURN:    Pointer to location to <vec> idx.
+ */
+inline
+void VECTOR_XXX_Set_Size(  VECTOR_XXX*   vec, 
+                           int           size )
+{
+   vec->N = size;
+}
+
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Search_First()
+ *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
+ *             Returns index of the first occurance found.
+ *             Assumes <vec> has been sorted ascending.
+ *  RETURN:    Returns index of occurance of <val>.  
+ *             Return -1 if <val> is not found.
+ */
+int VECTOR_XXX_Search(  VECTOR_XXX*   vec, 
+                        XXX           val )
+{
+   int N       = VECTOR_XXX_Get_Size( vec );
+   int idx     = (N/2);
+   int found   = -1; 
+
+   for (int i = N/4; i >= 1; i /= 2)
+   {
+      int cmp = XXX_Compare( val, vec->data[i] );
+
+      if ( cmp > 0) {
+         idx += i;
+      }
+      else if ( cmp < 0 ) {
+         idx -= i;
+      }
+      else {
+         found = idx;
+         return found;
+      }
+   }
+   return found;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Search_First()
+ *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
+ *             Returns index of the first occurance.
+ *             Assumes <vec> has been sorted ascending.
+ *  RETURN:    Returns index of first occurance of <val>.  
+ *             Return -1 if <val> is not found.
+ */
+int VECTOR_XXX_Search_First(  VECTOR_XXX*   vec, 
+                              XXX           val )
+{
+   int N       = VECTOR_XXX_Get_Size( vec );
+   int idx     = (N/2);
+   int found   = -1; 
+
+   for (int i = N/4; i >= 1; i /= 2)
+   {
+      int cmp = XXX_Compare( val, vec->data[i] );
+
+      if ( cmp > 0) {
+         idx += i;
+      }
+      else if ( cmp < 0 ) {
+         idx -= i;
+      }
+      else {
+         found = idx;
+         idx -= i;
+      }
+   }
+   return found;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Search_Last()
+ *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
+ *             Returns index of the last occurance.
+ *             Assumes <vec> has been sorted ascending.
+ *  RETURN:    Returns index of last occurance of <val>.  
+ *             Return -1 if <val> is not found.
+ */
+int VECTOR_XXX_Search_Last(   VECTOR_XXX*   vec, 
+                              XXX           val )
+{
+   int N       = VECTOR_XXX_Get_Size( vec );
+   int idx     = (N/2);
+   int found   = -1; 
+
+   for (int i = N/4; i >= 1; i /= 2)
+   {
+      int cmp = XXX_Compare( val, vec->data[i] );
+
+      if ( cmp > 0) {
+         idx += i;
+      }
+      else if ( cmp < 0 ) {
+         idx -= i;
+      }
+      else {
+         found = idx;
+         idx += i;
+      }
+   }
+   return found;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Compare()
  *  SYNOPSIS:  Compare <vec_A> and <vec_B>.
  *  RETURN:    0 for equality, 
  *             pos if <vec_A> > <vec_B>,  
  *             neg if <vec_A> < <vec_B>.
  */
-int VECTOR_TMP_Compare(    VECTOR_TMP*   vec_A, 
-                           VECTOR_TMP*   vec_B )
+int VECTOR_XXX_Compare(    VECTOR_XXX*   vec_A, 
+                           VECTOR_XXX*   vec_B )
 {
-   for (int i = 0; i < vec_A->N; i++) {
-      if ( vec_A->data[i] != vec_B->data[i] ) {
-         if ( vec_A->data[i] > vec_B->data[i] ) {
-            return 1;
-         } else {
-            return -1;
-         }
+   for (int i = 0; i < vec_A->N; i++) 
+   {
+      if ( XXX_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
+      {
+         return XXX_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
       }
    }
    return 0;
 }
 
-
 /*
- *  FUNCTION:  VECTOR_TMP_Sort()
- *  SYNOPSIS:  Sort <vec> data array in ascending order.
+ *  FUNCTION:  VECTOR_XXX_Sort()
+ *  SYNOPSIS:  Sorts <vec> data array in ascending order. In-place.
  */
-void VECTOR_TMP_Sort( VECTOR_TMP*    vec )
+void VECTOR_XXX_Sort( VECTOR_XXX*    vec )
 {
-   /* TODO */
+   int N = VECTOR_XXX_Get_Size(vec);
+   VECTOR_XXX_Sort_Sub( vec, 0, N );
 }
 
+/*
+ *  FUNCTION:  VECTOR_XXX_Sort_Sub()
+ *  SYNOPSIS:  Sorts subarray of <vec> data in ascending order on range (beg,end]. 
+ *             Uses quicksort until length of subarray falls below threshold, then selection sort.
+ */
+void VECTOR_XXX_Sort_Sub(  VECTOR_XXX*    vec,
+                           int            beg,
+                           int            end )
+{
+   const int begin_select_sort = 16;
+   
+   /* run selection sort if below threshold */
+   if ( end - beg > begin_select_sort ) {
+      VECTOR_XXX_Sort_Sub_Selectsort( vec, beg, end );
+   }
+   VECTOR_XXX_Sort_Sub_Quicksort( vec, beg, end );
+}
 
 /*
- *  FUNCTION:  VECTOR_TMP_Dump()
+ *  FUNCTION:  VECTOR_XXX_Sort_Sub_Selectsort()
+ *  SYNOPSIS:  Selection Sorts subarray of <vec> data in ascending order on range (beg,end].  
+ */
+void VECTOR_XXX_Sort_Sub_Selectsort(   VECTOR_XXX*    vec,
+                                       int            beg,
+                                       int            end )
+{
+   for (int i = beg; i < end; i++) 
+   {
+      /* initial minimum value found */
+      int min_idx = i;
+      XXX min_val = vec->data[i];
+      for (int j = i+1; j < end; j++) {
+         /* if new minimum found, update value and index */
+         int cmp = XXX_Compare( min_val, vec->data[j] );
+         if ( cmp < 0 ) {
+            min_idx = j;
+            min_val = vec->data[j];
+         }
+      }
+      /* swap new minimum to left-most position */
+      VECTOR_XXX_Swap( vec, i, min_idx );
+   }
+   return;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Sort_Sub_Quicksort()
+ *  SYNOPSIS:  Quick Sorts subarray of <vec> data in ascending order on range (beg,end].  
+ */
+void VECTOR_XXX_Sort_Sub_Quicksort( VECTOR_XXX*    vec,
+                                    int            beg,
+                                    int            end )
+{
+   /* partition pointers */
+   int   r_idx = beg + 1;
+   int   l_idx = end - 1;
+   XXX*  rhs   = &(vec->data[beg + 1]);
+   XXX*  lhs   = &(vec->data[end - 1]);
+
+   /* select random pivot value */
+   int   range = end - beg;
+   int pivot_idx = (rand() % range) + beg;
+   XXX pivot_val = vec->data[pivot_idx];
+   VECTOR_XXX_Swap( vec, pivot, beg );
+
+   /* partition on pivot */
+   while ( l_idx <= r_idx )
+   {
+      while ( (l_idx <= r_idx) && (XXX_Compare( pivot_val, vec->data[r_idx] ) < 0) ) {
+         r_idx--;
+      }
+      while ( (l_idx <= r_idx) && (XXX_Compare( pivot_val, vec->data[l_idx] ) >= 0) ) {
+         l_idx++;
+      }
+      if ( l_idx <= r_idx ) {
+         VECTOR_XXX_Swap( vec, l_idx, r_idx );
+         r_idx--;
+         l_idx++;
+      }
+   }
+   VECTOR_XXX_Swap( vec, beg, r_idx );
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Swap()
+ *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
+ *             Warning: Only checks for Out-of-Bounds when in DEBUG.
+ */
+inline
+void VECTOR_XXX_Swap(   VECTOR_XXX*    vec,
+                        int            i,
+                        int            j )
+{
+   XXX swap = vec->data[i];
+   vec->data[i] = vec->data[j];
+   vec->data[j] = swap;
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Reverse()
+ *  SYNOPSIS:  Reverse the ordering of array.
+ */
+inline
+void VECTOR_XXX_Reverse(   VECTOR_XXX*    vec )
+{
+   int N = VECTOR_XXX_Get_Size( vec );
+
+   for (int i = 0; i < (N/2); i++) {
+      VECTOR_XXX_Swap( vec, i, (N-1)-i );
+   }
+}
+
+/*
+ *  FUNCTION:  VECTOR_XXX_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer.
  */
-void VECTOR_TMP_Dump(   VECTOR_TMP*    vec,
+void VECTOR_XXX_Dump(   VECTOR_XXX*    vec,
                         FILE*          fp )
 {
-   fprintf(fp, "%s: ", "VECTOR_TMP");
+   fprintf(fp, "%s: ", "VECTOR_XXX");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
       fprintf(fp, "%3d ", vec->data[i] );

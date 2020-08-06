@@ -99,7 +99,7 @@ void VECTOR_INT_Set(   VECTOR_INT*     vec,
  *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  */
-INT* VECTOR_INT_Get(    VECTOR_INT*   vec, 
+INT VECTOR_INT_Get(    VECTOR_INT*   vec, 
                         int           idx );
 
 /*

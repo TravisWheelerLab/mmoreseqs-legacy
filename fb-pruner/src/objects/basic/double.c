@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      float.c
- *  PURPOSE:   INT Object
+ *  PURPOSE:   DBL Object
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -23,22 +23,22 @@
 #include "bound.h"
 
 /*
- *  FUNCTION:  INT_To_String()
+ *  FUNCTION:  DBL_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 inline
-char* INT_To_String( const INT   d,
+char* DBL_To_String( const DBL   d,
                      char*       buf )
 {
-   sprintf( buf, "%d", d );
+   sprintf( buf, "%.3f", d );
    return buf;
 }
 
 /*
- *  FUNCTION:  INT_Compare()
+ *  FUNCTION:  DBL_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
  *    RETURN:  pos if (a > b), 
@@ -46,8 +46,8 @@ char* INT_To_String( const INT   d,
  *             neg if (a < b)
  */
 inline
-int INT_Compare(  const INT   a, 
-                  const INT   b )
+int DBL_Compare(  const DBL   a, 
+                  const DBL   b )
 {
    return (a - b);
 }

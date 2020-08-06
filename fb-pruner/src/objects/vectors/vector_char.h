@@ -99,7 +99,7 @@ void VECTOR_CHAR_Set(   VECTOR_CHAR*     vec,
  *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  */
-CHAR* VECTOR_CHAR_Get(    VECTOR_CHAR*   vec, 
+CHAR VECTOR_CHAR_Get(    VECTOR_CHAR*   vec, 
                         int           idx );
 
 /*

@@ -28,7 +28,7 @@
 /* === STRUCTS === */
 
 /* template datatype */
-#define TMP          int
+#define XXX          int
 /* alias datatypes */
 #define INT          int
 #define FLT          float
@@ -86,10 +86,10 @@ typedef struct {
 
 /* vector of template data */
 typedef struct {
-   TMP*        data;     /* array of data type */
+   XXX*        data;     /* array of data type */
    int         N;        /* current length of array in use */
    int         Nalloc;   /* current length of array allocated */
-}  VECTOR_TMP;
+}  VECTOR_XXX;
 
 /* vector of characters */
 typedef struct {
@@ -125,6 +125,13 @@ typedef struct {
    int      N;        /* current length of array in use */
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
+
+/* vector of structs */
+typedef struct {
+   RANGE*   data;     /* array of data type */
+   int      N;        /* current length of array in use */
+   int      Nalloc;   /* current length of array allocated */
+}  VECTOR_RANGE;
 
 /* === MAP === */
 

@@ -19,7 +19,7 @@
 #include "objects.h"
 
 /* header */
-#include "vector_template.h"
+#include "vector_int.h"
 
 /*
  *  FUNCTION:  VECTOR_INT_Create()

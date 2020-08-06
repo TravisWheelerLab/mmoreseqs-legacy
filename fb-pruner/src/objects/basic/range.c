@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      float.c
- *  PURPOSE:   INT Object
+ *  FILE:      trace.c
+ *  PURPOSE:   RANGE Object
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -20,25 +20,25 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "range.h"
 
 /*
- *  FUNCTION:  INT_To_String()
+ *  FUNCTION:  RANGE_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 inline
-char* INT_To_String( const INT   d,
-                     char*       buf )
+char* RANGE_To_String(  const RANGE   	d,
+                     	char*       	buf )
 {
-   sprintf( buf, "%d", d );
+   sprintf( buf, "(%d,%d)", d.beg, d.end );
    return buf;
 }
 
 /*
- *  FUNCTION:  INT_Compare()
+ *  FUNCTION:  RANGE_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
  *    RETURN:  pos if (a > b), 
@@ -46,8 +46,12 @@ char* INT_To_String( const INT   d,
  *             neg if (a < b)
  */
 inline
-int INT_Compare(  const INT   a, 
-                  const INT   b )
+int RANGE_Compare( const RANGE     a, 
+                   const RANGE     b )
 {
-   return (a - b);
+   if ( (a.beg - b.beg) != 0 ) {
+      return (a.beg - b.beg);
+   }
+
+   return (a.end - b.end);
 }
