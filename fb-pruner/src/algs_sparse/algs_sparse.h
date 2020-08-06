@@ -9,7 +9,7 @@
 #ifndef _ALGS_SPARSE_H
 #define _ALGS_SPARSE_H
 
-#include "bound_fwdbck_quad.h"
-#include "bound_viterbi_quad.h"
+#include "bound_fwdbck_sparse.h"
+#include "bound_viterbi_sparse.h"
 
 #endif /* _ALGS_SPARSE_H */

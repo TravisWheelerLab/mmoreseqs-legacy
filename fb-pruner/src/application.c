@@ -30,16 +30,20 @@
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 int main ( int argc, char *argv[] )
 {
-   DBG_PRINTF("=== IN DEBUG MODE ===\n\n");
+   /* initialize random number generator */
+   RNG_Init();
 
    /* initialize debugging toolkit */
    #if DEBUG
    {
+      printf("=== IN DEBUG MODE ===\n");
+
       debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
       /* debugging options */
       debugger->is_embed   = true;
       debugger->is_viz     = true;
 
+      /* create output folder for testing */
       char* test_folder = "test_output/";
       if ( mkdir(test_folder, 0777) == -1 ) {
          fprintf(stderr, "Could not create folder: %s\n", test_folder);

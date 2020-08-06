@@ -24,12 +24,27 @@
 /* constructor */
 VECTOR_TRACE* VECTOR_TRACE_Create()
 {
-   VECTOR_TRACE *vec;
-   const int init_size = 8;
+   const int init_size = VECTOR_INIT_SIZE;   
+   return VECTOR_TRACE_Create_by_Size( init_size );
+}
+
+/* constructor */
+VECTOR_TRACE* VECTOR_TRACE_Create_by_Size( int size )
+{
+   VECTOR_TRACE*  vec = NULL;
+   
    vec = (VECTOR_TRACE *) malloc( sizeof(VECTOR_TRACE) );
-   vec->data = (TRACE *) malloc( sizeof(TRACE) * init_size );
-   vec->N = 0;
-   vec->Nalloc = init_size;
+   if ( vec == NULL ) {
+      fprintf(stderr, "ERROR: Failure to malloc.\n");
+      exit(EXIT_FAILURE);
+   }
+
+   vec->N      = 0;
+   vec->Nalloc = 0;
+   vec->data   = NULL;
+
+   VECTOR_TRACE_Resize( vec, size );
+
    return vec;
 }
 
@@ -55,10 +70,20 @@ VECTOR_TRACE* VECTOR_TRACE_Copy( VECTOR_TRACE *src )
 }
 
 /* resize the array */
-void VECTOR_TRACE_Resize( VECTOR_TRACE *vec, float growth_factor )
+void VECTOR_TRACE_Resize(  VECTOR_TRACE*  vec, 
+                           int            size )
 {
-   vec->data = (TRACE *) realloc( vec->data, sizeof(TRACE) * vec->Nalloc * growth_factor );
-   vec->Nalloc *= growth_factor;
+   vec->data = (TRACE*) realloc( vec->data, sizeof(TRACE) * size );
+   vec->Nalloc = size;
+}
+
+/* resize the array */
+void VECTOR_TRACE_GrowTo(  VECTOR_TRACE*  vec, 
+                           int            size )
+{
+   if ( size > vec->N ) {
+      VECTOR_TRACE_Resize( vec, size );
+   }
 }
 
 /* push element onto end of array */

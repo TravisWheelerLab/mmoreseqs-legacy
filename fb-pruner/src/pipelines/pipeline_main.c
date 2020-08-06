@@ -183,6 +183,8 @@ void main_pipeline( WORKER* worker )
 				times->quad_fwd, scores->quad_fwd );
 
 			search_cnt++;
+
+			/* TODO: report results & alignment */
 		}
 	}
 	fclose( worker->out_file );

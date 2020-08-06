@@ -12,6 +12,9 @@
 /* declares all datatypes */
 #include "structs.h"
 
+/* basic datatypes / wrappers */
+#include "bound.h"
+
 /* matrix */
 #include "matrix_2d.h"
 #include "matrix_3d.h"
@@ -29,7 +32,6 @@
 /* objects */
 #include "alignment.h"
 #include "args.h"
-#include "bound.h"
 #include "clock.h"
 #include "edgebound.h"
 #include "edgebound_rows.h"

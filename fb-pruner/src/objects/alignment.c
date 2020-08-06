@@ -105,14 +105,18 @@ void ALIGNMENT_Resize( ALIGNMENT*   aln,
    VECTOR_TRACE_Resize( aln->traces, size );
 }
 
+/* resize TRACE array in ALIGNMENT */
+void ALIGNMENT_GrowTo( ALIGNMENT*   aln,
+                       int          size )
+{
+   VECTOR_TRACE_GrowTo( aln->traces, size );
+}
+
 /* Empty ALIGNMENT Array */
 void ALIGNMENT_Clear(ALIGNMENT* aln)
 {
    VECTOR_TRACE_Resize( aln->traces, 0 );
 }
-
-/* index locations of beginnings of alignments */
-
 
 /* create string of alignment */
 void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
@@ -120,6 +124,7 @@ void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
                               HMM_PROFILE*   target )
 {
    int      i;                         /* counter for traceback index */
+   int      q_0, t_0;                  /* query and target index of traceback */
    int      f_mat, l_mat;              /* first and last match */
    char     q_char, t_char, a_char;    /* query, target, and alignment character */
    char*    q_seq;                     /* query sequence */
@@ -152,6 +157,9 @@ void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
       /* find start of alignment */
       for (i; i < N; i++, tr++)
       {
+         q_0 = tr->i;
+         t_0 = tr->j;
+
          /* at beginning of alignment in traceback and sequence string */
          if ( tr->st == B_ST ) {
             VECTOR_INT_Pushback( aln->tr_beg, i );

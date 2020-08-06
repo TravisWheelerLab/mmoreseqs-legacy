@@ -103,6 +103,18 @@ void EDGEBOUNDS_Reuse( EDGEBOUNDS*   edg,
 }
 
 /*
+ *  FUNCTION: EDGEBOUNDS_Set_Dim()
+ *  SYNOPSIS: Set the dimensions of the embedding matrix.
+ */
+void EDGEBOUNDS_Set_Dim(   EDGEBOUNDS*   edg, 
+                           int           Q,
+                           int           T )
+{
+   edg->Q = Q;
+   edg->T = T;
+}
+
+/*
  *  FUNCTION: EDGEBOUNDS_Copy()
  *  SYNOPSIS: Create a deep copy of <edg_src> and store it in <edg_dest>.
  */
@@ -278,9 +290,20 @@ void EDGEBOUNDS_Index(EDGEBOUNDS *edg)
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Sort()
- *  SYNOPSIS:  Sort <edg> bound list by id, lb, rb.
+ *  SYNOPSIS:  Sort <edg> bound list ascending: by id, lb, rb. Sorts in place.
  */
 void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg )
+{
+   EDGEBOUNDS_Sort_Sub( edg, 0, edg->N );
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub()
+ *  SYNOPSIS:  Subcall to sort the edgebounds on range (beg, end]. Sorts in place.
+ */
+void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
+                           int            beg,
+                           int            end )
 {
    /* TODO */
 }
@@ -289,13 +312,13 @@ void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg )
  *  FUNCTION:  EDGEBOUNDS_Merge()
  *  SYNOPSIS:  Merge <edg> bound list by combining overlapping ranges.
  *             Assumes that <edg> is sorted.
+
  */
 void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg )
 {
    /* if one or less edgebounds, its already sorted */
    if ( edg->N <= 1 ) return;
 
-   /* TODO */
    BOUND*      b_0;           /* current bound */
    BOUND*      b_1;           /* previous bound */
    int         num_merges;    /* number of holes caused by  */

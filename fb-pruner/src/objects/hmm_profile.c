@@ -167,6 +167,10 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
    char        best_amino;
    HMM_NODE    curr_node;
 
+   /* TODO: update to allocate in Create() / change to VECTOR_CHAR */
+   /* clear pre-existing consensus */
+   free(prof->consensus);
+   /* allocate new consensus */
    prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
 
    /* find consensus sequence */

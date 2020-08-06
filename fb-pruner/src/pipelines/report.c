@@ -32,8 +32,9 @@
 void REPORTER_header(   WORKER*  worker,
                         FILE*    fp )
 {
-   fprintf( fp, "# fb-pruner :: heuristic pruning of Forward-Backward for faster profile/sequence search\n" );
-   fprintf( fp, "# FB-PRUNER 1.0 (August 2020): http://github.com/TravisWheelerLab/fb-pruner/\n" );
+   /* TODO: Name is work in progress */
+   fprintf( fp, "# fb-pruner :: %s :: heuristic pruning of Forward-Backward for faster profile/sequence search\n", PIPELINE_NAMES[args->pipeline_mode] );
+   fprintf( fp, "# FB-PRUNER 0.1 (August 2020): http://github.com/TravisWheelerLab/fb-pruner/\n" );
    fprintf( fp, "# Copyright (C) 2020 Travis Wheeler Lab, University of Montana.\n" );
    REPORTER_hr( fp );
    fprintf( fp, "#%25s %s", "HMM file:", worker->args->t_filepath );
@@ -46,14 +47,30 @@ void REPORTER_header(   WORKER*  worker,
 void REPORTER_summary_stats(  WORKER*  worker,
                               FILE*    fp )
 {
-
+   /* TODO */
 }
 
 /* print alignment */
 void REPORTER_alignment(   WORKER*  worker,
                            FILE*    fp )
 {
-   
+   HMM_PROFILE_Set_Consensus( worker->t_prof );
+
+   ALIGNMENT*     aln      = worker->traceback;
+   char*          t_in     = worker->t_prof->consensus;
+   char*          q_in     = worker->q_seq->seq;
+
+   VECTOR_CHAR*   t_out    = VECTOR_CHAR_Create();
+   VECTOR_CHAR*   q_out    = VECTOR_CHAR_Create();
+   TRACE*         tr;
+
+   /* report target */
+   for (int i = aln->beg; i < aln->end; i++)
+   {
+      if ( tr->st == M_ST ) {
+
+      }
+   }
 }
 
 /* print horizontal rule */

@@ -64,8 +64,10 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    /* vars for indexing into data matrices by row-col */
    int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* maps column index into data index (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* maps target index into data index (target)  */
+   int      t_range;                         /* range of targets on current row */
 
    /* vars for indexing into data matrices by anti-diag */
    int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
@@ -189,6 +191,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
       qx1 = q_1 % 2;
 
       t_0 = 0;
+      tx0 = t_0;
 
       /* add every edgebound from current row */
       r_0b = r_0;
@@ -202,7 +205,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      MMX3(qx0, 0) = IMX3(qx0, 0) = DMX3(qx0, 0) = -INF;
+      MMX3(qx0, tx0) = IMX3(qx0, tx0) = DMX3(qx0, tx0) = -INF;
       XMX(SP_E, q_0) = -INF;
 
       /* FOR every EDGEBOUND in current ROW */
@@ -216,11 +219,17 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
          rb_T  = (rb_0 > T);                     /* check if cloud touches right edge */
          rb_0  = MIN(rb_0, T);                   /* can't overflow the right edge */
 
+         /* initial location for data and target */
+         t_0 = lb_0;
+         tx0 = lb_0;
+
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
          for (t_0 = lb_0; t_0 < rb_0; t_0++)
          {
             t_1 = t_0 - 1;
+            tx0 = t_0;
+            tx1 = tx0 - 1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */

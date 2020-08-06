@@ -36,17 +36,17 @@ void ERRORCHECK_handler(const int    error_code,
         fprintf(stderr, "ERROR (%d): ", error_code);
         switch ( error_code )
         {
-        case ERROR_UNKNOWN:
-            fprintf( stderr, "%s\n", "Unknown error." );
-            break;
-        case ERROR_MALLOC:
-            fprintf( stderr, "%s\n", "Malloc error." );
-            break;
-        case ERROR_REALLOC:
-            fprintf( stderr, "%s\n", "Realloc error." );
-            break;
-        default:
-            fprintf( stderr, "%s\n", "Error occurred with invalid error code." );
+           case ERROR_UNKNOWN:
+               fprintf( stderr, "%s\n", "Unknown error." );
+               break;
+           case ERROR_MALLOC:
+               fprintf( stderr, "%s\n", "Malloc error." );
+               break;
+           case ERROR_REALLOC:
+               fprintf( stderr, "%s\n", "Realloc error." );
+               break;
+           default:
+               fprintf( stderr, "%s\n", "Error occurred with invalid error code." );
         }
     }
     /* report custom message */
@@ -74,6 +74,19 @@ FILE* ERRORCHECK_fopen( char*       filename,
     }
 }
 
+/* malloc and check for null pointer */
+void* ERRORCHECK_malloc( const int      size,
+                         const char*    _file_,
+                         const int      _line_,
+                         const char*    _func_ )
+{
+    void* ptr = malloc( size );
+    if ( ptr == NULL ) {
+        ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
+    }
+    return ptr;
+}
+
 /* realloc and check for null pointer */
 void* ERRORCHECK_realloc( void*         ptr,
                           const int     size,
@@ -89,17 +102,17 @@ void* ERRORCHECK_realloc( void*         ptr,
     return ptr;
 }
 
-/* malloc and check for null pointer */
-void* ERRORCHECK_malloc( const int      size,
-                         const char*    _file_,
-                         const int      _line_,
-                         const char*    _func_ )
+/* realloc and check for null pointer */
+void* ERRORCHECK_boundscheck( int            idx,
+                              int            max,
+                              const int      size,
+                              const char*    _file_,
+                              const int      _line_,
+                              const char*    _func_ )
 {
-    void* ptr = malloc( size );
-    if ( ptr == NULL ) {
-        ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
-    }
-    return ptr;
+   if (idx > max) {
+      ERRORCHECK_handler( ERROR_BOUNDS, _file_, _line_, _func_, NULL );
+   }
 }
 
 /* error if called function is currently unsupported */
@@ -133,7 +146,6 @@ void ERRORCHECK_stacktrace()
    for (i = 0; i < size; i++) {
       fprintf(stderr, "%s\n", strings[i]);
    }
-
    free (strings);
 }
 

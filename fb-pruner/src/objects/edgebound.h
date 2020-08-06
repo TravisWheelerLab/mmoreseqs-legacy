@@ -119,6 +119,14 @@ void EDGEBOUNDS_Index(EDGEBOUNDS *edg);
 void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg );
 
 /*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub()
+ *  SYNOPSIS:  Sort the edgebounds on range (beg, end]. Sorts in place.
+ */
+void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
+                           int            beg,
+                           int            end );
+
+/*
  *  FUNCTION:  EDGEBOUNDS_Merge()
  *  SYNOPSIS:  Merge <edg> bound list by combining overlapping ranges.
  *             Assumes that <edg> is sorted.

@@ -75,9 +75,13 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(  	EDGEBOUNDS*    edg_inner,
  *             For the start of each row in <edg>, the offset into <edg>'s bound list is stored in <smx->rows>.
  *             For each bound in <edg>, the offset into <smx> data is stored in <smx->offsets>.
  *
+ *  ARGS:      <smx>          MATRIX_3D_SPARSE object
+ *             <edg>          EDGEBOUNDS to map
+ *
  *  RETURN:    <STATUS_SUCCESS> if no errors.
  */
-int MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds(   MATRIX_3D_SPARSE*    smx );
+int MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds(   MATRIX_3D_SPARSE*    smx,
+                                                EDGEBOUNDS*          edg );
 
 /* 
  *  FUNCTION:  MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds()
@@ -86,9 +90,43 @@ int MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds(   MATRIX_3D_SPARSE*    smx );
  *             For the start of each row in <edg>, the offset into <edg>'s bound list is stored in <smx->rows>.
  *             For each bound in <edg>, the offset into <smx> data is stored in <smx->offsets>.
  *
+ *  ARGS:      <smx>          MATRIX_3D_SPARSE object
+ *             <edg_inner>    inner EDGEBOUNDS to be mapped
+ *             <edg_outer>    outer EDGEBOUNDS that describe data shape
+ *
  *  RETURN:    <STATUS_SUCCESS> if no errors.
  */
-int MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds(   MATRIX_3D_SPARSE*    smx );
+int MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds(   MATRIX_3D_SPARSE*    smx,
+                                                EDGEBOUNDS*          edg_inner,
+                                                EDGEBOUNDS*          edg_outer );
+
+/* 
+ *  FUNCTION:  MATRIX_3D_SPARSE_Map_to_Outer_Dump()
+ *  SYNOPSIS:  Output map to screen. Shows bounds and data offsets.
+ *
+ *  ARGS:      <smx>          MATRIX_3D_SPARSE object
+ *             <edg>          EDGEBOUNDS to map
+ *             <fp>           FILE to output to
+ *
+ *  RETURN:    <STATUS_SUCCESS> if no errors.
+ */
+int MATRIX_3D_SPARSE_Map_to_Outer_Dump(   MATRIX_3D_SPARSE*    smx,
+                                          EDGEBOUNDS*          edg,
+                                          FILE*                fp );
+
+/* 
+ *  FUNCTION:  MATRIX_3D_SPARSE_Map_to_Inner_Dump()
+ *  SYNOPSIS:  Output map to screen. Shows bounds and data offsets.
+ *
+ *  ARGS:      <smx>          MATRIX_3D_SPARSE object
+ *             <edg>          EDGEBOUNDS to map
+ *             <fp>           FILE to output to
+ *
+ *  RETURN:    <STATUS_SUCCESS> if no errors.
+ */
+int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,
+                                          EDGEBOUNDS*          edg,
+                                          FILE*                fp );
 
 /* 
  *  FUNCTION:  MATRIX_3D_SPARSE_Get_Ref()

@@ -283,7 +283,7 @@ typedef struct {
    bool           isLocal;          /* local or global? */
    bool           isMultihit;       /* multi hit or single hit? */
    /* jump value for configuring HMM */
-   int            num_J; /* number of jumps allowed by model (single hit = 1) */
+   int            num_J;            /* number of jumps allowed by model (single hit = 1) */
 
    /* distribution parameters for scoring */
    DIST_PARAM     msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */

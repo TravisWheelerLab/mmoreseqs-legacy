@@ -66,8 +66,10 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    /* vars for indexing into data matrices by row-col */
    int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* maps column index into data index (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* maps target index into data index (target)  */
+   int      t_range;                         /* range of targets on current row */
 
    /* vars for indexing into data matrices by anti-diag */
    int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
@@ -104,8 +106,6 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    MATRIX_3D_SPARSE*    mx;
    EDGEBOUNDS*          edg_inner;           /* edgebounds for search space of backward/forward */
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
-   int                  b_0;                 /* (q_0, t_0) : bound offset for current row */ 
-   int                  b_1;                 /* (q_1, t_0) : bound offset for previous row */
 
    /* debugger tools */
    FILE*       dbfp;
@@ -146,6 +146,7 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    /* query sequence */
    mx          = st_SMX;
    seq         = query->seq;
+   N           = edg->N;
    /* local or global alignments? */
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
@@ -155,18 +156,15 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    XMX(SP_B, q_0) = XSC(SP_N,SP_MOVE);                         /* S->N->B, no N-tail    */
    XMX(SP_E, q_0) = XMX(SP_C, q_0) = XMX(SP_J, q_0) = -INF;    /* need seq to get here (?)  */
 
-   // /* initialize 0 row (top-edge) */
-   // for (t_0 = 0; t_0 < T; t_0++) { 
-   //    MMX3(qx0, t_0) = IMX3(qx0, t_0) = DMX3(qx0, t_0) = -INF;
-   // }
-
-   /* pass over top-row (i=0) inner edgebounds from list */
-   r_0  = 0;            /* current index in edgebounds */
-   r_0b = r_0;          /* beginning index for current row in list */
-   while ( r_0 < N && EDG_X(edg_inner, r_0).id == q_0 ) {
+   /* pass over top-row (i=0) and preceding edgebounds from list */
+   q_0  = 0;
+   r_0b = r_0 = 0;          /* beginning index for current row in list */
+   /* add every inner edgebound from current row */
+   r_0b = r_0;
+   while ( (r_0 < N) && (EDG_X(edg, r_0).id <= q_0) ) {
       r_0++;
    }
-   r_0e = r_0;            /* ending index for current row in list */
+   r_0e = r_0;
 
    /* init lookback 1 row */
    r_1b = r_0b;
@@ -177,24 +175,23 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    for (q_0 = 1; q_0 <= Q; q_0++)
    {
       q_1 = q_0 - 1;
-      qx0 = q_0 % 2;
-      qx1 = q_1 % 2;
-
       t_0 = 0;
 
       /* add every inner edgebound from current row */
       r_0b = r_0;
-      while ( r_0 < N && EDG_X(edg_inner, r_0).id == q_0 ) {
+      while ( (r_0 < N) && (EDG_X(edg, r_0).id == q_0) ) {
          r_0++;
       }
-      r_0e = k;
+      r_0e = r_0;
 
       /* Get next sequence character */
       a = seq[q_1];  /* off-by-one */
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
+      /* NOTE: data is initialized at -INF, so don't need to compute */
       // MMX3(qx0, 0) = IMX3(qx0, 0) = DMX3(qx0, 0) = -INF;
+
       XMX(SP_E, q_0) = -INF;
 
       /* FOR every BOUND in current ROW */
@@ -205,50 +202,57 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
          id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
          lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
          rb_0  = bnd->rb;
-         rb_T  = (rb_0 > T);                     /* check if cloud touches right edge */
-         rb_0  = MIN(rb_0, T);                   /* can't overflow the right edge */
+         rb_T  = (rb_0 > T);                    /* check if cloud touches right edge */
+         rb_0  = MIN(rb_0, T);                  /* can't overflow the right edge */
+         t_range = rb_0 - lb_0;
 
          /* fetch data location to bound start location (in offset) */
-         b_0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-         b_1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+         qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+         /* initial location for sparse and full data matrix */
+         t_0 = lb_0;
+         tx0 = t_0 - bnd->lb; /* total_offset = offset_location - starting_location */
 
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
-         for (t_0 = 1; t_0 < T; t_0++)
+         for (t_0 = lb_0; t_0 < rb_0; t_0++)
          {
             t_1 = t_0 - 1; 
+            tx0 = t_0 - bnd->lb;
+            tx1 = tx0 - 1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(b_1, t_1)  + TSC(t_1, M2M);
-            prv_I = ISMX(b_1, t_1)  + TSC(t_1, I2M);
-            prv_D = DSMX(b_1, t_1)  + TSC(t_1, D2M);
-            prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
+            prv_M = MSMX(qx1, tx1)  + TSC(tx1, M2M);
+            prv_I = ISMX(qx1, tx1)  + TSC(tx1, I2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(tx1, D2M);
+            prv_B = XMX(SP_B, q_1)  + TSC(tx1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
             prev_sum = calc_Max( 
                            calc_Max( prv_M, prv_I ),
                            calc_Max( prv_B, prv_D ) );
-            MSMX(b_0, t_0) = prev_sum + MSC(t_0, A);
+            MSMX(qx0, tx0) = prev_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the previous row (upper) of each state) */
-            prv_M = MSMX(b_1, t_0) + TSC(t_0, M2I);
-            prv_I = ISMX(b_1, t_0) + TSC(t_0, I2I);
+            prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I);
+            prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I);
             /* best-to-insert */
             prev_sum = calc_Max( prv_M, prv_I );
-            ISMX(b_0, t_0) = prev_sum + ISC(t_0, A);
+            ISMX(qx0, tx0) = prev_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
-            prv_M = MSMX(b_0, t_1) + TSC(t_1, M2D);
-            prv_D = DSMX(b_0, t_1) + TSC(t_1, D2D);
+            prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
             /* best-to-delete */
             prev_sum = calc_Max( prv_M, prv_D );
-            DSMX(b_0, t_0) = prev_sum;
+            DSMX(qx0, tx0) = prev_sum;
 
             /* UPDATE E STATE */
-            prv_M = MSMX(b_0, t_0) + sc_E;
-            prv_D = DSMX(b_0, t_0) + sc_E;
+            prv_M = MSMX(qx0, tx0) + sc_E;
+            prv_D = DSMX(qx0, tx0) + sc_E;
             /* best-to-e-state */
             prv_E = XMX(SP_E, q_0);
             XMX(SP_E, q_0) = calc_Max( 
@@ -259,9 +263,9 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
             #if DEBUG
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(b_0, t_0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(b_0, t_0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(b_0, t_0);
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
             }
             #endif
          }
@@ -271,35 +275,37 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
          {
             /* UNROLLED FINAL LOOP ITERATION */
             t_0 = T;
-            t_1 = t_0-1;
+            t_1 = t_0 - 1;
+            tx0 = t_0 - bnd->lb;
+            tx1 = tx0 - 1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(b_1, t_1)  + TSC(t_1, M2M);
-            prv_I = ISMX(b_1, t_1)  + TSC(t_1, I2M);
-            prv_D = DSMX(b_1, t_1)  + TSC(t_1, D2M);
+            prv_M = MSMX(qx1, tx1)  + TSC(tx1, M2M);
+            prv_I = ISMX(qx1, tx1)  + TSC(tx1, I2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(tx1, D2M);
             prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
             prev_sum = calc_Max( 
                            calc_Max( prv_M, prv_I ),
                            calc_Max( prv_D, prv_B ) );
-            MSMX(b_0, t_0) = prev_sum + MSC(t_0, A);
+            MSMX(qx0, tx0) = prev_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
-            ISMX(b_0, t_0) = -INF;
+            ISMX(qx0, tx0) = -INF;
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
             /* previous states (match takes the left element of each state) */
-            prv_M = MSMX(b_0, t_1) + TSC(t_1, M2D);
-            prv_D = DSMX(b_0, t_1) + TSC(t_1, D2D);
+            prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
             /* sum-to-delete */
             prev_sum = calc_Max( prv_M, prv_D );
-            DSMX(b_0, t_0) = prev_sum;
+            DSMX(qx0, tx0) = prev_sum;
 
             /* UPDATE E STATE (unrolled) */
             prv_E = XMX(SP_E, q_0);
-            prv_M = MSMX(b_0, t_0);
-            prv_D = DSMX(b_0, t_0);
+            prv_M = MSMX(qx0, tx0);
+            prv_D = DSMX(qx0, tx0);
             /* best-to-begin */
             XMX(SP_E, q_0) = calc_Max( 
                                  calc_Max( prv_D, prv_M ),
@@ -309,9 +315,9 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
             #if DEBUG
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(b_0, t_0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(b_0, t_0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(b_0, t_0);
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
             }
             #endif
          }

@@ -31,6 +31,11 @@ void ALIGNMENT_Resize(ALIGNMENT* aln,
 /* Empty ALIGNMENT Array */
 void ALIGNMENT_Clear(ALIGNMENT* aln);
 
+/* create string of alignment */
+void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
+                              SEQUENCE*      query,
+                              HMM_PROFILE*   target );
+
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(ALIGNMENT* aln,
                     FILE*      fp);

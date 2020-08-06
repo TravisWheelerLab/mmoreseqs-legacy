@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file VECTOR_FLT.c
- *  @brief FLOAT VECTOR objects
+ *  FILE:      vector_float.c
+ *  PURPOSE:   VECTOR_FLT Object Functions
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -19,123 +19,250 @@
 #include "objects.h"
 
 /* header */
-#include "vector_float.h"
+#include "vector_template.h"
 
-/* constructor */
+/*
+ *  FUNCTION:  VECTOR_FLT_Create()
+ *  SYNOPSIS:  Create new VECTOR_FLT object and returns pointer.
+ */
 VECTOR_FLT* VECTOR_FLT_Create()
 {
    const int init_size = VECTOR_INIT_SIZE;
+   return VECTOR_FLT_Create_by_Size( init_size );
+}
 
-   VECTOR_FLT* vec;
-   vec = (VECTOR_FLT*) malloc( sizeof(VECTOR_FLT) );
+/*
+ *  FUNCTION:  VECTOR_FLT_Create()
+ *  SYNOPSIS:  Create new VECTOR_FLT object at specific size and returns pointer.
+ */
+VECTOR_FLT* VECTOR_FLT_Create_by_Size( int    size )
+{
+   VECTOR_FLT *vec = NULL;
+   vec = (VECTOR_FLT *) malloc( sizeof(VECTOR_FLT) );
    if ( vec == NULL ) {
-      fprintf(stderr, "ERROR: Memory Allocation error.\n");
+      fprintf(stderr, "ERROR: Failure to malloc.\n");
       exit(EXIT_FAILURE);
    }
 
-   vec->N = 0;
-   vec->Nalloc = init_size;
-   VECTOR_FLT_Resize( vec, init_size );
+   vec->data   = NULL;
+   vec->N      = 0;
+   vec->Nalloc = 0;
+
+   VECTOR_FLT_Resize( vec, size );
 
    return vec;
 }
 
-/* destructor */
-void VECTOR_FLT_Destroy( VECTOR_FLT*   vec )
+/*
+ *  FUNCTION:  VECTOR_FLT_Destroy()
+ *  SYNOPSIS:  Frees all data associated with VECTOR_FLT.
+ */
+void* VECTOR_FLT_Destroy( VECTOR_FLT*   vec )
 {
+   if ( vec == NULL ) return vec;
    free(vec->data);
    free(vec);
+
+   vec = NULL;
+   return vec;
 }
 
-/* empty vector */
+/*
+ *  FUNCTION:  VECTOR_FLT_Reuse()
+ *  SYNOPSIS:  Reuse VECTOR_FLT object by resetting size counter (no realloc) .
+ */
 void VECTOR_FLT_Reuse( VECTOR_FLT*   vec )
 {
    vec->N = 0;
 }
 
-/* set all active indexes to val */
-void VECTOR_FLT_Fill(  VECTOR_FLT*   vec, 
-                       FLT           val )
+/*
+ *  FUNCTION:  VECTOR_FLT_Fill()
+ *  SYNOPSIS:  Fill VECTOR_FLT object with val.
+ */
+void VECTOR_FLT_Fill(   VECTOR_FLT*   vec, 
+                        FLT           val )
 {
    for ( int i = 0; i < vec->N; i++ ) {
       vec->data[i] = val;
    }
 }
 
-/* deep copy */
-VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*    dest,
-                              VECTOR_FLT*    src )
+/*
+ *  FUNCTION:  VECTOR_FLT_Copy()
+ *  SYNOPSIS:  Create deep copy of <src> object. 
+ *             Creates new VECTOR_FLT for <dest> if <dest> is NULL.
+ */
+VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*   src, 
+                              VECTOR_FLT*   dest )
 {
+
    if ( dest == NULL ) {
-      dest = (VECTOR_FLT*) malloc( sizeof(VECTOR_FLT) );
+      dest = VECTOR_FLT_Create();
    }
-   
+   /* allocate variable-sized data */
+   VECTOR_FLT_Resize( dest, src->Nalloc );
+   /* copy variable-sized data */
+   memcpy( dest->data, src->data, sizeof(FLT) * src->N );
    /* copy base data */
    dest->N = src->N;
-   dest->Nalloc = src->Nalloc;
-
-   /* copy variable-sized data */
-   dest->data = (FLT*) malloc( sizeof(FLT) * src->Nalloc );
-   memcpy( dest->data, src->data, sizeof(FLT) * src->N );
 
    return dest;
 }
 
-/* resize the array */
-void VECTOR_FLT_Resize( VECTOR_FLT*    vec, 
-                        const int      size )
+/*
+ *  FUNCTION:  VECTOR_FLT_Resize()
+ *  SYNOPSIS:  Reallocate <vec> data array to length of <size>. 
+ */
+void VECTOR_FLT_Resize(    VECTOR_FLT*   vec, 
+                           int           size )
 {
-   if ( size > vec->Nalloc ) {
-      vec->data = (FLT*) realloc( vec->data, sizeof(FLT) * size );
-      vec->Nalloc = size;
+   vec->data = (FLT*) realloc( vec->data, sizeof(FLT) * size );
+   if ( vec->data == NULL ) {
+      fprintf(stderr, "ERROR: Failure to malloc.\n" );
+      exit(EXIT_FAILURE);
+   }
+   vec->Nalloc = size;
+}
+
+/*
+ *  FUNCTION:  VECTOR_FLT_GrowTo()
+ *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
+ *             only if current array length is less than <size>. 
+ */
+void VECTOR_FLT_GrowTo( VECTOR_FLT*   vec, 
+                        int           size )
+{
+   if ( vec->Nalloc < size ) {
+      VECTOR_FLT_Resize( vec, size );
    }
 }
 
-/* push element onto end of array */
-void VECTOR_FLT_Pushback(  VECTOR_FLT*    vec, 
-                           const FLT      val )
+/*
+ *  FUNCTION:  VECTOR_FLT_Pushback()
+ *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
+ *             and resize array if array is full.
+ */
+void VECTOR_FLT_Pushback(  VECTOR_FLT*   vec, 
+                           FLT           val )
 {
    vec->data[vec->N] = val;
    vec->N++;
 
    /* if array is full, resize */
    if (vec->N >= vec->Nalloc - 1) {
-      VECTOR_FLT_Resize( vec, 2 );
+      VECTOR_FLT_Resize( vec, vec->N * 2 );
    }
 }
 
-/* pop element from end of array */
+/*
+ *  FUNCTION:  VECTOR_FLT_Pop()
+ *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
+ */
+inline
 FLT VECTOR_FLT_Pop( VECTOR_FLT*   vec )
 {
-   float tmp = vec->data[vec->N-1];
+   FLT data = vec->data[vec->N-1];
    vec->N -= 1;
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
-      VECTOR_FLT_Resize( vec, 0.5 );
+      VECTOR_FLT_Resize( vec, vec->N / 2 );
    }
 
-   return tmp;
+   return data;
 }
 
-/* set data at index (no bound checks) */
-void VECTOR_FLT_Set( VECTOR_FLT*    vec, 
-                     const int      idx, 
-                     const float    val )
+/*
+ *  FUNCTION:  VECTOR_FLT_Set()
+ *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+void VECTOR_FLT_Set(    VECTOR_FLT*   vec, 
+                        int           idx, 
+                        FLT           val )
 {
+   /* if debugging, do edgebound checks */
+   #if DEBUG 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_FLT access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
    vec->data[idx] = val;
 }
 
-/* get data at index (no checks) */
-FLT VECTOR_FLT_Get(  VECTOR_FLT*    vec, 
-                     const int      idx )
+/*
+ *  FUNCTION:  VECTOR_FLT_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+inline
+FLT VECTOR_FLT_Get(  VECTOR_FLT*   vec, 
+                     int           idx )
 {
+   /* if debugging, do edgebound checks */
+   #if DEBUG 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_FLT access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
    return vec->data[idx];
 }
 
-/* compare two VECTOR_FLT objects */
-int VECTOR_FLT_Compare( const VECTOR_FLT*    vec_A, 
-                        const VECTOR_FLT*    vec_B )
+/*
+ *  FUNCTION:  VECTOR_FLT_Get_Ref()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+inline
+FLT* VECTOR_FLT_Get_Ref(   VECTOR_FLT*   vec, 
+                           int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if DEBUG 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_FLT access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%d/%d), access: %d\n", vec->N, vec->Nalloc, idx);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
+}
+
+/*
+ *  FUNCTION:  VECTOR_FLT_Search()
+ *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. Returns first instance.
+ *             Assumes <vec> has been sorted ascending.
+ *  RETURN:    Returns index of first instance of <val>.  
+ *             Return -1 if <val> is not found.
+ */
+inline
+int VECTOR_FLT_Search(  VECTOR_FLT*   vec, 
+                        FLT           val )
+{
+   /* TODO */
+   for (int i = vec->N; i >= 1; i /= 2)
+   {
+
+   }
+}
+
+/*
+ *  FUNCTION:  VECTOR_FLT_Compare()
+ *  SYNOPSIS:  Compare <vec_A> and <vec_B>.
+ *  RETURN:    0 for equality, 
+ *             pos if <vec_A> > <vec_B>,  
+ *             neg if <vec_A> < <vec_B>.
+ */
+int VECTOR_FLT_Compare(    VECTOR_FLT*   vec_A, 
+                           VECTOR_FLT*   vec_B )
 {
    for (int i = 0; i < vec_A->N; i++) {
       if ( vec_A->data[i] != vec_B->data[i] ) {
@@ -147,4 +274,30 @@ int VECTOR_FLT_Compare( const VECTOR_FLT*    vec_A,
       }
    }
    return 0;
+}
+
+
+/*
+ *  FUNCTION:  VECTOR_FLT_Sort()
+ *  SYNOPSIS:  Sort <vec> data array in ascending order.
+ */
+void VECTOR_FLT_Sort( VECTOR_FLT*    vec )
+{
+   /* TODO */
+}
+
+
+/*
+ *  FUNCTION:  VECTOR_FLT_Dump()
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer.
+ */
+void VECTOR_FLT_Dump(   VECTOR_FLT*    vec,
+                        FILE*          fp )
+{
+   fprintf(fp, "%s: ", "VECTOR_FLT");
+   fprintf(fp, "[ ");
+   for ( int i = 0; i < vec->N; i++ ) {
+      fprintf(fp, "%3d ", vec->data[i] );
+   }
+   fprintf(fp, "]\n" );
 }
