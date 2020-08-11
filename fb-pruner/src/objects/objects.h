@@ -14,20 +14,28 @@
 
 /* basic datatypes / wrappers */
 #include "bound.h"
+#include "char.h"
+#include "double.h"
+#include "float.h"
+#include "int.h"
+#include "range.h"
+#include "trace.h"
+#include "template.h"
+
+/* vectors */
+#include "vector_bound.h"
+#include "vector_char.h"
+#include "vector_double.h"
+#include "vector_float.h"
+#include "vector_int.h"
+#include "vector_range.h"
+#include "vector_trace.h"
+#include "vector_template.h"
 
 /* matrix */
 #include "matrix_2d.h"
 #include "matrix_3d.h"
 #include "matrix_3d_sparse.h"
-
-/* vectors */
-#include "vector_bound.h"
-#include "vector_float.h"
-#include "vector_int.h"
-#include "vector_range.h"
-#include "vector_range_2d.h"
-#include "vector_trace.h"
-#include "vector_char.h"
 
 /* objects */
 #include "alignment.h"

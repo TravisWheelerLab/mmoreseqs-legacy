@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      viterbi.c
+ *  FILE:      viterbi_quad.c
  *  PURPOSE:   The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *
  *  AUTHOR:    Dave Rich
@@ -27,24 +27,15 @@
  *  FUNCTION:  viterbi_Run()
  *  SYNOPSIS:  Run Viterbi Algorithm (Seq-to-Profile, general unoptimized)
  *
- *  PURPOSE:
- *
- *  ARGS:      <query>     query sequence,
- *             <target>    HMM model,
- *             <Q>         Query length,
- *             <T>         Target length,
- *             <st_MX>     Normal state matrix,
- *             <sp_MX>     Special state matrix
- *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Viterbi_Quad(   const SEQUENCE*    query,
-                        const HMM_PROFILE* target,
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX,
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final )
+int run_Viterbi_Quad(   const SEQUENCE*    query,        /* query sequence */
+                        const HMM_PROFILE* target,       /* target hmm model */
+                        const int          Q,            /* query length */
+                        const int          T,            /* target length */
+                        MATRIX_3D*         st_MX,        /* normal matrix */
+                        MATRIX_2D*         sp_MX,        /* special matrix */
+                        float*             sc_final )    /* final max score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -85,8 +76,8 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
    
@@ -171,26 +162,26 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
          prv_D = DMX(qx1, t_1) + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
-         prev_best = calc_Max( 
+         prv_best = calc_Max( 
                         calc_Max( prv_M, prv_I ), 
                         calc_Max( prv_D, prv_B ) );
-         MMX(qx0, t_0)  = prev_best + MSC(t_0, A);
+         MMX(qx0, t_0)  = prv_best + MSC(t_0, A);
 
          /* FIND BEST PATH TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
          prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
          /* best-to-insert */
-         prev_best = calc_Max(prv_M, prv_I);
-         IMX(qx0, t_0) = prev_best + ISC(t_0, A);
+         prv_best = calc_Max(prv_M, prv_I);
+         IMX(qx0, t_0) = prv_best + ISC(t_0, A);
 
          /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
          prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
          /* best-to-delete */
-         prev_best = calc_Max(prv_M, prv_D);
-         DMX(qx0, t_0) = prev_best;
+         prv_best = calc_Max(prv_M, prv_D);
+         DMX(qx0, t_0) = prv_best;
 
          /* UPDATE E STATE */
          prv_E = XMX(SP_E, q_0);
@@ -220,18 +211,18 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,
       prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
       prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
       /* best-to-match */
-      prev_best = calc_Max(
+      prv_best = calc_Max(
                      calc_Max( prv_M, prv_I ),
                      calc_Max( prv_D, prv_B ) );
-      MMX(qx0, t_0) = prev_best + MSC(t_0, A);
+      MMX(qx0, t_0) = prv_best + MSC(t_0, A);
 
       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
       /* previous states (match takes the left element of each state) */
       prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
       prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
       /* best-to-delete */
-      prev_best = calc_Max( prv_M, prv_D );
-      DMX(qx0, t_0) = prev_best;
+      prv_best = calc_Max( prv_M, prv_D );
+      DMX(qx0, t_0) = prv_best;
 
       /* UPDATE E STATE */
       prv_E = XMX(SP_E, q_0);

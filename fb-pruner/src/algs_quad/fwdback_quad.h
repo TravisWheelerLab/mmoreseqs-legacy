@@ -10,22 +10,32 @@
 #ifndef _FWDBACK_QUAD_H
 #define _FWDBACK_QUAD_H
 
+/*  
+ *  FUNCTION:  run_Forward_Quad()
+ *  SYNOPSIS:  Perform Forward part of Forward-Backward Algorithm.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int run_Forward_Quad(   const SEQUENCE*    query,        /* query sequence */
+                        const HMM_PROFILE* target,       /* target hmm model */
+                        const int          Q,            /* query length */
+                        const int          T,            /* target length */
+                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        float*             sc_final );   /* OUTPUT: final score */
 
-int run_Forward_Quad(   const SEQUENCE*   query, 
-                        const HMM_PROFILE* target, 
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX, 
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final );
 
-
-int run_Backward_Quad(  const SEQUENCE*    query, 
-                        const HMM_PROFILE* target, 
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX, 
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final );
+/* FUNCTION:   run_Backward_Quad()
+ * SYNOPSIS:   Perform Backward part of Forward-Backward Algorithm.
+ *
+ * RETURN:     Return <STATUS_SUCCESS> if no errors.
+*/
+int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
+                        const HMM_PROFILE* target,       /* target hmm model */
+                        const int          Q,            /* query length */
+                        const int          T,            /* target length */
+                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        float*             sc_final );   /* OUTPUT: final score */
 
 #endif /* _FWDBACK_QUAD_H */

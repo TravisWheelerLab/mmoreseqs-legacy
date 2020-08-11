@@ -94,8 +94,8 @@ int  run_Cloud_Forward_Linear_Rows(    const SEQUENCE*    query,        /* query
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -362,10 +362,10 @@ int  run_Cloud_Forward_Linear_Rows(    const SEQUENCE*    query,        /* query
             /* free to begin match state (new alignment) */
             // prv_B = 0; /* assigned once at start */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_B ) );
-            MMX3(dx0,k) = prev_sum + MSC(j,A);
+            MMX3(dx0,k) = prv_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
@@ -373,8 +373,8 @@ int  run_Cloud_Forward_Linear_Rows(    const SEQUENCE*    query,        /* query
             prv_M = MMX3(dx1,k-1) + TSC(j,M2I);
             prv_I = IMX3(dx1,k-1) + TSC(j,I2I);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX3(dx0,k) = prev_sum + ISC(j,A);
+            prv_sum = logsum( prv_M, prv_I );
+            IMX3(dx0,k) = prv_sum + ISC(j,A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
@@ -382,8 +382,8 @@ int  run_Cloud_Forward_Linear_Rows(    const SEQUENCE*    query,        /* query
             prv_M = MMX3(dx1,k) + TSC(j-1,M2D);
             prv_D = DMX3(dx1,k) + TSC(j-1,D2D);
             /* best-to-delete */
-            prev_sum = logsum(prv_M, prv_D);
-            DMX3(dx0,k) = prev_sum;
+            prv_sum = logsum(prv_M, prv_D);
+            DMX3(dx0,k) = prv_sum;
 
             /* embed cell data in quadratic matrix */
             #if DEBUG
@@ -589,8 +589,8 @@ int run_Cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* quer
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -866,10 +866,10 @@ int run_Cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* quer
             // prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             // prv_E = sc_E;
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_E ) );
-            MMX3(dx0,k) = prev_sum;
+            MMX3(dx0,k) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             sc_I = ISC(j, A);
@@ -877,16 +877,16 @@ int run_Cloud_Backward_Linear_Rows(     const SEQUENCE*   query,         /* quer
             prv_M = MMX3(dx2, k+1) + TSC(j, I2M) + sc_M;
             prv_I = IMX3(dx1, k+1) + TSC(j, I2I) + sc_I;
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX3(dx0,k) = prev_sum;
+            prv_sum = logsum( prv_M, prv_I );
+            IMX3(dx0,k) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
             prv_M = MMX3(dx2, k+1) + TSC(j, D2M) + sc_M;
             prv_D = DMX3(dx1, k  ) + TSC(j, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            prev_sum = logsum( prev_sum, prv_E );
-            DMX3(dx0,k) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = logsum( prv_sum, prv_E );
+            DMX3(dx0,k) = prv_sum;
 
             /* embed cell data in quadratic matrix */
             #if DEBUG

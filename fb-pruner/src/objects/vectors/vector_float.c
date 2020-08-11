@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_float.c
- *  PURPOSE:   VECTOR_FLT Object Functions
+ *  PURPOSE:   VECTOR_FLT Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have FLT_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -19,7 +22,7 @@
 #include "objects.h"
 
 /* header */
-#include "vector_template.h"
+#include "vector_float.h"
 
 /*
  *  FUNCTION:  VECTOR_FLT_Create()
@@ -225,7 +228,7 @@ FLT VECTOR_FLT_Get(  VECTOR_FLT*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ FLT* VECTOR_FLT_Get_X(  VECTOR_FLT*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-FLT VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec )
+int VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_FLT_Compare(    VECTOR_FLT*   vec_A,
    {
       if ( FLT_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return FLT_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return FLT_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_FLT_Sort_Sub_Quicksort( VECTOR_FLT*    vec,
    FLT*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   FLT pivot_val = vec->data[pivot_idx];
-   VECTOR_FLT_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   FLT   pivot_val   = vec->data[pivot_idx];
+   VECTOR_FLT_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -521,10 +524,13 @@ void VECTOR_FLT_Reverse(   VECTOR_FLT*    vec )
 void VECTOR_FLT_Dump(   VECTOR_FLT*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[30];
+
    fprintf(fp, "%s: ", "VECTOR_FLT");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", FLT_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

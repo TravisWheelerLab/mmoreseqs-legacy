@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      string.c
- *  PURPOSE:   STRING utility functions
+ *  PURPOSE:   STRING utility functions.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       

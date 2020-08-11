@@ -97,8 +97,8 @@ int run_Forward_Vec(    const SEQUENCE*    query,
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_N, prv_C, prv_J;             /* previous (N) initial, (C) terminal, and (J) jump states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D;                /* normal state scores: match, insert, delete */
    float    sc_B, sc_E;                      /* special states scores: begin, end */
@@ -276,8 +276,8 @@ int run_Backward_Vec(   const SEQUENCE*    query,
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -390,9 +390,9 @@ int run_Backward_Vec(   const SEQUENCE*    query,
       XMX(SP_B, q_0) = MMX3(qx1, 1) + TSC(0, B2M) + MSC(1, A);
       for (t_0 = 2; t_0 <= T; t_0++) {
          t_1 = t_0 - 1;
-         prev_sum = XMX(SP_B, q_0);
+         prv_sum = XMX(SP_B, q_0);
          prv_M = MMX3(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
       }
 
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
@@ -434,26 +434,26 @@ int run_Backward_Vec(   const SEQUENCE*    query,
          prv_D = DMX3(qx0, t_1) + TSC(t_0, M2D);
          prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
          /* best-to-match */
-         prev_sum = logsum( 
+         prv_sum = logsum( 
                         logsum( prv_M, prv_I ),
                         logsum( prv_E, prv_D ) );
-         MMX3(qx0, t_0) = prev_sum;
+         MMX3(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
          prv_M = MMX3(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);
          prv_I = IMX3(qx1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
          /* best-to-insert */
-         prev_sum = logsum( prv_M, prv_I );
-         IMX3(qx0, t_0) = prev_sum;
+         prv_sum = logsum( prv_M, prv_I );
+         IMX3(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
          prv_M = MMX3(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
          prv_D = DMX3(qx0, t_1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
-         prev_sum = logsum( prv_M, 
+         prv_sum = logsum( prv_M, 
                         logsum( prv_D, prv_E ) );
-         DMX3(qx0, t_0) = prev_sum;
+         DMX3(qx0, t_0) = prv_sum;
 
          #if DEBUG 
          {
@@ -486,9 +486,9 @@ int run_Backward_Vec(   const SEQUENCE*    query,
    XMX(SP_B, q_0) = prv_M;
    for (t_0 = 2; t_0 <= T; t_0++) {
       t_1 = t_0-1;
-      prev_sum = XMX(SP_B, q_0);
+      prv_sum = XMX(SP_B, q_0);
       prv_M = MMX3(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-      XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
+      XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
    }
 
    XMX(SP_J, q_0) = -INF;

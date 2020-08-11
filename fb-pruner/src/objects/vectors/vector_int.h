@@ -115,7 +115,7 @@ INT* VECTOR_INT_Get_X(  VECTOR_INT*   vec,
  *  FUNCTION:  VECTOR_INT_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-INT VECTOR_INT_Get_Size(   VECTOR_INT*   vec );
+int VECTOR_INT_Get_Size(   VECTOR_INT*   vec );
 
 /*
  *  FUNCTION:  VECTOR_INT_Set_Size()

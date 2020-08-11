@@ -182,6 +182,29 @@ float* MATRIX_3D_Get(   MATRIX_3D*  mx,
    return data;
 }
 
+/* getter for index by reference */
+inline
+float* MATRIX_3D_Get_X(    MATRIX_3D*  mx,
+                           const int   i,
+                           const int   j,
+                           const int   k )
+{
+   /* if debugging, do edgebound checks */
+   #if DEBUG
+   int n = MATRIX_3D_to_1D(mx, i, j, k);
+   int used = mx->R * mx->C * mx->N;
+   if (i >= mx->R || i < 0 || j >= mx->C || j < 0 || k >= mx->N || n >= used ) {
+      fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
+      fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
+      fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
+      exit(EXIT_FAILURE);
+   }
+   #endif
+
+   float* data = &( mx->data[ MATRIX_3D_to_1D(mx, i, j, k) ] );
+   return data;
+}
+
 /* getter for index */
 inline
 float* MATRIX_3D_Get_1D(   MATRIX_3D*  mx,

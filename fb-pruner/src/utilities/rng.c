@@ -47,6 +47,31 @@ int RNG_Generate()
  *  SYNOPSIS:  Generate random int.
  */
 inline
+int RNG()
+{
+   int r = RNG_Generate();
+   return r;
+}
+
+/*
+ *  FUNCTION:  RNG_Range()
+ *  SYNOPSIS:  Generate random int in range (beg, end]
+ */
+inline
+int RNG_Range(    int beg,
+                  int end )
+{
+   INT range = end - beg;
+   INT r = ( RNG_INT() % range ) + beg;
+   return r;
+}
+
+
+/*
+ *  FUNCTION:  RNG_INT()
+ *  SYNOPSIS:  Generate random int.
+ */
+inline
 INT RNG_INT()
 {
    INT r = (INT) RNG_Generate();
@@ -54,7 +79,7 @@ INT RNG_INT()
 }
 
 /*
- *  FUNCTION:  RNG_INT_Range()CHAR
+ *  FUNCTION:  RNG_INT_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline
@@ -110,7 +135,7 @@ FLT RNG_FLT_Range(   FLT beg,
                      FLT end )
 {
    FLT range = end - beg;
-   FLT r = ( RNG_FLT() % range ) + beg;
+   FLT r = ( RNG_FLT() * range ) / (FLT)RAND_MAX + beg;
    return r;
 }
 
@@ -134,6 +159,6 @@ DBL RNG_DBL_Range(   DBL beg,
                      DBL end )
 {
    DBL range = end - beg;
-   DBL r = ( RNG_DBL() % range ) + beg;
+   DBL r = ( RNG_DBL() * range ) / (FLT)RAND_MAX + beg;
    return r;
 }

@@ -95,8 +95,8 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -238,26 +238,26 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
             prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_B, prv_D ) );
-            MMX3(qx0, t_0) = prev_sum + MSC(t_0, A);
+            MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the previous row (upper) of each state) */
             prv_M = MMX3(qx1, t_0) + TSC(t_0, M2I);
             prv_I = IMX3(qx1, t_0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX3(qx0, t_0) = prev_sum + ISC(t_0, A);
+            prv_sum = logsum( prv_M, prv_I );
+            IMX3(qx0, t_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
             prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
             prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX3(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX3(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE */
             prv_M = MMX3(qx0, t_0) + sc_E;
@@ -293,10 +293,10 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
             prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_B ) );
-            MMX3(qx0, t_0) = prev_sum + MSC(t_0, A);
+            MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
             IMX3(qx0, t_0) = -INF;
@@ -306,8 +306,8 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
             prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
             prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
             /* sum-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX3(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX3(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
             prv_E = XMX(SP_E, q_0);
@@ -387,12 +387,12 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    }
 
    /* T state */
-   sc_best = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
-   *sc_final = sc_best;
+   sc_best     = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
+   *sc_final   = sc_best;
 
    /* flag matrices that they contain dirty values (not -INF) */
-   st_MX3->clean = true;
-   sp_MX->clean = true;
+   st_MX3->clean  = true;
+   sp_MX->clean   = true;
 
    #if DEBUG 
    {
@@ -470,8 +470,8 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -535,11 +535,6 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    q_0 = Q;             /* current row in matrix */
    qx0 = q_0 % 2;       /* for use in linear space alg (mod-mapping) */
 
-   /* Initialize special states */
-   XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
-   XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
-   XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
-
    /* pass over (Q) bottom-row edgebounds from list */
    r_0  = N-1;          /* current index in edgebounds */
    r_0b = N-1;          /* beginning index for current row in list */
@@ -547,6 +542,11 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       r_0--;
    }
    r_0e = r_0;            /* ending index for current row in list */
+
+   /* Initialize special states */
+   XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
+   XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
+   XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
    /* if there is a bound on row and the right-most bound spans T */
    if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
@@ -564,22 +564,6 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       }
       #endif
    }
-
-   /* Initialize normal states (naive) */
-   // for (t_0 = T-1; t_0 >= 1; t_0--)
-   // {
-   //    t_1 = t_0 + 1;
-
-   //    prv_E = XMX(SP_E, Q) + sc_E;
-   //    prv_D = DMX3(qx0, t_1)  + TSC(t_0, M2D);
-   //    MMX3(qx0, t_0) = logsum( prv_E, prv_D );
-
-   //    prv_E = XMX(SP_E, Q) + sc_E;
-   //    prv_D = DMX3(qx0, t_1)  + TSC(t_0, D2D);
-   //    DMX3(qx0, t_0) = logsum( prv_E, prv_D );
-
-   //    IMX3(qx0, t_0) = -INF;
-   // }
 
    /* Initialize normal states (sparse) */
    for (r_0 = r_0b; r_0 > r_0e; r_0--) 
@@ -641,16 +625,6 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
 
       /* UPDATE SPECIAL STATES at the start of EACH ROW */
 
-      // /* B STATE (naive) */
-      // /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation.   */
-      // XMX(SP_B, q_0) = MMX3(qx1, 1) + TSC(0, B2M) + MSC(1, A);
-      // for (t_0 = 2; t_0 <= T; t_0++) {
-      //    t_1 = t_0-1;
-      //    prev_sum = XMX(SP_B, q_0);
-      //    prv_M = MMX3(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-      //    XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
-      // }
-
       /* B STATE (sparse) */
       XMX(SP_B, q_0) = -INF;
       for (r_1 = r_1b; r_1 > r_1e; r_1--) 
@@ -662,9 +636,9 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
          for (t_0 = lb_0; t_0 <= rb_0; t_0++)
          {
             t_1 = t_0 - 1;
-            prev_sum = XMX(SP_B, q_0);
+            prv_sum = XMX(SP_B, q_0);
             prv_M = MMX3(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-            XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
+            XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
          }
       }
 
@@ -680,7 +654,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       XMX(SP_E, q_0) = logsum( prv_J, prv_C );
 
       prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
-      prv_B  = XMX(SP_B, q_0) + XSC(SP_N, SP_MOVE);
+      prv_B = XMX(SP_B, q_0) + XSC(SP_N, SP_MOVE);
       XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
       /* if there is a bound on row and the right-most bound spans T */
@@ -718,26 +692,26 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
             prv_D = DMX3(qx0, t_1) + TSC(t_0, M2D);
             prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_E, prv_D ) );
-            MMX3(qx0, t_0) = prev_sum;
+            MMX3(qx0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             prv_M = MMX3(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);
             prv_I = IMX3(qx1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX3(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_I );
+            IMX3(qx0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
             prv_M = MMX3(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
             prv_D = DMX3(qx0, t_1) + TSC(t_0, D2D);
             prv_E = XMX(SP_E, q_0) + sc_E;
             /* best-to-delete */
-            prev_sum = logsum( prv_M, 
+            prv_sum = logsum( prv_M, 
                            logsum( prv_D, prv_E ) );
-            DMX3(qx0, t_0) = prev_sum;
+            DMX3(qx0, t_0) = prv_sum;
 
             #if DEBUG 
             {
@@ -791,16 +765,6 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    a = seq[0];
    A = AA_REV[a];
 
-   /* B STATE (NAIVE) */
-   // prv_M = MMX3(q_1, t_1) + TSC(0, B2M) + MSC(1, A);
-   // XMX(SP_B, q_0) = prv_M;
-   // for (t_0 = 2; t_0 <= T; t_0++) {
-   //    t_1 = t_0-1;
-   //    prev_sum = XMX(SP_B, q_0);
-   //    prv_M = MMX3(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-   //    XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
-   // }
-
    /* B STATE (SPARSE) */
    XMX(SP_B, q_0) = -INF;
    for (r_1 = r_1b; r_1 > r_1e; r_1--) 
@@ -812,9 +776,10 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
       {
          t_1 = t_0 - 1;
-         prev_sum = XMX(SP_B, q_0);
+
+         prv_sum = XMX(SP_B, q_0);
          prv_M = MMX3(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
       }
    }
 
@@ -822,19 +787,15 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    XMX(SP_C, q_0) = -INF;
    XMX(SP_E, q_0) = -INF;
 
-   prv_N = XMX(SP_N, q_1) + XSC(SP_N,SP_LOOP);
-   prv_B  = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
+   prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
+   prv_B = XMX(SP_B, q_0) + XSC(SP_N, SP_MOVE);
    XMX(SP_N, q_0) = logsum( prv_N, prv_B );
-
-   // for (t_0 = T; t_0 >= 1; t_0--) {
-   //    MMX3(qx0, t_0) = IMX3(qx0, t_0) = DMX3(qx0, t_0) = -INF;
-   // }
 
    /* SCRUB FINAL ROW */
    for (r_1 = r_1b; r_1 > r_1e; r_1--) 
    {
-      bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
-      lb_1  = bnd->lb;               /* can't overflow the left edge */
+      bnd   = &EDG_X(edg, r_1);     /* NOTE: this is always the same as cur_row, q_0 */
+      lb_1  = bnd->lb;              /* can't overflow the left edge */
       rb_1  = bnd->rb;
 
       for (t_0 = lb_1; t_0 < rb_1; t_0++) {
@@ -852,8 +813,8 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    }
    #endif
 
-   sc_best = XMX(SP_N,0);
-   *sc_final = sc_best;
+   sc_best     = XMX(SP_N, 0);
+   *sc_final   = sc_best;
 
    return STATUS_SUCCESS;
 }

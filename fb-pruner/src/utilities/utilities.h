@@ -13,5 +13,6 @@
 #include "error_handler.h"
 #include "testing.h"
 #include "misc.h"
+#include "rng.h"
 
 #endif /* _UTILITIES_H */

@@ -10,22 +10,34 @@
 #define _BOUNDED_FWDBCK_QUAD_H
 
 
-int run_Bound_Forward_Quad(   const SEQUENCE*      query, 
-                              const HMM_PROFILE*   target,
-                              const int            Q, 
-                              const int            T, 
-                              MATRIX_3D*           st_MX,
-                              MATRIX_2D*           sp_MX, 
-                              EDGEBOUNDS*          edg,
-                              float*               sc_final );
+/*  
+ *  FUNCTION:  run_Bound_Forward_Quad()
+ *  SYNOPSIS:  Perform Edge-Bounded Forward part of Cloud Search Algorithm.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query sequence */
+                                 const HMM_PROFILE*   target,        /* target HMM model */
+                                 const int            Q,             /* query length */
+                                 const int            T,             /* target length */
+                                 MATRIX_3D*           st_MX,         /* normal state matrix */
+                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 EDGEBOUNDS*          edg,           /* edgebounds */
+                                 float*               sc_final );    /* OUTPUT: final score */
 
-int run_Bound_Backward_Quad(  const SEQUENCE*      query, 
-                              const HMM_PROFILE*   target,
-                              const int            Q, 
-                              const int            T, 
-                              MATRIX_3D*           st_MX,
-                              MATRIX_2D*           sp_MX, 
-                              EDGEBOUNDS*          edg,
-                              float*               sc_final );
+/*  
+ *  FUNCTION:  run_Bound_Backward_Quad()
+ *  SYNOPSIS:  Perform Edge-Bounded Backward part of Cloud Search Algorithm.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query sequence */
+                                 const HMM_PROFILE*   target,        /* target HMM model */
+                                 const int            Q,             /* query length */
+                                 const int            T,             /* target length */
+                                 MATRIX_3D*           st_MX,         /* normal state matrix */
+                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 EDGEBOUNDS*          edg,           /* edgebounds */
+                                 float*               sc_final );    /* OUTPUT: final score */
 
 #endif /* BOUNDED_FWDBCK_QUAD_H */

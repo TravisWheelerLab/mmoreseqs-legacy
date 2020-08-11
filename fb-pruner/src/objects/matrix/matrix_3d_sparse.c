@@ -246,7 +246,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,
             for ( int j = i; j < n_[qx2]; j++ ) 
             {
                cur_r = &ranges[qx2][j];
-               cmp = RANGE_Compare( min_r, cur_r );
+               cmp = RANGE_Compare( *min_r, *cur_r );
                if ( cmp > 0 ) { min_r = cur_r; }
                min_i = j;
             }
@@ -544,8 +544,9 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,
 }
 
 /* 
- *  FUNCTION:  MATRIX_3D_SPARSE_Get_Ref()
+ *  FUNCTION:  MATRIX_3D_SPARSE_Get_X()
  *  SYNOPSIS:  Get reference to cell in corresponding to given (x,y) coordinates in complete matrix.
+ *             Also gets reference cells to 
  *
  *  ARGS:      <smx>          MATRIX_3D_SPARSE object
  *             <q_0>          x : row/diag id
@@ -554,15 +555,27 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,
  *  RETURN:    Reference to <smx> data array location if success.
  *             Returns NULL if search fails.
  */
-FLT* MATRIX_3D_SPARSE_Get_Ref(   MATRIX_3D_SPARSE*    smx,
-                                 int                  q_0,
-                                 int                  t_0 )
+int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,        /* */
+                              int                  q_0,        /* */
+                              int                  t_0,        /* */
+                              int*                 off_prv,    /* */
+                              int*                 off_cur,    /* */
+                              int*                 off_nxt )   /* */
 {
-   /* find index into row of matrix = q_0 */
-   /* TODO: implement binary search */
-   // VECTOR_FLT_Search( smx->rows,  )
+   /* find bound containing (q_0,t_0) */
+   int idx = EDGEBOUNDS_Search( smx->edg_inner, q_0, t_0 );
+   /* if bound not found, then done */
+   if (idx == -1) {
+      return -1;
+   }
+   /* get edgebound */
+   BOUND* bnd = &(smx->edg_inner->bounds[idx]);
+   /* get mapped locations to start of data block */
+   *off_prv = smx->imap_prv->data[idx];
+   *off_cur = smx->imap_cur->data[idx];
+   *off_nxt = smx->imap_nxt->data[idx];
 
-   /* find bound containing t_0 in range */
+   return idx;
 }
 
 /* 

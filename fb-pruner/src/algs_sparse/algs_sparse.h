@@ -1,9 +1,8 @@
 /*******************************************************************************
- *  FILE:      algs_quad.h
- *  PURPOSE:   /algs_quad/ folder collective header
+ *  FILE:      algs_sparse.h
+ *  PURPOSE:   /algs_sparse/ folder collective header
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
  *******************************************************************************/
 
 #ifndef _ALGS_SPARSE_H
@@ -11,5 +10,6 @@
 
 #include "bound_fwdbck_sparse.h"
 #include "bound_viterbi_sparse.h"
+#include "traceback_sparse.h"
 
 #endif /* _ALGS_SPARSE_H */

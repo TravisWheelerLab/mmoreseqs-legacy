@@ -129,7 +129,7 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
    edg_dest->Q          = edg_src->Q;
    edg_dest->T          = edg_src->T;
    edg_dest->edg_mode   = edg_src->edg_mode;
-
+   EDGEBOUNDS_Reuse( edg_dest, edg_src->Q, edg_src->T );
 
    edg_dest->edg_mode = edg_src->edg_mode;
 
@@ -143,12 +143,12 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_Get()
+ *  FUNCTION: EDGEBOUNDS_Get_X()
  *  SYNOPSIS: Return pointer to BOUND at index <i>.
  */
 inline
-BOUND* EDGEBOUNDS_Get( EDGEBOUNDS*   edg,
-                       int           i )
+BOUND* EDGEBOUNDS_Get(  EDGEBOUNDS*   edg,
+                        int           i )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
@@ -160,6 +160,61 @@ BOUND* EDGEBOUNDS_Get( EDGEBOUNDS*   edg,
    #endif
 
    return &(edg->bounds[i]);
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Search()
+ *  SYNOPSIS:  Binary search edgebounds for bound containing cell (q_0, t_0).
+ *             Assumes edgebounds are sorted and merged.
+ *  RETURN:    Return index of edgebound, or -1 if not contained.
+ */
+int EDGEBOUNDS_Search(  EDGEBOUNDS*    edg,     /* edgebounds  */
+                        int            q_0,     /* row/diag index, position in query */
+                        int            t_0 )    /* column index, position in target */
+{
+   int      N     = edg->N;
+   int      idx   = N/2;
+   int      cmp   = 0;
+   BOUND*   bnd;
+
+   /* binary search */
+   for ( int i = N/4; i > 1; i = i/2 ) 
+   {
+      bnd = &(edg->bounds[idx]);
+
+      /* check if on correct row */
+      cmp = INT_Compare( q_0, bnd->id );
+      if ( cmp > 0 ) 
+      {
+         idx -= i;
+         continue;
+      }
+      else if ( cmp < 0 ) 
+      {
+         idx += i;
+         continue;
+      }
+      else /* if ( cmp == 0 ) */ 
+      {
+         /* check if in correct column range */
+         /* right of left bound? */
+         cmp = INT_Compare( t_0, bnd->lb );
+         if ( cmp < 0 ) {
+            idx += i;
+            continue;
+         }
+         /* left of right bound? */
+         cmp = INT_Compare( t_0, bnd->rb - 1 );
+         if ( cmp > 0 ) {
+            idx -= i;
+            continue;
+         }
+         /* if both, then it is inside range */
+         return idx;
+      }
+   }
+
+   return -1;
 }
 
 /*
@@ -202,15 +257,6 @@ void EDGEBOUNDS_Delete( EDGEBOUNDS*    edg,
    int N = edg->N;
    edg->bounds[i] = edg->bounds[N-1];
    edg->N -= 1;
-}
-
-/*
- *  FUNCTION: EDGEBOUNDS_Clear()
- *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list (no realloc).
- */
-void EDGEBOUNDS_Clear( EDGEBOUNDS*  edg )
-{
-   edg->N = 0;
 }
 
 /*

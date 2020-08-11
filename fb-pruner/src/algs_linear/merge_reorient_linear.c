@@ -84,9 +84,10 @@ void EDGEBOUNDS_Merge_Together(     const int           Q,             /* query 
    #if DEBUG 
    {
       for ( i = 0; i < num_input - 1; i++ ) {
-         if ( edg_in[i]->edg_mode != edg_in[i+1]->edg_mode ) {
-            printf("ERROR: Not all edgebounds being merged have same orientation!");
-            exit(0);
+         if ( edg_in[i]->edg_mode != edg_in[i+1]->edg_mode ) 
+         {
+            fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
+            exit(EXIT_FAILURE);
          }
       }
    }
@@ -321,5 +322,4 @@ void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length
 void EDGEBOUNDS_Reorient_Pushback(EDGEBOUNDS*         edg,     /* edgebounds (row-wise, sorted ascending) */
                                   BOUND*              bnd )    /* bound to be inserted (antdiag-wise) */
 {
-
 }

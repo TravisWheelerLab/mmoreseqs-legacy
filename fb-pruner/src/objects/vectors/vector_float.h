@@ -115,7 +115,7 @@ FLT* VECTOR_FLT_Get_X(  VECTOR_FLT*   vec,
  *  FUNCTION:  VECTOR_FLT_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-FLT VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec );
+int VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec );
 
 /*
  *  FUNCTION:  VECTOR_FLT_Set_Size()

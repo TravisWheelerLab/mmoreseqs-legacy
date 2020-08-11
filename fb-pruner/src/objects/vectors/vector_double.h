@@ -115,7 +115,7 @@ DBL* VECTOR_DBL_Get_X(  VECTOR_DBL*   vec,
  *  FUNCTION:  VECTOR_DBL_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-DBL VECTOR_DBL_Get_Size(   VECTOR_DBL*   vec );
+int VECTOR_DBL_Get_Size(   VECTOR_DBL*   vec );
 
 /*
  *  FUNCTION:  VECTOR_DBL_Set_Size()

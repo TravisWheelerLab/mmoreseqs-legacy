@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_int.c
- *  PURPOSE:   VECTOR_INT Object Functions
+ *  PURPOSE:   VECTOR_INT Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have INT_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -225,7 +228,7 @@ INT VECTOR_INT_Get(  VECTOR_INT*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ INT* VECTOR_INT_Get_X(  VECTOR_INT*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-INT VECTOR_INT_Get_Size(   VECTOR_INT*   vec )
+int VECTOR_INT_Get_Size(   VECTOR_INT*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_INT_Compare(    VECTOR_INT*   vec_A,
    {
       if ( INT_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return INT_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return INT_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_INT_Sort_Sub_Quicksort( VECTOR_INT*    vec,
    INT*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   INT pivot_val = vec->data[pivot_idx];
-   VECTOR_INT_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   INT   pivot_val   = vec->data[pivot_idx];
+   VECTOR_INT_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -521,10 +524,13 @@ void VECTOR_INT_Reverse(   VECTOR_INT*    vec )
 void VECTOR_INT_Dump(   VECTOR_INT*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[30];
+
    fprintf(fp, "%s: ", "VECTOR_INT");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", INT_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

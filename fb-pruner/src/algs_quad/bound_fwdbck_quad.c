@@ -24,19 +24,10 @@
 #include "bound_fwdbck_quad.h"
 
 /*  
- *  FUNCTION: forward_bounded()
- *  SYNOPSIS: Perform Edge-Bounded Forward part of Cloud Search Algorithm.
+ *  FUNCTION:  run_Bound_Forward_Quad()
+ *  SYNOPSIS:  Perform Edge-Bounded Forward part of Cloud Search Algorithm.
  *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <edg>       Bounds Data (row-wise)
- *             <sc_final>  Final Score
- *
- *  RETURN: 
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query sequence */
                                  const HMM_PROFILE*   target,        /* target HMM model */
@@ -45,7 +36,7 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
                                  MATRIX_3D*           st_MX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
-                                 float*               sc_final )     /* (OUTPUT) final score */
+                                 float*               sc_final )     /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -87,8 +78,8 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -213,26 +204,26 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
             prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_B, prv_D ) );
-            MMX(qx0, t_0) = prev_sum + MSC(t_0, A);
+            MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the previous row (upper) of each state) */
             prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
             prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(qx0, t_0) = prev_sum + ISC(t_0, A);
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(qx0, t_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
             prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
             prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE */
             prv_M = MMX(qx0, t_0) + sc_E;
@@ -268,10 +259,10 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
             prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_B ) );
-            MMX(qx0, t_0) = prev_sum + MSC(t_0, A);
+            MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
             IMX(qx0, t_0) = -INF;
@@ -281,8 +272,8 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
             prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
             prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
             /* sum-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
             prv_E = XMX(SP_E, q_0);
@@ -348,21 +339,10 @@ int run_Bound_Forward_Quad(      const SEQUENCE*      query,         /* query se
 
 
 /*  
- *  FUNCTION: backward_bounded_Run()
- *  SYNOPSIS: Perform Edge-Bounded Backward part of Cloud Search Algorithm.
+ *  FUNCTION:  run_Bound_Backward_Quad()
+ *  SYNOPSIS:  Perform Edge-Bounded Backward part of Cloud Search Algorithm.
  *
- *  PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <bnd>       Bounds Data (row-wise)
- *             <sc_final>  Final Score
- *
- *  RETURN: 
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query sequence */
                                  const HMM_PROFILE*   target,        /* target HMM model */
@@ -371,7 +351,7 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
                                  MATRIX_3D*           st_MX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
-                                 float*               sc_final )     /* (OUTPUT) final score */
+                                 float*               sc_final )     /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -413,8 +393,8 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -580,9 +560,9 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
       // XMX(SP_B, q_0) = MMX(qx1, 1) + TSC(0, B2M) + MSC(1, A);
       // for (t_0 = 2; t_0 <= T; t_0++) {
       //    t_1 = t_0-1;
-      //    prev_sum = XMX(SP_B, q_0);
+      //    prv_sum = XMX(SP_B, q_0);
       //    prv_M = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-      //    XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
+      //    XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
       // }
 
       /* B STATE (sparse) */
@@ -596,9 +576,9 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
          for (t_0 = lb_0; t_0 <= rb_0; t_0++)
          {
             t_1 = t_0 - 1;
-            prev_sum = XMX(SP_B, q_0);
+            prv_sum = XMX(SP_B, q_0);
             prv_M = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-            XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
+            XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
          }
       }
 
@@ -652,26 +632,26 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
             prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
             prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_E, prv_D ) );
-            MMX(qx0, t_0) = prev_sum;
+            MMX(qx0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             prv_M = MMX(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);
             prv_I = IMX(qx1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(qx0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(qx0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
             prv_M = MMX(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
             prv_D = DMX(qx0, t_1) + TSC(t_0, D2D);
             prv_E = XMX(SP_E, q_0) + sc_E;
             /* best-to-delete */
-            prev_sum = logsum( prv_M, 
+            prv_sum = logsum( prv_M, 
                            logsum( prv_D, prv_E ) );
-            DMX(qx0, t_0) = prev_sum;
+            DMX(qx0, t_0) = prv_sum;
 
             #if DEBUG 
             {
@@ -718,9 +698,9 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
    // XMX(SP_B, q_0) = prv_M;
    // for (t_0 = 2; t_0 <= T; t_0++) {
    //    t_1 = t_0-1;
-   //    prev_sum = XMX(SP_B, q_0);
+   //    prv_sum = XMX(SP_B, q_0);
    //    prv_M = MMX(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-   //    XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
+   //    XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
    // }
 
    /* B STATE (SPARSE) */
@@ -734,9 +714,9 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
       for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
       {
          t_1 = t_0 - 1;
-         prev_sum = XMX(SP_B, q_0);
+         prv_sum = XMX(SP_B, q_0);
          prv_M = MMX(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
       }
    }
 

@@ -115,7 +115,7 @@ RANGE* VECTOR_RANGE_Get_X(  VECTOR_RANGE*   vec,
  *  FUNCTION:  VECTOR_RANGE_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-RANGE VECTOR_RANGE_Get_Size(   VECTOR_RANGE*   vec );
+int VECTOR_RANGE_Get_Size(   VECTOR_RANGE*   vec );
 
 /*
  *  FUNCTION:  VECTOR_RANGE_Set_Size()

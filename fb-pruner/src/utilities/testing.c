@@ -769,6 +769,8 @@ int MATRIX_2D_Cloud_Fill(  MATRIX_2D*     cloud_MX,
  *  FUNCTION:  MATRIX_2D_Cloud_Compare()
  *  SYNOPSIS:  Compare <cloud_MX_a> and <cloud_MX_b> ( equality is if cells are both positive, negative, or zero ).
  *             When debugging, stores heatmap of differences into <debugger->cloud_MX>.
+ *  RETURN:    If equal, returns 0.
+ *             Otherwize, return 1. (or number of inequal cells in DEBUG mode). 
  */
 int MATRIX_2D_Cloud_Compare(  MATRIX_2D*     cloud_MX_a,
                               MATRIX_2D*     cloud_MX_b )

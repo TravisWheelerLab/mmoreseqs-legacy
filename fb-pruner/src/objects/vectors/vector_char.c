@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_char.c
- *  PURPOSE:   VECTOR_CHAR Object Functions
+ *  PURPOSE:   VECTOR_CHAR Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have CHAR_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -19,7 +22,7 @@
 #include "objects.h"
 
 /* header */
-#include "vector_template.h"
+#include "vector_char.h"
 
 /*
  *  FUNCTION:  VECTOR_CHAR_Create()
@@ -225,7 +228,7 @@ CHAR VECTOR_CHAR_Get(  VECTOR_CHAR*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ CHAR* VECTOR_CHAR_Get_X(  VECTOR_CHAR*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-CHAR VECTOR_CHAR_Get_Size(   VECTOR_CHAR*   vec )
+int VECTOR_CHAR_Get_Size(   VECTOR_CHAR*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_CHAR_Compare(    VECTOR_CHAR*   vec_A,
    {
       if ( CHAR_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return CHAR_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return CHAR_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_CHAR_Sort_Sub_Quicksort( VECTOR_CHAR*    vec,
    CHAR*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   CHAR pivot_val = vec->data[pivot_idx];
-   VECTOR_CHAR_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   CHAR   pivot_val   = vec->data[pivot_idx];
+   VECTOR_CHAR_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -521,10 +524,13 @@ void VECTOR_CHAR_Reverse(   VECTOR_CHAR*    vec )
 void VECTOR_CHAR_Dump(   VECTOR_CHAR*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[30];
+
    fprintf(fp, "%s: ", "VECTOR_CHAR");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", CHAR_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

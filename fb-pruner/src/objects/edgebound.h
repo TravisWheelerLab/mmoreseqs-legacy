@@ -50,6 +50,16 @@ BOUND* EDGEBOUNDS_Get( EDGEBOUNDS*   edg,
                        int           i );
 
 /*
+ *  FUNCTION:  EDGEBOUNDS_Search()
+ *  SYNOPSIS:  Search edgebounds for bound containing cell (q_0, t_0).
+ *             Assumes edgebounds are sorted and merged.
+ *  RETURN:    Return index of edgebound, or -1 if not contained.
+ */
+int EDGEBOUNDS_Search(  EDGEBOUNDS*    edg,   
+                        int            q_0,     /* row/diag index, position in query */
+                        int            t_0 );   /* column index, position in target */
+
+/*
  *  FUNCTION: EDGEBOUNDS_Pushback()
  *  SYNOPSIS: Add BOUND to EDGEBOUNDS list.
  */

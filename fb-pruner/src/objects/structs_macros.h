@@ -98,54 +98,60 @@
 
 /* === MATRIX FUNCTIONS AND MACROS === */
 
-/* => by default, use MATRIX_3D and MATRIX_2D function calls */
+/* whether to access MATRIX_3D via function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
-	/* generic access for any 3d matrix */
-	#define MX_3D(mx,st,i,j)  	( *MATRIX_3D_Get( mx, st, i, j ) )
+	/* generic access for MATRIX_3D via function call */
+	#define MX_3D(mx, st, q_0, t_0)  	( *MATRIX_3D_Get( (mx), (st), (q_0), (t_0) ) )
 #endif
-/* => else, use direct array access */
 #if ( MATRIX_FUNCTIONS == FALSE )
-	/* generic access for any 3d matrix */
-	#define MX_3D(mx,st,i,j)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (i) * (mx->N)) + (j) ] )
+	/* generic access for MATRIX_3D via direct data access */
+	#define MX_3D(mx, st, q_0, t_0)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (q_0) * (mx->N)) + (t_0) ] )
 #endif
 
 /* match, insert, delete for st_MX matrix (quadratic space matrix) */
-#define MMX(i,j)           	MX_3D( st_MX, MAT_ST, i, j )
-#define IMX(i,j)           	MX_3D( st_MX, INS_ST, i, j )
-#define DMX(i,j)           	MX_3D( st_MX, DEL_ST, i, j )
-
+#define MMX(q_0, t_0)           	MX_3D( st_MX, MAT_ST, (q_0), (t_0) )
+#define IMX(q_0, t_0)           	MX_3D( st_MX, INS_ST, (q_0), (t_0) )
+#define DMX(q_0, t_0)           	MX_3D( st_MX, DEL_ST, (q_0), (t_0) )
 /* match, insert, delete for st_MX3 matrix (linear space matrix) */
-#define MMX3(i,j)          	MX_3D( st_MX3, MAT_ST, i, j )
-#define IMX3(i,j)          	MX_3D( st_MX3, INS_ST, i, j )
-#define DMX3(i,j)          	MX_3D( st_MX3, DEL_ST, i, j )
+#define MMX3(qx0, tx0)          	MX_3D( st_MX3, MAT_ST, (qx0), (tx0) )
+#define IMX3(qx0, tx0)          	MX_3D( st_MX3, INS_ST, (qx0), (tx0) )
+#define DMX3(qx0, tx0)          	MX_3D( st_MX3, DEL_ST, (qx0), (tx0) )
+
+/* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
+#if ( MATRIX_FUNCTIONS == TRUE )
+	/* generic access for MATRIX_3D_SPARSE via function call */
+	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ qx0 + (tx0 * NUM_NORMAL_STATES) + (st) ] )
+#endif
+#if ( MATRIX_FUNCTIONS == FALSE )
+	/* generic access for MATRIX_3D_SPARSE via direct data access */
+	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES) + (st) ] )
+#endif
 
 /* match, insert, delete for st_SMX matrix (sparse matrix) */
-#define SMX(bnd_loc, bnd_offset, st) 		( mx->data->data[ bnd_loc + (bnd_offset * NUM_NORMAL_STATES) + st ] )
-#define MSMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, MAT_ST) )
-#define ISMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, INS_ST) )
-#define DSMX(bnd_loc, bnd_offset) 			( SMX(bnd_loc, bnd_offset, DEL_ST) )
+/* NOTE: qx0 = bound mapped position, tx0 = t_0 - leftbound starting position */
+#define MSMX(qx0, tx0) 			SMX( st_SMX, MAT_ST, (qx0), (tx0) )
+#define ISMX(qx0, tx0) 			SMX( st_SMX, INS_ST, (qx0), (tx0) )
+#define DSMX(qx0, tx0) 			SMX( st_SMX, DEL_ST, (qx0), (tx0) )
 
-/* generic access for any 2d matrix */
-/* => by default, use MATRIX_3D and MATRIX_2D function calls */
+/* whether to access MATRIX_2D via function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
-	/* generic access for any 3d matrix */
-	#define MX_2D(mx,st,i)  	( *MATRIX_2D_Get( mx, st, i ) )
+	/* generic access for MATRIX_2D via function call */
+	#define MX_2D(mx, st, q_0)  	( *MATRIX_2D_Get( mx, st, q_0 ) )
 #endif
-/* => else, use direct array access */
 #if ( MATRIX_FUNCTIONS == FALSE )
-	/* generic access for any 3d matrix */
-	#define MX_2D(mx,st,i)  	( mx->data[ ((st) * (mx->C)) + (i) ] )
+	/* generic access for MATRIX_2D via direct data access */
+	#define MX_2D(mx, st, q_0)  	( mx->data[ ((st) * (mx->C)) + (q_0) ] )
 #endif
 
 /* special state */
-#define XMX(sp,i)          	MX_2D(sp_MX,sp,i)
+#define XMX(st, q_0)          	MX_2D( sp_MX, st, q_0)
 
 /* === TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS === */
 /* generic hmm profile functions */
-#define TSC_HMM(prof,j,tr)    ( prof->hmm_model[j].trans[tr] )
-#define XSC_HMM(prof,sp,tr)   ( prof->bg_model->spec[sp][tr] )
-#define MSC_HMM(prof,j,A)     ( prof->hmm_model[j].match[A] )
-#define ISC_HMM(prof,j,A)     ( prof->hmm_model[j].insert[A] )
+#define TSC_HMM(prof, j, tr)    ( prof->hmm_model[j].trans[tr] )
+#define XSC_HMM(prof, sp, tr)   ( prof->bg_model->spec[sp][tr] )
+#define MSC_HMM(prof, j, A)     ( prof->hmm_model[j].match[A] )
+#define ISC_HMM(prof, j, A)     ( prof->hmm_model[j].insert[A] )
 /* target hmm profile functions */
 #define TSC(j,tr)             ( target->hmm_model[j].trans[tr] )
 #define XSC(sp,tr)            ( target->bg_model->spec[sp][tr] )

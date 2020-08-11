@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_template.c
- *  PURPOSE:   VECTOR_XXX Object Functions
+ *  PURPOSE:   VECTOR_XXX Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have XXX_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -225,7 +228,7 @@ XXX VECTOR_XXX_Get(  VECTOR_XXX*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ XXX* VECTOR_XXX_Get_X(  VECTOR_XXX*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-XXX VECTOR_XXX_Get_Size(   VECTOR_XXX*   vec )
+int VECTOR_XXX_Get_Size(   VECTOR_XXX*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_XXX_Compare(    VECTOR_XXX*   vec_A,
    {
       if ( XXX_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return XXX_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return XXX_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_XXX_Sort_Sub_Quicksort( VECTOR_XXX*    vec,
    XXX*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   XXX pivot_val = vec->data[pivot_idx];
-   VECTOR_XXX_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   XXX   pivot_val   = vec->data[pivot_idx];
+   VECTOR_XXX_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -516,15 +519,18 @@ void VECTOR_XXX_Reverse(   VECTOR_XXX*    vec )
 
 /*
  *  FUNCTION:  VECTOR_XXX_Dump()
- *  SYNOPSIS:  Output <vec> to <fp> file pointer.
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
 void VECTOR_XXX_Dump(   VECTOR_XXX*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[50];
+
    fprintf(fp, "%s: ", "VECTOR_XXX");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", XXX_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

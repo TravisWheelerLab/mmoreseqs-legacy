@@ -56,6 +56,10 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  float*               sc_final )     /* (OUTPUT) final score */
 {
+   /* vars for matrix access */
+   MATRIX_3D_SPARSE*    n_mx;                /* normal state matrix */
+   MATRIX_2D*           s_mx;                /* special state matrix */
+
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
@@ -97,8 +101,8 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -108,14 +112,14 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
 
    /* debugger tools */
-   FILE*       dbfp;
-   MATRIX_2D*  cloud_MX;
-   MATRIX_2D*  cloud_MX3;
-   MATRIX_3D*  test_MX;
-   MATRIX_3D*  test_MX3;
-   EDGEBOUNDS* test_edg;
-   int         num_writes;
-   int         num_clears;
+   FILE*          dbfp;
+   MATRIX_2D*     cloud_MX;
+   MATRIX_2D*     cloud_MX3;
+   MATRIX_3D*     test_MX;
+   MATRIX_3D*     test_MX3;
+   EDGEBOUNDS*    test_edg;
+   int            num_writes;
+   int            num_clears;
 
    /* initialize debugging matrix */
    #if DEBUG
@@ -142,6 +146,9 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    #endif
 
    /* --------------------------------------------------------------------------------- */
+
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
 
    /* query sequence */
    mx          = st_SMX;
@@ -188,31 +195,25 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
       a = seq[q_1];  /* off-by-one */
       A = AA_REV[a];
 
-      /* Initialize zero column (left-edge) */
-      /* NOTE: data is initialized at -INF, so don't need to compute */
-      // MMX3(qx0, 0) = IMX3(qx0, 0) = DMX3(qx0, 0) = -INF;
-
       XMX(SP_E, q_0) = -INF;
 
       /* FOR every BOUND in current ROW */
       for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
-         /* in this context, "id" represents the "row" */
+         /* get bound data */
          bnd   = &EDG_X(edg, r_0);
-         id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
-         lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
-         rb_0  = bnd->rb;
-         rb_T  = (rb_0 > T);                    /* check if cloud touches right edge */
-         rb_0  = MIN(rb_0, T);                  /* can't overflow the right edge */
-         t_range = rb_0 - lb_0;
+         id    = bnd->id;
+         lb_0  = MAX(1, bnd->lb);         /* can't overflow the left edge */
+         rb_T  = ( bnd->rb > T );
+         rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
 
-         /* fetch data location to bound start location (in offset) */
+         /* fetch data mapping bound start location to data block in sparse matrix */
          qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
          qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
 
-         /* initial location for sparse and full data matrix */
+         /* initial location for square matrix and mapping to sparse matrix */
          t_0 = lb_0;
-         tx0 = t_0 - bnd->lb; /* total_offset = offset_location - starting_location */
+         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
 
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
@@ -224,31 +225,32 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(qx1, tx1)  + TSC(tx1, M2M);
-            prv_I = ISMX(qx1, tx1)  + TSC(tx1, I2M);
-            prv_D = DSMX(qx1, tx1)  + TSC(tx1, D2M);
-            prv_B = XMX(SP_B, q_1)  + TSC(tx1, B2M); /* from begin match state (new alignment) */
+            prv_M = MSMX(qx1, tx1)  + TSC(t_1, M2M);
+            prv_I = ISMX(qx1, tx1)  + TSC(t_1, I2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(t_1, D2M);
+            prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prev_sum = calc_Max( 
+            prv_sum = calc_Max( 
                            calc_Max( prv_M, prv_I ),
                            calc_Max( prv_B, prv_D ) );
-            MSMX(qx0, tx0) = prev_sum + MSC(t_0, A);
+            MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the previous row (upper) of each state) */
             prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I);
             prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prev_sum = calc_Max( prv_M, prv_I );
-            ISMX(qx0, tx0) = prev_sum + ISC(t_0, A);
+            prv_sum = calc_Max( prv_M, prv_I );
+            ISMX(qx0, tx0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
             prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
             prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = calc_Max( prv_M, prv_D );
-            DSMX(qx0, tx0) = prev_sum;
+            prv_sum = calc_Max( prv_M, prv_D );
+            DSMX(qx0, tx0) = prv_sum;
+
 
             /* UPDATE E STATE */
             prv_M = MSMX(qx0, tx0) + sc_E;
@@ -281,15 +283,15 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(qx1, tx1)  + TSC(tx1, M2M);
-            prv_I = ISMX(qx1, tx1)  + TSC(tx1, I2M);
-            prv_D = DSMX(qx1, tx1)  + TSC(tx1, D2M);
+            prv_M = MSMX(qx1, tx1)  + TSC(t_1, M2M);
+            prv_I = ISMX(qx1, tx1)  + TSC(t_1, I2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
-            prev_sum = calc_Max( 
+            prv_sum = calc_Max( 
                            calc_Max( prv_M, prv_I ),
                            calc_Max( prv_D, prv_B ) );
-            MSMX(qx0, tx0) = prev_sum + MSC(t_0, A);
+            MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
             ISMX(qx0, tx0) = -INF;
@@ -299,8 +301,8 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
             prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
             prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
             /* sum-to-delete */
-            prev_sum = calc_Max( prv_M, prv_D );
-            DSMX(qx0, tx0) = prev_sum;
+            prv_sum = calc_Max( prv_M, prv_D );
+            DSMX(qx0, tx0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
             prv_E = XMX(SP_E, q_0);
@@ -326,12 +328,12 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
       /* SPECIAL STATES */
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
       XMX(SP_J, q_0) = calc_Max( prv_J, prv_E );         
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
       XMX(SP_C, q_0) = calc_Max( prv_C, prv_E );
 
       /* N state */
@@ -349,8 +351,9 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
    }
 
    /* T state */
-   sc_best = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
-   *sc_final = sc_best;
+   sc_best     = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
+   *sc_final   = sc_best;
 
    return STATUS_SUCCESS;
 }
+

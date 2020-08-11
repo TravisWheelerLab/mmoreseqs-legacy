@@ -115,7 +115,7 @@ TRACE* VECTOR_TRACE_Get_X(  VECTOR_TRACE*   vec,
  *  FUNCTION:  VECTOR_TRACE_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-TRACE VECTOR_TRACE_Get_Size(   VECTOR_TRACE*   vec );
+int VECTOR_TRACE_Get_Size(   VECTOR_TRACE*   vec );
 
 /*
  *  FUNCTION:  VECTOR_TRACE_Set_Size()

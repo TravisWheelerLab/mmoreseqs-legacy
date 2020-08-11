@@ -26,28 +26,18 @@
 
 
 /*  
- *  FUNCTION: run_Forward_Quad()
- *  SYNOPSIS: Perform Forward part of Forward-Backward Algorithm.
+ *  FUNCTION:  run_Forward_Quad()
+ *  SYNOPSIS:  Perform Forward part of Forward-Backward Algorithm.
  *
- *  PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *
- *  RETURN: 
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Forward_Quad(   const SEQUENCE*    query, 
-                        const HMM_PROFILE* target, 
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX, 
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final )
+int run_Forward_Quad(   const SEQUENCE*    query,        /* query sequence */
+                        const HMM_PROFILE* target,       /* target hmm model */
+                        const int          Q,            /* query length */
+                        const int          T,            /* target length */
+                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        float*             sc_final )    /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -87,11 +77,12 @@ int run_Forward_Quad(   const SEQUENCE*    query,
    bool     rb_T;                            /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
-   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
-   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
-   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    cur;                             /* current state */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -182,28 +173,28 @@ int run_Forward_Quad(   const SEQUENCE*    query,
          prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
          prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
          prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
-         prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
+         prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
-         prev_sum = logsum( 
+         prv_sum = logsum( 
                         logsum( prv_M, prv_I ),
                         logsum( prv_B, prv_D ) );
-         MMX(qx0, t_0) = prev_sum + MSC(t_0, A);
+         MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the previous row (upper) of each state) */
          prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
          prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
          /* best-to-insert */
-         prev_sum = logsum( prv_M, prv_I );
-         IMX(qx0, t_0) = prev_sum + ISC(t_0, A);
+         prv_sum = logsum( prv_M, prv_I );
+         IMX(qx0, t_0) = prv_sum + ISC(t_0, A);
 
          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
          /* previous states (match takes the previous column (left) of each state) */
          prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
          prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
          /* best-to-delete */
-         prev_sum = logsum( prv_M, prv_D );
-         DMX(qx0, t_0) = prev_sum;
+         prv_sum = logsum( prv_M, prv_D );
+         DMX(qx0, t_0) = prv_sum;
 
          /* UPDATE E STATE */
          prv_M = MMX(qx0, t_0) + sc_E;
@@ -236,10 +227,10 @@ int run_Forward_Quad(   const SEQUENCE*    query,
       prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
       prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
       /* sum-to-match */
-      prev_sum = logsum( 
+      prv_sum = logsum( 
                      logsum( prv_M, prv_I ),
                      logsum( prv_D, prv_B ) );
-      MMX(qx0, t_0) = prev_sum + MSC(t_0, A);
+      MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
       /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
       IMX(qx0, t_0) = -INF;
@@ -249,8 +240,8 @@ int run_Forward_Quad(   const SEQUENCE*    query,
       prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
       prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
       /* sum-to-delete */
-      prev_sum = logsum( prv_M, prv_D );
-      DMX(qx0, t_0) = prev_sum;
+      prv_sum = logsum( prv_M, prv_D );
+      DMX(qx0, t_0) = prv_sum;
 
       /* UPDATE E STATE (unrolled) */
       prv_E = XMX(SP_E, q_0);
@@ -303,28 +294,18 @@ int run_Forward_Quad(   const SEQUENCE*    query,
    return STATUS_SUCCESS;
 }
 
-/* FUNCTION: backward_Run()
- * SYNOPSIS: Perform Backward part of Forward-Backward Algorithm.
+/* FUNCTION:   run_Backward_Quad()
+ * SYNOPSIS:   Perform Backward part of Forward-Backward Algorithm.
  *
- * PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <res>       Results Data
- *
- * RETURN: 
+ * RETURN:     Return <STATUS_SUCCESS> if no errors.
 */
-int run_Backward_Quad(   const SEQUENCE*    query, 
-                     const HMM_PROFILE* target, 
-                     const int          Q, 
-                     const int          T, 
-                     MATRIX_3D*         st_MX, 
-                     MATRIX_2D*         sp_MX,
-                     float*             sc_final)
+int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
+                        const HMM_PROFILE* target,       /* target hmm model */
+                        const int          Q,            /* query length */
+                        const int          T,            /* target length */
+                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                        float*             sc_final )    /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -365,8 +346,8 @@ int run_Backward_Quad(   const SEQUENCE*    query,
    float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;            /* previous loop and move for special states */
+   float    prv_sum, prv_best;             /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -479,9 +460,9 @@ int run_Backward_Quad(   const SEQUENCE*    query,
       XMX(SP_B, q_0) = MMX(qx1, 1) + TSC(0, B2M) + MSC(1, A);
       for (t_0 = 2; t_0 <= T; t_0++) {
          t_1 = t_0 - 1;
-         prev_sum = XMX(SP_B, q_0);
+         prv_sum = XMX(SP_B, q_0);
          prv_M = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prev_sum, prv_M);
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
       }
 
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
@@ -523,26 +504,26 @@ int run_Backward_Quad(   const SEQUENCE*    query,
          prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
          prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
          /* best-to-match */
-         prev_sum = logsum( 
+         prv_sum = logsum( 
                         logsum( prv_M, prv_I ),
                         logsum( prv_E, prv_D ) );
-         MMX(qx0, t_0) = prev_sum;
+         MMX(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
          prv_M = MMX(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);
          prv_I = IMX(qx1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
          /* best-to-insert */
-         prev_sum = logsum( prv_M, prv_I );
-         IMX(qx0, t_0) = prev_sum;
+         prv_sum = logsum( prv_M, prv_I );
+         IMX(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
          prv_M = MMX(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
          prv_D = DMX(qx0, t_1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
-         prev_sum = logsum( prv_M, 
+         prv_sum = logsum( prv_M, 
                         logsum( prv_D, prv_E ) );
-         DMX(qx0, t_0) = prev_sum;
+         DMX(qx0, t_0) = prv_sum;
 
          #if DEBUG 
          {
@@ -575,9 +556,9 @@ int run_Backward_Quad(   const SEQUENCE*    query,
    XMX(SP_B, q_0) = prv_M;
    for (t_0 = 2; t_0 <= T; t_0++) {
       t_1 = t_0-1;
-      prev_sum = XMX(SP_B, q_0);
+      prv_sum = XMX(SP_B, q_0);
       prv_M = MMX(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-      XMX(SP_B, q_0) = logsum( prev_sum, prv_M );
+      XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
    }
 
    XMX(SP_J, q_0) = -INF;

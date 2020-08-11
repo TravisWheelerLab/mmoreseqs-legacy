@@ -33,6 +33,7 @@ void DP_MATRIX_Get_Bounds( const int   Q,
                            int         d_cnt,
                            BOUND*      bnd )
 {
+   BOUND b;
 
 }
 
@@ -504,8 +505,8 @@ void DP_MATRIX_VIZ_Color_Dump(   MATRIX_2D*        cloud_MX,
 }
 
 /*
- *  FUNCTION:  DP_MATRIX_VIZ_Dump()
- *  SYNOPSIS:  Outputs match state of matrix.
+ *  FUNCTION:  DP_MATRIX_MAT_Dump()
+ *  SYNOPSIS:  Outputs match states of matrix.
  */
 void DP_MATRIX_MAT_Dump(   int         Q,
                            int         T,

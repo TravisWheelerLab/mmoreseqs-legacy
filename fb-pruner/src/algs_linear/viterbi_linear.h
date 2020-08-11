@@ -17,4 +17,4 @@ int run_Viterbi_Linear(	const SEQUENCE*    query,
                     MATRIX_2D*         sp_MX,
                     float*             sc_final);
 
-#endif /* _VITERBI_QUAD_H */
+#endif /* _VITERBI_LINEAR_H */

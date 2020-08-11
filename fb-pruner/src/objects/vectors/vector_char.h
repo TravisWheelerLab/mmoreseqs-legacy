@@ -115,7 +115,7 @@ CHAR* VECTOR_CHAR_Get_X(  VECTOR_CHAR*   vec,
  *  FUNCTION:  VECTOR_CHAR_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-CHAR VECTOR_CHAR_Get_Size(   VECTOR_CHAR*   vec );
+int VECTOR_CHAR_Get_Size(   VECTOR_CHAR*   vec );
 
 /*
  *  FUNCTION:  VECTOR_CHAR_Set_Size()

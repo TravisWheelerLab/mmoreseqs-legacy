@@ -17,6 +17,6 @@
 #include "traceback_quad.h"
 #include "viterbi_quad.h"
 #include "pruning_quad.h"
-#include "expmax_quad.h"
+#include "maxpost_quad.h"
 
 #endif /* _ALGS_QUAD_H */

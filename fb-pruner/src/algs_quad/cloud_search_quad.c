@@ -23,6 +23,13 @@
 /* header */
 #include "cloud_search_quad.h"
 
+/*
+ *      NOTE: HOW TO CONVERT row-coords to diag-coords
+ *       MMX3(q_1, t_1) => MMX3(, d_2)
+ *       MMX3(q_0, t_1) => MMX3(, d_1)
+ *       MMX3(q_1, t_0) => MMX3(, d_1)
+ */
+
 /* 
  *       NOTE: CONVERSION - row-coords => diag-coords
  *       MX_M(i-1, j-1) => MX3(d_2, k-1)
@@ -37,9 +44,11 @@
 /*  
  *  FUNCTION:  run_Cloud_Forward_Run()
  *  SYNOPSIS:  Perform Forward part of Cloud Search Algorithm.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query sequence */
-                              const HMM_PROFILE*   target,        /* target model */
+                              const HMM_PROFILE*   target,        /* target hmm model */
                               const int            Q,             /* query length */
                               const int            T,             /* target length */
                               MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
@@ -89,8 +98,8 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -202,6 +211,12 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
       beg->j += 1;
    }
 
+   /* TODO: initialize previous start state */
+   q_0 = beg->i;
+   q_1 = q_0 - 1;
+   t_0 = beg->j;
+   t_1 = t_0 - 1;
+
    /* dimension of submatrix */
    dim_TOT  = Q + T;
    dim_Q    = Q - beg->i;
@@ -241,7 +256,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    {
       d_1   = d_0 - 1;      /* look back 1 antidiagonal */
       d_2   = d_0 - 2;      /* look back 2 antidiagonal */
-      /* mod-mapping of antidiagonals */
+      /* map antidiagonals to data matrix */
       dx0   = d_0; 
       dx1   = d_1;
       dx2   = d_2;
@@ -260,17 +275,20 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
-         prune_via_xdrop_edgetrim_Quad( st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_edgetrim_Quad( 
+            st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
-         prune_via_xdrop_bifurcate_Quad( st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_via_xdrop_bifurcate_Quad( 
+            st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
-         prune_diag_by_xdrop_edgetrim_or_die_Quad( st_MX, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+         prune_diag_by_xdrop_edgetrim_or_die_Quad( 
+            st_MX, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #endif
 
@@ -348,31 +366,30 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
             /* free to begin match state (new alignment) */
             // prv_B = 0; /* assigned once at start */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_B ) );
-            MMX(q_0, t_0) = prev_sum + MSC(t_0, A);
+            MMX(q_0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(q_1, t_0) + TSC(t_0, M2I);
             prv_I = IMX(q_1, t_0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(q_0, t_0) = prev_sum + ISC(t_0, A);
-
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(q_0, t_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
             prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX(q_0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX(q_0, t_0) = prv_sum;
 
-            /* set each cell accessed */
+            /* embed in test matrix */
             #if DEBUG
-               MX_2D( cloud_MX, q_0, t_0 ) = 1.0;
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
                MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(q_0, t_0);
                MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(q_0, t_0);
                MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(q_0, t_0);
@@ -416,11 +433,13 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
 }
 
 /*  
- *  FUNCTION: cloud_backward_Run()
- *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm.
+ *  FUNCTION:  cloud_backward_Run()
+ *  SYNOPSIS:  Perform Backward part of Cloud Search Algorithm.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query sequence */
-                                 const HMM_PROFILE*   target,        /* target model */
+                                 const HMM_PROFILE*   target,        /* target hmm model */
                                  const int            Q,             /* query length */
                                  const int            T,             /* target length */
                                  MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
@@ -467,11 +486,11 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    bool     rb_T;                            /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
-   float    prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
-   float    prv_B, prv_E;              /* previous (B) begin and (E) end states */
-   float    prv_J, prv_N, prv_C; /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prev_loop, prev_move;            /* previous loop and move for special states */
-   float    prev_sum, prev_best;             /* temp subtotaling vars */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -565,7 +584,6 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    #endif
 
    /* malloc dynamic memory */
-   dp_bound = (BOUND*) malloc( sizeof(BOUND) );
    for ( i = 0; i < 3; i++ ) {
       lb_vec[i] = VECTOR_INT_Create();
       rb_vec[i] = VECTOR_INT_Create();
@@ -583,6 +601,12 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
       end->i -= 1;
       end->j -= 1;
    }
+
+   /* TODO: initialize previous start state */
+   q_0 = end->i;
+   q_1 = q_0 + 1;
+   t_0 = end->j;
+   t_1 = t_0 + 1;
 
    /* dimension of submatrix */
    dim_TOT  = Q + T;
@@ -640,27 +664,35 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
       re_0 = le_0 + num_cells;
 
       /* Prune bounds */
-      prune_via_xdrop_edgetrim_Quad( st_MX, sp_MX, alpha, beta, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
+      {
+         /* prune bounds using x-drop, no bifurcating */
+         prune_via_xdrop_edgetrim_Quad( 
+            st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
+      {
+         /* prune bounds using x-drop, bifurcating */
+         prune_via_xdrop_bifurcate_Quad( 
+            st_MX, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
+      {
+         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
+         prune_diag_by_xdrop_edgetrim_or_die_Quad( 
+            st_MX, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+      }
+      #endif
 
       /* Add pruned bounds to edgebound list */
-      for ( b = 0; b < lb_vec[0]->N; b++ )
+      for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[b];
-         rb_0 = rb_vec[0]->data[b];
+         lb_0 = lb_vec[0]->data[i];
+         rb_0 = rb_vec[0]->data[i];
 
          /* Update bounds (spans all cells adjacent to previous antidiagonals cells that were not pruned) */
          lb_0 = lb_0 - 1;
          rb_0 = rb_0;
-
-         /* test: no pruning */
-         #if DEBUG
-         {
-            // lb_0 = lb_vec[1]->data[b];
-            // rb_0 = rb_vec[1]->data[b];
-            // lb_0 = lb_0 - 1;
-            // rb_0 = rb_0;
-         }
-         #endif
 
          /* Update bounds to account for dp matrix bounds */
          lb_0 = MAX(lb_0, le_0);
@@ -704,17 +736,13 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
          rb_0 = rb_vec[0]->data[i];
 
          /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
-         for ( k = lb_0; k < rb_0; k++ )
+         for ( k_0 = lb_0; k_0 < rb_0; k_0++ )
          {
             /* get row-col coords */
-            i = k;
-            j = d_0 - i;
-
-            q_0 = i;
-            q_1 = i+1;
-
-            t_0 = j;
-            t_1 = j+1;
+            q_0 = k_0;
+            q_1 = q_0 + 1;
+            t_0 = d_0 - k_0;
+            t_1 = t_0 + 1;
 
             /* next sequence character */
             a = seq[q_0];
@@ -731,25 +759,25 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
             // prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             // prv_E = sc_E;
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_E ) );
-            MMX(q_0, t_0) = prev_sum;
+            MMX(q_0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             prv_M = MMX(q_1, t_1) + TSC(t_0, I2M) + sc_M;
             prv_I = IMX(q_1, t_0) + TSC(t_0, I2I) + sc_I;
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(q_0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(q_0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
             prv_M = MMX(q_1, t_1) + TSC(t_0, D2M) + sc_M;
             prv_D = DMX(q_0, t_1) + TSC(t_0, D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            prev_sum = logsum( prev_sum, prv_E );
-            DMX(q_0, t_0) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = logsum( prv_sum, prv_E );
+            DMX(q_0, t_0) = prv_sum;
 
             /* embed cell data in quadratic matrix */
             #if DEBUG

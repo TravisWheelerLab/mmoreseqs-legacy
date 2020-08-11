@@ -63,6 +63,7 @@ typedef enum {
    ERROR_MALLOC,
    ERROR_REALLOC,
    ERROR_FILE_IO,
+   ERROR_OUT_OF_BOUNDS,
    ERROR_UNSUPPORTED_FUNC,
 } ERROR_FLAGS;
 #define NUM_ERROR_FLAGS 6
@@ -158,21 +159,21 @@ typedef enum {
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3
 
-/*  */
+/* HMM STATES */
 typedef enum {
    M_ST = 0,   /* MATCH STATE */
    I_ST = 1,   /* INSERT STATE */
    D_ST = 2,   /* DELETE STATE */
-   E_ST = 3,   /* END STATE */
-   N_ST = 4,   /* NEW STATE */
+   E_ST = 3,   /* END ALIGNMENT STATE */
+   N_ST = 4,   /* (HMM ENTRY) INITIAL STATE */
    J_ST = 5,   /* JUMP STATE */
-   C_ST = 6,   /* TERMINAL STATE */
-   B_ST = 7,   /* BEGIN STATE */
-   S_ST = 8,   /*  */
-   T_ST = 9,   /*  */
+   C_ST = 6,   /* (HMM EXIT) TERMINAL STATE */
+   B_ST = 7,   /* BEGIN ALIGNMENT STATE */
+   S_ST = 8,   /* START STATE */
+   T_ST = 9,   /* TERMINAL STATE */
    X_ST = 10   /* UNKNOWN STATE */
 } ALL_STATES;
-#define NUM_ALL_STATES 9
+#define NUM_ALL_STATES 11
 
 /* Normal States that map into dynamic programming matrix */
 typedef enum {

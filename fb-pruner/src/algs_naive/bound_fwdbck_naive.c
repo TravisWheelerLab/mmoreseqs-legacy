@@ -60,7 +60,7 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
    bool     y2_re;                           /* checks if edge touches rightbound */
 
    float    prv_M, prv_D, prv_I;    /* temp placeholder sums */
-   float    prv_B, prv_E, prev_sum;    /* temp placeholder sums */
+   float    prv_B, prv_E, prv_sum;    /* temp placeholder sums */
    float    sc, sc1, sc2, sc3, sc4;          /* temp placeholder sums (testing) */
    float    sc_M, sc_I, sc_D;                /* match, insert, delete scores */
 
@@ -113,26 +113,26 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
             prv_D = DMX(i-1,j-1)  + TSC(j-1,D2M);
             prv_B = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_B, prv_D ) );
-            MMX(i,j) = prev_sum + MSC(j,A);
+            MMX(i,j) = prv_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(i-1,j) + TSC(j,M2I);
             prv_I = IMX(i-1,j) + TSC(j,I2I);
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(i,j) = prev_sum + ISC(j,A);
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(i,j) = prv_sum + ISC(j,A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(i,j-1) + TSC(j-1,M2D);
             prv_D = DMX(i,j-1) + TSC(j-1,D2D);
             /* best-to-delete */
-            prev_sum = logsum( prv_M, prv_D );
-            DMX(i,j) = prev_sum;
+            prv_sum = logsum( prv_M, prv_D );
+            DMX(i,j) = prv_sum;
 
             /* UPDATE E STATE */
             prv_M = MMX(i,j) + sc_E;
@@ -159,11 +159,11 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
          prv_D = DMX(i-1,j-1)  + TSC(j-1,D2M);
          prv_B = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
          /* sum-to-match */
-         prev_sum = logsum( 
+         prv_sum = logsum( 
                            logsum( prv_M, prv_I ),
                            logsum( prv_D, prv_B )
                         );
-         MMX(i,j) = prev_sum + MSC(j,A);
+         MMX(i,j) = prv_sum + MSC(j,A);
 
          /* FIND SUM OF PATHS TO INSERT STATE */
          IMX(i,j) = -INF;
@@ -173,8 +173,8 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
          prv_M = MMX(i,j-1) + TSC(j-1,M2D);
          prv_D = DMX(i,j-1) + TSC(j-1,D2D);
          /* sum-to-delete */
-         prev_sum = logsum( prv_M, prv_D );
-         DMX(i,j) = prev_sum;
+         prv_sum = logsum( prv_M, prv_D );
+         DMX(i,j) = prv_sum;
 
          /* UPDATE E STATE (unrolled) */
          /* best-to-begin */
@@ -246,7 +246,7 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
    bool     y2_re;                           /* checks if edge touches rightbound */
 
    float    prv_M, prv_D, prv_I;    /* temp placeholder sums */
-   float    prv_B, prv_E, prev_sum;    /* temp placeholder sums */
+   float    prv_B, prv_E, prv_sum;    /* temp placeholder sums */
    float    sc, sc1, sc2, sc3, sc4;          /* temp placeholder sums (testing) */
    float    sc_M, sc_I, sc_D;                /* match, insert, delete scores */
 
@@ -348,28 +348,28 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
             sc3 = prv_D = DMX(i,j+1)   + TSC(j,M2D);
             sc4 = prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                               logsum( prv_M, prv_I ),
                               logsum( prv_E, prv_D )
                         );
-            MMX(i,j) = prev_sum;
+            MMX(i,j) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             sc1 = prv_M = MMX(i+1,j+1) + TSC(j,I2M) + sc_M;
             sc2 = prv_I = IMX(i+1,j)   + TSC(j,I2I) + sc_I;
             /* best-to-insert */
-            prev_sum = logsum( prv_M, prv_I );
-            IMX(i,j) = prev_sum;
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(i,j) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
             sc1 = prv_M = MMX(i+1,j+1) + TSC(j,D2M) + sc_M;
             sc2 = prv_D = DMX(i,j+1)   + TSC(j,D2D);
             sc3 = prv_E = XMX(SP_E,i)  + sc_E;
             /* best-to-delete */
-            prev_sum = logsum( 
+            prv_sum = logsum( 
                               prv_M, 
                               logsum( prv_D, prv_E ) );
-            DMX(i,j) = prev_sum;
+            DMX(i,j) = prv_sum;
          }
       }
    }

@@ -7,7 +7,7 @@
  *******************************************************************************/
 
 #ifndef _SPARSE_MATRIX_3D_H
-#define _SPARSE_MATRIX_2D_H
+#define _SPARSE_MATRIX_3D_H
 
 /* 
  *  FUNCTION: 	MATRIX_3D_SPARSE_Create()
@@ -154,4 +154,4 @@ FLT* MATRIX_3D_SPARSE_Get_Ref(   MATRIX_3D_SPARSE*    smx,
 int MATRIX_3D_SPARSE_Test();
 
 
-#endif /* _MATRIX_2D_H */
+#endif /* _MATRIX_3D_SPARSE_H */

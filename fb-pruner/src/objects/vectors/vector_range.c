@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_range.c
- *  PURPOSE:   VECTOR_RANGE Object Functions
+ *  PURPOSE:   VECTOR_RANGE Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have RANGE_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -19,7 +22,7 @@
 #include "objects.h"
 
 /* header */
-#include "vector_template.h"
+#include "vector_range.h"
 
 /*
  *  FUNCTION:  VECTOR_RANGE_Create()
@@ -225,7 +228,7 @@ RANGE VECTOR_RANGE_Get(  VECTOR_RANGE*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ RANGE* VECTOR_RANGE_Get_X(  VECTOR_RANGE*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-RANGE VECTOR_RANGE_Get_Size(   VECTOR_RANGE*   vec )
+int VECTOR_RANGE_Get_Size(   VECTOR_RANGE*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_RANGE_Compare(    VECTOR_RANGE*   vec_A,
    {
       if ( RANGE_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return RANGE_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return RANGE_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_RANGE_Sort_Sub_Quicksort( VECTOR_RANGE*    vec,
    RANGE*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   RANGE pivot_val = vec->data[pivot_idx];
-   VECTOR_RANGE_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   RANGE   pivot_val   = vec->data[pivot_idx];
+   VECTOR_RANGE_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -521,10 +524,13 @@ void VECTOR_RANGE_Reverse(   VECTOR_RANGE*    vec )
 void VECTOR_RANGE_Dump(   VECTOR_RANGE*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[30];
+
    fprintf(fp, "%s: ", "VECTOR_RANGE");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", RANGE_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

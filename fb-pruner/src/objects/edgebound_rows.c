@@ -171,16 +171,25 @@ void EDGEBOUND_ROWS_Pushback( EDGEBOUND_ROWS*   edg,
                               BOUND*            bnd )
 {
    /* if bound exceeds limit for bounds per row, throw flag */
-   if ( edg->rows_N[row_id] >= edg->row_max - 1 ) {
+   if ( edg->rows_N[row_id] >= edg->row_max - 1 ) 
+   { 
       fprintf(stderr, "ERROR: Number of edgebounds for given row (%d) has been exceeded to (%d).\n", row_id, edg->rows_N[row_id] );
       fprintf(stderr, "HELP: To increase the allowed number of edgebounds in row, increase value of compiler flag '%s'.\n", "MAX_BOUNDS_PER_ROW_SUPPORTED" );
-      fprintf(stderr, "BOUND ATTEMPTING TO INSERT:\n");
-      BOUND_Dump( bnd, stderr );
-      fprintf(stderr, "BOUND LIST AT ROW_ID:\n");
-      for ( int i = 0; i < edg->rows_N[row_id]; i++ ) {
-         fprintf(stderr, "{%d}:\t", i );
-         BOUND_Dump( &(edg->rows[i]), stderr );
+
+      #if DEBUG
+      {
+         char s[100];
+         fprintf(stderr, "BOUND ATTEMPTING TO INSERT:\n");
+         fprintf(stderr, "%s\n", BOUND_To_String( *bnd, s ) );
+         fprintf(stderr, "BOUND LIST AT ROW_ID:\n");
+         for ( int i = 0; i < edg->rows_N[row_id]; i++ ) 
+         {
+            fprintf(stderr, "{%d}:\t", i );
+            fprintf(stderr, "%s,\n", BOUND_To_String( edg->rows[i], s ) );
+         }
       }
+      #endif
+      
       exit(EXIT_FAILURE);
    }
 
@@ -277,11 +286,9 @@ BOUND* EDGEBOUND_ROWS_Integrate_Antidiag_Bck( EDGEBOUND_ROWS*   edg,
       int      row_idx  = edg->rows_N[i];
       BOUND*   row      = EDGEBOUND_ROWS_Get_by_Row( edg, i, row_idx - 1 );
 
-      // if (row_idx == 0) fprintf(stderr, "ROW %d IS EMPTY.\n", i );
       /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
       if ( (row_idx != 0) && (j >= row->lb - tol - 1) ) 
       {
-         // fprintf(stderr, "Merging, %d is in range %d:<%d-%d>\n", j, row->id, row->lb, row->rb );
          row->lb = j;
       }
       /* otherwise, create new bound */
@@ -301,7 +308,7 @@ BOUND* EDGEBOUND_ROWS_Integrate_Antidiag_Bck( EDGEBOUND_ROWS*   edg,
 void EDGEBOUND_ROWS_Convert(  EDGEBOUND_ROWS*   edg_in,
                               EDGEBOUNDS*       edg_out )
 {
-   EDGEBOUNDS_Clear( edg_out );
+   EDGEBOUNDS_Reuse( edg_out, edg_in->Q, edg_in->T );
    edg_out->edg_mode = EDG_ROW;
 
    for ( int i = 0; i < edg_in->N; i++ ) 
@@ -358,7 +365,7 @@ int EDGEBOUND_ROWS_Compare( EDGEBOUND_ROWS*    edg_a,
       {
          BOUND* bnd_a = EDGEBOUND_ROWS_Get_by_Row( edg_a, i, j );
          BOUND* bnd_b = EDGEBOUND_ROWS_Get_by_Row( edg_b, i, j );
-         int cmp = BOUND_Compare( bnd_a, bnd_b );
+         int cmp = BOUND_Compare( *bnd_a, *bnd_b );
          if ( cmp != 0 ) {
             return cmp;
          }

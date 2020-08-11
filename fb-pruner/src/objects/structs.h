@@ -29,12 +29,14 @@
 
 /* template datatype */
 #define XXX          int
-/* alias datatypes */
+/* alias primitive datatypes */
 #define INT          int
 #define FLT          float
 #define CHAR         char 
 #define DBL          double
-
+#define STR          char*
+/* datatype for matrices */
+#define DATA         float
 
 /* generic datatype that can hold most basic datatypes */
 typedef union {
@@ -53,30 +55,30 @@ typedef struct {
    DATATYPES      type;
 } GEN_DATA;
 
+/* coordinates in matrix */
+typedef struct {
+   int   i;       /* row index */
+   int   j;       /* col index */
+} COORDS;
+
 /* integer ranges */
 typedef struct {
    int   beg;      /* begin: left bound */
    int   end;      /* end: right bound */
 } RANGE;
 
-/* coordinates in matrix */
-typedef struct {
-   int i;   /* row index */
-   int j;   /* col index */
-} COORDS;
-
 /* bound for single row or diagonal */
 typedef struct {
-   int      id;               /* current anti-diagonal OR row */
-   int      lb;               /* bottom-left (lower) edge-bound range */
-   int      rb;               /* top-right (upper) edge-bound range */
+   int   id;         /* current anti-diagonal OR row */
+   int   lb;         /* bottom-left (lower) edge-bound range */
+   int   rb;         /* top-right (upper) edge-bound range */
 } BOUND;
 
 /* given cell of alignment */
 typedef struct {
-   int         i;             /* index in query */
-   int         j;             /* index in target */
-   int         st;            /* state at index */
+   int      i;       /* index in query */
+   int      j;       /* index in target */
+   int      st;      /* state at index */
 } TRACE;
 
 /* === VECTORS === */
@@ -93,24 +95,39 @@ typedef struct {
 
 /* vector of characters */
 typedef struct {
-   char*    data;             /* array of data type */
+   CHAR*    data;             /* array of data type */
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_CHAR;
 
+/* vector of strings */
+typedef struct {
+   STR*     data;             /* array of data type */
+   int      N;                /* current length of array in use */
+   int      Nalloc;           /* current length of array allocated */
+}  VECTOR_STR;
+
+
 /* vector of integers */
 typedef struct {
-   int*     data;             /* array of data type */
+   INT*     data;             /* array of data type */
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_INT;
 
 /* vector of floats */
 typedef struct {
-   float*   data;             /* array of data type */
+   FLT*     data;             /* array of data type */
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_FLT;
+
+/* vector of doubles */
+typedef struct {
+   DBL*     data;             /* array of data type */
+   int      N;                /* current length of array in use */
+   int      Nalloc;           /* current length of array allocated */
+}  VECTOR_DBL;
 
 /* vector of edgebounds  */
 typedef struct {
@@ -119,19 +136,26 @@ typedef struct {
    int      Nalloc;  /* current length of array allocated */
 }  VECTOR_BOUND;
 
-/* vector of structs */
+/* vector of range structs */
+typedef struct {
+   RANGE*   data;     /* array of data type */
+   int      N;        /* current length of array in use */
+   int      Nalloc;   /* current length of array allocated */
+}  VECTOR_RANGE;
+
+/* vector of trace structs */
 typedef struct {
    TRACE*   data;     /* array of data type */
    int      N;        /* current length of array in use */
    int      Nalloc;   /* current length of array allocated */
 }  VECTOR_TRACE;
 
-/* vector of structs */
+/* vector of data structs */
 typedef struct {
-   RANGE*   data;     /* array of data type */
+   DATA*    data;     /* array of data type */
    int      N;        /* current length of array in use */
    int      Nalloc;   /* current length of array allocated */
-}  VECTOR_RANGE;
+}  VECTOR_DATA;
 
 /* === MAP === */
 

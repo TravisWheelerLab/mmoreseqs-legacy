@@ -135,11 +135,13 @@ char* STATE_FULL_NAMES[] = {
    "INSERT",
    "DELETE",
    "END",
-   "",
+   "INIT",
+   "NEW",
    "JUMP",
+   "INIT",
    "BEGIN",
    "START",
-   "",
+   "TERMINAL",
    "UNKNOWN",
 };
 

@@ -1,6 +1,7 @@
 /*******************************************************************************
  *  FILE:      alignment.c
  *  PURPOSE:   ALIGNMENT Object.
+ *             Used for storing Viterbi or Forward/Backward Alignments.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:     
@@ -80,9 +81,9 @@ void ALIGNMENT_Reuse(ALIGNMENT*  aln,
    VECTOR_INT_Reuse( aln->seq_end );
    VECTOR_CHAR_Reuse( aln->sequence );
 
-   VECTOR_INT_Create( aln->tr_beg );
-   VECTOR_INT_Create( aln->tr_end );
-   VECTOR_TRACE_Create( aln->traces );
+   VECTOR_INT_Reuse( aln->tr_beg );
+   VECTOR_INT_Reuse( aln->tr_end );
+   VECTOR_TRACE_Reuse( aln->traces );
 }
 
 /* push trace onto end of alignment */
@@ -91,8 +92,10 @@ void ALIGNMENT_Pushback(ALIGNMENT* aln,
 {
    /* if debugging, do edgechecks */
    #if DEBUG
+   {
       /* if normal state, check bounds of normal dp matrix */
       /* if special state, check bounds of special dp matrix */
+   }
    #endif
 
    VECTOR_TRACE_Pushback( aln->traces, *tr );
@@ -112,10 +115,124 @@ void ALIGNMENT_GrowTo( ALIGNMENT*   aln,
    VECTOR_TRACE_GrowTo( aln->traces, size );
 }
 
-/* Empty ALIGNMENT Array */
-void ALIGNMENT_Clear(ALIGNMENT* aln)
+/* compare two alignments */
+int ALIGNMENT_Compare(  ALIGNMENT*     a,
+                        ALIGNMENT*     b )
 {
-   VECTOR_TRACE_Resize( aln->traces, 0 );
+   return VECTOR_TRACE_Compare( a->traces, b->traces );
+}
+
+/*
+ *  FUNCTION:  traceback_Append()
+ *  SYNOPSIS:  Append next state to Optimal Alignment.
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+inline
+int ALIGNMENT_Append(   ALIGNMENT*   aln,    /* Traceback Alignment */
+                        TRACE*       tr,     /* Traceback being Appended */
+                        const int    st,     /* HMM state */
+                        const int    q_0,    /* index in query/sequence */
+                        const int    t_0 )   /* index in target/model */
+{
+   /* for debugging: output traces as they are being added. */
+   #if DEBUG 
+   {
+      // /* Add new state and (i,j) to trace */
+      // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
+      // if (st_cur < 3) {
+      //    fprintf( stderr, "%s:\t(%d,%d)\t%f\n", 
+      //       STATE_NAMES[st_cur], q_0, t_0, MX_3D(st_MX, state_num[st_cur], q_0, t_0) );
+      // } 
+      // else if (st_cur >= 3 && st_cur < 9) {
+      //    fprintf( stderr, "%s:\t(%d,%d)\t%f\n", 
+      //       STATE_NAMES[st_cur], q_0, t_0, MX_2D(sp_MX, state_num[st_cur], q_0) );
+      // }
+      // else {
+      //    fprintf( stderr, "%s:\t(%d,%d)\n", 
+      //       STATE_NAMES[st_cur], q_0, t_0 );
+      // }
+   }
+   #endif
+
+   /* jump from current state to the prev state */
+   switch (st)
+   {
+      /* Emit-on-Transition States: */
+      case N_ST:
+      case C_ST:
+      case J_ST:
+         tr->i = ( ( tr->st == st) ? q_0 : 0 );
+         tr->j = 0;
+         break;
+
+      /* Non-Emitting States, not in Main Model: */
+      case X_ST:
+      case S_ST:
+      case B_ST:
+      case E_ST:
+      case T_ST:
+         tr->i = 0;
+         tr->j = 0;
+         break;
+
+      /* Non-Emitting States, but in Main Model: */
+      case D_ST:
+         tr->i = 0;
+         tr->j = t_0;
+         break;
+
+      /* Emitting States: */
+      case M_ST:
+      case I_ST:
+         tr->i = q_0;
+         tr->j = t_0;
+         break;
+
+      default:
+         fprintf( stderr, "ERROR: Traceback failed. Invalid State Code occurred at [%d](%d,%d).\n", 
+            st, q_0, t_0 );
+         /* display valid states */
+         for (int i = 0; i < NUM_ALL_STATES; i++) {
+            fprintf( stderr, "[%d]:%s, ", i, STATE_NAMES[i] );
+         }
+         fprintf(stderr, "\n" );
+         exit(EXIT_FAILURE);
+   }
+
+   tr->st = st;
+   ALIGNMENT_Pushback( aln, tr );
+
+   return STATUS_SUCCESS;
+}
+
+/* Reverse order of ALIGNMENT */
+void ALIGNMENT_Reverse(ALIGNMENT* aln)
+{
+   TRACE*   aln_0;   /* current trace */
+   TRACE*   aln_1;   /* next trace */
+   int      N;       /* alignment length */
+
+   /* get length */
+   N = aln->traces->N;
+
+   /* update special states indexing */
+   for (int i = 0; i < N; i++) 
+   {
+      aln_0 = &(aln->traces->data[i]);
+      aln_1 = &(aln->traces->data[i+1]);
+
+      if (aln_0->st == aln_1->st && (aln_0->st == N_ST || aln_0->st == C_ST || aln_0->st == J_ST) ) 
+      {
+         if (aln_0->i == 0 && aln_0->st > 0) 
+         {
+            aln_0->i = aln_1->i;
+            aln_1->i = 0;
+         }
+      }
+   }
+
+   /* reverse state order */
+   VECTOR_TRACE_Reverse( aln->traces );
 }
 
 /* create string of alignment */

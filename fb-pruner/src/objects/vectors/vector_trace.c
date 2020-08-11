@@ -1,9 +1,12 @@
 /*******************************************************************************
  *  FILE:      vector_trace.c
- *  PURPOSE:   VECTOR_TRACE Object Functions
+ *  PURPOSE:   VECTOR_TRACE Object Functions.
+ *             Template for building vector classes.
+ *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
+ *             Requires data primitive to have TRACE_Compare().
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -19,7 +22,7 @@
 #include "objects.h"
 
 /* header */
-#include "vector_template.h"
+#include "vector_trace.h"
 
 /*
  *  FUNCTION:  VECTOR_TRACE_Create()
@@ -225,7 +228,7 @@ TRACE VECTOR_TRACE_Get(  VECTOR_TRACE*   vec,
    }
    #endif
 
-   return &(vec->data[idx]);
+   return (vec->data[idx]);
 }
 
 /*
@@ -255,7 +258,7 @@ TRACE* VECTOR_TRACE_Get_X(  VECTOR_TRACE*   vec,
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-TRACE VECTOR_TRACE_Get_Size(   VECTOR_TRACE*   vec )
+int VECTOR_TRACE_Get_Size(   VECTOR_TRACE*   vec )
 {
    return vec->N;
 }
@@ -386,7 +389,7 @@ int VECTOR_TRACE_Compare(    VECTOR_TRACE*   vec_A,
    {
       if ( TRACE_Compare( vec_A->data[i], vec_B->data[i] ) != 0 ) 
       {
-         return TRACE_Compare( vec_A->data[i], vec_B->data[i] ) != 0 );       
+         return TRACE_Compare( vec_A->data[i], vec_B->data[i] );       
       }
    }
    return 0;
@@ -462,10 +465,10 @@ void VECTOR_TRACE_Sort_Sub_Quicksort( VECTOR_TRACE*    vec,
    TRACE*  lhs   = &(vec->data[end - 1]);
 
    /* select random pivot value */
-   int   range = end - beg;
-   int pivot_idx = (rand() % range) + beg;
-   TRACE pivot_val = vec->data[pivot_idx];
-   VECTOR_TRACE_Swap( vec, pivot, beg );
+   int   range       = end - beg;
+   int   pivot_idx   = RNG_INT_Range( beg, end );
+   TRACE   pivot_val   = vec->data[pivot_idx];
+   VECTOR_TRACE_Swap( vec, pivot_idx, beg );
 
    /* partition on pivot */
    while ( l_idx <= r_idx )
@@ -521,10 +524,13 @@ void VECTOR_TRACE_Reverse(   VECTOR_TRACE*    vec )
 void VECTOR_TRACE_Dump(   VECTOR_TRACE*    vec,
                         FILE*          fp )
 {
+   /* stringification of template object */
+   char s[30];
+
    fprintf(fp, "%s: ", "VECTOR_TRACE");
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%3d ", vec->data[i] );
+      fprintf(fp, "%s, ", TRACE_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
 }

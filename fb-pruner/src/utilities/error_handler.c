@@ -111,7 +111,7 @@ void* ERRORCHECK_boundscheck( int            idx,
                               const char*    _func_ )
 {
    if (idx > max) {
-      ERRORCHECK_handler( ERROR_BOUNDS, _file_, _line_, _func_, NULL );
+      ERRORCHECK_handler( ERROR_OUT_OF_BOUNDS, _file_, _line_, _func_, NULL );
    }
 }
 

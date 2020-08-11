@@ -47,6 +47,12 @@ float* MATRIX_3D_Get(   MATRIX_3D*  mx,
                         const int   k );
 
 /* getter for index */
+float* MATRIX_3D_Get_X(     MATRIX_3D*  mx,
+                           const int   i,
+                           const int   j,
+                           const int   k );
+
+/* getter for index */
 float* MATRIX_3D_Get_1D(   MATRIX_3D*  mx,
                            const int   n );
 
