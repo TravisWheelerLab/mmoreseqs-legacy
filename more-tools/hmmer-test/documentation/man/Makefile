@@ -5,7 +5,7 @@ SHELL      = /bin/sh
 
 # Installation targets
 #
-prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test/build
+prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test-new/build
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 bindir      = ${exec_prefix}/bin
@@ -23,11 +23,13 @@ INSTALL     = /usr/bin/install -c
 MANS =  hmmer\
 	hmmalign\
 	hmmbuild\
+	hmmc2\
 	hmmconvert\
 	hmmemit\
 	hmmfetch\
 	hmmlogo\
 	hmmpgmd\
+	hmmpgmd_shard\
 	hmmpress\
 	hmmscan\
 	hmmsearch\

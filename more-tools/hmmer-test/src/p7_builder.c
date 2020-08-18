@@ -424,7 +424,7 @@ p7_Builder(P7_BUILDER *bld, ESL_MSA *msa, P7_BG *bg,
   if ((status =  validate_msa         (bld, msa))                       != eslOK) goto ERROR;
   if ((status =  esl_msa_Checksum     (msa, &checksum))                 != eslOK) ESL_XFAIL(status, bld->errbuf, "Failed to calculate checksum"); 
   if ((status =  relative_weights     (bld, msa))                       != eslOK) goto ERROR;
-  if ((status =  esl_msa_MarkFragments(msa, bld->fragthresh))           != eslOK) goto ERROR;
+  if ((status =  esl_msa_MarkFragments_old(msa, bld->fragthresh))           != eslOK) goto ERROR;
   if ((status =  build_model          (bld, msa, &hmm, tr_ptr))         != eslOK) goto ERROR;
 
 
@@ -481,7 +481,7 @@ p7_Builder(P7_BUILDER *bld, ESL_MSA *msa, P7_BG *bg,
  *            
  * Args:      bld       - build configuration
  *            sq        - query sequence
- *            bg        - null model (needed to paramaterize insert emission probs)
+ *            bg        - null model (needed to parameterize insert emission probs)
  *            opt_hmm   - optRETURN: new HMM
  *            opt_gm    - optRETURN: profile corresponding to <hmm>
  *            opt_om    - optRETURN: optimized profile corresponding to <gm>
@@ -495,32 +495,26 @@ int
 p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq, P7_BG *bg, P7_HMM **opt_hmm,
 		 P7_TRACE **opt_tr, P7_PROFILE **opt_gm, P7_OPROFILE **opt_om)
 {
-  printf("=== SINGLEBUILDER IN p7_builder.c ===\n");
   P7_HMM   *hmm = NULL;
   P7_TRACE *tr  = NULL;
   int       k;
   int       status;
-
+  
   bld->errbuf[0] = '\0';
   if (! bld->Q) ESL_XEXCEPTION(eslEINVAL, "score system not initialized");
 
-  printf("=> set seq_model\n");
   if ((status = p7_Seqmodel(bld->abc, sq->dsq, sq->n, sq->name, bld->Q, bg->f, bld->popen, bld->pextend, &hmm)) != eslOK) goto ERROR;
-  printf("=> set composition\n");
   if ((status = p7_hmm_SetComposition(hmm))                                                                     != eslOK) goto ERROR;
-  printf("=> set consensus\n");
   if ((status = p7_hmm_SetConsensus(hmm, sq))                                                                   != eslOK) goto ERROR; 
-  printf("=> calibrate\n");
   if ((status = calibrate(bld, hmm, bg, opt_gm, opt_om))                                                        != eslOK) goto ERROR;
 
-  printf("=> builder max_length\n");
   if ( bld->abc->type == eslDNA ||  bld->abc->type == eslRNA ) {
     if (bld->w_len > 0)           hmm->max_length = bld->w_len;
     else if (bld->w_beta == 0.0)  hmm->max_length = hmm->M *4;
     else if ( (status =  p7_Builder_MaxLength(hmm, bld->w_beta)) != eslOK) goto ERROR;
   }
 
-  printf("=> set trace\n");
+
   /* build a faux trace: relative to core model (B->M_1..M_L->E) */
   if (opt_tr != NULL) 
     {
@@ -532,12 +526,6 @@ p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq, P7_BG *bg, P7_HMM **opt_hmm,
       tr->M = sq->n;
       tr->L = sq->n;
     }
-
-    /* DAVID RICH EDIT */
-    printf("=== PRINT EXAMPLE SINGLEBUILDER ===\n");
-    // FILE* fp = fopen("example/my_test.hmm", "w+");
-    // p7_hmm_Dump( fp, hmm );
-    // fclose(fp);
 
   /* note that <opt_gm> and <opt_om> were already set by calibrate() call above. */
   if (opt_hmm   != NULL) *opt_hmm = hmm; else p7_hmm_Destroy(hmm);
@@ -786,7 +774,7 @@ p7_Builder_MaxLength (P7_HMM *hmm, double emit_thresh)
  * 
  * HMMER uses a convention for missing data characters: they
  * indicate that a sequence is a fragment.  (See
- * esl_msa_MarkFragments()).
+ * esl_msa_MarkFragments_old()).
  *
  * Because of the way these fragments will be handled in tracebacks,
  * we reject any alignment that uses missing data characters in any
@@ -819,16 +807,20 @@ validate_msa(P7_BUILDER *bld, ESL_MSA *msa)
 static int
 relative_weights(P7_BUILDER *bld, ESL_MSA *msa)
 {
-  int status = eslOK;
+  ESL_MSAWEIGHT_CFG *cfg    = esl_msaweight_cfg_Create();
+  int                status = eslOK;
+
+  cfg->ignore_rf = (bld->arch_strategy == p7_ARCH_HAND ? FALSE : TRUE);  // PB weights use RF consensus columns only if --hand is set. [iss #180]
 
   if      (bld->wgt_strategy == p7_WGT_NONE)                    { esl_vec_DSet(msa->wgt, msa->nseq, 1.); }
   else if (bld->wgt_strategy == p7_WGT_GIVEN)                   ;
-  else if (bld->wgt_strategy == p7_WGT_PB)                      status = esl_msaweight_PB(msa); 
+  else if (bld->wgt_strategy == p7_WGT_PB)                      status = esl_msaweight_PB_adv(cfg, msa, /*ESL_MSAWEIGHT_DAT=*/ NULL); 
   else if (bld->wgt_strategy == p7_WGT_GSC)                     status = esl_msaweight_GSC(msa); 
   else if (bld->wgt_strategy == p7_WGT_BLOSUM)                  status = esl_msaweight_BLOSUM(msa, bld->wid); 
   else ESL_EXCEPTION(eslEINCONCEIVABLE, "no such weighting strategy");
 
   if (status != eslOK) ESL_FAIL(status, bld->errbuf, "failed to set relative weights in alignment");
+  esl_msaweight_cfg_Destroy(cfg);
   return eslOK;
 }
 

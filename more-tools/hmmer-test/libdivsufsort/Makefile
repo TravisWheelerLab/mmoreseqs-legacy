@@ -16,7 +16,6 @@ SSE_CFLAGS     =
 VMX_CFLAGS     =  
 PTHREAD_CFLAGS = -pthread 
 CPPFLAGS       = 
-MPILIBS        = 
 AR             = /usr/bin/ar rc
 RANLIB         = ranlib
 INSTALL        = /usr/bin/install -c

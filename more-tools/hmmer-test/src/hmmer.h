@@ -28,7 +28,8 @@
 #define P7_HMMERH_INCLUDED
 #include "p7_config.h"
 
-#include <stdio.h>		/* FILE */
+#include <stdio.h>		
+#include <stddef.h>             // ptrdiff_t 
 
 #ifdef HMMER_MPI
 #include "mpi.h"
@@ -40,14 +41,15 @@
 
 #include "easel.h"
 #include "esl_alphabet.h"	/* ESL_DSQ, ESL_ALPHABET */
-#include "esl_dirichlet.h"	/* ESL_MIXDCHLET         */
 #include "esl_dmatrix.h"	/* ESL_DMATRIX           */
 #include "esl_getopts.h"	/* ESL_GETOPTS           */
 #include "esl_histogram.h"      /* ESL_HISTOGRAM         */
 #include "esl_hmm.h"	        /* ESL_HMM               */
 #include "esl_keyhash.h"        /* ESL_KEYHASH           */
+#include "esl_mixdchlet.h"	/* ESL_MIXDCHLET         */
 #include "esl_msa.h"		/* ESL_MSA               */
 #include "esl_random.h"		/* ESL_RANDOMNESS        */
+#include "esl_rand64.h" /* ESL_RAND64 */
 #include "esl_sq.h"		/* ESL_SQ                */
 #include "esl_scorematrix.h"    /* ESL_SCOREMATRIX       */
 #include "esl_stopwatch.h"      /* ESL_STOPWATCH         */
@@ -247,28 +249,26 @@ enum p7p_rsc_e {
 typedef struct p7_profile_s {
   float  *tsc;          /* transitions  [0.1..M-1][0..p7P_NTRANS-1], hand-indexed  */
   float **rsc;          /* emissions [0..Kp-1][0.1..M][p7P_NR], hand-indexed       */
-                        /*           [ AMINO ][ POS  ][ MATCH OR INSERT ]          */
   float   xsc[p7P_NXSTATES][p7P_NXTRANS]; /* special transitions [NECJ][LOOP,MOVE] */
 
   int     mode;        	/* configured algorithm mode (e.g. p7_LOCAL)               */ 
-  int     L;		        /* current configured target seq length                    */
-  int     allocM;	      /* max # of nodes allocated in this structure              */
-  int     M;		        /* number of nodes in the model                            */
-  int     max_length;	  /* calculated upper bound on emitted seq length            */
-  float   nj;		        /* expected # of uses of J; precalculated from loop config */
+  int     L;		/* current configured target seq length                    */
+  int     allocM;	/* max # of nodes allocated in this structure              */
+  int     M;		/* number of nodes in the model                            */
+  int     max_length;	/* calculated upper bound on emitted seq length            */
+  float   nj;		/* expected # of uses of J; precalculated from loop config */
 
   /* Info, most of which is a copy from parent HMM:                                       */
-  char  *name;			   /* unique name of model                                   */
-  char  *acc;			     /* unique accession of model, or NULL                     */
-  char  *desc;         /* brief (1-line) description of model, or NULL           */
-  char  *rf;           /* reference line from alignment 1..M; *rf=0 means unused */
-  char  *mm;           /* modelmask line                1..M; *ref=0: unused     */
-  char  *cs;           /* consensus structure line      1..M, *cs=0 means unused */
-  char  *consensus;		 /* consensus residues to display in alignments, 1..M      */
-   
+  char  *name;			/* unique name of model                                   */
+  char  *acc;			/* unique accession of model, or NULL                     */
+  char  *desc;                  /* brief (1-line) description of model, or NULL           */
+  char  *rf;                    /* reference line from alignment 1..M; *rf=0 means unused */
+  char  *mm;                    /* modelmask line           1..M; *ref=0: unused     */
+  char  *cs;                    /* consensus structure line      1..M, *cs=0 means unused */
+  char  *consensus;		/* consensus residues to display in alignments, 1..M      */
   float  evparam[p7_NEVPARAM]; 	/* parameters for determining E-values, or UNSET          */
   float  cutoff[p7_NCUTOFFS]; 	/* per-seq/per-domain bit score cutoffs, or UNSET         */
-  float  compo[p7_MAXABET];	    /* per-model HMM filter composition, or UNSET             */
+  float  compo[p7_MAXABET];	/* per-model HMM filter composition, or UNSET             */
 
   /* Disk offset information for hmmpfam's fast model retrieval                           */
   off_t  offs[p7_NOFFSETS];     /* p7_{MFP}OFFSET, or -1                                  */
@@ -472,7 +472,7 @@ typedef struct p7_gmx_s {
   int  M;		/* actual model dimension (model 1..M)    */
   int  L;		/* actual sequence dimension (seq 1..L)   */
   
-  int      allocR;  /* current allocated # of rows : L+1 <= validR <= allocR                */
+  int      allocR;      /* current allocated # of rows : L+1 <= validR <= allocR                */
   int      validR;	/* # of rows actually pointing at DP memory                             */
   int      allocW;	/* current set row width :  M+1 <= allocW                               */
   uint64_t ncells;	/* total # of allocated cells in 2D matrix : ncells >= (validR)(allocW) */
@@ -613,16 +613,16 @@ typedef struct p7_alidisplay_s {
 typedef struct p7_dom_s { 
   int64_t        ienv, jenv;
   int64_t        iali, jali;
-  int64_t        iorf, jorf; /*Used in translated search to capture the range in the DNA sequence of the ORF containing the match to a protein query */
-  float          envsc;  	/* Forward score in envelope ienv..jenv; NATS; without null2 correction       */
-  float          domcorrection;	/* null2 score when calculating a per-domain score; NATS                      */
-  float          dombias;	/* FLogsum(0, log(bg->omega) + domcorrection): null2 score contribution; NATS */
-  float          oasc;		/* optimal accuracy score (units: expected # residues correctly aligned)      */
-  float          bitscore;	/* overall score in BITS, null corrected, if this were the only domain in seq */
-  double         lnP;	        /* log(P-value) of the bitscore                                               */
-  int            is_reported;	/* TRUE if domain meets reporting thresholds                                  */
-  int            is_included;	/* TRUE if domain meets inclusion thresholds                                  */
-  float         *scores_per_pos; /* score in BITS that each position in the alignment contributes to an overall viterbi score */
+  int64_t        iorf, jorf;     /* Used in translated search to capture the range in the DNA sequence of the ORF containing the match to a protein query */
+  float          envsc;  	 /* Forward score in envelope ienv..jenv; NATS; without null2 correction       */
+  float          domcorrection;	 /* null2 score when calculating a per-domain score; NATS                      */
+  float          dombias;	 /* FLogsum(0, log(bg->omega) + domcorrection): null2 score contribution; NATS */
+  float          oasc;		 /* optimal accuracy score (units: expected # residues correctly aligned)      */
+  float          bitscore;	 /* overall score in BITS, null corrected, if this were the only domain in seq */
+  double         lnP;	         /* log(P-value) of the bitscore                                               */
+  int            is_reported;	 /* TRUE if domain meets reporting thresholds                                  */
+  int            is_included;	 /* TRUE if domain meets inclusion thresholds                                  */
+  float         *scores_per_pos; /* only used by `nhmmer --aliscoresout`; score in BITS that each pos in ali contributes to viterbi score */
   P7_ALIDISPLAY *ad; 
 } P7_DOMAIN;
 
@@ -709,7 +709,7 @@ typedef struct p7_domaindef_s {
  */
 typedef struct p7_hit_s {
   char   *name;			/* name of the target               (mandatory)           */
-  char   *acc;			   /* accession of the target          (optional; else NULL) */
+  char   *acc;			/* accession of the target          (optional; else NULL) */
   char   *desc;			/* description of the target        (optional; else NULL) */
   int    window_length;         /* for later use in e-value computation, when splitting long sequences */
   double sortkey;		/* number to sort by; big is better                       */
@@ -723,11 +723,11 @@ typedef struct p7_hit_s {
   double sum_lnP;		/* log(P-value) of the sum_score           */
 
   float  nexpected;     /* posterior expected number of domains in the sequence (from posterior arrays) */
-  int    nregions;	   /* number of regions evaluated */
-  int    nclustered;	   /* number of regions evaluated by clustering ensemble of tracebacks */
-  int    noverlaps;	   /* number of envelopes defined in ensemble clustering that overlap w/ prev envelope */
-  int    nenvelopes;	   /* number of envelopes handed over for domain definition, null2, alignment, and scoring. */
-  int    ndom;		      /* total # of domains identified in this seq   */
+  int    nregions;	/* number of regions evaluated */
+  int    nclustered;	/* number of regions evaluated by clustering ensemble of tracebacks */
+  int    noverlaps;	/* number of envelopes defined in ensemble clustering that overlap w/ prev envelope */
+  int    nenvelopes;	/* number of envelopes handed over for domain definition, null2, alignment, and scoring. */
+  int    ndom;		/* total # of domains identified in this seq   */
 
   uint32_t flags;      	/* p7_IS_REPORTED | p7_IS_INCLUDED | p7_IS_NEW | p7_IS_DROPPED */
   int      nreported;	/* # of domains satisfying reporting thresholding  */
@@ -1180,13 +1180,12 @@ typedef struct p7_pipeline_s {
   P7_OMX     *oxb;		/* one-row Backward matrix, accel pipe      */
   P7_OMX     *fwd;		/* full Fwd matrix for domain envelopes     */
   P7_OMX     *bck;		/* full Bck matrix for domain envelopes     */
-  
+
   /* Domain postprocessing                                                  */
   ESL_RANDOMNESS *r;		/* random number generator                  */
   int             do_reseeding; /* TRUE: reseed for reproducible results    */
-  int             do_alignment_score_calc;
+  int  do_alignment_score_calc; /* used only by nhmmer --aliscoresout       */
   P7_DOMAINDEF   *ddef;		/* domain definition workflow               */
-
 
   /* Reporting threshold settings                                           */
   int     by_E;		        /* TRUE to cut per-target report off by E   */
@@ -1407,7 +1406,7 @@ extern int   p7_island_Viterbi(ESL_DSQ *dsq, int L, P7_PROFILE *gm, P7_GMX *mx, 
 extern int   p7_h2io_WriteASCII(FILE *fp, P7_HMM *hmm);
 
 /* hmmer.c */
-extern void         p7_banner(FILE *fp, char *progname, char *banner);
+extern void         p7_banner(FILE *fp, const char *progname, char *banner);
 extern ESL_GETOPTS *p7_CreateDefaultApp(ESL_OPTIONS *options, int nargs, int argc, char **argv, char *banner, char *usage);
 extern int          p7_AminoFrequencies(float *f);
 
@@ -1431,7 +1430,7 @@ extern double p7_MeanMatchEntropy        (const P7_HMM *hmm);
 extern double p7_MeanMatchRelativeEntropy(const P7_HMM *hmm, const P7_BG *bg);
 extern double p7_MeanForwardScore        (const P7_HMM *hmm, const P7_BG *bg);
 extern int    p7_MeanPositionRelativeEntropy(const P7_HMM *hmm, const P7_BG *bg, double *ret_entropy);
-extern int    p7_hmm_CompositionKLDist(P7_HMM *hmm, P7_BG *bg, float *ret_KL, float **opt_avp);
+extern int    p7_hmm_CompositionKLD(const P7_HMM *hmm, const P7_BG *bg, float *ret_KL, float **opt_avp);
 
 
 /* mpisupport.c */
@@ -1467,10 +1466,13 @@ extern int p7_tracealign_getMSAandStats(P7_HMM *hmm, ESL_SQ  **sq, int N, ESL_MS
 
 /* p7_alidisplay.c */
 extern P7_ALIDISPLAY *p7_alidisplay_Create(const P7_TRACE *tr, int which, const P7_OPROFILE *om, const ESL_SQ *sq, const ESL_SQ *ntsq);
+extern P7_ALIDISPLAY *p7_alidisplay_Create_empty();
 extern P7_ALIDISPLAY *p7_alidisplay_Clone(const P7_ALIDISPLAY *ad);
 extern size_t         p7_alidisplay_Sizeof(const P7_ALIDISPLAY *ad);
-extern int            p7_alidisplay_Serialize(P7_ALIDISPLAY *ad);
-extern int            p7_alidisplay_Deserialize(P7_ALIDISPLAY *ad);
+extern int            p7_alidisplay_Serialize(const P7_ALIDISPLAY *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
+extern int            p7_alidisplay_Deserialize(const uint8_t *buf, uint32_t *n, P7_ALIDISPLAY *ret_obj);
+extern int            p7_alidisplay_Serialize_old(P7_ALIDISPLAY *ad);
+extern int            p7_alidisplay_Deserialize_old(P7_ALIDISPLAY *ad);
 extern void           p7_alidisplay_Destroy(P7_ALIDISPLAY *ad);
 extern char           p7_alidisplay_EncodePostProb(float p);
 extern float          p7_alidisplay_DecodePostProb(char pc);
@@ -1510,6 +1512,14 @@ extern int p7_Builder      (P7_BUILDER *bld, ESL_MSA *msa, P7_BG *bg, P7_HMM **o
 extern int p7_SingleBuilder(P7_BUILDER *bld, ESL_SQ *sq,   P7_BG *bg, P7_HMM **opt_hmm, P7_TRACE  **opt_tr,    P7_PROFILE **opt_gm, P7_OPROFILE **opt_om); 
 extern int p7_Builder_MaxLength      (P7_HMM *hmm, double emit_thresh);
 
+/* p7_domain.c */
+extern P7_DOMAIN *p7_domain_Create_empty();
+extern void p7_domain_Destroy(P7_DOMAIN *obj);
+extern int p7_domain_Serialize(const P7_DOMAIN *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
+extern int p7_domain_Deserialize(const uint8_t *buf, uint32_t *n, P7_DOMAIN *ret_obj);
+extern int p7_domain_TestSample(ESL_RAND64 *rng, P7_DOMAIN **ret_obj);
+extern int p7_domain_Compare(P7_DOMAIN *first, P7_DOMAIN *second, double atol, double rtol);
+
 /* p7_domaindef.c */
 extern P7_DOMAINDEF *p7_domaindef_Create (ESL_RANDOMNESS *r);
 extern int           p7_domaindef_Fetch  (P7_DOMAINDEF *ddef, int which, int *opt_i, int *opt_j, float *opt_sc, P7_ALIDISPLAY **opt_ad);
@@ -1534,6 +1544,13 @@ extern int     p7_gmx_Compare(P7_GMX *gx1, P7_GMX *gx2, float tolerance);
 extern int     p7_gmx_Dump(FILE *fp, P7_GMX *gx, int flags);
 extern int     p7_gmx_DumpWindow(FILE *fp, P7_GMX *gx, int istart, int iend, int kstart, int kend, int show_specials);
 
+/* p7_hit.c */
+extern P7_HIT *p7_hit_Create_empty();
+extern void p7_hit_Destroy(P7_HIT *the_hit);
+extern int p7_hit_Serialize(const P7_HIT *obj, uint8_t **buf, uint32_t *n, uint32_t *nalloc);
+extern int p7_hit_Deserialize(const uint8_t *buf, uint32_t *n, P7_HIT *ret_obj);
+extern int p7_hit_TestSample(ESL_RAND64 *rng, P7_HIT **ret_obj);
+extern int p7_hit_Compare(P7_HIT *first, P7_HIT *second, double atol, double rtol);
 
 /* p7_hmm.c */
 /*      1. The P7_HMM object: allocation, initialization, destruction. */
@@ -1573,11 +1590,11 @@ extern int     p7_hmm_CalculateOccupancy(const P7_HMM *hmm, float *mocc, float *
 
 
 /* p7_hmmfile.c */
-extern int  p7_hmmfile_OpenE    (char *filename, char *env, P7_HMMFILE **ret_hfp, char *errbuf);
-extern int  p7_hmmfile_OpenENoDB(char *filename, char *env, P7_HMMFILE **ret_hfp, char *errbuf);
-extern int  p7_hmmfile_Open     (char *filename, char *env, P7_HMMFILE **ret_hfp); /* deprecated */
-extern int  p7_hmmfile_OpenNoDB (char *filename, char *env, P7_HMMFILE **ret_hfp); /* deprecated */
-extern int  p7_hmmfile_OpenBuffer(char *buffer, int size, P7_HMMFILE **ret_hfp);
+extern int  p7_hmmfile_OpenE    (const char *filename, char *env, P7_HMMFILE **ret_hfp, char *errbuf);
+extern int  p7_hmmfile_OpenENoDB(const char *filename, char *env, P7_HMMFILE **ret_hfp, char *errbuf);
+extern int  p7_hmmfile_Open     (const char *filename, char *env, P7_HMMFILE **ret_hfp); /* deprecated */
+extern int  p7_hmmfile_OpenNoDB (const char *filename, char *env, P7_HMMFILE **ret_hfp); /* deprecated */
+extern int  p7_hmmfile_OpenBuffer(const char *buffer, int size, P7_HMMFILE **ret_hfp);
 extern void p7_hmmfile_Close(P7_HMMFILE *hfp);
 #ifdef HMMER_THREADS
 extern int  p7_hmmfile_CreateLock(P7_HMMFILE *hfp);
@@ -1611,7 +1628,7 @@ extern void p7_null3_score(const ESL_ALPHABET *abc, const ESL_DSQ *dsq, P7_TRACE
 extern void p7_null3_windowed_score(const ESL_ALPHABET *abc, const ESL_DSQ *dsq, int start, int stop, P7_BG *bg, float *ret_sc);
 
 /* p7_pipeline.c */
-extern P7_PIPELINE *p7_pipeline_Create(ESL_GETOPTS *go, int M_hint, int L_hint, int long_targets, enum p7_pipemodes_e mode);
+extern P7_PIPELINE *p7_pipeline_Create(const ESL_GETOPTS *go, int M_hint, int L_hint, int long_targets, enum p7_pipemodes_e mode);
 extern int          p7_pipeline_Reuse  (P7_PIPELINE *pli);
 extern void         p7_pipeline_Destroy(P7_PIPELINE *pli);
 extern int          p7_pipeline_Merge  (P7_PIPELINE *p1, P7_PIPELINE *p2);
@@ -1626,11 +1643,6 @@ extern int p7_pli_NewModel          (P7_PIPELINE *pli, const P7_OPROFILE *om, P7
 extern int p7_pli_NewModelThresholds(P7_PIPELINE *pli, const P7_OPROFILE *om);
 extern int p7_pli_NewSeq            (P7_PIPELINE *pli, const ESL_SQ *sq);
 extern int p7_Pipeline              (P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *th);
-/* DAVID RICH EDIT start */
-extern int p7_Pipeline_TEST         (P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *th, P7_PROFILE *gm);
-extern int p7_Pipeline_TIMED        (P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, P7_PROFILE *gm);
-
-/* DAVID RICH EDIT end */
 extern int p7_Pipeline_LongTarget   (P7_PIPELINE *pli, P7_OPROFILE *om, P7_SCOREDATA *data,
                                      P7_BG *bg, P7_TOPHITS *hitlist, int64_t seqidx,
                                      const ESL_SQ *sq, int complementarity,
@@ -1797,46 +1809,6 @@ extern int p7_SSVFM_longlarget( P7_OPROFILE *om, float nu, P7_BG *bg, double F1,
 extern int fm_configInit      (FM_CFG *cfg, ESL_GETOPTS *go);
 extern int fm_getOccCount     (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c);
 extern int fm_getOccCountLT   (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c, uint32_t *cnteq, uint32_t *cntlt);
-
-/* DAVID RICH EDIT */
-void DP_MATRIX_Dump(  const int   Q, 
-                      const int   T,
-                      ESL_DSQ*    dsq,
-                      P7_PROFILE* gm,
-                      P7_GMX*     gx,
-                      FILE*       fp );
-
-void trace_Build( const int   L, 
-                  const int   M,
-                  ESL_DSQ*    dsq,
-                  P7_PROFILE* gm,
-                  P7_GMX*     gx,
-                  P7_TRACE*   tr );
-
-void trace_Dump(  const int   L, 
-                  const int   M,
-                  ESL_DSQ*    dsq,
-                  P7_PROFILE* gm,
-                  P7_GMX*     gx,
-                  P7_TRACE*   tr,
-                  FILE*       fp );
-
-void profile_Dump(ESL_DSQ*    dsq,
-                  const int   L,
-                  P7_PROFILE* gm,
-                  P7_GMX*     gx,
-                  FILE*       fp );
-
-void profileConfig_Dump(P7_HMM*       hmm,
-                        P7_BG*        bg,
-                        P7_PROFILE*   gm,
-                        FILE*         fp );
-
-void hmmProf_Dump(ESL_DSQ*      dsq,
-                  const int     L,
-                  P7_PROFILE*   gm,
-                  P7_GMX*       gx,
-                  FILE*         fp );
 
 #endif /*P7_HMMERH_INCLUDED*/
 

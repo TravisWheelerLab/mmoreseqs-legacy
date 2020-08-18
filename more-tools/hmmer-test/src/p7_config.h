@@ -99,9 +99,9 @@
 
 /* Version info - set once for whole package in configure.ac
  */
-#define HMMER_VERSION "3.2.1"
-#define HMMER_DATE "June 2018"
-#define HMMER_COPYRIGHT "Copyright (C) 2018 Howard Hughes Medical Institute."
+#define HMMER_VERSION "3.3.1"
+#define HMMER_DATE "Jul 2020"
+#define HMMER_COPYRIGHT "Copyright (C) 2020 Howard Hughes Medical Institute."
 #define HMMER_LICENSE "Freely distributed under the BSD open source license."
 #define HMMER_URL "http://hmmer.org/"
 

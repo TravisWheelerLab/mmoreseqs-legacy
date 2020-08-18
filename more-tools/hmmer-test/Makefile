@@ -33,12 +33,12 @@ SADIR          = libdivsufsort
 # Package information
 #
 PACKAGE         = HMMER
-PACKAGE_VERSION = 3.3
+PACKAGE_VERSION = 3.3.1
 PACKAGE_TARNAME = hmmer
 
 # Installation targets
 #
-prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test/build
+prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test-new/build
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 bindir      = ${exec_prefix}/bin
@@ -150,7 +150,7 @@ clean:
 	${QUIET_SUBDIR0}documentation ${QUIET_SUBDIR1} clean
 	${QUIET_SUBDIR0}${ESLDIR}     ${QUIET_SUBDIR1} clean
 	${QUIET_SUBDIR0}${SADIR}      ${QUIET_SUBDIR1} clean
-	${QUIET}-rm -f *.o *~ Makefile.bak core TAGS gmon.out
+	${QUIET}-rm -f *.o *~ Makefile.bak core TAGS TAGS.part gmon.out
 ifndef V
 	@echo '     ' CLEAN hmmer
 endif
@@ -166,7 +166,7 @@ distclean:
 	${QUIET_SUBDIR0}${SADIR}      ${QUIET_SUBDIR1} distclean
 	${QUIET}-rm config.log config.status
 	${QUIET}-rm -rf autom4te.cache
-	${QUIET}-rm -f *.o *~ Makefile.bak core TAGS gmon.out
+	${QUIET}-rm -f *.o *~ Makefile.bak core TAGS TAGS.part gmon.out
 	${QUIET}-rm -f cscope.po.out cscope.out cscope.in.out cscope.files
 	${QUIET}-rm -f src/impl
 	${QUIET}-rm Makefile

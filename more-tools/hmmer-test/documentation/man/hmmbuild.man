@@ -1,4 +1,4 @@
-.TH "hmmbuild" 1 "June 2018" "HMMER 3.2.1" "HMMER Manual"
+.TH "hmmbuild" 1 "Jul 2020" "HMMER 3.3.1" "HMMER Manual"
 
 .SH NAME
 hmmbuild \- construct profiles from multiple sequence alignments
@@ -538,7 +538,7 @@ HMMER distribution (Userguide.pdf); or see the HMMER web page
 .SH COPYRIGHT
 
 .nf
-Copyright (C) 2018 Howard Hughes Medical Institute.
+Copyright (C) 2020 Howard Hughes Medical Institute.
 Freely distributed under the BSD open source license.
 .fi
 

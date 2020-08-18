@@ -1,4 +1,4 @@
-.TH "nhmmer" 1 "June 2018" "HMMER 3.2.1" "HMMER Manual"
+.TH "nhmmer" 1 "Jul 2020" "HMMER 3.3.1" "HMMER Manual"
 
 .SH NAME
 nhmmer \- search DNA queries against a DNA sequence database
@@ -51,7 +51,7 @@ cannot come from stdin, because we can't rewind the
 streaming target database to search it with another profile. 
 
 .PP
-If the query is sequence-based,
+If the query is sequence-based (unaligned or aligned),
 a new file containing the HMM(s) built from the input(s) in 
 .I queryfile
 may optionally be produced, with the filename set using the 
@@ -368,12 +368,6 @@ abnormally heavy load.
 .SH OPTIONS FOR SPECIFYING THE ALPHABET
 
 .TP
-.B \-\-amino
-Assert that sequences in 
-.I msafile
-are protein, bypassing alphabet autodetection.
-
-.TP
 .B \-\-dna
 Assert that sequences in
 .I msafile
@@ -479,30 +473,7 @@ reduced sensitivity. (minor tuning option)
 .SH OTHER OPTIONS
 
 
-.TP 
-.B \-\-qhmm 
-Assert that the input
-.I queryfile
-contains one or more profile HMMs, as built by 
-.BR hmmbuild . 
-
-.TP 
-.B \-\-qfasta 
-Assert that the input
-.I queryfile
-contains one or more unaligned sequences, stored in fasta format. 
- 
-.TP 
-.B \-\-qmsa 
-Assert that the input
-.I queryfile
-contains one or more sequence alignments. The format of
-the file may be specified with the  
-.B \-\-qformat 
-flag.
-
-
-.TP 
+.TP
 .BI \-\-qformat " <s>"
 Assert that input
 .I queryfile
@@ -515,7 +486,9 @@ include:
 .BR fasta ,
 .BR embl ,
 .BR genbank.
-Alignment formats also work;
+Alignment formats also work, and will serve as the
+basis for automatic creation of a profile HMM used for
+searching;
 common choices include:
 .BR stockholm , 
 .BR a2m ,
@@ -525,8 +498,18 @@ common choices include:
 .BR phylip .
 For more information, and for codes for some less common formats,
 see main documentation.
-The string
-.I <s>
+
+
+.TP
+.BI \-\-qsingle_seqs
+Force
+.I queryfile
+to be read as individual sequences, even if it is in
+an msa format. For example, if the input is in aligned
+.BR stockholm
+format, the
+.BR \-\-qsingle_seqs
+ flag will cause each sequence in that alignment to be used as a seperate query sequence.
 
 .TP
 .BI \-\-tformat " <s>"
@@ -689,7 +672,7 @@ HMMER distribution (Userguide.pdf); or see the HMMER web page
 .SH COPYRIGHT
 
 .nf
-Copyright (C) 2018 Howard Hughes Medical Institute.
+Copyright (C) 2020 Howard Hughes Medical Institute.
 Freely distributed under the BSD open source license.
 .fi
 

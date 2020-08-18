@@ -1,4 +1,4 @@
-.TH "hmmstat" 1 "June 2018" "HMMER 3.2.1" "HMMER Manual"
+.TH "hmmstat" 1 "Jul 2020" "HMMER 3.3.1" "HMMER Manual"
 
 .SH NAME
 hmmstat \- summary statistics for a profile file
@@ -31,7 +31,7 @@ The columns are:
 
 .TP
 .B idx
-The index of this profile, numbering each on in the file starting from 1.
+The index of this profile, numbering each profile in the file starting from 1.
 
 .TP
 .B name
@@ -79,8 +79,9 @@ per model consensus position.
 
 .TP
 .B compKL
-Kullback-Leibler distance between the model's overall average
-residue composition and the default background frequency distribution.
+Kullback-Leibler divergence from
+the default background frequency distribution to
+the average composition of the profile's consensus match states, in bits.
 The higher this number, the more biased the residue composition of the
 profile is. Highly biased profiles can slow the HMMER3 acceleration
 pipeline, by causing too many nonhomologous sequences to pass the filters.
@@ -111,7 +112,7 @@ HMMER distribution (Userguide.pdf); or see the HMMER web page
 .SH COPYRIGHT
 
 .nf
-Copyright (C) 2018 Howard Hughes Medical Institute.
+Copyright (C) 2020 Howard Hughes Medical Institute.
 Freely distributed under the BSD open source license.
 .fi
 

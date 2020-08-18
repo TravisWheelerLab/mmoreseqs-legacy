@@ -85,20 +85,7 @@ p7_FLogsumInit(void)
 
   int i;
   for (i = 0; i < p7_LOGSUM_TBL; i++) 
-  {
-      flogsum_lookup[i] = log(1. + exp((double) -i / p7_LOGSUM_SCALE));
-  }
-    
-  // /* DAVID RICH EDIT */
-  // printf("LOGSUM TABLE:\n");
-  // FILE *fp = fopen("logsum.hmmer.txt", "w+");
-  // for (i = 0; i < p7_LOGSUM_TBL; i++) 
-  // {
-  //     fprintf(fp, "%d -> %f\n", i, flogsum_lookup[i]);
-  // }
-  // fclose(fp);
-  // exit(0);
-
+    flogsum_lookup[i] = log(1. + exp((double) -i / p7_LOGSUM_SCALE));
   return eslOK;
 }
 

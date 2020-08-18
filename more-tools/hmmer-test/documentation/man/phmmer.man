@@ -1,4 +1,4 @@
-.TH "phmmer" 1 "June 2018" "HMMER 3.2.1" "HMMER Manual"
+.TH "phmmer" 1 "Jul 2020" "HMMER 3.3.1" "HMMER Manual"
 
 .SH NAME
 phmmer \- search protein sequence(s) against a protein sequence database
@@ -428,6 +428,12 @@ common choices include:
 .BR psiblast ,
 .BR clustal ,
 .BR phylip .
+.B phmmer
+always uses a single sequence query to start its search, so when the input
+.I seqfile
+is an alignment,
+.B phmmer
+reads it one unaligned query sequence at a time, not as an alignment.
 For more information, and for codes for some less common formats,
 see main documentation.
 The string
@@ -499,7 +505,7 @@ HMMER distribution (Userguide.pdf); or see the HMMER web page
 .SH COPYRIGHT
 
 .nf
-Copyright (C) 2018 Howard Hughes Medical Institute.
+Copyright (C) 2020 Howard Hughes Medical Institute.
 Freely distributed under the BSD open source license.
 .fi
 
