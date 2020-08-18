@@ -50,16 +50,16 @@ void* RESULTS_Destroy( RESULTS* results )
    if ( results == NULL ) return results;
 
    for (int i = 0; i < results->N; i++) {
-      free(results->data[i].target_name);
-      free(results->data[i].query_name);
+      ERRORCHECK_free(results->data[i].target_name);
+      ERRORCHECK_free(results->data[i].query_name);
    }
 
-   free(results->data);
+   ERRORCHECK_free(results->data);
    results->data = NULL;
-   free(results->filepath);
+   ERRORCHECK_free(results->filepath);
    results->filepath = NULL;
    
-   free(results);
+   ERRORCHECK_free(results);
    results = NULL;
    return results;
 }

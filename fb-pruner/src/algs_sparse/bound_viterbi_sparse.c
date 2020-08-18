@@ -217,7 +217,7 @@ int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query se
 
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         for ( t_0 = lb_0; t_0 < rb_0; t_0++ )
          {
             t_1 = t_0 - 1; 
             tx0 = t_0 - bnd->lb;

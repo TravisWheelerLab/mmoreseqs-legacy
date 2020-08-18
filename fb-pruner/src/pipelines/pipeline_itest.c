@@ -1,7 +1,7 @@
 /*******************************************************************************
  *  FILE:      pipeline_int_test.c
  *  PURPOSE:   Test Cloud Search Pipeline.
- *             Requires -DDEBUG=1 for full functionality.
+ *             Requires -BUILD=DEBUG for full functionality.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -90,6 +90,7 @@ void itest_pipeline( WORKER* worker )
    ALIGNMENT*     tr_quad_2      = ALIGNMENT_Create();
    ALIGNMENT*     tr_quad_3      = ALIGNMENT_Create();
    ALIGNMENT*     tr_lin         = ALIGNMENT_Create();
+   ALIGNMENT*     tr_sparse      = ALIGNMENT_Create();
    ALIGNMENT*     tr             = tr_quad;
 
    EDGEBOUNDS*    edg_fwd_lin    = EDGEBOUNDS_Create();
@@ -132,12 +133,12 @@ void itest_pipeline( WORKER* worker )
 
    /* PRINT ARGS */
    int pad = 20;
-   printf("%*s: %s\n", pad, "MODE",                MODE_NAMES[mode]);
-   printf("%*s: %s\n", pad, "HMM_FILENAME",        t_filepath);
-   printf("%*s: %s\n", pad, "FASTA_FILENAME",      q_filepath);
-   printf("%*s: %.3f\n", pad, "ALPHA",             cloud_params->alpha);
-   printf("%*s: %.3f\n", pad, "BETA",              cloud_params->beta);
-   printf("%*s: %d\n", pad, "GAMMA",               cloud_params->gamma);
+   printf("%*s: %s\n",     pad, "MODE",               MODE_NAMES[mode]);
+   printf("%*s: %s\n",     pad, "HMM_FILENAME",       t_filepath);
+   printf("%*s: %s\n",     pad, "FASTA_FILENAME",     q_filepath);
+   printf("%*s: %.3f\n",   pad, "ALPHA",              cloud_params->alpha);
+   printf("%*s: %.3f\n",   pad, "BETA",               cloud_params->beta);
+   printf("%*s: %d\n",     pad, "GAMMA",              cloud_params->gamma);
    printf("\n");
 
    printf("=== BUILD HMM_PROFILE / QUERY -> START ===\n");
@@ -174,12 +175,17 @@ void itest_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
       exit(EXIT_FAILURE);
    }
-   // HMM_PROFILE_Dump( t_prof, stdout );
+   
+   HMM_PROFILE_Dump( t_prof, stdout );
 
    printf("TARGET LEN:\t%d\n", t_prof->N);
    printf(" QUERY LEN:\t%d\n", q_seq->N);
    printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n\n");
 
+   /* initialize logsum table */
+   logsum_Init();
+
+   /* get dimensions */
    Q = q_seq->N;
    T = t_prof->N;
    tot_cells = (T+1) * (Q+1);
@@ -198,35 +204,42 @@ void itest_pipeline( WORKER* worker )
    EDGEBOUND_ROWS_Reuse( edg_row_tmp, Q, T );
 
    /* allocate memory for quadratic algs */
-   MATRIX_3D*  st_MX_naive    = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
-   MATRIX_2D*  sp_MX_naive    = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
-   MATRIX_2D*  cloud_MX_naive = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   MATRIX_3D*           st_MX_naive       = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
+   MATRIX_2D*           sp_MX_naive       = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
+   MATRIX_2D*           cloud_MX_naive    = MATRIX_2D_Create_Clean( Q+1, T+1 );
    /* allocate memory for quadratic algs */
-   MATRIX_3D*  st_MX_quad     = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
-   MATRIX_2D*  sp_MX_quad     = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
-   MATRIX_2D*  cloud_MX_quad  = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   MATRIX_3D*           st_MX_quad        = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
+   MATRIX_2D*           sp_MX_quad        = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
+   MATRIX_2D*           cloud_MX_quad     = MATRIX_2D_Create_Clean( Q+1, T+1 );
    /* allocate memory for comparing row-wise algs */
-   MATRIX_2D*  cloud_MX_rows  = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   MATRIX_2D*           cloud_MX_rows     = MATRIX_2D_Create_Clean( Q+1, T+1 );
    /* allocate memory for linear algs */
-   MATRIX_3D*  st_MX_lin      = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
-   MATRIX_3D*  st_MX3_lin     = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
-   MATRIX_2D*  sp_MX_lin      = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
-   MATRIX_2D*  cloud_MX_lin   = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   MATRIX_3D*           st_MX3_lin        = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
+   MATRIX_3D*           st_MX_lin         = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
+   MATRIX_2D*           sp_MX_lin         = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
+   MATRIX_2D*           cloud_MX_lin      = MATRIX_2D_Create_Clean( Q+1, T+1 );
    /* allocate memory for sparse algs */
-   MATRIX_3D_SPARSE*  st_SMX  = MATRIX_3D_SPARSE_Create();
+   MATRIX_3D_SPARSE*    st_SMX            = MATRIX_3D_SPARSE_Create(  );
+   MATRIX_3D*           st_MX_sparse      = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
+   MATRIX_2D*           sp_MX_sparse      = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
+   MATRIX_2D*           cloud_MX_sparse   = MATRIX_2D_Create_Clean( Q+1, T+1 );
    /* allocate memory for testing */
-   MATRIX_3D*  st_MX_diff     = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
-   MATRIX_3D*  st_MX3_diff    = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
-   MATRIX_2D*  sp_MX_diff     = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
-   MATRIX_2D*  cloud_MX_diff  = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   MATRIX_3D*           st_MX_diff        = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
+   MATRIX_3D*           st_MX3_diff       = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
+   MATRIX_2D*           sp_MX_diff        = MATRIX_2D_Create_Clean( NUM_SPECIAL_STATES, Q+1 );
+   MATRIX_2D*           cloud_MX_diff     = MATRIX_2D_Create_Clean( Q+1, T+1 );
 
    /* allocate full search cloud for  */
-   MATRIX_2D*  full_cloud_MX  = MATRIX_2D_Create_Clean( Q+1, T+1 );
-   EDGEBOUNDS* full_cloud_edg = EDGEBOUNDS_Create();
-   
-   MATRIX_2D_Fill( full_cloud_MX, 1 );
-   EDGEBOUNDS_Build_From_Cloud( Q, T, full_cloud_edg, full_cloud_MX, EDG_ROW );
-   EDGEBOUNDS_Dump( full_cloud_edg, stdout );
+   MATRIX_2D*           full_cloud_MX     = MATRIX_2D_Create_Clean( Q+1, T+1 );
+   EDGEBOUNDS*          full_cloud_edg    = EDGEBOUNDS_Create();
+
+   /* vectors for edgebounds in cloud search */
+   VECTOR_INT* lb_vec[3];
+   VECTOR_INT* rb_vec[3];
+   for ( int i = 0; i < 3; i++ ) {
+      lb_vec[i] = VECTOR_INT_Create();
+      rb_vec[i] = VECTOR_INT_Create();
+   }
 
    /* debug matrix */
    {
@@ -242,22 +255,23 @@ void itest_pipeline( WORKER* worker )
       MATRIX_2D_Reuse_Clean( debugger->cloud_MX3, Q+1, T+1 );
    }
 
-   /* run build sparse matrix from full edgebounds */
+   /* build edgebounds which cover the entire search space (to compare against full fwd/back) */
+   {
+      MATRIX_2D_Fill( full_cloud_MX, 1 );
+      EDGEBOUNDS_Build_From_Cloud( Q, T, full_cloud_edg, full_cloud_MX, EDG_ROW );
+   }
+
+   /* build sparse matrix from full edgebounds */
    {
       MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX, full_cloud_edg );
-      EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
+      // EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
       EDGEBOUNDS_Save( st_SMX->edg_outer, "test_output/my.fwd.full.sparse.outer.edg" );
       EDGEBOUNDS_Save( st_SMX->edg_inner, "test_output/my.fwd.full.sparse.inner.edg" );
-      // printf("INNER:\n");
-      // MATRIX_3D_SPARSE_Map_to_Inner_Dump( st_SMX, st_SMX->edg_inner, stdout );
-      // printf("OUTER:\n");
-      // MATRIX_3D_SPARSE_Map_to_Outer_Dump( st_SMX, st_SMX->edg_outer, stdout );
-      printf("\n");
    }
 
    /* run viterbi algorithm */
    {
-      printf("=== VITERBI -> START ===\n");
+      printf("=== FULL VITERBI -> START ===\n");
       /* ==> viterbi (quadratic) */
       printf("==> viterbi quadratic\n");
       run_Viterbi_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
@@ -284,41 +298,49 @@ void itest_pipeline( WORKER* worker )
          DP_MATRIX_MAT_Dump( Q, T, st_MX_lin, stdout );
          DP_MATRIX_Dump( Q, T, st_MX_lin, sp_MX_quad, stdout );
       }
-      printf("=== VITERBI -> END ===\n\n");
+      printf("=== FULL VITERBI -> END ===\n\n");
    }
 
    /* run traceback of viterbi */
    {
       printf("=== TRACEBACK -> START ===\n");
-      /* ==> viterbi (quadratic) */
-      printf("==> traceback quadratic (ver. 1)\n");
+      /* ==> traceback (quadratic) */
+      printf("==> traceback quadratic (via HMMER)\n");
       ALIGNMENT_Reuse(tr_quad, Q, T);
-      run_Traceback_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad);
-      ALIGNMENT_Save(tr_quad, "test_output/my.traceback.quad.1.tsv");
-      ALIGNMENT_Dump(tr_quad, stdout);
-
-      printf("==> traceback quadratic (ver. 2)\n");
+      run_Traceback_Quad_via_hmmer(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad);
+      ALIGNMENT_Save(tr_quad, "test_output/my.traceback.quad.hmmer.tsv");
+      /* ==> traceback (quadratic via compare) */
+      printf("==> traceback quadratic (via compare)\n");
       ALIGNMENT_Reuse(tr_quad_2, Q, T);
-      run_Traceback_Quad_2(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_2);
-      ALIGNMENT_Save(tr_quad_2, "test_output/my.traceback.quad.2.tsv");
-      ALIGNMENT_Dump(tr_quad_2, stdout);
-      
+      run_Traceback_Quad_via_cmp(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_2);
+      ALIGNMENT_Save(tr_quad_2, "test_output/my.traceback.quad.cmp.tsv");
+      /* ==> traceback comparison */
       cmp = ( ALIGNMENT_Compare( tr_quad, tr_quad_2 ) == 0 ) ? true : false;
-      printf("ALIGNMENTS (ver. 1 vs ver. 2)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
-
-      // printf("==> traceback quadratic (ver. 3)\n");
-      // ALIGNMENT_Reuse(tr_quad_3, Q, T);
-      // run_Traceback_Quad_3(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_3);
-      // ALIGNMENT_Save(tr_quad_3, "test_output/my.traceback.quad.2.tsv");
-      // ALIGNMENT_Dump(tr_quad_3, stdout);
-
-      // cmp = ( ALIGNMENT_Compare( tr_quad, tr_quad_3 ) == 0 ) ? true : false;
-      // printf("ALIGNMENTS (ver. 1 vs ver. 2)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
-
-      /* ==> viterbi (linear) */
+      printf("ALIGNMENTS (HMMER vs Compare)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
+      if ( cmp == false ) {
+         printf("traceback quadratic (via hmmer):\n");
+         ALIGNMENT_Dump(tr_quad, stdout);
+         printf("traceback quadratic (via compare):\n");
+         ALIGNMENT_Dump(tr_quad_2, stdout);
+      }
+      /* ==> traceback (quadratic via maximum) */
+      printf("==> traceback quadratic (via max)\n");
+      ALIGNMENT_Reuse(tr_quad_3, Q, T);
+      run_Traceback_Quad_via_max(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_3);
+      ALIGNMENT_Save(tr_quad_3, "test_output/my.traceback.quad.max.tsv");
+      /* ==> traceback comparison */
+      cmp = ( ALIGNMENT_Compare( tr_quad, tr_quad_3 ) == 0 ) ? true : false;
+      printf("ALIGNMENTS (HMMER vs Max)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
+      if ( cmp == false ) {
+         printf("traceback quadratic (via hmmer):\n");
+         ALIGNMENT_Dump(tr_quad, stdout);
+         printf("traceback quadratic (via max):\n");
+         ALIGNMENT_Dump(tr_quad_3, stdout);
+      }
+      /* ==> traceback (linear) */
       printf("==> traceback linear\n");
-      /* TODO */
-
+      /* TODO: implment and test linear traceback */
+      /* ==> print begin and end points in traceback */
       TRACE* beg = &(tr->traces->data[tr->beg]);
       TRACE* end = &(tr->traces->data[tr->end]);
       printf("START: (%d,%d) -> END: (%d,%d)\n", beg->i, beg->j, end->i, end->j);
@@ -332,19 +354,19 @@ void itest_pipeline( WORKER* worker )
       printf("=== FULL VITERBI SPARSE -> START ===\n");
       /* ==> forward (quadratic) */
       printf("==> bound viterbi sparse\n");
-      run_Bound_Viterbi_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_lin, st_SMX->edg_inner, &sc); 
+      run_Bound_Viterbi_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_sparse, st_SMX->edg_inner, &sc); 
       printf("Bound Viterbi Score (sparse):\t%f\n", sc);
       scores->quad_cloud_fwd = sc;
-      MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-      DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.vit.full.sparse.mx");
+      MATRIX_3D_Copy( st_MX_sparse, debugger->test_MX );
+      DP_MATRIX_Save(Q, T, st_MX_sparse, sp_MX_sparse, "test_output/my.vit.full.sparse.mx");
       /* ==> forward (comparison) */
       printf("==> bound forward comparison: sparse v. normal matrix\n");
       dp_cmp = 0;
-      dp_cmp += DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin );
+      dp_cmp += DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_sparse, sp_MX_sparse );
       cmp = ( dp_cmp == 0 ) ? true : false;
       if ( cmp == false ) {
          printf("bound forward (sparse):\n");
-         DP_MATRIX_MAT_Dump( Q, T, st_MX_lin, stdout );
+         DP_MATRIX_MAT_Dump( Q, T, st_MX_sparse, stdout );
          printf("bound forward (quad):\n");
          DP_MATRIX_MAT_Dump( Q, T, st_MX_quad, stdout );
       }
@@ -352,8 +374,27 @@ void itest_pipeline( WORKER* worker )
       printf("=== FULL VITERBI SPARSE -> END ===\n\n");
    }
 
-   /* run forward/backward algorithms */
-   logsum_Init();
+   /* run traceback of viterbi */
+   {
+      printf("=== TRACEBACK SPARSE -> START ===\n");
+      /* ==> traceback (quadratic) */
+      printf("==> traceback sparse\n");
+      ALIGNMENT_Reuse(tr_quad, Q, T);
+      run_Traceback_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_sparse, st_SMX->edg_inner, tr_sparse);
+      ALIGNMENT_Save(tr_sparse, "test_output/my.traceback.sparse.tsv");
+      cmp = ( ALIGNMENT_Compare( tr_quad, tr_sparse ) == 0 ) ? true : false;
+      printf("ALIGNMENTS (quad vs sparse)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
+      if ( cmp == false ) {
+         printf("traceback quadratic:\n");
+         ALIGNMENT_Dump(tr_quad, stdout);
+         printf("traceback sparse:\n");
+         ALIGNMENT_Dump(tr_sparse, stdout);
+      }
+      TRACE* beg = &(tr->traces->data[tr->beg]);
+      TRACE* end = &(tr->traces->data[tr->end]);
+      printf("START: (%d,%d) -> END: (%d,%d)\n", beg->i, beg->j, end->i, end->j);
+      printf("=== TRACEBACK SPARSE -> END ===\n\n");
+   }
 
    /* run forward */
    {
@@ -545,7 +586,7 @@ void itest_pipeline( WORKER* worker )
       printf("=== CLOUD FORWARD -> START ===\n");
       /* cloud forward (quadratic) */
       printf("==> cloud forward quadratic\n");
-      run_Cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, edg_fwd_quad, cloud_params );
+      run_Cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, lb_vec, rb_vec, edg_fwd_quad, cloud_params );
       if ( debugger->verbose_level >= VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
          DP_MATRIX_VIZ_Dump( cloud_MX_quad, stdout );
@@ -554,7 +595,8 @@ void itest_pipeline( WORKER* worker )
       EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
       /* cloud forward (linear) */
       printf("==> cloud forward linear\n");
-      run_Cloud_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, cloud_params );
+      run_Cloud_Forward_Linear(
+         q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_fwd_lin, cloud_params );
       MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
       if ( debugger->verbose_level >= VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_lin, debugger->cloud_MX );
@@ -611,7 +653,7 @@ void itest_pipeline( WORKER* worker )
       printf("=== CLOUD BACKWARD -> START ===\n");
       /* cloud backward (quadratic) */
       printf("==> cloud backward quadratic\n");
-      run_Cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, edg_bck_quad, cloud_params);
+      run_Cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, lb_vec, rb_vec, edg_bck_quad, cloud_params);
       if ( debugger->verbose_level >=  VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
          DP_MATRIX_VIZ_Dump( cloud_MX_quad, stdout );
@@ -737,13 +779,19 @@ void itest_pipeline( WORKER* worker )
          printf("Edgebounds (linear, row-wise):\n");
          EDGEBOUNDS_Dump( edg_row_lin, stdout );
       }
-      printf("=== MERGE & REORIENT CLOUD (lin v quad - comparison test) -> END ===\n\n");
+      printf("=== MERGE & REORIENT CLOUD -> END ===\n\n");
    }
 
    /* build sparse matrix around edgebounds */
    {
-
+      MATRIX_3D_SPARSE_Reuse( st_SMX );
+      MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX, edg_row_lin );
+      exit(EXIT_SUCCESS);
+      // EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
+      EDGEBOUNDS_Save( st_SMX->edg_outer, "test_output/my.sparse.outer.edg" );
+      EDGEBOUNDS_Save( st_SMX->edg_inner, "test_output/my.sparse.inner.edg" );
    }
+   exit(EXIT_SUCCESS);
 
    // /* stats */
    // num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);
@@ -764,34 +812,38 @@ void itest_pipeline( WORKER* worker )
    // DP_MATRIX_Fill( Q, T, st_MX3_lin, sp_MX_lin, -INF );
 
    /* bounded forward */
-   printf("=== BOUNDED FORWARD -> START ===\n");
+   printf("=== BOUND FORWARD -> START ===\n");
    /* bounded forward (naive) */
+   printf("==> bound forward (naive)\n");
    run_Bound_Forward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
    printf("Bounded Forward Score (naive):\t%f\n", sc);
    scores->naive_cloud_fwd = sc;
    DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_fwd.naive.mx");
    /* bounded forward (quadratic) */
+   printf("==> bound forward (quad)\n");
    run_Bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
-   printf("Bounded Forward Score  (quad):\t%f\n", sc);
+   printf("Bound Forward Score  (quad):\t%f\n", sc);
    scores->quad_cloud_fwd = sc;
    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_fwd.quad.mx");
-   // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
-   /* bounded forward (comparison) */
+   /* bounded forward (linear) */
+   printf("==> bound forward (lin)\n");
    run_Bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
-   printf("Bounded Forward Score   (lin):\t%f\n", sc);
+   printf("Bound Forward Score   (lin):\t%f\n", sc);
    scores->lin_cloud_fwd = sc;
    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_fwd.lin.mx");
-   // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
    /* bounded forward (comparison) */
+   printf("==> bound forward comparison: naive vs. quad vs. lin\n");
    cmp = ( cmp_tol_cust( scores->naive_cloud_fwd, scores->quad_cloud_fwd, 1e-3 ) && 
             cmp_tol_cust( scores->naive_cloud_fwd, scores->lin_cloud_fwd, 1e-3 ) );
-   printf("Bounded Forward:\tSCORES?\t\t%s\n", cmp ? "PASS" : "FAIL" );
+   printf("Bound Forward:\tSCORES?\t\t%s\n", cmp ? "PASS" : "FAIL" );
    dp_cmp  = ( DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin ) == 0 );
-   printf("Bounded Forward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );
+   printf("Bound Forward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );
    if ( dp_cmp == false ) {
       DP_MATRIX_Diff( st_MX_lin, sp_MX_lin, st_MX_quad, sp_MX_quad, st_MX_diff, sp_MX_diff );
-      // DP_MATRIX_Dump( Q, T, st_MX_diff, sp_MX_diff, stdout );
+      DP_MATRIX_Dump( Q, T, st_MX_naive, sp_MX_naive, stdout );
+      DP_MATRIX_Dump( Q, T, st_MX_quad, sp_MX_quad, stdout );
+      DP_MATRIX_Dump( Q, T, st_MX_lin, sp_MX_lin, stdout );
    }
    printf("=== BOUNDED FORWARD -> END ===\n\n");
 
@@ -800,38 +852,46 @@ void itest_pipeline( WORKER* worker )
    // DP_MATRIX_Fill( Q, T, st_MX3_lin, sp_MX_lin, -INF );
 
    /* bounded backward */
-   printf("=== BOUNDED BACKWARD -> START ===\n");
+   printf("=== BOUND BACKWARD -> START ===\n");
    /* bounded backward (naive) */
+   printf("==> bound backward (naive)\n");
    run_Bound_Backward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
-   printf("Bounded Backward Score (naive):\t%f\n", sc);
+   printf("Bound Backward Score (naive):\t%f\n", sc);
    scores->naive_cloud_bck = sc;
+   // MATRIX_3D_Copy( st_MX_naive, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_bck.naive.mx");
    /* bounded backward (quadratic) */
+   printf("==> bound backward (quad)\n");
    run_Bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
-   printf("Bounded Backward Score  (quad):\t%f\n", sc);
+   printf("Bound Backward Score  (quad):\t%f\n", sc);
    scores->quad_cloud_fwd = sc;
+   // MATRIX_3D_Copy( st_MX_quad, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_bck.quad.mx");
    /* bounded backward (linear) */
+   printf("==> bound backward (lin)\n");
    run_Bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
-   printf("Bounded Backward Score   (lin):\t%f\n", sc);
+   printf("Bound Backward Score   (lin):\t%f\n", sc);
    scores->lin_cloud_fwd = sc;
    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_bck.lin.mx");
    /* bounded backward (comparison) */
+   printf("==> bound backward comparison: naive vs. quad vs. lin\n");
    #if DEBUG
    {
       int sc_cmp = ( cmp_tol_cust( scores->naive_cloud_bck, scores->quad_cloud_bck, 1e-3 ) && 
                      cmp_tol_cust( scores->naive_cloud_bck, scores->lin_cloud_bck, 1e-3 ) );
-      printf("Bounded Backward:\tSCORES?\t\t%s\n", sc_cmp ? "PASS" : "FAIL" );
+      printf("Bound Backward:\tSCORES?\t\t%s\n", sc_cmp ? "PASS" : "FAIL" );
       int dp_cmp  = ( DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin ) == 0 );
-      printf("Bounded Backward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );
+      printf("Bound Backward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );
       if ( ( dp_cmp == false ) && ( debugger->verbose_level >= VERBOSE_ALL ) ) {
          DP_MATRIX_Diff( st_MX_lin, sp_MX_lin, st_MX_quad, sp_MX_quad, st_MX_diff, sp_MX_diff );
-         // DP_MATRIX_Dump( Q, T, st_MX_diff, sp_MX_diff, stdout );
+         DP_MATRIX_Dump( Q, T, st_MX_naive, sp_MX_naive, stdout );
+         DP_MATRIX_Dump( Q, T, st_MX_quad, sp_MX_quad, stdout );
+         DP_MATRIX_Dump( Q, T, st_MX_lin, sp_MX_lin, stdout );
       }
    }
    #endif
-   printf("=== BOUNDED BACKWARD -> END ===\n\n");
+   printf("=== BOUND BACKWARD -> END ===\n\n");
 
    // /* sample stats */
    // printf("Writing results to: '%s'\n", output_file);

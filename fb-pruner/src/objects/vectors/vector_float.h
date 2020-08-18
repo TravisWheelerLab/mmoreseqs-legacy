@@ -221,4 +221,10 @@ void VECTOR_FLT_Reverse(   VECTOR_FLT*    vec );
 void VECTOR_FLT_Dump(   VECTOR_FLT*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_FLT_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_FLT.
+ */
+void VECTOR_FLT_Unit_Test();
+
 #endif 

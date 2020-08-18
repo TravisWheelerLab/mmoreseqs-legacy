@@ -56,20 +56,20 @@ void ARGS_Destroy(ARGS* args)
    if (args == NULL) return;
    
    /* free all strings */
-   free( args->t_filepath );
-   free( args->q_filepath );
+   ERRORCHECK_free( args->t_filepath );
+   ERRORCHECK_free( args->q_filepath );
 
-   free( args->t_indexpath );
-   free( args->q_indexpath );
+   ERRORCHECK_free( args->t_indexpath );
+   ERRORCHECK_free( args->q_indexpath );
 
-   free( args->output_filepath );
+   ERRORCHECK_free( args->output_filepath );
 
-   free( args->mmseqs_res_filepath );
-   free( args->mmseqs_tmp_filepath );
+   ERRORCHECK_free( args->mmseqs_res_filepath );
+   ERRORCHECK_free( args->mmseqs_tmp_filepath );
 
-   free( args->t_lookup_filepath );
-   free( args->q_lookup_filepath );
+   ERRORCHECK_free( args->t_lookup_filepath );
+   ERRORCHECK_free( args->q_lookup_filepath );
 
-   free( args );
+   ERRORCHECK_free( args );
    args = NULL;
 }

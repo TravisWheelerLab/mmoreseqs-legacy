@@ -3,7 +3,6 @@
  *  PURPOSE:   EDGEBOUNDS Object
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _EDGEBOUND_H
@@ -13,7 +12,7 @@
  *  FUNCTION:  EDGEBOUNDS_Create()
  *  SYNOPSIS:  Create new EDGEBOUNDS object and returns pointer.
  */
-EDGEBOUNDS* EDGEBOUNDS_Create( void );
+EDGEBOUNDS* EDGEBOUNDS_Create();
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Create()
@@ -48,6 +47,19 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*         edg_dest,
  */
 BOUND* EDGEBOUNDS_Get( EDGEBOUNDS*   edg,
                        int           i );
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Get_Length()
+ *  SYNOPSIS: Get length of <edg>.
+ */
+int EDGEBOUNDS_Get_Size(  EDGEBOUNDS*   edg );
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Set_Size()
+ *  SYNOPSIS: Set length of <edg> to <size>.
+ */
+int EDGEBOUNDS_Set_Size(   EDGEBOUNDS*    edg,
+                           int            size );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Search()
@@ -130,11 +142,36 @@ void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Sort_Sub()
- *  SYNOPSIS:  Sort the edgebounds on range (beg, end]. Sorts in place.
+ *  SYNOPSIS:  Sort the edgebounds subarray on range (beg, end]. Sorts in place.
  */
 void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
                            int            beg,
                            int            end );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub_Selectsort()
+ *  SYNOPSIS:  Selection Sorts subarray of <vec> data in ascending order on range (beg,end].  
+ */
+void EDGEBOUNDS_Sort_Sub_Selectsort(   EDGEBOUNDS*    edg,
+                                       int            beg,
+                                       int            end );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub_Quicksort()
+ *  SYNOPSIS:  Quick Sorts subarray of <vec> data in ascending order on range (beg,end].  
+ */
+void EDGEBOUNDS_Sort_Sub_Quicksort( EDGEBOUNDS*    edg,
+                                    int            beg,
+                                    int            end );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Swap()
+ *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
+ *             Warning: Only checks for Out-of-Bounds when in DEBUG.
+ */
+void EDGEBOUNDS_Swap(   EDGEBOUNDS*    edg,
+                        int            i,
+                        int            j );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Merge()
@@ -142,6 +179,15 @@ void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
  *             Assumes that <edg> is sorted.
  */
 void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg );
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Merge_Sub()
+ *  SYNOPSIS:  Merge <edg>'s subarray of bound list by combining overlapping ranges. In-place.
+ *             Assumes that <edg> is sorted.
+ */
+void EDGEBOUNDS_Merge_Sub( EDGEBOUNDS*    edg,
+                           int            beg,
+                           int            end );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Count_Cells()
@@ -156,6 +202,15 @@ int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg );
  */
 void EDGEBOUNDS_Dump(EDGEBOUNDS* edg,
                      FILE*       fp);
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Print()
+ *  SYNOPSIS: Print EDGEBOUND object to file.
+ */
+void EDGEBOUNDS_Sub_Dump(  EDGEBOUNDS*    edg,
+                           FILE*          fp,
+                           int            beg, 
+                           int            end );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Dump()

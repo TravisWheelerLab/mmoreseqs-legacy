@@ -221,4 +221,10 @@ void VECTOR_DBL_Reverse(   VECTOR_DBL*    vec );
 void VECTOR_DBL_Dump(   VECTOR_DBL*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_DBL_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_DBL.
+ */
+void VECTOR_DBL_Unit_Test();
+
 #endif 

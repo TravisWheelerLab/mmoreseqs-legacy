@@ -46,10 +46,10 @@ SCORE_MATRIX* SCORE_MATRIX_Create()
 /* Destructor */
 void SCORE_MATRIX_Destroy(SCORE_MATRIX* submat)
 {
-   free(submat->filename);
-   free(submat->alph);
-   free(submat->scores);
-   free(submat);
+   ERRORCHECK_free(submat->filename);
+   ERRORCHECK_free(submat->alph);
+   ERRORCHECK_free(submat->scores);
+   ERRORCHECK_free(submat);
 }
 
 /* Parse .submat file and build SCORE_MATRIX object */
@@ -143,8 +143,8 @@ SCORE_MATRIX* SCORE_MATRIX_Load(char* _filename_)
    }
    fclose(fp);
 
-   free(header);
-   free(line_buf);
+   ERRORCHECK_free(header);
+   ERRORCHECK_free(line_buf);
 
    return submat;
 }

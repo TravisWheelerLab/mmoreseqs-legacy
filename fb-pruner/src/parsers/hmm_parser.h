@@ -16,6 +16,9 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                         char*          _filename_,
                         long           offset );
 
+/* computes the expected value for the match state of current node */
+float HMM_NODE_Expected_Value(   HMM_NODE*      node );
+
 /* .hmm stores numbers in log space, but we need reals */
 void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof );
 

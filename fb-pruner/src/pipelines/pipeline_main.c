@@ -142,6 +142,7 @@ void main_pipeline( WORKER* worker )
 		/* load in next target */
 		WORK_load_target_by_id( worker, i );
 		result->target_id = i;
+		HMM_PROFILE_Dump( worker->t_prof, stdout );
 
 		/* loop over query range */
 		for (int j = j_beg; j < j_end; j++) 

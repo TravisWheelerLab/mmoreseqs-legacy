@@ -1,24 +1,14 @@
 /*******************************************************************************
- *  @file sequence.c
- *  @brief SEQUENCE Object
+ *  FILE:      sequence.h
+ *  PURPOSE:   SEQUENCE object
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       
  *******************************************************************************/
+
 
 #ifndef _SEQUENCE_H
 #define _SEQUENCE_H
-
-/* === OBJECTS === */
-// typedef struct {
-//    int    N;
-//    char*  filename;
-//    char*  name;
-//    char*  alph;
-//    char*  seq;
-// } SEQUENCE;
-
-/* === FUNCTIONS === */
 
 /* Constructor */
 SEQUENCE* SEQUENCE_Create();

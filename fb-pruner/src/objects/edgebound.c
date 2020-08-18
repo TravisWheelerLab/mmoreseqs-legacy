@@ -26,7 +26,7 @@
  *  FUNCTION:  EDGEBOUNDS_Create()
  *  SYNOPSIS:  Create new EDGEBOUNDS object and returns pointer.
  */
-EDGEBOUNDS* EDGEBOUNDS_Create( void )
+EDGEBOUNDS* EDGEBOUNDS_Create()
 {
    EDGEBOUNDS* edg      = NULL;
    const int   min_size = 8;
@@ -80,10 +80,10 @@ void* EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
    VECTOR_INT_Destroy( edg->ids );
    VECTOR_INT_Destroy( edg->ids_idx );
 
-   free( edg->bounds );
+   ERRORCHECK_free( edg->bounds );
    edg->bounds = NULL;
 
-   free( edg );
+   ERRORCHECK_free( edg );
    edg = NULL;
 
    return edg;
@@ -143,7 +143,7 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
 }
 
 /*
- *  FUNCTION: EDGEBOUNDS_Get_X()
+ *  FUNCTION: EDGEBOUNDS_Get()
  *  SYNOPSIS: Return pointer to BOUND at index <i>.
  */
 inline
@@ -152,7 +152,8 @@ BOUND* EDGEBOUNDS_Get(  EDGEBOUNDS*   edg,
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
-      if ( i >= edg->N || i < 0 ) {
+      int N = EDGEBOUNDS_Get_Size( edg );
+      if ( i >= N || i < 0 ) {
          fprintf(stderr, "ERROR: EDGEBOUNDS Access Out-of-Bounds\n");
          fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
          exit(EXIT_FAILURE);
@@ -161,6 +162,28 @@ BOUND* EDGEBOUNDS_Get(  EDGEBOUNDS*   edg,
 
    return &(edg->bounds[i]);
 }
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Get_Size()
+ *  SYNOPSIS: Get length of <edg>.
+ */
+inline
+int EDGEBOUNDS_Get_Size(  EDGEBOUNDS*   edg )
+{
+   return edg->N;
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Set_Size()
+ *  SYNOPSIS: Set length of <edg> to <size>.
+ */
+inline
+int EDGEBOUNDS_Set_Size(   EDGEBOUNDS*    edg,
+                           int            size )
+{
+   edg->N = size;
+}
+
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Search()
@@ -172,7 +195,7 @@ int EDGEBOUNDS_Search(  EDGEBOUNDS*    edg,     /* edgebounds  */
                         int            q_0,     /* row/diag index, position in query */
                         int            t_0 )    /* column index, position in target */
 {
-   int      N     = edg->N;
+   int      N     = EDGEBOUNDS_Get_Size( edg );
    int      idx   = N/2;
    int      cmp   = 0;
    BOUND*   bnd;
@@ -333,17 +356,32 @@ void EDGEBOUNDS_Index(EDGEBOUNDS *edg)
    VECTOR_INT_Pushback( edg->ids_idx, edg->N );
 }
 
-
 /*
  *  FUNCTION:  EDGEBOUNDS_Sort()
  *  SYNOPSIS:  Sort <edg> bound list ascending: by id, lb, rb. Sorts in place.
  */
 void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg )
 {
-   EDGEBOUNDS_Sort_Sub( edg, 0, edg->N );
+   int N = EDGEBOUNDS_Get_Size(edg);
+   EDGEBOUNDS_Sort_Sub( edg, 0, N );
+
+   #if DEBUG 
+   {
+      for ( int i = 0; i < N-1; i++ ) 
+      {
+         BOUND* cur = &edg->bounds[i];
+         BOUND* nxt = &edg->bounds[i+1];
+         int cmp = BOUND_Compare( *cur, *nxt );
+         if ( (cmp <= 0) == false ) {
+            printf("ERROR: bad sort. %d, %d v %d: { %d %d %d } vs { %d %d %d }\n",
+               cmp, i, i+1, cur->id, cur->lb, cur->rb, nxt->id, nxt->lb, nxt->rb );
+         }
+      }
+   }
+   #endif
 }
 
-/*
+/* 
  *  FUNCTION:  EDGEBOUNDS_Sort_Sub()
  *  SYNOPSIS:  Subcall to sort the edgebounds on range (beg, end]. Sorts in place.
  */
@@ -351,44 +389,173 @@ void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
                            int            beg,
                            int            end )
 {
-   /* TODO */
+   const int begin_select_sort = 4;
+   int N = EDGEBOUNDS_Get_Size(edg);
+   if (N <= 1) return;
+
+   int size = end - beg;
+   /* run selection sort if below threshold */
+   if ( size <= begin_select_sort ) {
+      EDGEBOUNDS_Sort_Sub_Selectsort( edg, beg, end );
+   } 
+   /* otherwise run quiksort */
+   else {
+      EDGEBOUNDS_Sort_Sub_Quicksort( edg, beg, end );
+   }
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub_Selectsort()
+ *  SYNOPSIS:  Selection Sorts subarray of <edg> data in ascending order on range (beg,end].  
+ */
+void EDGEBOUNDS_Sort_Sub_Selectsort(   EDGEBOUNDS*    edg,
+                                       int            beg,
+                                       int            end )
+{
+   for ( int i = beg; i < end; i++ ) 
+   {
+      /* initial minimum value found */
+      int   min_idx = i;
+      BOUND min_val = edg->bounds[i];
+      for ( int j = i+1; j < end; j++ ) {
+         /* if new minimum found, update value and index */
+         int cmp = BOUND_Compare( min_val, edg->bounds[j] );
+         if ( cmp > 0 ) {
+            min_idx = j;
+            min_val = edg->bounds[j];
+         }
+      }
+      /* swap new minimum to left-most position */
+      EDGEBOUNDS_Swap( edg, i, min_idx );
+   }
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Sort_Sub_Quicksort()
+ *  SYNOPSIS:  Quick Sorts subarray of <edg> data in ascending order on range (beg,end].  
+ */
+void EDGEBOUNDS_Sort_Sub_Quicksort( EDGEBOUNDS*    edg,
+                                    int            beg,
+                                    int            end )
+{
+   /* partition pointers */
+   int   r_idx    = end - 1;
+   int   l_idx    = beg + 1;
+   BOUND*  rhs    = &(edg->bounds[beg + 1]);
+   BOUND*  lhs    = &(edg->bounds[end - 1]);
+
+   /* select random pivot value */
+   int      range       = end - beg;
+   int      pivot_idx   = RNG_INT_Range( beg, end );
+   BOUND    pivot_val   = edg->bounds[pivot_idx];
+   EDGEBOUNDS_Swap( edg, pivot_idx, beg );
+
+   /* partition on pivot */
+   while ( l_idx <= r_idx )
+   {
+      /* find next right partition element that is less than pivot element */
+      while ( (l_idx <= r_idx) && (BOUND_Compare( pivot_val, edg->bounds[r_idx] ) < 0) ) {
+         r_idx--;
+      }
+      /* find next left partition element that is greater than pivot element */
+      while ( (l_idx <= r_idx) && (BOUND_Compare( pivot_val, edg->bounds[l_idx] ) >= 0) ) {
+         l_idx++;
+      }
+      /* if left and right index have not crossed, then swap elements */
+      if ( l_idx <= r_idx ) {
+         EDGEBOUNDS_Swap( edg, l_idx, r_idx );
+      }
+   }
+   /* move partition element to barrier between left and right index */
+   EDGEBOUNDS_Swap( edg, beg, r_idx );
+   /* sort both partitions (omit partition element) */
+   EDGEBOUNDS_Sort_Sub( edg, beg, r_idx );
+   EDGEBOUNDS_Sort_Sub( edg, r_idx+1, end );
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Swap()
+ *  SYNOPSIS:  Swaps the values of <edg> at indexes <i> and <j>.
+ *             Warning: Only checks for Out-of-Bounds when in DEBUG.
+ */
+inline
+void EDGEBOUNDS_Swap(   EDGEBOUNDS*    edg,
+                        int            i,
+                        int            j )
+{
+   BOUND swap = edg->bounds[i];
+   edg->bounds[i] = edg->bounds[j];
+   edg->bounds[j] = swap;
 }
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Merge()
- *  SYNOPSIS:  Merge <edg> bound list by combining overlapping ranges.
+ *  SYNOPSIS:  Merge <edg>'s bound list by combining overlapping ranges. In-place.
  *             Assumes that <edg> is sorted.
-
  */
-void EDGEBOUNDS_Merge( EDGEBOUNDS*   edg )
+void EDGEBOUNDS_Merge( EDGEBOUNDS*    edg )
 {
-   /* if one or less edgebounds, its already sorted */
-   if ( edg->N <= 1 ) return;
+   /* if one or less edgebounds, its already merged */
+   int N = EDGEBOUNDS_Get_Size(edg);
+   if ( N <= 1 ) return;
 
+   EDGEBOUNDS_Merge_Sub( edg, 0, N );
+}
+
+/*
+ *  FUNCTION:  EDGEBOUNDS_Merge_Sub()
+ *  SYNOPSIS:  Merge <edg>'s subarray of bound list by combining overlapping ranges. In-place.
+ *             Assumes that <edg> is sorted.
+ */
+void EDGEBOUNDS_Merge_Sub( EDGEBOUNDS*    edg,
+                           int            beg,
+                           int            end )
+{
    BOUND*      b_0;           /* current bound */
    BOUND*      b_1;           /* previous bound */
+   BOUND*      b_x;           /* new bound to fill */
    int         num_merges;    /* number of holes caused by  */
+   int         num_fills;     /* number of bounds filled in by merge */
 
-   b_0 = &(edg->bounds[1]);
-   b_1 = &(edg->bounds[0]);
+   /* initialize number of merges and fills */
+   num_merges  = 0;
+   num_fills   = 0;
 
    /* iterate through all adjacent pairs of bounds. bc they are sorted, they can only merge with neighbors */
-   for (int i = 1; i < edg->N; i++, b_0++, b_1++)
+   for ( int i = beg+1; i < end; i++ )
    {
-      /* if on same row/diag and overlap, then merge */
-      if ( b_1->id != b_0->id && b_1->rb >= b_0->lb ) {
+      /* get next two adjacent bounds */
+      b_0  = EDGEBOUNDS_Get( edg, i );
+      b_1  = EDGEBOUNDS_Get( edg, i-1 );
+      /* if adjacent bounds are on same row/diag and ranges overlap, then merge */
+      if ( b_1->id == b_0->id && b_1->rb >= b_0->lb ) 
+      {
+         /* update current bounds by adding previous bounds to it */
          b_0->lb = b_1->lb;
          num_merges++;
       } 
       /* if not, then move previous bound to proper position */
       else 
       {
-         /* to fill holes created by merging, move bound left by that amount */
-         edg->bounds[ (i-1) - num_merges ] = *b_1;
+         /* to fill holes created by merging, move bound by that amount */
+         b_x   = EDGEBOUNDS_Get( edg, num_fills );
+         /* add previous edgebound last unmerged to next open place in list */
+         *b_x  = *b_1;
+         /* number of fills determines resulting edgebound size */
+         num_fills++;
       }
    }
+   /* add final edgebound to list */
+   b_0   = EDGEBOUNDS_Get( edg, end-1 );
+   /* to fill holes created by merging, move bound by that amount */
+   b_x   = EDGEBOUNDS_Get( edg, num_fills );
+   /* add previous edgebound last unmerged to next open place in list */
+   *b_x  = *b_0;
+   /* number of fills determines resulting edgebound size */
+   num_fills++;
+
    /* every merge step removes one bound from list */
-   edg->N -= num_merges;
+   EDGEBOUNDS_Set_Size( edg, num_fills );
 }
 
 /*
@@ -431,13 +598,41 @@ void EDGEBOUNDS_Dump( EDGEBOUNDS*   edg,
    fprintf(fp, "# N: %d, Nalloc: %d\n", edg->N, edg->Nalloc);
    fprintf(fp, "# ORIENTATION: %s\n", edg_mode_text[edg->edg_mode] );
    fprintf(fp, "# Q=%d, T=%d\n", edg->Q, edg->T );
-   for (unsigned int i = 0; i < edg->N; ++i)
+
+   int N = EDGEBOUNDS_Get_Size( edg );
+   for (int i = 0; i < edg->N; ++i)
    {
       BOUND bnd = edg->bounds[i];
       fprintf(fp, "[%d] ", i);
       fprintf(fp, "{ id: %d, lb: %d, rb: %d }\n", bnd.id, bnd.lb, bnd.rb);
    }
    fprintf(fp, "\n");
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Print()
+ *  SYNOPSIS: Print EDGEBOUND object to file.
+ */
+void EDGEBOUNDS_Sub_Dump(  EDGEBOUNDS*    edg,
+                           FILE*          fp,
+                           int            beg, 
+                           int            end )
+{
+   /* test for bad file pointer */
+   if (fp == NULL) {
+      const char* obj_name = "EDGEBOUNDS";
+      fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
+      exit(EXIT_FAILURE);
+      return;
+   }
+
+   for (unsigned int i = beg; i < end; ++i)
+   {
+      BOUND bnd = edg->bounds[i];
+      fprintf(fp, "[%d] ", i);
+      fprintf(fp, "{ id: %d, lb: %d, rb: %d }\n", bnd.id, bnd.lb, bnd.rb);
+   }
+   printf("\n");
 }
 
 /*

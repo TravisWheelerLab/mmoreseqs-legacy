@@ -929,8 +929,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    int              d;
    int              status;
 
-
    printf("=== P7_PIPELINE_TEST ===\n");
+
+   profile_Dump( sq->dsq, sq->n, gm, om, stdout );
 
    if (sq->n == 0) return eslOK;    /* silently skip length 0 seqs; they'd cause us all sorts of weird problems */
 
@@ -1204,7 +1205,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
        * [xref J5/92]
        */
       if (pli->use_bit_cutoffs)
-      {DAV
+      {
          if (p7_pli_TargetReportable(pli, hit->score, hit->lnP))
          {
             hit->flags |= p7_IS_REPORTED;

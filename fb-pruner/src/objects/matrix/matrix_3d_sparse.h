@@ -67,6 +67,21 @@ int MATRIX_3D_SPARSE_Shape_Like_Edgebounds(  MATRIX_3D_SPARSE*    smx,
 EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(  	EDGEBOUNDS*    edg_inner,
                                                    EDGEBOUNDS*    edg_outer );
 
+/*
+ *  FUNCTION:     EDGEBOUNDS_Create_Padded_Edgebounds_Naive()
+ *  SYNOPSIS:     Create new EDGEBOUNDS <edg_outer> from given EDGEBOUNDS <edg_inner>.
+ *                <edg_outer> contains all cells contained in <edg_inner> and pads with every cell adjacent to <edg_outer>, 
+ *                If <edg_outer> already created, reuses data struct.
+ *                Requires <edg_inner> is sorted.
+ *
+ *  ARGS:         <edg_inner>       EDGEBOUNDS of the active cells
+ *                <edg_outer>       EDGEBOUNDS of the total cells
+ *
+ *  RETURN:       Returns <edg_outer>.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inner,
+                                                         EDGEBOUNDS*    edg_outer );
+
 
 /* 
  *  FUNCTION:  MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds()

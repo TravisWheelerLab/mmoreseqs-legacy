@@ -251,24 +251,24 @@ typedef struct p7_profile_s {
   float   xsc[p7P_NXSTATES][p7P_NXTRANS]; /* special transitions [NECJ][LOOP,MOVE] */
 
   int     mode;        	/* configured algorithm mode (e.g. p7_LOCAL)               */ 
-  int     L;		/* current configured target seq length                    */
-  int     allocM;	/* max # of nodes allocated in this structure              */
-  int     M;		/* number of nodes in the model                            */
-  int     max_length;	/* calculated upper bound on emitted seq length            */
-  float   nj;		/* expected # of uses of J; precalculated from loop config */
+  int     L;		        /* current configured target seq length                    */
+  int     allocM;	      /* max # of nodes allocated in this structure              */
+  int     M;		        /* number of nodes in the model                            */
+  int     max_length;	  /* calculated upper bound on emitted seq length            */
+  float   nj;		        /* expected # of uses of J; precalculated from loop config */
 
   /* Info, most of which is a copy from parent HMM:                                       */
-  char  *name;			/* unique name of model                                   */
-  char  *acc;			/* unique accession of model, or NULL                     */
-  char  *desc;                  /* brief (1-line) description of model, or NULL           */
-  char  *rf;                    /* reference line from alignment 1..M; *rf=0 means unused */
-  char  *mm;                    /* modelmask line           1..M; *ref=0: unused     */
-  char  *cs;                    /* consensus structure line      1..M, *cs=0 means unused */
-  char  *consensus;		/* consensus residues to display in alignments, 1..M      */
+  char  *name;			   /* unique name of model                                   */
+  char  *acc;			     /* unique accession of model, or NULL                     */
+  char  *desc;         /* brief (1-line) description of model, or NULL           */
+  char  *rf;           /* reference line from alignment 1..M; *rf=0 means unused */
+  char  *mm;           /* modelmask line                1..M; *ref=0: unused     */
+  char  *cs;           /* consensus structure line      1..M, *cs=0 means unused */
+  char  *consensus;		 /* consensus residues to display in alignments, 1..M      */
    
   float  evparam[p7_NEVPARAM]; 	/* parameters for determining E-values, or UNSET          */
   float  cutoff[p7_NCUTOFFS]; 	/* per-seq/per-domain bit score cutoffs, or UNSET         */
-  float  compo[p7_MAXABET];	/* per-model HMM filter composition, or UNSET             */
+  float  compo[p7_MAXABET];	    /* per-model HMM filter composition, or UNSET             */
 
   /* Disk offset information for hmmpfam's fast model retrieval                           */
   off_t  offs[p7_NOFFSETS];     /* p7_{MFP}OFFSET, or -1                                  */
@@ -472,7 +472,7 @@ typedef struct p7_gmx_s {
   int  M;		/* actual model dimension (model 1..M)    */
   int  L;		/* actual sequence dimension (seq 1..L)   */
   
-  int      allocR;      /* current allocated # of rows : L+1 <= validR <= allocR                */
+  int      allocR;  /* current allocated # of rows : L+1 <= validR <= allocR                */
   int      validR;	/* # of rows actually pointing at DP memory                             */
   int      allocW;	/* current set row width :  M+1 <= allocW                               */
   uint64_t ncells;	/* total # of allocated cells in 2D matrix : ncells >= (validR)(allocW) */

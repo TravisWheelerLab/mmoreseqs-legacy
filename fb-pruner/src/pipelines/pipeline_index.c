@@ -57,6 +57,7 @@ void index_pipeline( WORKER* worker )
    /* sort file indexes */
    F_INDEX_Sort_by_Id( worker->t_index );
    F_INDEX_Sort_by_Id( worker->q_index );
+
    /* print index out to their outfiles */
    WORK_output_target_index( worker );
    WORK_output_query_index( worker );
@@ -64,6 +65,7 @@ void index_pipeline( WORKER* worker )
    WORK_cleanup( worker );
 }
 
+/* set default arguments for index_pipeline */
 void index_set_args( WORKER* worker )
 {
 

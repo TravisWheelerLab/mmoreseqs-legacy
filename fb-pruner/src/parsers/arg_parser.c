@@ -91,10 +91,10 @@ void   ARGS_Parse( ARGS*   args,
    if ( num_main_args == 2 )
    {
       /* second arg is query */
-      free( args->t_filepath );
+      ERRORCHECK_free( args->t_filepath );
       args->t_filepath = strdup(argv[2]);
       /* third arg is target */
-      free( args->q_filepath );
+      ERRORCHECK_free( args->q_filepath );
       args->q_filepath = strdup(argv[3]);
    }
    else if ( num_main_args == 1 )
@@ -156,7 +156,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               args->cloud_threshold = atof(argv[i]);
+               args->threshold_bounded = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -166,7 +166,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               free(args->mmseqs_tmp_filepath);
+               ERRORCHECK_free(args->mmseqs_tmp_filepath);
                args->mmseqs_tmp_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
@@ -177,7 +177,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               free(args->mmseqs_res_filepath);
+               ERRORCHECK_free(args->mmseqs_res_filepath);
                args->mmseqs_res_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -188,7 +188,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               free(args->mmseqs_plus_filepath);
+               ERRORCHECK_free(args->mmseqs_plus_filepath);
                args->mmseqs_res_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -211,10 +211,10 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               free(args->t_lookup_filepath);
+               ERRORCHECK_free(args->t_lookup_filepath);
                args->t_lookup_filepath = strdup(argv[i]);
                i++;
-               free(args->q_lookup_filepath);
+               ERRORCHECK_free(args->q_lookup_filepath);
                args->q_lookup_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -225,10 +225,10 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               free(args->t_indexpath);
+               ERRORCHECK_free(args->t_indexpath);
                args->t_indexpath = strdup(argv[i]);
                i++;
-               free(args->q_indexpath);
+               ERRORCHECK_free(args->q_indexpath);
                args->q_indexpath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
@@ -283,7 +283,7 @@ void  ARGS_Set_Defaults( ARGS* args )
 
    args->tmp_folderpath          = NULL;
    args->tmp_remove              = false;
-   // args->dbg_folderpath          = strdup("debug_output/");
+   args->dbg_folderpath          = strdup("test-output/");
 
    args->alpha                   = 12.0f;
    args->beta                    = 20.0f;
@@ -293,9 +293,10 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->verbose_level           = VERBOSE_LOW;
    args->search_mode             = MODE_UNILOCAL;
 
-   args->viterbi_threshold       = 0.0f;
-   args->fwdbck_threshold        = 0.0f;
-   args->cloud_threshold         = 0.0f;
+   args->filter_on               = false;
+   args->threshold_viterbi       = 1e-3f;
+   args->threshold_forward       = 1e-5f;
+   args->threshold_bounded       = 1e-5f;
 
    /* these will default to entire file unless filled with positive ints */
    args->t_range                 = (RANGE) { -1, -1 };    

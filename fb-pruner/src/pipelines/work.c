@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      work.c
- *  PURPOSE:   Pipelines Workflow Subroutines
+ *  PURPOSE:   Pipelines Workflow Subroutines.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -75,6 +75,7 @@ void WORK_init( WORKER* worker )
    worker->result       = (RESULT*) malloc( sizeof(RESULT) );
    /* data structs for viterbi alignment search */
    worker->traceback    = ALIGNMENT_Create();
+   worker->trace_post   = ALIGNMENT_Create();
    /* data structs for cloud edgebounds */
    worker->edg_fwd      = EDGEBOUNDS_Create();
    worker->edg_bck      = EDGEBOUNDS_Create();
@@ -82,14 +83,19 @@ void WORK_init( WORKER* worker )
    worker->edg_row      = EDGEBOUNDS_Create();
    /* row-wise edgebounds */
    worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
+   for ( int i=0; i<3; i++ ) {
+      worker->lb_vec[i] = VECTOR_INT_Create();
+      worker->rb_vec[i] = VECTOR_INT_Create();
+   }
    /* cloud search parameters */
    worker->cloud_params.alpha    = worker->args->alpha;
    worker->cloud_params.beta     = worker->args->beta;
    worker->cloud_params.gamma    = worker->args->gamma;
 
    /* create necessary dp matrices */
-   worker->st_MX = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX  = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3 = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_SMX = MATRIX_3D_SPARSE_Create();
    worker->sp_MX  = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
 
    #if DEBUG
@@ -119,7 +125,7 @@ void WORK_cleanup( WORKER* worker )
    /* results in from mmseqs and out for general searches */
    worker->results_in   = RESULTS_Destroy( worker->results_in );
    worker->results      = RESULTS_Destroy( worker->results );
-   free( worker->result );
+   ERRORCHECK_free( worker->result );
    worker->result = NULL;
    /* data structs for viterbi alignment */
    worker->traceback    = ALIGNMENT_Destroy( worker->traceback );
@@ -261,7 +267,7 @@ void WORK_load_target_index( WORKER* worker )
       F_INDEX_Dump( worker->t_index, fp );
       fclose(fp);
    }
-   free(t_indexpath_tmp);
+   ERRORCHECK_free(t_indexpath_tmp);
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
    if ( tasks->mmseqs_lookup && worker->t_index->mmseqs_names ) {
@@ -345,7 +351,7 @@ void WORK_load_query_index( WORKER* worker )
       F_INDEX_Dump( worker->q_index, fp );
       fclose(fp);
    }
-   free(q_indexpath_tmp);
+   ERRORCHECK_free(q_indexpath_tmp);
 
    /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
    if ( tasks->mmseqs_lookup && worker->q_index->mmseqs_names ) {
@@ -768,6 +774,8 @@ void WORK_cloud_search( WORKER* worker )
    EDGEBOUNDS*    edg_row  = worker->edg_row;
 
    EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
+   VECTOR_INT**      lb_vec         = worker->lb_vec;
+   VECTOR_INT**      rb_vec         = worker->rb_vec;
    CLOUD_PARAMS*     cloud_params   = &(worker->cloud_params);
 
    int status;
@@ -859,13 +867,15 @@ void WORK_cloud_search( WORKER* worker )
    if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) {
       /* cloud forward */
       CLOCK_Start(clok);
-      run_Cloud_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
+      run_Cloud_Forward_Quad( 
+         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_fwd, cloud_params );
       CLOCK_Stop(clok);
       times->quad_cloud_fwd = CLOCK_Secs(clok);
 
       /* cloud backward */
       CLOCK_Start(clok);
-      run_Cloud_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
+      run_Cloud_Backward_Quad( 
+         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_bck, cloud_params );
       CLOCK_Stop(clok);
       times->quad_cloud_bck = CLOCK_Secs(clok);
 

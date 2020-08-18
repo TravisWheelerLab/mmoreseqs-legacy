@@ -160,8 +160,8 @@ void HMM_PROFILE_Set_Composition( HMM_PROFILE* prof )
          prof->bg_model->compo[i] = 1 / (float) NUM_AMINO;
    }
 
-   free(mocc);
-   free(iocc);
+   ERRORCHECK_free(mocc);
+   ERRORCHECK_free(iocc);
 }
 
 /* TODO */

@@ -70,9 +70,9 @@ void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 {
    if (mx == NULL) return mx;
 
-   free(mx->data);
+   ERRORCHECK_free(mx->data);
    // mx->data = NULL;
-   free(mx);
+   ERRORCHECK_free(mx);
    mx = NULL;
    return mx;
 }

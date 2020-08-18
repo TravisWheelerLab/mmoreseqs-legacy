@@ -23,16 +23,20 @@
 #include "objects.h"
 
 /* header */
-#include "utilities.h"
+#include "statistics.h"
 
 #define SMALLX1 0.001
 
 /*
- *  FUNCTION:  	gumbel_pdf()
- *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(x). 
- * 				P( G(X) > x)
+ *  FUNCTION:  	GUMBEL_pdf()
+ *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(mu, lambda). 
+ * 				<mu> and <lambda> are parameters of the Gumbel distribution.
+ * 				y = lambda * (x - mu)
+ * 				Pr( G(mu,lambda) > x ) = lamda * exp(-(y) - exp(-(y))).
  */
-double gumbel_pdf(double x, double mu, double lambda)
+double GUMBEL_pdf(	double x, 
+							double mu, 
+							double lambda )
 {
   double y;
   y = lambda * (x - mu);
@@ -41,10 +45,12 @@ double gumbel_pdf(double x, double mu, double lambda)
 
 
 /*
- *  FUNCTION:  	gumbel_log_pdf()
+ *  FUNCTION:  	GUMBEL_log_pdf()
  *  SYNOPSIS:  	
  */
-double gumbel_log_pdf(double x, double mu, double lambda)
+double GUMBEL_log_pdf( 	double x, 
+								double mu, 
+								double lambda )
 {
   double y;
   y = lambda * (x - mu);
@@ -53,50 +59,60 @@ double gumbel_log_pdf(double x, double mu, double lambda)
 
 
 /*
- *  FUNCTION:  	gumbel_cdf()
+ *  FUNCTION:  	GUMBEL_cdf()
  *  SYNOPSIS:  	
  */
-double gumbel_cdf(double x, double mu, double lambda)
+double GUMBEL_cdf(	double x, 
+							double mu, 
+							double lambda )
 {
   double y;
-  y = lambda*(x-mu);
-  return exp(-exp(-y));
+  y = lambda * (x - mu);
+  return (exp(-exp(-y)));
 }
 
 
 /*
- *  FUNCTION:  	gumbel_log_cdf()
+ *  FUNCTION:  	GUMBEL_log_cdf()
  *  SYNOPSIS:  	
  */
-double gumbel_log_cdf(double x, double mu, double lambda)
+double GUMBEL_log_cdf( 	double x, 
+								double mu, 
+								double lambda )
 {
   double y;
-  y = lambda*(x-mu);
+  y = lambda * (x - mu);
   return (-exp(-y));
 }
 
 /*
- *  FUNCTION:  	gumbel_surv()
+ *  FUNCTION:  	GUMBEL_survivor()
  *  SYNOPSIS:  	
  */
-double gumbel_surv(double x, double mu, double lambda)
+double GUMBEL_survivor( 	double x, 
+									double mu, 
+									double lambda )
 {
 	double y  = lambda*(x-mu);
 	double ey = -exp(-y);
 
 	/* Use 1-e^x ~ -x approximation here when e^-y is small. */
-	if (fabs(ey) < SMALLX1) 
+	if (fabs(ey) < SMALLX1) {
 		return -ey;
-	else                       
-		return 1 - exp(ey);
+	}
+	else {
+		return (1 - exp(ey));
+	}
 }
 
 
 /*
- *  FUNCTION:  	gumbel_log_surv()
+ *  FUNCTION:  	GUMBEL_log_survivor()
  *  SYNOPSIS:  	
  */
-double gumbel_log_surv(double x, double mu, double lambda)
+double GUMBEL_log_survivor( 	double x, 
+										double mu, 
+										double lambda)
 {
 	double y  = lambda*(x-mu);
 	double ey = -exp(-y);
@@ -106,10 +122,13 @@ double gumbel_log_surv(double x, double mu, double lambda)
 	* and log of that gives us -y.
 	* For "small y", exp(-exp(-y) is small, and we can use log(1-x) ~ -x. 
 	*/
-	if      (fabs(ey)      < SMALLX1) 
+	if ( fabs(ey) < SMALLX1 ) {
 		return -y;
-	else if (fabs(exp(ey)) < SMALLX1) 
+	} 
+	else if ( fabs(exp(ey)) < SMALLX1 ) {
 		return -exp(ey);
-	else
-		return log(1-exp(ey));
+	} 
+	else {
+		return log(1 - exp(ey));
+	}
 }

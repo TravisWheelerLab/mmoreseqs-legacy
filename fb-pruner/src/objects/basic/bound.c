@@ -46,8 +46,8 @@ char* BOUND_To_String( 	const BOUND   d,
  *             neg if (a < b)
  */
 inline
-int BOUND_Compare(  const BOUND   a, 
-                  const BOUND   b )
+int BOUND_Compare(   const BOUND   a, 
+                     const BOUND   b )
 {
    if ( (a.id - b.id) != 0 ) {
       return (a.id - b.id);

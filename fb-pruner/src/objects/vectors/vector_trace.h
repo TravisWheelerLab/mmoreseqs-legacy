@@ -221,4 +221,10 @@ void VECTOR_TRACE_Reverse(   VECTOR_TRACE*    vec );
 void VECTOR_TRACE_Dump(   VECTOR_TRACE*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_TRACE_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_TRACE.
+ */
+void VECTOR_TRACE_Unit_Test();
+
 #endif 

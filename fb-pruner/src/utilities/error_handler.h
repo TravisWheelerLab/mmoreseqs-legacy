@@ -36,6 +36,9 @@ void* ERRORCHECK_realloc( void*          ptr,
                           const int      _line_,
                           const char*    _func_ );
 
+/* free pointer if not already freed, then set to NULL */
+void* ERRORCHECK_free(  void*    ptr );
+
 /* print a stacktrace in the event of an error */
 void ERRORCHECK_stacktrace();
 

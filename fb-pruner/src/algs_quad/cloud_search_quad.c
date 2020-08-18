@@ -55,6 +55,8 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
                               EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                              VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
+                              VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
                               CLOUD_PARAMS*        params )       /* pruning parameters */
 {
@@ -111,8 +113,6 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
-   VECTOR_INT*    lb_vec[3];                       /* left bound list for previous 3 antdiags */
-   VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
@@ -156,6 +156,12 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
 
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
+
+   /* reuse left and right-bound vectors */
+   for ( int i = 0; i < 3; i++ ) {
+      VECTOR_INT_Reuse( lb_vec[i] );
+      VECTOR_INT_Reuse( rb_vec[i] );
+   }
 
    /* clear all old data from data matrix if necessary */
    if ( st_MX->clean = false ) {
@@ -415,12 +421,6 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
       prv_B = -INF;
       // prv_E = -INF;
    }
-
-   /* free dynamic memory */
-   for (i = 0; i < 3; i++) {
-      VECTOR_INT_Destroy( lb_vec[i] );
-      VECTOR_INT_Destroy( rb_vec[i] );
-   }
    
    /* show visualization of search cloud */
    #if DEBUG
@@ -433,7 +433,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
 }
 
 /*  
- *  FUNCTION:  cloud_backward_Run()
+ *  FUNCTION:  run_Cloud_Backward_Run()
  *  SYNOPSIS:  Perform Backward part of Cloud Search Algorithm.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
@@ -446,6 +446,8 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
                                  MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                                  const ALIGNMENT*     tr,            /* viterbi traceback */ 
                                  EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                                 VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
+                                 VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                                  EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
                                  CLOUD_PARAMS*        params )       /* pruning parameters */
 {
@@ -502,8 +504,6 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
-   VECTOR_INT*    lb_vec[3];                       /* left bound list for previous 3 antdiags */
-   VECTOR_INT*    rb_vec[3];                       /* right bound list for previous 3 antidiags */
    VECTOR_INT*    lb_vec_tmp;                      /* left swap pointer */
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
@@ -548,6 +548,12 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
 
+   /* reuse left and right-bound vectors */
+   for ( int i = 0; i < 3; i++ ) {
+      VECTOR_INT_Reuse( lb_vec[i] );
+      VECTOR_INT_Reuse( rb_vec[i] );
+   }
+
    /* clear all old data from data matrix if necessary */
    if ( st_MX->clean = false ) {
       MATRIX_3D_Clean( st_MX );
@@ -582,12 +588,6 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
       edg->edg_mode  = EDG_ROW;
    }
    #endif
-
-   /* malloc dynamic memory */
-   for ( i = 0; i < 3; i++ ) {
-      lb_vec[i] = VECTOR_INT_Create();
-      rb_vec[i] = VECTOR_INT_Create();
-   }
 
    /* query sequence */
    seq = query->seq;
@@ -812,12 +812,6 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
 
    /* reverse order of diagonals */
    EDGEBOUNDS_Reverse(edg);
-
-   /* free dynamic memory */
-   for (i = 0; i < 3; i++) {
-      VECTOR_INT_Destroy( lb_vec[i] );
-      VECTOR_INT_Destroy( rb_vec[i] );
-   }
 
    /* show visualization of search cloud */
    #if DEBUG

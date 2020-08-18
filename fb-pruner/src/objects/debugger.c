@@ -33,5 +33,5 @@ DEBUG_KIT* DEBUGGER_Create()
 /* destructor */
 void DEBUGGER_Destroy( DEBUG_KIT* debugger )
 {
-   free(debugger);
+   ERRORCHECK_free(debugger);
 }

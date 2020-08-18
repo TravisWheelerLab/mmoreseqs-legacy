@@ -27,7 +27,7 @@ void TEST_set_color( char*    color,
  *  SYNOPSIS:  Set console text color by index number <color> and boolean <bold>.
  */
 void TEST_set_color_num(  int    color,
-                         bool     bold );
+                         bool    bold );
 
 /*
  *  FUNCTION:  TEST_fwd_cycle()
@@ -43,12 +43,12 @@ void TEST_fwd_cycle( const int   Q,
  *  FUNCTION:  TEST_fwd_cycle3()
  *  SYNOPSIS:  Cycle through all indices in linear matrix, antidiag-by-antidiag 
  */
-void TEST_fwd_cycle3(const int   Q, 
-                     const int   T, 
-                     MATRIX_3D*  st_MX, 
-                     MATRIX_3D*  st_MX3,
-                     MATRIX_2D*  sp_MX, 
-                     ALIGNMENT*  tr );
+void TEST_fwd_cycle3(   const int   Q, 
+                        const int   T, 
+                        MATRIX_3D*  st_MX, 
+                        MATRIX_3D*  st_MX3,
+                        MATRIX_2D*  sp_MX, 
+                        ALIGNMENT*  tr );
 
 /*
  *  FUNCTION:  TEST_bck_cycle()

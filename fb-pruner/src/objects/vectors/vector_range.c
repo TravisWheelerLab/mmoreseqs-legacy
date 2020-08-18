@@ -63,8 +63,8 @@ VECTOR_RANGE* VECTOR_RANGE_Create_by_Size( int    size )
 void* VECTOR_RANGE_Destroy( VECTOR_RANGE*   vec )
 {
    if ( vec == NULL ) return vec;
-   free(vec->data);
-   free(vec);
+   ERRORCHECK_free(vec->data);
+   ERRORCHECK_free(vec);
 
    vec = NULL;
    return vec;
@@ -401,8 +401,25 @@ int VECTOR_RANGE_Compare(    VECTOR_RANGE*   vec_A,
  */
 void VECTOR_RANGE_Sort( VECTOR_RANGE*    vec )
 {
-   int N = VECTOR_RANGE_Get_Size(vec);
+   int N = VECTOR_RANGE_Get_Size( vec );
    VECTOR_RANGE_Sort_Sub( vec, 0, N );
+
+   #if DEBUG 
+   {
+      for ( int i = 0; i < N-1; i++ ) 
+      {
+         RANGE cur = vec->data[i];
+         RANGE nxt = vec->data[i+1];
+         char s_cur[50];
+         char s_nxt[50];
+         int cmp = RANGE_Compare( cur, nxt );
+         if ( (cmp <= 0) == false ) {
+            fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
+               cmp, i, i+1, RANGE_To_String(cur, s_cur), RANGE_To_String(nxt, s_nxt) );
+         }
+      }
+   }
+   #endif
 }
 
 /*
@@ -414,13 +431,19 @@ void VECTOR_RANGE_Sort_Sub(  VECTOR_RANGE*    vec,
                            int            beg,
                            int            end )
 {
-   const int begin_select_sort = 16;
-   
+   const int begin_select_sort = 4;
+   int N = VECTOR_RANGE_Get_Size(vec);
+   if (N <= 1) return;
+
+   int size = end - beg;
    /* run selection sort if below threshold */
-   if ( end - beg > begin_select_sort ) {
+   if ( size <= begin_select_sort ) {
       VECTOR_RANGE_Sort_Sub_Selectsort( vec, beg, end );
+   } 
+   /* otherwise run quiksort */
+   else {
+      VECTOR_RANGE_Sort_Sub_Quicksort( vec, beg, end );
    }
-   VECTOR_RANGE_Sort_Sub_Quicksort( vec, beg, end );
 }
 
 /*
@@ -431,6 +454,7 @@ void VECTOR_RANGE_Sort_Sub_Selectsort(   VECTOR_RANGE*    vec,
                                        int            beg,
                                        int            end )
 {
+   /* find the minimum element of remaining unsorted list */
    for (int i = beg; i < end; i++) 
    {
       /* initial minimum value found */
@@ -439,7 +463,7 @@ void VECTOR_RANGE_Sort_Sub_Selectsort(   VECTOR_RANGE*    vec,
       for (int j = i+1; j < end; j++) {
          /* if new minimum found, update value and index */
          int cmp = RANGE_Compare( min_val, vec->data[j] );
-         if ( cmp < 0 ) {
+         if ( cmp > 0 ) {
             min_idx = j;
             min_val = vec->data[j];
          }
@@ -447,7 +471,6 @@ void VECTOR_RANGE_Sort_Sub_Selectsort(   VECTOR_RANGE*    vec,
       /* swap new minimum to left-most position */
       VECTOR_RANGE_Swap( vec, i, min_idx );
    }
-   return;
 }
 
 /*
@@ -473,19 +496,24 @@ void VECTOR_RANGE_Sort_Sub_Quicksort( VECTOR_RANGE*    vec,
    /* partition on pivot */
    while ( l_idx <= r_idx )
    {
+      /* find next right partition element that is less than pivot element */
       while ( (l_idx <= r_idx) && (RANGE_Compare( pivot_val, vec->data[r_idx] ) < 0) ) {
          r_idx--;
       }
+      /* find next left partition element that is greater than pivot element */
       while ( (l_idx <= r_idx) && (RANGE_Compare( pivot_val, vec->data[l_idx] ) >= 0) ) {
          l_idx++;
       }
+      /* if left and right index have not crossed, then swap elements */
       if ( l_idx <= r_idx ) {
          VECTOR_RANGE_Swap( vec, l_idx, r_idx );
-         r_idx--;
-         l_idx++;
       }
    }
+   /* move partition element to barrier between left and right index */
    VECTOR_RANGE_Swap( vec, beg, r_idx );
+   /* sort both partitions (omit partition element) */
+   VECTOR_RANGE_Sort_Sub( vec, beg, r_idx );
+   VECTOR_RANGE_Sort_Sub( vec, r_idx+1, end );
 }
 
 /*
@@ -519,13 +547,13 @@ void VECTOR_RANGE_Reverse(   VECTOR_RANGE*    vec )
 
 /*
  *  FUNCTION:  VECTOR_RANGE_Dump()
- *  SYNOPSIS:  Output <vec> to <fp> file pointer.
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
 void VECTOR_RANGE_Dump(   VECTOR_RANGE*    vec,
                         FILE*          fp )
 {
    /* stringification of template object */
-   char s[30];
+   char s[50];
 
    fprintf(fp, "%s: ", "VECTOR_RANGE");
    fprintf(fp, "[ ");
@@ -533,4 +561,16 @@ void VECTOR_RANGE_Dump(   VECTOR_RANGE*    vec,
       fprintf(fp, "%s, ", RANGE_To_String(vec->data[i], s) );
    }
    fprintf(fp, "]\n" );
+}
+
+
+/*
+ *  FUNCTION:  VECTOR_RANGE_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_RANGE.
+ */
+void VECTOR_RANGE_Unit_Test()
+{
+   VECTOR_RANGE* vec = VECTOR_RANGE_Create();
+
+   VECTOR_RANGE_Destroy( vec );
 }

@@ -511,7 +511,7 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       if (hmm->desc) { if (fprintf(ofp, "Description: %s\n", hmm->desc) < 0) ESL_EXCEPTION_SYS(eslEWRITE, "write failed"); }
 
       /* Convert to an optimized model */
-      gm = p7_profile_Create (hmm->M, abc);
+      gm = p7_profile_Create(hmm->M, abc);
       om = p7_oprofile_Create(hmm->M, abc);
 
       /* DAVID RICH EDIT PROFILE CONFIGURATION */
@@ -527,7 +527,7 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       /* DAVID RICH EDIT */
       printf("=== PROFILE CONFIG ===\n");
       printf("saving profile config...\n");
-      // fp = fopen("test_output/hmmer.profile_config.tsv", "w+");
+      // fp =  fopen("test_output/hmmer.profile_config.tsv", "w+");
       // profileConfig_Dump(hmm, info->bg, gm, fp);
       // fclose(fp);
       printf("...profile config saved.\n");

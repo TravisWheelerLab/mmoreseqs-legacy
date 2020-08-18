@@ -153,16 +153,16 @@
 #define MSC_HMM(prof, j, A)     ( prof->hmm_model[j].match[A] )
 #define ISC_HMM(prof, j, A)     ( prof->hmm_model[j].insert[A] )
 /* target hmm profile functions */
-#define TSC(j,tr)             ( target->hmm_model[j].trans[tr] )
-#define XSC(sp,tr)            ( target->bg_model->spec[sp][tr] )
-#define MSC(j,A)              ( target->hmm_model[j].match[A] )
-#define ISC(j,A)              ( target->hmm_model[j].insert[A] )
+#define TSC(j, tr)             	( target->hmm_model[j].trans[tr] )
+#define XSC(sp, tr)            	( target->bg_model->spec[sp][tr] )
+#define MSC(j, A)              	( target->hmm_model[j].match[A] )
+#define ISC(j, A)              	( target->hmm_model[j].insert[A] )
 
 /* edgebounds access */
-#define EDG_X(edg,i) 	 	( *EDGEBOUNDS_Get( edg, i ) )
+#define EDG_X(edg, i) 	 	( *EDGEBOUNDS_Get( edg, i ) )
 
 /* logarithmic sum */
-#define LOGSUM(a,b) 		( logsum( a, b ) )
+#define LOGSUM(a, b) 		( logsum( a, b ) )
 
 /* DEBUG MACRO FOR RETREIVING VARIABLE NAME */
 #define getName(var) #var

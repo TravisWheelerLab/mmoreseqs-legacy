@@ -78,29 +78,29 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       /* check which <header> data is being filled */
       if ( strcmp( header, "NAME" ) == 0 )
       {
-         field = strtok(NULL, delim);
+         field = strtok( NULL, delim );
          // STRING_Replace(field, ' ', '_');
          HMM_PROFILE_Set_TextField( &prof->name, field );
       }
       else if ( strcmp( header, "ACC" ) == 0 )
       {
-         field = strtok(NULL, delim);
+         field = strtok( NULL, delim );
          HMM_PROFILE_Set_TextField( &prof->acc, field );
       }
       else if ( strcmp( header, "DESC" ) == 0 )
       {
-         field = strtok(NULL, delim);
+         field = strtok( NULL, delim );
          HMM_PROFILE_Set_TextField( &prof->acc, field );
       }
       else if ( strcmp( header, "LENG" ) == 0 )
       {
-         field = strtok(NULL, delim);
+         field = strtok( NULL, delim );
          int num_nodes = atoi(field);
          HMM_PROFILE_Set_Model_Length(prof, num_nodes);
       }
       else if ( strcmp( header, "ALPH" ) == 0 )
       {
-         field = strtok(NULL, delim);
+         field = strtok( NULL, delim );
          HMM_PROFILE_Set_Alphabet(prof, field);
       }
       else if ( strcmp( header, "RF" ) == 0 ) {}
@@ -108,8 +108,8 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
 
       else if ( strcmp( header, "STATS" ) == 0 )
       {
-         field = strtok(NULL, delim); /* LOCAL */
-         field = strtok(NULL, delim); /* distribution type */
+         field = strtok( NULL, delim ); /* LOCAL */
+         field = strtok( NULL, delim ); /* distribution type */
 
          float param1 = atof( strtok(NULL, delim) );
          float param2 = atof( strtok(NULL, delim) );
@@ -120,7 +120,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       else if ( strcmp( header, "COMPO" ) == 0 )
       {
          /* LINE 1: optional args (do nothing) */
-         token = strtok(NULL, delim);
+         token = strtok( NULL, delim );
          for ( int j = 0; j < NUM_AMINO && token != NULL; j++)
          {
             value = atof( token );
@@ -132,12 +132,12 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                prof->bg_model->compo[j] = star_log;
             }
 
-            token = strtok(NULL, delim);
+            token = strtok( NULL, delim );
          }
 
          /* LINE 2: background emission probs */
-         line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
-         token = strtok ( line_buf, delim ); /* get first word */
+         line_size = getline( &line_buf, &line_buf_size, fp ); /* get next line */
+         token = strtok( line_buf, delim ); /* get first word */
 
          for ( int j = 0; j < NUM_AMINO && token != NULL; j++)
          {
@@ -152,12 +152,12 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                prof->hmm_model[0].insert[j] = star_log;
             }
             /* get next word */
-            token = strtok(NULL, delim);
+            token = strtok( NULL, delim );
          }
 
          /* LINE 3: trans probs (identical for all positions) */
-         line_size = getline ( &line_buf, &line_buf_size, fp );  /* get next line */
-         token = strtok ( line_buf, delim ); /* get first word */
+         line_size = getline( &line_buf, &line_buf_size, fp );  /* get next line */
+         token = strtok( line_buf, delim ); /* get first word */
 
          for ( int j = 0; j < NUM_TRANS_STATES && token != NULL; j++ )
          {
@@ -172,7 +172,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                prof->hmm_model[0].trans[j] = star_log;
             }
             /* get next word */
-            token = strtok(NULL, delim);
+            token = strtok( NULL, delim );
          }
 
          inHeader = false;
@@ -187,7 +187,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    /* set first node to zero */
    curr_node = &prof->hmm_model[0];
    curr_node->match[0] = 1.0f;
-   for ( int i = 1; i < NUM_AMINO; i++ ) {
+   for ( int i = 1; i < NUM_AMINO_PLUS_SPEC; i++ ) {
       curr_node->match[0] = 0.0f;
    }
 
@@ -195,16 +195,16 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    for ( int j = 1; j < (prof->N + 1); j++ )
    {
       /* get first line in current node */
-      line_size = getline ( &line_buf, &line_buf_size, fp );
+      line_size = getline( &line_buf, &line_buf_size, fp );
       /* get first word (index) */
-      token = strtok ( line_buf, delim );
+      token = strtok( line_buf, delim );
       /* index of line in sequence (unnecessary) */
       // idx = atoi(token);
 
       /* get current node */
       curr_node = &prof->hmm_model[j];
       /* get next word */
-      token = strtok(NULL, delim);
+      token = strtok( NULL, delim );
 
       /* LINE 1: Match Emission Line */
       for ( int j = 0; j < NUM_AMINO; j++)
@@ -217,13 +217,23 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
             curr_node->match[j] = value;
          }
          /* get next word */
-         token = strtok(NULL, delim);
+         token = strtok( NULL, delim );
       }
+      /* special match states */
+      for ( int j = NUM_AMINO; j < NUM_AMINO_PLUS_SPEC; j++ ) 
+      {
+         curr_node->match[j] = -INF;
+      }
+      /* unknown "X" match state: get the weighted average of all match states */
+      value = HMM_NODE_Expected_Value( curr_node );
+      printf("X[%d]: %7.4f\n", j, value);
+      curr_node->match[AMINO_X] = value;
 
       /* LINE 2: Insert Emission Line */
-      line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
+      /* get next line of current node */
+      line_size = getline ( &line_buf, &line_buf_size, fp ); 
       token = strtok ( line_buf, delim ); /* get first word */
-
+      /* parse insert scores */
       for ( int j = 0; j < NUM_AMINO; j++)
       {
          /* check if valid float */
@@ -234,12 +244,18 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
             curr_node->insert[j] = value;
          }
          /* get next word */
-         token = strtok(NULL, delim);
+         token = strtok( NULL, delim );
       }
+      /* special insert states */
+      for ( int j = NUM_AMINO; j < NUM_AMINO_PLUS_SPEC; j++ ) 
+      {
+         curr_node->insert[j] = 0.0f;
+      }
+      
 
       /* LINE 3: State Transition Line */
-      line_size = getline ( &line_buf, &line_buf_size, fp ); /* get next line */
-      token = strtok ( line_buf, delim ); /* get first word */
+      line_size = getline( &line_buf, &line_buf_size, fp ); /* get next line */
+      token = strtok( line_buf, delim ); /* get first word */
 
       for ( int j = 0; j < NUM_TRANS_STATES - 1; j++)
       {
@@ -251,7 +267,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
             curr_node->trans[j] = value;
          }
          /* get next word */
-         token = strtok(NULL, delim);
+         token = strtok( NULL, delim );
       }
    }
 
@@ -269,6 +285,21 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    fclose ( fp );
 
    prof->numberFormat = PROF_FORMAT_NEGLOG;
+}
+
+/* computes the expected value for the match state of current node */
+float HMM_NODE_Expected_Value(   HMM_NODE*      node )
+{
+   float value = 0.0f;
+   float denom = 0.0f;
+   for (int j = 0; j < NUM_AMINO; j++)
+   {
+      value += node->match[j] * BG_MODEL[j];
+      denom += BG_MODEL[j];
+   }
+   value = value / denom;
+   
+   return value;
 }
 
 /* .hmm stores numbers in log space, but we need reals */
@@ -321,7 +352,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
    {
       curr_node = &prof->hmm_model[i];
       /* match emission */
-      for ( int j = 0; j < NUM_AMINO; j++ )
+      for ( int j = 0; j < NUM_AMINO_PLUS_SPEC; j++ )
       {
          value = curr_node->match[j];
          if ( isnan(value) ) {
@@ -424,7 +455,7 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
       for (k = 1; k <= prof->N; k++)
          prof->hmm_model[k - 1].trans[B2M] = (float) log( (double) mocc[k] / (double) Z );
 
-      free(mocc);
+      ERRORCHECK_free(mocc);
    }
    else /* glocal modes: left wing retraction(?) */
    {

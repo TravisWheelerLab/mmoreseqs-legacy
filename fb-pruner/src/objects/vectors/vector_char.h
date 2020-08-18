@@ -221,4 +221,10 @@ void VECTOR_CHAR_Reverse(   VECTOR_CHAR*    vec );
 void VECTOR_CHAR_Dump(   VECTOR_CHAR*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_CHAR_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_CHAR.
+ */
+void VECTOR_CHAR_Unit_Test();
+
 #endif 

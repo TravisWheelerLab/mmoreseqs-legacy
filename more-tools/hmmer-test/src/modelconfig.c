@@ -141,16 +141,49 @@ p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int 
    sc[hmm->abc->Kp - 2]  = -eslINFINITY; /* nonresidue character */
    sc[hmm->abc->Kp - 1]  = -eslINFINITY; /* missing data character */
    for (k = 1; k <= hmm->M; k++) {
+
+      for ( int x = 0; x < hmm->abc->Kp; x++ ) {
+         sc[x] = 0.0f;
+      }
+
       for (x = 0; x < hmm->abc->K; x++) {
          sc[x] = log((double)hmm->mat[k][x] / bg->f[x]);
       }
 
+      for ( int x = 0; x < hmm->abc->Kp; x++ ) {
+         float score = sc[x];
+         printf("%7.4f ", score);
+      }
+      printf("\n");
+
       esl_abc_FExpectScVec(hmm->abc, sc, bg->f);
+      printf("X[%d] = %9.4f\n", sc[hmm->abc->Kp - 3]);
+
+      for ( int x = 0; x < hmm->abc->Kp; x++ ) {
+         float score = sc[x];
+         printf("%7.4f ", score);
+      }
+      printf("\n");
 
       for (x = 0; x < hmm->abc->Kp; x++) {
          rp = gm->rsc[x] + k * p7P_NR;
          rp[p7P_MSC] = sc[x];
       }
+   }
+
+   printf("\t");
+   for ( int x = 0; x < hmm->abc->Kp; x++ ) {
+      printf("%7d ", x);
+   }
+   printf("\n");
+   for ( int k = 0; k < gm->M; k++ ) {
+      printf("%7d ", k);
+      for ( int x = 0; x < hmm->abc->Kp; x++ ) {
+         rp = gm->rsc[x] + k * p7P_NR;
+         float sc = rp[p7P_MSC];
+         printf("%7.4f ", sc);
+      }
+      printf("\n");
    }
 
    /* Insert emission scores */

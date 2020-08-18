@@ -61,9 +61,9 @@ void* CLOCK_Destroy( CLOCK* cl )
 {
    if (cl == NULL) return cl;
 
-   free(cl->stamps);
+   ERRORCHECK_free(cl->stamps);
 
-   free(cl);
+   ERRORCHECK_free(cl);
    cl = NULL;
    return cl;
 }

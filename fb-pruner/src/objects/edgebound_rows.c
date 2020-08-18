@@ -67,10 +67,10 @@ void* EDGEBOUND_ROWS_Destroy( EDGEBOUND_ROWS*  edg )
 {
    if ( edg == NULL ) return edg;
 
-   free( edg->rows );
-   free( edg->rows_N );
+   ERRORCHECK_free( edg->rows );
+   ERRORCHECK_free( edg->rows_N );
    
-   free( edg );
+   ERRORCHECK_free( edg );
    edg = NULL;
    return edg;
 }

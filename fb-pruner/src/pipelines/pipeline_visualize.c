@@ -92,8 +92,14 @@ void vizualization_pipeline( WORKER* worker )
    EDGEBOUNDS*    edg_row_quad   = EDGEBOUNDS_Create();
    EDGEBOUNDS*    edg_diag_quad  = EDGEBOUNDS_Create();
 
-   /* temporary edgebound object for storing row-wise edgebounds during cloud search */
-   EDGEBOUND_ROWS* edg_row_tmp   = EDGEBOUND_ROWS_Create();
+   /* temporary cloud search objects */
+   EDGEBOUND_ROWS*   edg_row_tmp   = EDGEBOUND_ROWS_Create();
+   VECTOR_INT*       lb_vec[3];
+   VECTOR_INT*       rb_vec[3];
+   for (int i = 0; i < 3; i++ ) {
+      VECTOR_INT_Create( lb_vec[i] );
+      VECTOR_INT_Create( rb_vec[i] );
+   }
 
    /* SCORES => stores result scores */
    TIMES*         times          = worker->times;
@@ -276,7 +282,7 @@ void vizualization_pipeline( WORKER* worker )
    {
       /* cloud forward (quadratic) */
       printf("=== CLOUD FORWARD (quadratic) -> START ===\n");
-      run_Cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, edg_fwd_quad, cloud_params);
+      run_Cloud_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, lb_vec, rb_vec, edg_fwd_quad, cloud_params);
       if ( debugger->verbose_level >= VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
          DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );
@@ -307,7 +313,7 @@ void vizualization_pipeline( WORKER* worker )
    {
       /* cloud backward (quadratic) */
       printf("=== CLOUD BACKWARD (quadratic) -> START ===\n");
-      run_Cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, edg_bck_quad, cloud_params);
+      run_Cloud_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr, edg_row_tmp, lb_vec, rb_vec, edg_bck_quad, cloud_params);
       if ( debugger->verbose_level >=  VERBOSE_ALL ) {
          MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
          DP_MATRIX_VIZ_Dump( cloud_MX_quad, debugout );

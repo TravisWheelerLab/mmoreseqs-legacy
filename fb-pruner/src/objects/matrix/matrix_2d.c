@@ -68,8 +68,8 @@ void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
 {
    if (mx == NULL) return mx;
 
-   free(mx->data);
-   free(mx);
+   ERRORCHECK_free(mx->data);
+   ERRORCHECK_free(mx);
    mx = NULL;
    return mx;
 }
@@ -137,7 +137,7 @@ int MATRIX_2D_Check_Clean( MATRIX_2D*   mx)
 }
 
 
-/* getter pointer for index in MATRIX */
+/* get a pointer to index <i,j> in <mx> */
 inline
 float* MATRIX_2D_Get(MATRIX_2D*  mx,
                      int         i,
@@ -159,7 +159,7 @@ float* MATRIX_2D_Get(MATRIX_2D*  mx,
    return data;
 }
 
-/* getter pointer for index in MATRIX (input in 1D-coords) */
+/* get a pointer to index <n> in <mx> (input in 1D-coords) */
 inline
 float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
                            int         n )

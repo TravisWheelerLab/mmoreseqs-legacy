@@ -221,4 +221,10 @@ void VECTOR_XXX_Reverse(   VECTOR_XXX*    vec );
 void VECTOR_XXX_Dump(   VECTOR_XXX*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_XXX_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_XXX.
+ */
+void VECTOR_XXX_Unit_Test();
+
 #endif 

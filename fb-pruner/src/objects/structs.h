@@ -192,16 +192,16 @@ typedef struct {
 
 /* a vector of each set of bounds for cloud search space which account a specific row */
 typedef struct {
+   /* size */
    int            N;          /* current size of array */
    int            Nalloc;     /* allocated size of array */
    int*           rows_N;     /* current number of bounds in row */
-   
-   BOUND*         rows;       /* array of bounds, each for a specific row */
    int            row_max;    /* maximum number of bounds in row */
-
    /* dimension of embedding matrix */
    int            Q;
    int            T;
+   /* data */
+   BOUND*         rows;       /* array of bounds, each for a specific row */
 } EDGEBOUND_ROWS;
 
 /* alignment for viterbi traceback */
@@ -218,16 +218,17 @@ typedef struct {
    int            beg;           /* current beginning index in traces */
    int            end;           /* current end index in traces */
    /* dimensions of embedded matrix */
-   int         Q;
-   int         T;
+   int            Q;
+   int            T;
 } ALIGNMENT;
 
 /* clock for timing events (wrapper for squid stopwatch above) */
 typedef struct {
+   /* current time */
    double   start;            /* captures start time */
    double   stop;             /* captures stop time */
    double   duration;         /* captures difference between start and stop */
-
+   /* previous times */
    int      N;                /* current utilized stamp length*/
    int      Nalloc;           /* allocated stamp length */
    double*  stamps;           /* for storing multiple durations */
@@ -251,9 +252,9 @@ typedef struct {
 /* position specific state probabilities */
 typedef struct {
    /* match emission probabilities for each amino acid */
-   float    match[NUM_AMINO];
+   float    match[NUM_AMINO_PLUS_SPEC];
    /* insert emission probabilities for each amino acid */
-   float    insert[NUM_AMINO];
+   float    insert[NUM_AMINO_PLUS_SPEC];
    /* transition state probabilities (default same as COMPO) */
    float    trans[NUM_TRANS_STATES];
 } HMM_NODE;
@@ -274,13 +275,14 @@ typedef struct {
 
 /* HMM File Data */
 typedef struct {
+   /* data */
    int         N;       /* number of states in model */
    float*      pi;      /* initial (begin) distribution ( 0..M ) */
    float**     t;       /* state transition probabilities ( N x (N+1) ) */
    float**     e;       /* emmission probabilities ( M x K ) */
-
+   /* */
    float**     eo;      /* emission odds ratio ( M x K' ) */
-
+   /* */
    ALPHABET*   abc;     /* alphabet */
    int         K;       /* size of alphabet */
 } HMM;
@@ -292,6 +294,7 @@ typedef struct {
    long           b_offset;         /* offset within file to beginning of hmm */
    long           e_offset;         /* offset within file to ending of hmm */
 
+   /* meta data */
    int            numberFormat;     /* whether numbers are in real, logspace, or log-odds */
 
    /* entry data */
@@ -334,13 +337,14 @@ typedef struct {
 
 /* sequence */
 typedef struct {
-   int      N;          /* length of sequence */
-   int      Nalloc;     /* allocated memory length */
-   char*    seq;        /* genomic sequence */
+   int            N;          /* length of sequence */
+   int            Nalloc;     /* allocated memory length */
+   char*          seq;        /* genomic sequence */
+   VECTOR_INT*    dseq;       /* digitized genomic sequence */
    /* meta data */
-   char*    filename;   /* filename of sequence */
-   char*    name;       /* name of sequence */
-   char*    alph;       /* alphabet (currently only supports AMINO) */
+   char*          filename;   /* filename of sequence */
+   char*          name;       /* name of sequence */
+   char*          alph;       /* alphabet (currently only supports AMINO) */
 } SEQUENCE;
 
 /* 2-dimensional float matrix */
@@ -390,10 +394,8 @@ typedef struct {
 typedef struct {
    /* index */
    bool     is_index_given;         /* is an index file supplied? */
-
    /* type of searches */
    bool     qt_search_space;        /* which queries vs which targets? */
-
    /* file paths */
    char*    t_filepath;             /* filepath to target (hmm or fasta) file */
    char*    q_filepath;             /* filepath to query (fasta) file */
@@ -411,8 +413,8 @@ typedef struct {
    /* temporary work folder */
    char*    tmp_folderpath;         /* location to build a temporary work folder */
    bool     tmp_remove;             /* should temp folder be removed at the end? */
+   /* debug */
    char*    dbg_folderpath;         /* debugging folder path */
-
    /* mmseqs-plus search params */
    char*    mmseqs_res_filepath;       /* filepath to mmseqs .m8 results file */
    char*    mmseqs_plus_filepath;      /* filepath to mmseqs .m8+ results file */
@@ -422,26 +424,23 @@ typedef struct {
    char*    q_lookup_filepath;      /* filepath to mmseqs query lookup file */
    /* mmseqs specified result file range */
    RANGE    mmseqs_range;
-
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
    float    beta;                   /* cloud search: x-drop maximum drop before termination */
    int      gamma;                  /* cloud search: number of antidiag passes before pruning  */
-
    /* pipeline options */
    int      pipeline_mode;          /* which workflow pipeline to use */
    int      verbose_level;          /* levels of verbosity */
    int      search_mode;            /* alignment search mode */
    bool     is_testing;             /* determines whether debug statements appear */
-
    /* if viterbi is precomputed, gives starting and ending coords (single result) */
    COORDS   beg;                    /* beginning coordinates of viterbi alignment */
    COORDS   end;                    /* ending coordinates of viterbi alignment */
-
    /* threshold scores for pipeline */
-   float    viterbi_threshold;
-   float    fwdbck_threshold;
-   float    cloud_threshold;
+   bool     filter_on;              /* filter thresholds enforced, or let all through? */
+   float    threshold_viterbi;
+   float    threshold_forward;
+   float    threshold_bounded;
 } ARGS;
 
 /* scores */
@@ -473,10 +472,8 @@ typedef struct {
    /* load times */
    double    load_target_index;
    double    load_query_index;
-
    double    load_target;
    double    load_query;
-
    /* linear algs */
    double    lin_vit;
    double    lin_trace;
@@ -489,7 +486,6 @@ typedef struct {
    double    lin_bound_fwd;
    double    lin_bound_bck;
    double    lin_total_cloud;
-
    /* quadratic algs */
    double    quad_vit;
    double    quad_trace;
@@ -502,49 +498,10 @@ typedef struct {
    double    quad_bound_fwd;
    double    quad_bound_bck;  
    double    quad_total_cloud;
-
    /* naive algs */
    double    naive_bound_fwd;
    double    naive_bound_bck;  
 } TIMES;
-
-/* times to execute given operations */
-typedef struct {
-   /* load times */
-   long    load_target_index;
-   long    load_query_index;
-
-   long    load_target;
-   long    load_query;
-
-   /* linear algs */
-   long    lin_vit;
-   long    lin_trace;
-   long    lin_fwd;
-   long    lin_bck;
-   long    lin_cloud_fwd;
-   long    lin_cloud_bck;
-   long    lin_merge;
-   long    lin_reorient;
-   long    lin_bound_fwd;
-   long    lin_bound_bck;
-
-   /* quadratic algs */
-   long    quad_vit;
-   long    quad_trace;
-   long    quad_fwd;
-   long    quad_bck;
-   long    quad_cloud_fwd;
-   long    quad_cloud_bck;
-   long    quad_merge;
-   long    quad_reorient;
-   long    quad_bound_fwd;
-   long    quad_bound_bck;  
-
-   /* naive algs */
-   long    naive_bound_fwd;
-   long    naive_bound_bck;  
-} TIMES_RAW;
 
 /* hmm location within file */
 typedef struct {
@@ -673,33 +630,37 @@ typedef struct {
    /* results output */
    bool     scores;           /* are we reporting scores for given tasks? */
    bool     time;             /* are we reporting times for given tasks? */
-
    /* output heatmaps */
    bool     heatmaps;         /* output heatmaps */
-
    /* mmseqs lookup */
    bool     mmseqs_lookup;    /* if we have a mmseqs name lookup table */
-
    /* naive algs */
+   bool     naive;            
    bool     naive_cloud;      /* naive cloud search */
-
    /* quadratic algs */
-   bool     quadratic;        /* are we running any quadratic-space algorithms? */
-   bool     quad_fwd;         /* forward */
-   bool     quad_bck;         /* backward */
-   bool     quad_vit;         /* viterbi */
-   bool     quad_trace;       /* traceback of viterbi */
-   bool     quad_bound_fwd;   /* bounded forward (requires cloud) */
-   bool     quad_bound_bck;   /* bounded backward (requires cloud) */
-
+   bool     quadratic;           /* are we running any quadratic-space algorithms? */
+   bool     quad_fwd;            /* forward */
+   bool     quad_bck;            /* backward */
+   bool     quad_vit;            /* viterbi */
+   bool     quad_trace;          /* traceback of viterbi */
+   bool     quad_bound_fwd;      /* bounded forward (requires cloud) */
+   bool     quad_bound_bck;      /* bounded backward (requires cloud) */
    /* linear algs */
-   bool     linear;           /* are we running any linear algorithms? */
-   bool     lin_fwd;          /* forward-backward */
-   bool     lin_bck;          /* backward */
-   bool     lin_vit;          /* viterbi */
-   bool     lin_trace;        /* traceback of viterbi */
-   bool     lin_bound_fwd;    /* bounded forwarded (requires cloud) */
-   bool     lin_bound_bck;    /* bounded backward (requires cloud) */
+   bool     linear;              /* are we running any linear-space algorithms? */
+   bool     lin_fwd;             /* forward-backward */
+   bool     lin_bck;             /* backward */
+   bool     lin_vit;             /* viterbi */
+   bool     lin_trace;           /* traceback of viterbi */
+   bool     lin_bound_fwd;       /* bounded forwarded (requires cloud) */
+   bool     lin_bound_bck;       /* bounded backward (requires cloud) */
+   /* sparse algs */
+   bool     sparse;              /* are we running any linear-space algorithms? */
+   bool     sparse_fwd;          /* forward-backward */
+   bool     sparse_bck;          /* backward */
+   bool     sparse_vit;          /* viterbi */
+   bool     sparse_trace;        /* traceback of viterbi */
+   bool     sparse_bound_fwd;    /* bounded forwarded (requires cloud) */ 
+   bool     sparse_bound_bck;    /* bounded backward (requires cloud) */
 } TASKS;
 
 /* bools of which scores and times to be reported */
@@ -727,7 +688,6 @@ typedef struct {
    bool     quad_reorient_t;
    bool     quad_bound_fwd_t;
    bool     quad_bound_bck_t;
-
    /* SCORES */
    /* linear algs */
    bool     lin_fwd_sc;
@@ -789,20 +749,23 @@ typedef struct {
    VECTOR_INT*       rb_vec[3];
 
    /* cloud pruning parameters */
-   CLOUD_PARAMS  cloud_params;
+   CLOUD_PARAMS   cloud_params;
 
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;
+   /* alignment traceback for maximum posterior */
+   ALIGNMENT*     trace_post;
 
    /* dynamic programming matrices */
-   MATRIX_3D*     st_MX;         /* normal state matrix (quadratic space) */
-   MATRIX_3D*     st_MX3;        /* normal state matrix (linear space) */
-   MATRIX_2D*     sp_MX;         /* special state matrix (quadratic space) */
-   MATRIX_3D*     st_cloud_MX;   /* matrix for naive cloud search */
+   MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
+   MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
+   MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
+   MATRIX_2D*           sp_MX;         /* special state matrix (quadratic space) */
+   MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
 
    /* times for tasks */
    TIMES*         times;
-   TIMES_RAW*     times_raw;
+   TIMES*         times_raw;
    /* scores for algorithms */
    SCORES*        scores;
    /* results from mmseqs */

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      application.c
- *  PURPOSE:   Entry Point to Application, Argument Parsing, Choose Pipeline
+ *  PURPOSE:   Entry Point to Application: Worker/Debugger Initialization, Argument Parsing, Chooses Pipeline
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -70,7 +70,7 @@ int main ( int argc, char *argv[] )
    #if DEBUG 
    {
       // fclose( debugout );
-      free( debugger );
+      ERRORCHECK_free( debugger );
    }
    #endif
 

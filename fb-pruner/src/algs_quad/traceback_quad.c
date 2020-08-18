@@ -26,8 +26,8 @@
 
 /*
  *  FUNCTION:  run_Traceback_Quad()
- *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment. 
- *             Version 1: based on HMMER version. Verifies that Alignment agrees with Matrix data.
+ *  SYNOPSIS:  Selects the default method of run_Traceback_Quad() from the available methods.
+ *             Requires that <st_MX> and <sp_MX> are still completely filled.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
@@ -38,6 +38,25 @@ int run_Traceback_Quad(    const SEQUENCE*     query,       /* query sequence */
                            MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
                            MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
                            ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
+{
+   run_Traceback_Quad_via_cmp( 
+      query, target, Q, T, st_MX, sp_MX, aln );
+}
+
+/*
+ *  FUNCTION:  run_Traceback_Quad()
+ *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment. 
+ *             Version 1: based on HMMER version. Verifies that Alignment agrees with Matrix data.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query sequence */
+                                    const HMM_PROFILE*  target,      /* HMM model */
+                                    const int           Q,           /* query/seq length */
+                                    const int           T,           /* target/model length */
+                                    MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
+                                    MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
+                                    ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -301,19 +320,20 @@ int run_Traceback_Quad(    const SEQUENCE*     query,       /* query sequence */
 }
 
 /*
- *  FUNCTION:  run_Traceback_Quad_2()
+ *  FUNCTION:  run_Traceback_Quad_via_cmp()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
- *             Version 2: My implementation. Verifies that Alignment agrees with Matrix data.
+ *             Version 2: My implementation. Takes maximum next step by finding the state that fulfills equation ( <previous state> + <transition> + <score> == <current state> ).
+ *             Verifies that Alignment agrees with Matrix data.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence */
-                              const HMM_PROFILE*  target,      /* HMM model */
-                              const int           Q,           /* query/seq length */
-                              const int           T,           /* target/model length */
-                              MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
-                              MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
-                              ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
+int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query sequence */
+                                    const HMM_PROFILE*  target,      /* HMM model */
+                                    const int           Q,           /* query/seq length */
+                                    const int           T,           /* target/model length */
+                                    MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
+                                    MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
+                                    ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -324,8 +344,9 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
    /* vars for indexing into data matrices */
    int      i, j;                            /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* maps row index into data matrix (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* maps column index into data matrix (target) */
 
    /* vars for recurrance scores */
    float    cur;                             /* current state */
@@ -344,11 +365,16 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
 
    /* --------------------------------------------------------------------------- */
 
+   /* real sequence indexes */
    q_0 = Q;
    q_1 = q_0 - 1;
-
    t_0 = 0;
    t_1 = t_0 - 1;
+   /* map sequence index to data index */
+   qx0 = q_0;
+   qx1 = qx1;
+   tx0 = t_0;
+   tx1 = tx1;
 
    seq   = query->seq; 
    tr    = aln->traces->data; 
@@ -373,21 +399,26 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          break;
       } 
 
-      /* previous query and target index */
+      /* real sequence indexes */
       q_1 = q_0 - 1;
       t_1 = t_0 - 1;
+      /* map sequence index to data index */
+      qx0 = q_0;
+      qx1 = qx1;
+      tx0 = t_0;
+      tx1 = tx1;
       
       /* get next sequence character */
       a = seq[q_1];
       A = AA_REV[a];
 
-      /* jump from current state to the prev state */
+      /* jump from current state to the previous state */
       switch ( st_prv )
       {
          /* C STATE to {C,E} */
          case C_ST:  /* C(q_0) comes from C(q_1) or E(q_0) */
          {
-            /* current state */
+            /* current score */
             cur   = XMX(SP_C, q_0);
 
             if ( cur == -INF ) {
@@ -411,10 +442,10 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
             }
          } break;
 
-         /* E STATE to {M, D} */
+         /* E STATE to {M,D} */
          case E_ST:  /* E connects from any M state. t_0 is set here. */
          {
-            /* current state */
+            /* current score */
             cur = XMX(SP_E, q_0);
 
             if ( cur == -INF ) {
@@ -432,6 +463,7 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
                {
                   /* possible previous state */
                   prv_M = MMX(q_0, t_0);
+
                   /* verifies if scores agree with true previous state in alignment */
                   if ( CMP_TOL( cur, prv_M ) ) {
                      break;
@@ -468,11 +500,8 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* M STATE to {B,M,I,D} */
          case M_ST:  /* M connects from (q_1, t_1), or B */
          {
-            /* current state */
-            cur = MMX(q_0, t_0);   
-
-            q_1 = q_0 - 1;
-            t_1 = t_0 - 1;        
+            /* current score */
+            cur = MMX(q_0, t_0);      
 
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
@@ -512,13 +541,11 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* D STATE to {M,D} */
          case D_ST:  /* D connects from M,D at (q_0, t_1) */
          {
-            /* current state */
+            /* current score */
             cur = DMX(q_0, t_0);
 
-            t_1 = t_0 - 1;
-
             /* No valid alignment goes to -INF */
-            if (DMX(q_0, t_0) == -INF ) {
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
@@ -546,11 +573,11 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* I STATE to {M,I} */
          case I_ST:  /* I connects from M,I at (q_1, t_0) */
          {
-            /* current state */
+            /* current score */
             cur = IMX(q_0, t_0);
 
             /* No valid alignment goes to -INF */
-            if (IMX(q_0, t_0) == -INF ) {
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
@@ -576,7 +603,7 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* N STATE to {N,S} */
          case N_ST:  /* N connects from S,N */
          {
-            /* current state */
+            /* current score */
             cur = XMX(SP_N, q_0);
 
             /* No valid alignment goes to -INF */
@@ -597,7 +624,7 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* B STATE to {N,J} */
          case B_ST:  /* B connects from N, J */
          {
-            /* current state */
+            /* current score */
             cur = XMX(SP_B, q_0);
 
             /* possible previous states */
@@ -620,7 +647,7 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
          /* J STATE to {J,E} */
          case J_ST:  /* J connects from E(q_0) or J(q_1) */
          {
-            /* current state */
+            /* current score */
             cur = XMX(SP_J, q_0);
 
             if ( cur == -INF ) {
@@ -654,8 +681,8 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
 
       ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
 
-      /* For NCJ, we deferred i decrement. */
-      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && st_cur == st_prv) {
+      /* For {N,C,J}, we deferred i decrement. */
+      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
          q_0--;
       }
 
@@ -695,20 +722,22 @@ int run_Traceback_Quad_2(     const SEQUENCE*     query,       /* query sequence
 }
 
 
+/* TODO: Finish implementataion */
 /*
- *  FUNCTION:  run_Traceback_Quad_3()
+ *  FUNCTION:  run_Traceback_Quad_via_max()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
- *             Version 2: My implementation. Verifies that Alignment agrees with Matrix data.
+ *             Version 3: My implementation.  Takes maximum next step from current state to previous state.  
+ *             Warning: No verification step.  
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence */
-                              const HMM_PROFILE*  target,      /* HMM model */
-                              const int           Q,           /* query/seq length */
-                              const int           T,           /* target/model length */
-                              MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
-                              MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
-                              ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
+int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query sequence */
+                                    const HMM_PROFILE*  target,      /* HMM model */
+                                    const int           Q,           /* query/seq length */
+                                    const int           T,           /* target/model length */
+                                    MATRIX_3D*          st_MX,       /* Normal State (Match, Insert, Delete) Matrix */
+                                    MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
+                                    ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -719,8 +748,9 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
    /* vars for indexing into data matrices */
    int      i, j;                            /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* map row index into data matrix (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* map column index into data matrix (target) */
 
    /* vars for recurrance scores */
    float    cur;                             /* current state score */
@@ -733,17 +763,25 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
    int            st_cur, st_prv;            /* current, previous state in traceback */
    int            st_max;                    /* previous state with maximum score */
    int            t_max;                     /* t_0 with maximum score (for B->M) */
+   float          sc_cur, sc_prv;            /* current, previous score of state */
    float          sc_max;                    /* maximum score for previous state */
    TRACE*         tr;                        /* trace object for appending */
    const float    tol = 1e-5;                /* acceptable tolerance range for "equality tests" */
 
+   int passes = 0;
+
    /* --------------------------------------------------------------------------- */
 
+   /* real sequence indexes */
    q_0 = Q;
    q_1 = q_0 - 1;
-
    t_0 = 0;
    t_1 = t_0 - 1;
+   /* map sequence indexes to data */
+   qx0 = q_0;
+   qx1 = q_1;
+   tx0 = t_0;
+   tx1 = t_1;
 
    seq   = query->seq; 
    tr    = aln->traces->data; 
@@ -759,7 +797,7 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
    ALIGNMENT_Append( aln, tr, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
-   /* End of alnace is S state */
+   /* End of trace is S state */
    while (st_prv != S_ST)
    {
       /* if we have reached the end of the query sequence */
@@ -775,6 +813,11 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
       /* previous query and target index */
       q_1 = q_0 - 1;
       t_1 = t_0 - 1;
+      /* map sequence indexes to data */
+      qx0 = q_0;
+      qx1 = q_1;
+      tx0 = t_0;
+      tx1 = t_1;
       
       /* get next sequence character */
       a = seq[q_1];
@@ -787,13 +830,13 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
          case C_ST:  /* C(q_0) comes from C(q_1) or E(q_0) */
          {
             /* current state */
-            cur   = XMX(SP_C, q_0);
+            cur = XMX(SP_C, q_0);
             
             /* possible previous states before transition scores */
-            prv_C = cur - XSC(SP_C, SP_LOOP);
-            prv_E = cur - XSC(SP_E, SP_MOVE);
+            prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
+            prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
 
-            /* find maximum previous state */
+            /* find maximum of previous states */
             if ( sc_max < prv_C ) {
                st_max = C_ST;
                sc_max = prv_C;
@@ -802,9 +845,13 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
                st_max = E_ST;
                sc_max = prv_E;
             }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
          } break;
 
-         /* E STATE to {M, D} */
+         /* E STATE to {M,D} */
          case E_ST:  /* E connects from any M state. t_0 is set here. */
          {
             /* current state */
@@ -815,7 +862,7 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
                exit(EXIT_FAILURE);
             }
 
-            if ( is_local )  /* local mode: ends in M */
+            if ( is_local ) /* local mode: ends in M */
             {
                /* can't come from D, in a *local* Viterbi alignment. */
                st_cur = M_ST;
@@ -823,52 +870,48 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
                /* next state must be M */
                st_max = M_ST;
 
-               /* possible previous states (any M state) */
+               /* find maximum of previous states (all possible M(q,t) for current q=q_0 ) */
                for ( t_0 = T; t_0 >= 1; t_0-- ) 
                {
                   /* possible previous state */
                   prv_M = MMX(q_0, t_0);
-                  /* update max if biggest score */
+
+                  /* find maximum of possible previous states */
                   if ( sc_max < prv_M ) {
                      sc_max = prv_M;
                      t_max = t_0;
                   }
                }
-
-               /* set t_0 of end of alignment */
-               t_0 = t_max;
             }
-            else     /* glocal mode: we either come from D_M or M_M */
+            else /* glocal mode: we either come from D_M or M_M */
             {
-               /* TODO: finish implementation HERE!!! */
                /* possible previous states */
                prv_M = MMX(q_0, T);
                prv_D = DMX(q_0, T);
 
-               /* verifies if scores agree with true previous state in alignment */
-               if ( CMP_TOL( cur, prv_M ) ) {
-                  st_cur = M_ST;
-                  t_0 = T;
+               /* find maximum of possible previous states */
+               if ( sc_max < prv_M ) {
+                  sc_max = prv_M;
+                  t_max = T;
                }
-               else if ( CMP_TOL( cur, prv_D ) ) {
-                  st_cur = D_ST;
-                  t_0 = T;
-               }
-               else {
-                  fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+               if ( sc_max < prv_D ) {
+                  sc_max = prv_D;
+                  t_max = T;
                }
             }
+            
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* set t_0 of end of alignment */
+            t_0 = t_max;
          } break;
 
          /* M STATE to {B,M,I,D} */
          case M_ST:  /* M connects from {M,I,D}(q_1, t_1), or B(q_1) */
          {
             /* current state */
-            cur = MMX(q_0, t_0);   
-
-            q_1 = q_0 - 1;
-            t_1 = t_0 - 1;        
+            cur = MMX(q_0, t_0);    
 
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
@@ -882,25 +925,27 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             prv_I = IMX(q_1, t_1) + TSC(t_1, I2M) + MSC(t_0, A);
             prv_D = DMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A);
 
-            /* verifies if scores agree with true previous state in alignment */
-            if ( CMP_TOL( cur, prv_B ) ) {
-               st_cur = B_ST;
+            /* find maximum of previous states */
+            if ( sc_max < prv_B ) {
+               st_max = B_ST;
+               sc_max = prv_B;
             }
-            else if ( CMP_TOL( cur, prv_M ) ) {
-               st_cur = M_ST;
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
             }
-            else if ( CMP_TOL( cur, prv_I ) ) {
-               st_cur = I_ST;
+            if ( sc_max < prv_I ) {
+               st_max = I_ST;
+               sc_max = prv_I;
             }
-            else if ( CMP_TOL( cur, prv_D ) ) {
-               st_cur = D_ST;
-            }
-            else {
-               fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+            if ( sc_max < prv_D ) {
+               st_max = D_ST;
+               sc_max = prv_D;
             }
 
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
             /* update index of previous state */
             t_0--; q_0--;
          } break;
@@ -911,10 +956,8 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             /* current state */
             cur = DMX(q_0, t_0);
 
-            t_1 = t_0 - 1;
-
             /* No valid alignment goes to -INF */
-            if (DMX(q_0, t_0) == -INF ) {
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
@@ -923,17 +966,20 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
             prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
 
-            /* verifies if scores agree with true previous state in alignment */
-            if ( CMP_TOL( cur, prv_M ) ) {
-               st_cur = M_ST;
+            /* find maximum of previous states */
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
             }
-            else if ( CMP_TOL( cur, prv_D ) ) {
-               st_cur = D_ST;
+            if ( sc_max < prv_D ) {
+               st_max = D_ST;
+               sc_max = prv_D;
             }
-            else {
-               fprintf( stderr, "ERROR: Failed to trace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* update index to previous state */
             t_0--;
          } break;
 
@@ -953,24 +999,26 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             prv_M = MMX(q_1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
             prv_I = IMX(q_1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
 
-            /* verifies if scores agree with true previous state in alignment */
-            if ( CMP_TOL( cur, prv_M ) ) {
-               st_cur = M_ST;
+            /* find maximum of previous states */
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
             }
-            else if ( CMP_TOL( cur, prv_I ) ) {
-               st_cur = I_ST;
+            if ( sc_max < prv_I ) {
+               st_max = I_ST;
+               sc_max = prv_I;
             }
-            else {
-               fprintf( stderr, "ERROR: Failed to trace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
             /* update index to previous state */
             q_0--;
          } break;
 
          /* N STATE to {N,S} */
          case N_ST:  /* N connects from S,N */
-
+         {
             /* current state */
             cur = XMX(SP_N, q_0);
 
@@ -987,12 +1035,11 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             else {
                st_cur = N_ST;
             }
-
-            break;
+         } break;
 
          /* B STATE to {N,J} */
          case B_ST:  /* B connects from N, J */
-
+         {
             /* current state */
             cur = XMX(SP_B, q_0);
 
@@ -1000,22 +1047,23 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);
             prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);
 
-            /* verifies that scores agree with true previous state in alignment */
-            if ( CMP_TOL( cur, prv_N ) ) {
-               st_cur = N_ST;
+            /* find maximum of previous states */
+            if ( sc_max < prv_N ) {
+               st_max = N_ST;
+               sc_max = prv_N;
             }
-            else if ( CMP_TOL( cur, prv_J ) ) {
-               st_cur = J_ST;
+            if ( sc_max < prv_J ) {
+               st_max = J_ST;
+               sc_max = prv_J;
             }
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
-            break;
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+         } break;
 
          /* J STATE to {J,E} */
          case J_ST:  /* J connects from E(q_0) or J(q_1) */
-
+         {
             /* current state */
             cur = XMX(SP_J, q_0);
 
@@ -1028,28 +1076,31 @@ int run_Traceback_Quad_3(     const SEQUENCE*     query,       /* query sequence
             prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
             prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);
 
-            /* verifies that scores agree with true previous state in alignment */
-            if ( CMP_TOL( cur, prv_J ) ) {
-               st_cur = J_ST;
+            /* find maximum of previous states */
+            if ( sc_max < prv_J ) {
+               st_max = J_ST;
+               sc_max = prv_J;
             }
-            else if ( CMP_TOL( cur, prv_E ) ) {
-               st_cur = E_ST;
+            if ( sc_max < prv_E ) {
+               st_max = E_ST;
+               sc_max = prv_E;
             }
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
-            break;
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+         } break;
 
          default:
+         {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
             exit(EXIT_FAILURE);
+         }
       }
 
       ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
 
-      /* For NCJ, we deferred i decrement. */
-      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && st_cur == st_prv) {
+      /* For NCJ, we deferred i decrement. (only if looping within state) */
+      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
          q_0--;
       }
 

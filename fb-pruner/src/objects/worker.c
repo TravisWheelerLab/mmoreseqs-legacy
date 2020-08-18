@@ -52,7 +52,12 @@ WORKER* WORKER_Create()
    worker->edg_bck      = NULL;
    worker->edg_diag     = NULL;
    worker->edg_row      = NULL;
+
    worker->edg_rows_tmp = NULL;
+   for ( int i=0; i<3; i++ ) {
+      worker->lb_vec[i] = NULL;
+      worker->rb_vec[i] = NULL;
+   }
 
    worker->traceback = NULL;
 
@@ -103,14 +108,14 @@ void* WORKER_Destroy( WORKER* worker )
    ARGS_Destroy( worker->args );
    worker->args = NULL;
 
-   worker->clok      = CLOCK_Destroy( worker->clok );
+   worker->clok = CLOCK_Destroy( worker->clok );
 
-   free( worker->tasks   );
-   free( worker->report  );
-   free( worker->times   );
-   free( worker->scores  );
+   ERRORCHECK_free( worker->tasks );
+   ERRORCHECK_free( worker->report );
+   ERRORCHECK_free( worker->times );
+   ERRORCHECK_free( worker->scores );
 
-   free( worker );
+   ERRORCHECK_free( worker );
    worker = NULL;
    return worker;
 }

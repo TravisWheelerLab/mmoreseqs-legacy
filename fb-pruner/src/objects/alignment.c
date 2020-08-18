@@ -66,7 +66,7 @@ void* ALIGNMENT_Destroy(ALIGNMENT* aln)
    VECTOR_INT_Destroy( aln->tr_end );
    VECTOR_TRACE_Destroy( aln->traces );
 
-   free( aln );
+   ERRORCHECK_free( aln );
    aln = NULL;
 
    return aln;
@@ -128,28 +128,28 @@ int ALIGNMENT_Compare(  ALIGNMENT*     a,
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 inline
-int ALIGNMENT_Append(   ALIGNMENT*   aln,    /* Traceback Alignment */
-                        TRACE*       tr,     /* Traceback being Appended */
-                        const int    st,     /* HMM state */
-                        const int    q_0,    /* index in query/sequence */
-                        const int    t_0 )   /* index in target/model */
+int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
+                        TRACE*       tr,        /* Traceback being Appended */
+                        const int    st,        /* HMM state */
+                        const int    q_0,       /* index in query/sequence */
+                        const int    t_0 )      /* index in target/model */
 {
    /* for debugging: output traces as they are being added. */
    #if DEBUG 
    {
       // /* Add new state and (i,j) to trace */
       // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
-      // if (st_cur < 3) {
-      //    fprintf( stderr, "%s:\t(%d,%d)\t%f\n", 
-      //       STATE_NAMES[st_cur], q_0, t_0, MX_3D(st_MX, state_num[st_cur], q_0, t_0) );
+      // if (st < 3) {
+      //    fprintf( stderr, "%s:\t(%d,%d)\n", 
+      //       STATE_NAMES[st], q_0, t_0 );
       // } 
-      // else if (st_cur >= 3 && st_cur < 9) {
-      //    fprintf( stderr, "%s:\t(%d,%d)\t%f\n", 
-      //       STATE_NAMES[st_cur], q_0, t_0, MX_2D(sp_MX, state_num[st_cur], q_0) );
+      // else if (st >= 3 && st < 9) {
+      //    fprintf( stderr, "%s:\t(%d,%d)\n", 
+      //       STATE_NAMES[st], q_0, t_0 );
       // }
       // else {
       //    fprintf( stderr, "%s:\t(%d,%d)\n", 
-      //       STATE_NAMES[st_cur], q_0, t_0 );
+      //       STATE_NAMES[st], q_0, t_0 );
       // }
    }
    #endif

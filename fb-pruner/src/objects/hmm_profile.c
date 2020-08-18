@@ -63,16 +63,16 @@ void* HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 {
    if (prof == NULL) return prof;
    
-   free(prof->filepath);
-   free(prof->name);
-   free(prof->acc);
-   free(prof->desc);
-   free(prof->alph);
+   ERRORCHECK_free(prof->filepath);
+   ERRORCHECK_free(prof->name);
+   ERRORCHECK_free(prof->acc);
+   ERRORCHECK_free(prof->desc);
+   ERRORCHECK_free(prof->alph);
 
-   free(prof->bg_model);
-   free(prof->hmm_model);
+   ERRORCHECK_free(prof->bg_model);
+   ERRORCHECK_free(prof->hmm_model);
 
-   free(prof);
+   ERRORCHECK_free(prof);
    prof = NULL;
    return prof;
 }
@@ -169,7 +169,7 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
 
    /* TODO: update to allocate in Create() / change to VECTOR_CHAR */
    /* clear pre-existing consensus */
-   free(prof->consensus);
+   ERRORCHECK_free(prof->consensus);
    /* allocate new consensus */
    prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
 
@@ -269,17 +269,22 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
    fprintf(fp, "\n\n");
 
    /* position-specific probabilities */
+   fprintf(fp, " %5s ", "");
+   for (int j = 0; j < NUM_AMINO_PLUS_SPEC; j++) {
+      fprintf(fp, "%9d ", j);
+   }
+      fprintf(fp, "\n");
    for (int i = 0; i < prof->N+1; i++)
    {
       /* line 1: match emissions */
       fprintf(fp, " %5d ", i);
-      for (int j = 0; j < NUM_AMINO; j++)
+      for (int j = 0; j < NUM_AMINO_PLUS_SPEC; j++)
          fprintf(fp, "%9.4f ", prof->hmm_model[i].match[j]);
       fprintf(fp, "\n");
 
       /* line 2: insert emissions */
       fprintf(fp, "%7s", "");
-      for (int j = 0; j < NUM_AMINO; j++)
+      for (int j = 0; j < NUM_AMINO_PLUS_SPEC; j++)
          fprintf(fp, "%9.4f ", prof->hmm_model[i].insert[j]);
       fprintf(fp, "\n");
       

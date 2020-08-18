@@ -171,7 +171,7 @@ typedef enum {
    B_ST = 7,   /* BEGIN ALIGNMENT STATE */
    S_ST = 8,   /* START STATE */
    T_ST = 9,   /* TERMINAL STATE */
-   X_ST = 10   /* UNKNOWN STATE */
+   X_ST = 10,  /* UNKNOWN STATE */
 } ALL_STATES;
 #define NUM_ALL_STATES 11
 
@@ -227,12 +227,14 @@ typedef enum {
    AMINO_V = 17,
    AMINO_W = 18,
    AMINO_Y = 19,
-   /* non-amino special chars */
-   xGC     = 20, /* gap character */
-   xNC     = 21, /* non-residue character */
-   xMC     = 22  /* missing character */
+   /* special chars */
+   AMINO_X     = 20, /* unknown character */
+   AMINO_GAP   = 21, /* gap character */
+   AMINO_NON   = 22, /* non-residue character */
+   AMINO_MIS   = 23  /* missing character */
 } AMINOS;
 #define NUM_AMINO 20
+#define NUM_AMINO_PLUS_SPEC 24
 
 typedef enum {
    DNA_A = 0,
@@ -252,6 +254,7 @@ typedef enum {
    ALPH_NULL   = 0,     /* NULL Alphabet */
    ALPH_AMINO  = 1,     /* Protein Alphabet */
    ALPH_DNA    = 2,     /* DNA {ACGT} Alphabet */
+   ALPH_RNA    = 3,     /* RNA Alphabet */
 } ALPH_TYPE;
 
 #endif /* _STRUCTS_ENUMS_H */

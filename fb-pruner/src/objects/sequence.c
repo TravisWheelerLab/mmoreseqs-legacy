@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file sequence.c
- *  @brief SEQUENCE Object
+ *  FILE:      sequence.c
+ *  PURPOSE:   SEQUENCE object
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -40,7 +40,9 @@ SEQUENCE* SEQUENCE_Create()
    seq->filename = NULL;
    seq->name     = NULL;
    seq->alph     = NULL;
+
    seq->seq      = NULL;
+   seq->dseq     = NULL;
 
    SEQUENCE_Resize_Seq( seq, 256 );
 
@@ -48,28 +50,30 @@ SEQUENCE* SEQUENCE_Create()
 }
 
 /* Destructor */
-void* SEQUENCE_Destroy(SEQUENCE *seq)
+void* SEQUENCE_Destroy( SEQUENCE *seq )
 {
    if ( seq == NULL ) return seq;
 
-   free(seq->filename);
-   free(seq->name);
-   free(seq->alph);
-   free(seq->seq);
+   ERRORCHECK_free(seq->filename);
+   ERRORCHECK_free(seq->name);
+   ERRORCHECK_free(seq->alph);
 
-   free(seq);
+   ERRORCHECK_free(seq->seq);
+   ERRORCHECK_free(seq->dseq);
+
+   ERRORCHECK_free(seq);
    seq = NULL;
    return seq;
 }
 
 /* Reuse sequence by reinitializing all fields except seq field */
-void SEQUENCE_Reuse(SEQUENCE* seq)
+void SEQUENCE_Reuse( SEQUENCE* seq )
 {
    seq->N = 0;
 
-   free(seq->filename);
-   free(seq->name);
-   free(seq->alph);
+   ERRORCHECK_free(seq->filename);
+   ERRORCHECK_free(seq->name);
+   ERRORCHECK_free(seq->alph);
 
    seq->filename = NULL;
    seq->name     = NULL;
@@ -80,8 +84,8 @@ void SEQUENCE_Reuse(SEQUENCE* seq)
 }
 
 /* Set Sequence String to SEQUENCE and update length */
-void SEQUENCE_Set_Seq(SEQUENCE* seq,
-                      char*     seq_text)
+void SEQUENCE_Set_Seq(  SEQUENCE* seq,
+                        char*     seq_text )
 {
    seq->N = strlen(seq_text);
    /* resize string if necessary */
@@ -91,8 +95,8 @@ void SEQUENCE_Set_Seq(SEQUENCE* seq,
 }
 
 /* Append Sequence String onto current SEQUENCE and update length */
-void SEQUENCE_Append_Seq(SEQUENCE* seq,
-                         char*     seq_text)
+void SEQUENCE_Append_Seq(  SEQUENCE* seq,
+                           char*     seq_text )
 {
    seq->N  += strlen(seq_text);
    /* resize string if necessary (allocate twice the space currently needed) */
@@ -116,8 +120,8 @@ void SEQUENCE_Resize_Seq( SEQUENCE* seq,
 }
 
 /* Set Textfield to SEQUENCE field (overwrites) */
-void SEQUENCE_Set_Textfield(char** seq_field,
-                            char*  text)
+void SEQUENCE_Set_Textfield(  char** seq_field,
+                              char*  text )
 {
    *seq_field = realloc( *seq_field, sizeof(char) * (strlen(text) + 1) );
    if (*seq_field == NULL) {
@@ -127,9 +131,15 @@ void SEQUENCE_Set_Textfield(char** seq_field,
    strcpy( *seq_field, text );
 }
 
+/* Create a digitized version of current sequence */
+void SEQUENCE_Digitize( SEQUENCE* seq )
+{
+
+}
+
 /* Output SEQUENCE to FILE POINTER */
-void SEQUENCE_Dump(SEQUENCE* seq,
-                   FILE*     fp)
+void SEQUENCE_Dump(  SEQUENCE* seq,
+                     FILE*     fp )
 {
    /* check for bad pointer */
    if (fp == NULL) {

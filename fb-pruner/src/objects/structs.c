@@ -25,7 +25,7 @@ char AA[] = {
    'A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
    'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y',
    /* unknown character */
-   'Z'
+   'X'
 };
 
 /* Maps ASCII Code to corresponding letters in AA2[] */
@@ -38,7 +38,7 @@ int AA_REV[] = {
    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
    -1, -1, -1, -1, -1,  0, -1,  1,  2,  3, /* begin uppercase alphabet */
     4,  5,  6,  7, -1,  8, 9,  10, 11, -1,
-   12, 13, 14, 15, 16, -1, 17, 18, -1, 19,
+   12, 13, 14, 15, 16, -1, 17, 18, 20, 19, /* X - unknown character */
    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 
 };
 

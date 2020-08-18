@@ -95,6 +95,8 @@ p7_GForward(const ESL_DSQ *dsq, int L, const P7_PROFILE *gm, P7_GMX *gx, float *
                                     DMX(i - 1, k - 1) + TSC(p7P_DM, k - 1)));
          MMX(i, k) = sc + MSC(k);
 
+         printf("(j,k)=(%d,%d), MSC=%7.4f\n", i, k, MSC(k) );
+
          /* insert state */
          sc = p7_FLogsum(MMX(i - 1, k) + TSC(p7P_MI, k),
                          IMX(i - 1, k) + TSC(p7P_II, k));

@@ -34,7 +34,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
                               const HMM_PROFILE*   target,     /* HMM model */
                               const int            Q,          /* query/seq length */
                               const int            T,          /* target/model length */
-                              MATRIX_3D*           st_MX,      /* Normal State (Match, Insert, Delete) Matrix */
+                              MATRIX_3D_SPARSE*    st_SMX,     /* Normal State (Match, Insert, Delete) Matrix */
                               MATRIX_2D*           sp_MX,      /* Special State (J,N,B,C,E) Matrix */
                               EDGEBOUNDS*          edg,        /* edgebounds of sparse matrix */
                               ALIGNMENT*           aln )       /* OUTPUT: Traceback Alignment */
@@ -78,7 +78,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
 
    /* vars for alignment traceback */
    int            st_cur, st_prv;            /* current, previous state in traceback */
-   int            q_prv;                     /* */
+   int            q_prv, t_prv;              /* previous  */
    TRACE*         tr;                        /* trace object for appending */
    const float    tol = 1e-5;                /* acceptable tolerance range for "equality tests" */
 
@@ -89,11 +89,12 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
    tr    = aln->traces->data; 
 
    /* intial cell */
-   q_0 = Q;
-   t_0 = 0;
+   q_0 = q_prv = Q;
+   t_0 = t_prv = 0;
 
    /* add every edgebound from current row */
-   r_0b = r_0;
+   r_0b = edg->N - 1;
+   r_0 = r_0e = r_0b;
    while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
       r_0--;
    }
@@ -121,13 +122,42 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
 
       /* if q_0 has been decremented, then get edgebound range of next row  */
       if ( q_prv != q_0 ) {
-         r_0b = r_0;
+         r_0b = r_0 = r_0e;
          while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
             r_0--;
          }
          r_0e = r_0;
+         /* reset r_0 to beginning of row */
+         r_0 = r_0b;
       }
+
+      /* TODO: can be optimized by only updating during certain cases */
+      /* if either t_0 or q_0 have been decremented, then lookup index offset */
+      if ( t_prv != t_0 || q_prv != q_0 ) {
+         /* search through bounds in row for bound containing index */
+         for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) {
+            /* find bound that contains current index */
+            bnd = &EDG_X(edg, r_0);
+            if ( t_0 >= bnd->lb && t_0 < bnd->rb ) {
+               /* fetch data mapping bound start location to data block in sparse matrix */
+               qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+               qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+               tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+               tx1 = tx0 - 1;
+
+               break;
+            }
+         }
+      }
+
+      /* update previous */
       q_prv = q_0;
+      t_prv = t_0; 
+
+      /* previous target and query sequence */
+      q_1 = q_0 - 1;
+      t_1 = t_0 - 1;
       
       /* get next sequence character */
       a = seq[q_1];
@@ -168,6 +198,8 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
          {
             /* current state */
             cur = XMX(SP_E, q_0);
+            /* set if correct match state found */
+            int found = false;
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
@@ -179,29 +211,68 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
                /* can't come from D, in a *local* Viterbi alignment. */
                st_cur = M_ST;
 
-               
                /* possible previous states (any M state) */
-               for ( t_0 = T; t_0 >= 1; t_0-- ) 
+               /* FOR every BOUND in current ROW */
+               for ( r_0 = r_0b; r_0 > r_0e; r_0-- )
                {
-                  /* possible previous state */
-                  prv_M = MMX(q_0, t_0);
+                  /* get bound data */
+                  bnd   = &EDG_X(edg, r_0);
+                  id    = bnd->id;
+                  lb_0  = bnd->lb;
+                  rb_0  = bnd->rb;
 
-                  /* verifies if scores agree with true previous state in alignment */
-                  if ( CMP_TOL( cur, prv_M ) ) {
-                     break;
+                  /* fetch data mapping bound start location to data block in sparse matrix */
+                  qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+                  qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+                  /* initial location for square matrix and mapping to sparse matrix */
+                  t_0 = lb_0;
+                  tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+                  for ( t_0 = lb_0; t_0 < rb_0; t_0++ ) 
+                  {
+                     t_1 = t_0 - 1; 
+                     tx0 = t_0 - bnd->lb;
+                     tx1 = tx0 - 1;
+
+                     /* possible previous state */
+                     prv_M = MSMX(qx0, tx0);
+
+                     /* verifies if scores agree with true previous state in alignment */
+                     if ( CMP_TOL( cur, prv_M ) ) {
+                        found = true;
+                        break;
+                     }
                   }
                }
+
                /* if no entry point into M found */
-               if ( t_0 == 0 ) {
+               if ( found == -1 ) {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
                   exit(EXIT_FAILURE);
                }
             }
             else     /* glocal mode: we either come from D_M or M_M */
             {
+               /* get bound data */
+               bnd   = &EDG_X(edg, r_0b);
+               id    = bnd->id;
+               rb_T  = (bnd->rb > T);
+               rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
+
+               /* fetch data mapping bound start location to data block in sparse matrix */
+               qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
+               tx0   = T - bnd->lb;
+
                /* possible previous states */
-               prv_M = MMX(q_0, T);
-               prv_D = DMX(q_0, T);
+               if ( rb_T ) {
+                  prv_M = MSMX(qx0, tx0);
+                  prv_D = DSMX(qx0, tx0);
+               }
+               else {
+                  prv_M = -INF;
+                  prv_D = -INF;
+               }
 
                /* verifies if scores agree with true previous state in alignment */
                if ( CMP_TOL( cur, prv_M ) ) {
@@ -223,10 +294,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
          case M_ST:  /* M connects from (q_1, t_1), or B */
          {
             /* current state */
-            cur = MMX(q_0, t_0);   
-
-            q_1 = q_0 - 1;
-            t_1 = t_0 - 1;        
+            cur = MSMX(qx0, tx0);
 
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
@@ -236,9 +304,9 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
 
             /* possible previous states */
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A);
-            prv_M = MMX(q_1, t_1) + TSC(t_1, M2M) + MSC(t_0, A);
-            prv_I = IMX(q_1, t_1) + TSC(t_1, I2M) + MSC(t_0, A);
-            prv_D = DMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A);
+            prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M) + MSC(t_0, A);
+            prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M) + MSC(t_0, A);
+            prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A);
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( cur, prv_B ) ) {
@@ -255,7 +323,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
+               fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A) );
                exit(EXIT_FAILURE);
             }
 
@@ -267,19 +335,19 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
          case D_ST:  /* D connects from M,D at (q_0, t_1) */
          {
             /* current state */
-            cur = DMX(q_0, t_0);
+            cur = DSMX(qx0, tx0);
 
             t_1 = t_0 - 1;
 
             /* No valid alignment goes to -INF */
-            if (DMX(q_0, t_0) == -INF ) {
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
-            prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
+            prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( cur, prv_M ) ) {
@@ -301,17 +369,17 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
          case I_ST:  /* I connects from M,I at (q_1, t_0) */
          {
             /* current state */
-            cur = IMX(q_0, t_0);
+            cur = ISMX(qx0, tx0);
 
             /* No valid alignment goes to -INF */
-            if (IMX(q_0, t_0) == -INF ) {
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
-            prv_M = MMX(q_1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
-            prv_I = IMX(q_1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
+            prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_0, A);
+            prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( cur, prv_M ) ) {
@@ -410,11 +478,8 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
 
       ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
 
-      /* For NCJ, we deferred i decrement. */
-      if ( ( st_cur == N_ST || 
-             st_cur == J_ST || 
-             st_cur == C_ST) && 
-             st_cur == st_prv) {
+      /* For {N,C,J}, we deferred q_0 decrement. */
+      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
          q_0--;
       }
 

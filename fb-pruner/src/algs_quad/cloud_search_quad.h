@@ -24,11 +24,13 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
                               EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                              VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
+                              VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
                               CLOUD_PARAMS*        params );      /* pruning parameters */
 
 /*  
- *  FUNCTION:  cloud_backward_Run()
+ *  FUNCTION:  run_Cloud_Backward_Run()
  *  SYNOPSIS:  Perform Backward part of Cloud Search Algorithm.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
@@ -41,6 +43,8 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
                                  MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                                  const ALIGNMENT*     tr,            /* viterbi traceback */ 
                                  EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                                 VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
+                                 VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                                  EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
                                  CLOUD_PARAMS*        params );      /* pruning parameters */
 

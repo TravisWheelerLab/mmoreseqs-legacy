@@ -101,7 +101,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    }
 
    /* free line buffer */
-   free(line_buf);
+   ERRORCHECK_free(line_buf);
    /* close file */
    fclose(fp);
 }

@@ -81,16 +81,16 @@ void* F_INDEX_Destroy(F_INDEX* index)
    if (index == NULL) return index;
 
    for (int i = 0; i < index->N; i++) {
-      free(index->nodes[i].name);
+      ERRORCHECK_free(index->nodes[i].name);
    }
-   free(index->nodes);
+   ERRORCHECK_free(index->nodes);
 
-   free(index->index_path);
-   free(index->lookup_path);
-   free(index->source_path);
-   free(index->delim);
+   ERRORCHECK_free(index->index_path);
+   ERRORCHECK_free(index->lookup_path);
+   ERRORCHECK_free(index->source_path);
+   ERRORCHECK_free(index->delim);
 
-   free(index);
+   ERRORCHECK_free(index);
    index = NULL;
    return index;
 }
@@ -103,11 +103,11 @@ void F_INDEX_Reuse( F_INDEX* index )
 {
    index->N             = 0;
 
-   free(index->index_path);
+   ERRORCHECK_free(index->index_path);
    index->lookup_path   = NULL;
-   free(index->source_path);
+   ERRORCHECK_free(index->source_path);
    index->source_path   = NULL;
-   free(index->delim);
+   ERRORCHECK_free(index->delim);
    index->delim         = NULL;
 
    index->sort_type     = SORT_NONE;

@@ -221,4 +221,10 @@ void VECTOR_RANGE_Reverse(   VECTOR_RANGE*    vec );
 void VECTOR_RANGE_Dump(   VECTOR_RANGE*    vec,
                         FILE*          fp );
 
+/*
+ *  FUNCTION:  VECTOR_RANGE_Unit_Test()
+ *  SYNOPSIS:  Perform unit test for VECTOR_RANGE.
+ */
+void VECTOR_RANGE_Unit_Test();
+
 #endif 

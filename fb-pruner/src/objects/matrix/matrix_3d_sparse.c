@@ -40,24 +40,24 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Create()
 		exit(EXIT_FAILURE);
 	}
 
-   smx->D1 = 0;
-   smx->D2 = 0;
-   smx->D3 = 0;
+   smx->D1           = 0;
+   smx->D2           = 0;
+   smx->D3           = 0;
 
-   smx->N         = 0;
-   smx->Nalloc    = 0;
+   smx->N            = 0;
+   smx->Nalloc       = 0;
 
-   smx->edg_inner = EDGEBOUNDS_Create();
-   smx->edg_outer = EDGEBOUNDS_Create();
+   smx->edg_inner    = EDGEBOUNDS_Create();
+   smx->edg_outer    = EDGEBOUNDS_Create();
 
-   smx->imap_prv   = VECTOR_INT_Create();
-   smx->imap_cur   = VECTOR_INT_Create();
-   smx->imap_nxt   = VECTOR_INT_Create();
+   smx->imap_prv     = VECTOR_INT_Create();
+   smx->imap_cur     = VECTOR_INT_Create();
+   smx->imap_nxt     = VECTOR_INT_Create();
 
-   smx->omap_cur = VECTOR_INT_Create();
+   smx->omap_cur     = VECTOR_INT_Create();
 
-   smx->data      = VECTOR_FLT_Create();
-   smx->clean     = false;
+   smx->data         = VECTOR_FLT_Create();
+   smx->clean        = false;
 
 	return smx;
 }
@@ -83,7 +83,7 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Destroy( MATRIX_3D_SPARSE* smx )
 
    VECTOR_FLT_Destroy( smx->data );
 
-   free(smx);
+   ERRORCHECK_free(smx);
    smx = NULL;
 
    return smx;
@@ -119,7 +119,7 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse( MATRIX_3D_SPARSE* smx )
  *  FUNCTION: 	MATRIX_3D_SPARSE_Shape_Like_Edgebounds()
  *  SYNOPSIS: 	Creates MATRIX_3D_SPARSE object that can contain the matrix needed for 
  * 				computing Bounded Forward/Backward and Bounded Viterbi algorithms. 
- * 				Uses <in_edg> as a template
+ * 				Uses <edg_inner> as a template.
  *
  *  ARGS:      <smx>          MATRIX_3D_SPARSE object
  *             <edg_inner>    EDGEBOUNDS of the active cells
@@ -129,25 +129,46 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse( MATRIX_3D_SPARSE* smx )
 int MATRIX_3D_SPARSE_Shape_Like_Edgebounds(  MATRIX_3D_SPARSE*    smx,
                                              EDGEBOUNDS*          edg_inner )
 {
+   /* verify that edgebounds are in row form */
+   // if ( edg_inner->edg_mode != EDG_ROW ) {
+   //    printf("ERROR: edg_inner must be in EDGE_ROW form.\n");
+   //    exit(EXIT_FAILURE);
+   // }
+
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
    smx->D2 = edg_inner->T + 1;
    smx->D3 = NUM_NORMAL_STATES;
    /* create edgebounds */
-   smx->edg_inner = EDGEBOUNDS_Copy( smx->edg_outer, edg_inner );
-	smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds( edg_inner, smx->edg_outer );
+   smx->edg_inner = EDGEBOUNDS_Create();
+   /* add inner edgebounds to sparse matrix via deep copy.  NOTE: could use reference? */
+   smx->edg_inner = EDGEBOUNDS_Copy( smx->edg_inner, edg_inner );
+   printf("creating padded edgebounds...\n");
+	smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds_Naive( smx->edg_inner, smx->edg_outer );
    /* index edgebound rows */
+   printf("indexing...\n");
    EDGEBOUNDS_Index( smx->edg_inner );
    EDGEBOUNDS_Index( smx->edg_outer );
+
+   printf("INNER:\n");
+   EDGEBOUNDS_Dump( smx->edg_inner, stdout );
+   printf("OUTER:\n");
+   EDGEBOUNDS_Dump( smx->edg_outer, stdout );
+
    /* map edgebounds to matrix data */
+   printf("mapping outer...\n");
    MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
+   printf("mapping inner...\n");
    MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
    /* create matrix data */
+   printf("growing...\n");
    VECTOR_FLT_GrowTo( smx->data, smx->N );
    smx->data->N = smx->N;
    /* clear data to all -INF */
+   printf("filling...\n");
    VECTOR_FLT_Fill( smx->data, -INF );
    smx->clean = true;
+   printf("done.\n");
 }
 
 /*
@@ -292,6 +313,54 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,
    EDGEBOUNDS_Pushback( edg_outer, &bnd );
 
    return edg_outer;
+}
+
+/*
+ *  FUNCTION:     EDGEBOUNDS_Create_Padded_Edgebounds_Naive()
+ *  SYNOPSIS:     Create new EDGEBOUNDS <edg_outer> from given EDGEBOUNDS <edg_inner>.
+ *                <edg_outer> contains all cells contained in <edg_inner> and pads with every cell adjacent to <edg_outer>, 
+ *                If <edg_outer> already created, reuses data struct.
+ *                Requires <edg_inner> is sorted.
+ *
+ *  ARGS:         <edg_inner>       EDGEBOUNDS of the active cells
+ *                <edg_outer>       EDGEBOUNDS of the total cells
+ *
+ *  RETURN:       Returns <edg_outer>.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inner,
+                                                         EDGEBOUNDS*    edg_outer )
+{
+   BOUND    bnd;
+   int      id;
+   int      N;
+
+   /* create same size so likely no reallocation necessary */
+   if ( edg_outer != NULL ) {
+      edg_outer = EDGEBOUNDS_Create();
+   }
+   EDGEBOUNDS_Reuse( edg_outer, edg_inner->Q, edg_inner->T );
+
+   N = EDGEBOUNDS_Get_Size( edg_inner );
+   for ( int i = 0; i < N; i++ ) 
+   {
+      bnd = *EDGEBOUNDS_Get( edg_inner, i );
+      bnd.lb -= 1;
+      bnd.rb += 1;
+
+      bnd.id -= 1;
+      EDGEBOUNDS_Pushback( edg_outer, &bnd );
+      bnd.id += 1;
+      EDGEBOUNDS_Pushback( edg_outer, &bnd );
+      bnd.id += 1;
+      EDGEBOUNDS_Pushback( edg_outer, &bnd );
+   }
+   printf("sorting...\n");
+   EDGEBOUNDS_Sort( edg_outer );
+   EDGEBOUNDS_Dump( edg_outer, stdout );
+   printf("merging...\n");
+   EDGEBOUNDS_Merge( edg_outer );
+   EDGEBOUNDS_Dump( edg_outer, stdout );
+   exit(EXIT_SUCCESS);
 }
 
 
@@ -505,6 +574,9 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,
 
    edg_N = edg->N;
    smx_N = smx->data->N;
+
+   printf("## MATRIX_3D_SPARSE\n");
+   printf("## Size: %d\n", edg->N );
 
    printf("=> PREVIOUS:\n");
    map   = smx->imap_prv;

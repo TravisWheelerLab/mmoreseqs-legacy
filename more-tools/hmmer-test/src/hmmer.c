@@ -282,6 +282,7 @@ void profile_Dump(ESL_DSQ*    dsq,
    float       *xmx  = gx->xmx;
    int          M    = gm->M;
    int          i, k;
+   int          Kp   = gm->abc->Kp;
 
    fprintf(fp, "=== HMM PROFILE ===\n");
 
@@ -297,24 +298,43 @@ void profile_Dump(ESL_DSQ*    dsq,
       fprintf(fp, "\n");
    }
 
+   /* header */
+
+
    fprintf(fp, "=== MATCH EMISSION PROBS ===\n");
+
+   fprintf(fp, "\t");
+   for (k = 0; k < Kp; k++)
+   {
+      fprintf(fp, "%7d\t", k );
+   }
+   fprintf(fp, "\n");
+
    for (i = 0; i < gm->M + 1; i++)
    {
       fprintf(fp, "%d\t", i);
-      for (k = 0; k < 20; k++)
+      for (k = 0; k < Kp; k++)
       {
-         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_MSC] );
+         fprintf(fp, "%7.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_MSC] );
       }
       fprintf(fp, "\n");
    }
 
    fprintf(fp, "=== INSERT EMISSION PROBS ===\n");
+
+   fprintf(fp, "\t");
+   for (k = 0; k < Kp; k++)
+   {
+      fprintf(fp, "%7d\t", k );
+   }
+   fprintf(fp, "\n");
+
    for (i = 0; i < gm->M + 1; i++)
    {
       fprintf(fp, "%d\t", i);
-      for (k = 0; k < 20; k++)
+      for (k = 0; k < Kp; k++)
       {
-         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_ISC] );
+         fprintf(fp, "%7.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_ISC] );
       }
       fprintf(fp, "\n");
    }

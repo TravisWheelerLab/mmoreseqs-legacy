@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      max_quad.h
- *  PURPOSE:   The Max Posterior Probability and Optimal Alignment.
+ *  PURPOSE:   The Maximum Posterior Probability and Optimal Alignment.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -57,8 +57,8 @@ int run_MaxPost_Quad(   const SEQUENCE*      query,            /* query sequence
    /* Posterior */
    run_MaxPost_Posterior_Quad( query, target, Q, T, st_MX_fwd, sp_MX_fwd, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post, sc_final );
 
-   /* Viterbi for Posterior */
-   run_MaxPost_Viterbi_Quad( query, target, Q, T, st_MX_post, sp_MX_post, st_MX_max, sp_MX_max, sc_final );
+   // /* Viterbi for Posterior */
+   // run_MaxPost_Viterbi_Quad( query, target, Q, T, st_MX_post, sp_MX_post, st_MX_max, sp_MX_max, sc_final );
 
    /* Traceback */
    run_MaxPost_Traceback_Quad( query, target, Q, T, st_MX_max, sp_MX_max, aln );
@@ -347,6 +347,7 @@ int run_MaxPost_Viterbi_Quad(    const SEQUENCE*      query,            /* query
 /*
  *  FUNCTION:  run_MaxPost_Traceback_Quad()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
+ *             Greedy algorithm that chooses the maximum next state.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
@@ -367,24 +368,43 @@ int run_MaxPost_Traceback_Quad(     const SEQUENCE*     query,       /* query se
    /* vars for indexing into data matrices */
    int      i, j;                            /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* map row index into data matrix (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* map column index into data matrix (target) */
+
+   /* vars for recurrance scores */
+   float    cur;                             /* current state score */
+   float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
+   float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
    /* vars for alignment traceback */
    int            st_cur, st_prv;            /* current, previous state in traceback */
+   int            st_max;                    /* previous state with maximum score */
+   int            t_max;                     /* t_0 with maximum score (for B->M) */
+   float          sc_cur, sc_prv;            /* current, previous score of state */
+   float          sc_max;                    /* maximum score for previous state */
    TRACE*         tr;                        /* trace object for appending */
    const float    tol = 1e-5;                /* acceptable tolerance range for "equality tests" */
 
+   int passes = 0;
+
    /* --------------------------------------------------------------------------- */
 
+   /* real sequence indexes */
    q_0 = Q;
-   q_1 = q_0-1;
-
+   q_1 = q_0 - 1;
    t_0 = 0;
-   t_1 = t_0-1;
+   t_1 = t_0 - 1;
+   /* map sequence indexes to data */
+   qx0 = q_0;
+   qx1 = q_1;
+   tx0 = t_0;
+   tx1 = t_1;
 
-   seq   = query->seq; 
-   tr    = aln->traces->data; 
+   seq = query->seq; 
+   tr  = aln->traces->data; 
 
    /* local or global? */
    is_local = target->isLocal;
@@ -397,186 +417,310 @@ int run_MaxPost_Traceback_Quad(     const SEQUENCE*     query,       /* query se
    ALIGNMENT_Append( aln, tr, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
-   /* End of alnace is S state */
+   /* End of trace is S state */
    while (st_prv != S_ST)
    {
-
-      if (q_0 == 0) 
-      {
+      /* if we have reached the end of the query sequence */
+      if (q_0 == 0) {
          ALIGNMENT_Append( aln, tr, S_ST, q_0, t_0 );
          break;
       } 
-      q_1 = q_0-1;
-      t_1 = t_0-1;
+
+      /* reset maximums of previous scores */
+      st_max = X_ST; /* unknown state */
+      sc_max = -INF;
+
+      /* previous query and target index */
+      q_1 = q_0 - 1;
+      t_1 = t_0 - 1;
+      /* map sequence indexes to data */
+      qx0 = q_0;
+      qx1 = q_1;
+      tx0 = t_0;
+      tx1 = t_1;
       
+      /* get next sequence character */
       a = seq[q_1];
       A = AA_REV[a];
 
       /* jump from current state to the prev state */
-      switch (st_prv)
+      switch ( st_prv )
       {
          /* C STATE to {C,E} */
-         case C_ST:  /* C(i) comes from C(i-1) or E(i) */
-            if (XMX(SP_C, q_0) == -INF ) {
-               fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+         case C_ST:  /* C(q_0) comes from C(q_1) or E(q_0) */
+         {
+            /* current state */
+            cur = XMX(SP_C, q_0);
+            
+            /* possible previous states before transition scores */
+            prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
+            prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_C ) {
+               st_max = C_ST;
+               sc_max = prv_C;
+            }
+            if ( sc_max < prv_E ) {
+               st_max = E_ST;
+               sc_max = prv_E;
             }
 
-            if ( CMP_TOL( XMX(SP_C, q_0), XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP) ) )
-               st_cur = C_ST;
-            else if ( CMP_TOL( XMX(SP_C, q_0), XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE) ) )
-               st_cur = E_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
-            break;
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+         } break;
 
          /* E STATE to {M,D} */
-         case E_ST:  /* E connects from any M state. k set here */
-            if (XMX(SP_E, q_0) == -INF ) {
+         case E_ST:  /* E connects from any M state. t_0 is set here. */
+         {
+            /* current state */
+            cur = XMX(SP_E, q_0);
+
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            if ( is_local )  /* local mode: ends in M */
+            if ( is_local ) /* local mode: ends in M */
             {
-               st_cur = M_ST;    /* can't come from D, in a *local* Viterbi alnace. */
-               for (t_0 = T; t_0 >= 1; t_0--) {
-                  // fprintf( stderr, "testing E at (%d, %d) => (%.2f v. %.2f) \n", q_0, t_0, XMX(SP_E, q_0), MMX(q_0, t_0) );
-                  if ( CMP_TOL( XMX(SP_E, q_0), MMX(q_0, t_0) ) )
-                     break;
-               }
-               if (t_0 == 0) {
-                  fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+               /* can't come from D, in a *local* Viterbi alignment. */
+               st_cur = M_ST;
+
+               /* next state must be M */
+               st_max = M_ST;
+
+               /* find maximum of previous states (all possible M(q,t) for current q=q_0 ) */
+               for ( t_0 = T; t_0 >= 1; t_0-- ) 
+               {
+                  /* possible previous state */
+                  prv_M = MMX(q_0, t_0);
+
+                  /* find maximum of possible previous states */
+                  if ( sc_max < prv_M ) {
+                     sc_max = prv_M;
+                     t_max = t_0;
+                  }
                }
             }
-            else     /* glocal mode: we either come from D_M or M_M */
+            else /* glocal mode: we either come from D_M or M_M */
             {
-               if ( CMP_TOL( XMX(SP_E, q_0), MMX(q_0, T) ) ) {
-                  st_cur = M_ST;
-                  t_0 = T;
+               /* possible previous states */
+               prv_M = MMX(q_0, T);
+               prv_D = DMX(q_0, T);
+
+               /* find maximum of possible previous states */
+               if ( sc_max < prv_M ) {
+                  sc_max = prv_M;
+                  t_max = T;
                }
-               else if ( CMP_TOL( XMX(SP_E, q_0), DMX(q_0, T) ) ) {
-                  st_cur = D_ST;
-                  t_0 = T;
-               }
-               else {
-                  fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+               if ( sc_max < prv_D ) {
+                  sc_max = prv_D;
+                  t_max = T;
                }
             }
-            break;
+            
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* set t_0 of end of alignment */
+            t_0 = t_max;
+         } break;
 
          /* M STATE to {B,M,I,D} */
-         case M_ST:  /* M connects from i-1,k-1, or B */
-            if (MMX(q_0, t_0) == -INF ) {
+         case M_ST:  /* M connects from {M,I,D}(q_1, t_1), or B(q_1) */
+         {
+            /* current state */
+            cur = MMX(q_0, t_0);    
+
+            /* No valid alignment goes to -INF */
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( MMX(q_0, t_0), XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A) ) )
-               st_cur = B_ST;
-            else if ( CMP_TOL( MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, M2M) + MSC(t_0, A) ) )
-               st_cur = M_ST;
-            else if ( CMP_TOL( MMX(q_0, t_0), IMX(q_1, t_1) + TSC(t_1, I2M) + MSC(t_0, A) ) )
-               st_cur = I_ST;
-            else if ( CMP_TOL( MMX(q_0, t_0), DMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) ) )
-               st_cur = D_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+            /* possible previous states */
+            prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A);
+            prv_M = MMX(q_1, t_1) + TSC(t_1, M2M) + MSC(t_0, A);
+            prv_I = IMX(q_1, t_1) + TSC(t_1, I2M) + MSC(t_0, A);
+            prv_D = DMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_B ) {
+               st_max = B_ST;
+               sc_max = prv_B;
             }
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
+            }
+            if ( sc_max < prv_I ) {
+               st_max = I_ST;
+               sc_max = prv_I;
+            }
+            if ( sc_max < prv_D ) {
+               st_max = D_ST;
+               sc_max = prv_D;
+            }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* update index of previous state */
             t_0--; q_0--;
-            break;
+         } break;
 
          /* D STATE to {M,D} */
-         case D_ST:  /* D connects from M,D at i,k-1 */
-            if (DMX(q_0, t_0) == -INF ) {
+         case D_ST:  /* D connects from M,D at (q_0, t_1) */
+         {
+            /* current state */
+            cur = DMX(q_0, t_0);
+
+            /* No valid alignment goes to -INF */
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            t_1 = t_0-1;
-            if ( CMP_TOL( DMX(q_0, t_0), MMX(q_0, t_1) + TSC(t_1, M2D) ) )
-               st_cur = M_ST;
-            else if ( CMP_TOL( DMX(q_0, t_0), DMX(q_0, t_1) + TSC(t_1, D2D) ) )
-               st_cur = D_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+            /* possible previous states */
+            prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
+            prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
             }
+            if ( sc_max < prv_D ) {
+               st_max = D_ST;
+               sc_max = prv_D;
+            }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* update index to previous state */
             t_0--;
-            break;
+         } break;
 
          /* I STATE to {M,I} */
-         case I_ST:  /* I connects from M,I at i-1,k */
+         case I_ST:  /* I connects from M,I at (q_1, t_0) */
+         {
+            /* current state */
+            cur = IMX(q_0, t_0);
+
+            /* No valid alignment goes to -INF */
             if (IMX(q_0, t_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( IMX(q_0, t_0), MMX(q_1, t_0) + TSC(t_0, M2I) + ISC(t_0, A) ) )
-               st_cur = M_ST;
-            else if ( CMP_TOL( IMX(q_0, t_0), IMX(q_1, t_0) + TSC(t_0, I2I) + ISC(t_0, A) ) )
-               st_cur = I_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+            /* possible previous states */
+            prv_M = MMX(q_1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
+            prv_I = IMX(q_1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_M ) {
+               st_max = M_ST;
+               sc_max = prv_M;
             }
+            if ( sc_max < prv_I ) {
+               st_max = I_ST;
+               sc_max = prv_I;
+            }
+
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+            /* update index to previous state */
             q_0--;
-            break;
+         } break;
 
          /* N STATE to {N,S} */
-         case N_ST:  /* N connects from S, N */
-            if (XMX(SP_N, q_0) == -INF ) {
+         case N_ST:  /* N connects from S,N */
+         {
+            /* current state */
+            cur = XMX(SP_N, q_0);
+
+            /* No valid alignment goes to -INF */
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            st_cur = ( (q_0 <= 0) ? S_ST : N_ST );
-            break;
+            /* if at beginning of query sequence, then alignment completes at S state, else N state */
+            if ( q_0 <= 0 ) {
+               st_cur = S_ST;
+            } 
+            else {
+               st_cur = N_ST;
+            }
+         } break;
 
          /* B STATE to {N,J} */
          case B_ST:  /* B connects from N, J */
-            if ( CMP_TOL( XMX(SP_B, q_0), XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE) ) )
-               st_cur = N_ST;
-            else if ( CMP_TOL( XMX(SP_B, q_0), XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE) ) )
-               st_cur = J_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+         {
+            /* current state */
+            cur = XMX(SP_B, q_0);
+
+            /* possible previous states */
+            prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);
+            prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_N ) {
+               st_max = N_ST;
+               sc_max = prv_N;
             }
-            break;
+            if ( sc_max < prv_J ) {
+               st_max = J_ST;
+               sc_max = prv_J;
+            }
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+         } break;
 
          /* J STATE to {J,E} */
-         case J_ST:  /* J connects from E(i) or J(i-1) */
-            if (XMX(SP_J, q_0) == -INF ) {
+         case J_ST:  /* J connects from E(q_0) or J(q_1) */
+         {
+            /* current state */
+            cur = XMX(SP_J, q_0);
+
+            if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
 
-            if ( CMP_TOL( XMX(SP_J, q_0), XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP) ) )
-               st_cur = J_ST;
-            else if ( CMP_TOL( XMX(SP_J, q_0), XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP) ) )
-               st_cur = E_ST;
-            else {
-               fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+            /* possible previous states */
+            prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
+            prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);
+
+            /* find maximum of previous states */
+            if ( sc_max < prv_J ) {
+               st_max = J_ST;
+               sc_max = prv_J;
             }
-            break;
+            if ( sc_max < prv_E ) {
+               st_max = E_ST;
+               sc_max = prv_E;
+            }
+            /* update next state to max */
+            st_cur = st_max;
+            sc_cur = sc_max;
+         } break;
 
          default:
+         {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
             exit(EXIT_FAILURE);
+         }
       }
 
       ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
 
-      /* For NCJ, we deferred i decrement. */
-      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && st_cur == st_prv) {
+      /* For NCJ, we deferred i decrement. (only if looping within state) */
+      if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
          q_0--;
       }
 
