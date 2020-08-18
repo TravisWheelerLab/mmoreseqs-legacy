@@ -1810,6 +1810,48 @@ extern int fm_configInit      (FM_CFG *cfg, ESL_GETOPTS *go);
 extern int fm_getOccCount     (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c);
 extern int fm_getOccCountLT   (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c, uint32_t *cnteq, uint32_t *cntlt);
 
+/* DAVID RICH EDIT */
+int
+p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, /* DAVID RICH EDIT */ P7_PROFILE *gm);
+int
+p7_Pipeline_TIMED(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, /* DAVID RICH EDIT */ P7_PROFILE *gm);
+
+void DP_MATRIX_Dump(  const int   Q, 
+                      const int   T,
+                      ESL_DSQ*    dsq,
+                      P7_PROFILE* gm,
+                      P7_GMX*     gx,
+                      FILE*       fp );
+
+void trace_Build( const int   L, 
+                  const int   M,
+                  ESL_DSQ*    dsq,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  P7_TRACE*   tr );
+
+void trace_Dump(  const int   L, 
+                  const int   M,
+                  ESL_DSQ*    dsq,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  P7_TRACE*   tr,
+                  FILE*       fp );
+
+void profile_Dump(ESL_DSQ*    dsq,
+                  const int   L,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  FILE*       fp );
+
+void profileConfig_Dump(P7_HMM*       hmm,
+                        P7_BG*        bg,
+                        P7_PROFILE*   gm,
+                        FILE*         fp );
+
+void hmmProf_Dump(P7_PROFILE*   gm,
+                  FILE*         fp );
+
 #endif /*P7_HMMERH_INCLUDED*/
 
 

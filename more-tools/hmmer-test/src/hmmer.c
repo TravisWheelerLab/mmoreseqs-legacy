@@ -17,6 +17,472 @@
 #include "esl_getopts.h"
 #include "hmmer.h"
 
+/* DAVID RICH EDIT */
+/*
+ *  FUNCTION:  dp_matrix_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *             <f>         Filename
+ */
+void DP_MATRIX_Dump(  const int   Q, 
+                      const int   T,
+                      ESL_DSQ*    dsq,
+                      P7_PROFILE* gm,
+                      P7_GMX*     gx,
+                      FILE*       fp )
+{
+   float const *tsc  = gm->tsc;
+   float      **dp   = gx->dp;
+   float       *xmx  = gx->xmx;
+   int          i, j;
+
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+   /* Header */
+   fprintf(fp, "#\t");
+   for (int i = 0; i <= T; i++) {
+      fprintf(fp, "%d\t", i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "M %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", MMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", IMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %d\t", i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f\t", DMX(i, j) );
+      }
+      fprintf(fp, "\n\n");
+   }
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "N\t");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_N)  ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "J\t");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_J) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "E\t");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_E) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "C\t");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_C) ); 
+   }
+   fprintf(fp, "\n");
+   fprintf(fp, "B\t");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(i, p7G_B) ); 
+   }
+   fprintf(fp, "\n");
+}
+
+/*
+ *  FUNCTION:  trace_Build()
+ *  SYNOPSIS:  Build path in dynamic programming matrix according to traceback (1-index).
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *             <tr>        Trace
+ */
+void trace_Build( const int   L, 
+                  const int   M,
+                  ESL_DSQ*    dsq,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  P7_TRACE*   tr )
+{
+   float const *tsc  = gm->tsc;
+   float      **dp   = gx->dp;
+   float       *xmx  = gx->xmx;
+   int          i, j, k, m;
+   int          st;
+   int          N = tr->N;
+
+   /* Zero out Matrices */
+   for (i = 0; i <= L; i++)
+   {
+      for (j = 0; j <= gm->M; j++)
+      {
+         MMX(i, j) = IMX(i, j) = DMX(i, j) = 0;
+      }
+      XMX(i, p7G_N) = 0;
+      XMX(i, p7G_J) = 0;
+      XMX(i, p7G_E) = 0;
+      XMX(i, p7G_C) = 0;
+      XMX(i, p7G_B) = 0;
+   }
+
+   /*
+   p7T_BOGUS =  0,
+   p7T_M     =  1,
+   p7T_D     =  2,
+   p7T_I     =  3,
+   p7T_S     =  4,
+   p7T_N     =  5,
+   p7T_B     =  6,
+   p7T_E     =  7,
+   p7T_C     =  8,
+   p7T_T     =  9,
+   p7T_J     = 10,
+   p7T_X     = 11,
+   */
+
+   /* Input vals along the trace */
+   for (j = 0; j < N + 1; j++)
+   {
+      st = tr->st[j];
+      i = tr->i[j];
+      k = tr->k[j];
+      m = j + 1;
+
+      switch (st) {
+      case p7T_M:
+         MMX(i, k) = m;
+         break;
+      case p7T_I:
+         IMX(i, k) = m;
+         break;
+      case p7T_D:
+         DMX(i, k) = m;
+         break;
+      case p7T_N:
+         XMX(i, p7G_N) = m;
+         break;
+      case p7T_B:
+         XMX(i, p7G_B) = m;
+         break;
+      case p7T_E:
+         XMX(i, p7G_E) = m;
+         break;
+      case p7T_C:
+         XMX(i, p7G_C) = m;
+         break;
+      case p7T_J:
+         XMX(i, p7G_J) = m;
+         break;
+      default:
+         break;
+      }
+   }
+   printf("\n");
+}
+
+/*
+ *  FUNCTION:  trace_Print()
+ *  SYNOPSIS:  Build path in dynamic programming matrix according to traceback (1-index).
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *             <tr>        Trace
+ */
+void trace_Dump(  const int   L, 
+                  const int   M,
+                  ESL_DSQ*    dsq,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  P7_TRACE*   tr,
+                  FILE*       fp )
+{
+   float const *tsc  = gm->tsc;
+   float      **dp   = gx->dp;
+   float       *xmx  = gx->xmx;
+   int          i, j, k, m;
+   int          st;
+   int          N = tr->N;
+
+   /*
+   p7T_BOGUS =  0,
+   p7T_M     =  1,
+   p7T_D     =  2,
+   p7T_I     =  3,
+   p7T_S     =  4,
+   p7T_N     =  5,
+   p7T_B     =  6,
+   p7T_E     =  7,
+   p7T_C     =  8,
+   p7T_T     =  9,
+   p7T_J     = 10,
+   p7T_X     = 11,
+   */
+   char * states[] = {"ST_BOGUS",
+                      "ST_M",
+                      "ST_D",
+                      "ST_I",
+                      "ST_S",
+                      "ST_N",
+                      "ST_B",
+                      "ST_E",
+                      "ST_C",
+                      "ST_T",
+                      "ST_J",
+                      "ST_X" };
+
+   /* Input vals along the trace */
+   for (j = 0; j < N; j++)
+   {
+      st = tr->st[j];
+      i = tr->i[j];
+      k = tr->k[j];
+      m = j + 1;
+      fprintf(fp, "[%d](%s,%d,%d)\n", j, states[st], i, k);
+      
+      // if (st == p7T_M || st == p7T_I || st == p7T_D) {
+      //    fprintf(fp, "[%d](%s,%d,%d)\n", j, states[st], i, k);
+      // } else {
+      //    fprintf(fp, "[%d](%s)\n", j, states[st]);
+      // }
+   }
+   fprintf(fp, "\n");
+}
+
+
+/*
+ *  FUNCTION:  hmm_Save()
+ *  SYNOPSIS:  Save HMM Profile.
+ *
+ *  ARGS:
+ */
+void profile_Dump(ESL_DSQ*    dsq,
+                  const int   L,
+                  P7_PROFILE* gm,
+                  P7_GMX*     gx,
+                  FILE*       fp )
+{
+   float const *tsc  = gm->tsc;
+   float      **dp   = gx->dp;
+   float       *xmx  = gx->xmx;
+   int          M    = gm->M;
+   int          i, k;
+
+   fprintf(fp, "=== HMM PROFILE ===\n");
+
+   fprintf(fp, ">>> NAME: %s\n", gm->name);
+   fprintf(fp, "=== TRANSITION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < p7P_NTRANS; k++)
+      {
+         fprintf(fp, "%.4f\t", p7P_TSC(gm, i, k) );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== MATCH EMISSION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < 20; k++)
+      {
+         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_MSC] );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== INSERT EMISSION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < 20; k++)
+      {
+         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_ISC] );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== SPECIAL PROBS (E,N,J,C) ===\n");
+   fprintf(fp, "E:\t%.5f\t%.5f\n", gm->xsc[p7P_E][p7P_LOOP], gm->xsc[p7P_E][p7P_MOVE]);
+   fprintf(fp, "N:\t%.5f\t%.5f\n", gm->xsc[p7P_N][p7P_LOOP], gm->xsc[p7P_N][p7P_MOVE]);
+   fprintf(fp, "J:\t%.5f\t%.5f\n", gm->xsc[p7P_J][p7P_LOOP], gm->xsc[p7P_J][p7P_MOVE]);
+   fprintf(fp, "C:\t%.5f\t%.5f\n", gm->xsc[p7P_C][p7P_LOOP], gm->xsc[p7P_C][p7P_MOVE]);
+   fprintf(fp, "<<<\n\n");
+}
+
+/*
+ *  FUNCTION:  save_ProfileConfig()
+ *  SYNOPSIS:  Save Profile Configuration.
+ *
+ *  PURPOSE:
+ *
+ *  ARGS:
+ *
+ *  RETURN:
+ */
+void profileConfig_Dump(P7_HMM*        hmm,
+                        P7_BG*         bg,
+                        P7_PROFILE*    gm,
+                        FILE*          fp )
+{
+   int M = gm->M;
+   int K = gm->abc->K;
+
+   /* Print ProfileConfig */
+   fprintf(fp, "=== PROFILE CONFIG ===\n");
+
+   p7_profile_IsLocal(gm) ? 
+      printf("IS LOCAL!!!\n") : printf("IS NOT LOCAL!!!\n");
+   p7_profile_IsMultihit(gm) ? 
+      printf("IS MULTIHIT!!!\n") : printf("IS NOT MULTIHIT!!!\n");
+
+   fprintf(fp, "=== P7_HMM ===\n");
+
+   fprintf(fp, "\tB\t");
+   for (int j = 0; j < hmm->abc->K; j++)
+   {
+      fprintf(fp, "%.4f\t", bg->f[j]);
+   }
+   fprintf(fp, "\n\n");
+
+   for (int i = 0; i < hmm->M + 1; i++)
+   {
+      fprintf(fp, "%d\tM\t", i);
+      for (int j = 0; j < hmm->abc->K; j++)
+      {
+         fprintf(fp, "%.4f\t", hmm->mat[i][j]);
+      }
+      fprintf(fp, "\n");
+      fprintf(fp, "\tI\t");
+      for (int j = 0; j < hmm->abc->K; j++)
+      {
+         fprintf(fp, "%.4f\t", hmm->ins[i][j]);
+      }
+      fprintf(fp, "\n");
+      fprintf(fp, "\tT\t");
+      for (int j = 0; j < p7H_NTRANSITIONS; j++)
+      {
+         fprintf(fp, "%.4f\t", hmm->t[i][j]);
+      }
+      fprintf(fp, "\n");
+   }
+
+   float const *tsc  = gm->tsc;
+
+   fprintf(fp, "=== PROFILE ===\n");
+   for (int i = 0; i <= gm->M; i++) {
+      fprintf(fp, "%d\tM\t", i);
+      for (int k = 0; k < K; k++) {
+          float const *rsc = gm->rsc[k];
+          fprintf(fp, "%.3f ", MSC(i) );
+      } 
+      fprintf(fp, "\n");
+      fprintf(fp, "\tI\t");
+      for (int k = 0; k < K; k++) {
+          float const *rsc = gm->rsc[k];
+          fprintf(fp, "%.3f ", ISC(i) );
+      }
+      fprintf(fp, "\n");
+      fprintf(fp, "\tT\t");
+      for (int k = 0; k < 8; k++) {
+         fprintf(fp, "%.3f ", TSC(k, i) );
+      }
+      fprintf(fp, "\n");
+   }
+   fprintf(fp, "\n");
+
+   char* spec = "ENJC";
+   for (int i = 0; i < p7P_NXSTATES; i++) {
+      fprintf(fp, "%c\t", spec[i]);
+      fprintf(fp, "%.3f ", gm->xsc[i][p7P_LOOP]);
+      fprintf(fp, "%.3f ", gm->xsc[i][p7P_MOVE]);
+      fprintf(fp, "\n");
+   }
+   fprintf(fp, "===================\n");
+}
+
+/*
+ *  FUNCTION:  hmmProf_Dump()
+ *  SYNOPSIS:  Save HMM Profile.
+ *
+ *  ARGS:
+ *
+ *  RETURN:
+ */
+void hmmProf_Dump(P7_PROFILE*   gm,
+                  FILE*         fp )
+{
+   float    *tsc  = gm->tsc;
+   int      M    = gm->M;
+   int      i, k;
+   int      K, Kp;
+
+   K  = gm->abc->K;
+   Kp = gm->abc->Kp;
+
+   fprintf(fp, "=== HMM PROFILE ===\n");
+
+   fprintf(fp, ">>> NAME: %s\n", gm->name);
+   fprintf(fp, "=== TRANSITION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < p7P_NTRANS; k++)
+      {
+         fprintf(fp, "%.4f\t", p7P_TSC(gm, i, k) );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== MATCH EMISSION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < Kp; k++)
+      {
+         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_MSC] );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== INSERT EMISSION PROBS ===\n");
+   for (i = 0; i < gm->M + 1; i++)
+   {
+      fprintf(fp, "%d\t", i);
+      for (k = 0; k < Kp; k++)
+      {
+         fprintf(fp, "%.4f\t", gm->rsc[k][(i) * p7P_NR + p7P_ISC] );
+      }
+      fprintf(fp, "\n");
+   }
+
+   fprintf(fp, "=== SPECIAL PROBS (E,N,J,C) ===\n");
+   fprintf(fp, "E:\t%.5f\t%.5f\n", gm->xsc[p7P_E][p7P_LOOP], gm->xsc[p7P_E][p7P_MOVE]);
+   fprintf(fp, "N:\t%.5f\t%.5f\n", gm->xsc[p7P_N][p7P_LOOP], gm->xsc[p7P_N][p7P_MOVE]);
+   fprintf(fp, "J:\t%.5f\t%.5f\n", gm->xsc[p7P_J][p7P_LOOP], gm->xsc[p7P_J][p7P_MOVE]);
+   fprintf(fp, "C:\t%.5f\t%.5f\n", gm->xsc[p7P_C][p7P_LOOP], gm->xsc[p7P_C][p7P_MOVE]);
+   fprintf(fp, "<<<\n\n");
+}
+
+/* DAVID RICH EDIT END */
+
 /*****************************************************************
  * 1. Miscellaneous functions for H3
  *****************************************************************/

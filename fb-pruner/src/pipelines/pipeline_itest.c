@@ -154,7 +154,7 @@ void itest_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
       exit(EXIT_FAILURE);
    }
-   // SEQUENCE_Dump( q_seq, stdout );
+   SEQUENCE_Dump( q_seq, stdout );
 
    /* build t_prof profile */
    printf("loading target...\n");
@@ -163,6 +163,7 @@ void itest_pipeline( WORKER* worker )
       HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
       HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
       HMM_PROFILE_Config( t_prof, mode );
+      HMM_PROFILE_Dump( t_prof, stdout );
       HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
    }
    else if ( t_filetype == FILE_FASTA )
@@ -175,7 +176,6 @@ void itest_pipeline( WORKER* worker )
       fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
       exit(EXIT_FAILURE);
    }
-   
    HMM_PROFILE_Dump( t_prof, stdout );
 
    printf("TARGET LEN:\t%d\n", t_prof->N);
@@ -786,12 +786,10 @@ void itest_pipeline( WORKER* worker )
    {
       MATRIX_3D_SPARSE_Reuse( st_SMX );
       MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX, edg_row_lin );
-      exit(EXIT_SUCCESS);
       // EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
       EDGEBOUNDS_Save( st_SMX->edg_outer, "test_output/my.sparse.outer.edg" );
       EDGEBOUNDS_Save( st_SMX->edg_inner, "test_output/my.sparse.inner.edg" );
    }
-   exit(EXIT_SUCCESS);
 
    // /* stats */
    // num_cells = cloud_Cell_Count(Q, T, st_MX, sp_MX);

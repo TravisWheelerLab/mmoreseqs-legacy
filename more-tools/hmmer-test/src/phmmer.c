@@ -38,6 +38,8 @@ typedef struct {
   P7_PIPELINE      *pli;
   P7_TOPHITS       *th;
   P7_OPROFILE      *om;
+  /* DAVID RICH EDIT */
+  P7_PROFILE       *gm;
 } WORKER_INFO;
 
 #define REPOPTS     "-E,-T,--cut_ga,--cut_nc,--cut_tc"

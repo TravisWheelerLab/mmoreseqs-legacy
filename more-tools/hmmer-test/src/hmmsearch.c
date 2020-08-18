@@ -41,6 +41,8 @@ typedef struct {
   P7_PIPELINE      *pli;         /* work pipeline                           */
   P7_TOPHITS       *th;          /* top hit results                         */
   P7_OPROFILE      *om;          /* optimized query profile                 */
+  /* DAVID RICH EDIT */
+  P7_PROFILE       *gm;          /* general, unoptimized query profile      */
 } WORKER_INFO;
 
 #define REPOPTS     "-E,-T,--cut_ga,--cut_nc,--cut_tc"
@@ -349,6 +351,8 @@ main(int argc, char **argv)
 static int
 serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 {
+  FILE* fp = NULL;
+
   FILE            *ofp      = stdout;            /* results output file (-o)                        */
   FILE            *afp      = NULL;              /* alignment output file (-A)                      */
   FILE            *tblfp    = NULL;              /* output stream for tabular per-seq (--tblout)    */
@@ -377,6 +381,9 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
   ESL_WORK_QUEUE  *queue    = NULL;
 #endif
   char             errbuf[eslERRBUFSIZE];
+
+  /* DAVID RICH EDIT */
+  printf("=== SERIAL MASTER (hmmsearch.) ===\n");
 
   w = esl_stopwatch_Create();
 
@@ -433,6 +440,12 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 
   /* <abc> is not known 'til first HMM is read. */
   hstatus = p7_hmmfile_Read(hfp, &abc, &hmm);
+
+  /* DAVID RICH EDIT */
+  fp = fopen("test_output/hmmer.hmm.tsv", "w+");
+  p7_hmm_Dump(fp, hmm);
+  fclose(fp);
+  
   if (hstatus == eslOK)
     {
       /* One-time initializations after alphabet <abc> becomes known */
@@ -440,22 +453,29 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       esl_sqfile_SetDigital(dbfp, abc); //ReadBlock requires knowledge of the alphabet to decide how best to read blocks
 
       for (i = 0; i < infocnt; ++i)
-	{
-	  info[i].bg    = p7_bg_Create(abc);
+  {
+    info[i].bg    = p7_bg_Create(abc);
+
+   /* DAVID RICH EDIT */
+   fp = fopen("test_output/hmmer.bg.tsv", "w+");
+   p7_bg_Dump(fp, info[i].bg);
+   fclose(fp);
+    
+
 #ifdef HMMER_THREADS
-	  info[i].queue = queue;
+    info[i].queue = queue;
 #endif
-	}
+  }
 
 #ifdef HMMER_THREADS
       for (i = 0; i < ncpus * 2; ++i)
-	{
-	  block = esl_sq_CreateDigitalBlock(BLOCK_SIZE, abc);
-	  if (block == NULL) 	      esl_fatal("Failed to allocate sequence block");
+  {
+    block = esl_sq_CreateDigitalBlock(BLOCK_SIZE, abc);
+    if (block == NULL)        esl_fatal("Failed to allocate sequence block");
 
- 	  status = esl_workqueue_Init(queue, block);
-	  if (status != eslOK)	      esl_fatal("Failed to add block to work queue");
-	}
+    status = esl_workqueue_Init(queue, block);
+    if (status != eslOK)        esl_fatal("Failed to add block to work queue");
+  }
 #endif
     }
 
@@ -491,14 +511,29 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
       /* Convert to an optimized model */
       gm = p7_profile_Create (hmm->M, abc);
       om = p7_oprofile_Create(hmm->M, abc);
-      p7_ProfileConfig(hmm, info->bg, gm, 100, p7_LOCAL); /* 100 is a dummy length for now; and MSVFilter requires local mode */
-      p7_oprofile_Convert(gm, om);                  /* <om> is now p7_LOCAL, multihit */
+
+      /* DAVID RICH EDIT PROFILE CONFIGURATION */
+      /* CONFIG MODE OPTIONS: p7_LOCAL, p7_GLOCAL, p7_UNILOCAL, p7_UNIGLOCAL */
+      int mode = p7_UNILOCAL;
+      // p7_ProfileConfig(hmm, info->bg, gm, 100, p7_LOCAL); /* DEFAULT: 100 is a dummy length for now; and MSVFilter requires local mode */
+      p7_ProfileConfig(hmm, info->bg, gm, 100, mode);    /* CLOUD requires p7_UNILOCAL (no jumps) */
+      p7_oprofile_Convert(gm, om);                       /* <om> is now p7_LOCAL, multihit */
+
+      /* DAVID RICH EDIT */
+      printf("=== PROFILE CONFIG ===\n");
+      printf("saving profile config...\n");
+      fp = fopen("test_output/hmmer.profile_config.tsv", "w+");
+      profileConfig_Dump(hmm, info->bg, gm, fp);
+      fclose(fp);
+      printf("...profile config saved.\n");
 
       for (i = 0; i < infocnt; ++i)
       {
         /* Create processing pipeline and hit list */
         info[i].th  = p7_tophits_Create();
         info[i].om  = p7_oprofile_Clone(om);
+        /* DAVID RICH EDIT */
+        info[i].gm  = p7_profile_Clone(gm);
         info[i].pli = p7_pipeline_Create(go, om->M, 100, FALSE, p7_SEARCH_SEQS); /* L_hint = 100 is just a dummy for now */
         status = p7_pli_NewModel(info[i].pli, info[i].om, info[i].bg);
         if (status == eslEINVAL) p7_Fail(info->pli->errbuf);
@@ -536,6 +571,8 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
         p7_pipeline_Destroy(info[i].pli);
         p7_tophits_Destroy(info[i].th);
         p7_oprofile_Destroy(info[i].om);
+        /* DAVID RICH EDIT */
+        p7_profile_Destroy(info[i].gm);
       }
 
       /* Print the results.  */
@@ -554,23 +591,23 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 
       /* Output the results in an MSA (-A option) */
       if (afp) {
-	ESL_MSA *msa = NULL;
+  ESL_MSA *msa = NULL;
 
-	if (p7_tophits_Alignment(info->th, abc, NULL, NULL, 0, p7_ALL_CONSENSUS_COLS, &msa) == eslOK)
-	  {
-	    esl_msa_SetName     (msa, hmm->name, -1);
-	    esl_msa_SetAccession(msa, hmm->acc,  -1);
-	    esl_msa_SetDesc     (msa, hmm->desc, -1);
-	    esl_msa_FormatAuthor(msa, "hmmsearch (HMMER %s)", HMMER_VERSION);
+  if (p7_tophits_Alignment(info->th, abc, NULL, NULL, 0, p7_ALL_CONSENSUS_COLS, &msa) == eslOK)
+    {
+      esl_msa_SetName     (msa, hmm->name, -1);
+      esl_msa_SetAccession(msa, hmm->acc,  -1);
+      esl_msa_SetDesc     (msa, hmm->desc, -1);
+      esl_msa_FormatAuthor(msa, "hmmsearch (HMMER %s)", HMMER_VERSION);
 
-	    if (textw > 0) esl_msafile_Write(afp, msa, eslMSAFILE_STOCKHOLM);
-	    else           esl_msafile_Write(afp, msa, eslMSAFILE_PFAM);
-	  
-	    if (fprintf(ofp, "# Alignment of %d hits satisfying inclusion thresholds saved to: %s\n", msa->nseq, esl_opt_GetString(go, "-A")) < 0) ESL_EXCEPTION_SYS(eslEWRITE, "write failed");
-	  } 
-	else { if (fprintf(ofp, "# No hits satisfy inclusion thresholds; no alignment saved\n") < 0) ESL_EXCEPTION_SYS(eslEWRITE, "write failed"); }
-	  
-	esl_msa_Destroy(msa);
+      if (textw > 0) esl_msafile_Write(afp, msa, eslMSAFILE_STOCKHOLM);
+      else           esl_msafile_Write(afp, msa, eslMSAFILE_PFAM);
+    
+      if (fprintf(ofp, "# Alignment of %d hits satisfying inclusion thresholds saved to: %s\n", msa->nseq, esl_opt_GetString(go, "-A")) < 0) ESL_EXCEPTION_SYS(eslEWRITE, "write failed");
+    } 
+  else { if (fprintf(ofp, "# No hits satisfy inclusion thresholds; no alignment saved\n") < 0) ESL_EXCEPTION_SYS(eslEWRITE, "write failed"); }
+    
+  esl_msa_Destroy(msa);
       }
 
       p7_pipeline_Destroy(info->pli);
@@ -609,7 +646,7 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
     {
       esl_workqueue_Reset(queue);
       while (esl_workqueue_Remove(queue, (void **) &block) == eslOK)
-	esl_sq_DestroyBlock(block);
+  esl_sq_DestroyBlock(block);
       esl_workqueue_Destroy(queue);
       esl_threads_Destroy(threadObj);
     }
@@ -1300,8 +1337,13 @@ serial_loop(WORKER_INFO *info, ESL_SQFILE *dbfp, int n_targetseqs)
       p7_pli_NewSeq(info->pli, dbsq);
       p7_bg_SetLength(info->bg, dbsq->n);
       p7_oprofile_ReconfigLength(info->om, dbsq->n);
+      /* EDIT */
+      p7_ReconfigLength(info->gm, dbsq->n);
       
-      p7_Pipeline(info->pli, info->om, info->bg, dbsq, NULL, info->th);
+      /* DAVID RICH EDIT */
+      // p7_Pipeline(info->pli, info->om, info->bg, dbsq, NULL, info->th);
+      // p7_Pipeline_TIMED(info->pli, info->om, info->bg, dbsq, NULL, info->th, info->gm);
+      p7_Pipeline_TEST(info->pli, info->om, info->bg, dbsq, NULL, info->th, info->gm);
 
       seq_cnt++;
       esl_sq_Reuse(dbsq);

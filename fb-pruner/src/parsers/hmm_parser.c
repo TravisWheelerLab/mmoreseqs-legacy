@@ -224,10 +224,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
       {
          curr_node->match[j] = -INF;
       }
-      /* unknown "X" match state: get the weighted average of all match states */
-      value = HMM_NODE_Expected_Value( curr_node );
-      printf("X[%d]: %7.4f\n", j, value);
-      curr_node->match[AMINO_X] = value;
+      /* unknown "X" match state: wait until scores have been converted to real space */
 
       /* LINE 2: Insert Emission Line */
       /* get next line of current node */
@@ -352,7 +349,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
    {
       curr_node = &prof->hmm_model[i];
       /* match emission */
-      for ( int j = 0; j < NUM_AMINO_PLUS_SPEC; j++ )
+      for ( int j = 0; j < NUM_AMINO; j++ )
       {
          value = curr_node->match[j];
          if ( isnan(value) ) {
@@ -362,6 +359,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
             curr_node->match[j] = negln2real( value );
          }
       }
+
       /* insert emission */
       for ( int j = 0; j < NUM_AMINO; j++ )
       {
@@ -515,8 +513,11 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
       {
          prof->hmm_model[k].match[x] = (float) log( (double) prof->hmm_model[k].match[x] / (double) prof->bg_model->freq[x] );
       }
+      /* for unknown characters, use weighted average of scores */
+      float value = HMM_NODE_Expected_Value( &prof->hmm_model[k] );
+      prof->hmm_model[k].match[AMINO_X] = value;
    }
-
+   
    /* Insert Emission scores */
    for (x = 0; x < prof->alph_leng; x++) {
       prof->hmm_model[0].insert[x] = -INF; /* initial I-to-M impossible */

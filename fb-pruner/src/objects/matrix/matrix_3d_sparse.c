@@ -146,9 +146,9 @@ int MATRIX_3D_SPARSE_Shape_Like_Edgebounds(  MATRIX_3D_SPARSE*    smx,
    printf("creating padded edgebounds...\n");
 	smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds_Naive( smx->edg_inner, smx->edg_outer );
    /* index edgebound rows */
-   printf("indexing...\n");
-   EDGEBOUNDS_Index( smx->edg_inner );
-   EDGEBOUNDS_Index( smx->edg_outer );
+   // printf("indexing...\n");
+   // EDGEBOUNDS_Index( smx->edg_inner );
+   // EDGEBOUNDS_Index( smx->edg_outer );
 
    printf("INNER:\n");
    EDGEBOUNDS_Dump( smx->edg_inner, stdout );
@@ -360,7 +360,8 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inne
    printf("merging...\n");
    EDGEBOUNDS_Merge( edg_outer );
    EDGEBOUNDS_Dump( edg_outer, stdout );
-   exit(EXIT_SUCCESS);
+
+   return edg_outer;
 }
 
 
