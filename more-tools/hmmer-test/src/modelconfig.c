@@ -143,8 +143,9 @@ p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int 
     for (x = 0; x < hmm->abc->K; x++)
      sc[x] = log((double)hmm->mat[k][x] / bg->f[x]);
 
+    printf("exp_val -> k = %d\n", k);
     esl_abc_FExpectScVec(hmm->abc, sc, bg->f); 
-    printf("match[%d][Kp-3] = %9.4f\n", k, sc[Kp]);
+    printf("match[%d][Kp-3] = %9.4f\n", k, sc[Kp-3]);
 
     for (x = 0; x < hmm->abc->Kp; x++) {
       rp = gm->rsc[x] + k * p7P_NR;
