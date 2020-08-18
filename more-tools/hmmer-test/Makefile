@@ -38,7 +38,7 @@ PACKAGE_TARNAME = hmmer
 
 # Installation targets
 #
-prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test-new/build
+prefix      = /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/more-tools/hmmer-test/build
 exec_prefix = ${prefix}
 datarootdir = ${prefix}/share
 bindir      = ${exec_prefix}/bin

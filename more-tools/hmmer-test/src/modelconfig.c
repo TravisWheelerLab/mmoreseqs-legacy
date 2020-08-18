@@ -135,6 +135,7 @@ p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int 
   }
   
   /* Match emission scores. */
+  int Kp = hmm->abc->Kp;
   sc[hmm->abc->K]     = -eslINFINITY; /* gap character */
   sc[hmm->abc->Kp-2]  = -eslINFINITY; /* nonresidue character */
   sc[hmm->abc->Kp-1]  = -eslINFINITY; /* missing data character */
@@ -143,6 +144,7 @@ p7_ProfileConfig(const P7_HMM *hmm, const P7_BG *bg, P7_PROFILE *gm, int L, int 
      sc[x] = log((double)hmm->mat[k][x] / bg->f[x]);
 
     esl_abc_FExpectScVec(hmm->abc, sc, bg->f); 
+    printf("match[%d][Kp-3] = %9.4f\n", k, sc[Kp]);
 
     for (x = 0; x < hmm->abc->Kp; x++) {
       rp = gm->rsc[x] + k * p7P_NR;
