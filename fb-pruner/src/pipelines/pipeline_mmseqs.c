@@ -65,6 +65,8 @@ void mmseqs_pipeline( WORKER* worker )
    REPORT*     report   = worker->report;
    TIMES*      times    = worker->times;
    SCORES*     scores   = worker->scores;
+   SCORES*     pvals    = worker->pvals;
+   SCORES*     evals    = worker->evals;
    CLOCK*      clok     = worker->clok;
    /* alignment for mmseqs window */
    ALIGNMENT*  tr       = worker->traceback;
@@ -75,7 +77,6 @@ void mmseqs_pipeline( WORKER* worker )
    /* output results from fb-pruner */
    RESULT*     result      = worker->result;
    RESULT*     result_out  = worker->result;
-
 
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Plus_Parse( results_in, args->mmseqs_res_filepath );

@@ -3,7 +3,6 @@
  *  SYNOPSIS:  Dynamic Programming Matrix functions.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _DP_MATRIX_H

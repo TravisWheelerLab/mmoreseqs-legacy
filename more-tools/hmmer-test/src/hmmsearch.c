@@ -1355,6 +1355,7 @@ serial_loop(WORKER_INFO *info, ESL_SQFILE *dbfp, int n_targetseqs)
 
   esl_sq_Destroy(dbsq);
 
+  printf("=== SERIAL LOOP (end) ===\n");
   return sstatus;
 }
 

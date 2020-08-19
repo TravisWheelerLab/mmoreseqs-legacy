@@ -59,14 +59,17 @@ WORKER* WORKER_Create()
       worker->rb_vec[i] = NULL;
    }
 
-   worker->traceback = NULL;
+   worker->traceback    = NULL;
 
-   worker->st_MX     = NULL;
-   worker->sp_MX     = NULL;
-   worker->st_MX3    = NULL;
+   worker->st_MX        = NULL;
+   worker->sp_MX        = NULL;
+   worker->st_MX3       = NULL;
 
    worker->times        = NULL;
    worker->scores       = NULL;
+   worker->pvals        = NULL;
+   worker->evals        = NULL;
+
    worker->results      = NULL;
    worker->results_in   = NULL;
    worker->result       = NULL;
@@ -79,7 +82,9 @@ WORKER* WORKER_Create()
    worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) );    /* sets all tasks to false */
    worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) );  /* sets all report fields to false */
    worker->times        = (TIMES*) malloc( sizeof(TIMES) );       
-   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );     
+   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );   
+   worker->pvals        = (SCORES*) malloc( sizeof(SCORES) );
+   worker->evals        = (SCORES*) malloc( sizeof(SCORES) );
 
    if ( worker->tasks == NULL || worker->report == NULL || worker->times == NULL || worker->scores == NULL ) 
    {
@@ -114,6 +119,8 @@ void* WORKER_Destroy( WORKER* worker )
    ERRORCHECK_free( worker->report );
    ERRORCHECK_free( worker->times );
    ERRORCHECK_free( worker->scores );
+   ERRORCHECK_free( worker->pvals );
+   ERRORCHECK_free( worker->evals );
 
    ERRORCHECK_free( worker );
    worker = NULL;

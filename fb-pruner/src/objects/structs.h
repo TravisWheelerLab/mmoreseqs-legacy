@@ -293,44 +293,39 @@ typedef struct {
    char*          filepath;         /* path to the file containing hmm */
    long           b_offset;         /* offset within file to beginning of hmm */
    long           e_offset;         /* offset within file to ending of hmm */
-
    /* meta data */
    int            numberFormat;     /* whether numbers are in real, logspace, or log-odds */
-
    /* entry data */
    char*          format;           /* hmm file format */
    char*          name;             /* unique name field of model in file */
    char*          acc;              /* unique accession field of model in file  */
    char*          desc;             /* description field of model in file */
    char*          alph;             /* alphabet: only amino accepted */;
-
+   /* */
    int            nseq;             /* number of sequences used to created hmm */
    float          effn;             /* */
    long           checksum;         /* file checksum */
-
+   /* */
    float          ga[2];            /* */
    float          tc[2];            /* */
    float          nc[2];            /* */
-
    /* profile settings */
    int            mode;             /* enumerated search mode */
    bool           isLocal;          /* local or global? */
    bool           isMultihit;       /* multi hit or single hit? */
    /* jump value for configuring HMM */
    int            num_J;            /* number of jumps allowed by model (single hit = 1) */
-
    /* distribution parameters for scoring */
    DIST_PARAM     msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */
    DIST_PARAM     viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
    DIST_PARAM     forward_dist;     /* Parameters for the Distribution for Fwd/Bck Scores */
-
    /* hmm model/profile */
    int            N;                /* profile length (currently in use) */
    int            Nalloc;           /* profile length (allocated memory) */
    int            alph_type;        /* enumerated alphabet type */
    int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
    char*          consensus;        /* consensus sequence */
-
+   /* */
    HMM_COMPO*     bg_model;         /* background composition */
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
 } HMM_PROFILE;
@@ -513,15 +508,16 @@ typedef struct {
 
 /* index for offset locations into a file, searchable by name or id */
 typedef struct {
+   /* */
    int            N;          /* Number of location index nodes used */
    int            Nalloc;     /* Number of location index nodes allocated */
    F_INDEX_NODE*  nodes;      /* List of nodes for location of each HMM/FASTA in file */    
-
+   /* */
    char*          index_path;    /* Filepath of index file (NULL if built and not loaded) */
    char*          lookup_path;   /* Filepath to mmseqs lookup file (NULL if not used) */
    char*          source_path;   /* Filepath of file being indexed */
    char*          delim;         /* one of more delimiter of header fields */
-
+   /* */
    int            filetype;      /* Type of file being indexed (HMM, FASTA, etc) */
    int            sort_type;     /* Whether the index nodes list has been sorted, and by which field */
    int            mmseqs_names;  /* Whether index is using names from mmseqs lookup */
@@ -720,54 +716,50 @@ typedef struct {
    REPORT*        report;
    /* output file pointer */
    FILE*          out_file;
-
    /* indexes of query and target data files */
    F_INDEX*       q_index;
    F_INDEX*       t_index;
+   /* database size for converting p-value to e-value */
+   int            db_size;
    /* file pointers to query and target data file */
    FILE*          q_file;
    FILE*          t_file;
    /* id of currently loaded query and target */
    int            q_id;
    int            t_id;
-
    /* current query and target data */
    SEQUENCE*      q_seq;
    SEQUENCE*      t_seq;
    HMM_PROFILE*   t_prof;
-
    /* edgebounds for cloud search */
    EDGEBOUNDS*    edg_fwd;
    EDGEBOUNDS*    edg_bck;
    EDGEBOUNDS*    edg_diag;
    EDGEBOUNDS*    edg_row;
-
    /* edgebound row object; helper for reorientation of edgebounds */
    EDGEBOUND_ROWS*   edg_rows_tmp;
    /* int vector for cloud search */
    VECTOR_INT*       lb_vec[3];
    VECTOR_INT*       rb_vec[3];
-
    /* cloud pruning parameters */
    CLOUD_PARAMS   cloud_params;
-
    /* alignment traceback for viterbi */
    ALIGNMENT*     traceback;
    /* alignment traceback for maximum posterior */
    ALIGNMENT*     trace_post;
-
    /* dynamic programming matrices */
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
    MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
    MATRIX_2D*           sp_MX;         /* special state matrix (quadratic space) */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
-
    /* times for tasks */
    TIMES*         times;
    TIMES*         times_raw;
    /* scores for algorithms */
    SCORES*        scores;
+   SCORES*        pvals;
+   SCORES*        evals;
    /* results from mmseqs */
    RESULTS*       results_in;
    /* results to output */

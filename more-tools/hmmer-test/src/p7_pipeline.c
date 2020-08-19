@@ -943,7 +943,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    int              d;
    int              status;
 
-   printf("=== P7_PIPELINE_TEST ===\n");
+   printf("\n=== P7_PIPELINE_TEST (start) ===\n");
 
    if (sq->n == 0) return eslOK;    /* silently skip length 0 seqs; they'd cause us all sorts of weird problems */
 
@@ -953,33 +953,32 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    p7_bg_NullOne  (bg, sq->dsq, sq->n, &nullsc);
 
    // /* First level filter: the MSV filter, multihit with <om> */
-   printf("=== MSV FILTER ===\n");
+   printf("==> MSV FILTER\n");
    p7_MSVFilter(sq->dsq, sq->n, om, pli->oxf, &usc);
    seq_score = (usc - nullsc) / eslCONST_LOG2;
    P = esl_gumbel_surv(seq_score,  om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
    // if (P > pli->F1) return eslOK;
    pli->n_past_msv++;
 
-   printf("## MSV seq_score: %f\t ev_param: %f %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
-   printf("## P: %f\n", P);
+   printf("## MSV seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+   printf("## P: %.9f\n", P);
 
    /* biased composition HMM filtering */
    if (pli->do_biasfilter)
    {
-      printf("=== BIAS FILTER ===\n");
+      printf("==> BIAS FILTER\n");
       p7_bg_FilterScore(bg, sq->dsq, sq->n, &filtersc);
       seq_score = (usc - filtersc) / eslCONST_LOG2;
       P = esl_gumbel_surv(seq_score,  om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
    //    if (P > pli->F1) return eslOK;
 
-      printf("## BIAS seq_score: %f\t ev_param: %f %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
-      printf("## P: %f\n", P);
+      printf("## BIAS seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+      printf("## P: %.9f\n", P);
    }
    else filtersc = nullsc;
    pli->n_past_bias++;
 
-   printf("## usc: %f\t nullsc: %f\t filtersc: %f\n", usc, nullsc, filtersc );
-
+   printf("## usc: %f, nullsc: %f, filtersc: %f\n", usc, nullsc, filtersc );
    // /* In scan mode, if it passes the MSV filter, read the rest of the profile */
    if (pli->mode == p7_SCAN_MODELS)
    {
@@ -993,65 +992,27 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    /* Second level filter: ViterbiFilter(), multihit with <om> */
    //if (P > pli->F2) {
 
-   /* HMM PROFILE */
-   hmmProf_Dump(gm, stdout);
-   fp = fopen("test_output/hmmer.hmm_profile.tsv", "w+");
-   hmmProf_Dump(gm, fp);
-   fclose(fp);
-
-   float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
-
-   printf("=== VITERBI ===\n");
+   printf("==> VITERBI\n");
    // /* OPTIMIZED VITERBI: */
    p7_ViterbiFilter(sq->dsq, sq->n, om, pli->oxf, &vfsc);
-   // // /* DAVID RICH EDITS begin */
-   printf("Viterbi Logscore: \t %f \n", vfsc);
-   /* UNOPTIMIZED VITERBI */
-   float opt_sc;
-   P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
-   p7_GViterbi(sq->dsq, sq->n, gm, gmx, &opt_sc);
-
-   /* PRINT resulting dp matrix */
-   fp = fopen("test_output/hmmer.viterbi.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
-   fclose(fp);
-
-   printf("actual viterbi score: \t %.9f \n", opt_sc);
-
-   printf("=== TRACEBACK ===\n");
-   /* capture viterbi traceback */
-   printf("Creating traceback...\n");
-   P7_TRACE *tr = p7_trace_Create();
-   p7_GTrace(sq->dsq, sq->n, gm, gmx, tr);
-
-   printf("Printing traceback...\n");
-   fp = fopen("test_output/hmmer.traceback_list.tsv", "w+");
-   trace_Dump(om->L, om->M, sq->dsq, gm, gmx, tr, fp);
-   fclose(fp);
-   fp = fopen("test_output/hmmer.traceback.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
-   fclose(fp);
-   /* DAVID RICH EDITS end */
-
    seq_score = (vfsc - filtersc) / eslCONST_LOG2;
-   printf("## vfsc: %.4f\t filtersc: %.4f\n", vfsc, filtersc);
+   printf("## vfsc: %f, filtersc: %f\n", vfsc, filtersc);
    P  = esl_gumbel_surv(seq_score,  om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
-   printf("## seq_score: %.4f\t ev_param: %.4f %.4f\n", seq_score, om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
-   printf("## P: %f\n", P);
+   printf("## seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_VMU],  om->evparam[p7_VLAMBDA]);
+   printf("## P: %.9f\n", P);
 
    // if (P > pli->F2) return eslOK;
    // //}
    pli->n_past_vit++;
 
-
-   printf("=== FORWARD-BACKWARD ===\n");
+   printf("==> FORWARD-BACKWARD\n");
    /* Parse it with Forward and obtain its real Forward score. */
    p7_ForwardParser(sq->dsq, sq->n, om, pli->oxf, &fwdsc);
    seq_score = (fwdsc - filtersc) / eslCONST_LOG2;
-   printf("## fwdsc: %.4f\t filtersc: %.4f\n", vfsc, filtersc);
+   printf("## fwdsc: %f, filtersc: %f\n", fwdsc, filtersc);
    P = esl_exp_surv(seq_score,  om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
-   printf("## seq_score: %.4f\t ev_param: %.4f %.4f\n", seq_score, om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
-   printf("## P: %f\n", P);
+   printf("## seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_FTAU],  om->evparam[p7_FLAMBDA]);
+   printf("## P: %.9f\n", P);
 
    // if (P > pli->F3) return eslOK;
    pli->n_past_fwd++;
@@ -1060,17 +1021,43 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    p7_omx_GrowTo(pli->oxb, om->M, 0, sq->n);
    p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, NULL);
 
-   /* DAVID RICH EDIT */
-   printf("=== FORWARD -> START ===\n");
-   p7_GForward(sq->dsq, sq->n, gm, gmx, &opt_sc);
-   printf("Forward Score: \t %.9f \n", opt_sc);
-   fp = fopen("test_output/hmmer.forward.tsv", "w+");
+   /* HMM PROFILE */
+   fp = fopen("test_output/hmmer.hmm_profile.tsv", "w+");
+   hmmProf_Dump(gm, fp);
+   fclose(fp);
+
+   printf("==> UNOPTIMIZED VERSIONS\n");
+   float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
+   float opt_sc;
+   P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
+   P7_TRACE *tr = p7_trace_Create();
+
+   printf("==> VITERBI\n");
+   p7_GViterbi(sq->dsq, sq->n, gm, gmx, &opt_sc);
+   printf("## Viterbi Score:\t%.9f\n", opt_sc);
+   fp = fopen("test_output/hmmer.viterbi.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
 
-   printf("=== BACKWARD -> START ===\n");
+   printf("==> TRACEBACK\n");
+   p7_GTrace(sq->dsq, sq->n, gm, gmx, tr);
+   fp = fopen("test_output/hmmer.traceback_list.tsv", "w+");
+   trace_Dump(om->L, om->M, sq->dsq, gm, gmx, tr, fp);
+   fclose(fp);
+   fp = fopen("test_output/hmmer.traceback.tsv", "w+");
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   fclose(fp);
+
+   printf("==> FORWARD\n");
+   p7_GForward(sq->dsq, sq->n, gm, gmx, &opt_sc);
+   printf("## Forward Score:\t%.9f\n", opt_sc);
+   fp = fopen("test_output/hmmer.forward.tsv", "w+");
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   fclose(fp);
+   
+   printf("==> BACKWARD\n");
    p7_GBackward(sq->dsq, sq->n, gm, gmx, &opt_sc);
-   printf("Backward Score: \t %.9f \n", opt_sc);
+   printf("## Backward Score:\t%.9f\n", opt_sc);
    fp = fopen("test_output/hmmer.backward.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
    fclose(fp);
@@ -1092,7 +1079,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    else seqbias = 0.0;
    pre_score =  (fwdsc - nullsc) / eslCONST_LOG2;
    seq_score =  (fwdsc - (nullsc + seqbias)) / eslCONST_LOG2;
-
+   printf("pre_score: %.9f, seq_score: %.9f, fwdsc: %.9f, nullsc: %.9f, seqbias: %.9f\n",
+    pre_score, seq_score, fwdsc, nullsc, seqbias );
 
    /* Calculate the "reconstruction score": estimated
     * per-sequence score as sum of individual domains,
@@ -1131,6 +1119,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    sum_score += (sq->n - Ld) * log((float) sq->n / (float) (sq->n + 3)); /* NATS */
    pre2_score = (sum_score - nullsc) / eslCONST_LOG2;                /* BITS */
    sum_score  = (sum_score - (nullsc + seqbias)) / eslCONST_LOG2;    /* BITS */
+   printf("sum_score: %.9f, pre2_score: %.9f\n", sum_score, pre2_score);
 
    /* A special case: let sum_score override the seq_score when it's better, and it includes at least 1 domain */
    if (Ld > 0 && sum_score > seq_score)
@@ -1145,6 +1134,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
     * than eventually reported.
     */
    lnP =  esl_exp_logsurv (seq_score,  om->evparam[p7_FTAU], om->evparam[p7_FLAMBDA]);
+   printf("ln(P): %.9f, seq_score: %.9f\n", lnP, seq_score );
+
    if (p7_pli_TargetReportable(pli, seq_score, lnP))
    {
       p7_tophits_CreateNextHit(hitlist, &hit);
@@ -1239,9 +1230,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
             }
          }
       }
-
    }
 
+   printf("=== P7_PIPELINE_TEST (end) ===\n\n");
    return eslOK;
 }
 

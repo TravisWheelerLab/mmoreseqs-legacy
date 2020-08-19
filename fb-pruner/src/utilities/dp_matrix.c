@@ -3,7 +3,6 @@
  *  SYNOPSIS:  Dynamic Programming Matrix functions.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -19,8 +18,9 @@
 #include "objects.h"
 
 /* header */
-#include "utilities.h"
+#include "dp_matrix.h"
 
+/* TODO:*/
 /*
  *  FUNCTION:  DP_MATRIX_Get_Bounds()
  *  SYNOPSIS:  Get the edgebounds of matrix at given antidiagonal (closed form).
@@ -34,7 +34,6 @@ void DP_MATRIX_Get_Bounds( const int   Q,
                            BOUND*      bnd )
 {
    BOUND b;
-
 }
 
 /*

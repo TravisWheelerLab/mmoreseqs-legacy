@@ -745,7 +745,11 @@ void WORK_cloud_search( WORKER* worker )
 {
    ARGS*    args     = worker->args;
    TASKS*   tasks    = worker->tasks;
+
    SCORES*  scores   = worker->scores;
+   SCORES*  pvals    = worker->pvals;
+   SCORES*  evals    = worker->evals;
+
    TIMES*   times    = worker->times;
    CLOCK*   clok     = worker->clok;
    RESULT*  result   = worker->result;
@@ -753,8 +757,11 @@ void WORK_cloud_search( WORKER* worker )
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
 
-   int   Q     = q_seq->N;
-   int   T     = t_prof->N;
+   F_INDEX*       q_index  = worker->q_index;
+   F_INDEX*       t_index  = worker->t_index;
+
+   int   Q  = q_seq->N;
+   int   T  = t_prof->N;
 
    float    alpha       = args->alpha;
    float    beta        = args->beta;
@@ -766,12 +773,12 @@ void WORK_cloud_search( WORKER* worker )
    MATRIX_2D*     sp_MX       = worker->sp_MX;
    MATRIX_3D*     st_cloud_MX = worker->st_cloud_MX; 
 
-   ALIGNMENT*     tr       = worker->traceback;
+   ALIGNMENT*     tr          = worker->traceback;
 
-   EDGEBOUNDS*    edg_fwd  = worker->edg_fwd;
-   EDGEBOUNDS*    edg_bck  = worker->edg_bck;
-   EDGEBOUNDS*    edg_diag = worker->edg_diag;
-   EDGEBOUNDS*    edg_row  = worker->edg_row;
+   EDGEBOUNDS*    edg_fwd     = worker->edg_fwd;
+   EDGEBOUNDS*    edg_bck     = worker->edg_bck;
+   EDGEBOUNDS*    edg_diag    = worker->edg_diag;
+   EDGEBOUNDS*    edg_row     = worker->edg_row;
 
    EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
    VECTOR_INT**      lb_vec         = worker->lb_vec;
@@ -846,6 +853,7 @@ void WORK_cloud_search( WORKER* worker )
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
+      /* TODO: Currently, scores are in nats, need to convert to bits, then evalue/pvalue */
 
       times->lin_total_cloud =   times->lin_cloud_fwd + times->lin_cloud_bck  + 
                                  times->lin_merge     + times->lin_reorient   +
@@ -860,6 +868,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->lin_bound_bck = CLOCK_Secs(clok);
       scores->lin_cloud_bck = sc;
+
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
 
