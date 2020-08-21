@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 
 /* import local libraries */
-#include "lib/easel.h"
+#include "easel.h"
 
 /* include local files */
 #include "structs.h"

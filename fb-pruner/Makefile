@@ -38,16 +38,17 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
 # include library archives
-INC_LIBS := -I$(EASEL_DIR) -L$(EASEL_DIR)
+INC_LIBS := -I$(EASEL_DIR)
 
 # Any C linked libraries I want to include
-CLIBS := -lm -leasel
+# suggested flags: -lm -L(easel library location) -leasel
+CLIBS := -lm -L${EASEL_DIR} -leasel
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -fsanitize=address
 CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -O2
-# standard C++ compiler flags to be run (project currently contains no current c++ files)
+# standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
-CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -std=gnu99 -O2
+CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
 DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1
@@ -56,8 +57,8 @@ RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -Wall -O3
 
 # TODO: 
 # Build Easel using its own makefile
-# $(info ************  BUILD EASEL  ************)
-# ${MAKE} -C ${EASEL_DIR} ${EASEL_DIR}/make all
+$(info ************  BUILD EASEL  ************)
+# ${MAKE} -C ${EASEL_DIR} ${EASEL_DIR}/Makefile all
 
 $(info ************  BUILD FB_PRUNER  ************)
 # special flags for RELEASE 
@@ -100,6 +101,6 @@ clean:
 
 MKDIR_P ?= mkdir -p
 
-install:
-	PATH=$PATH:~/opt/bin
-	$
+# install:
+# 	PATH=$PATH:~/opt/bin
+# 	$

@@ -25,7 +25,7 @@
 #include "algs_quad.h"
 #include "algs_naive.h"
 /* easel library */
-// #include "easel.h"
+#include "easel.h"
 
 /* header */
 #include "pipelines.h"
