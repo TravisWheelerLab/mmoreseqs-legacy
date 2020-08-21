@@ -3,7 +3,7 @@
  *  PURPOSE:   Pipelines Workflow Subroutines.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -24,6 +24,8 @@
 #include "algs_linear.h"
 #include "algs_quad.h"
 #include "algs_naive.h"
+/* easel library */
+// #include "easel.h"
 
 /* header */
 #include "pipelines.h"
@@ -854,6 +856,7 @@ void WORK_cloud_search( WORKER* worker )
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
       /* TODO: Currently, scores are in nats, need to convert to bits, then evalue/pvalue */
+      
 
       times->lin_total_cloud =   times->lin_cloud_fwd + times->lin_cloud_bck  + 
                                  times->lin_merge     + times->lin_reorient   +

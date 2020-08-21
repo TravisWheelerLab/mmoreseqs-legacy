@@ -1,10 +1,8 @@
 #################################################################################
-#
 #		NAME: TEMPLATE MAKEFILE
 # 		AUTHOR: David Rich (modified from source)
 #
 #		SOURCE: https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
-#
 #################################################################################
 
 # define C compiler to use
@@ -20,9 +18,12 @@ PACKAGE_TARNAME = fb-pruner
 # final executable
 TARGET_EXEC ?= fb-pruner
 
+# library directories 
+EASEL_DIR ?= ./lib/easel
+
 # input/output directories
 BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src 
+SRC_DIRS ?= ./src
 
 # get all source code from source directory
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
@@ -36,20 +37,29 @@ INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 # create a compiler flag for each included dependency
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
+# include library archives
+INC_LIBS := -I$(EASEL_DIR) -L$(EASEL_DIR)
+
 # Any C linked libraries I want to include
-CLIBS := -lm
+CLIBS := -lm -leasel
 # standard C compiler flags to be run
 # suggested flags: -Wall -g -O2 -fsanitize=address
-CFLAGS := $(INC_FLAGS) -std=gnu99 -O2
+CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -O2
 # standard C++ compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=gnu99 -O2
+CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -std=gnu99 -O2
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1
+DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1
 # flags for release version
-RELEASEFLAGS := $(INC_FLAGS) -Wall -O3
+RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -Wall -O3
 
+# TODO: 
+# Build Easel using its own makefile
+# $(info ************  BUILD EASEL  ************)
+# ${MAKE} -C ${EASEL_DIR} ${EASEL_DIR}/make all
+
+$(info ************  BUILD FB_PRUNER  ************)
 # special flags for RELEASE 
 ifeq ($(BUILD), RELEASE)
 # 	$(info RELEASE FLAGGED)
@@ -74,7 +84,7 @@ $(BUILD_DIR)/%.s.o: %.s
 # c source
 $(BUILD_DIR)/%.c.o: %.c
 	$(MKDIR_P) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLIBS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(CLIBS) 
 
 # c++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp

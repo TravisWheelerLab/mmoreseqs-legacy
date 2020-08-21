@@ -8,6 +8,9 @@
 #ifndef _XXX_H
 #define _XXX_H
 
+/* include where XXX is defined */
+#include "../structs.h"
+
 /*
  *  FUNCTION:  XXX_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.

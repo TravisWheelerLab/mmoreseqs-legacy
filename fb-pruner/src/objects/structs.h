@@ -20,7 +20,7 @@
 /* === ENUMERATIONS === */
 #include "objects/structs_enums.h"
 
-/* === DECLARE HIDDEN FUNCTIONS === */
+/* === DECLARE HIDDEN FUNCTIONS (for older compilers) === */
 /* (*** c99 standard hides this function from <string.h> ***) */
 // extern char* strdup(const char*);
 // extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
@@ -271,7 +271,14 @@ typedef struct {
    float    trans[NUM_TRANS_STATES];
    /* move, loop for special transition states */
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
+   /* composition for null model */
 } HMM_COMPO;
+
+/* Null Model for computing Composition Bias */
+typedef struct {
+   /* single parameter for null model */
+   float    p1;
+} HMM_NULL;
 
 /* HMM File Data */
 typedef struct {

@@ -175,6 +175,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
             token = strtok( NULL, delim );
          }
 
+         /* end of COMPO section marks the end of the HMM FILE header */
          inHeader = false;
       }
 
@@ -537,9 +538,9 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
 }
 
 /* Calculates the Occupancy for the HMM_PROFILE */
-void HMM_PROFILE_CalcOccupancy(HMM_PROFILE*  prof,
-                               float*        mocc,
-                               float*        iocc )
+void HMM_PROFILE_CalcOccupancy(  HMM_PROFILE*  prof,
+                                 float*        mocc,
+                                 float*        iocc )
 {
    int k = 0;
 
@@ -563,8 +564,8 @@ void HMM_PROFILE_CalcOccupancy(HMM_PROFILE*  prof,
 }
 
 /* Configure the Length of the HMM_PROFILE based on the length of the sequence */
-void HMM_PROFILE_ReconfigLength(HMM_PROFILE*  prof,
-                                int           L)
+void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof,
+                                 int           L)
 {
    float ploop, pmove;
    float nj = (float) prof->num_J;
@@ -581,4 +582,11 @@ void HMM_PROFILE_ReconfigLength(HMM_PROFILE*  prof,
    prof->bg_model->spec[SP_N][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_C][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_J][SP_MOVE] = log( pmove );
+}
+
+/* modeled after */
+void HMM_PROFILE_BG_SetLength(   HMM_PROFILE*   prof,
+                                 int            length )
+{
+   
 }

@@ -27,8 +27,23 @@
 
 #define SMALLX1 0.001
 
+/* 
+ *	FUNCTION:  	STATS_Nats_to_Bitscore()
+ * SYNOPSIS:  	Given a score in Nats <nat_sc> and <filter_sc> to account for composition bias,
+ * 				Compute the bit-score <bit_sc>, P-value <pval>, and E-value <eval>.
+ */
+int STATS_Nats_to_Eval( 	float 	nats_sc,
+									float		filter_sc,
+									float*	bit_sc,
+									float* 	pval,
+									float* 	eval )
+{
+	// bit_sc = (nats_sc - filter_sc) / CONST_LOG2;
+}
 
-/* FUNCTION:  p7_bg_FilterScore()
+/* TODO: Implement this!!! */
+/* 
+ * FUNCTION:  p7_bg_FilterScore()
  * SYNOPSIS:  Calculates the filter null model score.
  *
  * PURPOSE:   Calculates the filter null model <bg> score for sequence
@@ -44,23 +59,54 @@
  *            own; the same geometric length distribution (controlled
  *            by <bg->p1>) that the null1 model uses is imposed.
  */
-int BACKGROUND_FilterScore( 	HMM_PROFILE* 	t_prof, 
+int NULL_MODEL_FilterScore( 	HMM_PROFILE* 	t_prof, 
 										SEQUENCE* 		q_seq, 
+										MATRIX_3D* 		st_MX,
+										MATRIX_2D* 		sp_MX,
 										float*			filter_sc )
 {
 	float null_sc;
 	HMM_COMPO* bg_model = t_prof->bg_model;
-
   	// ESL_HMX *hmx = esl_hmx_Create(L, bg->fhmm->M); /* optimization target: this can be a 2-row matrix, and it can be stored in <bg>. */
   	// float nullsc;		                  	 /* (or it could be passed in as an arg, but for sure it shouldn't be alloc'ed here */
   
   	// esl_hmm_Forward(dsq, L, bg->fhmm, hmx, &nullsc);
+  	// NULL_MODEL_Forward( t_prof, q_seq, st_MX, sp_MX, null_sc );
 
   	// /* impose the length distribution */
   	// *ret_sc = nullsc + (float) L * logf(bg->p1) + logf(1. - bg->p1);
   	// esl_hmx_Destroy(hmx);
-  	// return STATUS_SUCCESS;
+  	return STATUS_SUCCESS;
 }
+
+/* TODO: implement this!!! */
+/* 
+ * FUNCTION:  p7_bg_FilterScore()
+ * SYNOPSIS:  Calculates the filter null model score.
+ */
+int NULL_MODEL_Forward( 	HMM_PROFILE* 	t_prof, 
+									SEQUENCE* 		q_seq, 
+									MATRIX_3D* 		st_MX,
+									MATRIX_2D* 		sp_MX,
+									float*			null_sc )
+{
+	return STATUS_SUCCESS;
+}
+
+/* 
+ * FUNCTION:  EXPONENTIAL_survivor()
+ * SYNOPSIS:  Calculates the survivor function, $P(X>x)$ (that is, 1-CDF,
+ *            the right tail probability mass) for an exponential distribution,
+ *            given value <x>, offset <mu>, and decay parameter <lambda>.
+ */
+double EXPONENTIAL_survivor(  double x, 
+                              double mu, 
+                              double lambda )
+{
+  if (x < mu) return 1.0;
+  return exp(-lambda * (x-mu));
+}
+
 
 /*
  *  FUNCTION:  	GUMBEL_pdf()

@@ -1,0 +1,95 @@
+#################################################################################
+#		NAME: 		TEMPLATE MAKEFILE
+# 		AUTHOR: 	David Rich (modified from source)
+#
+#		SOURCE: 	https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
+#################################################################################
+
+# define C compiler to use
+SHELL = /bin/sh
+CC = gcc
+CXX = g++
+
+# package information 
+PACKAGE = FB-PRUNER 
+PACKAGE_VERSION = 0.1A
+PACKAGE_TARNAME = fb-pruner
+
+# final executable
+TARGET_EXEC ?= fb-pruner
+
+# input/output directories
+BUILD_DIR ?= ./build
+SRC_DIRS ?= ./src
+LIB_DIRS ?= ./lib
+
+# COMPILE ALL SOURCE DEPENDENCIES AND OBJECT FILES
+# get all source code from source directory
+SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+# for each source file, create an object (.o)
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+# for each object file create a dependency file (.d)
+DEPS := $(OBJS:.o=.d)
+
+# find all included dependency files
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+# create a compiler flag for each included dependency
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+
+# Any C linked libraries I want to include
+CLIBS := -lm
+# standard C compiler flags to be run
+# suggested flags: -Wall -g -O2 -fsanitize=address
+CFLAGS := $(INC_FLAGS) -std=gnu99 -O2
+# standard C pre-processor compiler flags to be run
+# suggested flags: -MMD -MP -O3
+CPPFLAGS ?= $(INC_FLAGS) -MMD -MP -std=gnu99 -O2
+# flags for debugging and profiling
+# suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS := $(INC_FLAGS) -g -pg -DDEBUG=1
+# flags for release version
+RELEASEFLAGS := $(INC_FLAGS) -Wall -O3
+
+# special flags for RELEASE 
+ifeq ($(BUILD), RELEASE)
+# 	$(info RELEASE FLAGGED)
+	CFLAGS+=$(RELEASEFLAGS)
+	CPPFLAGS+=$(RELEASEFLAGS)
+endif
+# special flags for DEBUG
+ifeq ($(BUILD), DEBUG)
+	CFLAGS+=$(DEBUGFLAGS)
+	CPPFLAGS+=$(DEBUGFLAGS)
+endif
+
+# compile each object file before executable
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
+
+# assembly
+$(BUILD_DIR)/%.s.o: %.s
+	$(MKDIR_P) $(dir $@)
+	$(AS) $(ASFLAGS) -c $< -o $@
+
+# c source
+$(BUILD_DIR)/%.c.o: %.c
+	$(MKDIR_P) $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLIBS) -c $< -o $@
+
+# c++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(MKDIR_P) $(dir $@)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+.PHONY: clean install
+
+clean:
+	$(RM) -r $(BUILD_DIR) make_out.txt gmon.out
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
+
+install:
+	PATH=$PATH:~/opt/bin
+	$

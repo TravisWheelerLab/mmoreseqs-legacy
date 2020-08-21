@@ -6,7 +6,7 @@
  *  BUG:       
  *******************************************************************************/
 
-/* imports */
+/* import stdlib */
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -18,7 +18,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-/* local imports */
+/* import local libraries */
+#include "lib/easel.h"
+
+/* include local files */
 #include "structs.h"
 #include "utilities.h"
 #include "parsers.h"
