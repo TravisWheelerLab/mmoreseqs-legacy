@@ -559,13 +559,14 @@ void WORK_load_query_by_id( WORKER* worker,
    int            term;
    F_INDEX_NODE*  node;
    term  = F_INDEX_Search_Id( q_index, id );
-   node = &(q_index->nodes[ term ]);
+   node = &(q_index->nodes[term]);
    q_offset = node->offset;
 
    /* print results */
-   printf_vlo("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
-      id, term, node->id, node->name, q_offset );
+   printf_vlo("# index_size: %d, target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
+      q_index->N, id, term, node->id, node->name, q_offset );
    F_INDEX_Node_Dump( q_index, term, stdout );
+   printf("test test, %d ? %d\n", q_filetype, FILE_FASTA);
 
    /* load query by file type */
    switch ( q_filetype )
