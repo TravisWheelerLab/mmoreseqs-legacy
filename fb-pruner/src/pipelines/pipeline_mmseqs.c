@@ -63,10 +63,12 @@ void mmseqs_pipeline( WORKER* worker )
 
    /* worker objects */
    REPORT*     report   = worker->report;
+
    TIMES*      times    = worker->times;
    SCORES*     scores   = worker->scores;
    SCORES*     pvals    = worker->pvals;
    SCORES*     evals    = worker->evals;
+   
    CLOCK*      clok     = worker->clok;
    /* alignment for mmseqs window */
    ALIGNMENT*  tr       = worker->traceback;
@@ -157,10 +159,12 @@ void mmseqs_pipeline( WORKER* worker )
       printf("# t_mid: %d, q_mid: %d, t_cid: %d, q_cid: %d\n",
          t_mid, q_mid, t_cid, q_cid );
 
+      /* TODO: should swap query and target program-wide? */
       /* NOTE: query and target are cross-labeled in mmseqs */
       int swp  = q_cid;
       q_cid    = t_cid;
       t_cid    = swp;
+
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
       if ( t_cid != t_cid_prv )
          WORK_load_target_by_id( worker, t_cid );
@@ -222,6 +226,9 @@ void mmseqs_pipeline( WORKER* worker )
       /* run cloud search */
       WORK_cloud_search( worker );
 
+      /* convert bitscore to eval */
+      WORK_convert_scores( worker );
+
       #if DEBUG
       {
          float percent_cells = (float) result_out->cloud_cells / (float) result_out->total_cells;
@@ -242,14 +249,13 @@ void mmseqs_pipeline( WORKER* worker )
       STRING_Replace( worker->t_prof->name, ' ', '_' );
       STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
-            "##_SCORES_TIMES_: %d %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
-            res_id,
+            "##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %9.2e %f %f \n",
             worker->t_id, worker->t_prof->N, worker->t_prof->name, 
             worker->q_id, worker->q_seq->N, worker->q_seq->name,
             result->total_cells, result->cloud_cells, 
             args->alpha, args->beta, args->gamma,
             times->quad_vit, scores->quad_vit,
-            times->lin_total_cloud, scores->lin_cloud_fwd,
+            times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd,
             times->quad_fwd, scores->quad_fwd );
 
       /* capture edgebounds */

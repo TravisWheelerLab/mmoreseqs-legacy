@@ -26,6 +26,7 @@
 #include "algs_naive.h"
 /* easel library */
 #include "easel.h"
+#include "esl_exponential.h"
 
 /* header */
 #include "pipelines.h"
@@ -68,6 +69,7 @@ void WORK_init( WORKER* worker )
    worker->q_seq        = SEQUENCE_Create();
    worker->t_seq        = SEQUENCE_Create();
    worker->t_prof       = HMM_PROFILE_Create();
+   worker->hmm_bg       = HMM_BG_Create();
    /* target and profile indexes */
    worker->q_index      = F_INDEX_Create();
    worker->t_index      = F_INDEX_Create();
@@ -121,6 +123,7 @@ void WORK_cleanup( WORKER* worker )
    worker->q_seq        = SEQUENCE_Destroy( worker->q_seq );
    worker->t_seq        = SEQUENCE_Destroy( worker->t_seq );
    worker->t_prof       = HMM_PROFILE_Destroy( worker->t_prof );
+   worker->hmm_bg       = HMM_BG_Destroy( worker->hmm_bg );
    /* target and profile indexes */
    worker->q_index      = F_INDEX_Destroy( worker->q_index );
    worker->t_index      = F_INDEX_Destroy( worker->t_index );
@@ -131,6 +134,7 @@ void WORK_cleanup( WORKER* worker )
    worker->result = NULL;
    /* data structs for viterbi alignment */
    worker->traceback    = ALIGNMENT_Destroy( worker->traceback );
+   worker->trace_post   = ALIGNMENT_Destroy( worker->trace_post );
    /* data structs for cloud edgebounds */
    worker->edg_fwd      = EDGEBOUNDS_Destroy( worker->edg_fwd );
    worker->edg_bck      = EDGEBOUNDS_Destroy( worker->edg_bck );
@@ -138,10 +142,14 @@ void WORK_cleanup( WORKER* worker )
    worker->edg_row      = EDGEBOUNDS_Destroy( worker->edg_row );
    /* row-wise edgebounds */
    worker->edg_rows_tmp  = EDGEBOUND_ROWS_Destroy( worker->edg_rows_tmp );
-
+   for ( int i=0; i<3; i++ ) {
+      worker->lb_vec[i] = VECTOR_INT_Destroy( worker->lb_vec[i] );
+      worker->rb_vec[i] = VECTOR_INT_Destroy( worker->rb_vec[i] );
+   }
    /* create necessary dp matrices */
    worker->st_MX = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX3 = MATRIX_3D_Destroy( worker->st_MX3 );
+   worker->st_SMX = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
    worker->sp_MX  = MATRIX_2D_Destroy( worker->sp_MX );
 
    #if DEBUG
@@ -855,8 +863,6 @@ void WORK_cloud_search( WORKER* worker )
       #endif
       times->lin_bound_fwd = CLOCK_Secs(clok);
       scores->lin_cloud_fwd = sc;
-      /* TODO: Currently, scores are in nats, need to convert to bits, then evalue/pvalue */
-      
 
       times->lin_total_cloud =   times->lin_cloud_fwd + times->lin_cloud_bck  + 
                                  times->lin_merge     + times->lin_reorient   +
@@ -930,7 +936,62 @@ void WORK_cloud_search( WORKER* worker )
       times->quad_bound_bck = CLOCK_Secs(clok);
       scores->quad_cloud_bck = sc;
    }
+}
 
+/* compute correction bias and convert natscore -> bitscore -> pval -> eval */
+void WORK_convert_scores( WORKER* worker )
+{
+   HMM_BG*        bg    = worker->hmm_bg;
+   HMM_PROFILE*   prof  = worker->t_prof;
+   SEQUENCE*      seq   = worker->q_seq;
+
+   /* alignment scores */
+   float nat_sc      = 0.0f;  /* score in NATS */
+   float pre_sc      = 0.0f;  /* adjusted for compo bias / score in BITS */
+   float seq_sc      = 0.0f;  /* adjusted for sequence bias / score in BITS */
+   float ln_pval     = 0.0f;  /* natural log of p-value */
+   float pval        = 0.0f;  /* p-value */
+   float eval        = 0.0f;  /* e-value */
+   /* bias correction */
+   float null_sc     = 0.0f;  /* in NATS */
+   float filter_sc   = 0.0f;  /* in NATS */
+   float seq_bias    = 0.0f;  /* in NATS */
+   /* parameters for exponential distribution, for converting bitscore -> p-value */
+   float tau         = worker->t_prof->forward_dist.param1;
+   float lambda      = worker->t_prof->forward_dist.param2;
+   /* number of sequences in database, for computing e-value */
+   int   n_seqs      = worker->q_index->N;
+
+   /* initialize hmm_bg */
+   HMM_BG_SetSequence( bg, seq );
+   HMM_BG_SetFilter( bg, prof->N, prof->bg_model->compo );
+   HMM_BG_SetLength( bg, seq->N );
+   /* compute null one */
+   HMM_BG_NullOne( bg, seq->N, &null_sc );
+   /* compute nullscore for bias */
+   HMM_BG_FilterScore( bg, seq, &filter_sc );
+   /* TODO: compute sequence bias? (requires null2 for seq/domain specific correction) */
+   /* see p7_domaindef_ByPosteriorHeuristics() */
+   seq_bias  = 0.0f;
+
+   /* get cloud forward score */
+   nat_sc = worker->scores->lin_cloud_fwd;
+   /* compute pre_score and sequence_score by accounting for bias and convert from nats -> bits */
+   pre_sc = (nat_sc - null_sc) / eslCONST_LOG2;
+   seq_sc = (nat_sc - (null_sc + seq_bias)) / eslCONST_LOG2;
+   // printf("# nat_sc = %7.4f, null_one = %7.4f, null_sc = %7.4f, pre_sc = %7.4f, seq_sc = %7.4f\n",
+   //    nat_sc, null_sc, filter_sc, pre_sc, seq_sc );
+
+   /* compute log of P-value */ 
+   ln_pval  = esl_exp_logsurv( seq_sc, tau, lambda );
+   pval     = exp(ln_pval);
+   eval     = pval * n_seqs;
+   // printf("# ln_pval = %7.4f, pval = %9.2e, eval = %9.2e\n",
+   //    ln_pval, pval, eval );
+
+   /* save e-value */
+   worker->pvals->lin_cloud_fwd = pval;
+   worker->evals->lin_cloud_fwd = eval;
 }
 
 /* TODO: fill result header based on task flags */

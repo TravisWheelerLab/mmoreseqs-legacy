@@ -3,7 +3,6 @@
  *  PURPOSE:   All Data Structures used by Cloud Search.
  *
  *  AUTHOR:    Dave Rich
- *     BUG:    
  *******************************************************************************/
 
 #ifndef _STRUCTS_H
@@ -24,6 +23,12 @@
 /* (*** c99 standard hides this function from <string.h> ***) */
 // extern char* strdup(const char*);
 // extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
+
+/* === EASEL === */
+#include "easel.h"
+#include "esl_hmm.h"
+#include "esl_alphabet.h"
+#include "esl_sq.h"
 
 /* === STRUCTS === */
 
@@ -242,12 +247,27 @@ typedef struct {
 
 /* alphabet (amino, dna, etc) (modeled after EASEL) */
 typedef struct {
-   int      K;             /* size of unique alphabet */
-   int      Kp;            /* size of total symbols: alphabet + special symbols  */
-   char*    sym;           /* symbols of alph: "ACGT-RYMKSWHBVDN*~" for aminos */
-   char     inmap[1 << 8]; /* map: index -> char value */
-   char     outmap[1 << 8]; /* map: char value -> index */
+   int      K;                   /* size of unique alphabet */
+   int      Kp;                  /* size of total symbols: alphabet + special symbols  */
+   char*    sym;                 /* symbols of alph: "ACGT-RYMKSWHBVDN*~" for aminos */
+   char     inmap[(1 << 8)];     /* map: index -> char value */
+   char     outmap[(1 << 8)];    /* map: char value -> index */
 } ALPHABET;
+
+/* Null Model for computing Composition Bias (reference esl) */
+typedef struct {
+   float*         f;       /* null1 background residue frequencies [0..K-1]: set at initialization */
+   float          p1;      /* null1's transition prob:  */
+
+   ESL_HMM*       fhmm;    /* bias filter: p7_bg_SetFilter() sets this, from model's mean composition */
+
+   float          omega;   /* the "prior" on null2/null3: set at initialization (one omega for both null types)  */
+
+   ESL_ALPHABET*  abc;    /* reference to alphabet in use: set at initialization */
+
+   /* NOTE: should move this to SEQUENCE? */
+   ESL_SQ*        sq;
+} HMM_BG;
 
 /* position specific state probabilities */
 typedef struct {
@@ -272,27 +292,8 @@ typedef struct {
    /* move, loop for special transition states */
    float    spec[NUM_SPECIAL_STATES][NUM_SPECIAL_TRANS];
    /* composition for null model */
+   HMM_BG*  hmm_bg;
 } HMM_COMPO;
-
-/* Null Model for computing Composition Bias */
-typedef struct {
-   /* single parameter for null model */
-   float    p1;
-} HMM_NULL;
-
-/* HMM File Data */
-typedef struct {
-   /* data */
-   int         N;       /* number of states in model */
-   float*      pi;      /* initial (begin) distribution ( 0..M ) */
-   float**     t;       /* state transition probabilities ( N x (N+1) ) */
-   float**     e;       /* emmission probabilities ( M x K ) */
-   /* */
-   float**     eo;      /* emission odds ratio ( M x K' ) */
-   /* */
-   ALPHABET*   abc;     /* alphabet */
-   int         K;       /* size of alphabet */
-} HMM;
 
 /* HMM Profile */
 typedef struct {
@@ -738,6 +739,7 @@ typedef struct {
    SEQUENCE*      q_seq;
    SEQUENCE*      t_seq;
    HMM_PROFILE*   t_prof;
+   HMM_BG*        hmm_bg;
    /* edgebounds for cloud search */
    EDGEBOUNDS*    edg_fwd;
    EDGEBOUNDS*    edg_bck;

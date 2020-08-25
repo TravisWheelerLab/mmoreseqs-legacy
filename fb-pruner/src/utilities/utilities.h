@@ -9,6 +9,7 @@
 #ifndef _UTILITIES_H
 #define _UTILITIES_H
 
+#include "statistics.h"
 #include "dp_matrix.h"
 #include "error_handler.h"
 #include "testing.h"

@@ -57,9 +57,6 @@ EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
 
    edg->ids       = VECTOR_INT_Create();
    edg->ids_idx   = VECTOR_INT_Create();
-
-   edg->ids       = VECTOR_INT_Create();
-   edg->ids_idx   = VECTOR_INT_Create();
    edg->edg_mode  = EDG_NONE;
 
    edg->bounds    = NULL;

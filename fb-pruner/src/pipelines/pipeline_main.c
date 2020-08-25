@@ -37,8 +37,12 @@ void main_pipeline( WORKER* worker )
 	/* worker objects */
 	ARGS* 		args 		= worker->args;
 	TASKS* 		tasks 		= worker->tasks;
+	
 	TIMES* 		times 		= worker->times;
 	SCORES* 	scores 		= worker->scores;
+	SCORES* 	evals 		= worker->evals;
+	SCORES* 	pvals 		= worker->pvals;
+
 	REPORT* 	report 		= worker->report;
 	RESULTS* 	results 	= worker->results;
 	RESULT* 	result 		= worker->result;
@@ -142,7 +146,7 @@ void main_pipeline( WORKER* worker )
 		/* load in next target */
 		WORK_load_target_by_id( worker, i );
 		result->target_id = i;
-		HMM_PROFILE_Dump( worker->t_prof, stdout );
+		// HMM_PROFILE_Dump( worker->t_prof, stdout );
 
 		/* loop over query range */
 		for (int j = j_beg; j < j_end; j++) 
@@ -168,19 +172,20 @@ void main_pipeline( WORKER* worker )
 			WORK_forward_backward( worker );
 			printf_vall("cloud search...\n");
 			WORK_cloud_search( worker );
+			WORK_convert_scores( worker );
 
 			/* output results to file */
 			WORK_print_result_current( worker );
 			STRING_Replace( worker->t_prof->name, ' ', '_' );
 			STRING_Replace( worker->q_seq->name, ' ', '_' );
 			fprintf( stdout, 
-				"##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %f %f \n",
+				"##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %9.2e %f %f \n",
 				worker->t_id, worker->t_prof->N, worker->t_prof->name, 
 				worker->q_id, worker->q_seq->N, worker->q_seq->name,
 				result->total_cells, result->cloud_cells, 
 				args->alpha, args->beta, args->gamma,
 				times->quad_vit, scores->quad_vit,
-				times->lin_total_cloud, scores->lin_cloud_fwd,
+				times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd,
 				times->quad_fwd, scores->quad_fwd );
 
 			search_cnt++;

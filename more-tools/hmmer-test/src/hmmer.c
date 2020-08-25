@@ -268,14 +268,12 @@ void trace_Dump(  const int   L,
 /*
  *  FUNCTION:  hmm_Save()
  *  SYNOPSIS:  Save HMM Profile.
- *
- *  ARGS:
  */
-void profile_Dump(ESL_DSQ*    dsq,
-                  const int   L,
-                  P7_PROFILE* gm,
-                  P7_GMX*     gx,
-                  FILE*       fp )
+void profile_Dump(   ESL_DSQ*    dsq,
+                     const int   L,
+                     P7_PROFILE* gm,
+                     P7_GMX*     gx,
+                     FILE*       fp )
 {
    float const *tsc  = gm->tsc;
    float      **dp   = gx->dp;
@@ -330,17 +328,11 @@ void profile_Dump(ESL_DSQ*    dsq,
 /*
  *  FUNCTION:  save_ProfileConfig()
  *  SYNOPSIS:  Save Profile Configuration.
- *
- *  PURPOSE:
- *
- *  ARGS:
- *
- *  RETURN:
  */
-void profileConfig_Dump(P7_HMM*        hmm,
-                        P7_BG*         bg,
-                        P7_PROFILE*    gm,
-                        FILE*          fp )
+void profileConfig_Dump(   P7_HMM*        hmm,
+                           P7_BG*         bg,
+                           P7_PROFILE*    gm,
+                           FILE*          fp )
 {
    int M = gm->M;
    int K = gm->abc->K;
@@ -420,14 +412,10 @@ void profileConfig_Dump(P7_HMM*        hmm,
 
 /*
  *  FUNCTION:  hmmProf_Dump()
- *  SYNOPSIS:  Save HMM Profile.
- *
- *  ARGS:
- *
- *  RETURN:
+ *  SYNOPSIS:  Output HMM Profile.
  */
-void hmmProf_Dump(P7_PROFILE*   gm,
-                  FILE*         fp )
+void hmmProf_Dump(   P7_PROFILE*   gm,
+                     FILE*         fp )
 {
    float    *tsc  = gm->tsc;
    int      M    = gm->M;
@@ -479,6 +467,44 @@ void hmmProf_Dump(P7_PROFILE*   gm,
    fprintf(fp, "J:\t%.5f\t%.5f\n", gm->xsc[p7P_J][p7P_LOOP], gm->xsc[p7P_J][p7P_MOVE]);
    fprintf(fp, "C:\t%.5f\t%.5f\n", gm->xsc[p7P_C][p7P_LOOP], gm->xsc[p7P_C][p7P_MOVE]);
    fprintf(fp, "<<<\n\n");
+}
+
+void my_hmm_Dump(    ESL_HMM*  hmm,
+                     FILE*     fp )
+{
+   int M = hmm->M;
+   int K = hmm->K;
+
+   printf(" === ESL_HMM (M=%d,K=%d) ===\n", M, K);
+
+   printf("pi[0..M]:\n");
+   for (int i = 0; i < M; i++) {
+      printf("%9.4f ", hmm->pi[i] );
+   }
+
+   printf("t[Mx(M+1)]:\n");
+   for (int i = 0; i < M; i++) {
+      for (int j = 0; j < M-1; j++) {
+         printf("%9.4f ", hmm->t[i][j]);
+      }
+      printf("\n");
+   }
+
+   printf("e[MxK]:\n");
+   for (int i = 0; i < M; i++) {
+      for (int j = 0; j < K; j++) {
+         printf("%9.4f ", hmm->e[i][j]);
+      }
+      printf("\n");
+   }
+
+   printf("eo[K'xM]:\n");
+   for (int i = 0; i < M; i++) {
+      for (int j = 0; j < K; j++) {
+         printf("%9.4f ", hmm->e[i][j]);
+      }
+      printf("\n");
+   }
 }
 
 /* DAVID RICH EDIT END */

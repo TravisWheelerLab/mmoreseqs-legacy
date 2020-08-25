@@ -3,7 +3,6 @@
  *  PURPOSE:   Pipelines Workflow Subroutines
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _WORK_H
@@ -66,6 +65,9 @@ void WORK_forward_backward( WORKER*  worker );
 
 /* cloud search AKA pruned forward/backward */
 void WORK_cloud_search( WORKER* worker );
+
+/* compute correction bias and convert natscore -> bitscore -> pval -> eval */
+void WORK_convert_scores( WORKER* worker );
 
 /* print header for results file (default) */
 void WORK_print_result_header( WORKER* worker );

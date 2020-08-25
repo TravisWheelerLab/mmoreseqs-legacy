@@ -18,27 +18,28 @@ int STATS_Nats_to_Bitscore(   float    nats_sc,
                               float*   bit_sc );
 
 /* 
- * FUNCTION:  p7_bg_FilterScore()
- * SYNOPSIS:  Calculates the filter null model score.
+ * FUNCTION:   BG_FilterScore()
+ * SYNOPSIS:   Calculates the filter null model score.
  *
- * PURPOSE:   Calculates the filter null model <bg> score for sequence
- *            <dsq> of length <L>, and return it in 
- *            <*ret_sc>.
+ * PURPOSE:    Modeled after p7_bg_FilterScore() in HMMER.
+ *             Calculates the filter null model <bg> score for sequence
+ *             <dsq> of length <L>, and return it in 
+ *             <*ret_sc>.
  *            
- *            The score is calculated as an HMM Forward score using
- *            the two-state filter null model. It is a log-odds ratio,
- *            relative to the iid background frequencies, in nats:
- *            same as main model Forward scores.
+ *             The score is calculated as an HMM Forward score using
+ *             the two-state filter null model. It is a log-odds ratio,
+ *             relative to the iid background frequencies, in nats:
+ *             same as main model Forward scores.
  *
- *            The filter null model has no length distribution of its
- *            own; the same geometric length distribution (controlled
- *            by <bg->p1>) that the null1 model uses is imposed.
+ *             The filter null model has no length distribution of its
+ *             own; the same geometric length distribution (controlled
+ *             by <bg->p1>) that the null1 model uses is imposed.
  */
-int NULL_MODEL_FilterScore(   HMM_PROFILE*   t_prof, 
-                              SEQUENCE*      q_seq, 
-                              MATRIX_3D*     st_MX,
-                              MATRIX_2D*     sp_MX,
-                              float*         filter_sc );
+int BG_FilterScore(  HMM_PROFILE*   t_prof, 
+                     SEQUENCE*      q_seq, 
+                     MATRIX_3D*     st_MX,
+                     MATRIX_2D*     sp_MX,
+                     float*         filter_sc );
 
 /* 
  * FUNCTION:  p7_bg_FilterScore()

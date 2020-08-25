@@ -62,12 +62,12 @@ VECTOR_RANGE* VECTOR_RANGE_Create_by_Size( int    size )
  */
 void* VECTOR_RANGE_Destroy( VECTOR_RANGE*   vec )
 {
-   if ( vec == NULL ) return vec;
-   ERRORCHECK_free(vec->data);
-   ERRORCHECK_free(vec);
+   if ( vec == NULL ) return NULL;
 
-   vec = NULL;
-   return vec;
+   free(vec->data);
+   free(vec);
+
+   return NULL;
 }
 
 /*

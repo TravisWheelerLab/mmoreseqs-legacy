@@ -51,14 +51,15 @@ CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -O2
 CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1
+DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1 -fsanitize=address
 # flags for release version
 RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -Wall -O3
 
 # TODO: 
 # Build Easel using its own makefile
 $(info ************  BUILD EASEL  ************)
-# ${MAKE} -C ${EASEL_DIR} ${EASEL_DIR}/Makefile all
+# $(info ${MAKE} -C ${EASEL_DIR} all )
+# 	${MAKE} -C ${EASEL_DIR} all
 
 $(info ************  BUILD FB_PRUNER  ************)
 # special flags for RELEASE 
@@ -102,5 +103,3 @@ clean:
 MKDIR_P ?= mkdir -p
 
 # install:
-# 	PATH=$PATH:~/opt/bin
-# 	$

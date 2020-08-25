@@ -90,11 +90,11 @@
 #define printf_vall(...) 		printf_v(VERBOSE_ALL,  __VA_ARGS__)
 
 /* errorchecking macros */
-#define malloc_check(...) 	ERRORCHECK_malloc(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
-#define realloc_check(...)	ERRORCHECK_realloc(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
-#define fopen_check(...) 	ERRORCHECK_fopen(__VA_ARGS__, __FILE__, __LINE__, __FUNCTION__)
+#define malloc_check(...) 	ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define realloc_check(...)	ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define fopen_check(...) 	ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
 /* gets the location where error occurred */
-#define LOCATION 			__FILE__, __LINE__, __FUNCTION__
+#define ERRORCHECK_locate()			__FILE__, __LINE__, __FUNCTION__
 
 /* === MATRIX FUNCTIONS AND MACROS === */
 

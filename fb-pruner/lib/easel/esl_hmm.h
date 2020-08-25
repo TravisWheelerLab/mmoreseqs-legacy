@@ -29,12 +29,10 @@ typedef struct {
 
   float    *dp_mem;		/* memory allocated for the resizable DP matrix          */
   int       allocR;		/* current allocated # of rows: L+1 <= validR <= allocR  */
-  int       validR; 		/* # of dp rows actually pointing at DP memory           */
+  int       validR;   /* # of dp rows actually pointing at DP memory           */
   int       allocM;		/* current set row width; M <= allocM                    */
   uint64_t  ncells;		/* total allocation of dp_mem; ncells >= (validR)(allocM)*/
 } ESL_HMX;
-
-
 
 extern ESL_HMM *esl_hmm_Create(const ESL_ALPHABET *abc, int M);
 extern ESL_HMM *esl_hmm_Clone(const ESL_HMM *hmm);

@@ -107,8 +107,7 @@ void* ERRORCHECK_realloc( void*         ptr,
 void* ERRORCHECK_free(  void*    ptr )
 {
    if ( ptr != NULL ) free( ptr );
-   ptr = NULL;
-   return ptr;
+   return NULL;
 }
 
 

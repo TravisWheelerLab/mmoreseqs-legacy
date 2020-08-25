@@ -62,12 +62,12 @@ VECTOR_CHAR* VECTOR_CHAR_Create_by_Size( int    size )
  */
 void* VECTOR_CHAR_Destroy( VECTOR_CHAR*   vec )
 {
-   if ( vec == NULL ) return vec;
-   ERRORCHECK_free(vec->data);
-   ERRORCHECK_free(vec);
+   if ( vec == NULL ) return NULL;
 
-   vec = NULL;
-   return vec;
+   free(vec->data);
+   free(vec);
+
+   return NULL;
 }
 
 /*

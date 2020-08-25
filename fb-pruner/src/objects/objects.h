@@ -45,10 +45,11 @@
 #include "edgebound_rows.h"
 #include "f_index.h"
 #include "hmm_profile.h"
+#include "hmm_bg.h"
 #include "mystring.h"
 #include "results.h"
 #include "score_matrix.h"
 #include "sequence.h"
 #include "worker.h"
 
-#endif /* _RESULTS_H */
+#endif /* _OBJECTS_H */

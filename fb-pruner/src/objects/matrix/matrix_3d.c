@@ -68,13 +68,12 @@ MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
 /* destructor */
 void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 {
-   if (mx == NULL) return mx;
+   if (mx == NULL) return NULL;
 
    ERRORCHECK_free(mx->data);
-   // mx->data = NULL;
    ERRORCHECK_free(mx);
-   mx = NULL;
-   return mx;
+
+   return NULL;
 }
 
 /* deep copy: returns dest matrix, will allocate if null */

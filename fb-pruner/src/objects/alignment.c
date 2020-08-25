@@ -59,7 +59,7 @@ void* ALIGNMENT_Destroy(ALIGNMENT* aln)
    if (aln == NULL) return aln;
    
    VECTOR_INT_Destroy( aln->seq_beg );
-   VECTOR_INT_Destroy( aln->seq_beg );
+   VECTOR_INT_Destroy( aln->seq_end );
    VECTOR_CHAR_Destroy( aln->sequence );
 
    VECTOR_INT_Destroy( aln->tr_beg );

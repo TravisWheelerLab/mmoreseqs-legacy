@@ -202,16 +202,16 @@ void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof,
    float*   parPtr2 = NULL;
 
    if ( strcmp( dist_name, "MSV" ) == 0 ) {
-      parPtr1 = &prof->msv_dist.param1;
-      parPtr2 = &prof->msv_dist.param2;
+      prof->msv_dist.param1 = param1;
+      prof->msv_dist.param2 = param2;
    }
    else if ( strcmp( dist_name, "VITERBI" ) == 0 ) {
-      parPtr1 = &prof->viterbi_dist.param1;
-      parPtr2 = &prof->viterbi_dist.param2;
+      prof->viterbi_dist.param1 = param1;
+      prof->viterbi_dist.param2 = param2;
    }
    else if ( strcmp( dist_name, "FORWARD" ) == 0 ) {
-      parPtr1 = &prof->forward_dist.param1;
-      parPtr2 = &prof->forward_dist.param2;
+      prof->forward_dist.param1 = param1;
+      prof->forward_dist.param2 = param2;
    }
    else {
       fprintf( stderr, "Invalid distribution type: %s\n", dist_name );

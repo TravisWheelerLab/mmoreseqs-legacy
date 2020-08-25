@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  @file structs.c
- *  @brief Data Structures for Cloud Search.
+ *     FILE:   structs.c
+ *  PURPOSE:   All Data Structures used by Cloud Search.
  *
- *  @author Dave Rich
- *  @bug Lots.
+ *  AUTHOR:    Dave Rich
+ *     BUG:    
  *******************************************************************************/
 
 /* imports */

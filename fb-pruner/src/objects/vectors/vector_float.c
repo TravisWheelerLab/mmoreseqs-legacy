@@ -62,12 +62,12 @@ VECTOR_FLT* VECTOR_FLT_Create_by_Size( int    size )
  */
 void* VECTOR_FLT_Destroy( VECTOR_FLT*   vec )
 {
-   if ( vec == NULL ) return vec;
-   ERRORCHECK_free(vec->data);
-   ERRORCHECK_free(vec);
+   if ( vec == NULL ) return NULL;
 
-   vec = NULL;
-   return vec;
+   free(vec->data);
+   free(vec);
+
+   return NULL;
 }
 
 /*

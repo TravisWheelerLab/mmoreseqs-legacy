@@ -23,7 +23,6 @@
 /* header */
 #include "parsers.h"
 
-
 /* Parse .hmm file and builds a HMM_PROFILE object */
 void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
                         char*          _filename_,
@@ -116,6 +115,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
 
          HMM_PROFILE_Set_Distribution_Params(prof, param1, param2, field);
       }
+      
       /* COMPO is the background composition of the hmm model */
       else if ( strcmp( header, "COMPO" ) == 0 )
       {
@@ -584,9 +584,9 @@ void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof,
    prof->bg_model->spec[SP_J][SP_MOVE] = log( pmove );
 }
 
-/* modeled after */
+/* modeled after p7_bg_SetLength()  */
 void HMM_PROFILE_BG_SetLength(   HMM_PROFILE*   prof,
                                  int            length )
 {
-   
+   HMM_COMPO* bg = prof->bg_model;
 }
