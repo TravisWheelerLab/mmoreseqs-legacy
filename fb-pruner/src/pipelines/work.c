@@ -571,15 +571,18 @@ void WORK_load_query_by_id( WORKER* worker,
    switch ( q_filetype )
    {
       /* fasta only supported file type */
-      case FILE_FASTA:
+      case FILE_FASTA: {
+         printf("=== SEQUENCE ===\n");
          SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
-         // printf("=== SEQUENCE ===\n");
          // SEQUENCE_Dump( q_seq, stdout );
-         break;
-      case FILE_HMM:
-      default:
+      } break;
+      case FILE_HMM: {
+
+      } 
+      default: {
          fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
          exit(EXIT_FAILURE);
+      }
    }
 
    /* set special state transitions based on query sequence length */
