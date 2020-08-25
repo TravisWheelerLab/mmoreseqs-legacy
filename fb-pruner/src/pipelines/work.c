@@ -499,7 +499,8 @@ void WORK_load_target_by_id( WORKER* worker,
    t_offset = node->offset;
 
    /* print results */
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", id, term, node->id, node->name, t_offset );
+   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
+      id, term, node->id, node->name, t_offset );
    F_INDEX_Node_Dump( t_index, term, stdout );
 
    /* load target profile by file type */
@@ -549,7 +550,7 @@ void WORK_load_query_by_id( WORKER* worker,
 
    /* set current query id */
    worker->q_id = id;
-   printf_vhi("# loading query by id: %d..\n", id);
+   printf_vlo("# loading query by id: %d..\n", id);
 
    /* begin time */
    CLOCK_Start(clok);
@@ -562,7 +563,8 @@ void WORK_load_query_by_id( WORKER* worker,
    q_offset = node->offset;
 
    /* print results */
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", id, term, node->id, node->name, q_offset );
+   printf_vlo("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
+      id, term, node->id, node->name, q_offset );
    F_INDEX_Node_Dump( q_index, term, stdout );
 
    /* load query by file type */
