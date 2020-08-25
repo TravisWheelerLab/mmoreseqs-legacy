@@ -68,7 +68,7 @@ void mmseqs_pipeline( WORKER* worker )
    SCORES*     scores   = worker->scores;
    SCORES*     pvals    = worker->pvals;
    SCORES*     evals    = worker->evals;
-   
+
    CLOCK*      clok     = worker->clok;
    /* alignment for mmseqs window */
    ALIGNMENT*  tr       = worker->traceback;
@@ -166,10 +166,14 @@ void mmseqs_pipeline( WORKER* worker )
       t_cid    = swp;
 
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
-      if ( t_cid != t_cid_prv )
+      if ( t_cid != t_cid_prv ) {
+         printf("Loading target (%d)...", t_cid);
          WORK_load_target_by_id( worker, t_cid );
-      if (q_cid != q_cid_prv)
+      }
+      if (q_cid != q_cid_prv) {
+         printf("Loading query (%d)...", q_cid);
          WORK_load_query_by_id( worker, q_cid );
+      }
       t_cid_prv = t_cid;
       q_cid_prv = q_cid;
 
@@ -185,10 +189,10 @@ void mmseqs_pipeline( WORKER* worker )
       WORK_reuse( worker );
 
       // #if DEBUG
-      {
-         WORK_viterbi_and_traceback( worker );
-         WORK_forward_backward( worker );
-      }
+      // {
+      //    WORK_viterbi_and_traceback( worker );
+      //    WORK_forward_backward( worker );
+      // }
       // #endif
 
       // #if DEBUG
