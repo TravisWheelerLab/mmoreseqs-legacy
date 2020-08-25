@@ -486,7 +486,7 @@ void WORK_load_target_by_id( WORKER* worker,
 
    /* set current target id */
    worker->t_id = id;
-   printf_vhi("# loading target by id: %d..\n", id);
+   printf("# loading target by id: %d..\n", id);
 
    /* begin time */
    CLOCK_Start(clok);

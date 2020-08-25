@@ -168,11 +168,11 @@ void mmseqs_pipeline( WORKER* worker )
 
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
       if ( t_cid != t_cid_prv ) {
-         printf_vlo("# Loading target (%d)...\n", t_cid);
+         printf("# Loading target (%d)...\n", t_cid);
          WORK_load_target_by_id( worker, t_cid );
       }
       if (q_cid != q_cid_prv) {
-         printf_vlo("# Loading query (%d)...\n", q_cid);
+         printf("# Loading query (%d)...\n", q_cid);
          WORK_load_query_by_id( worker, q_cid );
       }
       t_cid_prv = t_cid;
