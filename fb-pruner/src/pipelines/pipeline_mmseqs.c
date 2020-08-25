@@ -40,6 +40,7 @@ void print_header_mmseqs(  WORKER*  worker );
 /* mmseqs pipeline */
 void mmseqs_pipeline( WORKER* worker )
 {
+   printf("# begin mmseqs...\n");
    /* file pointer for writing out to file */
    FILE*    fp       = NULL;
    ARGS*    args     = worker->args;
@@ -49,13 +50,13 @@ void mmseqs_pipeline( WORKER* worker )
    tasks->linear        = true;
    tasks->lin_bound_fwd = true;
    // #if DEBUG
-   {
-      tasks->quadratic  = true;
-      tasks->quad_vit   = true;
-      tasks->quad_trace = true;
-      tasks->quad_fwd   = true;
-      tasks->quad_bck   = true;
-   }
+   // {
+   //    tasks->quadratic  = true;
+   //    tasks->quad_vit   = true;
+   //    tasks->quad_trace = true;
+   //    tasks->quad_fwd   = true;
+   //    tasks->quad_bck   = true;
+   // }
    // #endif
 
    /* initialize worker data structures */
@@ -106,10 +107,10 @@ void mmseqs_pipeline( WORKER* worker )
    float    threshold_sc      = 0;
 
    /* === INDEX FILES === */
-   printf_vall("Loading index file at: '%s'\n", args->t_indexpath );
+   printf("# Loading index file at: '%s'\n", args->t_indexpath );
    worker->t_index = F_INDEX_Load( worker->t_index, args->t_indexpath );
 
-   printf_vall("Loading index file at: '%s'\n", args->q_indexpath );
+   printf("# Loading index file at: '%s'\n", args->q_indexpath );
    worker->q_index = F_INDEX_Load( worker->q_index, args->q_indexpath );
    /* sort indexes by id */
    F_INDEX_Sort_by_Id( worker->t_index );
@@ -139,7 +140,7 @@ void mmseqs_pipeline( WORKER* worker )
    for (int i = i_beg; i < i_end; i++)
    {
       result_out->result_id = i;
-      printf_vlo("running cloud search for result (%d of %d)...\n", i, i_end );
+      printf_vlo("# running cloud search for result (%d of %d)...\n", i, i_end );
 
       /* get next result from list */
       result_in   = &(results_in->data[i]);
@@ -167,11 +168,11 @@ void mmseqs_pipeline( WORKER* worker )
 
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
       if ( t_cid != t_cid_prv ) {
-         printf("Loading target (%d)...", t_cid);
+         printf("# Loading target (%d)...\n", t_cid);
          WORK_load_target_by_id( worker, t_cid );
       }
       if (q_cid != q_cid_prv) {
-         printf("Loading query (%d)...", q_cid);
+         printf("# Loading query (%d)...\n", q_cid);
          WORK_load_query_by_id( worker, q_cid );
       }
       t_cid_prv = t_cid;
