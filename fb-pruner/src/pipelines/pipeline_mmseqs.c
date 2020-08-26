@@ -74,8 +74,8 @@ void mmseqs_pipeline( WORKER* worker )
    /* alignment for mmseqs window */
    ALIGNMENT*  tr       = worker->traceback;
    /* input results file from MMSEQS pipeline */
-   worker->results_in = RESULTS_Create();
-   RESULTS*    results_in = worker->results_in;
+   worker->results_in      = RESULTS_Create();
+   RESULTS*    results_in  = worker->results_in;
    RESULT*     result_in;
    /* output results from fb-pruner */
    RESULT*     result      = worker->result;
@@ -259,12 +259,13 @@ void mmseqs_pipeline( WORKER* worker )
       STRING_Replace( worker->t_prof->name, ' ', '_' );
       STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
-            "##_SCORES_TIMES_: %d %d | %d %d %s | %d %d %s | %d %d | %4.2f %4.2f %d | %7.4f %7.4f %9.2e\n",
+            "##_SCORES_TIMES_: %d %d | %d %d %s | %d %d %s | %d %d | %4.2f %4.2f %d | %d %9.2e | %7.4f %7.4f %9.2e\n",
             i, i_end,
             worker->t_id, worker->t_prof->N, worker->t_prof->name, 
             worker->q_id, worker->q_seq->N, worker->q_seq->name,
             result->total_cells, result->cloud_cells, 
             args->alpha, args->beta, args->gamma,
+            result_in->bit_score, result_in->e_value,
             times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd );
 
       /* capture edgebounds */
