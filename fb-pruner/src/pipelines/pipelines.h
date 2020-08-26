@@ -29,6 +29,14 @@ void main_pipeline( WORKER* worker );
  */
 void mmseqs_pipeline( WORKER* worker );
 
+
+/*
+ *  FUNCTION:  	mmseqs_pipeline_plus()
+ *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: Runs Cloud Search using results from main MMSeqs Search..	
+ */
+void mmseqs_pipeline_plus( WORKER* worker );
+
+
 /*
  *  FUNCTION:  	time_pipeline()
  *  SYNOPSIS:  	Time Trial Pipeline: runs all algorithms and reports times.

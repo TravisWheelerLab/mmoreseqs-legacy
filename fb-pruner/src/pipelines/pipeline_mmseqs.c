@@ -122,12 +122,15 @@ void mmseqs_pipeline( WORKER* worker )
    }
 
    /* get result range */
+   int i_rng = 0;
+   int i_cnt = 0;
    int i_beg = 0;
    int i_end = results_in->N;
    if ( args->mmseqs_range.beg >= 0 ) {
       i_beg = args->mmseqs_range.beg;
       i_end = MIN(args->mmseqs_range.end, i_end);
    }
+   i_rng = i_end - i_beg;
    printf("# MMSEQS PLUS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
 
    /* open outfile and add header to file */
@@ -137,10 +140,11 @@ void mmseqs_pipeline( WORKER* worker )
 
    /* === ITERATE OVER EACH RESULT === */
    /* Look through each input result */
-   for (int i = i_beg; i < i_end; i++)
+   for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
       result_out->result_id = i;
-      printf_vlo("# running cloud search for result (%d of %d)...\n", i, i_end );
+      printf_vlo("# %d/%d running cloud search for result (%d of %d)...\n", 
+         i_cnt, i_rng, i, i_end );
 
       /* get next result from list */
       result_in   = &(results_in->data[i]);
@@ -251,18 +255,17 @@ void mmseqs_pipeline( WORKER* worker )
       }
       #endif
 
-      /* results */
+      /* results (need to add mmseqs entry) */
       STRING_Replace( worker->t_prof->name, ' ', '_' );
       STRING_Replace( worker->q_seq->name, ' ', '_' );
       fprintf( stdout, 
-            "##_SCORES_TIMES_: %d %d %s %d %d %s %d %d %f %f %d %f %f %f %f %9.2e %f %f \n",
+            "##_SCORES_TIMES_: %d %d | %d %d %s | %d %d %s | %d %d | %4.2f %4.2f %d | %7.4f %7.4f %9.2e\n",
+            i, i_end,
             worker->t_id, worker->t_prof->N, worker->t_prof->name, 
             worker->q_id, worker->q_seq->N, worker->q_seq->name,
             result->total_cells, result->cloud_cells, 
             args->alpha, args->beta, args->gamma,
-            times->quad_vit, scores->quad_vit,
-            times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd,
-            times->quad_fwd, scores->quad_fwd );
+            times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd );
 
       /* capture edgebounds */
       // {
