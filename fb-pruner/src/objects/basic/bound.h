@@ -27,6 +27,6 @@ char* BOUND_To_String( const BOUND   d,
  *             neg if (a < b)
  */
 int BOUND_Compare(  const BOUND   a, 
-                  const BOUND   b );
+                  	const BOUND   b );
 
 #endif /* _BOUND_H */

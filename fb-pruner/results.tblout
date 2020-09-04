@@ -1,0 +1,15 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+4HBT/23/117-200/205-291 domains: Q97HJ7_CLOAB/19-102 Q9K8B6_BACHD/33-119 -          4HBT                 -                2.5   -8.4   0.0         0    0.0   0.0   0.0   0   0   0   0   0   0   0 --
+4HBT/24/151-232/306-390 domains: Q9HPZ1_HALSA/20-101 TESC_ECOLI/15-99 -          4HBT                 -               0.39   -6.6   0.0         0    0.0   0.0   0.0   0   0   0   0   0   0   0 --
+4HBT/24/151-232/306-390 domains: Q9HPZ1_HALSA/20-101 TESC_ECOLI/15-99 -          4HBT                 -            1.9e-12   17.3   0.0         0    0.0   0.0   0.0   0   0   0   0   0   0   0 --
+# 
+#             Program: FB_PRUNER
+#             Version: 0.1 (Aug 2020)
+#       Pipeline mode: main
+#          Query file: test-input/4HBT.fa
+#         Target file: test-input/4HBT.hmm
+#     Option settings: 
+#         Current dir: /home/devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/fb-pruner
+#                 [ok]

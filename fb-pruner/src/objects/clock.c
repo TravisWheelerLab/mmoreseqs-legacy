@@ -34,24 +34,14 @@ CLOCK* CLOCK_Create()
    CLOCK*      cl       = NULL;   
    const int   min_size = 16; 
 
-   cl = (CLOCK*) malloc( sizeof(CLOCK) );
-   if (cl == NULL) {
-      const char* obj_name = "CLOCK";
-      fprintf(stderr, "ERROR: Unable to malloc object %s.\n", obj_name);
-      exit(EXIT_FAILURE);
-   }
+   cl = (CLOCK*) ERROR_malloc( sizeof(CLOCK) );
 
    cl->start   = 0;
    cl->stop    = 0;
-   cl->N       = 0;
-   cl->Nalloc  = min_size;
+   cl->stamps  = VECTOR_DBL_Create_by_Size( min_size );
 
-   cl->stamps  = (double*) malloc( sizeof(double) * min_size );
-   if (cl->stamps == NULL) {
-      const char* obj_name = "CLOCK STAMPS";
-      fprintf(stderr, "ERROR: Unable to malloc object %s: <%p>.\n", obj_name, cl);
-      exit(EXIT_FAILURE);
-   }
+   /* set program start time */
+   cl->program_start = CLOCK_Get_RealTime();
 
    return cl;
 }
@@ -59,13 +49,12 @@ CLOCK* CLOCK_Create()
 /* destructor */
 void* CLOCK_Destroy( CLOCK* cl )
 {
-   if (cl == NULL) return cl;
+   if (cl == NULL) return NULL;
 
-   ERRORCHECK_free(cl->stamps);
+   VECTOR_DBL_Destroy( cl->stamps );
+   ERROR_free(cl);
 
-   ERRORCHECK_free(cl);
-   cl = NULL;
-   return cl;
+   return NULL;
 }
 
 /* Set the Stopwatch */
@@ -177,4 +166,23 @@ double CLOCK_Get_RealTime()
 #else
    return -1.0;      /* Failed. */
 #endif
+}
+
+/* returns string containing current date and time */
+char* CLOCK_Get_DateTimeString( CLOCK* cl )
+{
+      // time_t   t     = time(NULL);
+      // struct   tm tm = *localtime(&t);
+      // char*    tm_str[256];
+      // sprintf( tm_str "%d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+      // return tm_str;
+   return NULL;
+}
+
+/* return total runtime since clock created */
+double CLOCK_Get_Total_Runtime( CLOCK* cl )
+{
+   double current_time  = CLOCK_Get_RealTime();
+   double duration      = cl->stop - cl->start;
+   return (double)(cl->duration);
 }

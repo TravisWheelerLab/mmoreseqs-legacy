@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      float.c
+ *  FILE:      float.h
  *  PURPOSE:   FLT Object
  *
  *  AUTHOR:    Dave Rich
@@ -15,8 +15,8 @@
  *
  *    RETURN:  Pointer to <buf>
  */
-char* FLT_To_String( const FLT   d,
-                     char*       buf );
+char* FLT_To_String( 	const FLT   	d,
+                     	char*       	buf );
 
 /*
  *  FUNCTION:  FLT_Compare()
@@ -26,7 +26,7 @@ char* FLT_To_String( const FLT   d,
  *             0 if equal, 
  *             neg if (a < b)
  */
-int FLT_Compare(  const FLT   a, 
-                  const FLT   b );
+int FLT_Compare(  	const FLT   a, 
+                  	const FLT   b );
 
 #endif /* _FLT_H */

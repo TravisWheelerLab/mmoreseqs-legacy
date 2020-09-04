@@ -30,8 +30,12 @@ double CLOCK_Stop( CLOCK* cl );
 /* Convert duration from ticks to msec */
 double CLOCK_Secs( CLOCK* cl );
 
-
 /* capture time based on system (pulled directly from easel) */
 double CLOCK_Get_RealTime(void);
+
+char* CLOCK_Get_DateTimeString( CLOCK* cl );
+
+/* return total runtime since clock created */
+double CLOCK_Get_Total_Runtime( CLOCK* cl );
 
 #endif /* _CLOCK_H */

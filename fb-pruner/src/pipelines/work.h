@@ -70,9 +70,15 @@ void WORK_cloud_search( WORKER* worker );
 void WORK_convert_scores( WORKER* worker );
 
 /* print header for results file (default) */
-void WORK_print_result_header( WORKER* worker );
+void WORK_report_header( WORKER* worker );
 
 /* print current result (default) */
-void WORK_print_result_current( WORKER* worker );
+void WORK_report_result_current( WORKER* worker );
+
+/* print current result (default) */
+void WORK_report_result_all( WORKER* worker );
+
+/* print header for results file (default) */
+void WORK_report_footer( WORKER* worker );
 
 #endif /* _WORK_H */

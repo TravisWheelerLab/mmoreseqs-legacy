@@ -3,7 +3,7 @@
  *  PURPOSE:   EDGEBOUNDS Object
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */
@@ -37,17 +37,13 @@ EDGEBOUNDS* EDGEBOUNDS_Create()
 }
 
 /*
- *  FUNCTION:  EDGEBOUNDS_Create()
+ *  FUNCTION:  EDGEBOUNDS_Create_by_Size()
  *  SYNOPSIS:  Create new EDGEBOUNDS object with chosen size and returns pointer.
  */
 EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size )
 {
-   EDGEBOUNDS* edg      = NULL;
-
-   edg = (EDGEBOUNDS*) malloc( sizeof(EDGEBOUNDS) );
-   if (edg == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc for EDGEBOUNDS.\n");
-   }
+   EDGEBOUNDS* edg = NULL;
+   edg = (EDGEBOUNDS*) ERROR_malloc( sizeof(EDGEBOUNDS) );
 
    edg->N         = 0;
    edg->Nalloc    = 0;
@@ -77,10 +73,10 @@ void* EDGEBOUNDS_Destroy( EDGEBOUNDS*  edg )
    VECTOR_INT_Destroy( edg->ids );
    VECTOR_INT_Destroy( edg->ids_idx );
 
-   ERRORCHECK_free( edg->bounds );
+   ERROR_free( edg->bounds );
    edg->bounds = NULL;
 
-   ERRORCHECK_free( edg );
+   ERROR_free( edg );
    edg = NULL;
 
    return edg;

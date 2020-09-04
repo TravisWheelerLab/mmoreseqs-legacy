@@ -1,6 +1,9 @@
 /*******************************************************************************
- *  FILE:      workerer.c
- *  PURPOSE:   WORKER object.c
+ *  FILE:      worker.c
+ *  PURPOSE:   WORKER object.
+ *             Master worker object. Maintains memory for all data structures used in pipeline.
+ *             Contains data shared by all worker threads.
+ *             TODO: Worker will have thread workers.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
@@ -22,31 +25,40 @@
 /* header */
 #include "worker.h"
 
-/* constructor */
-WORKER* WORKER_Create()
+/*
+ *  FUNCTION:  WORKER_Create()
+ *  SYNOPSIS:  Create new WORKER object and returns pointer.
+ *             Most data is left NULL to be supplied by WORK_init().
+ */
+WORKER* 
+WORKER_Create()
 {
    WORKER* worker = NULL;
    
-   worker = (WORKER*) malloc( sizeof(WORKER) );
-   if (worker == NULL) {
-      fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
-      exit(EXIT_FAILURE);
-   }
+   worker = (WORKER*) ERROR_malloc( sizeof(WORKER) );
 
    /* set all pointers null */
-   worker->args      = NULL;
-   worker->tasks     = NULL;
-   worker->report    = NULL;
+   worker->args         = NULL;
 
-   worker->t_file    = NULL;
-   worker->q_file    = NULL;
+   worker->tasks        = NULL;
 
-   worker->t_seq     = NULL;
-   worker->t_prof    = NULL;
-   worker->q_seq     = NULL;
+   /* file pointers are all initially NULL */
+   worker->output_fp    = NULL;
+   worker->tblout_fp    = NULL;
+   worker->m8out_fp     = NULL;
+   worker->myout_fp     = NULL;
 
-   worker->t_index   = NULL;
-   worker->q_index   = NULL;
+   worker->t_file       = NULL;
+   worker->q_file       = NULL;
+
+   worker->t_seq        = NULL;
+   worker->t_prof       = NULL;
+   worker->q_seq        = NULL;
+
+   worker->t_index      = NULL;
+   worker->q_index      = NULL;
+
+   worker->q_seq        = NULL;
 
    worker->edg_fwd      = NULL;
    worker->edg_bck      = NULL;
@@ -54,7 +66,9 @@ WORKER* WORKER_Create()
    worker->edg_row      = NULL;
 
    worker->edg_rows_tmp = NULL;
-   for ( int i=0; i<3; i++ ) {
+
+   for ( int i=0; i<3; i++ ) 
+   {
       worker->lb_vec[i] = NULL;
       worker->rb_vec[i] = NULL;
    }
@@ -66,37 +80,37 @@ WORKER* WORKER_Create()
    worker->st_MX3       = NULL;
 
    worker->times        = NULL;
-   worker->scores       = NULL;
-   worker->pvals        = NULL;
-   worker->evals        = NULL;
+   worker->times_raw    = NULL;
 
    worker->results      = NULL;
    worker->results_in   = NULL;
    worker->result       = NULL;
-   worker->clok         = NULL;
 
    /* create complex data structs */
-   worker->clok      = CLOCK_Create();
+   worker->clok         = CLOCK_Create();
 
    /* malloc all basic data structures */
-   worker->tasks        = (TASKS*) calloc( 1, sizeof(TASKS) );    /* sets all tasks to false */
-   worker->report       = (REPORT*) calloc( 1, sizeof(REPORT) );  /* sets all report fields to false */
-   worker->times        = (TIMES*) malloc( sizeof(TIMES) );       
-   worker->scores       = (SCORES*) malloc( sizeof(SCORES) );   
-   worker->pvals        = (SCORES*) malloc( sizeof(SCORES) );
-   worker->evals        = (SCORES*) malloc( sizeof(SCORES) );
+   worker->tasks        = (TASKS*) ERROR_malloc( sizeof(TASKS) );
+   worker->times        = (TIMES*) ERROR_malloc( sizeof(TIMES) );
+   worker->scores       = (NAT_SCORES*) ERROR_malloc( sizeof(NAT_SCORES) );
 
-   if ( worker->tasks == NULL || worker->report == NULL || worker->times == NULL || worker->scores == NULL ) 
-   {
-      fprintf(stderr, "ERROR: Failed to malloc WORKER.\n");
-      exit(EXIT_FAILURE);
-   }
+   /* initialize all values to zero */
+   memset( worker->tasks, 0, sizeof(TASKS) ); 
+   memset( worker->times, 0, sizeof(TIMES) );
+   memset( worker->scores, 0, sizeof(NAT_SCORES ) );
+
+   /* get start time */
+   worker->times->program_start = CLOCK_Get_RealTime();
 
    return worker;
 }
 
-/* constructor with args supplied */
-WORKER* WORKER_Create_with_Args( ARGS* args )
+/*
+ *  FUNCTION:  WORKER_Create_with_Args()
+ *  SYNOPSIS:  Create new WORKER object and adds <args> to worker.
+ */
+WORKER* 
+WORKER_Create_with_Args( ARGS* args )
 {
    WORKER* worker = NULL;
    worker = WORKER_Create();
@@ -105,8 +119,26 @@ WORKER* WORKER_Create_with_Args( ARGS* args )
    return worker;
 }
 
-/* destructor */
-void* WORKER_Destroy( WORKER* worker )
+/*
+ *  FUNCTION:  WORKER_Create_Threads()
+ *  SYNOPSIS:  Creates {N_threads} WORKER_THREAD objects for {worker}.
+ *             Stored in {worker->theads}.
+ *             Exact number of threads are allocated (should not change during program lifetime).
+ */
+void
+WORKER_Create_Threads(  WORKER*  worker,
+                        int      N_threads )
+{
+   WORKER_THREAD* threads = worker->threads;
+   threads = (WORKER_THREAD*) ERROR_realloc( threads, sizeof(WORKER_THREAD) );
+}
+
+/*
+ *  FUNCTION:  WORKER_Destroy()
+ *  SYNOPSIS:  Frees WORKER object and returns pointer.
+ */
+void* 
+WORKER_Destroy( WORKER* worker )
 {
    if (worker == NULL) return worker;
 
@@ -115,14 +147,11 @@ void* WORKER_Destroy( WORKER* worker )
 
    worker->clok = CLOCK_Destroy( worker->clok );
 
-   ERRORCHECK_free( worker->tasks );
-   ERRORCHECK_free( worker->report );
-   ERRORCHECK_free( worker->times );
-   ERRORCHECK_free( worker->scores );
-   ERRORCHECK_free( worker->pvals );
-   ERRORCHECK_free( worker->evals );
+   ERROR_free( worker->tasks );
+   ERROR_free( worker->times );
+   ERROR_free( worker->scores );
 
-   ERRORCHECK_free( worker );
+   ERROR_free( worker );
    worker = NULL;
    return worker;
 }

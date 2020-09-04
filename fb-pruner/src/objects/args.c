@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  FILE:      alignment.c
- *  PURPOSE:   ALIGNMENT Object.
+ *  FILE:      args.c
+ *  PURPOSE:   ARGS Object. Used for Parsing Commandline Args.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:     
@@ -22,7 +22,10 @@
 /* header */
 #include "alignment.h"
 
-/* constructor */
+/*
+ *  FUNCTION:  ARGS_Create()
+ *  SYNOPSIS:  
+ */
 ARGS* ARGS_Create()
 {
    ARGS* args = NULL;
@@ -33,43 +36,58 @@ ARGS* ARGS_Create()
       exit(EXIT_FAILURE);
    }
 
-   args->t_filepath = NULL;
-   args->q_filepath = NULL; 
+   args->cmdline                 = NULL;
+   args->opts                    = NULL;
 
-   args->t_indexpath = NULL;  
-   args->q_indexpath = NULL;
+   args->t_filepath              = NULL;
+   args->q_filepath              = NULL; 
+   args->t_indexpath             = NULL;  
+   args->q_indexpath             = NULL;
 
-   args->output_filepath = NULL; 
+   args->output_filepath         = NULL; 
+   args->tblout_filepath         = NULL;
+   args->m8out_filepath          = NULL;
+   args->myout_filepath          = NULL;
 
-   args->mmseqs_res_filepath = NULL;
-   args->mmseqs_tmp_filepath = NULL;
+   args->mmseqs_res_filepath     = NULL;
+   args->mmseqs_plus_filepath    = NULL;
+   args->mmseqs_tmp_filepath     = NULL;
 
-   args->t_lookup_filepath = NULL;
-   args->q_lookup_filepath = NULL;
+   args->t_lookup_filepath       = NULL;
+   args->q_lookup_filepath       = NULL;
 
    return args;
 }
 
-/* destructor */
-void ARGS_Destroy(ARGS* args)
+/*
+ *  FUNCTION:  ARGS_Destroy()
+ *  SYNOPSIS:  
+ */
+void ARGS_Destroy( ARGS* args )
 {
    if (args == NULL) return;
    
    /* free all strings */
-   ERRORCHECK_free( args->t_filepath );
-   ERRORCHECK_free( args->q_filepath );
+   ERROR_free( args->cmdline );
+   ERROR_free( args->opts );
 
-   ERRORCHECK_free( args->t_indexpath );
-   ERRORCHECK_free( args->q_indexpath );
+   ERROR_free( args->t_filepath );
+   ERROR_free( args->q_filepath );
+   ERROR_free( args->t_indexpath );
+   ERROR_free( args->q_indexpath );
 
-   ERRORCHECK_free( args->output_filepath );
+   ERROR_free( args->output_filepath );
+   ERROR_free( args->tblout_filepath );
+   ERROR_free( args->m8out_filepath );
+   ERROR_free( args->myout_filepath );
 
-   ERRORCHECK_free( args->mmseqs_res_filepath );
-   ERRORCHECK_free( args->mmseqs_tmp_filepath );
+   ERROR_free( args->mmseqs_res_filepath );
+   ERROR_free( args->mmseqs_plus_filepath );
+   ERROR_free( args->mmseqs_tmp_filepath );
 
-   ERRORCHECK_free( args->t_lookup_filepath );
-   ERRORCHECK_free( args->q_lookup_filepath );
+   ERROR_free( args->t_lookup_filepath );
+   ERROR_free( args->q_lookup_filepath );
 
-   ERRORCHECK_free( args );
+   ERROR_free( args );
    args = NULL;
 }

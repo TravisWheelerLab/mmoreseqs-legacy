@@ -20,7 +20,7 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "char.h"
 
 /*
  *  FUNCTION:  CHAR_To_String()

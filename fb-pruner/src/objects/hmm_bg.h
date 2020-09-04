@@ -27,6 +27,12 @@ void* HMM_BG_Destroy( HMM_BG* bg );
 void HMM_BG_SetSequence( 	HMM_BG*		bg, 
 									SEQUENCE* 	seq );
 
+/* FUNCTION:  HMM_BG_UnsetSequence()
+ * SYNOPSIS:  Set the sequence to create digitized sequence.
+ */
+void HMM_BG_UnsetSequence( 	HMM_BG*		bg,
+                           SEQUENCE* 	seq );
+
 /*
  *  FUNCTION:  HMM_BG_SetLength()
  *  SYNOPSIS:  

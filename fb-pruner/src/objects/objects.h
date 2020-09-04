@@ -41,6 +41,7 @@
 #include "alignment.h"
 #include "args.h"
 #include "clock.h"
+#include "debugger.h"
 #include "edgebound.h"
 #include "edgebound_rows.h"
 #include "f_index.h"
@@ -51,5 +52,7 @@
 #include "score_matrix.h"
 #include "sequence.h"
 #include "worker.h"
+#include "worker_thread.h"
+#include "x_string.h"
 
 #endif /* _OBJECTS_H */

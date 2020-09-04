@@ -103,7 +103,7 @@ void vizualization_pipeline( WORKER* worker )
 
    /* SCORES => stores result scores */
    TIMES*         times          = worker->times;
-   SCORES*        scores         = worker->scores;
+   NAT_SCORES*    scores         = worker->scores;
 
    /* TEST => embed into quadratic matrix? */
    bool           is_testing     = true;
@@ -389,7 +389,7 @@ void vizualization_pipeline( WORKER* worker )
    /* bounded forward (comparison) */
    run_Bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
    printf("Bounded Forward Score   (lin):\t%f\n", sc);
-   scores->lin_cloud_fwd = sc;
+   scores->lin_bound_fwd = sc;
    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
    DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_fwd.lin.mx");
    printf("=== BOUNDED FORWARD -> END ===\n\n");
@@ -421,7 +421,7 @@ void vizualization_pipeline( WORKER* worker )
    printf("## %s %s %s %s %5.1f %5.1f %d %9.4f %9.4f %9.4f\n", 
       t_filepath, q_filepath, t_prof->name, q_seq->name,
       alpha, beta, gamma,
-      scores->quad_vit, scores->quad_fwd, scores->lin_cloud_fwd);
+      scores->quad_vit, scores->quad_fwd, scores->lin_bound_fwd);
 
 
    /* CLEAN-UP */

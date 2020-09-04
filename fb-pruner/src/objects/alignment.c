@@ -24,37 +24,49 @@
 /* header */
 #include "alignment.h"
 
-/* constructor */
+/*
+ *  FUNCTION:  ALIGNMENT_Create()
+ *  SYNOPSIS:
+ */
 ALIGNMENT* ALIGNMENT_Create()
 {
    ALIGNMENT *aln       = NULL;
    const int min_size   = 256;
 
-   aln = (ALIGNMENT*) malloc( sizeof(ALIGNMENT) );
-   if (aln == NULL) {
-      const char* obj_name = "ALIGNMENT";
-      fprintf(stderr, "ERROR: Couldn't malloc %s: <%p>.\n", obj_name, aln);
-      exit(EXIT_FAILURE);
-   }
+   aln = (ALIGNMENT*) ERROR_malloc( sizeof(ALIGNMENT) );
 
-   aln->seq_beg   = VECTOR_INT_Create();
-   aln->seq_end   = VECTOR_INT_Create();
-   aln->sequence  = VECTOR_CHAR_Create();
+   aln->seq_beg      = VECTOR_INT_Create();
+   aln->seq_end      = VECTOR_INT_Create();
+   aln->sequence     = VECTOR_CHAR_Create();
 
-   aln->tr_beg    = VECTOR_INT_Create();
-   aln->tr_end    = VECTOR_INT_Create();
-   aln->traces    = VECTOR_TRACE_Create();
+   aln->tr_beg       = VECTOR_INT_Create();
+   aln->tr_end       = VECTOR_INT_Create();
+   aln->traces       = VECTOR_TRACE_Create();
 
-   aln->Q      = -1;
-   aln->T      = -1;
+   aln->Q            = -1;
+   aln->T            = -1;
+   aln->aln_len      = -1;
+
+   aln->perc_id      = 0.0;
+   aln->num_matches  = 0;
+   aln->num_gaps     = 0;
+   aln->num_misses   = 0;
+
+   aln->cigar_aln    = NULL;
+   aln->target_aln   = NULL;
+   aln->center_aln   = NULL;
+   aln->query_aln    = NULL;
 
    ALIGNMENT_Resize(aln, min_size);
 
    return aln;
 }
 
-/* destructor */
-void* ALIGNMENT_Destroy(ALIGNMENT* aln)
+/*
+ *  FUNCTION:  RESULTS_Destroy()
+ *  SYNOPSIS:
+ */
+void* ALIGNMENT_Destroy(   ALIGNMENT* aln )
 {
    if (aln == NULL) return aln;
    
@@ -66,16 +78,24 @@ void* ALIGNMENT_Destroy(ALIGNMENT* aln)
    VECTOR_INT_Destroy( aln->tr_end );
    VECTOR_TRACE_Destroy( aln->traces );
 
-   ERRORCHECK_free( aln );
+   ERROR_free( aln->cigar_aln );
+   ERROR_free( aln->target_aln );
+   ERROR_free( aln->center_aln );
+   ERROR_free( aln->query_aln );
+
+   ERROR_free( aln );
    aln = NULL;
 
    return aln;
 }
 
-/* reuse alignment by clearing traceback and setting dimensions */
-void ALIGNMENT_Reuse(ALIGNMENT*  aln,
-                     int         Q,
-                     int         T )
+/*
+ *  FUNCTION:  RESULTS_Reuse()
+ *  SYNOPSIS:  Reuse alignment by clearing traceback and setting dimensions.
+ */
+void ALIGNMENT_Reuse(   ALIGNMENT*  aln,
+                        int         Q,
+                        int         T )
 {
    VECTOR_INT_Reuse( aln->seq_beg );
    VECTOR_INT_Reuse( aln->seq_end );
@@ -84,11 +104,21 @@ void ALIGNMENT_Reuse(ALIGNMENT*  aln,
    VECTOR_INT_Reuse( aln->tr_beg );
    VECTOR_INT_Reuse( aln->tr_end );
    VECTOR_TRACE_Reuse( aln->traces );
+
+   /* TODO: reuse string? */
+   ERROR_free( aln->cigar_aln );
+   ERROR_free( aln->target_aln );
+   ERROR_free( aln->center_aln );
+   ERROR_free( aln->query_aln );
 }
 
 /* push trace onto end of alignment */
-void ALIGNMENT_Pushback(ALIGNMENT* aln,
-                        TRACE*     tr)
+/*
+ *  FUNCTION:  RESULTS_Reuse()
+ *  SYNOPSIS:  Reuse alignment by clearing traceback and setting dimensions.
+ */
+void ALIGNMENT_Pushback(   ALIGNMENT* aln,
+                           TRACE*     tr )
 {
    /* if debugging, do edgechecks */
    #if DEBUG
@@ -123,17 +153,19 @@ int ALIGNMENT_Compare(  ALIGNMENT*     a,
 }
 
 /*
- *  FUNCTION:  traceback_Append()
+ *  FUNCTION:  ALIGNMENT_Append()
  *  SYNOPSIS:  Append next state to Optimal Alignment.
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 inline
 int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
-                        TRACE*       tr,        /* Traceback being Appended */
+                        TRACE*       tr_ptr,    /* Traceback being Appended */
                         const int    st,        /* HMM state */
                         const int    q_0,       /* index in query/sequence */
                         const int    t_0 )      /* index in target/model */
 {
+   TRACE tr;
+
    /* for debugging: output traces as they are being added. */
    #if DEBUG 
    {
@@ -161,8 +193,8 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
       case N_ST:
       case C_ST:
       case J_ST:
-         tr->i = ( ( tr->st == st) ? q_0 : 0 );
-         tr->j = 0;
+         tr.i = ( ( tr.st == st) ? q_0 : 0 );
+         tr.j = 0;
          break;
 
       /* Non-Emitting States, not in Main Model: */
@@ -171,21 +203,21 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
       case B_ST:
       case E_ST:
       case T_ST:
-         tr->i = 0;
-         tr->j = 0;
+         tr.i = 0;
+         tr.j = 0;
          break;
 
       /* Non-Emitting States, but in Main Model: */
       case D_ST:
-         tr->i = 0;
-         tr->j = t_0;
+         tr.i = 0;
+         tr.j = t_0;
          break;
 
       /* Emitting States: */
       case M_ST:
       case I_ST:
-         tr->i = q_0;
-         tr->j = t_0;
+         tr.i = q_0;
+         tr.j = t_0;
          break;
 
       default:
@@ -199,14 +231,46 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
          exit(EXIT_FAILURE);
    }
 
-   tr->st = st;
-   ALIGNMENT_Pushback( aln, tr );
+   tr.st = st;
+   ALIGNMENT_Pushback( aln, &tr );
 
    return STATUS_SUCCESS;
 }
 
-/* Reverse order of ALIGNMENT */
-void ALIGNMENT_Reverse(ALIGNMENT* aln)
+/*
+ *  FUNCTION:  ALIGNMENT_Find_Length()
+ *  SYNOPSIS:  Scan <aln> for beginning, end, and length of alignments.
+ */
+void ALIGNMENT_Find_Length( ALIGNMENT* aln )
+{
+   /* scan traceback for all begin, end states */
+   TRACE*   tr = aln->traces->data;
+   int      N  = aln->traces->N;
+   for (int i = 0; i < N; ++i) 
+   {
+      if ( tr[i].st == B_ST ) {
+         VECTOR_INT_Pushback( aln->tr_beg, i + 1 );
+      }
+      if ( tr[i].st == E_ST ) {
+         VECTOR_INT_Pushback( aln->tr_end, i - 1 );
+      }
+   }
+
+   /* set beg,end vars to first found alignment (if at least one alignment) */
+   if ( aln->tr_beg->N > 0 ) 
+   {
+      aln->beg       = aln->tr_beg->data[0];
+      aln->end       = aln->tr_end->data[0];
+      aln->aln_len   = aln->end - aln->beg + 1;
+   }
+}
+
+/*
+ *  FUNCTION:  ALIGNMENT_Reverse()
+ *  SYNOPSIS:  Reverse order of <aln>.
+ *             Alignments are built from back-to-front. This will correct that to normal ordering.
+ */
+void ALIGNMENT_Reverse( ALIGNMENT* aln )
 {
    TRACE*   aln_0;   /* current trace */
    TRACE*   aln_1;   /* next trace */
@@ -235,115 +299,148 @@ void ALIGNMENT_Reverse(ALIGNMENT* aln)
    VECTOR_TRACE_Reverse( aln->traces );
 }
 
-/* create string of alignment */
-void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
-                              SEQUENCE*      query,
-                              HMM_PROFILE*   target )
+/*
+ *  FUNCTION:  ALIGNMENT_Build_HMMER_Style()
+ *  SYNOPSIS:  Generate <aln> strings, HMMER-style.
+ *             Expects <aln> has already been constructed.
+ */
+void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
+                                    SEQUENCE*      q_seq,
+                                    HMM_PROFILE*   t_prof )
 {
-   int      i;                         /* counter for traceback index */
-   int      q_0, t_0;                  /* query and target index of traceback */
-   int      f_mat, l_mat;              /* first and last match */
-   char     q_char, t_char, a_char;    /* query, target, and alignment character */
-   char*    q_seq;                     /* query sequence */
-   char*    t_seq;                     /* target sequence */
-   TRACE*   tr = NULL;                 /* traceback */
-   bool     in_aln = false;            /* currently in an alignment */
-   int      N;                         /* length of alignment */
+   /* alias for macros */
+   HMM_PROFILE*   target      = t_prof;
+   VECTOR_TRACE*  traceback   = aln->traces;
+   TRACE*         tr          = NULL;
 
-   N = aln->traces->N;
+   int      i        = 0;
+   int      beg      = aln->beg;
+   int      end      = aln->end;
+   int      aln_len  = end - beg + 1;
 
-   /* need consensus string if it is not already built */
-   if ( target->consensus == NULL ) {
-      HMM_PROFILE_Set_Consensus( target );
+   /* allocate all string */
+   aln->target_aln   = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
+   aln->query_aln    = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
+   aln->center_aln   = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
+   aln->state_aln    = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
+
+   /* counts */
+   aln->num_matches  = 0;
+   aln->num_misses   = 0;
+   aln->num_gaps     = 0;
+
+   /* construct consensus string if not already created */
+   if ( t_prof->consensus == NULL ) {
+      HMM_PROFILE_Set_Consensus( t_prof );
    }
 
-   /* if alignment consensus has not been create, do so now */
-   VECTOR_CHAR_Reuse( aln->sequence );
-   VECTOR_INT_Reuse( aln->seq_beg );
-   VECTOR_INT_Reuse( aln->seq_end );
+   /* find beginnings and ends of traces */
+   if ( aln->aln_len == -1 ) {
+      ALIGNMENT_Find_Length( aln );
+   }
 
-   VECTOR_INT_Reuse( aln->tr_beg );
-   VECTOR_INT_Reuse( aln->tr_end );
-
-   /* pass through the alignment until we find our first begin state */
-   tr = aln->traces->data;
-   i = 0;
-
-   while ( i < N )
+   /* capture alignment (until END state) */
+   int offset = 0;
+   for (i = beg; i < end; i++, offset++)
    {
-      /* find start of alignment */
-      for (i; i < N; i++, tr++)
-      {
-         q_0 = tr->i;
-         t_0 = tr->j;
+      tr          = &traceback->data[i];
+      char t_ch   = t_prof->consensus[tr->j];
+      char q_ch   = q_seq->seq[tr->i];
 
-         /* at beginning of alignment in traceback and sequence string */
-         if ( tr->st == B_ST ) {
-            VECTOR_INT_Pushback( aln->tr_beg, i );
-            VECTOR_INT_Pushback( aln->seq_beg, aln->sequence->N );
-            in_aln = true;
+      /* output depends upon state */
+      if ( tr->st == M_ST ) 
+      { 
+         aln->state_aln[offset]  = 'M';
+         aln->target_aln[offset] = t_ch;
+         aln->query_aln[offset]  = q_ch;
+         /* if target and query match */
+         if ( t_ch == q_ch ) {
+            aln->num_matches++;
+            aln->center_aln[offset] = t_ch;
             break;
          }
-      }
-
-      /* get beginning points of alignment */
-      tr++;
-      q_seq = &(query->seq[tr->i]);
-      t_seq = &(target->consensus[tr->j]);
-
-      /* get consensus of each alignment */
-      for (i; i < N; i++, tr++, q_seq++, t_seq++)
-      {
-         /* at end of alignment */
-         if ( tr->st == E_ST ) {
-            VECTOR_INT_Pushback( aln->tr_end, i );
-            VECTOR_INT_Pushback( aln->seq_end, aln->sequence->N );
-            VECTOR_CHAR_Pushback( aln->sequence, '\0' );
-            in_aln = false;
+         /* if target and query match (any case) */
+         t_ch = tolower(t_ch);
+         q_ch = tolower(q_ch);
+         if ( t_ch == q_ch ) {
+            aln->num_matches++;
+            aln->center_aln[offset] = t_ch;
             break;
          }
-
-         q_char = *q_seq;
-         t_char = *t_seq;
-
-         /* if characters match, report character */
-         if ( q_char == t_char ) {
-            a_char = q_char;
-            VECTOR_CHAR_Pushback( aln->sequence, a_char );
-            continue;
+         /* if score is positive */
+         float msc;
+         // msc = MSC(tr->j, q_ch);
+         msc = 0;
+         if ( MSC(tr->j, q_ch) > 0 ) {
+            aln->center_aln[offset] = '+';
+            break;
          }
-
-         /* if one upper and one lower case, report lower case character */
-         q_char = tolower( q_char );
-         t_char = tolower( t_char );
-         if ( q_char == t_char ) {
-            a_char = q_char;
-            VECTOR_CHAR_Pushback( aln->sequence, a_char );
-            continue;
-         }
-
-         /* if it is a match state, report positive score */
-         if ( tr->st == M_ST ) {
-            a_char = '+';
-            VECTOR_CHAR_Pushback( aln->sequence, a_char );
-            continue;
-         }
-
-         /* if it is a insert state, report '-' score */
-         if ( tr->st == I_ST ) {
-            a_char = '|';
-            VECTOR_CHAR_Pushback( aln->sequence, a_char );
-            continue;
-         }
-
-         /* if it is a delete state, report '|' score */
-         if ( tr->st == D_ST ) {
-            a_char = '-';
-            VECTOR_CHAR_Pushback( aln->sequence, a_char );
-            continue;
-         }
+         aln->center_aln[offset] = ' ';
+      }
+      if ( tr->st == I_ST ) 
+      {
+         aln->num_misses++;
+         aln->state_aln[offset] = 'I';
+         /* insert corresponds to gap in target profile */
+         aln->center_aln[offset] = ' ';
+         aln->target_aln[offset] = '-';
+         aln->query_aln[offset] = q_ch;
+      }
+      if ( tr->st == D_ST ) {
+         aln->num_misses++;
+         aln->state_aln[offset] = 'D';
+         /* delete corresponds to gap in query sequence */
+         aln->center_aln[offset] = ' ';
+         aln->target_aln[offset] = t_ch;
+         aln->query_aln[offset] = '-';
       }
 
+      aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
+   }
+}
+
+/*
+ *  FUNCTION:  ALIGNMENT_Build_HMMER_Style()
+ *  SYNOPSIS:  Generate <aln> strings, HMMER-style (Cigar-style).
+ *             Expects <aln> has already been constructed.
+ *   EXAMPLE:
+ */
+void ALIGNMENT_Build_MMSEQS_Style(  ALIGNMENT*     aln,
+                                    SEQUENCE*      query,
+                                    HMM_PROFILE*   target )
+{
+   VECTOR_TRACE*  traceback   = aln->traces;
+
+   /* cigar alignment can't be longer than twice the size of the alignment */
+   aln->cigar_aln = ERROR_malloc( sizeof(char) * ((2 * aln->traces->N) + 1) );
+   aln->cigar_aln[0] = '\0';
+   /* place to cast run length and state to string */
+   char     cigar_buffer[32];
+   /* offset into cigar */
+   int      offset      = 0;
+   /* tracks number of consequetive states */
+   int      run_len     = 0;
+
+   TRACE*   tr          = NULL;
+   int      prv_st      = -1;
+   int      cur_st      = -1;
+
+   /* unrolled first iteration */
+   tr       = &traceback->data[0];
+   prv_st   = tr->st;
+
+   for (int i = 1; i < traceback->N; i++)
+   {
+      tr       = &traceback->data[i];
+      cur_st   = tr->st;
+      if ( cur_st == prv_st ) {
+         run_len += 1;
+      } else {
+         sprintf( cigar_buffer, "%s%d", STATE_CHARS[prv_st], run_len );
+         strcat( aln->cigar_aln, cigar_buffer );
+         run_len = 1;
+      }
+      prv_st = cur_st;
    }
 }
 

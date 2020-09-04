@@ -71,8 +71,8 @@ void TEST_set_color( char*    color,
  *  FUNCTION:  TEST_set_color_num()
  *  SYNOPSIS:  Set console text color by index number <color_id> and boolean <bold>.
  */
-void TEST_set_color_num(  int    color_id,
-                         bool     bold )
+void TEST_set_color_num(   int      color_id,
+                           bool     bold )
 {
    int   tbl_size    = 7;
    /* code that needs to printed to console to change color */
@@ -123,7 +123,7 @@ void TEST_fwd_cycle( const int   Q,
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbgout_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -280,7 +280,7 @@ void TEST_fwd_cycle3(const int   Q,
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbgout_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -439,7 +439,7 @@ void TEST_bck_cycle( const int   Q,
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbgout_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
@@ -554,12 +554,12 @@ void TEST_bck_cycle( const int   Q,
  *  FUNCTION:  TEST_bck_cycle3()
  *  SYNOPSIS:  Cycle through all indices in linear matrix in backward direction, antidiag-by-antidiag 
  */
-void TEST_bck_cycle3(const int   Q, 
-                     const int   T, 
-                     MATRIX_3D*  st_MX, 
-                     MATRIX_3D*  st_MX3,
-                     MATRIX_2D*  sp_MX, 
-                     ALIGNMENT*  tr )
+void TEST_bck_cycle3(   const int   Q, 
+                        const int   T, 
+                        MATRIX_3D*  st_MX, 
+                        MATRIX_3D*  st_MX3,
+                        MATRIX_2D*  sp_MX, 
+                        ALIGNMENT*  tr )
 {
    /* vars for navigating matrix */
    int         d,i,j,k,x;                /* diagonal, row, column indices */
@@ -585,7 +585,7 @@ void TEST_bck_cycle3(const int   Q,
    /* initialize debugging matrix */
    #if DEBUG
    {
-      dbfp     = fopen( debugger->dbfp_path, "w+" );
+      dbfp     = fopen( debugger->dbgout_path, "w+" );
       cloud_MX = debugger->cloud_MX;
       test_MX  = debugger->test_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );

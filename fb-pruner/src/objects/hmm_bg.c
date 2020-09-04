@@ -45,17 +45,13 @@ HMM_BG* HMM_BG_Create()
 		exit(EXIT_FAILURE);
 	}
 
-	HMM_BG* bg 	= (HMM_BG*) malloc_check( sizeof(HMM_BG) );
-	if ( bg == NULL ) {
-		printf("ERROR: malloc failed.\n");
-		exit(EXIT_FAILURE);
-	}
+	HMM_BG* bg 	= (HMM_BG*) ERROR_malloc( sizeof(HMM_BG) );
 	bg->f 		= NULL;
 	bg->fhmm		= NULL;
 	bg->abc 		= NULL;
 	bg->sq 		= NULL;
 
-	bg->f 		= (float*) malloc_check( sizeof(float) * abc->K );
+	bg->f 		= (float*) ERROR_malloc( sizeof(float) * abc->K );
 	bg->fhmm 	= esl_hmm_Create(abc, 2);
 	bg->abc  	= abc;
 
@@ -79,11 +75,11 @@ void* HMM_BG_Destroy( HMM_BG* bg )
 	if (bg != NULL)
 	{
 		if (bg->fhmm != NULL) esl_alphabet_Destroy( bg->abc );
-		bg->f = ERRORCHECK_free( bg->f );
+		bg->f = ERROR_free( bg->f );
 		if (bg->fhmm != NULL) esl_hmm_Destroy( bg->fhmm );
-		bg->sq->dsq = ERRORCHECK_free( bg->sq->dsq );
+		bg->sq->dsq = ERROR_free( bg->sq->dsq );
 		if (bg->sq != NULL) esl_sq_Destroy( bg->sq );
-		bg = ERRORCHECK_free( bg );
+		bg = ERROR_free( bg );
 	}
 	return NULL;
 }
@@ -95,12 +91,23 @@ void* HMM_BG_Destroy( HMM_BG* bg )
 void HMM_BG_SetSequence( 	HMM_BG*		bg,
                            SEQUENCE* 	seq )
 {
+	/* if holding old sequence, get rid of it */
+	if ( bg->sq != NULL ) esl_sq_Destroy( bg->sq );
 	/* create digitized sequence */
 	bg->sq 	= esl_sq_CreateDigital(bg->abc);
 	esl_abc_CreateDsq(bg->abc, seq->seq, &bg->sq->dsq);
 	// esl_sq_CreateDigitalFrom(abc, name, dsq, n, desc, acc, ss); /* Not necessary since we only use this struct for this function */
 }
 
+/* FUNCTION:  HMM_BG_UnsetSequence()
+ * SYNOPSIS:  Set the sequence to create digitized sequence.
+ */
+void HMM_BG_UnsetSequence( 	HMM_BG*		bg,
+                           SEQUENCE* 	seq )
+{
+	// free( &bg->sq->dsq );
+	esl_sq_Destroy(bg->sq);
+}
 
 
 /* FUNCTION:  HMM_BG_SetLength()

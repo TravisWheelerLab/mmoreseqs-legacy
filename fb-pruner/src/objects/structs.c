@@ -1,6 +1,6 @@
 /*******************************************************************************
  *     FILE:   structs.c
- *  PURPOSE:   All Data Structures used by Cloud Search.
+ *  PURPOSE:   All Data Structures and Global Static Structs used by Cloud Search.
  *
  *  AUTHOR:    Dave Rich
  *     BUG:    
@@ -143,6 +143,21 @@ char* STATE_FULL_NAMES[] = {
    "START",
    "TERMINAL",
    "UNKNOWN",
+};
+
+/* Abbreviations of all states (for trace outputs) */
+char* STATE_CHARS[] = {
+   "M",
+   "I",
+   "D",
+   "E",
+   "N",
+   "J",
+   "C",
+   "B",
+   "S",
+   "T",
+   "X", 
 };
 
 /* Abbreviations of all states (for trace outputs) */

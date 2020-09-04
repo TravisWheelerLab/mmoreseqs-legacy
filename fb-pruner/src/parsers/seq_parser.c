@@ -73,11 +73,15 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
          }
 
          num_seqs++;
+         /* omit ">" */
          name = line_buf + 1;
 
-         /* replace spaces with underscores and set as name */
-         // STRING_Replace( name, ' ', '_' );
-         SEQUENCE_Set_Textfield(&seq->name, name);
+         /* first capture whole description line */
+         SEQUENCE_Set_Textfield(&seq->full_line, name);
+
+         /* name terminated at first space */
+         STRING_Replace( name, ' ', '\0' );
+         SEQUENCE_Set_Textfield(&seq->name, name); 
 
          /* if we are going to parse header */
          // char* line_ptr = line_buf;
@@ -101,7 +105,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    }
 
    /* free line buffer */
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
    /* close file */
    fclose(fp);
 }

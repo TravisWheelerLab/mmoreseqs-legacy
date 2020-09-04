@@ -1,18 +1,23 @@
 /*******************************************************************************
- *  FILE:      alignment.c
- *  PURPOSE:   ALIGNMENT Object.
+ *  FILE:      args.c
+ *  PURPOSE:   ARGS Object. Used for Parsing Commandline Args.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:
  *******************************************************************************/
 
 #ifndef _ARGS_H
 #define _ARGS_H
 
-/* constructor */
+/*
+ *  FUNCTION:  ARGS_Create()
+ *  SYNOPSIS:  
+ */
 ARGS* ARGS_Create();
 
-/* destructor */
+/*
+ *  FUNCTION:  ARGS_Destroy()
+ *  SYNOPSIS:  
+ */
 void ARGS_Destroy(ARGS* args);
 
 #endif /* ARGS_H_ */

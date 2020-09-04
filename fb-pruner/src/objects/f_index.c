@@ -40,7 +40,7 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
  *    DESC:    Creates an instance of F_INDEX.
  *             Initial node length set to min_size.  
  * *******************************************************************/
-F_INDEX*  F_INDEX_Create( )
+F_INDEX*  F_INDEX_Create()
 {
    F_INDEX*   index    = NULL;
    const int  min_size = 32;
@@ -60,10 +60,10 @@ F_INDEX*  F_INDEX_Create( )
    index->source_path   = NULL;
    index->delim         = NULL;
 
-   index->sort_type     = SORT_NONE;
+   index->sort_type     = SORT_NONE;   /* not sorted */
    index->mmseqs_names  = false;
 
-   index->nodes      = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
+   index->nodes         = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
    if (index == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc F_INDEX_NODE array for F_INDEX.\n");
       exit(EXIT_FAILURE);
@@ -81,16 +81,16 @@ void* F_INDEX_Destroy(F_INDEX* index)
    if (index == NULL) return index;
 
    for (int i = 0; i < index->N; i++) {
-      ERRORCHECK_free(index->nodes[i].name);
+      ERROR_free(index->nodes[i].name);
    }
-   ERRORCHECK_free(index->nodes);
+   ERROR_free(index->nodes);
 
-   ERRORCHECK_free(index->index_path);
-   ERRORCHECK_free(index->lookup_path);
-   ERRORCHECK_free(index->source_path);
-   ERRORCHECK_free(index->delim);
+   ERROR_free(index->index_path);
+   ERROR_free(index->lookup_path);
+   ERROR_free(index->source_path);
+   ERROR_free(index->delim);
 
-   ERRORCHECK_free(index);
+   ERROR_free(index);
    index = NULL;
    return index;
 }
@@ -103,11 +103,11 @@ void F_INDEX_Reuse( F_INDEX* index )
 {
    index->N             = 0;
 
-   ERRORCHECK_free(index->index_path);
+   ERROR_free(index->index_path);
    index->lookup_path   = NULL;
-   ERRORCHECK_free(index->source_path);
+   ERROR_free(index->source_path);
    index->source_path   = NULL;
-   ERRORCHECK_free(index->delim);
+   ERROR_free(index->delim);
    index->delim         = NULL;
 
    index->sort_type     = SORT_NONE;

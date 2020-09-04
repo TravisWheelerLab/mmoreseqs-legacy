@@ -47,13 +47,45 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
                         const int    q_0,       /* index in query/sequence */
                         const int    t_0 );     /* index in target/model */
 
-/* Reverse order of ALIGNMENT */
-void ALIGNMENT_Reverse( ALIGNMENT*  aln );
+/*
+ *  FUNCTION:  ALIGNMENT_Reverse()
+ *  SYNOPSIS:  Reverse order of <aln>.
+ *             Alignments are built from back-to-front. This will correct that to normal ordering.
+ */
+void ALIGNMENT_Reverse( ALIGNMENT* aln );
 
-/* create string of alignment */
-void ALIGNMENT_Build_String(  ALIGNMENT*     aln,
+/*
+ *  FUNCTION:  ALIGNMENT_Find_Length()
+ *  SYNOPSIS:  Scan <aln> for beginning, end, and length of alignments.
+ */
+void ALIGNMENT_Find_Length( ALIGNMENT* aln );
+
+/*
+ *  FUNCTION:  ALIGNMENT_Build_HMMER()
+ *  SYNOPSIS:  Generate <aln> strings, HMMER-style.
+ *             Expects <aln> has already been constructed.
+ */
+void ALIGNMENT_Build_HMMER(   ALIGNMENT*     aln,
                               SEQUENCE*      query,
                               HMM_PROFILE*   target );
+
+/*
+ *  FUNCTION:  ALIGNMENT_Build_HMMER_Style()
+ *  SYNOPSIS:  Generate <aln> strings, HMMER-style.
+ *             Expects <aln> has already been constructed.
+ */
+void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
+                                    SEQUENCE*      query,
+                                    HMM_PROFILE*   target );
+
+/*
+ *  FUNCTION:  ALIGNMENT_Build_HMMER_Style()
+ *  SYNOPSIS:  Generate <aln> strings, HMMER-style.
+ *             Expects <aln> has already been constructed.
+ */
+void ALIGNMENT_Build_MMSEQS_Style(  ALIGNMENT*     aln,
+                                    SEQUENCE*      query,
+                                    HMM_PROFILE*   target );
 
 /* outputs ALIGNMENT to FILE pointer */
 void ALIGNMENT_Dump(    ALIGNMENT*  aln,

@@ -91,10 +91,10 @@ void   ARGS_Parse( ARGS*   args,
    if ( num_main_args == 2 )
    {
       /* second arg is query */
-      ERRORCHECK_free( args->t_filepath );
+      ERROR_free( args->t_filepath );
       args->t_filepath = strdup(argv[2]);
       /* third arg is target */
-      ERRORCHECK_free( args->q_filepath );
+      ERROR_free( args->q_filepath );
       args->q_filepath = strdup(argv[3]);
    }
    else if ( num_main_args == 1 )
@@ -156,7 +156,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               args->threshold_bounded = atof(argv[i]);
+               args->threshold_fbpruner = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -166,7 +166,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERRORCHECK_free(args->mmseqs_tmp_filepath);
+               ERROR_free(args->mmseqs_tmp_filepath);
                args->mmseqs_tmp_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
@@ -177,7 +177,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERRORCHECK_free(args->mmseqs_res_filepath);
+               ERROR_free(args->mmseqs_res_filepath);
                args->mmseqs_res_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -188,7 +188,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERRORCHECK_free(args->mmseqs_plus_filepath);
+               ERROR_free(args->mmseqs_plus_filepath);
                args->mmseqs_res_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -211,10 +211,10 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               ERRORCHECK_free(args->t_lookup_filepath);
+               ERROR_free(args->t_lookup_filepath);
                args->t_lookup_filepath = strdup(argv[i]);
                i++;
-               ERRORCHECK_free(args->q_lookup_filepath);
+               ERROR_free(args->q_lookup_filepath);
                args->q_lookup_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -225,13 +225,24 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               ERRORCHECK_free(args->t_indexpath);
+               ERROR_free(args->t_indexpath);
                args->t_indexpath = strdup(argv[i]);
                i++;
-               ERRORCHECK_free(args->q_indexpath);
+               ERROR_free(args->q_indexpath);
                args->q_indexpath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--tblout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->tblout_filepath);
+               args->tblout_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
@@ -277,11 +288,25 @@ void  ARGS_Set_Defaults( ARGS* args )
 
    args->output_filepath         = strdup("results.tsv");
 
+   /* TODO: tblout testing */
+   args->is_redirect_stdout      = false;
+   args->output_filepath         = strdup("results.stdout");
+
+   args->is_tblout               = false;
+   args->tblout_filepath         = strdup("results.tblout");
+
+   args->is_m8out                = true;
+   args->m8out_filepath          = strdup("results.m8");
+
+   args->is_myout                = false;
+   args->myout_filepath          = strdup("results.myout");
+
    args->mmseqs_res_filepath     = NULL;
    args->mmseqs_plus_filepath    = NULL;
    args->mmseqs_tmp_filepath     = NULL;
 
    args->tmp_folderpath          = NULL;
+
    args->tmp_remove              = false;
    args->dbg_folderpath          = strdup("test-output/");
 
@@ -294,9 +319,9 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->search_mode             = MODE_UNILOCAL;
 
    args->filter_on               = false;
-   args->threshold_viterbi       = 1e-3f;
-   args->threshold_forward       = 1e-5f;
-   args->threshold_bounded       = 1e-5f;
+   args->threshold_vit           = 1e-3f;
+   args->threshold_fwd           = 1e-5f;
+   args->threshold_fbpruner      = 1e-5f;
 
    /* these will default to entire file unless filled with positive ints */
    args->t_range                 = (RANGE) { -1, -1 };    

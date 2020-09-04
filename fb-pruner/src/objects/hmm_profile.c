@@ -63,16 +63,16 @@ void* HMM_PROFILE_Destroy( HMM_PROFILE* prof )
 {
    if (prof == NULL) return prof;
    
-   ERRORCHECK_free(prof->filepath);
-   ERRORCHECK_free(prof->name);
-   ERRORCHECK_free(prof->acc);
-   ERRORCHECK_free(prof->desc);
-   ERRORCHECK_free(prof->alph);
+   ERROR_free(prof->filepath);
+   ERROR_free(prof->name);
+   ERROR_free(prof->acc);
+   ERROR_free(prof->desc);
+   ERROR_free(prof->alph);
 
-   ERRORCHECK_free(prof->bg_model);
-   ERRORCHECK_free(prof->hmm_model);
+   ERROR_free(prof->bg_model);
+   ERROR_free(prof->hmm_model);
 
-   ERRORCHECK_free(prof);
+   ERROR_free(prof);
    prof = NULL;
    return prof;
 }
@@ -169,7 +169,7 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
 
    /* TODO: update to allocate in Create() / change to VECTOR_CHAR */
    /* clear pre-existing consensus */
-   ERRORCHECK_free(prof->consensus);
+   ERROR_free(prof->consensus);
    /* allocate new consensus */
    prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
 
@@ -178,6 +178,7 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
    {
       best_val = -INF;
       curr_node = prof->hmm_model[i];
+      /* for each residue in the consensus sequence, choose the most likely to be emitted */
       for (int j = 0; j < NUM_AMINO; j++)
       {
          new_val = curr_node.match[j];

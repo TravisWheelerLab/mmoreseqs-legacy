@@ -22,7 +22,10 @@
 /* header */
 #include "results.h"
 
-/* constructor */
+/*
+ *  FUNCTION:  RESULTS_Create()
+ *  SYNOPSIS:
+ */
 RESULTS* RESULTS_Create()
 {
    RESULTS*    results  = NULL;;
@@ -44,22 +47,25 @@ RESULTS* RESULTS_Create()
    return results;
 }
 
-/* destructor */
+/*
+ *  FUNCTION:  RESULTS_Destroy()
+ *  SYNOPSIS:
+ */
 void* RESULTS_Destroy( RESULTS* results )
 {
    if ( results == NULL ) return results;
 
    for (int i = 0; i < results->N; i++) {
-      ERRORCHECK_free(results->data[i].target_name);
-      ERRORCHECK_free(results->data[i].query_name);
+      ERROR_free(results->data[i].target_name);
+      ERROR_free(results->data[i].query_name);
    }
 
-   ERRORCHECK_free(results->data);
+   ERROR_free(results->data);
    results->data = NULL;
-   ERRORCHECK_free(results->filepath);
+   ERROR_free(results->filepath);
    results->filepath = NULL;
    
-   ERRORCHECK_free(results);
+   ERROR_free(results);
    results = NULL;
    return results;
 }

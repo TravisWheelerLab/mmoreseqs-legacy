@@ -40,6 +40,7 @@ typedef struct {
   P7_OPROFILE      *om;
   /* DAVID RICH EDIT */
   P7_PROFILE       *gm;
+  P7_HMM           *hmm;
 } WORKER_INFO;
 
 #define REPOPTS     "-E,-T,--cut_ga,--cut_nc,--cut_tc"
@@ -556,6 +557,7 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 
 
       /* Build the model */
+      P7_HMM* my_hmm = p7_hmm_Create();
       p7_SingleBuilder(bld, qsq, info[0].bg, NULL, NULL, NULL, &om); /* bypass HMM - only need model */
 
       for (i = 0; i < infocnt; ++i)

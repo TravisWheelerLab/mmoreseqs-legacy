@@ -20,7 +20,7 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "float.h"
 
 /*
  *  FUNCTION:  FLT_To_String()

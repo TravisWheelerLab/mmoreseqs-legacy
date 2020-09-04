@@ -1,18 +1,19 @@
 /*******************************************************************************
- *  FILE:      structs.h
+ *  FILE:      structs_enums.h
  *  PURPOSE:   Enumerated Types and Constants used by Cloud Search.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 #ifndef _STRUCTS_ENUMS_H
 #define _STRUCTS_ENUMS_H
 
 /* === VERSION === */
-#define BUILD_VERSION   0.1
-#define BUILD_NAME      "alpha"
-#define BUILD_DATE      __DATE__
+#define BUILD_PROGRAM      "FB_PRUNER"
+#define BUILD_VERSION      "0.1"
+#define BUILD_NAME         "tbd"
+#define BUILD_DATE         "Aug 2020"
+#define BUILD_DESCRIPT     "Heuristic Pruning of Forward-Backward for Faster Profile-to-Sequence Search"
 
 /* === CONSTANTS === */
 #define CONST_LOG2      0.69314718055994529     /* natural log: ln(2) */
@@ -27,16 +28,16 @@
 #define DEBUGOUT        "DEBUG.log"
 #define DEBUG_VIZ       "DEBUG.viz"
 
-#define debugout        debugger->dbfp
+#define debugout        debugger->dbgout_fp
  
 /* === ENUMERATIONS === */
 
 /* commandline flags */
 #define NUM_FLAG_CMDS 11
 
-/* Method of sort for a list */
+/* Method of sort for  */
 typedef enum{
-   SORT_NONE,
+   SORT_NONE,  
    SORT_ID,
    SORT_NAME,
 } SORT_TYPE;
@@ -46,7 +47,7 @@ typedef enum {
    LOAD_NONE,
    LOAD_BY_ID,       /* load by id (counting from start of file) */
    LOAD_BY_OFFSET,   /* laod by offset (referenced from index file) */
-   LOAD_FIRST        /* load the first model in file */
+   LOAD_FIRST,        /* load the first model in file */
 } LOAD_TYPE;
 
 /* Status Flags (for function returns) */
@@ -60,13 +61,14 @@ typedef enum {
 typedef enum {
    ERROR_NONE,
    ERROR_UNKNOWN,
+   ERROR_MEMALLOC,
    ERROR_MALLOC,
    ERROR_REALLOC,
    ERROR_FILE_IO,
    ERROR_OUT_OF_BOUNDS,
    ERROR_UNSUPPORTED_FUNC,
 } ERROR_FLAGS;
-#define NUM_ERROR_FLAGS 6
+#define NUM_ERROR_FLAGS 8
 
 /* Number Format of HMM_PROFILE */
 typedef enum {
@@ -76,7 +78,7 @@ typedef enum {
 } PROF_FORMAT;
 #define NUM_PROF_FORMAT 3
 
-/* Data Type */
+/* Data Types */
 typedef enum {
    DATATYPE_NONE,
    DATATYPE_INT,
@@ -102,7 +104,7 @@ typedef enum {
 } PIPELINE_MODE;
 #define NUM_PIPELINE_MODES 8
 
-/* Verbosity Modes */
+/* Verbosity Modes (how much output does user want) */
 typedef enum {
    VERBOSE_NONE   = 0,
    VERBOSE_LOW    = 1,
@@ -114,14 +116,15 @@ typedef enum {
 /* select which targets and which queries to perform search against */
 typedef enum {
    SELECT_NONE,            /* NO SEARCHES */
-   SELECT_ALL_V_ALL,       /* Search all targets vs all queries */
-   SELECT_FIRST_V_FIRST,   /* Search first target vs first query in file */
+   SELECT_ALL_V_ALL,       /* Search all targets vs all queries (in range, which defaults to full list) */
+   SELECT_FIRST_V_FIRST,   /* Search only first target vs first query in file */
    SELECT_MMSEQS_LIST,     /* Search list of mmseqs hitlist (for mmseqs+) */
    SELECT_NAME_LIST,       /* Search list of names from targets/queries */
    SELECT_ID_LIST          /* Search list of ids from targets/queries */
 } SELECT_SEARCH;
 
-/* Search modes (cloud search only supports uniglocal) */
+/* Search modes  */
+/* NOTE: cloud search only supports uniglocal */
 typedef enum {
    MODE_NULL        = 0,    /* NO APPLICATIONS */
    MODE_MULTILOCAL  = 1,    /* multihit local:  "fs" mode   */
@@ -150,7 +153,7 @@ typedef enum {
    MODE_APPEND    = 1,
 } WRITE_MODE;
 
-/* Flags the filetype of incoming file */
+/* Input File Types */
 typedef enum {
    FILE_NULL   = 0,
    FILE_HMM    = 1,
@@ -159,7 +162,7 @@ typedef enum {
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3
 
-/* HMM STATES */
+/* All HMM STATES */
 typedef enum {
    M_ST = 0,   /* MATCH STATE */
    I_ST = 1,   /* INSERT STATE */
@@ -175,7 +178,7 @@ typedef enum {
 } ALL_STATES;
 #define NUM_ALL_STATES 11
 
-/* Normal States that map into dynamic programming matrix */
+/* Normal States */
 typedef enum {
    MAT_ST = 0,    /* MATCH STATE */
    INS_ST = 1,    /* INSERT STATE */
@@ -193,7 +196,7 @@ typedef enum {
 } SPECIAL_STATES;
 #define NUM_SPECIAL_STATES 5
 
-/* Transition States that map into HMM_PROFILE */
+/* Normal State Transitions */
 typedef enum {
    M2M = 0,
    M2I = 1,
@@ -206,6 +209,14 @@ typedef enum {
 } TRANS_STATES;
 #define NUM_TRANS_STATES 8
 
+/* Special State Transitions */
+typedef enum {
+   SP_LOOP = 0,
+   SP_MOVE = 1,
+} SPECIAL_TRANS;
+#define NUM_SPECIAL_TRANS 2
+
+/* Amino Acids */
 typedef enum {
    AMINO_A = 0,
    AMINO_C = 1,
@@ -236,6 +247,7 @@ typedef enum {
 #define NUM_AMINO 20
 #define NUM_AMINO_PLUS_SPEC 24
 
+/* DNA bases */
 typedef enum {
    DNA_A = 0,
    DNA_C = 1,
@@ -244,17 +256,21 @@ typedef enum {
 } DNAS;
 #define NUM_DNA 4
 
-typedef enum {
-   SP_LOOP = 0,
-   SP_MOVE = 1,
-} SPECIAL_TRANS;
-#define NUM_SPECIAL_TRANS 2
-
+/* types of alphbets */
 typedef enum {
    ALPH_NULL   = 0,     /* NULL Alphabet */
    ALPH_AMINO  = 1,     /* Protein Alphabet */
    ALPH_DNA    = 2,     /* DNA {ACGT} Alphabet */
    ALPH_RNA    = 3,     /* RNA Alphabet */
 } ALPH_TYPE;
+
+/* types of scores (used by STATS) */
+typedef enum {
+   SCORE_NATS,
+   SCORE_BITS,
+   SCORE_PVAL,
+   SCORE_EVAL,
+} SCORE_TYPES;
+#define NUM_SCORE_TYPES 4
 
 #endif /* _STRUCTS_ENUMS_H */

@@ -1,8 +1,9 @@
 /*******************************************************************************
- *  FILE:      float.c
- *  PURPOSE:   XXX Object
+ *  FILE:       template.c
+ *  PURPOSE:    XXX Object
  *
- *  AUTHOR:    Dave Rich
+ *  AUTHOR:     Dave Rich
+ * 	NOTE: 		Generated using TEMPLATE via "scripts/builder-helper/build_basic_wrapper_files.sh"
  *  BUG:       
  *******************************************************************************/
 
@@ -20,7 +21,7 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "template.h"
 
 /*
  *  FUNCTION:  XXX_To_String()

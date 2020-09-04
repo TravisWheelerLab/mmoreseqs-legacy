@@ -70,8 +70,8 @@ void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 {
    if (mx == NULL) return NULL;
 
-   ERRORCHECK_free(mx->data);
-   ERRORCHECK_free(mx);
+   ERROR_free(mx->data);
+   ERROR_free(mx);
 
    return NULL;
 }

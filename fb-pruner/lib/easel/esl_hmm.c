@@ -357,8 +357,8 @@ esl_hmm_Forward(const ESL_DSQ *dsq, int L, const ESL_HMM *hmm, ESL_HMX *fwd, flo
   float logsc = 0;
   float max;
 
-  printf("==> in esl_hmm_Forward\n");
-  printf("hmm->M: %d, L: %d\n", hmm->M, L);
+  printf("# ==> in esl_hmm_Forward\n");
+  printf("# hmm->M: %d, L: %d\n", hmm->M, L);
 
   fwd->sc[0] = 0.0;
 

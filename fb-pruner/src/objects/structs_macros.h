@@ -83,16 +83,27 @@
 #endif
 
 /* determines whether output is printed based on verbose_level */
-#define printf_v(v_min,...) 	if ( args->verbose_level >= v_min ) printf(__VA_ARGS__)
+#define printf_v(v_threshold,...) 	if ( args->verbose_level >= v_threshold ) printf(__VA_ARGS__)
 #define printf_vnone(...) 		printf_v(VERBOSE_NONE, __VA_ARGS__)
 #define printf_vlo(...) 		printf_v(VERBOSE_LOW,  __VA_ARGS__)
 #define printf_vhi(...) 		printf_v(VERBOSE_HIGH, __VA_ARGS__)
 #define printf_vall(...) 		printf_v(VERBOSE_ALL,  __VA_ARGS__)
 
-/* errorchecking macros */
-#define malloc_check(...) 	ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define realloc_check(...)	ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define fopen_check(...) 	ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
+/* determines whether output is printed based on verbose_level */
+#define fprintf_v(v_threshold,...) 	if ( args->verbose_level >= v_threshold ) fprintf(__VA_ARGS__)
+#define fprintf_vnone(...) 		fprintf_v(VERBOSE_NONE, __VA_ARGS__)
+#define fprintf_vlo(...) 		fprintf_v(VERBOSE_LOW,  __VA_ARGS__)
+#define fprintf_vhi(...) 		fprintf_v(VERBOSE_HIGH, __VA_ARGS__)
+#define fprintf_vall(...) 		fprintf_v(VERBOSE_ALL,  __VA_ARGS__)
+
+/* error-checking macros */
+#define ERROR_alloc(...) 		ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_malloc(...) 		ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_realloc(...) 		ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_free(...) 		ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_fopen(...) 		ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_fclose(...) 		ERRORCHECK_fclose(__VA_ARGS__, ERRORCHECK_locate() )
+
 /* gets the location where error occurred */
 #define ERRORCHECK_locate()			__FILE__, __LINE__, __FUNCTION__
 

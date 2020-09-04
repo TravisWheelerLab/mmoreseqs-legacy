@@ -17,6 +17,7 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+// #include <dos.h> /* date function */
 
 /* import local libraries */
 #include "easel.h"
@@ -33,53 +34,49 @@
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 int main ( int argc, char *argv[] )
 {
-   /* initialize random number generator */
-   RNG_Init();
-
    /* initialize debugging toolkit */
    #if DEBUG
    {
-      printf("=== IN DEBUG MODE ===\n");
+      printf("===> IN DEBUG MODE <===\n");
 
-      debugger             = (DEBUG_KIT*) ERRORCHECK_malloc( sizeof(DEBUG_KIT), __FILE__, __LINE__, __FUNCTION__ );
+      debugger = DEBUGGER_Create("test-output");
       /* debugging options */
       debugger->is_embed   = true;
       debugger->is_viz     = true;
-
-      /* create output folder for testing */
-      char* test_folder = "test_output/";
-      if ( mkdir(test_folder, 0777) == -1 ) {
-         fprintf(stderr, "Could not create folder: %s\n", test_folder);
-         // exit(EXIT_FAILURE);
-      }   
    }
    #endif
 
+   /* initialize worker and args object */
+   ARGS*    args;
+   WORKER*  worker;
+
+   args     = ARGS_Create();
+   worker   = WORKER_Create_with_Args( args );
+
+   /* initialize random number generator */
+   RNG_Init();
+
    /* parse command line arguments */
-   args = ARGS_Create();
    ARGS_Parse( args, argc, argv );
+
+   /* report initial header */
+   REPORT_stdout_header( worker, stdout );
 
    /* output arguments */
    ARGS_Dump( args, stdout );
-
-   /* build worker */
-   WORKER* worker = WORKER_Create_with_Args( args );
-
+   
    /* jumps to pipeline based on -p flag */
-   printf_vlo("> Running %s...\n\n", PIPELINE_NAMES[args->pipeline_mode] );
    PIPELINES[ args->pipeline_mode ]( worker );
 
    /* free debugging toolkit */
    #if DEBUG 
    {
-      // fclose( debugout );
-      ERRORCHECK_free( debugger );
+      DEBUGGER_Destroy( debugger );
    }
    #endif
 
    /* clean up allocated data */
    WORKER_Destroy( worker );
 
-   printf("...exited successfully.\n");
    exit(EXIT_SUCCESS);
 }

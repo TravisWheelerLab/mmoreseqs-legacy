@@ -83,7 +83,7 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Destroy( MATRIX_3D_SPARSE* smx )
 
    VECTOR_FLT_Destroy( smx->data );
 
-   ERRORCHECK_free(smx);
+   ERROR_free(smx);
    smx = NULL;
 
    return smx;

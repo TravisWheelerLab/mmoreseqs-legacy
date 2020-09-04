@@ -20,7 +20,7 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "int.h"
 
 /*
  *  FUNCTION:  INT_To_String()

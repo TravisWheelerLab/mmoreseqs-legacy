@@ -678,7 +678,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             exit(EXIT_FAILURE);
          }
       }
-
+      
       ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
 
       /* For {N,C,J}, we deferred i decrement. */
@@ -690,30 +690,22 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
       st_prv = st_cur;
    }
 
-   /* reverse order of alnaceback */
+   /* reverse order of traceback */
    ALIGNMENT_Reverse( aln );
-
-   /* find end and begin alignment points (first and last match state) */
-   int N  = aln->traces->N;
-   for (int i = 0; i < N; ++i) {
-      if ( tr[i].st == B_ST ) {
-         VECTOR_INT_Pushback( aln->tr_beg, i + 1 );
-      }
-      if ( tr[i].st == E_ST ) {
-         VECTOR_INT_Pushback( aln->tr_end, i - 1 );
-      }
-   }
-   aln->beg = aln->tr_beg->data[0];
-   aln->end = aln->tr_end->data[0];
+   /* scan traceback for all begin, end states */
+   ALIGNMENT_Find_Length( aln );
 
    #if DEBUG
    {
       MATRIX_2D* cloud_MX = debugger->cloud_MX;
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
       MATRIX_2D_Fill( cloud_MX, 0 );
-      for ( int i = 0; i < N; i++ ) {
-         if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST )
+      for ( int i = 0; i < aln->traces->N; i++ ) 
+      {
+         tr = aln->traces->data;
+         if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST ) {
             MX_2D( cloud_MX, tr[i].i, tr[i].j ) = -1.0;
+         }
       }
    }
    #endif

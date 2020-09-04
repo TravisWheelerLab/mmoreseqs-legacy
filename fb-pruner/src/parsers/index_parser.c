@@ -61,7 +61,7 @@ F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
       F_INDEX_Reuse( f_index );
    }
 
-   ERRORCHECK_free( f_index->source_path );
+   ERROR_free( f_index->source_path );
    f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
@@ -110,7 +110,7 @@ F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
    }
 
    fclose(fp);
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
    return f_index;
 }
 
@@ -155,7 +155,7 @@ F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
    }
 
    /* use filename as source path */
-   ERRORCHECK_free( f_index->source_path );
+   ERROR_free( f_index->source_path );
    f_index->source_path = strdup( _filename_ );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
@@ -195,7 +195,7 @@ F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
    }
 
    fclose(fp);
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
    return f_index;
 }
 
@@ -348,7 +348,7 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
    }
 
    fclose(fp);
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
    return f_index;
 }
 
@@ -401,12 +401,12 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
       name = token;
 
       /* update name to match mmseqs lookup */
-      ERRORCHECK_free(node->name);
+      ERROR_free(node->name);
       node->name = strdup( name );
    }
 
    fclose(fp);
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
 }
 
 /* load index file */
@@ -482,6 +482,6 @@ F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
    }
 
    fclose(fp);
-   ERRORCHECK_free(line_buf);
+   ERROR_free(line_buf);
    return f_index;
 }

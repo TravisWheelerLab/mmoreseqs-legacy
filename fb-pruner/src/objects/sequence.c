@@ -37,6 +37,7 @@ SEQUENCE* SEQUENCE_Create()
    seq->N        = 0;
    seq->Nalloc   = 0;
 
+   seq->full_line = NULL;
    seq->filename = NULL;
    seq->name     = NULL;
    seq->alph     = NULL;
@@ -54,14 +55,15 @@ void* SEQUENCE_Destroy( SEQUENCE *seq )
 {
    if ( seq == NULL ) return seq;
 
-   ERRORCHECK_free(seq->filename);
-   ERRORCHECK_free(seq->name);
-   ERRORCHECK_free(seq->alph);
+   ERROR_free(seq->full_line);
+   ERROR_free(seq->filename);
+   ERROR_free(seq->name);
+   ERROR_free(seq->alph);
 
-   ERRORCHECK_free(seq->seq);
-   ERRORCHECK_free(seq->dseq);
+   ERROR_free(seq->seq);
+   ERROR_free(seq->dseq);
 
-   ERRORCHECK_free(seq);
+   ERROR_free(seq);
    seq = NULL;
    return seq;
 }
@@ -71,9 +73,9 @@ void SEQUENCE_Reuse( SEQUENCE* seq )
 {
    seq->N = 0;
 
-   ERRORCHECK_free(seq->filename);
-   ERRORCHECK_free(seq->name);
-   ERRORCHECK_free(seq->alph);
+   ERROR_free(seq->filename);
+   ERROR_free(seq->name);
+   ERROR_free(seq->alph);
 
    seq->filename = NULL;
    seq->name     = NULL;
@@ -123,18 +125,14 @@ void SEQUENCE_Resize_Seq( SEQUENCE* seq,
 void SEQUENCE_Set_Textfield(  char** seq_field,
                               char*  text )
 {
-   *seq_field = realloc( *seq_field, sizeof(char) * (strlen(text) + 1) );
-   if (*seq_field == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc TEXTFIELD for SEQUENCE.\n");
-      exit(EXIT_FAILURE);
-   }
+   *seq_field = ERROR_realloc( *seq_field, sizeof(char) * (strlen(text) + 1) );
    strcpy( *seq_field, text );
 }
 
 /* Create a digitized version of current sequence */
 void SEQUENCE_Digitize( SEQUENCE* seq )
 {
-
+   
 }
 
 /* Output SEQUENCE to FILE POINTER */

@@ -123,6 +123,6 @@ char* STRING_Get_File_from_Path( const char* in_filepath )
       prv_token = token;
    }
 
-   ERRORCHECK_free(filepath);
+   ERROR_free(filepath);
    return prv_token;
 }

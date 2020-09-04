@@ -20,7 +20,7 @@
 #include "objects.h"
 
 /* header */
-#include "bound.h"
+#include "double.h"
 
 /*
  *  FUNCTION:  DBL_To_String()

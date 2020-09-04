@@ -35,11 +35,7 @@ MATRIX_2D* MATRIX_2D_Create(  int  R,
       exit(EXIT_FAILURE);
    }
 
-   mx = (MATRIX_2D*) ERRORCHECK_malloc( sizeof(MATRIX_2D), __FILE__, __LINE__, __FUNCTION__ );
-   if (mx == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc MATRIX_2D.\n");
-      exit(EXIT_FAILURE);
-   }
+   mx = (MATRIX_2D*) ERROR_malloc( sizeof(MATRIX_2D) );
 
    mx->R       = 0;
    mx->C       = 0;
@@ -68,8 +64,8 @@ void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
 {
    if (mx == NULL) return mx;
 
-   ERRORCHECK_free(mx->data);
-   ERRORCHECK_free(mx);
+   ERROR_free(mx->data);
+   ERROR_free(mx);
    mx = NULL;
    return mx;
 }

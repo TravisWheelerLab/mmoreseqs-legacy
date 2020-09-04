@@ -1,9 +1,9 @@
 /*******************************************************************************
  *  FILE:      pipeline_hmmbuild.c
- *  PURPOSE:   Pipeline for building 
+ *  PURPOSE:   Pipeline for building hmm's from single fasta sequence.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:      
  *******************************************************************************/
 
 /* imports */
@@ -37,10 +37,6 @@ void hmmbuild_pipeline( WORKER* worker )
    TIMES*      times       = worker->times;
 
    /* set file pointer */
-   worker->out_file = fopen( args->output_filepath, "w+" );
-   if ( worker->out_file == NULL ) {
-      fprintf(stderr, "ERROR: Bad File Pointer.\n");
-      exit(EXIT_FAILURE);
-   }
+   worker->output_fp = ERROR_fopen( args->output_filepath, "w+" );
 
 }

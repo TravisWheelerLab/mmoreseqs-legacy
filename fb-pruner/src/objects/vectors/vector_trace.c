@@ -117,14 +117,10 @@ VECTOR_TRACE* VECTOR_TRACE_Copy(  VECTOR_TRACE*   src,
  *  FUNCTION:  VECTOR_TRACE_Resize()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>. 
  */
-void VECTOR_TRACE_Resize(    VECTOR_TRACE*   vec, 
-                           int           size )
+void VECTOR_TRACE_Resize(     VECTOR_TRACE*     vec, 
+                              int               size )
 {
-   vec->data = (TRACE*) realloc( vec->data, sizeof(TRACE) * size );
-   if ( vec->data == NULL ) {
-      fprintf(stderr, "ERROR: Failure to malloc.\n" );
-      exit(EXIT_FAILURE);
-   }
+   vec->data = (TRACE*) ERROR_realloc( vec->data, sizeof(TRACE) * size );
    vec->Nalloc = size;
 }
 

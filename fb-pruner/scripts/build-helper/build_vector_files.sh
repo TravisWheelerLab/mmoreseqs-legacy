@@ -12,12 +12,12 @@ UPPER_TMP="XXX"
 LOWER_TMP="template"
 
 # classes to build
-ALL_UPPER=(INT CHAR FLT DBL RANGE TRACE BOUND XXX)
-ALL_LOWER=(int char float double range trace bound template)
+ALL_UPPER=(STR INT CHAR FLT DBL RANGE TRACE BOUND)
+ALL_LOWER=(str int char float double range trace bound)
 
 cd $VECTOR_DIR
 
-for (( J=0; J<7; J++ ))
+for (( J = 0; J < ${#ALLUPPER[@]}; J++ ))
 do 
 	LOWER=${ALL_LOWER[$J]}; 
 	UPPER=${ALL_UPPER[$J]}; 

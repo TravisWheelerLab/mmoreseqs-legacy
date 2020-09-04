@@ -455,7 +455,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
             is_clean += (( MMX3(dx2, k_0) == -INF ) == false);
             is_clean += (( DMX3(dx2, k_0) == -INF ) == false);
             if ( is_clean != 0 ) {
-               memcheck_error( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
+               ERRORCHECK_memcheck( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
                MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             }
          }
@@ -537,7 +537,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
             is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
             is_clean += (( DMX3(dx0, k_0) == -INF ) == false);
             if ( is_clean != 0 ) {
-               memcheck_error( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
+               ERRORCHECK_memcheck( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
                MMX3(dx0, k_0) = IMX3(dx0, k_0) = DMX3(dx0, k_0) = -INF;
             }
          }
@@ -1024,7 +1024,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
             is_clean += (( DMX3(dx2, k_0) == -INF ) == false);
 
             if ( is_clean != 0 ) {
-               memcheck_error( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
+               ERRORCHECK_memcheck( d_2, k_0, MMX3(dx2, k_0), IMX3(dx2, k_0), DMX3(dx2, k_0) );
                MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
                is_clean = 0;
             }
@@ -1109,7 +1109,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
             is_clean += (( MMX3(dx0, k_0) == -INF ) == false);
             is_clean += (( DMX3(dx0, k_0) == -INF ) == false);
             if ( is_clean != 0 ) {
-               memcheck_error( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
+               ERRORCHECK_memcheck( dx0, k_0, MMX3(dx0, k_0), IMX3(dx0, k_0), DMX3(dx0, k_0) );
                MMX3(dx0, k_0) = IMX3(dx0, k_0) = DMX3(dx0, k_0) = -INF;
             }
          }

@@ -454,7 +454,7 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
       for (k = 1; k <= prof->N; k++)
          prof->hmm_model[k - 1].trans[B2M] = (float) log( (double) mocc[k] / (double) Z );
 
-      ERRORCHECK_free(mocc);
+      ERROR_free(mocc);
    }
    else /* glocal modes: left wing retraction(?) */
    {

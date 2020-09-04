@@ -15,7 +15,7 @@
 EDGEBOUNDS* EDGEBOUNDS_Create();
 
 /*
- *  FUNCTION:  EDGEBOUNDS_Create()
+ *  FUNCTION:  EDGEBOUNDS_Create_by_Size()
  *  SYNOPSIS:  Create new EDGEBOUNDS object with chosen size and returns pointer.
  */
 EDGEBOUNDS* EDGEBOUNDS_Create_by_Size( const int size );

@@ -29,18 +29,20 @@
 #include "pipelines.h"
 
 /* private functions */
-void print_result_mmseqs(  WORKER*  worker,
-                           ARGS*    args,
-                           RESULT*  result,
-                           SCORES*  scores,
-                           TIMES*   times );
+void 
+print_result_mmseqs(    WORKER*  worker,
+                        ARGS*    args,
+                        RESULT*  result,
+                        SCORES*  scores,
+                        TIMES*   times );
 
-void print_header_mmseqs(  WORKER*  worker );
+void 
+print_header_mmseqs(  WORKER*  worker );
 
 /* mmseqs pipeline */
-void mmseqs_pipeline( WORKER* worker )
+void 
+mmseqs_pipeline( WORKER* worker )
 {
-   printf("# begin mmseqs...\n");
    /* file pointer for writing out to file */
    FILE*    fp       = NULL;
    ARGS*    args     = worker->args;
@@ -63,23 +65,19 @@ void mmseqs_pipeline( WORKER* worker )
    WORK_init( worker );
 
    /* worker objects */
-   REPORT*     report   = worker->report;
+   TIMES*         times       = worker->times;
+   NAT_SCORES*    scores      = worker->scores;
 
-   TIMES*      times    = worker->times;
-   SCORES*     scores   = worker->scores;
-   SCORES*     pvals    = worker->pvals;
-   SCORES*     evals    = worker->evals;
-
-   CLOCK*      clok     = worker->clok;
+   CLOCK*         clok        = worker->clok;
    /* alignment for mmseqs window */
-   ALIGNMENT*  tr       = worker->traceback;
+   ALIGNMENT*     tr          = worker->traceback;
    /* input results file from MMSEQS pipeline */
-   worker->results_in      = RESULTS_Create();
-   RESULTS*    results_in  = worker->results_in;
-   RESULT*     result_in;
+   worker->results_in         = RESULTS_Create();
+   RESULTS*       results_in  = worker->results_in;
+   RESULT*        result_in   = NULL;
    /* output results from fb-pruner */
-   RESULT*     result      = worker->result;
-   RESULT*     result_out  = worker->result;
+   RESULT*        result      = worker->result;
+   RESULT*        result_out  = worker->result;
 
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Plus_Parse( results_in, args->mmseqs_res_filepath );
@@ -131,19 +129,20 @@ void mmseqs_pipeline( WORKER* worker )
       i_end = MIN(args->mmseqs_range.end, i_end);
    }
    i_rng = i_end - i_beg;
-   printf("# MMSEQS PLUS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
+   printf_vhi("# MMSEQS PLUS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
 
    /* open outfile and add header to file */
-   worker->out_file = fopen(args->output_filepath, "w+");
-   fp = worker->out_file;
-   print_header_mmseqs( worker );
+   worker->output_fp = fopen(args->output_filepath, "w+");
+   fp = worker->output_fp;
+   
+   WORK_report_result_current( worker );
 
    /* === ITERATE OVER EACH RESULT === */
    /* Look through each input result */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
       result_out->result_id = i;
-      printf_vlo("# %d/%d running cloud search for result (%d of %d)...\n", 
+      printf_vlo("# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i, i_end );
 
       /* get next result from list */
@@ -161,7 +160,7 @@ void mmseqs_pipeline( WORKER* worker )
       t_name      = result_in->target_name;
 
       /* list mmseqs and cloud ids */
-      printf("# t_mid: %d, q_mid: %d, t_cid: %d, q_cid: %d\n",
+      printf_vhi("# t_mid: %d, q_mid: %d, t_cid: %d, q_cid: %d\n",
          t_mid, q_mid, t_cid, q_cid );
 
       /* TODO: should swap query and target program-wide? */
@@ -171,7 +170,7 @@ void mmseqs_pipeline( WORKER* worker )
       t_cid    = swp;
 
       /* load target and query by looking them up by id (if we aren't using the same from last search) */
-      printf(" t_cid = %d -> %d, q_cid = %d -> %d\n", 
+      printf_vhi("# t_cid = %d -> %d, q_cid = %d -> %d\n", 
          t_cid, t_cid_prv, q_cid, q_cid_prv);
 
       if ( t_cid != t_cid_prv ) {
@@ -183,10 +182,10 @@ void mmseqs_pipeline( WORKER* worker )
       t_cid_prv = t_cid;
       q_cid_prv = q_cid;
 
-      printf_vhi("T_NAME   (LOAD):\t%s \n", worker->t_prof->name );
-      printf_vhi("Q_NAME   (LOAD):\t%s \n", worker->q_seq->name );
-      printf_vhi("T_NAME (RESULT):\t%s \n", t_name );
-      printf_vhi("Q_NAME (RESULT):\t%s \n", q_name );
+      printf_vhi("# T_NAME   (LOAD):\t%s \n", worker->t_prof->name );
+      printf_vhi("# Q_NAME   (LOAD):\t%s \n", worker->q_seq->name );
+      printf_vhi("# T_NAME (RESULT):\t%s \n", t_name );
+      printf_vhi("# Q_NAME (RESULT):\t%s \n", q_name );
 
       t_len    = worker->t_prof->N;
       q_len    = worker->q_seq->N;
@@ -251,148 +250,25 @@ void mmseqs_pipeline( WORKER* worker )
          printf("TIMES => cloud_time: %.3f, fwd_time: %.3f, speed ratio: %.3f\n", 
             cloud_tot, times->quad_fwd, speedup );
          printf("SCORES => cloud_sc: %.3f, fwd_sc: %.3f\n", 
-            scores->lin_cloud_fwd, scores->quad_fwd );
+            scores->lin_bound_fwd, scores->quad_fwd );
       }
       #endif
 
-      /* results (need to add mmseqs entry) */
-      STRING_Replace( worker->t_prof->name, ' ', '_' );
-      STRING_Replace( worker->q_seq->name, ' ', '_' );
-      fprintf( stdout, 
-            "##_SCORES_TIMES_: %d %d | %d %d %s | %d %d %s | %d %d | %4.2f %4.2f %d | %d %9.2e | %7.4f %7.4f %9.2e\n",
-            i, i_end,
-            worker->t_id, worker->t_prof->N, worker->t_prof->name, 
-            worker->q_id, worker->q_seq->N, worker->q_seq->name,
-            result->total_cells, result->cloud_cells, 
-            args->alpha, args->beta, args->gamma,
-            result_in->bit_score, result_in->e_value,
-            times->lin_total_cloud, scores->lin_cloud_fwd, evals->lin_cloud_fwd );
-
-      /* capture edgebounds */
-      // {
-      //    char filename[100];
-      //    sprintf( filename, "test-edges/edgebounds.%06d.edg", i );
-      //    FILE* f_edg = fopen( filename, "w" );
-      //    fprintf( f_edg, "##>_START_EDGEBOUNDS_%d\n", i );
-      //    fprintf( f_edg, "# TARGET: %s\n", worker->t_prof->name );
-      //    fprintf( f_edg, "# QUERY: %s\n", worker->q_seq->name );
-      //    EDGEBOUNDS_Dump( worker->edg_row, f_edg );
-      //    fclose( f_edg );
-      // }
-
-      // /* if it clears scoring threshold, add to results */
-      // if ( scores->lin_cloud_fwd > threshold_sc || report_all ) {
-      //    RESULTS_Pushback( worker->results, result );
-      // }
+      /* NOTE: report bias */
+      // fprintf( stdout, 
+      //       "##_SCORES_TIMES_: %d %d | %d %d %25s | %d %d %25s | %d %d | %4.2f %4.2f %d | %d %9.2e | %7.4f %7.4f %9.2e\n",
+      //       i, i_end,
+      //       worker->t_id, worker->t_prof->N, worker->t_prof->name, 
+      //       worker->q_id, worker->q_seq->N, worker->q_seq->name,
+      //       result->total_cells, result->cloud_cells, 
+      //       args->alpha, args->beta, args->gamma,
+      //       result_in->bit_score, result_in->e_value,
+      //       times->lin_bound_total, scores->lin_cloud_fwd, evals->lin_cloud_fwd );
 
       /* print results */
-      print_result_mmseqs( worker, args, worker->result, scores, times );
+      WORK_report_result_current( worker );
    }
-   fclose(fp);
 
-   /* final output of results */
-   // fp = fopen()
-   // fp = stdout;
-   // RESULTS_My_Dump( worker->results, fp );
-   // if (fp != stdout) fclose(fp);
-}
-
-
-/* report results of mmseqs */
-inline
-void print_header_mmseqs(  WORKER*  worker )
-{
-   FILE* fp = worker->out_file;
-
-   fprintf(fp, ">");
-   /* ids */
-   fprintf(fp, "{%s}\t", "res_id");
-   fprintf(fp, "{%s}\t", "t_id");
-   fprintf(fp, "{%s}\t", "q_id");
-   /* search space size */
-   fprintf(fp, "{%s}\t", "t_len");
-   fprintf(fp, "{%s}\t", "q_len");
-   fprintf(fp, "{%s}\t", "tot_cells");
-   fprintf(fp, "{%s}\t", "n_cells");
-   /* search parameters */
-   fprintf(fp, "{%s}\t", "alpha");
-   fprintf(fp, "{%s}\t", "beta");
-   /* scores */
-   // #if DEBUG
-   {
-      fprintf(fp, "{%s}\t", "vit_sc");
-      fprintf(fp, "{%s}\t", "fwd_sc");
-      fprintf(fp, "{%s}\t", "bck_sc");
-   }
-   // #endif
-   fprintf(fp, "{%s}\t", "cloud_sc");
-   /* times */
-   // #if DEBUG 
-   {
-      fprintf(fp, "{%s}\t", "vit_t");
-      fprintf(fp, "{%s}\t", "fwd_t");
-      fprintf(fp, "{%s}\t", "bck_t");
-   }
-   // #endif
-   fprintf(fp, "{%s}\t", "cloud_fwd_t");
-   fprintf(fp, "{%s}\t", "cloud_bck_t");
-   fprintf(fp, "{%s}\t", "merge_t");
-   fprintf(fp, "{%s}\t", "reorient_t");
-   fprintf(fp, "{%s}\t", "bound_fwd_t");
-   fprintf(fp, "{%s}\t", "total_t");
-   fprintf(fp, "\n");
-}
-
-/* report results of mmseqs */
-inline
-void print_result_mmseqs(  WORKER*  worker,
-                           ARGS*    args,
-                           RESULT*  result,
-                           SCORES*  scores,
-                           TIMES*   times )
-{
-   FILE* fp = worker->out_file;
-
-   /* print out results */
-   float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck +
-                     times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
-
-   /* ids */
-   fprintf(fp, "%d\t",     result->result_id );
-   fprintf(fp, "%d\t",     result->target_id );
-   fprintf(fp, "%d\t",     result->query_id );
-   /* search space size */
-   fprintf(fp, "%d\t",     worker->t_prof->N );
-   fprintf(fp, "%d\t",     worker->q_seq->N );
-   fprintf(fp, "%d\t",     result->total_cells );
-   fprintf(fp, "%d\t",     result->cloud_cells );
-   /* search parameters */
-   fprintf(fp, "%.2f\t",   args->alpha );
-   fprintf(fp, "%.2f\t",   args->beta );
-   fprintf(fp, "%d\t",     args->gamma );
-   /* scores */
-   // #if DEBUG
-   {
-      fprintf(fp, "%.8f\t",   scores->quad_vit );
-      fprintf(fp, "%.8f\t",   scores->quad_fwd );
-      fprintf(fp, "%.8f\t",   scores->quad_bck );
-   }
-   // #endif
-   fprintf(fp, "%.8f\t",   scores->lin_cloud_fwd );
-   /* times */
-   // #if DEBUG
-   {
-      fprintf(fp, "%.8f\t",   times->quad_vit );
-      fprintf(fp, "%.8f\t",   times->quad_fwd );
-      fprintf(fp, "%.8f\t",   times->quad_bck );
-   }
-   // #endif
-   fprintf(fp, "%.8f\t",   times->lin_cloud_fwd );
-   fprintf(fp, "%.8f\t",   times->lin_cloud_bck );
-   fprintf(fp, "%.8f\t",   times->lin_merge );
-   fprintf(fp, "%.8f\t",   times->lin_reorient );
-   fprintf(fp, "%.8f\t",   times->lin_bound_fwd );
-   fprintf(fp, "%.8f\t",   cloud_tot );
-
-   fprintf(fp, "\n" );
+   WORK_report_footer( worker ); 
+   WORK_cleanup( worker );
 }

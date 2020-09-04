@@ -3,6 +3,7 @@ FB-PRUNER (June 2020)
 Version 0.1 alpha
 
 # Install Release Build
+# NOTE: this should be made default.
 make BUILD=RELEASE
 
 # Install Debug Build
