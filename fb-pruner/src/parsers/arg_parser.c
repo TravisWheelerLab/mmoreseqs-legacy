@@ -246,6 +246,28 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--m8out") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->m8out_filepath);
+               args->m8out_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--myout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->myout_filepath);
+               args->myout_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
          else if ( strcmp(argv[i], (flag = "--output") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
