@@ -3,7 +3,7 @@
  *  PURPOSE:   Reporting Subroutines for generating output.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       - 
  *******************************************************************************/
 
 /* imports */
@@ -517,7 +517,7 @@ void REPORT_m8out_entry(   WORKER*  worker,
    TRACE* beg  = &aln->traces->data[aln->beg];
    TRACE* end  = &aln->traces->data[aln->end];
 
-   fprintf( fp, "#%s\t%s\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%9.2g\t%6.1f\n", 
+   fprintf( fp, "%s\t%s\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%9.2g\t%6.1f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
       aln->perc_id,                    /* percent id (number matches) */

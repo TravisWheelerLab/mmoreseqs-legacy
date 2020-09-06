@@ -145,6 +145,8 @@ mmseqs_pipeline( WORKER* worker )
       printf_vlo("# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i, i_end );
 
+      /* NOTE: Do not need to keep record of mmseqs id */
+
       /* get next result from list */
       result_in   = &(results_in->data[i]);
       /* result id */
@@ -164,7 +166,7 @@ mmseqs_pipeline( WORKER* worker )
          t_mid, q_mid, t_cid, q_cid );
 
       /* TODO: should swap query and target program-wide? */
-      /* NOTE: query and target are cross-labeled in mmseqs */
+      /* NOTE: query and target are cross-labeled compared to mmseqs */
       int swp  = q_cid;
       q_cid    = t_cid;
       t_cid    = swp;
