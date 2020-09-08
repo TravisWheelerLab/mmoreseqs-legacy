@@ -22,8 +22,7 @@
 #include "parsers.h"
 
 
-/* ****************************************************************************************** *
- *  FUNCTION:  F_INDEX_Hmm_Build()
+/*  FUNCTION:  F_INDEX_Hmm_Build()
  *  SYNOPSIS:  Build F_INDEX object from .hmm file with list of hmm name and offset into file.
  *             
  *  METHOD:    [1]   scans .hmm file line-by-line
@@ -33,9 +32,9 @@
  *  ARGS:      <_filename_>   path to file to be indexed
  *
  *  RETURN:    F_INDEX object containing index of file
-/* ****************************************************************************************** */
-F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
-                        const char* _filename_ )
+ */
+F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
+                              const char*    _filename_ )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -115,8 +114,7 @@ F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
 }
 
 
-/* ****************************************************************************************** *
- *  FUNCTION:  F_INDEX_Fasta_Build()
+/*  FUNCTION:  F_INDEX_Fasta_Build()
  *  SYNOPSIS:  Build F_INDEX object from .fasta file by fasta name and offset into file.
  *             
  *  METHOD:    [1]   scans .fasta file line-by-line
@@ -126,9 +124,9 @@ F_INDEX* F_INDEX_Hmm_Build( F_INDEX*    f_index,
  *  ARGS:      <_filename_>   path to file to be indexed.
  *
  *  RETURN:    F_INDEX object containing index of file  
-/* ****************************************************************************************** */
-F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
-                              const char* _filename_ )
+ */
+F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
+                                 const char*    _filename_ )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -214,17 +212,16 @@ F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
    return f_index;
 }
 
-/* ****************************************************************************************** *
- *  FUNCTION:  F_INDEX_Load()
+/*  FUNCTION:  F_INDEX_Load()
  *  SYNOPSIS:  Build F_INDEX object from .idx file.
- *             
+ *  
  *  METHOD:    [1]   scans .fasta file line-by-line
  *             [2]   line: {result_id} {offset} {}
  *
  *  ARGS:      <_filename_>   path to file to be indexed.
  *
  *  RETURN:    F_INDEX object containing index of file  
-/* ****************************************************************************************** */
+ */
 F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
                        const char*  _filename_ )
 {
@@ -367,7 +364,9 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
    return f_index;
 }
 
-/* update f_index using mmseqs lookup table */
+/*  FUNCTION:  F_INDEX_Update()
+ *  SYNOPSIS:  Update f_index using mmseqs lookup table 
+ */
 void F_INDEX_Lookup_Update( F_INDEX*   f_index, 
                             char*      _lookup_filepath_ ) 
 {
@@ -424,7 +423,9 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
    ERROR_free(line_buf);
 }
 
-/* load index file */
+/*  FUNCTION:  F_INDEX_Load()
+ *  SYNOPSIS:  Load F_INDEX object from .idx file.
+ */
 F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
                               const char*    _filename_ )
 {
