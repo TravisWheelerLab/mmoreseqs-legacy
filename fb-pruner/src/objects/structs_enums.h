@@ -8,13 +8,6 @@
 #ifndef _STRUCTS_ENUMS_H
 #define _STRUCTS_ENUMS_H
 
-/* === VERSION === */
-#define BUILD_PROGRAM      "FB_PRUNER"
-#define BUILD_VERSION      "0.1"
-#define BUILD_NAME         "tbd"
-#define BUILD_DATE         "Aug 2020"
-#define BUILD_DESCRIPT     "Heuristic Pruning of Forward-Backward for Faster Profile-to-Sequence Search"
-
 /* === CONSTANTS === */
 #define CONST_LOG2      0.69314718055994529     /* natural log: ln(2) */
 #define SCALE_FACTOR    1000                    /* scaling factor for summing logrithm */

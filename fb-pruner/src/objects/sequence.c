@@ -37,7 +37,7 @@ SEQUENCE* SEQUENCE_Create()
    seq->N        = 0;
    seq->Nalloc   = 0;
 
-   seq->full_line = NULL;
+   seq->header   = NULL;
    seq->filename = NULL;
    seq->name     = NULL;
    seq->alph     = NULL;
@@ -55,7 +55,7 @@ void* SEQUENCE_Destroy( SEQUENCE *seq )
 {
    if ( seq == NULL ) return seq;
 
-   ERROR_free(seq->full_line);
+   ERROR_free(seq->header);
    ERROR_free(seq->filename);
    ERROR_free(seq->name);
    ERROR_free(seq->alph);

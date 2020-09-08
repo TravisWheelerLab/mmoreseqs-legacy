@@ -55,7 +55,8 @@ void HMM_PROFILE_From_Seq( HMM_PROFILE*   prof,
 
    /* singlebuilder matrix */
    /* NOTE: could let this persist when creating multiple sequence-to-profiles */
-   bld_fname      = "data/submat/singlebuilder.submat";
+   /* TODO: need to set PREFIX in makefile */
+   bld_fname      = PREFIX "data/submat/singlebuilder.submat";
    bld            = SCORE_MATRIX_Load( bld_fname );
 
    /* resize profile if necessary */

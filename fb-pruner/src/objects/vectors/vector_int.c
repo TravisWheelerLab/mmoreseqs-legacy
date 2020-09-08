@@ -41,11 +41,7 @@ VECTOR_INT* VECTOR_INT_Create()
 VECTOR_INT* VECTOR_INT_Create_by_Size( int    size )
 {
    VECTOR_INT *vec = NULL;
-   vec = (VECTOR_INT *) malloc( sizeof(VECTOR_INT) );
-   if ( vec == NULL ) {
-      fprintf(stderr, "ERROR: Failure to malloc.\n");
-      exit(EXIT_FAILURE);
-   }
+   vec = (VECTOR_INT *) ERROR_malloc( sizeof(VECTOR_INT) );
 
    vec->data   = NULL;
    vec->N      = 0;
@@ -64,8 +60,8 @@ void* VECTOR_INT_Destroy( VECTOR_INT*   vec )
 {
    if ( vec == NULL ) return NULL;
 
-   free(vec->data);
-   free(vec);
+   ERROR_free(vec->data);
+   ERROR_free(vec);
 
    return NULL;
 }
@@ -120,11 +116,7 @@ VECTOR_INT* VECTOR_INT_Copy(  VECTOR_INT*   src,
 void VECTOR_INT_Resize(    VECTOR_INT*   vec, 
                            int           size )
 {
-   vec->data = (INT*) realloc( vec->data, sizeof(INT) * size );
-   if ( vec->data == NULL ) {
-      fprintf(stderr, "ERROR: Failure to malloc.\n" );
-      exit(EXIT_FAILURE);
-   }
+   vec->data = (INT*) ERROR_realloc( vec->data, sizeof(INT) * size );
    vec->Nalloc = size;
 }
 

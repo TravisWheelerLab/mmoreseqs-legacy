@@ -77,11 +77,11 @@ void* DEBUGGER_Destroy( DEBUG_KIT* dbg )
 	dbg->dbgout_dir      = ERROR_free( dbg->dbgout_dir );
 	dbg->dbgout_fp  	   = ERROR_free( dbg->dbgout_fp );
 
+   dbg->cloud_MX        = MATRIX_2D_Destroy( dbg->cloud_MX );
+   dbg->cloud_MX3       = MATRIX_2D_Destroy( dbg->cloud_MX3 );
+
 	dbg->test_MX 	      = MATRIX_3D_Destroy( dbg->test_MX );
 	dbg->test_MX3 	      = MATRIX_3D_Destroy( dbg->test_MX3 );
-	
-	dbg->cloud_MX 	      = MATRIX_2D_Destroy( dbg->cloud_MX );
-	dbg->cloud_MX3       = MATRIX_2D_Destroy( dbg->cloud_MX3 );
 
 	dbg->test_edg 	      = EDGEBOUNDS_Destroy( dbg->test_edg );
 

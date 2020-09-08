@@ -10,6 +10,9 @@ SHELL = /bin/sh
 CC = gcc
 CXX = g++
 
+# location of root folder of makefile
+ROOT_DIR = $(shell pwd)
+
 # package information 
 PACKAGE = FB-PRUNER 
 PACKAGE_VERSION = 0.1A
@@ -43,9 +46,9 @@ INC_LIBS := -I$(EASEL_DIR)
 # Any C linked libraries I want to include
 # suggested flags: -lm -L(easel library location) -leasel
 CLIBS := -lm -L${EASEL_DIR} -leasel
-# standard C compiler flags to be run
-# suggested flags: -Wall -g -O2 -fsanitize=address
-CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -O2
+# standard C compiler flags to be run (non-build-specific)
+# suggested flags: -std=gnu99 -g -DROOT_DIR=$(ROOT_DIR)
+CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -DROOT_DIR=$(ROOT_DIR)
 # standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
 CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3

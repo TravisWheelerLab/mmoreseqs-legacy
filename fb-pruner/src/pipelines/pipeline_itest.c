@@ -243,12 +243,6 @@ void itest_pipeline( WORKER* worker )
 
    /* debug matrix */
    {
-      debugger->cloud_MX   = MATRIX_2D_Create_Clean( 1, 1 );
-      debugger->cloud_MX3  = MATRIX_2D_Create_Clean( 1, 1 );
-      debugger->test_MX    = MATRIX_3D_Create_Clean( 1, 1, 1 );
-      debugger->test_MX3   = MATRIX_3D_Create_Clean( 1, 1, 1 );
-      debugger->test_edg   = EDGEBOUNDS_Create();
-
       MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
       MATRIX_2D_Reuse_Clean( debugger->cloud_MX, Q+1, T+1 );
       MATRIX_3D_Reuse_Clean( debugger->test_MX3, NUM_NORMAL_STATES, Q+1, T+1 );
@@ -910,4 +904,49 @@ void itest_pipeline( WORKER* worker )
    // fprintf(fp, "%d\n", T);
 
    // if ( fp != stdout ) fclose( fp );
+
+   /* === CLEAN-UP ====================================================== */
+
+   /* resize edgebounds */
+   edg_fwd_lin       = EDGEBOUNDS_Destroy( edg_fwd_lin );
+   edg_bck_lin       = EDGEBOUNDS_Destroy( edg_bck_lin );
+   edg_row_lin       = EDGEBOUNDS_Destroy( edg_row_lin );
+   edg_diag_lin      = EDGEBOUNDS_Destroy( edg_diag_lin );
+
+   edg_fwd_quad      = EDGEBOUNDS_Destroy( edg_fwd_quad );
+   edg_bck_quad      = EDGEBOUNDS_Destroy( edg_bck_quad );
+   edg_row_quad      = EDGEBOUNDS_Destroy( edg_row_quad );
+   edg_diag_quad     = EDGEBOUNDS_Destroy( edg_diag_quad );
+
+   edg_row_tmp       = EDGEBOUND_ROWS_Destroy( edg_row_tmp );
+
+   /* allocate memory for quadratic algs */
+   st_MX_naive       = MATRIX_3D_Destroy( st_MX_naive );
+   sp_MX_naive       = MATRIX_2D_Destroy( sp_MX_naive );
+   cloud_MX_naive    = MATRIX_2D_Destroy( cloud_MX_naive );
+   /* allocate memory for quadratic algs */
+   st_MX_quad        = MATRIX_3D_Destroy( st_MX_quad );
+   sp_MX_quad        = MATRIX_2D_Destroy( sp_MX_quad );
+   cloud_MX_quad     = MATRIX_2D_Destroy( cloud_MX_quad );
+   /* allocate memory for comparing row-wise algs */
+   cloud_MX_rows     = MATRIX_2D_Destroy( cloud_MX_rows );
+   /* allocate memory for linear algs */
+   st_MX3_lin        = MATRIX_3D_Destroy( st_MX3_lin );
+   st_MX_lin         = MATRIX_3D_Destroy( st_MX_lin );
+   sp_MX_lin         = MATRIX_2D_Destroy( sp_MX_lin );
+   cloud_MX_lin      = MATRIX_2D_Destroy( cloud_MX_lin );
+   /* allocate memory for sparse algs */
+   st_SMX            = MATRIX_3D_SPARSE_Destroy( st_SMX );
+   st_MX_sparse      = MATRIX_3D_Destroy( st_MX_sparse );
+   sp_MX_sparse      = MATRIX_2D_Destroy( sp_MX_sparse );
+   cloud_MX_sparse   = MATRIX_2D_Destroy( cloud_MX_sparse );
+   /* allocate memory for testing */
+   st_MX_diff        = MATRIX_3D_Destroy( st_MX_diff );
+   st_MX3_diff       = MATRIX_3D_Destroy( st_MX3_diff );
+   sp_MX_diff        = MATRIX_2D_Destroy( sp_MX_diff );
+   cloud_MX_diff     = MATRIX_2D_Destroy( cloud_MX_diff );
+
+   /* allocate full search cloud for  */
+   full_cloud_MX     = MATRIX_2D_Destroy( full_cloud_MX );
+   full_cloud_edg    = EDGEBOUNDS_Create( full_cloud_edg );
 }

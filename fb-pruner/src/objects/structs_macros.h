@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      structs.h
- *  PURPOSE:   Macros used by Cloud Search.
+ *  PURPOSE:   Macros used by fb-pruner.  Some set by Makefile.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -17,6 +17,18 @@
 #define FALSE 0
 
 /* === SET BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
+
+/* === VERSION === */
+#define BUILD_PROGRAM      "FB_PRUNER"
+#define BUILD_VERSION      "0.1"
+#define BUILD_NAME         "tbd"
+#define BUILD_DATE         "Aug 2020"
+#define BUILD_DESCRIPT     "Heuristic Pruning of Forward-Backward for Faster Profile-to-Sequence Search"
+
+/* === INSTALL LOCATION === */
+#define PREFIX             "/path/to/project/folder"   
+#define MAKE_PREFIX        ""
+#define PROJECT_LOCATION   ""
 
 /* set default debug build */
 #ifndef DEBUG

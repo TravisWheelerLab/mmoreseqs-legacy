@@ -185,6 +185,23 @@ typedef struct {
    XXX_UMAP_NODE*    nodes;   /* key-value pairs */
 } XXX_UMAP;
 
+/* reader for parsing files */
+typedef struct {
+   FILE*             fp;            /* file pointer to be read */
+   char*             filename;      /* string to file location */
+   /* buffer data */
+   char*             buffer;        /* character buffer */
+   int               N;             /* length of occupied buuffer */
+   int               Nalloc;        /* length of allocated buffer */
+   char*             token;         /* pointer to current token in tokenized buffer */
+   VECTOR_CHAR*      tokens;        /* pointers to all tokens in buffer line */
+   char*             delim;         /* current delimiter being used for parsing tokens */
+   /* location in file */
+   long int          cur_offset;    /* current offset of start of buffer into file */
+   long int          file_size;     /* size of file (in chars) */
+   bool              is_eof;        /* is file at end of file */
+} READER;
+
 /* single option */
 typedef struct {
    char*             opt_long;   /* long option */
@@ -386,7 +403,7 @@ typedef struct {
    ESL_SQ*        esl_dsq;    /* easel's digitized sequence */
    /* meta data */
    char*          filename;   /* filename of sequence */
-   char*          full_line;  /* full descriptor line */
+   char*          header;     /* full descriptor line */
    char*          name;       /* name of sequence */
    char*          acc;        /* accession of sequence */
    char*          alph;       /* alphabet (currently only supports AMINO) */

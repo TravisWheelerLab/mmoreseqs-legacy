@@ -2302,7 +2302,10 @@ std::vector<int> Parameters::getOutputFormat(const std::string &outformat, bool 
     std::vector<int> formatCodes;
     int code = 0;
     for (size_t i = 0; i < outformatSplit.size(); ++i) {
-        if(outformatSplit[i].compare("query") == 0){ code = Parameters::OUTFMT_QUERY;}
+        /* DAVID RICH EDIT */
+        if      (outformatSplit[i].compare("qid") == 0){ code = Parameters::OUTFMT_QID;}
+        else if (outformatSplit[i].compare("tid") == 0){ code = Parameters::OUTFMT_TID;}
+        else if (outformatSplit[i].compare("query") == 0){ code = Parameters::OUTFMT_QUERY;}
         else if (outformatSplit[i].compare("target") == 0){ code = Parameters::OUTFMT_TARGET;}
         else if (outformatSplit[i].compare("evalue") == 0){ code = Parameters::OUTFMT_EVALUE;}
         else if (outformatSplit[i].compare("gapopen") == 0){ code = Parameters::OUTFMT_GAPOPEN;}

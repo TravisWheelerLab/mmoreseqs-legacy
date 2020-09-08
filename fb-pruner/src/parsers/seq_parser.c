@@ -32,7 +32,9 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    FILE*    fp             = NULL;    
    int      line_count     = -1;       /* line counter of current line in file */
    char*    line_buf       = NULL;     /* pointer to start of buffered line */
+   char*    header         = NULL;     /* header pointer */
    char*    name           = NULL;     /* name pointer */
+   char*    token          = NULL;     /* token for splitting string */
    size_t   line_buf_size  = 0;        /* length of entire <line_buf> array */
    size_t   line_size      = 0;        /* length of current line in <line_buf> array */
 
@@ -74,24 +76,23 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
 
          num_seqs++;
          /* omit ">" */
-         name = line_buf + 1;
+         header = line_buf + 1;
 
-         /* first capture whole description line */
-         SEQUENCE_Set_Textfield(&seq->full_line, name);
+         /* first capture whole header line */
+         SEQUENCE_Set_Textfield(&seq->header, header);
 
-         /* name terminated at first space */
-         STRING_Replace( name, ' ', '\0' );
+         /* split header on spaces, get first element */
+         token = strtok(header, " ");
+         /* if name has structure: >db|id| */
+         if ( strstr( token, "|" ) == NULL ) {
+            name = strtok(token, "|");
+            name = strtok(NULL, "|");
+         } 
+         /* otherwise, just use the  */
+         else {
+            name = token;
+         }
          SEQUENCE_Set_Textfield(&seq->name, name); 
-
-         /* if we are going to parse header */
-         // char* line_ptr = line_buf;
-         // char* token    = NULL;
-         // int   i        = 0;
-         
-         // while( token = strtok_r(line_ptr, "/|\n", &line_ptr) ) {
-         //    // printf("[%d] %s\n", i, token);
-         //    i++;
-         // }
       }
       else /* otherwise, append to current sequence */
       {

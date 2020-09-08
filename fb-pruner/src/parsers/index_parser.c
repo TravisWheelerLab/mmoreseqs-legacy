@@ -137,6 +137,7 @@ F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
    size_t         line_buf_size  = 0;
    ssize_t        line_size      = 0;
    char*          line_buf       = NULL;
+   char*          header         = NULL;
    char*          token          = NULL;
    char*          delim          = "\t\n";
 
@@ -180,8 +181,22 @@ F_INDEX* F_INDEX_Fasta_Build( F_INDEX*    f_index,
       }
 
       /* if starts new header, add to index */
-      if (line_buf[0] == '>') {
-         name = line_buf + 1;    /* skip '>' character */
+      if (line_buf[0] == '>') 
+      {
+         /* parse header */
+         header = line_buf + 1;    /* skip '>' character */
+         /* split header on spaces, get first element */
+         token = strtok(header, " ");
+         /* if name has structure: >db|id| */
+         if ( strstr( token, "|" ) == NULL ) {
+            name = strtok(token, "|");    /* 1st field = database */
+            name = strtok(NULL, "|");    /* 2nd field = name */ 
+         } 
+         /* otherwise, just use the entire header */
+         else {
+            name = token;
+         }
+
          node.id        = id;
          node.name      = name;
          node.offset    = prv_offset;

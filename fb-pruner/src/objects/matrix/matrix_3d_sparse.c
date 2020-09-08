@@ -34,11 +34,7 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Create()
 {
 	MATRIX_3D_SPARSE* smx = NULL;
 
-	smx = (MATRIX_3D_SPARSE*) malloc( sizeof(MATRIX_3D_SPARSE) );
-	if (smx == NULL) {
-		printf("ERROR: Memory failure for allocating MATRIX_3D_SPARSE.\n");
-		exit(EXIT_FAILURE);
-	}
+	smx = (MATRIX_3D_SPARSE*) ERROR_malloc( sizeof(MATRIX_3D_SPARSE) );
 
    smx->D1           = 0;
    smx->D2           = 0;
