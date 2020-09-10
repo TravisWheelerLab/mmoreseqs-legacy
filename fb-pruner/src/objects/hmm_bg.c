@@ -208,8 +208,6 @@ void HMM_BG_SetFilter(	HMM_BG* 			bg,
                         int 				M,
                         const float*	compo )
 {
-	printf("=> p7_bg_SetFilter, M = %d\n", M);
-
 	float L0 = 400.0;						/* mean length in state 0 of filter HMM (normal background) */
 	float L1 = (float) M / 8.0; 		/* mean length in state 1 of filter HMM (biased segment) */
 

@@ -154,7 +154,7 @@ mmseqs_pipeline( WORKER* worker )
       if ( STRING_Equal( t_name, t_name_prv ) == false ) {
          WORK_load_target_by_name( worker, t_name );
       }
-      if ( STRING_Equal( t_name, t_name_prv ) == false )  {
+      if ( STRING_Equal( q_name, q_name_prv ) == false )  {
          WORK_load_query_by_name( worker, q_name );
       }
 
