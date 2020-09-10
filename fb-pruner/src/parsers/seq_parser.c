@@ -29,7 +29,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
                            long        offset )
 {
    /* parser vars */
-   FILE*    fp             = NULL;    
+   READER*  reader         = NULL;
    int      line_count     = -1;       /* line counter of current line in file */
    char*    line_buf       = NULL;     /* pointer to start of buffered line */
    char*    header         = NULL;     /* header pointer */
@@ -37,28 +37,24 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    char*    token          = NULL;     /* token for splitting string */
    size_t   line_buf_size  = 0;        /* length of entire <line_buf> array */
    size_t   line_size      = 0;        /* length of current line in <line_buf> array */
-
+   int      lines_read     = 0;
    int      num_seqs       = 0;        
    int      seq_len        = 0;
 
+   /* clear pre-existing data */
    SEQUENCE_Reuse(seq);
    SEQUENCE_Set_Textfield(&seq->filename, _filename_);
 
-   /* open file */
-   fp = fopen(_filename_, "r");
-   /* check for file read error */
-   if (fp == NULL)
-   {
-      char*  str = NULL;
-      fprintf(stderr, "ERROR: Bad FILE POINTER for SEQUENCE PARSER => %s\n", _filename_ );
-      exit(EXIT_FAILURE);
-   }
-   fseek(fp, offset, SEEK_SET);
+   /* open file reader */
+   reader = READER_Create( _filename_ );
+   READER_JumpTo( reader, offset );
 
    /* read file line-by-line */
-   while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1 )
+   while ( ( READER_GetLine( reader ) ), reader->is_eof != true )
    {
       line_count++;
+      line_buf = reader->buffer;
+      line_size = reader->N;
 
       /* remove newline from end of line */
       if( line_buf[line_size-1] == '\n' ) {
@@ -80,11 +76,13 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
 
          /* first capture whole header line */
          SEQUENCE_Set_Textfield(&seq->header, header);
+         printf("HEADER: %s\n", header);
 
          /* split header on spaces, get first element */
          token = strtok(header, " ");
+         printf("TOKEN: %s\n", token);
          /* if name has structure: >db|id| */
-         if ( strstr( token, "|" ) == NULL ) {
+         if ( strstr( token, "|" ) != NULL ) {
             name = strtok(token, "|");
             name = strtok(NULL, "|");
          } 
@@ -105,8 +103,5 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
       }
    }
 
-   /* free line buffer */
-   ERROR_free(line_buf);
-   /* close file */
-   fclose(fp);
+   READER_Destroy( reader );
 }

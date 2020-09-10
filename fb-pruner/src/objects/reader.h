@@ -3,7 +3,6 @@
  *  PURPOSE:   READER Class.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:     
  *******************************************************************************/
 
 #ifndef _READER_H
@@ -21,4 +20,35 @@ READER* READER_Create( STR filename );
  */
 void* READER_Destroy( READER* reader );
 
-#endif /* _DEBUGGER_H */
+/*  FUNCTION:  READER_Open()
+ *  SYNOPSIS:
+ */
+int READER_Open( READER* reader );
+
+/*  FUNCTION:  READER_Close()
+ *  SYNOPSIS:
+ */
+int READER_Close( READER* reader );
+
+/*  FUNCTION:  READER_Rewind()
+ *  SYNOPSIS:  Set file pointer to beginning of file.
+ */
+int READER_Rewind( READER* reader );
+
+/*  FUNCTION:  READER_JumpTo()
+ *  SYNOPSIS:  Jump to nth byte of into file pointer.
+ */
+int READER_JumpTo(   READER*     reader, 
+                     long int    offset );
+
+/*  FUNCTION:  READER_GetLine()
+ *  SYNOPSIS:
+ */
+char* READER_GetLine( READER* reader );
+
+/*  FUNCTION:  READER_Split()
+ *  SYNOPSIS:  Split buffer into 
+ */
+VECTOR_CHAR* READER_Split( READER* reader );
+
+#endif /* _READER_H */

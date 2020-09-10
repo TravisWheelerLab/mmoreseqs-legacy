@@ -23,8 +23,20 @@ void WORK_cleanup( WORKER* worker );
 /* resize dp matrices if necessary */
 void WORK_reuse( WORKER* worker );
 
+/* open worker files */
+void WORK_open( WORKER* worker );
+
+/* close worker files */
+void WORK_close( WORKER* worker );
+
 /* load or build target and query index files */
 void WORK_index( WORKER* worker );
+
+/* load query and target indexes (or build them) */
+void WORK_build_target_index( WORKER* worker );
+
+/* load query index (or build them) */
+void WORK_build_query_index( WORKER* worker );
 
 /* load query and target indexes (or build them) */
 void WORK_load_target_index( WORKER* worker );
@@ -56,6 +68,14 @@ void WORK_load_target_by_name( WORKER* worker,
 /* load target by file index name */
 void WORK_load_query_by_name( WORKER* worker,
                               char*   name );
+
+/* load target by file index id */
+void WORK_load_target_by_index_id(  WORKER*     worker,
+                                    int         index_id );
+
+/* load target by file index id */
+void WORK_load_query_by_index_id(   WORKER*     worker,
+                                    int         index_id );
 
 /* viterbi and traceback */
 void WORK_viterbi_and_traceback( WORKER*  worker );

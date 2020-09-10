@@ -50,9 +50,6 @@ void RESULTS_M8_Parse( RESULTS* 	results,
    }
 
    /* initialize temporary vars */
-   // res_tmp.result_id    = 0
-   // res_tmp.target_id    = 0;
-   // res_tmp.result_id    = 0;
    // res_tmp.target_name  = NULL;
    // res_tmp.query_name   = NULL;
    // res_tmp.perc_id      = 0.f;
@@ -89,12 +86,12 @@ void RESULTS_M8_Parse( RESULTS* 	results,
       /* [1] query */ 
       token = strtok_r(line_ptr, " \t", &line_ptr);
       // if (res_tmp.query_name != NULL) ERROR_free(res_tmp.query_name);
-      res_tmp.query_name = strdup(token);
+      res_tmp.target_name = strdup(token);
 
       /* [2] target */
       token = strtok_r(line_ptr, " \t", &line_ptr);
       // if (res_tmp.target_name != NULL) ERROR_free(res_tmp.target_name);
-      res_tmp.target_name = strdup(token);
+      res_tmp.query_name = strdup(token);
 
       /* [3] percent id */
       token = strtok_r(line_ptr, " \t", &line_ptr);

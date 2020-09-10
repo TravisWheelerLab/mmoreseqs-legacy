@@ -66,23 +66,6 @@ void WORK_init( WORKER* worker )
    /* initialize logrithmic sum table */
    logsum_Init();
 
-   /* TODO: need to handle results in bulk. currently report one-at-a-time. */
-   /* open file pointers */
-   if ( args->is_redirect_stdout ) {
-      worker->output_fp    = ERROR_fopen( args->output_filepath, "w" );
-   } else {
-      worker->output_fp    = stdout;
-   }
-   if ( args->is_tblout ) {
-      worker->tblout_fp    = ERROR_fopen( args->tblout_filepath, "w" );
-   }
-   if ( args->is_m8out ) {
-      worker->m8out_fp     = ERROR_fopen( args->m8out_filepath, "w" );
-   }
-   if ( args->is_myout ) {
-      worker->myout_fp     = ERROR_fopen( args->myout_filepath, "w" );
-   }
-
    /* target and profile structures */
    worker->q_seq        = SEQUENCE_Create();
    worker->t_seq        = SEQUENCE_Create();
@@ -94,7 +77,7 @@ void WORK_init( WORKER* worker )
    /* results in from mmseqs and out for general searches */
    worker->results_in   = RESULTS_Create();
    worker->results      = RESULTS_Create();
-   worker->result       = (RESULT*) malloc( sizeof(RESULT) );
+   worker->result       = (RESULT*) ERROR_malloc( sizeof(RESULT) );
    /* data structs for viterbi alignment search */
    worker->traceback    = ALIGNMENT_Create();
    worker->trace_post   = ALIGNMENT_Create();
@@ -125,23 +108,7 @@ void WORK_init( WORKER* worker )
 void WORK_cleanup( WORKER* worker )
 {
    TASKS*   tasks =  worker->tasks;
-   ARGS*    args  =  worker->args;  
-
-   /* open file pointers */
-   if ( args->is_redirect_stdout ) {
-      if ( worker->output_fp != stdout ) {
-         worker->output_fp    = ERROR_fclose( worker->output_fp );
-      } 
-   }
-   if ( args->is_tblout ) {
-      worker->tblout_fp    = ERROR_fclose( worker->tblout_fp );
-   }
-   if ( args->is_m8out ) {
-      worker->m8out_fp     = ERROR_fclose( worker->m8out_fp );
-   }
-   if ( args->is_myout ) {
-      worker->myout_fp    = ERROR_fclose( worker->myout_fp );
-   }
+   ARGS*    args  =  worker->args;
 
    /* target and profile structures */
    worker->q_seq        = SEQUENCE_Destroy( worker->q_seq );
@@ -155,7 +122,7 @@ void WORK_cleanup( WORKER* worker )
    worker->results_in   = RESULTS_Destroy( worker->results_in );
    worker->results      = RESULTS_Destroy( worker->results );
    ERROR_free( worker->result );
-   worker->result = NULL;
+   worker->result       = NULL;
    /* data structs for viterbi alignment */
    worker->traceback    = ALIGNMENT_Destroy( worker->traceback );
    worker->trace_post   = ALIGNMENT_Destroy( worker->trace_post );
@@ -186,6 +153,53 @@ void WORK_cleanup( WORKER* worker )
       debugger->test_edg   = EDGEBOUNDS_Destroy( debugger->test_edg );
    }
    #endif
+}
+
+/* open worker files */
+void WORK_open( WORKER* worker )
+{
+   TASKS*   tasks = worker->tasks;
+   ARGS*    args  = worker->args;
+
+   /* TODO: need to handle results in bulk. currently report one-at-a-time. */
+   /* open file pointers */
+   if ( args->is_redirect_stdout ) {
+      worker->output_fp    = ERROR_fopen( args->output_filepath, "w" );
+   } else {
+      worker->output_fp    = stdout;
+   }
+   if ( args->is_tblout ) {
+      worker->tblout_fp    = ERROR_fopen( args->tblout_filepath, "w" );
+   }
+   if ( args->is_m8out ) {
+      worker->m8out_fp     = ERROR_fopen( args->m8out_filepath, "w" );
+   }
+   if ( args->is_myout ) {
+      worker->myout_fp     = ERROR_fopen( args->myout_filepath, "w" );
+   }
+}
+
+/* close worker files */
+void WORK_close( WORKER* worker )
+{
+   TASKS*   tasks =  worker->tasks;
+   ARGS*    args  =  worker->args;  
+
+   /* open file pointers */
+   if ( args->is_redirect_stdout ) {
+      if ( worker->output_fp != stdout ) {
+         worker->output_fp    = ERROR_fclose( worker->output_fp );
+      } 
+   }
+   if ( args->is_tblout ) {
+      worker->tblout_fp    = ERROR_fclose( worker->tblout_fp );
+   }
+   if ( args->is_m8out ) {
+      worker->m8out_fp     = ERROR_fclose( worker->m8out_fp );
+   }
+   if ( args->is_myout ) {
+      worker->myout_fp    = ERROR_fclose( worker->myout_fp );
+   }
 }
 
 /* initialize dynamic programming matrices */
@@ -256,7 +270,7 @@ void WORK_load_target_index( WORKER* worker )
    /* begin time */
    CLOCK_Start(clok);
 
-   /* defuault index location  (same as main file but with .idx extension) */
+   /* default index location  (same as main file but with .idx extension) */
    char* t_indexpath_tmp = NULL;
    if (args->t_indexpath == NULL) {
       char* ext = ".idx";
@@ -271,17 +285,17 @@ void WORK_load_target_index( WORKER* worker )
    /* load or build target file index */
    if (args->t_indexpath != NULL) {
       /* load file passed by commandline */
-      printf_vhi("loading indexpath from commandline...\n");
+      printf_vhi("# loading indexpath from commandline...\n");
       worker->t_index = F_INDEX_Load( worker->t_index, args->t_indexpath );
    }
    else if ( access( t_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
-      printf_vhi("found index at database location...\n");
+      printf_vhi("# found index at database location...\n");
       worker->t_index = F_INDEX_Load( worker->t_index, t_indexpath_tmp );
    }
    else {
       /* build index on the fly */
-      printf("building index of file...\n");
+      printf("# building index of file...\n");
       if (args->t_filetype == FILE_HMM) {
          worker->t_index = F_INDEX_Hmm_Build( worker->t_index, args->t_filepath );
       }
@@ -303,30 +317,14 @@ void WORK_load_target_index( WORKER* worker )
    }
    ERROR_free(t_indexpath_tmp);
 
-   /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
-   if ( tasks->mmseqs_lookup && worker->t_index->mmseqs_names ) {
-      printf_vhi("updating query with mmseqs lookup...\n");
-      if ( args->t_lookup_filepath != NULL ) {
-         /* if filepath given directly as argument, do nothing */
-      }
-      else if ( args->mmseqs_tmp_filepath != NULL ) {
-         /* else, construct default path to lookup from mmseqs tmp folder */
-         char* t_lookup_path     = "/latest/target.lookup"; 
-         args->t_lookup_filepath = (char*) malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(t_lookup_path) + 1 ) );
-         strcpy( args->t_lookup_filepath, args->mmseqs_tmp_filepath );
-         strcat( args->t_lookup_filepath, t_lookup_path );
-      }
-      /*  */
-      F_INDEX_Lookup_Update( worker->t_index, args->t_lookup_filepath );
-   }
-
    /* end and save time */
    CLOCK_Stop(clok);
    times->load_target_index = CLOCK_Secs(clok);
 }
 
+
 /* load query index (or build them) */
-void WORK_load_query_index( WORKER* worker ) 
+void WORK_load_query_index(   WORKER*    worker ) 
 {
    FILE*    fp       = NULL;
 
@@ -354,18 +352,18 @@ void WORK_load_query_index( WORKER* worker )
    /* load or build target file index */
    if (args->q_indexpath != NULL) {
       /* load file passed by commandline */
-      printf_vhi("loading indexpath from commandline...\n");
+      printf_vhi("# loading indexpath from commandline...\n");
       worker->q_index = F_INDEX_Load( worker->q_index, args->q_indexpath );
    } 
    else if ( access( q_indexpath_tmp, F_OK ) == 0 ) {
       /* check if standard extension index file exists */
-      printf_vhi("found index at database location...\n");
+      printf_vhi("# found index at database location...\n");
       args->q_indexpath = strdup( q_indexpath_tmp );
       worker->q_index = F_INDEX_Load( worker->q_index, q_indexpath_tmp );
    }  
    else {
       /* build index on the fly */
-      printf_vhi("building index of file...\n");
+      printf_vhi("# building index of file...\n");
       if (args->q_filetype == FILE_HMM) {
          worker->q_index = F_INDEX_Hmm_Build( worker->q_index, args->q_filepath );
       }
@@ -387,21 +385,99 @@ void WORK_load_query_index( WORKER* worker )
    }
    ERROR_free(q_indexpath_tmp);
 
-   /* if we have a mmseqs tmp file location, and index is not already using mmseqs names */
-   if ( tasks->mmseqs_lookup && worker->q_index->mmseqs_names ) {
-      printf_vhi("updating query with mmseqs lookup...\n");
-      if ( args->q_lookup_filepath != NULL ) {
-         /* if filepath given directly as argument, do nothing */
+   /* end and save time */
+   CLOCK_Stop(clok);
+   times->load_query_index = CLOCK_Secs(clok);
+}
+
+/* build target index */
+void WORK_build_target_index(    WORKER*     worker ) 
+{
+   FILE*    fp       = NULL;
+
+   ARGS*    args     = worker->args;
+   TASKS*   tasks    = worker->tasks;
+   TIMES*   times    = worker->times;
+   CLOCK*   clok     = worker->clok;
+
+   /* begin time */
+   CLOCK_Start(clok);
+
+   /* build index on the fly */
+   if (args->t_filetype == FILE_HMM) {
+      worker->t_index = F_INDEX_Hmm_Build( worker->t_index, args->t_filepath );
+   }
+   else if (args->t_filetype == FILE_FASTA) {
+      worker->t_index = F_INDEX_Fasta_Build( worker->t_index, args->t_filepath );
+   }
+   else {
+      fprintf(stderr, "ERROR: target filetype is not supported.\n" );
+      exit(EXIT_FAILURE);
+   }
+   /* identify the query file being indexed */
+   worker->t_index->source_path = strdup(args->t_filepath);
+
+   /* if output location not specified, then use default naming scheme */
+   /* default index location  (same as main file but with .idx extension) */
+   if ( args->t_indexpath == NULL ) {
+      char* t_indexpath_tmp = NULL;
+      char* ext = ".idx";
+      t_indexpath_tmp = (char*) malloc( sizeof(char) * (strlen(args->t_filepath) + strlen(ext) + 1) );
+      if (t_indexpath_tmp == NULL) {
+           fprintf(stderr, "ERROR: malloc failed.\n");
       }
-      else if ( args->mmseqs_tmp_filepath != NULL ) {
-         /* else, construct default path to lookup from mmseqs tmp folder */
-         char* q_lookup_path     = "/latest/query.lookup"; 
-         args->q_lookup_filepath = (char*) malloc( sizeof(char) * ( strlen(args->mmseqs_tmp_filepath) + strlen(q_lookup_path) + 1 ) );
-         strcpy( args->q_lookup_filepath, args->mmseqs_tmp_filepath );
-         strcat( args->q_lookup_filepath, q_lookup_path );
+      strcpy( t_indexpath_tmp, args->t_filepath );
+      strcat( t_indexpath_tmp, ext );
+      args->t_indexpath = strdup(t_indexpath_tmp);
+      ERROR_free(t_indexpath_tmp);
+   }
+
+   /* end and save time */
+   CLOCK_Stop(clok);
+   times->load_target_index = CLOCK_Secs(clok);
+}
+
+/* load query index (or build them) */
+void WORK_build_query_index(  WORKER*   worker ) 
+{
+   FILE*    fp       = NULL;
+
+   ARGS*    args     = worker->args;
+   TASKS*   tasks    = worker->tasks;
+   TIMES*   times    = worker->times;
+
+   CLOCK*   clok    = worker->clok;
+
+   /* begin time */
+   CLOCK_Start(clok);
+
+   /* build index on the fly */
+   if (args->q_filetype == FILE_HMM) {
+      worker->q_index = F_INDEX_Hmm_Build( worker->q_index, args->q_filepath );
+   }
+   else if (args->q_filetype == FILE_FASTA) {
+      worker->q_index = F_INDEX_Fasta_Build( worker->q_index, args->q_filepath );
+   }
+   else {
+      fprintf(stderr, "ERROR: query filetype is not supported.\n" );
+      exit(EXIT_FAILURE);
+   }
+   /* identify the query file being indexed */
+   worker->q_index->source_path = strdup(args->q_filepath);
+
+   /* if output location not specified, then use default naming scheme */
+   /* default index location  (same as main file but with .idx extension) */
+   if ( args->q_indexpath == NULL ) {
+      char* q_indexpath_tmp = NULL;
+      char* ext = ".idx";
+      q_indexpath_tmp = (char*) malloc( sizeof(char) * (strlen(args->q_filepath) + strlen(ext) + 1) );
+      if (q_indexpath_tmp == NULL) {
+           fprintf(stderr, "ERROR: malloc failed.\n");
       }
-      /*  */
-      F_INDEX_Lookup_Update( worker->q_index, args->q_lookup_filepath );
+      strcpy( q_indexpath_tmp, args->q_filepath );
+      strcat( q_indexpath_tmp, ext );
+      args->q_indexpath = strdup(q_indexpath_tmp);
+      ERROR_free(q_indexpath_tmp);
    }
 
    /* end and save time */
@@ -409,8 +485,9 @@ void WORK_load_query_index( WORKER* worker )
    times->load_query_index = CLOCK_Secs(clok);
 }
 
+
 /* output target index to file */
-void WORK_output_target_index( WORKER* worker )
+void WORK_output_target_index(   WORKER*    worker )
 {
    FILE*    fp    = NULL;
    ARGS*    args  = worker->args;
@@ -433,7 +510,7 @@ void WORK_output_target_index( WORKER* worker )
 }
 
 /* output query index to file */
-void WORK_output_query_index( WORKER* worker )
+void WORK_output_query_index(    WORKER*  worker )
 {
    FILE*    fp    = NULL;
    ARGS*    args  = worker->args;
@@ -456,7 +533,7 @@ void WORK_output_query_index( WORKER* worker )
 }
 
 /* set and verify ranges */
-void WORK_set_ranges( WORKER* worker )
+void WORK_set_ranges(   WORKER*    worker )
 {
    ARGS* args = worker->args;
 
@@ -488,64 +565,26 @@ void WORK_set_ranges( WORKER* worker )
 }
 
 /* load target by file index id */
-void WORK_load_target_by_id( WORKER* worker,
-                             int     id )
+void WORK_load_target_by_id(  WORKER*     worker,
+                              int         id )
 {
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
    CLOCK*         clok           = worker->clok;
-   RESULTS*       results        = worker->results;
-   RESULT*        result         = worker->result;
-
-   HMM_PROFILE*   t_prof         = worker->t_prof;
-   SEQUENCE*      t_seq          = worker->t_seq;
-
-   F_INDEX*       t_index        = worker->t_index;
-   long           t_offset       = -1;
-
-   char*          t_filepath     = args->t_filepath;
-   int            t_filetype     = args->t_filetype;
-   int            mode           = args->search_mode;
-
-   /* set current target id */
-   worker->t_id = id;
-   printf("# loading target by id: %d..\n", id);
+   int            index_id       = 0;
+   int            index_offset   = 0;
 
    /* begin time */
    CLOCK_Start(clok);
 
-   /* get offset into by checking index */
-   int            term;
-   F_INDEX_NODE*  node;
-   term  = F_INDEX_Search_Id(t_index, id);
-   node = &(t_index->nodes[ term ]);
-   t_offset = node->offset;
-
-   /* print results */
-   printf("# target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
-      id, term, node->id, node->name, t_offset );
-   F_INDEX_Node_Dump( t_index, term, stdout );
-
-   /* load target profile by file type */
-   switch ( t_filetype )
-   {
-      case FILE_HMM:
-         HMM_PROFILE_Parse( t_prof, t_filepath, t_offset ); 
-         HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
-         HMM_PROFILE_Config( t_prof, mode );
-         // printf("=== HMM PROFILE ===\n");
-         // HMM_PROFILE_Dump( t_prof, stdout );
-         break;
-      case FILE_FASTA:
-         SEQUENCE_Fasta_Parse( t_seq, t_filepath, t_offset );
-         SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
-         // HMM_PROFILE_Dump( t_prof, stdout );
-         break;
-      default:
-         fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
-         exit(EXIT_FAILURE);
+   /* search and load target by offset */
+   index_id = F_INDEX_Search_Id( worker->t_index, id );
+   if ( index_id == -1 ) {
+      fprintf(stderr, "ERROR: Target id '%d' not found in F_INDEX.\n", id );
+      exit(EXIT_FAILURE);
    }
+   WORK_load_target_by_index_id( worker, index_id );
 
    /* end and save time */
    CLOCK_Stop(clok);
@@ -553,52 +592,141 @@ void WORK_load_target_by_id( WORKER* worker,
 }
 
 /* load query by file index id */
-void WORK_load_query_by_id( WORKER* worker,
-                            int     id )
+void WORK_load_query_by_id(   WORKER*     worker,
+                              int         id )
 {
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
    CLOCK*         clok           = worker->clok;
-   RESULTS*       results        = worker->results;
-   RESULT*        result         = worker->result;
-
-   HMM_PROFILE*   t_prof         = worker->t_prof;
-   SEQUENCE*      q_seq          = worker->q_seq;
-
-   F_INDEX*       q_index        = worker->q_index;
-   long           q_offset       = -1;
-
-   char*          q_filepath     = args->q_filepath;
-   int            q_filetype     = args->q_filetype;
-
-   /* set current query id */
-   worker->q_id = id;
-   printf_vlo("# loading query by id: %d..\n", id);
+   int            index_id       = 0;
+   int            index_offset   = 0;
 
    /* begin time */
    CLOCK_Start(clok);
 
-   /* get offset into by checking index */
-   int            term;
-   F_INDEX_NODE*  node;
-   term  = F_INDEX_Search_Id( q_index, id );
-   node = &(q_index->nodes[term]);
-   q_offset = node->offset;
+   /* search and load target by offset */
+   index_id       = F_INDEX_Search_Id( worker->q_index, id );
+   if ( index_id == -1 ) {
+      fprintf(stderr, "ERROR: Query id '%d' not found in F_INDEX.\n", id );
+      exit(EXIT_FAILURE);
+   }
+   WORK_load_query_by_index_id( worker, index_id );
 
-   /* print results */
-   printf_vlo("# index_size: %d, target_id: %d, result_id: %d, node_id: %d, node_name: %s, offset: %ld\n", 
-      q_index->N, id, term, node->id, node->name, q_offset );
-   F_INDEX_Node_Dump( q_index, term, stdout );
+   /* end and save time */
+   CLOCK_Stop(clok);
+   times->load_query = CLOCK_Secs(clok);
+}
+
+/* load target by file index name */
+void WORK_load_target_by_name(   WORKER*    worker,
+                                 char*      name )
+{
+   ARGS*          args           = worker->args;
+   TASKS*         tasks          = worker->tasks;
+   TIMES*         times          = worker->times;
+   CLOCK*         clok           = worker->clok;
+   int            index_id       = 0;
+   int            index_offset   = 0;
+
+   /* begin time */
+   CLOCK_Start(clok);
+
+   /* search and load target by offset */
+   index_id = F_INDEX_Search_Name( worker->t_index, name );
+   if ( index_id == -1 ) {
+      fprintf(stderr, "ERROR: Target name '%s' not found in F_INDEX.\n", name );
+      exit(EXIT_FAILURE);
+   }
+   printf("TARGET_ID: %d\n", index_id );
+   WORK_load_target_by_index_id( worker, index_id );
+
+   /* end and save time */
+   CLOCK_Stop(clok);
+   times->load_target = CLOCK_Secs(clok);
+}
+
+/* load target by file index name */
+void WORK_load_query_by_name( WORKER*     worker,
+                              char*       name )
+{
+   ARGS*          args           = worker->args;
+   TASKS*         tasks          = worker->tasks;
+   TIMES*         times          = worker->times;
+   CLOCK*         clok           = worker->clok;
+   int            index_id       = 0;
+   int            index_offset   = 0;
+
+   /* begin time */
+   CLOCK_Start(clok);
+
+   /* search and load target by offset */
+   index_id = F_INDEX_Search_Name( worker->q_index, name );
+   if ( index_id == -1 ) {
+      fprintf(stderr, "ERROR: Query name '%s' not found in F_INDEX.\n", name );
+      exit(EXIT_FAILURE);
+   }
+   printf("QUERY_ID: %d\n", index_id );
+   WORK_load_query_by_index_id( worker, index_id);
+
+   /* end and save time */
+   CLOCK_Stop(clok);
+   times->load_query = CLOCK_Secs(clok);
+}
+
+/* load target by file index id */
+void WORK_load_target_by_index_id(  WORKER*     worker,
+                                    int         index_id )
+{
+   ARGS*          args     = worker->args;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   SEQUENCE*      t_seq    = worker->t_seq;
+   SEQUENCE*      q_seq    = worker->q_seq;
+   F_INDEX_NODE*  my_idx   = &worker->t_index->nodes[index_id];
+
+   worker->t_id = index_id;
+
+   /* load target profile by file type */
+   switch ( args->t_filetype )
+   {
+      case FILE_HMM: {
+         HMM_PROFILE_Parse( worker->t_prof, args->t_filepath, my_idx->offset ); 
+         HMM_PROFILE_Convert_NegLog_To_Real( worker->t_prof );
+         HMM_PROFILE_Config( worker->t_prof, args->search_mode );
+         // HMM_PROFILE_Dump( worker->t_prof, stdout );
+      } break;
+      case FILE_FASTA: {
+         SEQUENCE_Fasta_Parse( worker->t_seq, args->t_filepath, my_idx->offset );
+         SEQUENCE_to_HMM_PROFILE( worker->t_seq, worker->t_prof );
+         HMM_PROFILE_Dump( worker->t_prof, stdout );
+         exit(0);
+      } break;
+      default: {
+         fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for targets.\n");
+         exit(EXIT_FAILURE);
+      }
+   }
+}
+
+/* load target by file index id */
+void WORK_load_query_by_index_id(   WORKER*     worker,
+                                    int         index_id )
+{
+   ARGS*          args     = worker->args;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   SEQUENCE*      t_seq    = worker->t_seq;
+   SEQUENCE*      q_seq    = worker->q_seq;
+   F_INDEX_NODE*  my_idx   = &worker->q_index->nodes[index_id];
+
+   worker->q_id = index_id;
 
    /* load query by file type */
-   switch ( q_filetype )
+   switch ( args->q_filetype )
    {
       /* fasta only supported file type */
       case FILE_FASTA: {
-         printf("=== SEQUENCE ===\n");
-         SEQUENCE_Fasta_Parse( q_seq, q_filepath, q_offset );
-         // SEQUENCE_Dump( q_seq, stdout );
+         SEQUENCE_Fasta_Parse( worker->q_seq, args->q_filepath, my_idx->offset );
+         // SEQUENCE_Dump( worker->q_seq, stdout );
       } break;
       case FILE_HMM: {
 
@@ -612,41 +740,11 @@ void WORK_load_query_by_id( WORKER* worker,
    /* set special state transitions based on query sequence length */
    if ( t_prof != NULL ) 
    {
-      HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
-   }
-   else
-   {
+      HMM_PROFILE_ReconfigLength( worker->t_prof, worker->q_seq->N );
+   } else {
       fprintf(stderr, "ERROR: Target profile must be loaded before Query Sequence. Currently NULL.\n");
       exit(EXIT_FAILURE);
    }
-
-   /* end and save time */
-   CLOCK_Stop(clok);
-   times->load_query = CLOCK_Secs(clok);
-}
-
-/* load target by file index name */
-void WORK_load_target_by_name( WORKER* worker,
-                               char*   name )
-{
-   int t_id = F_INDEX_Search_Name( worker->t_index, name );
-   if ( t_id != -1 ) {
-      fprintf(stderr, "ERROR: Target name '%s' not found in F_INDEX.\n", name );
-      exit(EXIT_FAILURE);
-   }
-   WORK_load_target_by_id( worker, t_id );
-}
-
-/* load target by file index name */
-void WORK_load_query_by_name( WORKER* worker,
-                              char*   name )
-{
-   int q_id = F_INDEX_Search_Name( worker->q_index, name );
-   if ( q_id != -1 ) {
-      fprintf(stderr, "ERROR: Query name '%s' not found in F_INDEX.\n", name );
-      exit(EXIT_FAILURE);
-   }
-   WORK_load_query_by_id( worker, q_id );
 }
 
 /* viterbi and traceback */

@@ -40,6 +40,15 @@ STRING_EndsWith( 	const char*    str1,
 char* 
 STRING_GetFileFromPath( const char* in_filepath );
 
+/* returns location of search_string in string. */
+int 
+STRING_Find(   const char* str,
+               const char* search );
+
+/* returns true or false if strings are equal */
+int 
+STRING_Equal(  const char* str1,
+               const char* str2 );
 
 
 #endif /* _MYSTRING_H */

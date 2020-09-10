@@ -33,6 +33,7 @@ void main_pipeline( WORKER* worker )
 {
 	/* initialize data structures needed for tasks */
 	WORK_init( worker );
+	WORK_open( worker );
 
 	/* worker objects */
 	ARGS* 		args 		= worker->args;
@@ -135,6 +136,7 @@ void main_pipeline( WORKER* worker )
 	/* report tail output */
    	WORK_report_footer( worker );
 
+   	WORK_close( worker );
 	WORK_cleanup( worker );
 }
 

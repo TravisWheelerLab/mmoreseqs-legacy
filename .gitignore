@@ -8,6 +8,7 @@
 # test output folders
 */test_output/*
 */output/*
+*/test-db/*
 
 # binary folders
 more-tools/hmmer-test/easel/

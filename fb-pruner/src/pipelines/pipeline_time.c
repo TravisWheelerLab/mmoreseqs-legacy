@@ -28,9 +28,7 @@
 /* header */
 #include "pipelines.h"
 
-/* ****************************************************************************************** *
- *  
- *  FUNCTION:  time_pipeline()
+/*  FUNCTION:  time_pipeline()
  *  SYNOPSIS:  Runs a workflow pipeline. 
  *             Takes in a single target/query pair.  
  *             Runs generic Forward-Backward algorithm
@@ -38,8 +36,7 @@
  *  ARGS:      <args>     parsed commandline arguments
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
- *
-/* ****************************************************************************************** */
+ */
 void time_pipeline( WORKER* worker ) 
 {
    

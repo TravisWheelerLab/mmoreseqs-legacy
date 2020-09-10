@@ -31,12 +31,29 @@
 /* mmseqs pipeline */
 void hmmbuild_pipeline( WORKER* worker )
 {
+	printf("=== HMMBUILD PIPELINE ===\n");
+
+	/* initialize worker */
+	WORK_init( worker );
+
    /* worker objects */
    ARGS*       args        = worker->args;
    TASKS*      tasks       = worker->tasks;
    TIMES*      times       = worker->times;
 
-   /* set file pointer */
-   worker->output_fp = ERROR_fopen( args->output_filepath, "w+" );
+   /* load or build index */
+   WORK_index( worker );
 
+   // if ( args->t_filetype == FILE_FASTA ) {
+   // 	WORK_convert_target_to_hmm( WORKER* worker );
+   // }
+   // if ( args->q_filetype == FILE_FASTA ) {
+   // 	WORK_convert_query_to_hmm( WORKER* worker );
+   // }
+
+   WORK_load_target_index( worker );
+
+   SEQUENCE_to_HMM_PROFILE( worker->t_seq, worker->t_prof );
+
+   WORK_cleanup( worker );
 }

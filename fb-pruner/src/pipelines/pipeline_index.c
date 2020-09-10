@@ -50,18 +50,28 @@ void index_pipeline( WORKER* worker )
 
    /* initialize data structures needed for tasks */
    WORK_init( worker );
+   WORK_open( worker );
 
-   /* load or build file indexes */
-   WORK_load_target_index( worker );
-   WORK_load_query_index( worker );
-   /* sort file indexes */
+   /* building, sorting, and outputting target index */
+   printf_vlo("# building target index from:\t%s\n", 
+      args->t_filepath );
+   WORK_build_target_index( worker );
    F_INDEX_Sort_by_Id( worker->t_index );
-   F_INDEX_Sort_by_Id( worker->q_index );
-
-   /* print index out to their outfiles */
    WORK_output_target_index( worker );
+   printf_vlo("# outputting target index to:\t%s\n",
+      args->t_indexpath );
+
+   /* building, sorting, and outputting target index */
+   printf_vlo("# building query index from:\t%s\n", 
+      args->q_filepath );
+   WORK_build_query_index( worker );
+   F_INDEX_Sort_by_Id( worker->q_index );
    WORK_output_query_index( worker );
+   printf_vlo("# outputting query index to:\t%s\n",
+      args->q_indexpath );
+   
    /* clean up worker data structs */
+   WORK_close( worker );
    WORK_cleanup( worker );
 }
 

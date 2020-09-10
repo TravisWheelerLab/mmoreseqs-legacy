@@ -189,7 +189,7 @@ void   ARGS_Parse( ARGS*   args,
             if (i+req_args <= argc) {
                i++;
                ERROR_free(args->mmseqs_plus_filepath);
-               args->mmseqs_res_filepath = strdup(argv[i]);
+               args->mmseqs_plus_filepath = strdup(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -307,8 +307,6 @@ void  ARGS_Set_Defaults( ARGS* args )
 
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
-
-   args->output_filepath         = strdup("results.tsv");
 
    /* TODO: tblout testing */
    args->is_redirect_stdout      = false;

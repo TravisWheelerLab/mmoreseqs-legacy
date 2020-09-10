@@ -191,8 +191,9 @@ typedef struct {
    char*             filename;      /* string to file location */
    /* buffer data */
    char*             buffer;        /* character buffer */
-   int               N;             /* length of occupied buuffer */
-   int               Nalloc;        /* length of allocated buffer */
+   size_t            N;             /* length of occupied buuffer */
+   size_t            Nalloc;        /* length of allocated buffer */
+   int               lines_read;    /* number of lines read */
    char*             token;         /* pointer to current token in tokenized buffer */
    VECTOR_CHAR*      tokens;        /* pointers to all tokens in buffer line */
    char*             delim;         /* current delimiter being used for parsing tokens */
@@ -363,7 +364,7 @@ typedef struct {
    char*          name;             /* unique name field of model in file */
    char*          acc;              /* unique accession field of model in file  */
    char*          desc;             /* description field of model in file */
-   char*          alph;             /* alphabet: only amino accepted */;
+   char*          alph;             /* alphabet: only amino accepted */
    /* */
    int            nseq;             /* number of sequences used to created hmm */
    float          effn;             /* */
@@ -976,6 +977,8 @@ extern ARGS*      args;
 extern int        num_flag_cmds;
 extern FLAG_CMD   COMMAND_OPTS[];
 extern char*      DATATYPE_NAMES[];
+
+extern SCORE_MATRIX* bld;
 
 /* debugging data */
 extern DEBUG_KIT* debugger;

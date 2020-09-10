@@ -140,3 +140,18 @@ STRING_Find(   const char* str,
 {
    return 0;
 }
+
+/* returns true or false if strings are equal */
+int 
+STRING_Equal(  const char* str1,
+               const char* str2 )
+{
+   if ( str1 == NULL ) return false;
+   if ( str2 == NULL ) return false;
+
+   if ( strcmp( str1, str2 ) == 0 ) {
+      return true;
+   } else {
+      return false;
+   }
+}

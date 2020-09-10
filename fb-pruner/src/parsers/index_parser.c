@@ -136,13 +136,14 @@ F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
    ssize_t        line_size      = 0;
    char*          line_buf       = NULL;
    char*          header         = NULL;
-   char*          token          = NULL;
+   char*          full_name      = NULL;
    char*          delim          = "\t\n";
 
    long           prv_offset     = 0;
    long           cur_offset     = 0;
 
    int            id             = 0;
+   char*          db             = NULL;
    char*          name           = NULL;
    int            mmseqs_id      = -1;
 
@@ -184,15 +185,16 @@ F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
          /* parse header */
          header = line_buf + 1;    /* skip '>' character */
          /* split header on spaces, get first element */
-         token = strtok(header, " ");
+         full_name = strtok(header, " ");
          /* if name has structure: >db|id| */
-         if ( strstr( token, "|" ) == NULL ) {
-            name = strtok(token, "|");    /* 1st field = database */
-            name = strtok(NULL, "|");    /* 2nd field = name */ 
+         if ( strstr( full_name, "|" ) != NULL ) {
+            db    = strtok(full_name, "|");      /* 1st field = database */
+            name  = strtok(NULL, "|");       /* 2nd field = unique id (this is what mmseqs uses for indexing) */ 
+            // name  = strtok(NULL, "|");       /* 3rd field = name */
          } 
          /* otherwise, just use the entire header */
          else {
-            name = token;
+            name = full_name;
          }
 
          node.id        = id;
@@ -257,73 +259,6 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
       exit(EXIT_FAILURE);
    }
-
-   // /* parse header details */
-   // while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
-   // {
-   //    /* ignore commented lines */
-   //    if (line_buf[0] == '#') continue;
-   //    /* carot marks last line of header */
-   //    if (line_buf[0] == '>') break;
-
-   //    /* remove end line */
-   //    if(line_buf[line_size-1] == '\n') {
-   //       line_buf[line_size-1] = '\0';
-   //       line_size--;
-   //    }
-
-   //    /* get next token, if empty line, skip it */
-   //    token = strtok( line_buf, delim );
-   //    if (token == NULL) continue;
-
-   //    /* path to source */
-   //    if ( strcmp( token, "SOURCE_PATH:" ) == 0 ) {
-   //       token = strtok( NULL, delim );
-   //       if ( strcmp( token, "(null)" ) != 0 ) {
-   //          f_index->source_path = strdup( token );
-   //       }
-
-   //       line_count++;
-   //       continue;
-   //    }
-
-   //    /* path to lookup */
-   //    if ( strcmp( token, "LOOKUP_PATH:" ) == 0 ) {
-   //       token = strtok( NULL, delim );
-   //       if ( strcmp( token, "(null)" ) != 0 ) {
-   //          f_index->lookup_path = strdup( token );
-   //       }
-
-   //       line_count++;
-   //       continue;
-   //    }
-
-   //    /* number of nodes */
-   //    if ( strcmp( token, "NUMBER_SEQS:" ) == 0 ) {
-   //       token = strtok( NULL, delim );
-   //       int size = atoi( token );
-   //       F_INDEX_Resize( f_index, size + 1 );
-
-   //       line_count++;
-   //       continue;
-   //    }
-
-   //    /* whether using mmseqs names */
-   //    if ( strcmp( token, "MMSEQS_NAMES:" ) == 0 ) {
-   //       token = strtok( NULL, delim );
-   //       if ( strcmp( token, "true" ) == 0 ) {
-   //          f_index->mmseqs_names = true;
-   //       } 
-   //       else if ( strcmp( token, "false" ) == 0 ) {
-   //          f_index->mmseqs_names = false;
-   //       }
-
-   //       line_count++;
-   //       continue;
-   //    }
-
-   //    line_count++;
-   // }
 
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )

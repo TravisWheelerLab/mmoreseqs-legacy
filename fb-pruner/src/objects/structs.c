@@ -113,7 +113,7 @@ char* PIPELINE_NAMES[] = {
    "index",
    "utest",
    "viz",
-   "hmm-build"
+   "hmmbuild"
 };
 
 /* number of primary arguments for each pipeline */
@@ -254,3 +254,8 @@ char* DATATYPE_NAMES[] = {
    "STR",
    "BOOL"
 };
+
+/* initializes single_builder scoring matrix used in HMM_PROFILE_From_Seq() */
+/* SingleBuilder probability matrix (created by HMMER using p7_SingleBuilder, dependent on only bg frequencies) */
+/* TODO: Needs to be freed */ 
+SCORE_MATRIX* bld = NULL;

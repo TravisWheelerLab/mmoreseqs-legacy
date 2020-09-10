@@ -77,8 +77,10 @@ void* HMM_BG_Destroy( HMM_BG* bg )
 		if (bg->fhmm != NULL) esl_alphabet_Destroy( bg->abc );
 		bg->f = ERROR_free( bg->f );
 		if (bg->fhmm != NULL) esl_hmm_Destroy( bg->fhmm );
-		bg->sq->dsq = ERROR_free( bg->sq->dsq );
-		if (bg->sq != NULL) esl_sq_Destroy( bg->sq );
+		if (bg->sq != NULL) {
+			bg->sq->dsq = ERROR_free( bg->sq->dsq ); 	/* sq->dsq is not handled by sq_Destroy() */
+			esl_sq_Destroy( bg->sq );
+		} 
 		bg = ERROR_free( bg );
 	}
 	return NULL;

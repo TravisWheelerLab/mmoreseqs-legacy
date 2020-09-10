@@ -482,11 +482,11 @@ p7_bg_FilterScore(P7_BG *bg, const ESL_DSQ *dsq, int L, float *ret_sc)
    /* build dp matrix for computation */
    ESL_HMX *hmx = esl_hmx_Create(L, bg->fhmm->M);  /* optimization target: this can be a 2-row matrix, and it can be stored in <bg>. */
 
-   printf("dsq: [ ");
-   for (int i = 0; i < L; i++) {
-      printf("%d ", dsq[i] );
-   }
-   printf(" ]\n");
+   // printf("dsq: [ ");
+   // for (int i = 0; i < L; i++) {
+   //    printf("%d ", dsq[i] );
+   // }
+   // printf(" ]\n");
 
    printf("fhmm->t:\n");
    for (int i = 0; i < 2; i++) {

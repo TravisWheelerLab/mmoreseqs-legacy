@@ -31,11 +31,7 @@ RESULTS* RESULTS_Create()
    RESULTS*    results  = NULL;;
    const int   min_size = 16;
 
-   results = (RESULTS*) malloc( sizeof(RESULTS) );
-   if (results == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc RESULTS.\n");
-      exit(EXIT_FAILURE);
-   }
+   results = (RESULTS*) ERROR_malloc( sizeof(RESULTS) );
 
    results->filepath  = NULL;
    results->N         = 0;
@@ -87,12 +83,7 @@ void RESULTS_Resize( RESULTS* results,
                      int      size )
 {
    results->Nalloc = size;
-
-   results->data   = (RESULT*) realloc( results->data, sizeof(RESULT) * size );
-   if (results->data == NULL) {
-      fprintf(stderr, "ERROR: Unable to realloc DATA for RESULTS.\n");
-      exit(EXIT_FAILURE);
-   }
+   results->data   = (RESULT*) ERROR_realloc( results->data, sizeof(RESULT) * size );
 }
 
 /* output results to file pointer */
@@ -237,6 +228,7 @@ void RESULTS_My_Dump( RESULTS*   results,
    }
 }
 
+/* TODO: run print commands on single line */
 /* output single results to file pointer */
 void RESULT_M8_Dump( RESULT*  res,
                      FILE*    fp )

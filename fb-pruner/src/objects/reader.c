@@ -43,6 +43,7 @@ READER* READER_Create( char* filename )
    /* location in file */
    reader->cur_offset   = 0;
    reader->file_size    = 0;
+   reader->lines_read   = 0;
    reader->is_eof       = false;
 
    READER_Open( reader );
@@ -59,6 +60,8 @@ void* READER_Destroy( READER* reader )
 
    READER_Close( reader );
 
+   VECTOR_CHAR_Destroy( reader->tokens );
+   ERROR_free( reader->filename );
    ERROR_free( reader->buffer );
    ERROR_free( reader );
 
@@ -98,7 +101,8 @@ int READER_Rewind( READER* reader )
 /*  FUNCTION:  READER_JumpTo()
  *  SYNOPSIS:  Jump to nth byte of into file pointer.
  */
-int READER_JumpTo( READER* reader, long int offset )
+int READER_JumpTo(   READER*     reader, 
+                     long int    offset )
 {
    int status = fseek( reader->fp, offset, SEEK_SET );
    return status;
@@ -109,7 +113,9 @@ int READER_JumpTo( READER* reader, long int offset )
  */
 char* READER_GetLine( READER* reader )
 {
-    reader->N = getline( &reader->buffer, &reader->Nalloc, reader->fp );
+   if ( reader->is_eof ) return NULL;
+
+   reader->N = getline( &reader->buffer, &reader->Nalloc, reader->fp );
 
     /* if at normal line */
    if ( reader->N != -1 ) {
@@ -123,9 +129,10 @@ char* READER_GetLine( READER* reader )
 }
 
 /*  FUNCTION:  READER_Split()
- *  SYNOPSIS:  Split buffer into 
+ *  SYNOPSIS:  Split line currently in buffer into tokens.
  */
-VECTOR_CHAR* READER_Split( READER* reader )
+int READER_SplitLine(   READER*  reader, 
+                        char*    delimiter )
 {
    VECTOR_CHAR_Reuse( reader->tokens );
 

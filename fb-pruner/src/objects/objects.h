@@ -54,5 +54,6 @@
 #include "worker.h"
 #include "worker_thread.h"
 #include "x_string.h"
+#include "reader.h"
 
 #endif /* _OBJECTS_H */

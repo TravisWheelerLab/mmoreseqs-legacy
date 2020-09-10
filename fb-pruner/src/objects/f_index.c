@@ -27,29 +27,24 @@
 #include "f_index.h"
 
 /* === PRIVATE FUNCTIONS === */
-void F_INDEX_Resize(F_INDEX* index,
-                    int      size);
+void F_INDEX_Resize( F_INDEX*    index,
+                     int         size );
 
-void F_INDEX_Quiksort(F_INDEX_NODE*  arr,
-                      int            lo,
-                      int            hi);
+void F_INDEX_Quiksort(  F_INDEX_NODE*  arr,
+                        int            lo,
+                        int            hi );
 
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Create()
+/*    FUNC:    F_INDEX_Create()
  *    DESC:    Creates an instance of F_INDEX.
  *             Initial node length set to min_size.  
- * *******************************************************************/
+ */
 F_INDEX*  F_INDEX_Create()
 {
    F_INDEX*   index    = NULL;
    const int  min_size = 32;
 
-   index = (F_INDEX*) malloc( sizeof(F_INDEX) );
-   if (index == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc F_INDEX.\n");
-      exit(EXIT_FAILURE);
-   }
+   index = (F_INDEX*) ERROR_malloc( sizeof(F_INDEX) );
 
    index->N             = 0;
    index->Nalloc        = min_size;
@@ -63,20 +58,14 @@ F_INDEX*  F_INDEX_Create()
    index->sort_type     = SORT_NONE;   /* not sorted */
    index->mmseqs_names  = false;
 
-   index->nodes         = (F_INDEX_NODE*) malloc( sizeof(F_INDEX_NODE) * min_size );
-   if (index == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc F_INDEX_NODE array for F_INDEX.\n");
-      exit(EXIT_FAILURE);
-   }
-
+   index->nodes         = (F_INDEX_NODE*) ERROR_malloc( sizeof(F_INDEX_NODE) * min_size );
    return index;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Create()
+/*    FUNC:    F_INDEX_Create()
  *    DESC:    Destroys instance of F_INDEX and frees memory.
- * *******************************************************************/
-void* F_INDEX_Destroy(F_INDEX* index)
+ */
+void* F_INDEX_Destroy( F_INDEX* index )
 {
    if (index == NULL) return index;
 
@@ -95,10 +84,9 @@ void* F_INDEX_Destroy(F_INDEX* index)
    return index;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Reuse()
+/*    FUNC:    F_INDEX_Reuse()
  *    DESC:    Reuse an instance of F_INDEX.
- * *******************************************************************/
+ */
 void F_INDEX_Reuse( F_INDEX* index )
 {
    index->N             = 0;
@@ -115,13 +103,12 @@ void F_INDEX_Reuse( F_INDEX* index )
 }
 
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Pushback()
+/*    FUNC:    F_INDEX_Pushback()
  *    DESC:    Add F_INDEX_NODE to F_INDEX node vector.  
  *             Resizes vector if necessary.
- * *******************************************************************/
-void F_INDEX_Pushback(F_INDEX*      index,
-                      F_INDEX_NODE* node)
+ */
+void F_INDEX_Pushback(  F_INDEX*       index,
+                        F_INDEX_NODE*  node )
 {
    index->nodes[index->N] = *node;
    /* allocate space for string */
@@ -133,12 +120,11 @@ void F_INDEX_Pushback(F_INDEX*      index,
    }
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Resize()
+/*    FUNC:    F_INDEX_Resize()
  *    DESC:    Resizes the length of the F_INDEX nodes array.
- * *******************************************************************/
-void F_INDEX_Resize(F_INDEX* index,
-                    int      size)
+ */
+void F_INDEX_Resize( F_INDEX*    index,
+                     int         size )
 {
    index->Nalloc = size;
    index->nodes  = (F_INDEX_NODE*) realloc(index->nodes, sizeof(F_INDEX_NODE) * size );
@@ -152,7 +138,7 @@ void F_INDEX_Resize(F_INDEX* index,
  *    FUNC:    F_INDEX_Sort_by_Name()
  *    DESC:    Sorts F_INDEX nodes by name.
  * *******************************************************************/
-void F_INDEX_Sort_by_Name(F_INDEX* index)
+void F_INDEX_Sort_by_Name( F_INDEX*    index )
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
    qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Name);
@@ -163,7 +149,7 @@ void F_INDEX_Sort_by_Name(F_INDEX* index)
  *    FUNC:    F_INDEX_Sort_by_Id()
  *    DESC:    Sorts F_INDEX nodes by name.
  * *******************************************************************/
-void F_INDEX_Sort_by_Id(F_INDEX* index)
+void F_INDEX_Sort_by_Id(   F_INDEX*    index )
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
    qsort(index->nodes, index->N, sizeof(F_INDEX_NODE), F_INDEX_Compare_by_Id);
@@ -174,9 +160,9 @@ void F_INDEX_Sort_by_Id(F_INDEX* index)
  *    FUNC:    F_INDEX_Quikort()
  *    DESC:    Recursive quicksort of F_INDEX node subarray on range (lo,hi). 
  * *******************************************************************/
-void F_INDEX_Quiksort(F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorted */
-                      int            lo,     /* lower end of range in subarray  */
-                      int            hi )    /* upper end of range in subarray  */
+void F_INDEX_Quiksort(  F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorted */
+                        int            lo,     /* lower end of range in subarray  */
+                        int            hi )    /* upper end of range in subarray  */
 {
    if (hi - lo <= 1) return;
 
@@ -221,9 +207,9 @@ void F_INDEX_Quiksort(F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorted 
  *    DESC:    Swap the ith and jth node in the array.
  * *******************************************************************/
 inline
-void F_INDEX_Swap(F_INDEX_NODE*  arr,
-                  int            i,
-                  int            j)
+void F_INDEX_Swap(   F_INDEX_NODE*  arr,
+                     int            i,
+                     int            j )
 {
    F_INDEX_NODE tmp;
    tmp    = arr[i];
@@ -236,8 +222,8 @@ void F_INDEX_Swap(F_INDEX_NODE*  arr,
  *    DESC:    Compare <a> and <b> node in the array by NAME.
  * *******************************************************************/
 inline
-int F_INDEX_Compare_by_Name(const void* a,
-                            const void* b)
+int F_INDEX_Compare_by_Name(  const void* a,
+                              const void* b )
 {
    F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
    F_INDEX_NODE* node_b = (F_INDEX_NODE*)b; 
@@ -250,8 +236,8 @@ int F_INDEX_Compare_by_Name(const void* a,
  *    DESC:    Compare <a> and <b> node in the array by ID.
  * *******************************************************************/
 inline
-int F_INDEX_Compare_by_Id(const void*  a,
-                          const void*  b)
+int F_INDEX_Compare_by_Id( const void*  a,
+                           const void*  b )
 {
    F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
    F_INDEX_NODE* node_b = (F_INDEX_NODE*)b; 
@@ -259,14 +245,13 @@ int F_INDEX_Compare_by_Id(const void*  a,
    return cmp;
 }
 
-/* *******************************************************************
- * FUNCTION:   F_INDEX_Search_Name()
- * SYNOPSIS:   Binary search (by name) for node in array in F_INDEX.
- *             Assumes F_INDEX is sorted by Name.
- * RETURN:     index of search result; -1 if no result found.
- * *******************************************************************/
-int F_INDEX_Search_Name(F_INDEX* index,
-                        char*    search_term)
+/*  FUNCTION:   F_INDEX_Search_Name()
+ *  SYNOPSIS:   Binary search (by name) for node in array in F_INDEX.
+ *              Assumes F_INDEX is sorted by Name.
+ *  RETURN:     index of search result; -1 if no result found.
+ */
+int F_INDEX_Search_Name(   F_INDEX* index,
+                           char*    search_term )
 {
    int lo  = 0;
    int mid = 0;
@@ -276,7 +261,6 @@ int F_INDEX_Search_Name(F_INDEX* index,
 
    #if DEBUG
    {
-      printf("SEARCH TERM: '%s'\n", search_term);
       if ( index->sort_type != SORT_NAME )
       {
          printf("ERROR: Binary Search of F_INDEX by Name while not sorted by Name.\n");

@@ -76,6 +76,8 @@ void ARGS_Destroy( ARGS* args )
    ERROR_free( args->t_indexpath );
    ERROR_free( args->q_indexpath );
 
+   ERROR_free( args->dbg_folderpath );
+
    ERROR_free( args->output_filepath );
    ERROR_free( args->tblout_filepath );
    ERROR_free( args->m8out_filepath );

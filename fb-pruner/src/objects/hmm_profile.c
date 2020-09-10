@@ -318,3 +318,90 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
    fprintf(fp, "//\n");
 }
 
+void HMM_FILE_Dump(  HMM_PROFILE*   prof,
+                     FILE*          fp )
+{
+   /* hardcoded vars */
+   char* format_name = "HMMER3/f [3.2.1 | June 2018]";
+   char* alph        = "amino";
+   int   nseq        = 1;
+
+   int   head_pad    = 5;
+   int   stat_pad    = 21;
+   int   hmm_pad     = 7;
+   int   cons_pad    = 6;
+
+   /* Header */
+   fprintf( fp, "%s\n", format_name );
+   fprintf( fp, "%*s %s\n", head_pad, "NAME", prof->name );
+   fprintf( fp, "%*s %d\n", head_pad, "LENG", prof->N );
+   fprintf( fp, "%*s %s\n", head_pad, "ALPH", alph );
+   /* RF - y/n */
+   /* MM - y/n */
+   /* CONS - y/n */
+   /* CS - y/n */
+   /* MAP - y/n */
+   fprintf( fp, "%*s %d\n", head_pad, "NSEQ", nseq );
+   /* CKSUM - checksum */
+   fprintf( fp, "%*s %8.4f %8.5f\n", 
+      stat_pad, "STAT LOCAL MSV", prof->msv_dist.param1, prof->msv_dist.param2 );
+   fprintf( fp, "%*s %8.4f %8.5f\n", 
+      stat_pad, "STAT LOCAL VITERBI", prof->viterbi_dist.param1, prof->viterbi_dist.param2 );
+   fprintf( fp, "%*s %8.4f %8.5f\n", 
+      stat_pad, "STAT LOCAL FORWARD", prof->forward_dist.param1, prof->forward_dist.param2 );
+
+   /* hmm */
+   fprintf( fp, "HMM          A        C        D        E        F        G        H        I        K        L        M        N        P        Q        R        S        T        V        W        Y\n" );
+   fprintf( fp, "            m->m     m->i     m->d     i->m     i->i     d->m     d->d\n" );
+   /* background composition */
+   /* emission probabilities */
+   fprintf( fp, "%*s   ", -hmm_pad, "COMPO" );
+   for (int j = 0; j < NUM_AMINO; j++) {
+      fprintf(fp, "%8.5f ", prof->bg_model->compo[j]);
+   }
+   fprintf(fp, "\n");
+   /* background insert probabilities */
+   fprintf( fp, "%*s   ", -hmm_pad, "" );
+   for (int j = 0; j < NUM_AMINO; j++) {
+      fprintf(fp, "%8.5f ", prof->bg_model->insert[j]);
+   }
+   fprintf(fp, "\n");
+   /* back transition proabilities */
+   fprintf( fp, "%*s   ", -hmm_pad, "" );
+   for (int j = 0; j < NUM_TRANS_STATES; j++) {
+      if ( prof->bg_model->trans[j] == -INF || prof->bg_model->trans[j] == INF ) {
+         fprintf(fp, "%8s ", "*");
+      } else {
+         fprintf(fp, "%8.5f ", prof->bg_model->trans[j]);
+      }
+   }
+   fprintf(fp, "\n");
+   /* position-specific probabilities */
+   for (int i = 1; i < prof->N+1; i++)
+   {
+      /* emission probabilities */
+      fprintf( fp, "%*d   ", -hmm_pad, i );
+      for (int j = 0; j < NUM_AMINO; j++) {
+         fprintf(fp, "%8.5f ", prof->bg_model->compo[j]);
+      }
+      /* consensus */
+      // fprintf(stderr, "%*d %c %c %c %c\n", -cons_pad, *prof->consensus[i], "-", "-", "-" );
+      fprintf(fp, "\n");
+      /* background insert probabilities */
+      fprintf( fp, "%*s   ", -hmm_pad, "" );
+      for (int j = 0; j < NUM_AMINO; j++) {
+         fprintf(fp, "%8.5f ", prof->bg_model->insert[j]);
+      }
+      fprintf(fp, "\n");
+      /* back transition proabilities */
+      fprintf( fp, "%*s   ", -hmm_pad, "" );
+      for (int j = 0; j < NUM_TRANS_STATES; j++) {
+         if ( prof->bg_model->trans[j] == -INF || prof->bg_model->trans[j] == INF ) {
+            fprintf(fp, "%8s ", "*");
+         } else {
+            fprintf(fp, "%8.5f ", prof->bg_model->trans[j]);
+         }
+      }
+      fprintf(fp, "\n");
+   }
+}

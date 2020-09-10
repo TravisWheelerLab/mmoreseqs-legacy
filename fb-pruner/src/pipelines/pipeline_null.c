@@ -28,8 +28,7 @@
 /* header */
 #include "pipelines.h"
 
-/*
- *  FUNCTION:  null_pipeline()
+/*  FUNCTION:  null_pipeline()
  *  SYNOPSIS:  Pipeline that does nothing.
  */
 void null_pipeline( WORKER* worker )

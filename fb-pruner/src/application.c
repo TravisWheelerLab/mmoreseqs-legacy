@@ -60,7 +60,7 @@ int main ( int argc, char *argv[] )
    ARGS_Parse( args, argc, argv );
 
    /* report initial header */
-   REPORT_stdout_header( worker, stdout );
+   // REPORT_stdout_header( worker, stdout );
 
    /* output arguments */
    ARGS_Dump( args, stdout );

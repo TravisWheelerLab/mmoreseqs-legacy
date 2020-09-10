@@ -275,9 +275,9 @@ void profile_Dump(   ESL_DSQ*    dsq,
                      P7_GMX*     gx,
                      FILE*       fp )
 {
-   float const *tsc  = gm->tsc;
-   float      **dp   = gx->dp;
-   float       *xmx  = gx->xmx;
+   // float const *tsc  = gm->tsc;
+   // float      **dp   = gx->dp;
+   // float       *xmx  = gx->xmx;
    int          M    = gm->M;
    int          i, k;
 

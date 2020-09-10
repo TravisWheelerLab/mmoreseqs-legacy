@@ -16,6 +16,8 @@
 #define TRUE  1
 #define FALSE 0
 
+#define MACRO_STR(macro) 	#macro
+
 /* === SET BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
 
 /* === VERSION === */
@@ -26,9 +28,13 @@
 #define BUILD_DESCRIPT     "Heuristic Pruning of Forward-Backward for Faster Profile-to-Sequence Search"
 
 /* === INSTALL LOCATION === */
-#define PREFIX             "/path/to/project/folder"   
-#define MAKE_PREFIX        ""
+#ifndef PREFIX
+#define PREFIX             /path/to/project/folder/
+#endif
+
+#ifndef PROJECT_LOCATION
 #define PROJECT_LOCATION   ""
+#endif
 
 /* set default debug build */
 #ifndef DEBUG

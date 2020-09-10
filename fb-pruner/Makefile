@@ -48,7 +48,7 @@ INC_LIBS := -I$(EASEL_DIR)
 CLIBS := -lm -L${EASEL_DIR} -leasel
 # standard C compiler flags to be run (non-build-specific)
 # suggested flags: -std=gnu99 -g -DROOT_DIR=$(ROOT_DIR)
-CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -DROOT_DIR=$(ROOT_DIR)
+CFLAGS := $(INC_FLAGS) $(INC_LIBS) -std=gnu99 -DPREFIX=$(ROOT_DIR)
 # standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
 CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3

@@ -304,6 +304,8 @@ output_header(FILE *ofp, ESL_GETOPTS *go, char *qfile, char *dbfile)
 int
 main(int argc, char **argv)
 {
+   printf("=== PHMMER ===\n");
+
    int              status   = eslOK;
 
    ESL_GETOPTS     *go  = NULL;  /* command line processing                 */
@@ -411,6 +413,8 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
    ESL_THREADS     *threadObj = NULL;
    ESL_WORK_QUEUE  *queue    = NULL;
 #endif
+
+   printf("=== SERIAL MASTER ===\n");
 
    /* Initializations */
    abc     = esl_alphabet_Create(eslAMINO);
@@ -557,14 +561,23 @@ serial_master(ESL_GETOPTS *go, struct cfg_s *cfg)
 
 
       /* Build the model */
-      P7_HMM* my_hmm = p7_hmm_Create();
-      p7_SingleBuilder(bld, qsq, info[0].bg, NULL, NULL, NULL, &om); /* bypass HMM - only need model */
+      printf("=== BUILD SINGLE HMM --> ===\n");
+      P7_HMM* my_hmm;
+      P7_PROFILE* my_gm;
+      p7_SingleBuilder(bld, qsq, info[0].bg, &my_hmm, NULL, &my_gm, &om); /* bypass HMM - only need model */
+      FILE* my_fp = fopen("singlebuilder.hmm", "w");
+      p7_hmm_Dump(my_fp, my_hmm);
+      fclose(my_fp);
+
+      profile_Dump( NULL, 0, my_gm, NULL, stdout );
+      exit(0);
 
       for (i = 0; i < infocnt; ++i)
       {
          /* Create processing pipeline and hit list */
          info[i].th  = p7_tophits_Create();
          info[i].om  = p7_oprofile_Clone(om);
+         info[i].gm  = p7_profile_Clone(my_gm);
          info[i].pli = p7_pipeline_Create(go, om->M, 100, FALSE, p7_SEARCH_SEQS); /* L_hint = 100 is just a dummy for now */
          p7_pli_NewModel(info[i].pli, info[i].om, info[i].bg);
 
