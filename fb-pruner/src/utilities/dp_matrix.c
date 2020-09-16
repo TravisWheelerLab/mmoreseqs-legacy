@@ -135,6 +135,21 @@ int DP_MATRIX_Diff ( MATRIX_3D*  st_MX_1,
 }
 
 /*
+ *  FUNCTION:  DP_MATRIX_Add()
+ *  SYNOPSIS: Add two dynamic programming matrices.
+ */
+int DP_MATRIX_Add(   MATRIX_3D*  st_MX_1,
+                     MATRIX_2D*  sp_MX_1,
+                     MATRIX_3D*  st_MX_2,
+                     MATRIX_2D*  sp_MX_2,
+                     MATRIX_3D*  st_MX_res,
+                     MATRIX_2D*  sp_MX_res )
+{
+   MATRIX_3D_Add( st_MX_1, st_MX_2, st_MX_res );
+   MATRIX_2D_Add( sp_MX_1, sp_MX_2, sp_MX_res );
+}
+
+/*
  *  FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS:  Save dynamic programming matrix to file (by filename).
  */
@@ -361,9 +376,9 @@ void DP_MATRIX_VIZ_Compare(   MATRIX_2D*        cloud_MX,
                               EDGEBOUNDS*       edg_1,
                               EDGEBOUNDS*       edg_2 )
 {
-   MATRIX_2D_Fill( cloud_MX, 0 );
-   MATRIX_2D_Cloud_Fill( cloud_MX, edg_1, 1 );
-   MATRIX_2D_Cloud_Fill( cloud_MX, edg_2, 2 );
+   MATRIX_2D_Fill( cloud_MX, 0.0 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_1, 1.0 );
+   MATRIX_2D_Cloud_Fill( cloud_MX, edg_2, 2.0 );
 }
 
 /*

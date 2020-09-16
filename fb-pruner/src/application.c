@@ -59,9 +59,6 @@ int main ( int argc, char *argv[] )
    /* parse command line arguments */
    ARGS_Parse( args, argc, argv );
 
-   /* report initial header */
-   // REPORT_stdout_header( worker, stdout );
-
    /* output arguments */
    ARGS_Dump( args, stdout );
    
@@ -78,5 +75,6 @@ int main ( int argc, char *argv[] )
    /* clean up allocated data */
    WORKER_Destroy( worker );
 
+   printf("# Completed successfully.\n");
    exit(EXIT_SUCCESS);
 }

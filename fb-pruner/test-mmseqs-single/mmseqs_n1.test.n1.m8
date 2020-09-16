@@ -1,0 +1,4 @@
+#query	target	pident	alnlen	mismatch	gapopen	qstart	qend	tstart	tend	eval	bits
+#-----	------	------	------	--------	------	------	-----	-------	----	----	----
+test1_2	test1_1	0.000	12	0	0	4	14	8	18	  4.2e-07	   7.0
+# [ok]

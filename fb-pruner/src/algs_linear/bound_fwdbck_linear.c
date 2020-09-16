@@ -137,7 +137,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    #if DEBUG 
    {
       int dirty_vals = MATRIX_3D_Check_Clean( st_MX3 );
-      printf(" PRE CLEAN CHECK -> BOUND FWD LIN:\t%d\n", dirty_vals);
+      printf("PRE-CLEAN CHECK -> BOUND FWD LIN:\t%d\n", dirty_vals);
       if (dirty_vals > 0) {
          MATRIX_3D_Dump( st_MX3, stdout );
       }
@@ -397,7 +397,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
    #if DEBUG 
    {
       int dirty_vals = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("POST CLEAN CHECK -> BOUND FWD LIN:\t%d\n", dirty_vals);
+      printf("POST-CLEAN CHECK -> BOUND FWD LIN:\t%d\n", dirty_vals);
       if (dirty_vals > 0) {
          MATRIX_3D_Dump( st_MX3, stdout );
       }
@@ -512,7 +512,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    #if DEBUG 
    {
       int dirty_vals = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("PRE CLEAN CHECK -> BOUND BCK LIN:\t%d\n", dirty_vals);
+      printf("PRE-CLEAN CHECK -> BOUND BCK LIN:\t%d\n", dirty_vals);
       if (dirty_vals > 0) {
          MATRIX_3D_Dump( st_MX3, stdout );
       }
@@ -548,10 +548,11 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-   /* if there is a bound on row and the right-most bound spans T */
+   /* if Q-row bounds are not empty and the right-most bound spans T ( covers bottom-right corner ) */
    if ( (r_0b - r_0e > 0) && (EDG_X(edg,r_0b).rb > T) )
    {
       t_0 = T;
+
       MMX3(qx0, T) = DMX3(qx0, T) = XMX(SP_E, q_0);
       IMX3(qx0, T) = -INF;
 
@@ -568,12 +569,14 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    /* Initialize normal states (sparse) */
    for (r_0 = r_0b; r_0 > r_0e; r_0--) 
    {
-      bnd = &EDG_X(edg, r_0);            /* bounds for current bound */
+      /* get bound data */
+      bnd = &EDG_X(edg, r_0);          /* bounds for current bound */
       lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
       rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
       for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
       {
+         /* real target index */
          t_1 = t_0 + 1;
 
          prv_E = XMX(SP_E, Q) + sc_E;
@@ -677,6 +680,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
       /* FOR every EDGEBOUND in current ROW */
       for (r_0 = r_0b; r_0 > r_0e; r_0--)
       {
+         /* get bound data */
          bnd = &EDG_X(edg, r_0);          /* bounds for current bound */
          lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
          rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
@@ -806,7 +810,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
    #if DEBUG 
    {
       int dirty_vals = MATRIX_3D_Check_Clean( st_MX3 );
-      printf("POST CLEAN CHECK -> BOUND BCK LIN:\t%d\n", dirty_vals);
+      printf("# POST-CLEAN CHECK -> BOUND BCK LIN:\t%d\n", dirty_vals);
       if (dirty_vals > 0) {
          MATRIX_3D_Dump( st_MX3, stdout );
       }

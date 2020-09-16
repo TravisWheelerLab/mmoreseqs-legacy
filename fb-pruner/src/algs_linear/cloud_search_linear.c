@@ -223,6 +223,14 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    beg = &(tr->traces->data[tr->beg]);
    end = &(tr->traces->data[tr->end]);
 
+   /* TODO: add this edgecheck to all  */
+   /* verify that starting points are valid */
+   if ( beg->i < 0 || beg->i > Q || beg->j < 0 || beg->j > T ) {
+      fprintf(stderr, "ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->i, beg->j );
+      fprintf(stderr, "Target Length: %d, Query Length: %d\n", T, Q );
+      exit(EXIT_FAILURE);
+   }
+
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if ( beg->i == 0 || beg->j == 0 ) {
       beg->i += 1;
@@ -783,8 +791,16 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    beg = &(tr->traces->data[tr->beg]);
    end = &(tr->traces->data[tr->end]);
 
+   /* TODO: add this edgecheck to all  */
+   /* verify that starting points are valid */
+   if ( end->i < 0 || end->i > Q || end->j < 0 || end->j > T ) {
+      fprintf(stderr, "ERROR: Invalid start points for Cloud Backward Search: (%d,%d)\n", end->i, end->j );
+      fprintf(stderr, "Target Length: %d, Query Length: %d\n", T, Q );
+      exit(EXIT_FAILURE);
+   }
+
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (end->i == Q || end->j == T) {
+   if ( end->i == Q || end->j == T ) {
       end->i -= 1;
       end->j -= 1;
    }
@@ -978,7 +994,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
             /* embed cell data in quadratic matrix */
             #if DEBUG
             {
-               MX_2D( cloud_MX, q_0, t_0 ) += 1.0;
+               MX_2D( cloud_MX, q_0, t_0 )  += 1.0;
                MX_2D( cloud_MX3, dx0, k_0 ) += 1.0;
 
                MX_3D( test_MX, MAT_ST, q_0, t_0 ) = MMX3(dx0, k_0);

@@ -13,6 +13,7 @@
 #define SCALE_FACTOR    1000                    /* scaling factor for summing logrithm */
 #define INF             INFINITY                /*  */
 #define INT_MIN         -2147483648             /* min value of integer */
+#define INT_MAX         +2147483647             /* max value of integer */
 
 /* === OUTPUT PIPES === */
 #define STDOUT          "/dev/stdout"

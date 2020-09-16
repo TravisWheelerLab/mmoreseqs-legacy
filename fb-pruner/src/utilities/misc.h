@@ -88,4 +88,9 @@ bool cmp_tol_cust(const float a,
                   const float b,
                   const float tol );
 
+/*  FUNCTION:  my_delay()
+ *  SYNOPSIS:  Hold for given number of <secs>
+ */
+void my_delay( int secs );
+
 #endif /* _MISC_H */

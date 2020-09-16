@@ -374,7 +374,7 @@ void itest_pipeline( WORKER* worker )
       /* ==> traceback (quadratic) */
       printf("==> traceback sparse\n");
       ALIGNMENT_Reuse(tr_quad, Q, T);
-      run_Traceback_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_sparse, st_SMX->edg_inner, tr_sparse);
+      run_MaxPost_Traceback_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_sparse, st_SMX->edg_inner, tr_sparse);
       ALIGNMENT_Save(tr_sparse, "test_output/my.traceback.sparse.tsv");
       cmp = ( ALIGNMENT_Compare( tr_quad, tr_sparse ) == 0 ) ? true : false;
       printf("ALIGNMENTS (quad vs sparse)?\t\t%s\n", cmp ? "PASS" : "FAIL" );

@@ -35,9 +35,9 @@ void F_INDEX_Quiksort(  F_INDEX_NODE*  arr,
                         int            hi );
 
 
-/*    FUNC:    F_INDEX_Create()
- *    DESC:    Creates an instance of F_INDEX.
- *             Initial node length set to min_size.  
+/*  FUNCTION:    F_INDEX_Create()
+ *  SYNOPSIS:    Creates an instance of F_INDEX.
+ *               Initial node length set to min_size.  
  */
 F_INDEX*  F_INDEX_Create()
 {
@@ -62,8 +62,8 @@ F_INDEX*  F_INDEX_Create()
    return index;
 }
 
-/*    FUNC:    F_INDEX_Create()
- *    DESC:    Destroys instance of F_INDEX and frees memory.
+/*  FUNCTION:    F_INDEX_Create()
+ *  SYNOPSIS:    Destroys instance of F_INDEX and frees memory.
  */
 void* F_INDEX_Destroy( F_INDEX* index )
 {
@@ -84,8 +84,8 @@ void* F_INDEX_Destroy( F_INDEX* index )
    return index;
 }
 
-/*    FUNC:    F_INDEX_Reuse()
- *    DESC:    Reuse an instance of F_INDEX.
+/*  FUNCTION:    F_INDEX_Reuse()
+ *  SYNOPSIS:    Reuse an instance of F_INDEX.
  */
 void F_INDEX_Reuse( F_INDEX* index )
 {
@@ -103,9 +103,9 @@ void F_INDEX_Reuse( F_INDEX* index )
 }
 
 
-/*    FUNC:    F_INDEX_Pushback()
- *    DESC:    Add F_INDEX_NODE to F_INDEX node vector.  
- *             Resizes vector if necessary.
+/*  FUNCTION:    F_INDEX_Pushback()
+ *  SYNOPSIS:    Add F_INDEX_NODE to F_INDEX node vector.  
+ *               Resizes vector if necessary.
  */
 void F_INDEX_Pushback(  F_INDEX*       index,
                         F_INDEX_NODE*  node )
@@ -120,8 +120,8 @@ void F_INDEX_Pushback(  F_INDEX*       index,
    }
 }
 
-/*    FUNC:    F_INDEX_Resize()
- *    DESC:    Resizes the length of the F_INDEX nodes array.
+/*  FUNCTION:    F_INDEX_Resize()
+ *  SYNOPSIS:    Resizes the length of the F_INDEX nodes array.
  */
 void F_INDEX_Resize( F_INDEX*    index,
                      int         size )
@@ -134,10 +134,9 @@ void F_INDEX_Resize( F_INDEX*    index,
    }
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Sort_by_Name()
- *    DESC:    Sorts F_INDEX nodes by name.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Sort_by_Name()
+ *  SYNOPSIS:    Sorts F_INDEX nodes by name.
+ */
 void F_INDEX_Sort_by_Name( F_INDEX*    index )
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
@@ -145,10 +144,9 @@ void F_INDEX_Sort_by_Name( F_INDEX*    index )
    index->sort_type = SORT_NAME;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Sort_by_Id()
- *    DESC:    Sorts F_INDEX nodes by name.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Sort_by_Id()
+ *  SYNOPSIS:    Sorts F_INDEX nodes by name.
+ */
 void F_INDEX_Sort_by_Id(   F_INDEX*    index )
 {
    // F_INDEX_Quiksort(index->nodes, 0, index->N);
@@ -156,10 +154,9 @@ void F_INDEX_Sort_by_Id(   F_INDEX*    index )
    index->sort_type = SORT_ID;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Quikort()
- *    DESC:    Recursive quicksort of F_INDEX node subarray on range (lo,hi). 
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Quikort()
+ *  SYNOPSIS:    Recursive quicksort of F_INDEX node subarray on range (lo,hi). 
+ */
 void F_INDEX_Quiksort(  F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorted */
                         int            lo,     /* lower end of range in subarray  */
                         int            hi )    /* upper end of range in subarray  */
@@ -202,10 +199,9 @@ void F_INDEX_Quiksort(  F_INDEX_NODE*  arr,    /* F_INDEX node array to be sorte
    F_INDEX_Quiksort( arr, left, hi );
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Swap()
- *    DESC:    Swap the ith and jth node in the array.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Swap()
+ *  SYNOPSIS:    Swap the ith and jth node in the array.
+ */
 inline
 void F_INDEX_Swap(   F_INDEX_NODE*  arr,
                      int            i,
@@ -217,10 +213,9 @@ void F_INDEX_Swap(   F_INDEX_NODE*  arr,
    arr[j] = tmp;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Compare_by_Name()
- *    DESC:    Compare <a> and <b> node in the array by NAME.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Compare_by_Name()
+ *  SYNOPSIS:    Compare <a> and <b> node in the array by NAME.
+ */
 inline
 int F_INDEX_Compare_by_Name(  const void* a,
                               const void* b )
@@ -231,10 +226,9 @@ int F_INDEX_Compare_by_Name(  const void* a,
    return cmp;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Compare_by_Id()
- *    DESC:    Compare <a> and <b> node in the array by ID.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Compare_by_Id()
+ *  SYNOPSIS:    Compare <a> and <b> node in the array by ID.
+ */
 inline
 int F_INDEX_Compare_by_Id( const void*  a,
                            const void*  b )
@@ -248,7 +242,7 @@ int F_INDEX_Compare_by_Id( const void*  a,
 /*  FUNCTION:   F_INDEX_Search_Name()
  *  SYNOPSIS:   Binary search (by name) for node in array in F_INDEX.
  *              Assumes F_INDEX is sorted by Name.
- *  RETURN:     index of search result; -1 if no result found.
+ *    RETURN:   index of search result; -1 if no result found.
  */
 int F_INDEX_Search_Name(   F_INDEX* index,
                            char*    search_term )
@@ -296,12 +290,11 @@ F_INDEX_NODE* F_INDEX_Get_by_Id( F_INDEX* index,
    return &(index->nodes[res]);
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Search_Id()
- *    DESC:    Binary search (by id) for node in array in F_INDEX. 
- *             Assumes F_INDEX is sorted by Id.
- * RETURN:     index of search result; -1 if no result found.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Search_Id()
+ *  SYNOPSIS:    Binary search (by id) for node in array in F_INDEX. 
+ *               Assumes F_INDEX is sorted by Id.
+ *    RETURN:    index of search result; -1 if no result found.
+ */
 int F_INDEX_Search_Id( F_INDEX* index,
                        int      search_term )
 {
@@ -339,10 +332,9 @@ int F_INDEX_Search_Id( F_INDEX* index,
    return -1;
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Save()
- *    DESC:    Save F_INDEX data to filepath.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Save()
+ *  SYNOPSIS:    Save F_INDEX data to filepath.
+ */
 void F_INDEX_Save( F_INDEX*   index,
                    char*      _filename_ )
 {
@@ -351,10 +343,9 @@ void F_INDEX_Save( F_INDEX*   index,
    printf("F_INDEX saved to: '%s'\n", _filename_);
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Dump()
- *    DESC:    Send F_INDEX data to file.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Dump()
+ *  SYNOPSIS:    Send F_INDEX data to file.
+ */
 void F_INDEX_Dump( F_INDEX*   index,
                    FILE*      fp )
 {
@@ -389,10 +380,9 @@ void F_INDEX_Dump( F_INDEX*   index,
    }
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Node_Dump()
- *    DESC:    Output F_INDEX node data to file pointer at index.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Node_Dump()
+ *  SYNOPSIS:    Output F_INDEX node data to file pointer at index.
+ */
 void F_INDEX_Node_Dump( F_INDEX*    index,
                         int         id,
                         FILE*       fp )
@@ -415,10 +405,9 @@ void F_INDEX_Node_Dump( F_INDEX*    index,
    fprintf(fp, "\n");
 }
 
-/* *******************************************************************
- *    FUNC:    F_INDEX_Utest
- *    DESC:    F_INDEX unit test.
- * *******************************************************************/
+/*  FUNCTION:    F_INDEX_Utest
+ *  SYNOPSIS:    F_INDEX unit test.
+ */
 void F_INDEX_Utest()
 {
    F_INDEX* f_index = NULL;

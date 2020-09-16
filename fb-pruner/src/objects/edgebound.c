@@ -525,6 +525,7 @@ void EDGEBOUNDS_Merge_Sub( EDGEBOUNDS*    edg,
       {
          /* update current bounds by adding previous bounds to it */
          b_0->lb = b_1->lb;
+         b_0->rb = MAX( b_0->rb, b_1->rb );
          num_merges++;
       } 
       /* if not, then move previous bound to proper position */

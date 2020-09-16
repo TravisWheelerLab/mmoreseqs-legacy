@@ -233,21 +233,23 @@ void RESULTS_My_Dump( RESULTS*   results,
 void RESULT_M8_Dump( RESULT*  res,
                      FILE*    fp )
 {   
-   printf("# M8 SINGLE:\t");
+   fprintf( fp, "{ ");
 
-   fprintf( fp, "%s\t",    res->query_name );
-   fprintf( fp, "%s\t",    res->target_name );
+   fprintf( fp, "%s ",    res->query_name );
+   fprintf( fp, "%s ",    res->target_name );
 
-   fprintf( fp, "%.3f\t",  res->perc_id );
-   fprintf( fp, "%d\t",    res->aln_len );
-   fprintf( fp, "%d\t",    res->mismatch );
-   fprintf( fp, "%d\t",    res->gap_openings );
+   fprintf( fp, "%.3f ",  res->perc_id );
+   fprintf( fp, "%d ",    res->aln_len );
+   fprintf( fp, "%d ",    res->mismatch );
+   fprintf( fp, "%d ",    res->gap_openings );
 
-   fprintf( fp, "%d\t",    res->query_start );
-   fprintf( fp, "%d\t",    res->query_end );
-   fprintf( fp, "%d\t",    res->target_start );
-   fprintf( fp, "%d\t",    res->target_end );
+   fprintf( fp, "%d ",    res->query_start );
+   fprintf( fp, "%d ",    res->query_end );
+   fprintf( fp, "%d ",    res->target_start );
+   fprintf( fp, "%d ",    res->target_end );
 
-   fprintf( fp, "%.3e\t",  res->e_value );
-   fprintf( fp, "%d\n",    res->bit_score );
+   fprintf( fp, "%.3e ",  res->e_value );
+   fprintf( fp, "%d ",    res->bit_score );
+
+   fprintf( fp, "}\n");
 }

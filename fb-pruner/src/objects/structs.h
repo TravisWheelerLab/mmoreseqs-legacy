@@ -501,8 +501,8 @@ typedef struct {
    /* mmseqs reference files */
    char*    t_lookup_filepath;      /* filepath to mmseqs target lookup file */
    char*    q_lookup_filepath;      /* filepath to mmseqs query lookup file */
-   /* mmseqs specified result file range */
-   RANGE    mmseqs_range;
+   /* specified file range for mmseqs or hitlist */
+   RANGE    list_range;
    /* cloud search tuning vars */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
    float    beta;                   /* cloud search: x-drop maximum drop before termination */
@@ -693,7 +693,7 @@ typedef struct {
    /* aggregate stats */
    int      num_searches;           /* total number of searches */
    int      num_hits;               /* total number of searches to pass threshold */
-   float    reporting_threshold;
+   float    reporting_threshold;    /* eval threshold for input mmseqs */
    /* output */
    int      max_in_queue;           /* number of results to keep in memory before dumping to file */
    char*    filepath;               /* path to write file */
@@ -873,7 +873,7 @@ typedef struct {
 typedef struct {
    /* arguments set by pipeline defaults and set by user */
    ARGS*                args;
-   /*  */
+   /* boolean list of pipeline tasks to be performed */
    TASKS*               tasks;
    /* output file pointer */
    FILE*                output_fp;
@@ -893,6 +893,8 @@ typedef struct {
    RESULTS*             results_in;
    /* if given a list of query/target pairs */
    HITLIST*             hitlist_in;
+   /* number of searches */
+   int                  num_searches;
    /* id of currently loaded query and target */
    int                  q_id;
    int                  t_id;
@@ -918,18 +920,20 @@ typedef struct {
    CLOUD_PARAMS         cloud_params;
    /* alignment traceback for viterbi */
    ALIGNMENT*           traceback;
-   /* alignment traceback for maximum posterior */
    ALIGNMENT*           trace_post;
    /* dynamic programming matrices */
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
    MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
+   MATRIX_3D_SPARSE*    st_SMX_fwd;    /* normal states matrix (sparse), exclusive for forward */
    MATRIX_3D_SPARSE*    st_SMX_bck;    /* normal states matrix (sparse), exclusive for backward */
    MATRIX_2D*           sp_MX;         /* special state matrix (quadratic space) */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
    /* times for tasks */
    TIMES*               times;
    TIMES*               times_raw;
+   TIMES*               times_totals;
+   double               runtime;
    /* raw scores */
    NAT_SCORES*          scores;
    /* results to output */
@@ -946,42 +950,36 @@ typedef struct {
 
 
 /* === GLOBAL VARIABLES === */
-
-extern char*   STATE_NAMES[];
-extern char*   STATE_FULL_NAMES[];
-extern char*   STATE_CHARS[];
-
-extern char*   PIPELINE_NAMES[];
-extern void    (*PIPELINES[])(WORKER*);
-extern int     PIPELINE_NUM_ARGS[];
-
-extern char*   MODE_NAMES[];
-extern char*   VERBOSITY_NAMES[];
-
-extern char*   ALPHABET_NAMES[];
-extern int     ALPHABET_LENGTHS[];
-
-extern char*   FILE_TYPE_EXTS[];
-extern char*   FILE_TYPE_NAMES[];
-extern int     FILE_TYPE_MAP[];
-
+/* */
+extern char*      PIPELINE_NAMES[];
+extern void       (*PIPELINES[])(WORKER*);
+extern int        PIPELINE_NUM_ARGS[];
+extern char*      MODE_NAMES[];
+extern char*      VERBOSITY_NAMES[];
+extern char*      ALPHABET_NAMES[];
+extern int        ALPHABET_LENGTHS[];
+extern char*      STATE_NAMES[];
+extern char*      STATE_FULL_NAMES[];
+extern char*      STATE_CHARS[];
+/* input file types and extensions */
+extern char*      FILE_TYPE_EXTS[];
+extern char*      FILE_TYPE_NAMES[];
+extern int        FILE_TYPE_MAP[];
 /* alphabetically-ordered amino lookup and reverse lookup tables */
-extern char    ALPH_AMINO_CHARS[];
-extern char    AA[];
-extern int     AA_REV[];
+extern char       ALPH_AMINO_CHARS[];
+extern char       AA[];
+extern int        AA_REV[];
 /* background frequencies of null model, normal and log space */
-extern double  BG_MODEL[];
-extern double  BG_MODEL_log[];
-
+extern double     BG_MODEL[];
+extern double     BG_MODEL_log[];
 /* commandline arg objects */
 extern ARGS*      args;
 extern int        num_flag_cmds;
 extern FLAG_CMD   COMMAND_OPTS[];
 extern char*      DATATYPE_NAMES[];
-
-extern SCORE_MATRIX* bld;
-
+/* scoring matrix for converting sequences to hmm */
+extern SCORE_MATRIX*    bld;
 /* debugging data */
-extern DEBUG_KIT* debugger;
+extern DEBUG_KIT*       debugger;
 
 #endif /* _STRUCTS_H */

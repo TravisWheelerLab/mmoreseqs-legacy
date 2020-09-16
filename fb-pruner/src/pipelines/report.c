@@ -106,7 +106,7 @@ void REPORT_stdout_header(    WORKER*     worker,
    int   left_pad = 30;
 
    /* header info */
-   REPORT_hr( fp );
+   REPORT_horizontal_rule( fp );
    fprintf( fp, "# %s :: %s :: %s\n", 
       BUILD_PROGRAM,
       PIPELINE_NAMES[args->pipeline_mode],
@@ -117,13 +117,15 @@ void REPORT_stdout_header(    WORKER*     worker,
       BUILD_DATE );
    fprintf( fp, "# Copyright (C) 2020 Travis Wheeler Lab, University of Montana.\n" );
    /* input files */
-   REPORT_hr( fp );
+   REPORT_horizontal_rule( fp );
    fprintf( fp, "# %*s: %s\n", 
       left_pad, "HMM file (Target)", args->t_filepath );
    fprintf( fp, "# %*s: %s\n", 
       left_pad, "SEQ file (Query)", args->q_filepath );
    fprintf( fp, "# %*s: %s\n", 
-      left_pad, " file", args->q_filepath );
+      left_pad, "Target Index", args->t_indexpath );
+   fprintf( fp, "# %*s: %s\n", 
+      left_pad, "Query Index", args->q_indexpath );
 
    if ( args->pipeline_mode == PIPELINE_MMSEQS ) {
       fprintf( fp, "# %*s: %s\n", 
@@ -135,8 +137,8 @@ void REPORT_stdout_header(    WORKER*     worker,
 
    }
 
-   REPORT_hr( fp );
-   printf("\n\n");
+   REPORT_horizontal_rule( fp );
+   printf("\n");
 }
 
 /*    FUNCTION:   REPORT_stdout_entry()
@@ -153,8 +155,6 @@ void REPORT_stdout_entry(  WORKER*  worker,
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
 
-   VECTOR_CHAR*   t_out          = VECTOR_CHAR_Create();
-   VECTOR_CHAR*   q_out          = VECTOR_CHAR_Create();
    TRACE*         tr             = NULL;
 
    /* TODO: some should be passed as arguments (reporter object?) */
@@ -173,6 +173,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
    }
 
    /* Meta Data */
+   REPORT_horizontal_rule( fp );
    fprintf( fp, "%*s %s [M=%d]\n", 
       field_width, "Query:", t_prof->name, t_prof->N );
    fprintf( fp, "%*s %s\n", 
@@ -196,11 +197,15 @@ void REPORT_stdout_entry(  WORKER*  worker,
       result->final_scores.eval        /* e-value */
    );
    fprintf( fp, "%*s %s\n", 
-      20, "Cigar Alignment:", aln->cigar_aln );
+      20, "Cigar Alignment:", (aln->cigar_aln != NULL ? aln->cigar_aln : "--") );
    /* create alignment rows */
    int offset = 0; 
    for ( int i = aln->beg; i < aln->end; i += aln_width, offset += aln_width ) 
    {
+      if ( aln->end - i < aln_width ) {
+         aln_width = aln->end - i;
+      }
+
       fprintf( fp, "%*s %5d %.*s %5d\n",
          name_width,                               /* padding */
          t_prof->name,                             /* name */
@@ -225,9 +230,10 @@ void REPORT_stdout_entry(  WORKER*  worker,
          &aln->query_aln[offset],                   /* alignment residues */
          aln->traces->data[i + aln_width - 1].i    /* ending index */
       );
-      fprintf( fp, "\n");
    }
-   
+
+   REPORT_horizontal_rule( fp );
+   fprintf( fp, "\n");
 }
 
 /*    FUNCTION:   REPORT_stdout_footer()
@@ -237,19 +243,27 @@ void REPORT_stdout_entry(  WORKER*  worker,
 void REPORT_stdout_footer(    WORKER*  worker,
                               FILE*    fp )
 {
-   double runtime = CLOCK_Get_Total_Runtime( worker->clok );
+   worker->runtime = CLOCK_Get_Total_Runtime( worker->clok );
+
+   // /* test that clock works */
+   // double test_beg = CLOCK_Get_RealTime();
+   // my_delay(3000); 
+   // double test_end = CLOCK_Get_RealTime();
 
    char str[50];
    int left_pad = -35;
    int center_pad = 0;
 
+   /* statistics summary */
    fprintf( fp, "\nInternal pipeline statistics summary:\n" );
    fprintf( fp, "----------------------------------------\n" );
    fprintf( fp, "%*s %*d %s\n", 
-      left_pad, "Target model(s):", center_pad, worker->t_index->N, "" );
+      left_pad, "Target models:", center_pad, worker->t_index->N, "" );
    fprintf( fp, "%*s %*d %s\n", 
-      left_pad, "Query sequence(s):", center_pad, worker->q_index->N, "" );
+      left_pad, "Query sequences:", center_pad, worker->q_index->N, "" );
    /* TODO: Add breakdown of number of queries passing mmseqs prefilter */
+   fprintf( fp, "%*s %*d %s\n", 
+      left_pad, "Number searches:", center_pad, worker->num_searches, "" );
    fprintf( fp, "%*s %*d %s\n", 
       left_pad, "Passed FB-Pruner Filter:", center_pad, 0, "" );
    fprintf( fp, "%*s %*d %s\n", 
@@ -257,9 +271,15 @@ void REPORT_stdout_footer(    WORKER*  worker,
    fprintf( fp, "%*s %*d %s\n", 
       left_pad, "Domain search space (Z):", center_pad, 0, "" );
    fprintf( fp, "\n" );
+   /* runtime breakdown */
+   fprintf( fp, "\nRuntime breakdown:\n" );
+   fprintf( fp, "----------------------------------------\n" );
    fprintf( fp, "%*s %*.3f %s\n", 
-      left_pad, "Total Runtime (secs):", center_pad, runtime, "secs" );
-   fprintf( fp, "# [ok.]\n" );
+      left_pad, "Total Runtime (secs):", center_pad, worker->runtime * 1000, "secs" );
+   fprintf( fp, "%*s %*.3f %s\n", 
+      left_pad, "Sum of Runtime (secs):", center_pad, 0.0f, "secs" );
+   /* success */
+   fprintf( fp, "\n# [ok.]\n" );
 }
 
 /* === TBLOUT OUTPUT === */
@@ -471,7 +491,7 @@ void REPORT_tblout_footer(    WORKER*  worker,
 void REPORT_m8out_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
       "target",
       "pident",
@@ -483,9 +503,10 @@ void REPORT_m8out_header(  WORKER*  worker,
       "tstart",
       "tend",
       "eval",
-      "bits"
+      "bits",
+      "cigar"
    );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "-----",
       "------",
       "------",
@@ -497,7 +518,8 @@ void REPORT_m8out_header(  WORKER*  worker,
       "-------",
       "----",
       "----",
-      "----"
+      "----",
+      "-----"
    );
 }
 
@@ -517,19 +539,20 @@ void REPORT_m8out_entry(   WORKER*  worker,
    TRACE* beg  = &aln->traces->data[aln->beg];
    TRACE* end  = &aln->traces->data[aln->end];
 
-   fprintf( fp, "%s\t%s\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%9.2g\t%6.1f\n", 
+   fprintf( fp, "%s\t%s\t%.3f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%9.2g\t%6.1f\t%s\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
       aln->perc_id,                    /* percent id (number matches) */
       aln_len,                         /* alignment length */
       aln->num_misses,                 /* number of mismatches */    
       aln->num_gaps,                   /* number of gap openings */
-      beg->i,                          /* query start */
-      end->i,                          /* query end */
-      beg->j,                          /* target start */
-      end->j,                          /* target end */
+      beg->j,                          /* query start */
+      end->j,                          /* query end */
+      beg->i,                          /* target start */
+      end->i,                          /* target end */
       result->final_scores.eval,       /* evalue */
-      result->final_scores.nat_sc      /* bits */
+      result->final_scores.nat_sc,     /* bits */
+      ( aln->cigar_aln != NULL ? aln->cigar_aln : "--" )
    );
 }
 
@@ -604,16 +627,16 @@ void REPORT_myout_footer(    WORKER*  worker,
 
 /* === UTILTITY FUNCTIONS === */
 
-/*    FUNCTION:   REPORT_hr()
+/*    FUNCTION:   REPORT_horizontal_rule()
  *    SYNOPSIS:   Print a horizontal rule. 
  */
 inline
-void REPORT_hr( FILE* fp )
+void REPORT_horizontal_rule( FILE* fp )
 {
    fprintf( fp, "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n" );
 }
 
-/*    FUNCTION:   REPORT_hr()
+/*    FUNCTION:   REPORT_horizontal_rule()
  *    SYNOPSIS:   Print a horizontal rule of specified length.
  */
 void REPORT_hr_size( FILE* fp, 

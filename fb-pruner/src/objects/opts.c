@@ -39,7 +39,7 @@ OPTS* OPTS_Create()
  */
 OPTS* OPTS_Destroy( OPTS* opts )
 {
-   if (opts == NULL) return;
+   if (opts == NULL) return NULL;
    
    ERROR_free( opts );
 
