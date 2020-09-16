@@ -70,9 +70,16 @@ mmseqs_pipeline( WORKER* worker )
    RESULT*        result_out  = worker->result;
    /* 
 
+      /* get result range */
+   int i_rng = 0;
+   int i_cnt = 0;
+   int i_beg = args->mmseqs_range.beg;
+   int i_end = args->mmseqs_range.end;
+   i_rng = i_end - i_beg;
+   printf_vhi("# MMSEQS RESULTS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
+
    /* m8+ file contains target_id, query_id, and result_id fields */
-   // RESULTS_M8_Plus_Parse( results_in, args->mmseqs_res_filepath );
-   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath );
+   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->mmseqs_range.beg, args->mmseqs_range.end );
    // RESULTS_M8_Dump( results_in, stdout );
 
    /* target and query ids */
@@ -111,18 +118,6 @@ mmseqs_pipeline( WORKER* worker )
       F_INDEX_Dump( worker->q_index, stdout );
    }
 
-   /* get result range */
-   int i_rng = 0;
-   int i_cnt = 0;
-   int i_beg = 0;
-   int i_end = results_in->N;
-   if ( args->mmseqs_range.beg >= 0 ) {
-      i_beg = args->mmseqs_range.beg;
-      i_end = MIN(args->mmseqs_range.end, i_end);
-   }
-   i_rng = i_end - i_beg;
-   printf_vhi("# MMSEQS RESULTS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
-
    /* add header to all reports */
    WORK_report_header( worker );
 
@@ -135,7 +130,7 @@ mmseqs_pipeline( WORKER* worker )
          i_cnt, i_rng, i, i_end );
 
       /* get next result from list */
-      result_in   = &(results_in->data[i]);
+      result_in   = &(results_in->data[i - i_beg]);
       /* result id */
       res_id      = result_in->result_id;
 
