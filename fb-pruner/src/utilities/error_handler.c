@@ -118,7 +118,7 @@ void* ERRORCHECK_fclose(   FILE*          fp,
  */
 inline
 void* ERRORCHECK_alloc( void*          ptr,
-                        const int      size,
+                        const size_t   size,
                         const char*    _file_,
                         const int      _line_,
                         const char*    _func_ )
@@ -127,6 +127,7 @@ void* ERRORCHECK_alloc( void*          ptr,
    ptr = realloc( ptr, size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
+      printf("ERROR_SIZE: %d\n", size);
       ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;
@@ -139,7 +140,7 @@ void* ERRORCHECK_alloc( void*          ptr,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-void* ERRORCHECK_malloc(   const int      size,
+void* ERRORCHECK_malloc(   const size_t   size,
                            const char*    _file_,
                            const int      _line_,
                            const char*    _func_ )
@@ -148,6 +149,7 @@ void* ERRORCHECK_malloc(   const int      size,
    ptr = malloc( size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
+      printf("ERROR_SIZE: %d\n", size);
       ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;
@@ -161,7 +163,7 @@ void* ERRORCHECK_malloc(   const int      size,
  */
 inline
 void* ERRORCHECK_realloc(  void*          ptr,
-                           const int      size,
+                           const size_t   size,
                            const char*    _file_,
                            const int      _line_,
                            const char*    _func_ )
@@ -169,6 +171,7 @@ void* ERRORCHECK_realloc(  void*          ptr,
    ptr = realloc( ptr, size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
+      printf("ERROR_SIZE: %d\n", size);
       ERRORCHECK_handler( ERROR_REALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;

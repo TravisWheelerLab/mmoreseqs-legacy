@@ -19,8 +19,8 @@ void* RESULTS_Destroy( RESULTS* res );
 void RESULTS_Pushback( RESULTS*  res, 
                        RESULT*   r );
 /* resize results */
-void RESULTS_Resize( RESULTS* res,
-                     int      size );
+void RESULTS_Resize( RESULTS* 	res,
+                     size_t   	size );
 
 /* output results as .m8 format to file pointer */
 void RESULTS_M8_Dump( RESULTS*   res,

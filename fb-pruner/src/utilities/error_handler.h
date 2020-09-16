@@ -46,7 +46,7 @@ void* ERRORCHECK_fclose(   FILE*          fp,
  *             Handles the error messaging, with program location, and closes program.
  */
 void* ERRORCHECK_alloc( void*          ptr,
-                        const int      size,
+                        const size_t   size,
                         const char*    _file_,
                         const int      _line_,
                         const char*    _func_ );
@@ -57,7 +57,7 @@ void* ERRORCHECK_alloc( void*          ptr,
  *             If memory error causes a NULL pointer to be returned, then memory error is thrown.
  *             Handles the error messaging, with program location, and closes program.
  */
-void* ERRORCHECK_malloc(   const int      size,
+void* ERRORCHECK_malloc(   const size_t   size,
                            const char*    _file_,
                            const int      _line_,
                            const char*    _func_ );
@@ -69,7 +69,7 @@ void* ERRORCHECK_malloc(   const int      size,
  *             Handles the error messaging, with program location, and closes program.
  */
 void* ERRORCHECK_realloc(  void*          ptr,
-                           const int      size,
+                           const size_t   size,
                            const char*    _file_,
                            const int      _line_,
                            const char*    _func_ );

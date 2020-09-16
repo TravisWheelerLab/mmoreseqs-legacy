@@ -98,10 +98,11 @@ void WORK_init( WORKER* worker )
    worker->cloud_params.gamma    = worker->args->gamma;
 
    /* create necessary dp matrices */
-   worker->st_MX  = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   worker->st_MX3 = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   worker->st_SMX = MATRIX_3D_SPARSE_Create();
-   worker->sp_MX  = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->st_MX        = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX3       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_SMX       = MATRIX_3D_SPARSE_Create();
+   worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
+   worker->sp_MX        = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
 }
 
 /* clean up data structs */
@@ -141,6 +142,7 @@ void WORK_cleanup( WORKER* worker )
    worker->st_MX = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX3 = MATRIX_3D_Destroy( worker->st_MX3 );
    worker->st_SMX = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
+   worker->st_SMX_bck = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
    worker->sp_MX  = MATRIX_2D_Destroy( worker->sp_MX );
 
    #if DEBUG
@@ -1061,6 +1063,26 @@ void WORK_cloud_search( WORKER* worker )
       times->quad_bound_bck   = CLOCK_Secs(clok);
       scores->quad_bound_bck  = sc;
    }
+}
+
+/* */
+void WORK_capture_alignment( WORKER* worker )
+{
+   SEQUENCE*      q_seq    = worker->q_seq;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   NAT_SCORES*    scores   = worker->scores;
+   float          sc;
+
+   /* create sparse matrix to fill edgebounds determined by cloud search */
+   MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX, worker->edg_row );
+   /* run forward */
+   run_Bound_Forward_Sparse( 
+      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX, worker->sp_MX, worker->edg_row, &sc);
+   scores->sparse_bound_fwd = sc;
+   /* run backward */
+   run_Bound_Backward_Sparse( 
+      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX, worker->sp_MX, worker->edg_row, &sc );
+
 }
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */

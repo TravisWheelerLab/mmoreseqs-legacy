@@ -79,16 +79,16 @@ void RESULTS_Pushback( RESULTS*  results,
 }
 
 /* resize results */
-void RESULTS_Resize( RESULTS* results,
-                     int      size )
+void RESULTS_Resize( RESULTS*    results,
+                     size_t      size )
 {
    results->Nalloc = size;
    results->data   = (RESULT*) ERROR_realloc( results->data, sizeof(RESULT) * size );
 }
 
 /* output results to file pointer */
-void RESULTS_M8_Dump( RESULTS*   results,
-                           FILE*      fp )
+void RESULTS_M8_Dump(   RESULTS*   results,
+                        FILE*      fp )
 {
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n");

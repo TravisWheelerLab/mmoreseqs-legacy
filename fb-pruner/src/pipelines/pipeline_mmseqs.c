@@ -205,6 +205,9 @@ mmseqs_pipeline( WORKER* worker )
       /* run cloud search */
       WORK_cloud_search( worker );
 
+      /* use sparse matrix to capture the exact alignment */
+      // WORK_capture_alignment( worker );
+
       /* convert bitscore to eval */
       WORK_convert_scores( worker );
 

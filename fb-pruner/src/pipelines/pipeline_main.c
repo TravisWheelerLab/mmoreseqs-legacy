@@ -123,6 +123,9 @@ void main_pipeline( WORKER* worker )
 			WORK_forward_backward( worker );
 			printf_vall("# ==>cloud search...\n");
 			WORK_cloud_search( worker );
+
+			/* capture  */
+			WORK_capture_alignment( worker );
 			WORK_convert_scores( worker );
 
 			/* output results to file */
