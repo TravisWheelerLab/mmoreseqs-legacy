@@ -50,7 +50,7 @@
 #endif
 
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS 	FALSE
+#define MATRIX_FUNCTIONS 	TRUE
 
 /* types of cloud pruning methods */
 #define PRUNER_NONE  						0 
@@ -149,11 +149,11 @@
 /* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_3D_SPARSE via function call */
-	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ qx0 + (tx0 * NUM_NORMAL_STATES) + (st) ] )
+	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_3D_SPARSE via direct data access */
-	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES) + (st) ] )
+	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
 #endif
 
 /* match, insert, delete for st_SMX matrix (sparse matrix) */

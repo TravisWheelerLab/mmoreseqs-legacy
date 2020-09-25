@@ -45,8 +45,8 @@ void VECTOR_FLT_Fill(   VECTOR_FLT*   vec,
  *  SYNOPSIS:  Create deep copy of <src> object. 
  *             Creates new VECTOR_FLT for <dest> if <dest> is NULL.
  */
-VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*   src, 
-                              VECTOR_FLT*   dest );
+VECTOR_FLT* VECTOR_FLT_Copy(  VECTOR_FLT*          dest, 
+                              const VECTOR_FLT*    src );
 
 /*
  *  FUNCTION:  VECTOR_FLT_Resize()

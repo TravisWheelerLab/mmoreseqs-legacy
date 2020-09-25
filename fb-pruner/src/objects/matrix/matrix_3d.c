@@ -77,8 +77,8 @@ void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
 }
 
 /* deep copy: returns dest matrix, will allocate if null */
-MATRIX_3D* MATRIX_3D_Copy( MATRIX_3D*     dest,
-                           MATRIX_3D*     src )
+MATRIX_3D* MATRIX_3D_Copy(    MATRIX_3D*           dest,
+                              const MATRIX_3D*     src )
 {
    /* verify dest and src have same dimensions */
    #if DEBUG
@@ -167,13 +167,15 @@ float* MATRIX_3D_Get(   MATRIX_3D*  mx,
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
-   int n = MATRIX_3D_to_1D(mx, i, j, k);
-   int used = mx->R * mx->C * mx->N;
-   if (i >= mx->R || i < 0 || j >= mx->C || j < 0 || k >= mx->N || n >= used ) {
-      fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
-      fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
-      fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-      exit(EXIT_FAILURE);
+   {
+      int n = MATRIX_3D_to_1D(mx, i, j, k);
+      int used = mx->R * mx->C * mx->N;
+      if (i >= mx->R || i < 0 || j >= mx->C || j < 0 || k >= mx->N || n >= used ) {
+         fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
+         fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
+         fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
+         exit(EXIT_FAILURE);
+      }
    }
    #endif
 
@@ -395,6 +397,23 @@ int MATRIX_3D_Compare(  MATRIX_3D*  mx_a,
       }
    }
    return cmp;
+}
+
+/*
+ *  FUNCTION:  MATRIX_2D_Add()
+ *  SYNOPSIS:  Takes sum of <mx_a> + <mx_b>.  Result stored in <mx_res>.
+ */
+void MATRIX_3D_Add(  MATRIX_3D*  mx_a,
+                     MATRIX_3D*  mx_b,
+                     MATRIX_3D*  mx_res )
+{
+   for ( int i = 0; i < mx_a->R; i++ ) {
+      for ( int j = 0; j < mx_a->C; j++ ) {
+         for ( int k = 0; k < mx_a->N; k++ ) {
+            MX_3D( mx_res, i, j, k ) = MX_3D( mx_a, i, j, k ) + MX_3D( mx_b, i, j, k );
+         }
+      }
+   }
 }
 
 /*

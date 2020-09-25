@@ -76,11 +76,9 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
 
          /* first capture whole header line */
          SEQUENCE_Set_Textfield(&seq->header, header);
-         printf("HEADER: %s\n", header);
 
          /* split header on spaces, get first element */
          token = strtok(header, " ");
-         printf("TOKEN: %s\n", token);
          /* if name has structure: >db|id| */
          if ( strstr( token, "|" ) != NULL ) {
             name = strtok(token, "|");

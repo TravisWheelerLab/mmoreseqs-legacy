@@ -58,7 +58,7 @@ void main_pipeline( WORKER* worker )
 		tasks->lin_bound_bck 	= true;
 		/* quadratic algs */
 		tasks->quadratic 		= true;		/* if any other quadratic tasks are flagged, this must be too */
-		tasks->quad_fwd 		= true;		/* optional */
+		tasks->quad_fwd 		= false;	/* optional */
 		tasks->quad_bck 		= false;	/* optional */
 		tasks->quad_vit 		= true;		/* viterbi required for cloud search */
 		tasks->quad_trace 		= true;		/* traceback required for cloud search  */
@@ -88,6 +88,7 @@ void main_pipeline( WORKER* worker )
 	j_end 	= args->q_range.end;
 	search_cnt 	= 0;
 	search_tot 	= (i_end - i_beg) * (j_end - j_beg);
+	worker->num_searches = search_tot;
 
 	WORK_report_header( worker );
 
@@ -112,24 +113,38 @@ void main_pipeline( WORKER* worker )
 			/* resize dp matrices to new query/target */
 			WORK_reuse( worker );
 
-			const int pad = 5;
-			printf_vall("# (%*d) | T_ID: (%*d/%*d) | Q_ID: (%*d/%*d) | T_LEN: %*d | Q_LEN: %*d \n", 
-				pad, search_cnt, pad, i, -pad, i_end, pad, j, -pad, j_end, -pad, worker->t_prof->N, -pad, worker->q_seq->N );
-
 			/* perform given tasks on them */
-			printf_vall("# ==>viterbi...\n");
+			printf_vall("# => viterbi...\n");
 			WORK_viterbi_and_traceback( worker );
-			printf_vall("# ==>forward-backward...\n");
+			printf_vall("# => forward-backward...\n");
 			WORK_forward_backward( worker );
-			printf_vall("# ==>cloud search...\n");
+			printf_vall("# => cloud search...\n");
 			WORK_cloud_search( worker );
 
 			/* capture  */
 			WORK_capture_alignment( worker );
 			WORK_convert_scores( worker );
 
+			if ( args->verbose_level >= VERBOSE_LOW || true  ) 
+	      {
+	         RESULT* result_out = worker->result;
+
+	         float percent_cells = (float) result_out->cloud_cells / (float) result_out->total_cells;
+	         float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck + times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
+	         float speedup = cloud_tot / times->quad_fwd; 
+
+	         printf("PRUNING =>  cloud_cells: %5d, total_cells: %5d, percent_cells: %2.3f\n", 
+	            result_out->cloud_cells, result_out->total_cells, percent_cells );
+	         printf("TIMES   =>  cloud_time: %2.3f, fwd_time: %2.3f, speed ratio: %2.3f\n", 
+	            cloud_tot, times->quad_fwd, speedup );
+	         printf("SCORES  =>  lin_bound_fwd_sc: %2.3f, sparse_bound_fwd_sc: %2.3f, fwd_sc: %2.3f, \n", 
+	            scores->lin_bound_fwd, scores->sparse_bound_fwd, scores->quad_fwd );
+	         printf("SCORES  =>  lin_bound_bck_sc: %2.3f, sparse_bound_bck_sc: %2.3f, bck_sc: %2.3f, \n", 
+	            scores->lin_bound_bck, scores->sparse_bound_bck, scores->quad_bck );
+	      }
+
 			/* output results to file */
-			printf("# ==>report result...\n");
+			printf("# => report result...\n");
 			WORK_report_result_current( worker );
 
 			search_cnt++;

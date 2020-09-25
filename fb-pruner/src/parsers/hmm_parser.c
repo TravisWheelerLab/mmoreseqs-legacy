@@ -590,3 +590,31 @@ void HMM_PROFILE_BG_SetLength(   HMM_PROFILE*   prof,
 {
    HMM_COMPO* bg = prof->bg_model;
 }
+
+/* Configure the Length of the HMM_PROFILE based on the length of the sequence */
+void HMM_PROFILE_ReconfigUnithit(   HMM_PROFILE*  prof,
+                                    int           L )
+{
+  //  om->xf[p7O_E][p7O_MOVE] = 1.0f;
+  //  om->xf[p7O_E][p7O_LOOP] = 0.0f;
+  //  om->nj = 0.0f;
+
+  //  om->xw[p7O_E][p7O_MOVE] = 0;
+  //  om->xw[p7O_E][p7O_LOOP] = -32768;
+
+  // return p7_oprofile_ReconfigLength(om, L);
+}
+
+/* Configure the Length of the HMM_PROFILE based on the length of the sequence */
+void HMM_PROFILE_ReconfigMultihit(     HMM_PROFILE*  prof,
+                                       int           L )
+{
+   // om->xf[p7O_E][p7O_MOVE] = 1.0f;
+   // om->xf[p7O_E][p7O_LOOP] = 0.0f;
+   // om->nj = 0.0f;
+
+   // om->xw[p7O_E][p7O_MOVE] = 0;
+   // om->xw[p7O_E][p7O_LOOP] = -32768;
+
+   // return p7_oprofile_ReconfigLength(om, L);
+}

@@ -37,23 +37,12 @@ mmseqs_pipeline( WORKER* worker )
    WORK_open( worker );
 
    /* file pointer for writing out to file */
-   FILE*    fp       = NULL;
-   ARGS*    args     = worker->args;
-   TASKS*   tasks    = worker->tasks;
-
+   ARGS*          args        = worker->args;
+   TASKS*         tasks       = worker->tasks;
    /* set tasks */
-   tasks->linear        = true;
-   tasks->lin_bound_fwd = true;
-   // #if DEBUG
-   // {
-   //    tasks->quadratic  = true;
-   //    tasks->quad_vit   = true;
-   //    tasks->quad_trace = true;
-   //    tasks->quad_fwd   = true;
-   //    tasks->quad_bck   = true;
-   // }
-   // #endif
-
+   tasks->linear              = true;
+   tasks->lin_bound_fwd       = true;
+   tasks->lin_bound_bck       = true;
    /* worker objects */
    TIMES*         times       = worker->times;
    NAT_SCORES*    scores      = worker->scores;
@@ -61,67 +50,68 @@ mmseqs_pipeline( WORKER* worker )
    CLOCK*         clok        = worker->clok;
    /* alignment for mmseqs window */
    ALIGNMENT*     tr          = worker->traceback;
-   /* input results file from MMSEQS pipeline */
-   worker->results_in         = RESULTS_Create();
+   /* input results */
    RESULTS*       results_in  = worker->results_in;
    RESULT*        result_in   = NULL;
-   /* output results from fb-pruner */
-   RESULT*        result      = worker->result;
-   RESULT*        result_out  = worker->result;
-   /* 
+   /* input results */
+   RESULTS*       results_out = NULL;
+   RESULT*        result_out  = NULL;
+
+   /* set flags for pipeline tasks */
+   /* TASKS */
+   {
+      /* linear algs */
+      tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
+      tasks->lin_fwd          = false;    /* optional, but can't recover alignment */
+      tasks->lin_bck          = false;    /* optional, but can't recover alignment */
+      tasks->lin_vit          = false;    /* optional, but can't recover alignment */
+      tasks->lin_trace        = false;    /* optional, but can't recover alignment */
+      tasks->lin_bound_fwd    = true;
+      tasks->lin_bound_bck    = true;
+      /* quadratic algs */
+      tasks->quadratic        = true;     /* if any other quadratic tasks are flagged, this must be too */
+      tasks->quad_fwd         = false;    /* optional */
+      tasks->quad_bck         = false;    /* optional */
+      tasks->quad_vit         = true;     /* viterbi required for cloud search */
+      tasks->quad_trace       = true;     /* traceback required for cloud search  */
+      tasks->quad_bound_fwd   = false;    /* required step of cloud search */
+      tasks->quad_bound_bck   = false;    /* optional */
+   }
+
+      /* get result range */
+   int i_rng = 0;
+   int i_cnt = 0;
+   int i_beg = args->list_range.beg;
+   int i_end = args->list_range.end;
+   i_rng = i_end - i_beg;
 
    /* m8+ file contains target_id, query_id, and result_id fields */
-   // RESULTS_M8_Plus_Parse( results_in, args->mmseqs_res_filepath );
-   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath );
+   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
    // RESULTS_M8_Dump( results_in, stdout );
 
-   /* target and query ids */
-   int      res_id   = -1;
-   int      t_id     = -1;
-   int      q_id     = -1;
-   char*    q_name   = NULL;
-   char*    t_name   = NULL;
-   int      t_len    = -1;
-   int      q_len    = -1;
-   /* previous hit ids */
-   int      t_id_prv    = -1;
-   int      q_id_prv    = -1;
-   char*    t_name_prv  = NULL;
-   char*    q_name_prv  = NULL;
+   /* current hit */
+   int      res_id            = -1;
+   int      t_id              = -1;
+   int      q_id              = -1;
+   char*    q_name            = NULL;
+   char*    t_name            = NULL;
+   /* previous hit */
+   int      t_id_prv          = -1;
+   int      q_id_prv          = -1;
+   char*    t_name_prv        = NULL;
+   char*    q_name_prv        = NULL;
    /* window start and end points */
-   TRACE*   beg;
-   TRACE*   end;
-
+   TRACE*   beg               = NULL;
+   TRACE*   end               = NULL;
    /* TODO: set values for reporting results */
    bool     report_all        = true;
    float    threshold_sc      = 0;
 
-   /* === INDEX FILES === */
-   printf_vlo("# Loading index file at: '%s'\n", args->t_indexpath );
-   worker->t_index = F_INDEX_Load( worker->t_index, args->t_indexpath );
-
-   printf_vlo("# Loading index file at: '%s'\n", args->q_indexpath );
-   worker->q_index = F_INDEX_Load( worker->q_index, args->q_indexpath );
-   /* sort indexes by id */
-   F_INDEX_Sort_by_Name( worker->t_index );
-   F_INDEX_Sort_by_Name( worker->q_index );
-   /* output index */
-   if ( args->verbose_level >= VERBOSE_ALL ) {
-      F_INDEX_Dump( worker->t_index, stdout );
-      F_INDEX_Dump( worker->q_index, stdout );
-   }
-
+   /* load indexes  */
+   WORK_load_index_by_name( worker );
    /* get result range */
-   int i_rng = 0;
-   int i_cnt = 0;
-   int i_beg = 0;
-   int i_end = results_in->N;
-   if ( args->mmseqs_range.beg >= 0 ) {
-      i_beg = args->mmseqs_range.beg;
-      i_end = MIN(args->mmseqs_range.end, i_end);
-   }
-   i_rng = i_end - i_beg;
-   printf_vhi("# MMSEQS RESULTS RANGE: (%d,%d)\n", args->mmseqs_range.beg, args->mmseqs_range.end );
+   WORK_load_mmseqs_list( worker );
+   worker->num_searches = args->list_range.end - args->list_range.beg;
 
    /* add header to all reports */
    WORK_report_header( worker );
@@ -130,41 +120,35 @@ mmseqs_pipeline( WORKER* worker )
    /* Look through each input result */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
-      result_out->result_id = i;
-      printf_vlo("# (%d/%d): Running cloud search for result (%d of %d)...\n", 
+      printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i, i_end );
 
-      /* get next result from list */
-      result_in   = &(results_in->data[i]);
-      /* result id */
-      res_id      = result_in->result_id;
+      result_in = &worker->results_in->data[i];
 
-      printf_vhi("=== M8 Entry : %d ===\n", i);
-      if ( args->verbose_level >= VERBOSE_HIGH ) {
+      if ( args->verbose_level >= VERBOSE_LOW ) 
+      {
+         fprintf( stdout, "=== M8 Entry : [%d] ===\n", i);
          RESULT_M8_Dump( result_in, stdout );
       }
 
       /* name from results */
       t_name      = result_in->target_name;
       q_name      = result_in->query_name;
-      printf_vhi("# T_NAME   (INPUT):\t%s\n", t_name );
-      printf_vhi("# Q_NAME   (INPUT):\t%s\n", q_name );
+      printf_vhi("# T_NAME:\t %-35s => %-35s\n", t_name, t_name_prv );
+      printf_vhi("# Q_NAME:\t %-35s => %-35s\n", q_name, q_name_prv );
 
       /* find target/query in index and load from database */
       if ( STRING_Equal( t_name, t_name_prv ) == false ) {
          WORK_load_target_by_name( worker, t_name );
+         // HMM_PROFILE_Dump( worker->t_prof, stdout );
       }
-      if ( STRING_Equal( q_name, q_name_prv ) == false )  {
+      if ( STRING_Equal( q_name, q_name_prv ) == false ) {
          WORK_load_query_by_name( worker, q_name );
+         // SEQUENCE_Dump( worker->q_seq, stdout );
       }
-
-      printf_vhi("# T_NAME (OUTPUT):\t[%d] %s\n", worker->t_id, t_name );
-      printf_vhi("# Q_NAME (OUTPUT):\t[%d] %s\n", worker->q_id, q_name );
 
       t_name_prv  = t_name;
       q_name_prv  = q_name;
-      t_len       = worker->t_prof->N;
-      q_len       = worker->q_seq->N;
 
       /* clear old data and change sizes of data structs */
       WORK_reuse( worker );
@@ -204,35 +188,37 @@ mmseqs_pipeline( WORKER* worker )
 
       /* run cloud search */
       WORK_cloud_search( worker );
-
-      /* use sparse matrix to capture the exact alignment */
-      // WORK_capture_alignment( worker );
-
+      /* capture alignment */
+      WORK_capture_alignment( worker );
       /* convert bitscore to eval */
-      WORK_convert_scores( worker );
+      // WORK_convert_scores( worker );
 
-      #if DEBUG
+      if ( args->verbose_level >= VERBOSE_LOW || true  ) 
       {
-         float percent_cells = (float) result_out->cloud_cells / (float) result_out->total_cells;
-         printf("PRUNING => cloud_cells: %d, total_cells: %d, percent_cells: %.3f\n", 
-            result_out->cloud_cells, result_out->total_cells, percent_cells );
+         RESULT* result_out = worker->result;
 
-         float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck +
-                     times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
+         float percent_cells = (float) result_out->cloud_cells / (float) result_out->total_cells;
+         float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck + times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
          float speedup = cloud_tot / times->quad_fwd; 
-         printf("TIMES => cloud_time: %.3f, fwd_time: %.3f, speed ratio: %.3f\n", 
+
+         printf("PRUNING =>  cloud_cells: %5d, total_cells: %5d, percent_cells: %2.3f\n", 
+            result_out->cloud_cells, result_out->total_cells, percent_cells );
+         printf("TIMES   =>  cloud_time: %2.3f, fwd_time: %2.3f, speed ratio: %2.3f\n", 
             cloud_tot, times->quad_fwd, speedup );
-         printf("SCORES => cloud_sc: %.3f, fwd_sc: %.3f\n", 
-            scores->lin_bound_fwd, scores->quad_fwd );
+         printf("SCORES  =>  lin_bound_fwd_sc: %2.3f, sparse_bound_fwd_sc: %2.3f, fwd_sc: %2.3f, \n", 
+            scores->lin_bound_fwd, scores->sparse_bound_fwd, scores->quad_fwd );
+         printf("SCORES  =>  lin_bound_bck_sc: %2.3f, sparse_bound_bck_sc: %2.3f, bck_sc: %2.3f, \n", 
+            scores->lin_bound_bck, scores->sparse_bound_bck, scores->quad_bck );
       }
-      #endif
 
       /* print results */
       WORK_report_result_current( worker );
    }
 
+   /* results footer */
    WORK_report_footer( worker ); 
-
+   /* close all file pointers */
    WORK_close( worker );
+   /* free work data */
    WORK_cleanup( worker );
 }

@@ -22,9 +22,9 @@ MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
 /* destructor */
 void* MATRIX_3D_Destroy( MATRIX_3D*  mx );
 
-/* deep copy */
-MATRIX_3D* MATRIX_3D_Copy( MATRIX_3D*     dest,
-                           MATRIX_3D*     src );
+/* deep copy: returns dest matrix, will allocate if null */
+MATRIX_3D* MATRIX_3D_Copy(    MATRIX_3D*           dest,
+                              const MATRIX_3D*     src );
 
 /* fill MATRIX_3D with values */
 void MATRIX_3D_Fill( MATRIX_3D*     mx,
@@ -91,6 +91,14 @@ void MATRIX_3D_Save(MATRIX_3D*  mx,
 /* Compare two MATRIX_2D */
 int MATRIX_3D_Compare(  MATRIX_3D*  mx_a,
                         MATRIX_3D*  mx_b );
+
+/*
+ *  FUNCTION:  MATRIX_2D_Add()
+ *  SYNOPSIS:  Takes sum of <mx_a> + <mx_b>.  Result stored in <mx_res>.
+ */
+void MATRIX_3D_Add(  MATRIX_3D*  mx_a,
+                     MATRIX_3D*  mx_b,
+                     MATRIX_3D*  mx_res );
 
 /*
  *  FUNCTION:  MATRIX_2D_Diff()

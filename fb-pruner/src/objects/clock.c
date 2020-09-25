@@ -162,7 +162,7 @@ double CLOCK_Get_RealTime()
    /* AIX, BSD, Cygwin, HP-UX, Linux, OSX, POSIX, Solaris. ----- */
    struct timeval tm;
    gettimeofday( &tm, NULL );
-   return (double)tm.tv_sec + (double)tm.tv_usec / 1000000.0;
+   return (double)tm.tv_sec + (double)tm.tv_usec / 1000000000.0;
 #else
    return -1.0;      /* Failed. */
 #endif
@@ -183,6 +183,12 @@ char* CLOCK_Get_DateTimeString( CLOCK* cl )
 double CLOCK_Get_Total_Runtime( CLOCK* cl )
 {
    double current_time  = CLOCK_Get_RealTime();
-   double duration      = cl->stop - cl->start;
+   double duration      = (cl->stop - cl->start);
    return (double)(cl->duration);
+}
+
+/* Delay for <sec> milliseconds */
+int CLOCK_Delay( int milliseconds )
+{
+
 }

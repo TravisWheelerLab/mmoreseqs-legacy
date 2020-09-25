@@ -169,9 +169,9 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
 
    /* TODO: update to allocate in Create() / change to VECTOR_CHAR */
    /* clear pre-existing consensus */
-   ERROR_free(prof->consensus);
+   ERROR_free( prof->consensus );
    /* allocate new consensus */
-   prof->consensus = (char*) malloc( sizeof(char) * (prof->N + 1) );
+   prof->consensus = ERROR_malloc( sizeof(char) * (prof->N + 1) );
 
    /* find consensus sequence */
    for (int i = 1; i <= prof->N; i++)
@@ -227,6 +227,8 @@ void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof,
 void HMM_PROFILE_Dump( HMM_PROFILE* prof, 
                        FILE*        fp )
 {
+   int pad_1, pad_2;
+
    /* test for bad file pointer */
    if (fp == NULL) {
       const char* obj_name = "HMM_PROFILE";
@@ -240,31 +242,33 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
       HMM_PROFILE_Set_Consensus( prof );
    }
 
-   int pad = 20;
+   pad_1 = 15;
    fprintf(fp, "\n");
-   fprintf(fp, "===== HMM PROFILE ====================================\n");
-   fprintf(fp, "%*s\t%s\n",  pad,  "NAME",       prof->name);
-   fprintf(fp, "%*s\t%d\n",  pad,  "LENGTH",     prof->N);
-   fprintf(fp, "%*s\t%d\n",  pad,  "ALLOC",      prof->Nalloc);
-   fprintf(fp, "%*s\t%s\n",  pad,  "CONSENSUS",  prof->consensus);
+   fprintf(fp, "=== HMM PROFILE ====================================\n");
+   fprintf(fp, "%*s %s\n",  pad_1,  "NAME:",       prof->name);
+   fprintf(fp, "%*s %d\n",  pad_1,  "LENGTH:",     prof->N);
+   fprintf(fp, "%*s %d\n",  pad_1,  "ALLOC:",      prof->Nalloc);
+   fprintf(fp, "%*s %s\n",  pad_1,  "CONSENSUS:",  prof->consensus);
 
    /* background model */
-   fprintf(fp, "#%10s:\t", "FREQ");
+   pad_1 = 13;
+   pad_2 = 4;
+   fprintf(fp, "#%*s:%*s", pad_1, "FREQ", pad_1, "");
    for (int j = 0; j < NUM_AMINO; j++)
       fprintf(fp, "%9.4f ", prof->bg_model->freq[j]);
    fprintf(fp, "\n");
 
-   fprintf(fp, "#%10s:\t", "COMPO");
+   fprintf(fp, "#%*s:%*s", pad_1, "COMPO", pad_1, "");
    for (int j = 0; j < NUM_AMINO; j++)
       fprintf(fp, "%9.4f ", prof->bg_model->compo[j]);
    fprintf(fp, "\n");
 
-   fprintf(fp, "#%10s:\t", "INSERT");
+   fprintf(fp, "#%*s:%*s", pad_1, "INSERT", pad_1, "");
    for (int j = 0; j < NUM_AMINO; j++)
       fprintf(fp, "%9.4f ", prof->bg_model->insert[j]);
    fprintf(fp, "\n");
 
-   fprintf(fp, "#%10s:\t", "TRANS");
+   fprintf(fp, "#%*s:%*s", pad_1, "TRANS", pad_1, "");
    for (int j = 0; j < NUM_TRANS_STATES; j++)
       fprintf(fp, "%9.4f ", prof->bg_model->trans[j]);
    fprintf(fp, "\n\n");
@@ -297,23 +301,29 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
    }
    fprintf(fp, "\n");
 
-   fprintf(fp, "#%15s:\n", "BACKGROUND");
+   /* background frequencies */
+   pad_1 = 13;
+   fprintf(fp, "#%*s:\n", pad_1, "BACKGROUND");
 
-   fprintf(fp, "#%15s:%7s", "LOG", "");
+   fprintf(fp, "#%*s:%7s", pad_1, "LOG", "");
    for (int i = 0; i < NUM_AMINO; i++)
       fprintf(fp, "%9.4f ", BG_MODEL_log[i]);
    fprintf(fp, "\n");
 
-   fprintf(fp, "#%15s:%7s", "ACTUAL", "");
+   fprintf(fp, "#%*s:%7s", pad_1, "ACTUAL", "");
    for (int i = 0; i < NUM_AMINO; i++)
       fprintf(fp, "%9.4f ", BG_MODEL[i]);
    fprintf(fp, "\n");
 
    fprintf(fp, "#%15s:\n", "SPECIAL");
-   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "E", prof->bg_model->spec[SP_E][SP_LOOP], prof->bg_model->spec[SP_E][SP_MOVE]);
-   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "N", prof->bg_model->spec[SP_N][SP_LOOP], prof->bg_model->spec[SP_N][SP_MOVE]);
-   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "C", prof->bg_model->spec[SP_C][SP_LOOP], prof->bg_model->spec[SP_C][SP_MOVE]);
-   fprintf(fp, "%16s:\t%9.4f %9.4f\n", "J", prof->bg_model->spec[SP_J][SP_LOOP], prof->bg_model->spec[SP_J][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", 
+      "E", prof->bg_model->spec[SP_E][SP_LOOP], prof->bg_model->spec[SP_E][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", 
+      "N", prof->bg_model->spec[SP_N][SP_LOOP], prof->bg_model->spec[SP_N][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", 
+      "C", prof->bg_model->spec[SP_C][SP_LOOP], prof->bg_model->spec[SP_C][SP_MOVE]);
+   fprintf(fp, "%16s:\t%9.4f %9.4f\n", 
+      "J", prof->bg_model->spec[SP_J][SP_LOOP], prof->bg_model->spec[SP_J][SP_MOVE]);
 
    fprintf(fp, "//\n");
 }

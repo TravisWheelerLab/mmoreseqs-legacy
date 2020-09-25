@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 /* objects */
 #include "objects/structs.h"
@@ -180,12 +181,26 @@ bool cmp_tol_cust(const float a,
    return ( fabs( a - b ) < tol );
 }
 
-/*
- *  FUNCTION:  cmp_tol()
- *  SYNOPSIS:  Checks whether two floats <a> and <b> are within custom tolerance <tol> of eachother.
- *    RETURN:  Returns <1> on success, <0> on failure
+/*  FUNCTION:  my_mkdir()
+ *  SYNOPSIS:  Make directory.
+ *    RETURN:  Returns <STATUS_SUCCESS> on success.
  */
 int my_mkdir( const char* folderpath )
 {
-  
+    return STATUS_SUCCESS;
 }
+  
+/*  FUNCTION:  my_delay()
+ *  SYNOPSIS:  Hold for given number of <secs>
+ */
+void my_delay( int milli_seconds ) 
+{ 
+    // Converting time into milli_seconds 
+    int nano_seconds =  1000 * milli_seconds; 
+  
+    // Storing start time 
+    clock_t start_time = clock(); 
+  
+    // looping till required time is not achieved 
+    while (clock() < start_time + nano_seconds) {}; 
+} 

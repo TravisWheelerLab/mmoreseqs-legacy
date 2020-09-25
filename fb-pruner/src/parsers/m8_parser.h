@@ -11,7 +11,9 @@
 
 /* parse .m8 results file and create RESULTS object */
 void RESULTS_M8_Parse( RESULTS* 	results,
-					   char* 		_filename_ );
+					   char* 		_filename_,
+					   int 			start_idx,
+					   int 			end_idx );
 
 /* */
 void RESULTS_M8_Plus_Parse( RESULTS* 	results,

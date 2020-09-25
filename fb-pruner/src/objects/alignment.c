@@ -56,6 +56,7 @@ ALIGNMENT* ALIGNMENT_Create()
    aln->target_aln   = NULL;
    aln->center_aln   = NULL;
    aln->query_aln    = NULL;
+   aln->state_aln    = NULL;
 
    ALIGNMENT_Resize(aln, min_size);
 
@@ -82,6 +83,7 @@ void* ALIGNMENT_Destroy(   ALIGNMENT* aln )
    ERROR_free( aln->target_aln );
    ERROR_free( aln->center_aln );
    ERROR_free( aln->query_aln );
+   ERROR_free( aln->state_aln );
 
    ERROR_free( aln );
    aln = NULL;
@@ -106,10 +108,11 @@ void ALIGNMENT_Reuse(   ALIGNMENT*  aln,
    VECTOR_TRACE_Reuse( aln->traces );
 
    /* TODO: reuse string? */
-   ERROR_free( aln->cigar_aln );
-   ERROR_free( aln->target_aln );
-   ERROR_free( aln->center_aln );
-   ERROR_free( aln->query_aln );
+   aln->cigar_aln = ERROR_free( aln->cigar_aln );
+   aln->target_aln = ERROR_free( aln->target_aln );
+   aln->center_aln = ERROR_free( aln->center_aln );
+   aln->query_aln = ERROR_free( aln->query_aln );
+   aln->state_aln = ERROR_free( aln->state_aln );
 }
 
 /* push trace onto end of alignment */
@@ -320,9 +323,9 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
 
    /* allocate all string */
    aln->target_aln   = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
-   aln->query_aln    = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
-   aln->center_aln   = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
-   aln->state_aln    = ERROR_realloc( aln->target_aln, sizeof(char) * (aln_len + 1) );
+   aln->query_aln    = ERROR_realloc( aln->query_aln, sizeof(char) * (aln_len + 1) );
+   aln->center_aln   = ERROR_realloc( aln->center_aln, sizeof(char) * (aln_len + 1) );
+   aln->state_aln    = ERROR_realloc( aln->state_aln, sizeof(char) * (aln_len + 1) );
 
    /* counts */
    aln->num_matches  = 0;
@@ -346,6 +349,9 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
       tr          = &traceback->data[i];
       char t_ch   = t_prof->consensus[tr->j];
       char q_ch   = q_seq->seq[tr->i];
+      char c_ch   = ' ';
+      
+      // printf("i=%d/%d; q_ch, t_ch, c_ch\n", i, end);
 
       /* output depends upon state */
       if ( tr->st == M_ST ) 
@@ -357,50 +363,63 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
          if ( t_ch == q_ch ) {
             aln->num_matches++;
             aln->center_aln[offset] = t_ch;
-            break;
+         } 
+         else {
+            /* if target and query match (any case) */
+            t_ch = tolower(t_ch);
+            q_ch = tolower(q_ch);
+            if ( t_ch == q_ch ) {
+               aln->num_matches++;
+               aln->center_aln[offset] = t_ch;
+            }
+            else {
+               /* if score is positive */
+               float msc;
+               // msc = MSC(tr->j, q_ch);
+               msc = 0;
+               if ( MSC(tr->j, q_ch) > 0 ) {
+                  aln->center_aln[offset] = '+';
+               } 
+               else {
+                  aln->center_aln[offset] = '-';
+               } 
+            }
          }
-         /* if target and query match (any case) */
-         t_ch = tolower(t_ch);
-         q_ch = tolower(q_ch);
-         if ( t_ch == q_ch ) {
-            aln->num_matches++;
-            aln->center_aln[offset] = t_ch;
-            break;
-         }
-         /* if score is positive */
-         float msc;
-         // msc = MSC(tr->j, q_ch);
-         msc = 0;
-         if ( MSC(tr->j, q_ch) > 0 ) {
-            aln->center_aln[offset] = '+';
-            break;
-         }
-         aln->center_aln[offset] = ' ';
       }
       if ( tr->st == I_ST ) 
       {
          aln->num_misses++;
-         aln->state_aln[offset] = 'I';
+         aln->state_aln[offset]  = 'I';
          /* insert corresponds to gap in target profile */
          aln->center_aln[offset] = ' ';
          aln->target_aln[offset] = '-';
-         aln->query_aln[offset] = q_ch;
+         aln->query_aln[offset]  = q_ch;
       }
       if ( tr->st == D_ST ) {
          aln->num_misses++;
-         aln->state_aln[offset] = 'D';
+         aln->state_aln[offset]  = 'D';
          /* delete corresponds to gap in query sequence */
          aln->center_aln[offset] = ' ';
          aln->target_aln[offset] = t_ch;
-         aln->query_aln[offset] = '-';
+         aln->query_aln[offset]  = '-';
       }
-
-      aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
    }
+
+   aln->state_aln[offset]     = '\0';
+   aln->center_aln[offset]    = '\0';
+   aln->target_aln[offset]    = '\0';
+   aln->query_aln[offset]     = '\0';
+
+   aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
+
+   // printf("state:  %s\n", aln->state_aln );
+   // printf("target: %s\n", aln->target_aln );
+   // printf("center: %s\n", aln->center_aln );
+   // printf("query:  %s\n", aln->query_aln );
 }
 
 /*
- *  FUNCTION:  ALIGNMENT_Build_HMMER_Style()
+ *  FUNCTION:  ALIGNMENT_Build_MMSEQS_Style()
  *  SYNOPSIS:  Generate <aln> strings, HMMER-style (Cigar-style).
  *             Expects <aln> has already been constructed.
  *   EXAMPLE:
@@ -442,6 +461,8 @@ void ALIGNMENT_Build_MMSEQS_Style(  ALIGNMENT*     aln,
       }
       prv_st = cur_st;
    }
+
+   printf("Cigar: %s\n", aln->cigar_aln);
 }
 
 /* outputs ALIGNMENT to FILE pointer */

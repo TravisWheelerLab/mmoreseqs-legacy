@@ -127,7 +127,7 @@ void* ERRORCHECK_alloc( void*          ptr,
    ptr = realloc( ptr, size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
-      printf("ERROR_SIZE: %d\n", size);
+      printf("ERROR_SIZE: %ld\n", size);
       ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;
@@ -149,7 +149,7 @@ void* ERRORCHECK_malloc(   const size_t   size,
    ptr = malloc( size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
-      printf("ERROR_SIZE: %d\n", size);
+      printf("ERROR_SIZE: %ld\n", size);
       ERRORCHECK_handler( ERROR_MALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;
@@ -171,7 +171,7 @@ void* ERRORCHECK_realloc(  void*          ptr,
    ptr = realloc( ptr, size );
    /* if {ptr} is NULL, then we have a memory error */
    if ( ptr == NULL ) {
-      printf("ERROR_SIZE: %d\n", size);
+      printf("ERROR_SIZE: %ld\n", size);
       ERRORCHECK_handler( ERROR_REALLOC, _file_, _line_, _func_, NULL );
    }
    return ptr;

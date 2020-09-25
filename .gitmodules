@@ -4,3 +4,6 @@
 [submodule "fb-pruner/lib/MMseqs2"]
 	path = fb-pruner/lib/MMseqs2
 	url = https://github.com/soedinglab/MMseqs2.git
+[submodule "fb-pruner/lib/libbmp"]
+	path = fb-pruner/lib/libbmp
+	url = https://github.com/marc-q/libbmp.git

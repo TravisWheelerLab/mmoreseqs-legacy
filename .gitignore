@@ -14,6 +14,7 @@
 more-tools/hmmer-test/easel/
 fb-pruner/build/
 fb-pruner/bin/
+fb-pruner/test-mmseqs/
 more-tools/hmmer-test/build/
 more-tools/mmseqs-test/build/
 more-tools/mmseqs-pruner-plus/build/

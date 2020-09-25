@@ -45,8 +45,8 @@ void VECTOR_INT_Fill(   VECTOR_INT*   vec,
  *  SYNOPSIS:  Create deep copy of <src> object. 
  *             Creates new VECTOR_INT for <dest> if <dest> is NULL.
  */
-VECTOR_INT* VECTOR_INT_Copy(  VECTOR_INT*   src, 
-                              VECTOR_INT*   dest );
+VECTOR_INT* VECTOR_INT_Copy(  VECTOR_INT*          dest,
+                              const VECTOR_INT*    src );
 
 /*
  *  FUNCTION:  VECTOR_INT_Resize()

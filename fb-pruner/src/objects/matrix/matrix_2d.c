@@ -71,8 +71,8 @@ void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
 }
 
 /* deep copy: returns dest matrix, will allocate if null */
-MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,
-                           MATRIX_2D*     src )
+MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*           dest,
+                           const MATRIX_2D*     src )
 {
    /* dim */
    int R = src->R;
@@ -94,7 +94,7 @@ MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*     dest,
    return dest;
 }
 
-/* fill MATRIX_2D with values */
+/* fill <mx> with value <val> */
 void MATRIX_2D_Fill( MATRIX_2D*     mx,
                      float          val)
 {
@@ -277,8 +277,8 @@ void MATRIX_2D_Save( MATRIX_2D*  mx,
 }
 
 /* Compare two MATRIX_2D */
-int MATRIX_2D_Compare(  MATRIX_2D*  mx_a,
-                        MATRIX_2D*  mx_b )
+int MATRIX_2D_Compare(  MATRIX_2D*  mx_A,
+                        MATRIX_2D*  mx_B )
 {
    /* inequality value */
    int      cmp   = 0;
@@ -288,8 +288,8 @@ int MATRIX_2D_Compare(  MATRIX_2D*  mx_a,
    const float tol = 1e-2;
 
    /* dim */
-   int   R  = mx_a->R;
-   int   C  = mx_a->C;
+   int   R  = mx_A->R;
+   int   C  = mx_A->C;
 
    MATRIX_2D* cloud_MX = debugger->cloud_MX;
    #if DEBUG
@@ -299,22 +299,22 @@ int MATRIX_2D_Compare(  MATRIX_2D*  mx_a,
    }
    #endif
 
-   if (  mx_a->R != mx_b->R || 
-         mx_a->C != mx_b->C ) {
+   if (  mx_A->R != mx_B->R || 
+         mx_A->C != mx_B->C ) {
       return -1;
    }
 
    for ( int i = 0; i < R; i++ ) {
       for ( int j = 0; j < C; j++ ) {
-         eq    = ( MX_2D( mx_a, i, j ) == MX_2D( mx_b, i, j ) );
-         diff  = MX_2D( mx_a, i, j ) - MX_2D( mx_b, i, j );
+         eq    = ( MX_2D( mx_A, i, j ) == MX_2D( mx_B, i, j ) );
+         diff  = MX_2D( mx_A, i, j ) - MX_2D( mx_B, i, j );
          diff  = ABS( diff );
          if ( eq == false && diff > tol ) {
             #if DEBUG
             {
                if ( cmp == 0 ) {  /* only reports first inequality */
                   printf("MATRIX_2D EQUALITY failed at: (%d,%d), TOLERANCE: %f\n", i, j, tol);
-                  printf("MX_A: %f, MX_B: %f => DIFF: %f\n", MX_2D( mx_a, i, j ), MX_2D( mx_b, i, j ), diff );
+                  printf("MX_A: %f, MX_B: %f => DIFF: %f\n", MX_2D( mx_A, i, j ), MX_2D( mx_B, i, j ), diff );
                }
                MX_2D( cloud_MX, i, j ) += 1.0;
             }
@@ -331,20 +331,35 @@ int MATRIX_2D_Compare(  MATRIX_2D*  mx_a,
    return cmp;
 }
 
+/*  FUNCTION:  MATRIX_2D_Add()
+ *  SYNOPSIS:  Takes sum of <mx_A> + <mx_B>.  Result stored in <mx_res>.
+ */
+int MATRIX_2D_Add(   MATRIX_2D*  mx_A,
+                     MATRIX_2D*  mx_B,
+                     MATRIX_2D*  mx_res )
+{
+   for ( int i = 0; i < mx_A->R; i++ ) {
+      for ( int j = 0; j < mx_A->C; j++ ) {
+         MX_2D( mx_res, i, j ) = MX_2D( mx_A, i, j ) - MX_2D( mx_B, i, j );
+      }
+   }
+   return 0;
+}
+
 /*
  *  FUNCTION:  MATRIX_2D_Diff()
- *  SYNOPSIS:  Takes difference of <mx_a> - <mx_b>.  Result stored in <mx_diff>.
+ *  SYNOPSIS:  Takes difference of <mx_A> - <mx_B>.  Result stored in <mx_diff>.
  */
-int MATRIX_2D_Diff(  MATRIX_2D*  mx_a,
-                     MATRIX_2D*  mx_b,
+int MATRIX_2D_Diff(  MATRIX_2D*  mx_A,
+                     MATRIX_2D*  mx_B,
                      MATRIX_2D*  mx_diff )
 {
-   for ( int i = 0; i < mx_a->R; i++ ) {
-      for ( int j = 0; j < mx_a->C; j++ ) {
-         if ( MX_2D( mx_a, i, j ) == MX_2D( mx_b, i, j ) )
+   for ( int i = 0; i < mx_A->R; i++ ) {
+      for ( int j = 0; j < mx_A->C; j++ ) {
+         if ( MX_2D( mx_A, i, j ) == MX_2D( mx_B, i, j ) )
             MX_2D( mx_diff, i, j ) = 0;   /* verifies equality when INF or -INF */
          else
-            MX_2D( mx_diff, i, j ) = MX_2D( mx_a, i, j ) - MX_2D( mx_b, i, j );
+            MX_2D( mx_diff, i, j ) = MX_2D( mx_A, i, j ) - MX_2D( mx_B, i, j );
       }
    }
    return 0;

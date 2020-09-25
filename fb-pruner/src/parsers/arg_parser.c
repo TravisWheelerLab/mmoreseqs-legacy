@@ -199,9 +199,9 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args < argc) {
                i++;
-               args->mmseqs_range.beg = atoi(argv[i]);
+               args->list_range.beg = atoi(argv[i]);
                i++;
-               args->mmseqs_range.end = atoi(argv[i]);
+               args->list_range.end = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: '%s' flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -346,7 +346,7 @@ void  ARGS_Set_Defaults( ARGS* args )
    /* these will default to entire file unless filled with positive ints */
    args->t_range                 = (RANGE) { -1, -1 };    
    args->q_range                 = (RANGE) { -1, -1 };
-   args->mmseqs_range            = (RANGE) { -1, -1 };
+   args->list_range             = (RANGE) { -1, -1 };
 }
 
 

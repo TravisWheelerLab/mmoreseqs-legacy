@@ -267,3 +267,64 @@ void HMM_BG_FilterScore( 	HMM_BG* 			bg,
 
 	esl_hmx_Destroy(hmx);
 }
+
+
+/* Function:  p7_domaindef_ByPosteriorHeuristics()
+ * Synopsis:  Define domains in a sequence using posterior probs.
+ * Incept:    SRE, Sat Feb 23 08:17:44 2008 [Janelia]
+ *
+ * Purpose:   Given a sequence <sq> and model <om> for which we have
+ *            already calculated a Forward and Backward parsing
+ *            matrices <oxf> and <oxb>; use posterior probability
+ *            heuristics to determine an annotated domain structure;
+ *            and for each domain found, score it (with null2
+ *            calculations) and obtain an optimal accuracy alignment,
+ *            using <fwd> and <bck> matrices as workspace for the
+ *            necessary full-matrix DP calculations. Caller provides a
+ *            new or reused <ddef> object to hold these results.
+ *            A <bg> is provided for (possible) use in biased-composition
+ *            score correction (used in nhmmer), and a boolean
+ *            <long_target> argument is provided to allow nhmmer-
+ *            specific modifications to the behavior of this function
+ *            (TRUE -> from nhmmer).
+ *
+ *            Upon return, <ddef> contains the definitions of all the
+ *            domains: their bounds, their null-corrected Forward
+ *            scores, and their optimal posterior accuracy alignments.
+ *
+ * Returns:   <eslOK> on success.
+ *
+ *            <eslERANGE> on numeric overflow in posterior
+ *            decoding. This should not be possible for multihit
+ *            models.
+ */
+// int
+// p7_domaindef_ByPosteriorHeuristics( const ESL_SQ *sq, 
+// 												const ESL_SQ *ntsq, 
+// 												P7_OPROFILE *om,
+//                                    	P7_OMX *oxf, P7_OMX *oxb, P7_OMX *fwd, P7_OMX *bck,
+//                                    P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
+//                                    P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr) 
+// {
+// 	int i, j;
+//    int triggered;
+//    int d;
+//    int i2, j2;
+//    int last_j2;
+//    int nc;
+//    int saveL     = om->L;   /* Save the length config of <om>; will restore upon return */
+//    int save_mode = om->mode;   /* Likewise for the mode. */
+//    int status;
+
+//    // p7_domaindef_DumpPosteriors( stdout, ddef);
+
+//    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
+//    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
+
+//    esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
+//    ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
+
+//    p7_oprofile_ReconfigUnihit(om, saveL);     /* process each domain in unihit mode, regardless of om->mode     */
+//    i     = -1;
+//    triggered = FALSE;
+// }

@@ -751,8 +751,13 @@ int MATRIX_2D_Cloud_Fill(  MATRIX_2D*     cloud_MX,
       for (x = 0; x < N; x++)
       {
          i  = edg->bounds[x].id;
-         lb = edg->bounds[x].lb;
-         rb = edg->bounds[x].rb;
+         /* verify column in range */
+         lb = MAX( edg->bounds[x].lb, 0 );
+         rb = MIN( edg->bounds[x].rb, cloud_MX->C );
+         /* verify row in range */
+         if ( i < 0 || i >= cloud_MX->R ) {
+            continue;
+         }
 
          /* insert value across row in range */
          for (j = lb; j < rb; j++)

@@ -245,12 +245,12 @@ void REPORT_myout_footer(    WORKER*  worker,
 
 /* === UTILTITY FUNCTIONS === */
 
-/*    FUNCTION:   REPORT_hr()
+/*    FUNCTION:   REPORT_horizontal_rule()
  *    SYNOPSIS:   Print a horizontal rule. 
  */
-void REPORT_hr( FILE* fp );
+void REPORT_horizontal_rule( FILE* fp );
 
-/*    FUNCTION:   REPORT_hr()
+/*    FUNCTION:   REPORT_horizontal_rule()
  *    SYNOPSIS:   Print a horizontal rule of specified length.
  */
 void REPORT_hr_size( FILE* fp, 

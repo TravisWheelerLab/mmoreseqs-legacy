@@ -27,11 +27,14 @@
 
 /* parse .m8 results file and create RESULTS object */
 void RESULTS_M8_Parse( RESULTS* 	results,
-					        char* 		_filename_ )
+					        char* 		_filename_,
+                       int       start_idx,
+                       int       end_idx )
 {
    /* parser vars */
    FILE*    fp             = NULL;    
    int      line_count     = -1;       /* line counter of current line in file */
+   int      result_count   = -1;       /* tracks index of current result */
    char*    line_buf       = NULL;     /* pointer to start of buffered line */
    size_t   line_buf_size  = 0;        /* length of entire <line_buf> array */
    size_t   line_size      = 0;        /* length of current line in <line_buf> array */
@@ -64,15 +67,24 @@ void RESULTS_M8_Parse( RESULTS* 	results,
    // res_tmp.e_value      = 0.f;
    // res_tmp.bit_score    = 0;
 
-
    while ( ( line_size = getline ( &line_buf, &line_buf_size, fp ) ), line_size != -1 )
    {
       line_count++;
 
       /* ignore comment lines */
-      if (line_buf[0] == '#') {
+      if ( line_buf[0] == '#'  || line_size <= 1 ) {
+         continue;
+      } 
+      
+      /* if we are before start or end of target results */
+      result_count++;
+      if ( result_count < start_idx ) {
          continue;
       }
+      if ( result_count >= end_idx ) {
+         break;
+      }
+
       /* remove newline from end of line */
       if (line_size > 0 && line_buf[line_size-1] == '\n') {
          line_buf[--line_size] = '\0';
@@ -136,6 +148,9 @@ void RESULTS_M8_Parse( RESULTS* 	results,
       /* add new result to results list */
       RESULTS_Pushback( results, &res_tmp );
    }
+
+   results->num_hits       = line_count + 1;
+   results->num_searches   = line_count + 1;
 }
 
 /* parse .m8 results file and create RESULTS object */

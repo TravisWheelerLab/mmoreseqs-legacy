@@ -33,13 +33,12 @@
 WORKER* 
 WORKER_Create()
 {
-   WORKER* worker = NULL;
+   WORKER* worker       = NULL;
    
    worker = (WORKER*) ERROR_malloc( sizeof(WORKER) );
 
    /* set all pointers null */
    worker->args         = NULL;
-
    worker->tasks        = NULL;
 
    /* file pointers are all initially NULL */
@@ -86,17 +85,21 @@ WORKER_Create()
    worker->results_in   = NULL;
    worker->result       = NULL;
 
+   worker->num_searches = 0;
+
    /* create complex data structs */
    worker->clok         = CLOCK_Create();
 
    /* malloc all basic data structures */
    worker->tasks        = (TASKS*) ERROR_malloc( sizeof(TASKS) );
    worker->times        = (TIMES*) ERROR_malloc( sizeof(TIMES) );
+   worker->times_totals = (TIMES*) ERROR_malloc( sizeof(TIMES) );
    worker->scores       = (NAT_SCORES*) ERROR_malloc( sizeof(NAT_SCORES) );
 
    /* initialize all values to zero */
    memset( worker->tasks, 0, sizeof(TASKS) ); 
    memset( worker->times, 0, sizeof(TIMES) );
+   memset( worker->times_totals, 0, sizeof(TIMES) );
    memset( worker->scores, 0, sizeof(NAT_SCORES ) );
 
    /* get start time */
@@ -149,6 +152,7 @@ WORKER_Destroy( WORKER* worker )
 
    ERROR_free( worker->tasks );
    ERROR_free( worker->times );
+   ERROR_free( worker->times_totals );
    ERROR_free( worker->scores );
 
    ERROR_free( worker );

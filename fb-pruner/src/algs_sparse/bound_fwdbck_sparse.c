@@ -437,14 +437,14 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
 
    /* debugger tools */
-   FILE*       dbfp;
-   MATRIX_2D*  cloud_MX;
-   MATRIX_2D*  cloud_MX3;
-   MATRIX_3D*  test_MX;
-   MATRIX_3D*  test_MX3;
-   EDGEBOUNDS* test_edg;
-   int         num_writes;
-   int         num_clears;
+   FILE*                dbfp;
+   MATRIX_2D*           cloud_MX;
+   MATRIX_2D*           cloud_MX3;
+   MATRIX_3D*           test_MX;
+   MATRIX_3D*           test_MX3;
+   EDGEBOUNDS*          test_edg;
+   int                  num_writes;
+   int                  num_clears;
 
    /* initialize debugging matrix */
    #if DEBUG
@@ -495,17 +495,17 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    r_0e = r_0;            /* ending index for current row in list */
 
    /* Initialize special states */
+   XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-   /* if there is a bound on the Q-row and the right-most bound spans T ( covers bottom-right corner ) */
+   /* if Q-row bounds are not empty and the right-most bound spans T ( covers bottom-right corner ) */
    if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
    {
       /* get bound data */
-      bnd   = &EDG_X(edg, r_0b); 
-
+      bnd   = &EDG_X(edg, r_0b);
       /* fetch data location to bound start location (in offset) */
-      qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
+      qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );     /* (q_0, t_0) location offset */
 
       /* location for square matrix and mapping to sparse matrix */
       t_0 = T;
@@ -528,13 +528,13 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    for (r_0 = r_0b; r_0 > r_0e; r_0--) 
    {
       /* get bound data */
-      bnd   = &EDG_X(edg, r_0);
+      bnd   = &EDG_X(edg, r_0);        /* bounds for current bound */
       lb_0  = MAX(1, bnd->lb);         /* can't overflow the left edge */
       rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
 
       /* fetch data mapping bound start location to data block in sparse matrix */
-      qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-      qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+      qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+      qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_1, t_0) location offset */
 
       /* location for square matrix and mapping to sparse matrix */
       t_0 = lb_0;
@@ -542,6 +542,7 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
 
       for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
       {
+         /* real target index */
          t_1 = t_0 + 1;
          /* calculate offset from beginning of sparse data block */ 
          tx0 = t_0 - bnd->lb;
@@ -641,11 +642,11 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
       {
          /* get bound data */
          bnd   = &EDG_X(edg, r_0b);          /* bounds for current bound */
-         lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
-         rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
+         lb_0  = MAX(1, bnd->lb);            /* can't overflow the left edge */
+         rb_0  = MIN(bnd->rb, T);            /* can't overflow the right edge */
 
          /* fetch data location to bound start location (in offset) */
-         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
+         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
 
          /* location for square matrix and mapping to sparse matrix */
          t_0 = T;
@@ -667,12 +668,15 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
       /* FOR every EDGEBOUND in current ROW */
       for (r_0 = r_0b; r_0 > r_0e; r_0--)
       {
-         bnd   = &EDG_X(edg, r_0);          /* bounds for current bound */
+         /* get bound data */
+         bnd   = &EDG_X(edg, r_0);         /* bounds for current bound */
          lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
          rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
          /* fetch data location to bound start location (in offset) */
-         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
+         /* NOTE */
+         qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+         qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_0, t_0) location offset */
 
          /* location for square matrix and mapping to sparse matrix */
          t_0 = T;
@@ -755,9 +759,9 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    XMX(SP_B, q_0) = -INF;
    for (r_1 = r_1b; r_1 > r_1e; r_1--) 
    {
-      bnd = &EDG_X(edg, r_1);          /* bounds for current bound */
-      lb_0 = MAX(1, bnd->lb);          /* can't overflow the left edge */
-      rb_0 = MIN(bnd->rb, T);          /* can't overflow the right edge */
+      bnd   = &EDG_X(edg, r_1);          /* bounds for current bound */
+      lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
+      rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
       /* fetch data location to bound start location (in offset) */
       qx1 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */

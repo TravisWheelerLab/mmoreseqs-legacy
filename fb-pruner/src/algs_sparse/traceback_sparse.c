@@ -23,12 +23,11 @@
 /* header */
 #include "traceback_quad.h"
 
-/*
- *  FUNCTION:  run_Traceback_Sparse_2()
+/*  FUNCTION:  run_MaxExp_Traceback_Sparse_2()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
  *             Version 2: My implementation. Verifies that Alignment agrees with Matrix data.
  *
- *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ *    RETURN:  Return <STATUS_SUCCESS> if no errors.
  */
 int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence */
                               const HMM_PROFILE*   target,     /* HMM model */
