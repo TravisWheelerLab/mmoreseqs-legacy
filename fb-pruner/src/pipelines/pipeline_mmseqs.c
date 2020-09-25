@@ -78,6 +78,17 @@ mmseqs_pipeline( WORKER* worker )
       tasks->quad_bound_bck   = false;    /* optional */
    }
 
+      /* get result range */
+   int i_rng = 0;
+   int i_cnt = 0;
+   int i_beg = args->list_range.beg;
+   int i_end = args->list_range.end;
+   i_rng = i_end - i_beg;
+
+   /* m8+ file contains target_id, query_id, and result_id fields */
+   RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
+   // RESULTS_M8_Dump( results_in, stdout );
+
    /* current hit */
    int      res_id            = -1;
    int      t_id              = -1;
@@ -101,11 +112,6 @@ mmseqs_pipeline( WORKER* worker )
    /* get result range */
    WORK_load_mmseqs_list( worker );
    worker->num_searches = args->list_range.end - args->list_range.beg;
-
-   int i_beg = args->list_range.beg;
-   int i_end = args->list_range.end;
-   int i_rng = i_end - i_beg;
-   int i_cnt = 0;
 
    /* add header to all reports */
    WORK_report_header( worker );
