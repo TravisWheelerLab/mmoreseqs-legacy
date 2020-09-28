@@ -135,8 +135,6 @@ int run_MaxPost_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
          r_0 = r_0b;
       }
 
-      printf("r_0=(%d,%d)\n", r_0b, r_0e);
-
       /* TODO: can be optimized by only updating during certain cases */
       /* if either t_0 or q_0 have been decremented, then lookup index offset */
       if ( t_prv != t_0 || q_prv != q_0 ) {
@@ -156,9 +154,6 @@ int run_MaxPost_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             }
          }
       }
-
-      printf("q_0,t_0=(%d,%d)\n", q_0, t_0);
-      printf("qx0=%d, qx1=%d\n", qx0, qx1);
 
       /* update previous */
       q_prv = q_0;
@@ -200,7 +195,6 @@ int run_MaxPost_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
                st_cur = E_ST;
                max_sc = prv_E;
             }
-
          } break;
 
          /* E STATE to {M, D} */
@@ -524,7 +518,7 @@ int run_MaxPost_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
       MATRIX_2D_Fill( cloud_MX, 0 );
       for ( int i = 0; i < N; i++ ) {
          if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST )
-            MX_2D( cloud_MX, tr[i].i, tr[i].j ) = -1.0;
+            MX_2D( cloud_MX, tr[i].q_0, tr[i].t_0 ) = -1.0;
       }
    }
    #endif

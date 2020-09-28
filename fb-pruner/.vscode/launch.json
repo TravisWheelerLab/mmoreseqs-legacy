@@ -1,0 +1,114 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) mmseqs:test-mmseqs-single/",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/fb-pruner",
+            "args": [
+                "mmseqs", 
+                "test1_2.hmm", "test1_1.fa",
+                "--index", "test1_2.hmm.idx", "test1_1.fa.idx",
+                "--mmseqs-m8", "mmseqs_n1.test.n1.m8",
+                "--alpha", "12",
+                "--beta", "16",
+                "--gamma", "5"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test-mmseqs-single",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) main:test-mmseqs-single/",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/fb-pruner",
+            "args": [
+                "main", 
+                "test1_2.hmm", "test1_1.fa",
+                "--index", "test1_2.hmm.idx", "test1_1.fa.idx",
+                "--alpha", "12",
+                "--beta", "16",
+                "--gamma", "5"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test-mmseqs-single",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) mmseqs:test-mmseqs-single/",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/fb-pruner",
+            "args": [
+                "mmseqs", 
+                "query.hmm", "target.fasta", 
+                "--index", "query.idx", "target.idx", 
+                "--mmseqs-m8", "mmseqs_n1.profmark.n1.m8",
+                "--alpha", "12",
+                "--beta", "16",
+                "--gamma", "5"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test-mmseqs",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) mmseqs:test-mmseqs/",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/fb-pruner",
+            "args": [
+                "mmseqs", 
+                "query.hmm", "target.fasta", 
+                "--index", "query.idx", "target.idx", 
+                "--mmseqs-m8", "mmseqs_n1.profmark.n1.m8",
+                "--alpha", "12",
+                "--beta", "16",
+                "--gamma", "5"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/test-mmseqs",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

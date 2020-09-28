@@ -33,7 +33,7 @@ inline
 char* TRACE_To_String(  const TRACE   	d,
                      	char*       	buf )
 {
-   sprintf( buf, "{ [%d] (%d,%d) }", d.st, d.i, d.j );
+   sprintf( buf, "{ [%d] (%d,%d) }", d.st, d.q_0, d.t_0 );
    return buf;
 }
 
@@ -49,12 +49,12 @@ inline
 int TRACE_Compare( const TRACE     a, 
                    const TRACE     b )
 {
-   if ( (a.i - b.i) != 0 ) {
-      return (a.i - b.i);
+   if ( (a.q_0 - b.q_0) != 0 ) {
+      return (a.q_0 - b.q_0);
    }
 
-   if ( (a.j - b.j) != 0 ) {
-      return (a.j - b.j);
+   if ( (a.t_0 - b.t_0) != 0 ) {
+      return (a.t_0 - b.t_0);
    }
 
    return (a.st - b.st);

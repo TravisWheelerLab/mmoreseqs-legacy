@@ -45,6 +45,8 @@ more-tools/mmseqs-pruner-plus/build/
 *.dSYM
 .DS_Store
 *.swp
+*.gmon
+*/test_output/
 
 # programs
 *.depend

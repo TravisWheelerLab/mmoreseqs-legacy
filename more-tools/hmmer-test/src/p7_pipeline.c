@@ -1084,7 +1084,10 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("# fwdsc: %.9f, nullsc: %.9f, seqbias: %.9f\n", 
       fwdsc, nullsc, seqbias);
 
-   status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
+   status = p7_domaindef_ByPosteriorHeuristics(
+      sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
+   
+
    if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
    if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
    if (pli->ddef->nenvelopes == 0) return eslOK; /* rarer: region was found, stochastic clustered, no envelopes found */
@@ -1165,6 +1168,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       }
       seqbias = 0.0;
    } 
+   
+   /* */
    sum_score += (sq->n - Ld) * log((float) sq->n / (float) (sq->n + 3)); /* NATS */
    pre2_score = (sum_score - nullsc) / eslCONST_LOG2;                /* BITS */
    sum_score  = (sum_score - (nullsc + seqbias)) / eslCONST_LOG2;    /* BITS */

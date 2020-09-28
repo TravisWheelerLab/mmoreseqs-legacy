@@ -56,8 +56,6 @@ void WORK_search_list( WORKER* worker )
 
 }
 
-
-
 /* initialize data structs: dynamic programming matrices, edgebounds, etc */
 void WORK_init( WORKER* worker )
 {
@@ -68,27 +66,27 @@ void WORK_init( WORKER* worker )
    logsum_Init();
 
    /* target and profile structures */
-   worker->q_seq        = SEQUENCE_Create();
-   worker->t_seq        = SEQUENCE_Create();
-   worker->t_prof       = HMM_PROFILE_Create();
-   worker->hmm_bg       = HMM_BG_Create();
+   worker->q_seq           = SEQUENCE_Create();
+   worker->t_seq           = SEQUENCE_Create();
+   worker->t_prof          = HMM_PROFILE_Create();
+   worker->hmm_bg          = HMM_BG_Create();
    /* target and profile indexes */
-   worker->q_index      = F_INDEX_Create();
-   worker->t_index      = F_INDEX_Create();
+   worker->q_index         = F_INDEX_Create();
+   worker->t_index         = F_INDEX_Create();
    /* results in from mmseqs and out for general searches */
-   worker->results_in   = RESULTS_Create();
-   worker->results      = RESULTS_Create();
-   worker->result       = (RESULT*) ERROR_malloc( sizeof(RESULT) );
+   worker->results_in      = RESULTS_Create();
+   worker->results         = RESULTS_Create();
+   worker->result          = (RESULT*) ERROR_malloc( sizeof(RESULT) );
    /* data structs for viterbi alignment search */
-   worker->traceback    = ALIGNMENT_Create();
-   worker->trace_post   = ALIGNMENT_Create();
+   worker->traceback       = ALIGNMENT_Create();
+   worker->trace_post      = ALIGNMENT_Create();
    /* data structs for cloud edgebounds */
-   worker->edg_fwd      = EDGEBOUNDS_Create();
-   worker->edg_bck      = EDGEBOUNDS_Create();
-   worker->edg_diag     = EDGEBOUNDS_Create();
-   worker->edg_row      = EDGEBOUNDS_Create();
+   worker->edg_fwd         = EDGEBOUNDS_Create();
+   worker->edg_bck         = EDGEBOUNDS_Create();
+   worker->edg_diag        = EDGEBOUNDS_Create();
+   worker->edg_row         = EDGEBOUNDS_Create();
    /* row-wise edgebounds */
-   worker->edg_rows_tmp  = EDGEBOUND_ROWS_Create();
+   worker->edg_rows_tmp    = EDGEBOUND_ROWS_Create();
    for ( int i=0; i<3; i++ ) {
       worker->lb_vec[i]    = VECTOR_INT_Create();
       worker->rb_vec[i]    = VECTOR_INT_Create();
@@ -104,7 +102,9 @@ void WORK_init( WORKER* worker )
    worker->st_SMX_fwd   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX       = worker->st_SMX_fwd;
-   worker->sp_MX        = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->sp_MX_fwd    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->sp_MX_bck    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->sp_MX        = worker->sp_MX_fwd;
 }
 
 /* clean up data structs */
@@ -143,9 +143,10 @@ void WORK_cleanup( WORKER* worker )
    /* create necessary dp matrices */
    worker->st_MX           = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX3          = MATRIX_3D_Destroy( worker->st_MX3 );
-   worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
+   worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
-   worker->sp_MX           = MATRIX_2D_Destroy( worker->sp_MX );
+   worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
+   worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
 
    #if DEBUG
    {
@@ -231,11 +232,14 @@ void WORK_reuse( WORKER* worker )
       MATRIX_3D_Reuse_Clean( worker->st_MX3, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
    }
    if ( tasks->quadratic || tasks->linear ) {
-      MATRIX_2D_Reuse_Clean( worker->sp_MX, NUM_SPECIAL_STATES, Q+1);
+      MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd, NUM_SPECIAL_STATES, Q+1);
+      MATRIX_2D_Reuse_Clean( worker->sp_MX_bck, NUM_SPECIAL_STATES, Q+1);
+      worker->sp_MX = worker->sp_MX_fwd;
    }
 
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
+   worker->st_SMX = worker->st_SMX_fwd;
 
    #if DEBUG 
    {
@@ -597,14 +601,10 @@ void WORK_load_mmseqs_list( WORKER* worker )
 {
    ARGS* args = worker->args;
 
-   /* Truncate or extract valid result range */
-   if ( args->list_range.beg == -1 && args->list_range.beg == -1 ) {
+   /* If range values are negative, then range is set to full list set */
+   if ( args->list_range.beg < 0 && args->list_range.end < 0 ) {
       args->list_range.beg = 0;
       args->list_range.end = INT_MAX;
-   }
-   else {
-      args->list_range.beg = MAX(args->list_range.beg, 0);
-      args->list_range.end = MIN(args->list_range.end, INT_MAX);
    }
 
    /* m8+ file contains target_id, query_id, and result_id fields */
@@ -612,14 +612,8 @@ void WORK_load_mmseqs_list( WORKER* worker )
       worker->results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
 
    /* Truncate or extract valid result range */
-   if ( args->list_range.beg == -1 && args->list_range.beg == -1 ) {
-      args->list_range.beg = 0;
-      args->list_range.end = worker->results_in->N;
-   }
-   else {
-      args->list_range.beg = MAX(args->list_range.beg, 0);
-      args->list_range.end = MIN(args->list_range.end, worker->results_in->N);
-   }
+   args->list_range.beg = MAX(args->list_range.beg, 0);
+   args->list_range.end = MIN(args->list_range.end, worker->results_in->N);
 }
 
 /* load target by file index id */
@@ -1200,36 +1194,43 @@ void WORK_capture_alignment( WORKER* worker )
 
    /* run forward */
    run_Bound_Forward_Sparse( 
-      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, &sc);
+      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc);
    scores->sparse_bound_fwd = sc;
    #if DEBUG
    {
       printf("# printing sparse bound forward...\n");
       // DP_MATRIX_Copy( Q, T, debugger->test_MX, worker->sp_MX, st_MX_dst, sp_MX_dst );
-      DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_fwd.sparse.mx");
+      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_fwd.sparse.mx");
    }
    #endif
+
    /* run backward */
    run_Bound_Backward_Sparse( 
-      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_bck, worker->sp_MX, worker->edg_row, &sc );
+      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
    scores->sparse_bound_bck = sc;
    #if DEBUG
    {
       printf("# printing sparse bound backward...\n");
-      DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx");
+      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx" );
    }
    #endif
+
    /* sum forward and backward */
-   worker->st_SMX_fwd = MATRIX_3D_SPARSE_Add( worker->st_SMX_fwd, worker->st_SMX_bck );
+   MATRIX_3D_SPARSE_Add( worker->st_SMX_fwd, worker->st_SMX_bck, worker->st_SMX );
+   MATRIX_2D_Add( worker->sp_MX_fwd, worker->sp_MX_bck, worker->sp_MX );
    #if DEBUG
    {
       printf("# printing sparse bound max posterior...\n");
-      DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_maxpost.sparse.mx");
+      MATRIX_3D_Clean( debugger->test_MX );
+      MATRIX_3D_SPARSE_Embed( worker->st_SMX_fwd, debugger->test_MX );
+      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_maxpost.sparse.mx" );
    }
    #endif
+
    /* Recover alignment */
-   // run_MaxPost_Traceback_Sparse( 
-   //    q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
+   run_MaxPost_Traceback_Sparse( 
+      q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
+   ALIGNMENT_Dump(worker->trace_post, stdout);
 
    /* temp */
    run_Viterbi_Quad( 

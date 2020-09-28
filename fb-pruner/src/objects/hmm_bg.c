@@ -328,3 +328,129 @@ void HMM_BG_FilterScore( 	HMM_BG* 			bg,
 //    i     = -1;
 //    triggered = FALSE;
 // }
+
+/*
+ *      NOTE: HOW TO CONVERT row-coords to diag-coords
+ *       MMX3(i-1,j-1) => MMX3(, d_2)
+ *       MMX3(i,  j-1) => MMX3(, d_1)
+ *       MMX3(i,  j  ) => MMX3(, d_1)
+ */
+
+/*  FUNCTION:  COMPUTE_Bias_Compo()
+ *  SYNOPSIS:
+ *
+ *    RETURN:
+ */
+int COMPUTE_Bias_Compo( WORKER* worker )
+{
+   SEQUENCE*      q_seq    = worker->q_seq;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   VECTOR_FLT*    null2sc  = VECTOR_FLT_Create();
+
+   VECTOR_FLT_Set_Size( null2sc, q_seq->N + 1 );
+   VECTOR_FLT_Fill( null2sc, 0.0 );
+
+}
+
+
+/* Function:  p7_GNull2_ByExpectation()
+ * Synopsis:  Calculate null2 model from posterior probabilities.
+ * Incept:    SRE, Thu Feb 28 09:52:28 2008 [Janelia]
+ *
+ * Purpose:   Calculate the "null2" model for the envelope encompassed
+ *            by a posterior probability calculation <pp> for model
+ *            <gm>.  Return the null2 odds emission probabilities
+ *            $\frac{f'{x}}{f{x}}$ in <null2>, which caller
+ *            provides as space for at least <alphabet->Kp> residues.
+ *
+ *            The expectation method is applied to envelopes in
+ *            simple, well resolved regions (regions containing just a
+ *            single envelope, where no stochastic traceback
+ *            clustering was required).
+ *
+ *            Make sure that the posterior probability matrix <pp> has
+ *            been calculated by the caller for only the envelope; thus
+ *            its rows are numbered <1..Ld>, for envelope <ienv..jenv>
+ *            of length <Ld=jenv-ienv+1>.
+ *
+ * Args:      gm    - profile, in any mode, target length model set to <L>
+ *            pp    - posterior prob matrix, for <gm> against domain envelope <dsq+i-1> (offset)
+ *            null2 - RETURN: null2 odds ratios per residue; <0..Kp-1>; caller allocated space
+ *
+ * Returns:   <eslOK> on success; <null2> contains the null2 scores. The 0
+ *            row of <pp> has been used as temp space, and happens to contain
+ *            the expected frequency that each M,I,N,C,J state is used in this
+ *            <pp> matrix to generate residues.
+ *
+ * Throws:    (no abnormal error conditions)
+ */
+int
+NULL2_ByExpectation(    HMM_PROFILE*      prof,
+                        int               i,
+                        int               j,
+                        VECTOR_FLT*       null2 )
+{
+   // int      M      = gm->M;
+   // int      Ld     = pp->L;
+   // float  **dp     = pp->dp;
+   // float   *xmx    = pp->xmx;
+   // float    xfactor;
+   // int      x;        /* over symbols 0..K-1                       */
+   // int      i;        /* over offset envelope dsq positions 1..Ld  */
+   // int      k;        /* over model M states 1..M, I states 1..M-1 */
+
+   // /* Calculate expected # of times that each emitting state was used
+   //  * in generating the Ld residues in this domain.
+   //  * The 0 row in <wrk> is used to hold these numbers.
+   //  */
+   // esl_vec_FCopy(pp->dp[1],            (M + 1)*p7G_NSCELLS, pp->dp[0]);
+   // esl_vec_FCopy(pp->xmx + p7G_NXCELLS,  p7G_NXCELLS,       pp->xmx);
+   // for (i = 2; i <= Ld; i++)
+   // {
+   //    esl_vec_FAdd(pp->dp[0], pp->dp[i],             (M + 1)*p7G_NSCELLS);
+   //    esl_vec_FAdd(pp->xmx,   pp->xmx + i * p7G_NXCELLS, p7G_NXCELLS);
+   // }
+
+   // /* Convert those expected #'s to log frequencies; these we'll use as
+   //  * the log posterior weights.
+   //  */
+   // esl_vec_FLog(pp->dp[0], (M + 1)*p7G_NSCELLS);
+   // esl_vec_FLog(pp->xmx,   p7G_NXCELLS);
+
+   // esl_vec_FIncrement(pp->dp[0], (M + 1)*p7G_NSCELLS, -log((float)Ld));
+   // esl_vec_FIncrement(pp->xmx,   p7G_NXCELLS,       -log((float)Ld));
+
+   // /* Calculate null2's log odds emission probabilities, by taking
+   //  * posterior weighted sum over all emission vectors used in paths
+   //  * explaining the domain.
+   //  * This is dog-slow; a point for future optimization.
+   //  */
+   // xfactor = XMX(0, p7G_N);
+   // xfactor = p7_FLogsum(xfactor, XMX(0, p7G_C));
+   // xfactor = p7_FLogsum(xfactor, XMX(0, p7G_J));
+   // esl_vec_FSet(null2, gm->abc->K, -eslINFINITY);
+   // for (x = 0; x < gm->abc->K; x++)
+   // {
+   //    for (k = 1; k < M; k++)
+   //    {
+   //       null2[x] = p7_FLogsum(null2[x], MMX(0, k) + p7P_MSC(gm, k, x));
+   //       null2[x] = p7_FLogsum(null2[x], IMX(0, k) + p7P_ISC(gm, k, x));
+   //    }
+   //    null2[x] = p7_FLogsum(null2[x], MMX(0, M) + p7P_MSC(gm, k, x));
+   //    null2[x] = p7_FLogsum(null2[x], xfactor);
+   // }
+
+   // esl_vec_FExp (null2, gm->abc->K);
+   // /* now null2[x] = \frac{f_d(x)}{f_0(x)} for all x in alphabet,
+   //  * 0..K-1, where f_d(x) are the ad hoc "null2" residue frequencies
+   //  * for this envelope.
+   //  */
+
+   // /* make valid scores for all degeneracies, by averaging the odds ratios. */
+   // esl_abc_FAvgScVec(gm->abc, null2); /* does not set gap, nonres, missing  */
+   // null2[gm->abc->K]    = 1.0;        /* gap character    */
+   // null2[gm->abc->Kp - 2] = 1.0;    /* nonresidue "*"   */
+   // null2[gm->abc->Kp - 1] = 1.0;    /* missing data "~" */
+
+   // return eslOK;
+}

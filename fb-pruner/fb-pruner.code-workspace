@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tcc": "cpp",
+			"complex": "cpp",
+			"istream": "cpp",
+			"streambuf": "cpp",
+			"tuple": "cpp"
+		}
+	}
+}

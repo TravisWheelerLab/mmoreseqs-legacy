@@ -142,16 +142,16 @@ void TEST_fwd_cycle( const int   Q,
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (beg->i == 0 || beg->j == 0) {
-      beg->i += 1;
-      beg->j += 1;
+   if ( beg->q_0 == 0 || beg->t_0 == 0 ) {
+      beg->q_0 += 1;
+      beg->t_0 += 1;
    }
 
    /* TEST: overwrite alignment points */
-   beg->i = 100;
-   beg->j = 50;
-   end->i = Q;
-   end->j = T;
+   beg->q_0 = 100;
+   beg->t_0 = 50;
+   end->q_0 = Q;
+   end->t_0 = T;
 
    /* diag index at corners of dp matrix */
    d_st = 0;
@@ -159,23 +159,23 @@ void TEST_fwd_cycle( const int   Q,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   d_st = beg->i + beg->j;
-   // d_end = end->i + end->j;
+   d_st = beg->q_0 + beg->t_0;
+   // d_end = end->q_0 + end->t_0;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - beg->i;
-   dim_T = T - beg->j;
+   dim_Q = Q - beg->q_0;
+   dim_T = T - beg->t_0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   // dim_min = MIN(Q + beg->i, T + beg->j);
-   // dim_max = MAX(Q + beg->i, T + beg->j);
+   // dim_min = MIN(Q + beg->q_0, T + beg->t_0);
+   // dim_max = MAX(Q + beg->q_0, T + beg->t_0);
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    // set bounds using starting cell
-   lb = beg->i;
-   rb = beg->i + 1;
+   lb = beg->q_0;
+   rb = beg->q_0 + 1;
    num_cells = 0;
 
    /* iterate through diags */
@@ -196,7 +196,7 @@ void TEST_fwd_cycle( const int   Q,
          num_cells--;
 
       /* find diag cells that are inside matrix bounds */
-      le = MAX( beg->i, d - T );
+      le = MAX( beg->q_0, d - T );
       re = le + num_cells;
 
       /* NOTE: TESTING - THiS REMOVES ALL PRUNING */
@@ -238,8 +238,8 @@ void TEST_fwd_cycle( const int   Q,
 
    /* set each cell accessed to 1.0 */
    #if DEBUG
-      // MX_2D( cloud_MX, beg->i, beg->j ) = -1.0;
-      // MX_2D( cloud_MX, end->i, end->j ) = -1.0;
+      // MX_2D( cloud_MX, beg->q_0, beg->t_0 ) = -1.0;
+      // MX_2D( cloud_MX, end->q_0, end->t_0 ) = -1.0;
       DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       fclose( dbfp );
    #endif
@@ -299,9 +299,9 @@ void TEST_fwd_cycle3(const int   Q,
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (beg->i == 0 || beg->j == 0) {
-      beg->i += 1;
-      beg->j += 1;
+   if (beg->q_0 == 0 || beg->t_0 == 0) {
+      beg->q_0 += 1;
+      beg->t_0 += 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -310,23 +310,23 @@ void TEST_fwd_cycle3(const int   Q,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   d_st = beg->i + beg->j;
-   // d_end = end->i + end->j;
+   d_st = beg->q_0 + beg->t_0;
+   // d_end = end->q_0 + end->t_0;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - beg->i;
-   dim_T = T - beg->j;
+   dim_Q = Q - beg->q_0;
+   dim_T = T - beg->t_0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   // dim_min = MIN(Q + beg->i, T + beg->j);
-   // dim_max = MAX(Q + beg->i, T + beg->j);
+   // dim_min = MIN(Q + beg->q_0, T + beg->t_0);
+   // dim_max = MAX(Q + beg->q_0, T + beg->t_0);
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    // set bounds using starting cell
-   lb = beg->i;
-   rb = beg->i + 1;
+   lb = beg->q_0;
+   rb = beg->q_0 + 1;
    num_cells = 0;
 
    /* ITERATE THROUGH ANTI-DIAGONALS */
@@ -351,7 +351,7 @@ void TEST_fwd_cycle3(const int   Q,
       rb = rb + 1;
 
       /* Edge-checks: find if diag cells that are inside matrix bounds */
-      le = MAX(beg->i, d - T);
+      le = MAX(beg->q_0, d - T);
       re = le + num_cells;
 
       /* Check that they dont exceed edges of matrix */
@@ -398,8 +398,8 @@ void TEST_fwd_cycle3(const int   Q,
 
    /* set each cell accessed to 1.0 */
    #if DEBUG
-      MX_2D( cloud_MX, beg->i, beg->j ) = 55.5;
-      MX_2D( cloud_MX, end->i, end->j ) = 77.7;
+      MX_2D( cloud_MX, beg->q_0, beg->t_0 ) = 55.5;
+      MX_2D( cloud_MX, end->q_0, end->t_0 ) = 77.7;
       DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       fclose( dbfp );
    #endif
@@ -458,19 +458,19 @@ void TEST_bck_cycle( const int   Q,
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (end->i == Q || end->j == T) {
-      end->i -= 1;
-      end->j -= 1;
+   if (end->q_0 == Q || end->t_0 == T) {
+      end->q_0 -= 1;
+      end->t_0 -= 1;
    }
 
    /* diag index of different start points, creating submatrix */
-   // d_st = beg->i + beg->j;
-   d_end = end->i + end->j;
+   // d_st = beg->q_0 + beg->t_0;
+   d_end = end->q_0 + end->t_0;
 
    /* dimension of submatrix */
    dim_TOT  = Q + T;
-   dim_Q    = end->i;
-   dim_T    = end->j;
+   dim_Q    = end->q_0;
+   dim_T    = end->t_0;
 
    /* diag index at corners of dp matrix */
    d_st     = 0;
@@ -478,14 +478,14 @@ void TEST_bck_cycle( const int   Q,
    d_cnt    = 0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   // dim_min = MIN(Q + beg->i, T + beg->j);
-   // dim_max = MAX(Q + beg->i, T + beg->j);
+   // dim_min = MIN(Q + beg->q_0, T + beg->t_0);
+   // dim_max = MAX(Q + beg->q_0, T + beg->t_0);
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    // set bounds using starting cell
-   lb = end->i;
-   rb = end->i + 1;
+   lb = end->q_0;
+   rb = end->q_0 + 1;
    num_cells = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
@@ -506,7 +506,7 @@ void TEST_bck_cycle( const int   Q,
          num_cells--;
 
       /* find diag cells that are inside matrix bounds */
-      le = MAX(end->i - (d_end - d), 0);
+      le = MAX(end->q_0 - (d_end - d), 0);
       re = le + num_cells;
 
       /* NOTE: TESTING - THiS REMOVES ALL PRUNING */
@@ -543,8 +543,8 @@ void TEST_bck_cycle( const int   Q,
 
    /* set each cell accessed to 1.0 */
    #if DEBUG
-      MX_2D( cloud_MX, beg->i, beg->j ) = 55.5;
-      MX_2D( cloud_MX, end->i, end->j ) = 77.7;
+      MX_2D( cloud_MX, beg->q_0, beg->t_0 ) = 55.5;
+      MX_2D( cloud_MX, end->q_0, end->t_0 ) = 77.7;
       DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       fclose( dbfp );
    #endif
@@ -604,9 +604,9 @@ void TEST_bck_cycle3(   const int   Q,
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (end->i == Q || end->j == T) {
-      end->i -= 1;
-      end->j -= 1;
+   if (end->q_0 == Q || end->t_0 == T) {
+      end->q_0 -= 1;
+      end->t_0 -= 1;
    }
 
    /* diag index at corners of dp matrix */
@@ -615,23 +615,23 @@ void TEST_bck_cycle3(   const int   Q,
    d_cnt = 0;
 
    /* diag index of different start points, creating submatrix */
-   // d_st = beg->i + beg->j;
-   d_end = end->i + end->j;
+   // d_st = beg->q_0 + beg->t_0;
+   d_end = end->q_0 + end->t_0;
 
    /* dimension of submatrix */
    dim_TOT = Q + T;
-   dim_Q = Q - beg->i;
-   dim_T = T - beg->j;
+   dim_Q = Q - beg->q_0;
+   dim_T = T - beg->t_0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
-   // dim_min = MIN(Q + beg->i, T + beg->j);
-   // dim_max = MAX(Q + beg->i, T + beg->j);
+   // dim_min = MIN(Q + beg->q_0, T + beg->t_0);
+   // dim_max = MAX(Q + beg->q_0, T + beg->t_0);
    dim_min = MIN(d_st + dim_Q, d_st + dim_T);
    dim_max = MAX(d_st + dim_Q, d_st + dim_T);
 
    // set bounds using starting cell
-   lb = end->i;
-   rb = end->i + 1;
+   lb = end->q_0;
+   rb = end->q_0 + 1;
    num_cells = 0;
 
    /* ITERATE THROUGHT ANTI-DIAGONALS */
@@ -656,7 +656,7 @@ void TEST_bck_cycle3(   const int   Q,
       rb = rb;
 
       /* Edge-check: find diag cells that are inside matrix bounds */
-      le = MAX(end->i - (d_end - d), 0);
+      le = MAX(end->q_0 - (d_end - d), 0);
       re = le + num_cells;
 
       lb = MAX(lb, le);
@@ -704,8 +704,8 @@ void TEST_bck_cycle3(   const int   Q,
 
    /* set each cell accessed to 1.0 */
    #if DEBUG
-      MX_2D( cloud_MX, beg->i, beg->j ) = 55.5;
-      MX_2D( cloud_MX, end->i, end->j ) = 77.7;
+      MX_2D( cloud_MX, beg->q_0, beg->t_0 ) = 55.5;
+      MX_2D( cloud_MX, end->q_0, end->t_0 ) = 77.7;
       DP_MATRIX_VIZ_Dump( cloud_MX, stdout );
       fclose( dbfp );
    #endif

@@ -603,15 +603,22 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,     /* MATRI
  *
  *  RETURN:    Returns reference to <smx_A>
  */
-MATRIX_3D_SPARSE* 
-MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN/OUT: matrix to be added to */
-                        MATRIX_3D_SPARSE*    smx_B )     /* IN: matrix to add to <smx_A> */
+int 
+MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN: matrix addend */
+                        MATRIX_3D_SPARSE*    smx_B,      /* IN: matrix addend */
+                        MATRIX_3D_SPARSE*    smx_res )   /* OUT: sum matrix (can be an input) */
 {
    for ( int i = 0; i < smx_A->data->N; i++ ) 
    {
-      smx_A->data->data[i] += smx_B->data->data[i];
+      if ( smx_A->data->data[i] == -INF || smx_B->data->data[i] == -INF )  {
+         smx_res->data->data[i] = -INF;
+      }
+      else {
+         smx_res->data->data[i] = smx_A->data->data[i] + smx_B->data->data[i];
+      }
+      
    }
-   return smx_A;
+   return STATUS_SUCCESS;
 }
 
 /*  FUNCTION:  MATRIX_3D_SPARSE_Get_X()
@@ -653,16 +660,37 @@ int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,           /* MATRIX_3D_S
 MATRIX_3D* MATRIX_3D_SPARSE_Embed(  MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
                                     MATRIX_3D*           mx )     /* matrix */
 {
-   EDGEBOUNDS* edg = smx->edg_inner;
+   int         id, t_0, q_0, lb_0, rb_0, qx0, tx0;
+   EDGEBOUNDS* edg = NULL;
+   BOUND*      bnd = NULL;
+   
+   edg = smx->edg_inner;
 
-   if (mx == NULL) {
-      mx = MATRIX_3D_Create( smx->D1, smx->D2, smx->D3 );
-   }
-   MATRIX_3D_Reuse( mx, smx->D1, smx->D2, smx->D3 );
+   // /* resize matrix */
+   // if (mx == NULL) {
+   //    mx = MATRIX_3D_Create( smx->D1, smx->D2, smx->D3 );
+   // }
+   // MATRIX_3D_Reuse( mx, smx->D1, smx->D2, smx->D3 );
 
-   for ( int i = 0; i < edg->N; i++ ) 
+   /* iterate through edgebounds */
+   for ( int r_0 = 0; r_0 < edg->N; r_0++ ) 
    {
+      /* get bound */
+      bnd   = &EDG_X(edg, r_0);
+      q_0   = bnd->id;
 
+      /* fetch data mapping bound start location to data block in sparse matrix */
+      qx0 = VECTOR_INT_Get( smx->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+
+      for (t_0 = bnd->lb; t_0 < bnd->rb; t_0++)
+      {
+         tx0 = t_0 - bnd->lb;
+
+         /* embed linear row into quadratic test matrix */
+         MX_3D(mx, MAT_ST, q_0, t_0) = SMX(smx, MAT_ST, qx0, tx0);
+         MX_3D(mx, INS_ST, q_0, t_0) = SMX(smx, INS_ST, qx0, tx0);
+         MX_3D(mx, DEL_ST, q_0, t_0) = SMX(smx, DEL_ST, qx0, tx0);
+      }
    }
 }
 

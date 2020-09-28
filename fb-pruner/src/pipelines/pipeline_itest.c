@@ -337,7 +337,8 @@ void itest_pipeline( WORKER* worker )
       /* ==> print begin and end points in traceback */
       TRACE* beg = &(tr->traces->data[tr->beg]);
       TRACE* end = &(tr->traces->data[tr->end]);
-      printf("START: (%d,%d) -> END: (%d,%d)\n", beg->i, beg->j, end->i, end->j);
+      printf("START: (%d,%d) -> END: (%d,%d)\n", 
+         beg->q_0, beg->t_0, end->q_0, end->t_0 );
       printf("=== TRACEBACK -> END ===\n\n");
    }
 
@@ -386,7 +387,8 @@ void itest_pipeline( WORKER* worker )
       }
       TRACE* beg = &(tr->traces->data[tr->beg]);
       TRACE* end = &(tr->traces->data[tr->end]);
-      printf("START: (%d,%d) -> END: (%d,%d)\n", beg->i, beg->j, end->i, end->j);
+      printf("START: (%d,%d) -> END: (%d,%d)\n", 
+         beg->q_0, beg->t_0, end->q_0, end->t_0 );
       printf("=== TRACEBACK SPARSE -> END ===\n\n");
    }
 

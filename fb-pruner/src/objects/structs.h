@@ -62,21 +62,21 @@ typedef struct {
 
 /* coordinates in matrix */
 typedef struct {
-   int   i;       /* row index */
-   int   j;       /* col index */
+   int      i;       /* row index */
+   int      j;       /* col index */
 } COORDS;
 
 /* integer ranges */
 typedef struct {
-   int   beg;      /* begin: left bound */
-   int   end;      /* end: right bound */
+   int      beg;      /* begin: left bound */
+   int      end;      /* end: right bound */
 } RANGE;
 
 /* bound for single row or diagonal */
 typedef struct {
-   int   id;         /* current anti-diagonal OR row */
-   int   lb;         /* bottom-left (lower) edge-bound range */
-   int   rb;         /* top-right (upper) edge-bound range */
+   int      id;         /* current anti-diagonal OR row */
+   int      lb;         /* bottom-left (lower) edge-bound range */
+   int      rb;         /* top-right (upper) edge-bound range */
 } BOUND;
 
 /* string object */
@@ -88,8 +88,8 @@ typedef struct {
 /* given cell of alignment */
 /* TODO: change to t_0, q_0 indexing */
 typedef struct {
-   int      i;       /* index in query */
-   int      j;       /* index in target */
+   int      q_0;       /* index in query */
+   int      t_0;       /* index in target */
    int      st;      /* state at index */
 } TRACE;
 
@@ -927,7 +927,9 @@ typedef struct {
    MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
    MATRIX_3D_SPARSE*    st_SMX_fwd;    /* normal states matrix (sparse), exclusive for forward */
    MATRIX_3D_SPARSE*    st_SMX_bck;    /* normal states matrix (sparse), exclusive for backward */
-   MATRIX_2D*           sp_MX;         /* special state matrix (quadratic space) */
+   MATRIX_2D*           sp_MX;         /* special state matrix */
+   MATRIX_2D*           sp_MX_fwd;     /* special state matrix, exclusive for forward */
+   MATRIX_2D*           sp_MX_bck;     /* special state matrix, exclusive for backward */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
    /* times for tasks */
    TIMES*               times;

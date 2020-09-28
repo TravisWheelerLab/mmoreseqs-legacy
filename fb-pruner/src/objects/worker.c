@@ -75,8 +75,11 @@ WORKER_Create()
    worker->traceback    = NULL;
 
    worker->st_MX        = NULL;
-   worker->sp_MX        = NULL;
    worker->st_MX3       = NULL;
+
+   worker->sp_MX        = NULL;
+   worker->sp_MX_fwd    = NULL;
+   worker->sp_MX_bck    = NULL;
 
    worker->times        = NULL;
    worker->times_raw    = NULL;

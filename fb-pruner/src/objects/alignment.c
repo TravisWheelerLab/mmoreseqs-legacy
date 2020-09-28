@@ -172,7 +172,7 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
    /* for debugging: output traces as they are being added. */
    #if DEBUG 
    {
-      // /* Add new state and (i,j) to trace */
+      // /* Add new state and (i,t_0) to trace */
       // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
       // if (st < 3) {
       //    fprintf( stderr, "%s:\t(%d,%d)\n", 
@@ -196,8 +196,8 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
       case N_ST:
       case C_ST:
       case J_ST:
-         tr.i = ( ( tr.st == st) ? q_0 : 0 );
-         tr.j = 0;
+         tr.q_0 = ( ( tr.st == st) ? q_0 : 0 );
+         tr.t_0 = 0;
          break;
 
       /* Non-Emitting States, not in Main Model: */
@@ -206,21 +206,21 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
       case B_ST:
       case E_ST:
       case T_ST:
-         tr.i = 0;
-         tr.j = 0;
+         tr.q_0 = 0;
+         tr.t_0 = 0;
          break;
 
       /* Non-Emitting States, but in Main Model: */
       case D_ST:
-         tr.i = 0;
-         tr.j = t_0;
+         tr.q_0 = 0;
+         tr.t_0 = t_0;
          break;
 
       /* Emitting States: */
       case M_ST:
       case I_ST:
-         tr.i = q_0;
-         tr.j = t_0;
+         tr.q_0 = q_0;
+         tr.t_0 = t_0;
          break;
 
       default:
@@ -290,10 +290,10 @@ void ALIGNMENT_Reverse( ALIGNMENT* aln )
 
       if (aln_0->st == aln_1->st && (aln_0->st == N_ST || aln_0->st == C_ST || aln_0->st == J_ST) ) 
       {
-         if (aln_0->i == 0 && aln_0->st > 0) 
+         if (aln_0->q_0 == 0 && aln_0->st > 0) 
          {
-            aln_0->i = aln_1->i;
-            aln_1->i = 0;
+            aln_0->q_0 = aln_1->q_0;
+            aln_1->q_0 = 0;
          }
       }
    }
@@ -347,8 +347,8 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
    for (i = beg; i < end; i++, offset++)
    {
       tr          = &traceback->data[i];
-      char t_ch   = t_prof->consensus[tr->j];
-      char q_ch   = q_seq->seq[tr->i];
+      char t_ch   = t_prof->consensus[tr->t_0];
+      char q_ch   = q_seq->seq[tr->q_0];
       char c_ch   = ' ';
       
       // printf("i=%d/%d; q_ch, t_ch, c_ch\n", i, end);
@@ -375,9 +375,9 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
             else {
                /* if score is positive */
                float msc;
-               // msc = MSC(tr->j, q_ch);
+               // msc = MSC(tr->t_0, q_ch);
                msc = 0;
-               if ( MSC(tr->j, q_ch) > 0 ) {
+               if ( MSC(tr->t_0, q_ch) > 0 ) {
                   aln->center_aln[offset] = '+';
                } 
                else {
@@ -411,11 +411,6 @@ void ALIGNMENT_Build_HMMER_Style(   ALIGNMENT*     aln,
    aln->query_aln[offset]     = '\0';
 
    aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
-
-   // printf("state:  %s\n", aln->state_aln );
-   // printf("target: %s\n", aln->target_aln );
-   // printf("center: %s\n", aln->center_aln );
-   // printf("query:  %s\n", aln->query_aln );
 }
 
 /*
@@ -461,8 +456,6 @@ void ALIGNMENT_Build_MMSEQS_Style(  ALIGNMENT*     aln,
       }
       prv_st = cur_st;
    }
-
-   printf("Cigar: %s\n", aln->cigar_aln);
 }
 
 /* outputs ALIGNMENT to FILE pointer */
@@ -492,6 +485,6 @@ void ALIGNMENT_Dump( ALIGNMENT*  aln,
    fprintf(fp, "# ALIGNMENT (length=%d)\n", N );
    for (unsigned int i = 0; i < N; ++i)
    {
-      fprintf(fp, "[%d](%s,%d,%d)\n", i, STATE_NAMES[tr[i].st], tr[i].i, tr[i].j);
+      fprintf(fp, "[%d](%s,%d,%d)\n", i, STATE_NAMES[tr[i].st], tr[i].q_0, tr[i].t_0);
    }
 }

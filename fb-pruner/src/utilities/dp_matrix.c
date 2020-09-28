@@ -182,56 +182,67 @@ void DP_MATRIX_Dump( const int         Q,
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
 
    /* Header */
-   fprintf(fp, "#\t");
+   fprintf(fp, "%*s ", -9, "#");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%d\t", i);
+      fprintf(fp, "%*d ", -7, i);
    }
    fprintf(fp, "\n");
 
    /* Row-by-Row */
    for (int i = 0; i <= Q; i++)
    {
-      fprintf(fp, "M %d\t", i );
+      fprintf(fp, "M %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", MMX(i, j) );
+         fprintf(fp, "%7.3f ", MMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "I %d\t", i );
+      fprintf(fp, "I %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", IMX(i, j) );
+         fprintf(fp, "%7.3f ", IMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "D %d\t", i );
+      fprintf(fp, "D %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", DMX(i, j) );
+         fprintf(fp, "%7.3f ", DMX(i, j) );
       }
       fprintf(fp, "\n\n");
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "N\t");
+
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "N");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_N, i) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "J\t");
+   
+   fprintf(fp, "%*s ", -6, "J");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_J, i) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "E\t");
+
+   fprintf(fp, "%*s ", -6, "E");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_E, i) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "C\t");
+
+   fprintf(fp, "%*s ", -6, "C");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_C, i) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "B\t");
+
+   fprintf(fp, "%*s ", -6, "B");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_B, i) ); 
    }
@@ -285,7 +296,7 @@ void DP_MATRIX_Trace_Dump( const int         Q,
    {
       int st = trace[i].st;
       if ( st == M_ST ) {
-         fprintf(fp, "[%d]%s\t%d\t%d\n", i, STATE_NAMES[st], trace[i].i, trace[i].j);
+         fprintf(fp, "[%d]%s\t%d\t%d\n", i, STATE_NAMES[st], trace[i].q_0, trace[i].t_0);
       }
    }
    fprintf(fp, "/\n\n");
@@ -391,7 +402,7 @@ void DP_MATRIX_VIZ_Trace(  MATRIX_2D*        cloud_MX,
    for ( int i = 0; i < aln->traces->N; i++ ) {
       TRACE* tr = &(aln->traces->data[i]);
       if ( tr->st == M_ST )
-         MX_2D( cloud_MX, tr->i, tr->j ) = -1.0;
+         MX_2D( cloud_MX, tr->q_0, tr->t_0 ) = -1.0;
    }
 }
 

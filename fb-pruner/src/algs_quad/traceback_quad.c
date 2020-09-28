@@ -311,7 +311,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
       MATRIX_2D_Fill( cloud_MX, 0 );
       for ( int i = 0; i < N; i++ ) {
          if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST )
-            MX_2D( cloud_MX, tr[i].i, tr[i].j ) = -1.0;
+            MX_2D( cloud_MX, tr[i].q_0, tr[i].t_0 ) = -1.0;
       }
    }
    #endif
@@ -704,7 +704,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
       {
          tr = aln->traces->data;
          if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST ) {
-            MX_2D( cloud_MX, tr[i].i, tr[i].j ) = -1.0;
+            MX_2D( cloud_MX, tr[i].q_0, tr[i].t_0 ) = -1.0;
          }
       }
    }
@@ -1123,7 +1123,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
       MATRIX_2D_Fill( cloud_MX, 0 );
       for ( int i = 0; i < N; i++ ) {
          if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST )
-            MX_2D( cloud_MX, tr[i].i, tr[i].j ) = -1.0;
+            MX_2D( cloud_MX, tr[i].q_0, tr[i].t_0 ) = -1.0;
       }
    }
    #endif

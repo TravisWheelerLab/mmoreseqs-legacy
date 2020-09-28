@@ -109,7 +109,7 @@
 
 /* determines whether output is printed based on verbose_level */
 #define fprintf_v(v_threshold,...) 	if ( args->verbose_level >= v_threshold ) fprintf(__VA_ARGS__)
-#define fprintf_vnone(...) 		fprintf_v(VERBOSE_NONE, __VA_ARGS__)
+#define fprintf_vnone(...) 	fprintf_v(VERBOSE_NONE, __VA_ARGS__)
 #define fprintf_vlo(...) 		fprintf_v(VERBOSE_LOW,  __VA_ARGS__)
 #define fprintf_vhi(...) 		fprintf_v(VERBOSE_HIGH, __VA_ARGS__)
 #define fprintf_vall(...) 		fprintf_v(VERBOSE_ALL,  __VA_ARGS__)
@@ -117,7 +117,7 @@
 /* error-checking macros */
 #define ERROR_alloc(...) 		ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_malloc(...) 		ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_realloc(...) 		ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_realloc(...) 	ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_free(...) 		ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_fopen(...) 		ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_fclose(...) 		ERRORCHECK_fclose(__VA_ARGS__, ERRORCHECK_locate() )

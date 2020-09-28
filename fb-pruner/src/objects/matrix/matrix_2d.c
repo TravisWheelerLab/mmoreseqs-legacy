@@ -340,10 +340,15 @@ int MATRIX_2D_Add(   MATRIX_2D*  mx_A,
 {
    for ( int i = 0; i < mx_A->R; i++ ) {
       for ( int j = 0; j < mx_A->C; j++ ) {
-         MX_2D( mx_res, i, j ) = MX_2D( mx_A, i, j ) - MX_2D( mx_B, i, j );
+         if ( MX_2D( mx_A, i, j ) == -INF || MX_2D( mx_B, i, j ) == -INF ) {
+            MX_2D( mx_res, i, j ) = -INF;
+         }
+         else {
+            MX_2D( mx_res, i, j ) = MX_2D( mx_A, i, j ) - MX_2D( mx_B, i, j );
+         }
       }
    }
-   return 0;
+   return mx_res;
 }
 
 /*

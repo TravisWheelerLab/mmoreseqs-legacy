@@ -155,13 +155,11 @@ void REPORT_stdout_entry(  WORKER*  worker,
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
 
-   TRACE*         tr             = NULL;
-
    /* TODO: some should be passed as arguments (reporter object?) */
    int            pad_left       = 3;
    int            ind_left       = 6;
    int            field_width    = 15;
-   int            name_width     = 20;
+   int            name_width     = 10;
    int            aln_width      = 100;   /* row width of alignments */
 
    /* if alignemnt strings have not been produced yet, do it now */
@@ -174,30 +172,28 @@ void REPORT_stdout_entry(  WORKER*  worker,
 
    /* Meta Data */
    REPORT_horizontal_rule( fp );
-   fprintf( fp, "%*s %s [M=%d]\n", 
+   fprintf( fp, "%*s %s [L=%d]\n", 
       field_width, "Query:", t_prof->name, t_prof->N );
-   fprintf( fp, "%*s %s\n", 
-      field_width, "Accession:", (t_prof->acc ? t_prof->acc : "--" ) );
-   fprintf( fp, "%*s %s\n", 
-      field_width, "Description:", (t_prof->desc ? t_prof->desc : "--" ) );
+   fprintf( fp, "%*s %s [L=%d]\n", 
+      field_width, "Target:", q_seq->name, q_seq->N );
+   // fprintf( fp, "%*s %s\n", 
+   //    field_width, "Accession:", (t_prof->acc ? t_prof->acc : "--" ) );
+   // fprintf( fp, "%*s %s\n", 
+   //    field_width, "Description:", (t_prof->desc ? t_prof->desc : "--" ) );
    /* Scores Header */
-   fprintf( fp, "%*s\n", 
+   fprintf( fp, "== %*s\n", 
       0, "Scores for complete sequences:");
    /* Alignment Header */
-   fprintf( fp, "%*s\n", 
-      0, "Alignments:");
-   fprintf( fp, "%*s %d %s %3.1f %s %s %9.2g\n",
-      0,
-      "== domain",
-      1,                               /* domain number */
-      "score:",
-      result->final_scores.seq_sc,     /* bit-score */
-      "bits;",
-      "conditional E-value:",
-      result->final_scores.eval        /* e-value */
+   fprintf( fp, "== %*s\n", 
+      0, "Alignment:");
+   fprintf( fp, "==== %*s %d :: %s %3.2f | %s %-3.2e | %s %-3.2e\n",
+      0, "Domain", 1,                                    /* domain number */
+      "Score (bits):", result->final_scores.seq_sc,         /* bit-score */
+      "Raw E-value:", result->final_scores.eval,            /* e-value (raw) */
+      "Cond. E-value:", result->final_scores.eval           /* e-value (conditional) */
    );
    fprintf( fp, "%*s %s\n", 
-      20, "Cigar Alignment:", (aln->cigar_aln != NULL ? aln->cigar_aln : "--") );
+      0, "==== Cigar:", (aln->cigar_aln != NULL ? aln->cigar_aln : "--") );
    /* create alignment rows */
    int offset = 0; 
    for ( int i = aln->beg; i < aln->end; i += aln_width, offset += aln_width ) 
@@ -206,29 +202,29 @@ void REPORT_stdout_entry(  WORKER*  worker,
          aln_width = aln->end - i;
       }
 
-      fprintf( fp, "%*s %5d %.*s %5d\n",
-         name_width,                               /* padding */
+      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+         name_width, name_width,                   /* padding */
          t_prof->name,                             /* name */
-         aln->traces->data[i].j,                   /* starting index */
+         aln->traces->data[i].t_0,                 /* starting index */
          aln_width,                                /* number of residues per line */
          &aln->target_aln[offset],                 /* alignment residues */
-         aln->traces->data[i + aln_width - 1].j    /* ending index */
+         aln->traces->data[i + aln_width - 1].t_0  /* ending index */
       );
-      fprintf( fp, "%*s %5d %.*s %5d\n",
-         name_width,                               /* padding */
+      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+         name_width, name_width,                   /* padding */
          "",                                       /* name */
          i,                                        /* starting index */
          aln_width,                                /* number of residues per line */
          &aln->center_aln[offset],                 /* alignment residues */
          i + aln_width - 1                         /* ending index */
       );
-      fprintf( fp, "%*s %5d %.*s %5d\n",
-         name_width,                               /* padding */
+      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+         name_width, name_width,                   /* padding */
          q_seq->name,                              /* name */
-         aln->traces->data[i].i,                   /* starting index */
+         aln->traces->data[i].q_0,                 /* starting index */
          aln_width,                                /* number of residues per line */
-         &aln->query_aln[offset],                   /* alignment residues */
-         aln->traces->data[i + aln_width - 1].i    /* ending index */
+         &aln->query_aln[offset],                  /* alignment residues */
+         aln->traces->data[i + aln_width - 1].q_0  /* ending index */
       );
    }
 
@@ -546,10 +542,10 @@ void REPORT_m8out_entry(   WORKER*  worker,
       aln_len,                         /* alignment length */
       aln->num_misses,                 /* number of mismatches */    
       aln->num_gaps,                   /* number of gap openings */
-      beg->j,                          /* query start */
-      end->j,                          /* query end */
-      beg->i,                          /* target start */
-      end->i,                          /* target end */
+      beg->t_0,                        /* query start */
+      end->t_0,                        /* query end */
+      beg->q_0,                        /* target start */
+      end->q_0,                        /* target end */
       result->final_scores.eval,       /* evalue */
       result->final_scores.nat_sc,     /* bits */
       ( aln->cigar_aln != NULL ? aln->cigar_aln : "--" )

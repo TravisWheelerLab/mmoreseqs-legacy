@@ -212,28 +212,28 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if ( beg->i == 0 || beg->j == 0 ) {
-      beg->i += 1;
-      beg->j += 1;
+   if ( beg->q_0 == 0 || beg->t_0 == 0 ) {
+      beg->q_0 += 1;
+      beg->t_0 += 1;
    }
 
    /* TODO: initialize previous start state */
-   q_0 = beg->i;
+   q_0 = beg->q_0;
    q_1 = q_0 - 1;
-   t_0 = beg->j;
+   t_0 = beg->t_0;
    t_1 = t_0 - 1;
 
    /* dimension of submatrix */
    dim_TOT  = Q + T;
-   dim_Q    = Q - beg->i;
-   dim_T    = T - beg->j;
+   dim_Q    = Q - beg->q_0;
+   dim_T    = T - beg->t_0;
 
    /* diag index at corners of dp matrix */
    d_st = 0;
    d_end = dim_TOT;
 
    /* diag index of different start points, creating submatrix */
-   d_st = beg->i + beg->j;
+   d_st = beg->q_0 + beg->t_0;
    // d_end = end->i + end->j;
 
    /* diag index where num cells reaches highest point and begins diminishing */
@@ -241,8 +241,8 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    dim_max = MAX( d_st + dim_Q, d_st + dim_T );
 
    /* set bounds of starting cell */
-   lb_0 = beg->i;
-   rb_0 = beg->i + 1;
+   lb_0 = beg->q_0;
+   rb_0 = beg->q_0 + 1;
    VECTOR_INT_Pushback( lb_vec[1], lb_0 );
    VECTOR_INT_Pushback( rb_vec[1], rb_0 );
    num_cells = 0;
@@ -274,7 +274,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
          num_cells--;
 
       /* Edgecheck updates: determine antidiag indices within matrix bounds */
-      le_0 = MAX( beg->i, d_0 - T );
+      le_0 = MAX( beg->q_0, d_0 - T );
       re_0 = le_0 + num_cells;
 
       /* Prune bounds */
@@ -597,37 +597,37 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
    end = &(tr->traces->data[tr->end]);
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
-   if (end->i == Q || end->j == T) {
-      end->i -= 1;
-      end->j -= 1;
+   if (end->q_0 == Q || end->t_0 == T) {
+      end->q_0 -= 1;
+      end->t_0 -= 1;
    }
 
    /* TODO: initialize previous start state */
-   q_0 = end->i;
+   q_0 = end->q_0;
    q_1 = q_0 + 1;
-   t_0 = end->j;
+   t_0 = end->t_0;
    t_1 = t_0 + 1;
 
    /* dimension of submatrix */
    dim_TOT  = Q + T;
-   dim_Q    = end->i;
-   dim_T    = end->j;
+   dim_Q    = end->q_0;
+   dim_T    = end->t_0;
 
    /* diag index at corners of dp matrix */
    d_st     = 0;
    d_end    = dim_TOT;
 
    /* diag index of different start points, creating submatrix */
-   // d_st = beg->i + beg->j;
-   d_end = end->i + end->j;
+   // d_st = beg->q_0 + beg->t_0;
+   d_end = end->q_0 + end->t_0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
    dim_min  = MIN(dim_T, dim_Q);
    dim_max  = MAX(dim_T, dim_Q);
 
    /* set bounds of starting cell */
-   lb_0 = end->i;
-   rb_0 = end->i + 1;
+   lb_0 = end->q_0;
+   rb_0 = end->q_0 + 1;
    VECTOR_INT_Pushback( lb_vec[1], lb_0 );
    VECTOR_INT_Pushback( rb_vec[1], rb_0 );
    num_cells = 0;
@@ -660,7 +660,7 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
 
       /* TODO: is there a closed form for edges, aka not using num_cells? */
       /* Edgechecks: find antidiag cell range that is inside matrix bounds */
-      le_0 = MAX(end->i - (d_end - d_0), 0);
+      le_0 = MAX(end->q_0 - (d_end - d_0), 0);
       re_0 = le_0 + num_cells;
 
       /* Prune bounds */

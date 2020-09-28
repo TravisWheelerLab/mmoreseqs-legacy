@@ -119,9 +119,10 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Dump(   MATRIX_3D_SPARSE*    smx,     /* MATRI
  *
  *  RETURN:    Returns reference to <smx_A>.
  */
-MATRIX_3D_SPARSE* 
-MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN/OUT: matrix to be added to */
-                        MATRIX_3D_SPARSE*    smx_B );    /* IN: matrix to add to <smx_A> */
+int
+MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN: matrix addend */
+                        MATRIX_3D_SPARSE*    smx_B,      /* IN: matrix addend */
+                        MATRIX_3D_SPARSE*    smx_res );  /* OUT: sum matrix (can be an input) */
 
 /*  FUNCTION:  MATRIX_3D_SPARSE_Get_X()
  *  SYNOPSIS:  Get reference to cell in corresponding to given (q_0,t_0) coordinates in complete matrix.

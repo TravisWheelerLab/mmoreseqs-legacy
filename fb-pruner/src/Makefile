@@ -1,5 +1,5 @@
 #################################################################################
-#		  NAME: TEMPLATE MAKEFILE
+#		NAME: TEMPLATE MAKEFILE
 # 		AUTHOR: David Rich (modified from source)
 #
 #		SOURCE: https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
