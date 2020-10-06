@@ -95,16 +95,21 @@ void WORK_init( WORKER* worker )
    worker->cloud_params.alpha    = worker->args->alpha;
    worker->cloud_params.beta     = worker->args->beta;
    worker->cloud_params.gamma    = worker->args->gamma;
-
    /* create necessary dp matrices */
-   worker->st_MX        = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   worker->st_MX3       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX_fwd    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX_bck    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX        = worker->st_MX_fwd;
+   worker->st_MX3_fwd   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX3_bck   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX3       = worker->st_MX_fwd;
    worker->st_SMX_fwd   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX       = worker->st_SMX_fwd;
    worker->sp_MX_fwd    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX_bck    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX        = worker->sp_MX_fwd;
+   /* domain definition */
+   worker->dom_def      = DOMAIN_DEF_Create();
 }
 
 /* clean up data structs */
@@ -124,6 +129,7 @@ void WORK_cleanup( WORKER* worker )
    /* results in from mmseqs and out for general searches */
    worker->results_in   = RESULTS_Destroy( worker->results_in );
    worker->results      = RESULTS_Destroy( worker->results );
+   /* free single result */
    ERROR_free( worker->result );
    worker->result       = NULL;
    /* data structs for viterbi alignment */
@@ -140,24 +146,17 @@ void WORK_cleanup( WORKER* worker )
       worker->lb_vec[i]    = VECTOR_INT_Destroy( worker->lb_vec[i] );
       worker->rb_vec[i]    = VECTOR_INT_Destroy( worker->rb_vec[i] );
    }
-   /* create necessary dp matrices */
-   worker->st_MX           = MATRIX_3D_Destroy( worker->st_MX );
-   worker->st_MX3          = MATRIX_3D_Destroy( worker->st_MX3 );
+   /* necessary dp matrices */
+   worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
+   worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
+   worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );
+   worker->st_MX3_bck      = MATRIX_3D_Destroy( worker->st_MX3_bck );
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
    worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
-
-   #if DEBUG
-   {
-      debugger->cloud_MX   = MATRIX_2D_Destroy( debugger->cloud_MX ); 
-      debugger->cloud_MX3  = MATRIX_2D_Destroy( debugger->cloud_MX3 ); 
-      debugger->test_MX    = MATRIX_3D_Destroy( debugger->test_MX );
-      debugger->test_MX3   = MATRIX_3D_Destroy( debugger->test_MX3 );
-
-      debugger->test_edg   = EDGEBOUNDS_Destroy( debugger->test_edg );
-   }
-   #endif
+   /* domain definition */
+   worker->dom_def         = DOMAIN_DEF_Destroy( worker->dom_def );
 }
 
 /* open worker files */
@@ -216,6 +215,7 @@ void WORK_reuse( WORKER* worker )
 
    /* clear traceback and resize */
    ALIGNMENT_Reuse( worker->traceback, Q, T );
+   ALIGNMENT_Reuse( worker->trace_post, Q, T );
    /* clear edgebounds and resize */
    EDGEBOUNDS_Reuse( worker->edg_fwd, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_bck, Q, T );
@@ -224,37 +224,37 @@ void WORK_reuse( WORKER* worker )
    /* clear row-wise edgebounds and resize */
    EDGEBOUND_ROWS_Reuse( worker->edg_rows_tmp, Q, T );
 
-   /* reuse necessary dp matrices (only reallocs if new size is larger) */
+   /* matrix for quadratic algs */
    if ( tasks->quadratic ) {
       MATRIX_3D_Reuse_Clean( worker->st_MX, NUM_NORMAL_STATES,  Q+1, T+1 );
    }
+   /* matrix for linear algs */
    if ( tasks->linear ) {
-      MATRIX_3D_Reuse_Clean( worker->st_MX3, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
+      MATRIX_3D_Reuse_Clean( worker->st_MX3_fwd, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
+      MATRIX_3D_Reuse_Clean( worker->st_MX3_bck, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
+      worker->st_MX3 = worker->st_MX3_fwd;
    }
+   /* matrices for special states */
    if ( tasks->quadratic || tasks->linear ) {
       MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd, NUM_SPECIAL_STATES, Q+1);
       MATRIX_2D_Reuse_Clean( worker->sp_MX_bck, NUM_SPECIAL_STATES, Q+1);
       worker->sp_MX = worker->sp_MX_fwd;
    }
 
+   /* sparse matrices */
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
    worker->st_SMX = worker->st_SMX_fwd;
 
    #if DEBUG 
    {
-      // DEBUGGER_Reuse( debugger, Q, T );
-      MATRIX_2D_Reuse_Clean( debugger->cloud_MX, Q+1, T+1 );
-      MATRIX_2D_Reuse_Clean( debugger->cloud_MX3, 3, (Q+1)+(T+1) );
-      MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
-      MATRIX_3D_Reuse_Clean( debugger->test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
+      DEBUGGER_Reuse( debugger, Q, T );
    }
    #endif
 
    /* TODO: remove this? */
    MATRIX_3D_Clean( worker->st_MX );
    MATRIX_3D_Clean( worker->st_MX3 );
-   MATRIX_2D_Clean( worker->sp_MX );
 }
 
 /* load or build target and query index files */
@@ -437,7 +437,7 @@ void WORK_build_target_index(    WORKER*     worker )
    CLOCK_Start(clok);
 
    /* build index on the fly */
-   if (args->t_filetype == FILE_HMM) {
+   if ( args->t_filetype == FILE_HMM ) {
       worker->t_index = F_INDEX_Hmm_Build( worker->t_index, args->t_filepath );
    }
    else if (args->t_filetype == FILE_FASTA) {
@@ -485,10 +485,10 @@ void WORK_build_query_index(  WORKER*   worker )
    CLOCK_Start(clok);
 
    /* build index on the fly */
-   if (args->q_filetype == FILE_HMM) {
+   if ( args->q_filetype == FILE_HMM ) {
       worker->q_index = F_INDEX_Hmm_Build( worker->q_index, args->q_filepath );
    }
-   else if (args->q_filetype == FILE_FASTA) {
+   else if ( args->q_filetype == FILE_FASTA ) {
       worker->q_index = F_INDEX_Fasta_Build( worker->q_index, args->q_filepath );
    }
    else {
@@ -898,28 +898,28 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->lin_fwd ) {
       printf_vall("# ==> forward (lin)...\n");
       CLOCK_Start(clok);
-      run_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      run_Forward_Linear( q_seq, t_prof, Q, T, worker->st_MX3_fwd, worker->sp_MX_fwd, &sc );
       CLOCK_Stop(clok);
       times->lin_fwd    = CLOCK_Secs(clok);
       scores->lin_fwd   = sc;
       #if DEBUG 
       {
          printf("# printing forward linear...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.fwd.lin.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.lin.mx");
       }
       #endif
    } 
    if ( tasks->quad_fwd ) {
       printf_vall("# ==> forward (quad)...\n");
       CLOCK_Start(clok);
-      run_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+      run_Forward_Quad( q_seq, t_prof, Q, T, worker->st_MX_fwd, worker->sp_MX_fwd, &sc );
       CLOCK_Stop(clok);
       times->quad_fwd   = CLOCK_Secs(clok);
       scores->quad_fwd  = sc;
       #if DEBUG 
       {
          printf("# printing forward quadratic...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.fwd.quad.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.quad.mx");
       }
       #endif
    }
@@ -928,28 +928,28 @@ void WORK_forward_backward( WORKER*  worker )
    if ( tasks->lin_bck ) {
       printf_vall("# ==> backward (lin)...\n");
       CLOCK_Start(clok);
-      run_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc );
+      run_Backward_Linear( q_seq, t_prof, Q, T, worker->st_MX3_bck, worker->sp_MX_bck, &sc );
       CLOCK_Stop(clok);
       times->lin_bck    = CLOCK_Secs(clok);
       scores->lin_bck   = sc;
       #if DEBUG 
       {
          printf("# printing backward linear...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bck.lin.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.lin.mx");
       }
       #endif
    }
    if ( tasks->quad_bck ) {
       printf_vall("# ==> backward (quad)...\n");
       CLOCK_Start(clok);
-      run_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
+      run_Backward_Quad( q_seq, t_prof, Q, T, worker->st_MX_bck, worker->sp_MX_bck, &sc );
       CLOCK_Stop(clok);
       times->quad_bck   = CLOCK_Secs(clok);
       scores->quad_bck  = sc;
       #if DEBUG 
       {
          printf("# printing backward quadratic...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bck.quad.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.quad.mx");
       }
       #endif
    }
@@ -1152,6 +1152,12 @@ void WORK_cloud_search( WORKER* worker )
    }
 }
 
+/* posterior */
+void WORK_posterior( WORKER* worker )
+{
+   
+}
+
 /* use sparse matrix to cover alignment */
 void WORK_capture_alignment( WORKER* worker )
 {
@@ -1228,31 +1234,33 @@ void WORK_capture_alignment( WORKER* worker )
    #endif
 
    /* Recover alignment */
-   run_MaxPost_Traceback_Sparse( 
-      q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
-   ALIGNMENT_Dump(worker->trace_post, stdout);
+   // run_Posterior_Traceback_Sparse( 
+   //    q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
+   // ALIGNMENT_Dump(worker->trace_post, stdout);
 
    /* temp */
-   run_Viterbi_Quad( 
-      worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, &sc );
-   run_Traceback_Quad( 
-      worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, worker->traceback );
+   // run_Viterbi_Quad( 
+   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, &sc );
+   // run_Traceback_Quad( 
+   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, worker->traceback );
 
    /* generate alignments */
-   ALIGNMENT_Build_MMSEQS_Style( 
-      worker->traceback, worker->q_seq, worker->t_prof );
-   ALIGNMENT_Build_HMMER_Style( 
-      worker->traceback, worker->q_seq, worker->t_prof );
+   // ALIGNMENT_Build_MMSEQS_Style( 
+   //    worker->traceback, worker->q_seq, worker->t_prof );
+   // ALIGNMENT_Build_HMMER_Style( 
+   //    worker->traceback, worker->q_seq, worker->t_prof );
 }
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
 void WORK_convert_scores( WORKER* worker )
 {
    HMM_BG*        bg       = worker->hmm_bg;
-   HMM_PROFILE*   prof     = worker->t_prof;
-   SEQUENCE*      seq      = worker->q_seq;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   SEQUENCE*      q_seq    = worker->q_seq;
    RESULT*        result   = worker->result;
 
+   int   T           = worker->t_prof->N;
+   int   Q           = worker->q_seq->N;
    /* alignment scores */
    float nat_sc      = 0.0f;  /* score in NATS */
    float pre_sc      = 0.0f;  /* adjusted for compo bias / score in BITS */
@@ -1271,20 +1279,24 @@ void WORK_convert_scores( WORKER* worker )
    int   n_seqs      = worker->q_index->N;
 
    /* initialize hmm_bg */
-   HMM_BG_SetSequence( bg, seq );
-   HMM_BG_SetFilter( bg, prof->N, prof->bg_model->compo );
-   HMM_BG_SetLength( bg, seq->N );
+   HMM_BG_SetSequence( bg, q_seq );
+   HMM_BG_SetFilter( bg, t_prof->N, t_prof->bg_model->compo );
+   HMM_BG_SetLength( bg, q_seq->N );
    /* compute null one */
-   HMM_BG_NullOne( bg, seq->N, &null_sc );
+   HMM_BG_NullOne( bg, q_seq->N, &null_sc );
    /* compute nullscore for bias */
-   HMM_BG_FilterScore( bg, seq, &filter_sc );
+   HMM_BG_FilterScore( bg, q_seq, &filter_sc );
    /* free digitized sequence TODO: move to sequence */
    // HMM_BG_UnsetSequence( bg, seq );
 
-   /* TODO: compute sequence bias? (requires null2 for seq/domain specific correction) */
+   /* Find domains and assesses domain-specific correction bias */
    /* see p7_domaindef_ByPosteriorHeuristics() */
-   // COMPUTE_BiasComposition( worker );
-   seq_bias  = 0.0f;
+   run_Posterior_Quad(
+      worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, 
+      worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
+      worker->dom_def );
+   printf("nat_sc: %7.3f, null_sc: %7.3f, seq_bias: %7.3f,\n", nat_sc, null_sc, worker->dom_def->seq_bias);
+   seq_bias = worker->dom_def->seq_bias;
 
    /* get cloud forward score */
    nat_sc = worker->scores->lin_bound_fwd;
@@ -1356,7 +1368,6 @@ void WORK_report_result_all( WORKER* worker )
 {
    ARGS* args = worker->args;
 
-
 }
 
 /* initial output printed before search */
@@ -1378,3 +1389,4 @@ void WORK_report_footer( WORKER*  worker )
       REPORT_myout_footer( worker, worker->myout_fp );
    }
 }
+

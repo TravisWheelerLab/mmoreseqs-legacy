@@ -24,8 +24,7 @@
 /* header */
 #include "vector_template.h"
 
-/*
- *  FUNCTION:  VECTOR_XXX_Create()
+/** FUNCTION:  VECTOR_XXX_Create()
  *  SYNOPSIS:  Create new VECTOR_XXX object and returns pointer.
  */
 VECTOR_XXX* VECTOR_XXX_Create()
@@ -34,8 +33,7 @@ VECTOR_XXX* VECTOR_XXX_Create()
    return VECTOR_XXX_Create_by_Size( init_size );
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Create()
+/** FUNCTION:  VECTOR_XXX_Create()
  *  SYNOPSIS:  Create new VECTOR_XXX object at specific size and returns pointer.
  */
 VECTOR_XXX* VECTOR_XXX_Create_by_Size( int    size )
@@ -56,8 +54,7 @@ VECTOR_XXX* VECTOR_XXX_Create_by_Size( int    size )
    return vec;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Destroy()
+/** FUNCTION:  VECTOR_XXX_Destroy()
  *  SYNOPSIS:  Frees all data associated with VECTOR_XXX.
  */
 void* VECTOR_XXX_Destroy( VECTOR_XXX*   vec )
@@ -70,8 +67,7 @@ void* VECTOR_XXX_Destroy( VECTOR_XXX*   vec )
    return NULL;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Reuse()
+/** FUNCTION:  VECTOR_XXX_Reuse()
  *  SYNOPSIS:  Reuse VECTOR_XXX object by resetting size counter (no realloc) .
  */
 void VECTOR_XXX_Reuse( VECTOR_XXX*   vec )
@@ -79,8 +75,7 @@ void VECTOR_XXX_Reuse( VECTOR_XXX*   vec )
    vec->N = 0;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Fill()
+/** FUNCTION:  VECTOR_XXX_Fill()
  *  SYNOPSIS:  Fill VECTOR_XXX object with val.
  */
 void VECTOR_XXX_Fill(   VECTOR_XXX*   vec, 
@@ -91,8 +86,7 @@ void VECTOR_XXX_Fill(   VECTOR_XXX*   vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Copy()
+/** FUNCTION:  VECTOR_XXX_Copy()
  *  SYNOPSIS:  Create deep copy of <src> object. 
  *             Creates new VECTOR_XXX for <dest> if <dest> is NULL.
  */
@@ -113,8 +107,7 @@ VECTOR_XXX* VECTOR_XXX_Copy(  VECTOR_XXX*   src,
    return dest;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Resize()
+/** FUNCTION:  VECTOR_XXX_Resize()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>. 
  */
 void VECTOR_XXX_Resize(    VECTOR_XXX*   vec, 
@@ -128,8 +121,7 @@ void VECTOR_XXX_Resize(    VECTOR_XXX*   vec,
    vec->Nalloc = size;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_GrowTo()
+/** FUNCTION:  VECTOR_XXX_GrowTo()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
  *             only if current array length is less than <size>. 
  */
@@ -141,8 +133,7 @@ void VECTOR_XXX_GrowTo( VECTOR_XXX*   vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Push()
+/** FUNCTION:  VECTOR_XXX_Push()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
  *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().
  */
@@ -154,8 +145,7 @@ void VECTOR_XXX_Push(   VECTOR_XXX*   vec,
    vec->N++;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Pushback()
+/** FUNCTION:  VECTOR_XXX_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
  *             and resize array if array is full.
  */
@@ -171,8 +161,7 @@ void VECTOR_XXX_Pushback(  VECTOR_XXX*   vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Pop()
+/** FUNCTION:  VECTOR_XXX_Pop()
  *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
  */
 inline
@@ -189,8 +178,7 @@ XXX VECTOR_XXX_Pop( VECTOR_XXX*   vec )
    return data;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Set()
+/** FUNCTION:  VECTOR_XXX_Set()
  *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  */
@@ -210,8 +198,7 @@ void VECTOR_XXX_Set(    VECTOR_XXX*   vec,
    vec->data[idx] = val;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Get()
+/** FUNCTION:  VECTOR_XXX_Get()
  *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
  *  RETURN:    Return data at <idx>.
  */
@@ -231,8 +218,7 @@ XXX VECTOR_XXX_Get(  VECTOR_XXX*   vec,
    return (vec->data[idx]);
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Get_X()
+/** FUNCTION:  VECTOR_XXX_Get_X()
  *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
  *             Warning: Out-of-Bounds only checked in DEBUG.
  *  RETURN:    Pointer to location to <vec> idx.
@@ -253,8 +239,7 @@ XXX* VECTOR_XXX_Get_X(  VECTOR_XXX*   vec,
    return &(vec->data[idx]);
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Get_Size()
+/** FUNCTION:  VECTOR_XXX_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
@@ -263,8 +248,7 @@ int VECTOR_XXX_Get_Size(   VECTOR_XXX*   vec )
    return vec->N;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Set_Size()
+/** FUNCTION:  VECTOR_XXX_Set_Size()
  *  SYNOPSIS:  Set utilized length of <vec>
  *  RETURN:    Pointer to location to <vec> idx.
  */
@@ -276,8 +260,7 @@ void VECTOR_XXX_Set_Size(  VECTOR_XXX*   vec,
 }
 
 
-/*
- *  FUNCTION:  VECTOR_XXX_Search_First()
+/** FUNCTION:  VECTOR_XXX_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
  *             Returns index of the first occurance found.
  *             Assumes <vec> has been sorted ascending.
@@ -309,8 +292,7 @@ int VECTOR_XXX_Search(  VECTOR_XXX*   vec,
    return found;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Search_First()
+/** FUNCTION:  VECTOR_XXX_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
  *             Returns index of the first occurance.
  *             Assumes <vec> has been sorted ascending.
@@ -342,8 +324,7 @@ int VECTOR_XXX_Search_First(  VECTOR_XXX*   vec,
    return found;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Search_Last()
+/** FUNCTION:  VECTOR_XXX_Search_Last()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
  *             Returns index of the last occurance.
  *             Assumes <vec> has been sorted ascending.
@@ -375,8 +356,7 @@ int VECTOR_XXX_Search_Last(   VECTOR_XXX*   vec,
    return found;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Compare()
+/** FUNCTION:  VECTOR_XXX_Compare()
  *  SYNOPSIS:  Compare <vec_A> and <vec_B>.
  *  RETURN:    0 for equality, 
  *             pos if <vec_A> > <vec_B>,  
@@ -395,8 +375,7 @@ int VECTOR_XXX_Compare(    VECTOR_XXX*   vec_A,
    return 0;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Sort()
+/** FUNCTION:  VECTOR_XXX_Sort()
  *  SYNOPSIS:  Sorts <vec> data array in ascending order. In-place.
  */
 void VECTOR_XXX_Sort( VECTOR_XXX*    vec )
@@ -422,8 +401,7 @@ void VECTOR_XXX_Sort( VECTOR_XXX*    vec )
    #endif
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Sort_Sub()
+/** FUNCTION:  VECTOR_XXX_Sort_Sub()
  *  SYNOPSIS:  Sorts subarray of <vec> data in ascending order on range (beg,end]. 
  *             Uses quicksort until length of subarray falls below threshold, then selection sort.
  */
@@ -446,8 +424,7 @@ void VECTOR_XXX_Sort_Sub(  VECTOR_XXX*    vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Sort_Sub_Selectsort()
+/** FUNCTION:  VECTOR_XXX_Sort_Sub_Selectsort()
  *  SYNOPSIS:  Selection Sorts subarray of <vec> data in ascending order on range (beg,end].  
  */
 void VECTOR_XXX_Sort_Sub_Selectsort(   VECTOR_XXX*    vec,
@@ -473,8 +450,7 @@ void VECTOR_XXX_Sort_Sub_Selectsort(   VECTOR_XXX*    vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Sort_Sub_Quicksort()
+/** FUNCTION:  VECTOR_XXX_Sort_Sub_Quicksort()
  *  SYNOPSIS:  Quick Sorts subarray of <vec> data in ascending order on range (beg,end].  
  */
 void VECTOR_XXX_Sort_Sub_Quicksort( VECTOR_XXX*    vec,
@@ -516,8 +492,7 @@ void VECTOR_XXX_Sort_Sub_Quicksort( VECTOR_XXX*    vec,
    VECTOR_XXX_Sort_Sub( vec, r_idx+1, end );
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Swap()
+/** FUNCTION:  VECTOR_XXX_Swap()
  *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
  *             Warning: Only checks for Out-of-Bounds when in DEBUG.
  */
@@ -531,8 +506,7 @@ void VECTOR_XXX_Swap(   VECTOR_XXX*    vec,
    vec->data[j] = swap;
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Reverse()
+/** FUNCTION:  VECTOR_XXX_Reverse()
  *  SYNOPSIS:  Reverse the ordering of array.
  */
 inline
@@ -545,8 +519,7 @@ void VECTOR_XXX_Reverse(   VECTOR_XXX*    vec )
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_XXX_Dump()
+/** FUNCTION:  VECTOR_XXX_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
 void VECTOR_XXX_Dump(   VECTOR_XXX*    vec,
@@ -564,8 +537,7 @@ void VECTOR_XXX_Dump(   VECTOR_XXX*    vec,
 }
 
 
-/*
- *  FUNCTION:  VECTOR_XXX_Unit_Test()
+/** FUNCTION:  VECTOR_XXX_Unit_Test()
  *  SYNOPSIS:  Perform unit test for VECTOR_XXX.
  */
 void VECTOR_XXX_Unit_Test()

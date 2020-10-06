@@ -18,8 +18,7 @@
 #include "hmmer.h"
 
 /* DAVID RICH EDIT */
-/*
- *  FUNCTION:  dp_matrix_Save()
+/*  FUNCTION:  dp_matrix_Save()
  *  SYNOPSIS:  Save dynamic programming matrix to file.
  *
  *  ARGS:      <Q>         query length,
@@ -98,11 +97,10 @@ void DP_MATRIX_Dump(  const int   Q,
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(i, p7G_B) ); 
    }
-   fprintf(fp, "\n");
+   fprintf(fp, "\n\n");
 }
 
-/*
- *  FUNCTION:  trace_Build()
+/*  FUNCTION:  trace_Build()
  *  SYNOPSIS:  Build path in dynamic programming matrix according to traceback (1-index).
  *
  *  ARGS:      <Q>         query length,
@@ -191,11 +189,10 @@ void trace_Build( const int   L,
          break;
       }
    }
-   printf("\n");
+   printf("\n\n");
 }
 
-/*
- *  FUNCTION:  trace_Print()
+/*  FUNCTION:  trace_Print()
  *  SYNOPSIS:  Build path in dynamic programming matrix according to traceback (1-index).
  *
  *  ARGS:      <Q>         query length,
@@ -261,12 +258,11 @@ void trace_Dump(  const int   L,
       //    fprintf(fp, "[%d](%s)\n", j, states[st]);
       // }
    }
-   fprintf(fp, "\n");
+   fprintf(fp, "\n\n");
 }
 
 
-/*
- *  FUNCTION:  hmm_Save()
+/*  FUNCTION:  hmm_Save()
  *  SYNOPSIS:  Save HMM Profile.
  */
 void profile_Dump(   ESL_DSQ*    dsq,
@@ -325,8 +321,7 @@ void profile_Dump(   ESL_DSQ*    dsq,
    fprintf(fp, "<<<\n\n");
 }
 
-/*
- *  FUNCTION:  save_ProfileConfig()
+/*  FUNCTION:  save_ProfileConfig()
  *  SYNOPSIS:  Save Profile Configuration.
  */
 void profileConfig_Dump(   P7_HMM*        hmm,
@@ -407,11 +402,10 @@ void profileConfig_Dump(   P7_HMM*        hmm,
       fprintf(fp, "%.3f ", gm->xsc[i][p7P_MOVE]);
       fprintf(fp, "\n");
    }
-   fprintf(fp, "===================\n");
+   fprintf(fp, "===================\n\n");
 }
 
-/*
- *  FUNCTION:  hmmProf_Dump()
+/*  FUNCTION:  hmmProf_Dump()
  *  SYNOPSIS:  Output HMM Profile.
  */
 void hmmProf_Dump(   P7_PROFILE*   gm,
@@ -469,18 +463,22 @@ void hmmProf_Dump(   P7_PROFILE*   gm,
    fprintf(fp, "<<<\n\n");
 }
 
+/*  FUNCTION:  hmmProf_Dump()
+ *  SYNOPSIS:  Output HMM Profile.
+ */
 void my_hmm_Dump(    ESL_HMM*  hmm,
                      FILE*     fp )
 {
    int M = hmm->M;
    int K = hmm->K;
 
-   printf(" === ESL_HMM (M=%d,K=%d) ===\n", M, K);
+   printf("\n=== ESL_HMM (M=%d,K=%d) ===\n", M, K);
 
    printf("pi[0..M]:\n");
    for (int i = 0; i < M; i++) {
       printf("%9.4f ", hmm->pi[i] );
    }
+   printf("\n");
 
    printf("t[Mx(M+1)]:\n");
    for (int i = 0; i < M; i++) {
@@ -489,6 +487,7 @@ void my_hmm_Dump(    ESL_HMM*  hmm,
       }
       printf("\n");
    }
+   printf("\n");
 
    printf("e[MxK]:\n");
    for (int i = 0; i < M; i++) {
@@ -497,6 +496,7 @@ void my_hmm_Dump(    ESL_HMM*  hmm,
       }
       printf("\n");
    }
+   printf("\n");
 
    printf("eo[K'xM]:\n");
    for (int i = 0; i < M; i++) {
@@ -505,6 +505,7 @@ void my_hmm_Dump(    ESL_HMM*  hmm,
       }
       printf("\n");
    }
+   printf("\n");
 }
 
 /* DAVID RICH EDIT END */

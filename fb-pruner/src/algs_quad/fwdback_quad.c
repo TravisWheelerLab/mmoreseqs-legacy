@@ -255,12 +255,12 @@ int run_Forward_Quad(   const SEQUENCE*    query,        /* query sequence */
       /* SPECIAL STATES */
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
       XMX(SP_J, q_0) = logsum( prv_J, prv_E );         
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
       XMX(SP_C, q_0) = logsum( prv_C, prv_E );
 
       /* N state */

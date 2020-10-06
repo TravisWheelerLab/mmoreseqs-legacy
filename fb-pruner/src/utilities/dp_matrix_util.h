@@ -5,8 +5,8 @@
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
 
-#ifndef _DP_MATRIX_H
-#define _DP_MATRIX_H
+#ifndef _DP_MATRIX_UTIL_H
+#define _DP_MATRIX_UTIL_H
 
 /*
  *  FUNCTION:  DP_MATRIX_Get_Bounds()
@@ -100,6 +100,36 @@ void DP_MATRIX_Dump( const int         Q,
                      FILE*             fp );
 
 /*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Norm_Dump(  const int         Q, 
+                           const int         T, 
+                           MATRIX_3D*        st_MX, 
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp );
+
+/*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Spec_Dump(  const int         Q, 
+                           const int         T, 
+                           MATRIX_3D*        st_MX, 
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp );
+
+/*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_SpecExp_Dump(  const int         Q,
+                              const int         T,
+                              MATRIX_3D*        st_MX,
+                              MATRIX_2D*        sp_MX,
+                              FILE*             fp );
+
+/*
  *  FUNCTION:  DP_MATRIX_Trace_Save()
  *  SYNOPSIS:  Save dynamic programming matrix with viterbi trace to file.
  */
@@ -167,4 +197,4 @@ void DP_MATRIX_MAT_Dump(   int         Q,
                            MATRIX_3D*  st_MX,
                            FILE*       fp );
 
-#endif /* _DP_MATRIX_H */
+#endif /* _DP_MATRIX_UTIL_H */

@@ -71,30 +71,33 @@
  * Xref:      [J3/119-121]: for analysis of numeric range issues when
  *            <scaleproduct> overflows.
  */
-int
-p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
+int p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
 {
   vector float *ppv;
   vector float *fv;
   vector float *bv;
-  vector float  totrv;
-  vector float  zerov;
-  int    L  = oxf->L;
-  int    M  = om->M;
-  int    Q  = p7O_NQF(M);	
-  int    i,q;
-  float  scaleproduct = 1.0 / oxb->xmx[p7X_N];
+  vector float totrv;
+  vector float zerov;
+  int L = oxf->L;
+  int M = om->M;
+  int Q = p7O_NQF(M);
+  int i, q;
+  float scaleproduct = 1.0 / oxb->xmx[p7X_N];
 
   pp->M = M;
   pp->L = L;
 
-  zerov = (vector float) vec_splat_u32(0);
+  zerov = (vector float)vec_splat_u32(0);
 
   ppv = pp->dpf[0];
-  for (q = 0; q < Q; q++) {
-    *ppv = (vector float) vec_splat_u32(0); ppv++;
-    *ppv = (vector float) vec_splat_u32(0); ppv++;
-    *ppv = (vector float) vec_splat_u32(0); ppv++;
+  for (q = 0; q < Q; q++)
+  {
+    *ppv = (vector float)vec_splat_u32(0);
+    ppv++;
+    *ppv = (vector float)vec_splat_u32(0);
+    ppv++;
+    *ppv = (vector float)vec_splat_u32(0);
+    ppv++;
   }
   pp->xmx[p7X_E] = 0.0;
   pp->xmx[p7X_N] = 0.0;
@@ -103,40 +106,49 @@ p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
   pp->xmx[p7X_B] = 0.0;
 
   for (i = 1; i <= L; i++)
+  {
+    ppv = pp->dpf[i];
+    fv = oxf->dpf[i];
+    bv = oxb->dpf[i];
+
+    totrv = esl_vmx_set_float(scaleproduct * oxf->xmx[i * p7X_NXCELLS + p7X_SCALE]);
+
+    for (q = 0; q < Q; q++)
     {
-      ppv   = pp->dpf[i];
-      fv    = oxf->dpf[i];
-      bv    = oxb->dpf[i];
+      /* M */
+      *ppv = vec_madd(*fv, *bv, zerov);
+      *ppv = vec_madd(*ppv, totrv, zerov);
+      ppv++;
+      fv++;
+      bv++;
 
-      totrv = esl_vmx_set_float(scaleproduct * oxf->xmx[i*p7X_NXCELLS+p7X_SCALE]);
+      /* D */
+      *ppv = (vector float)vec_splat_u32(0);
+      ppv++;
+      fv++;
+      bv++;
 
-      for (q = 0; q < Q; q++)
-	{
-	  /* M */
-	  *ppv = vec_madd(*fv,  *bv,    zerov);
-	  *ppv = vec_madd(*ppv,  totrv, zerov);
-	  ppv++;  fv++;  bv++;
-
-	  /* D */
-	  *ppv = (vector float) vec_splat_u32(0);
-	  ppv++;  fv++;  bv++;
-
-	  /* I */
-	  *ppv = vec_madd(*fv,  *bv,    zerov);
-	  *ppv = vec_madd(*ppv,  totrv, zerov);
-	  ppv++;  fv++;  bv++;
-	}
-      pp->xmx[i*p7X_NXCELLS+p7X_E] = 0.0;
-      pp->xmx[i*p7X_NXCELLS+p7X_N] = oxf->xmx[(i-1)*p7X_NXCELLS+p7X_N] * oxb->xmx[i*p7X_NXCELLS+p7X_N] * om->xf[p7O_N][p7O_LOOP] * scaleproduct;
-      pp->xmx[i*p7X_NXCELLS+p7X_J] = oxf->xmx[(i-1)*p7X_NXCELLS+p7X_J] * oxb->xmx[i*p7X_NXCELLS+p7X_J] * om->xf[p7O_J][p7O_LOOP] * scaleproduct;
-      pp->xmx[i*p7X_NXCELLS+p7X_C] = oxf->xmx[(i-1)*p7X_NXCELLS+p7X_C] * oxb->xmx[i*p7X_NXCELLS+p7X_C] * om->xf[p7O_C][p7O_LOOP] * scaleproduct;
-      pp->xmx[i*p7X_NXCELLS+p7X_B] = 0.0;
-
-      if (oxb->has_own_scales) scaleproduct *= oxf->xmx[i*p7X_NXCELLS+p7X_SCALE] /  oxb->xmx[i*p7X_NXCELLS+p7X_SCALE];
+      /* I */
+      *ppv = vec_madd(*fv, *bv, zerov);
+      *ppv = vec_madd(*ppv, totrv, zerov);
+      ppv++;
+      fv++;
+      bv++;
     }
+    pp->xmx[i * p7X_NXCELLS + p7X_E] = 0.0;
+    pp->xmx[i * p7X_NXCELLS + p7X_N] = oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_N] * oxb->xmx[i * p7X_NXCELLS + p7X_N] * om->xf[p7O_N][p7O_LOOP] * scaleproduct;
+    pp->xmx[i * p7X_NXCELLS + p7X_J] = oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_J] * oxb->xmx[i * p7X_NXCELLS + p7X_J] * om->xf[p7O_J][p7O_LOOP] * scaleproduct;
+    pp->xmx[i * p7X_NXCELLS + p7X_C] = oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_C] * oxb->xmx[i * p7X_NXCELLS + p7X_C] * om->xf[p7O_C][p7O_LOOP] * scaleproduct;
+    pp->xmx[i * p7X_NXCELLS + p7X_B] = 0.0;
 
-  if (isinf(scaleproduct)) return eslERANGE;
-  else                     return eslOK;
+    if (oxb->has_own_scales)
+      scaleproduct *= oxf->xmx[i * p7X_NXCELLS + p7X_SCALE] / oxb->xmx[i * p7X_NXCELLS + p7X_SCALE];
+  }
+
+  if (isinf(scaleproduct))
+    return eslERANGE;
+  else
+    return eslOK;
 }
 
 /* Function:  p7_DomainDecoding()
@@ -159,38 +171,42 @@ p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
  *
  * Throws:    (no abnormal error conditions)
  */
-int
-p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P7_DOMAINDEF *ddef)
+int p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P7_DOMAINDEF *ddef)
 {
-  int   L             = oxf->L;
-  float scaleproduct  = 1.0 / oxb->xmx[p7X_N];
+  printf("--> TEST - Decoding (vmx)\n");
+  int L = oxf->L;
+  float scaleproduct = 1.0 / oxb->xmx[p7X_N];
   float njcp;
-  int   i;
+  int i;
 
   ddef->btot[0] = 0.0;
   ddef->etot[0] = 0.0;
   ddef->mocc[0] = 0.0;
+
   for (i = 1; i <= L; i++)
-    {
-      /* scaleproduct is prod_j=0^i-2 now */
-      ddef->btot[i] = ddef->btot[i-1] +
-	(oxf->xmx[(i-1)*p7X_NXCELLS+p7X_B] * oxb->xmx[(i-1)*p7X_NXCELLS+p7X_B] * oxf->xmx[(i-1)*p7X_NXCELLS+p7X_SCALE] * scaleproduct);
+  {
+    /* scaleproduct is prod_j=0^i-2 now */
+    ddef->btot[i] = ddef->btot[i - 1] +
+                    (oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_B] * oxb->xmx[(i - 1) * p7X_NXCELLS + p7X_B] * oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_SCALE] * scaleproduct);
 
-      if (oxb->has_own_scales) scaleproduct *= oxf->xmx[(i-1)*p7X_NXCELLS+p7X_SCALE] /  oxb->xmx[(i-1)*p7X_NXCELLS+p7X_SCALE]; 
-      /* scaleproduct is prod_j=0^i-1 now */
+    if (oxb->has_own_scales)
+      scaleproduct *= oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_SCALE] / oxb->xmx[(i - 1) * p7X_NXCELLS + p7X_SCALE];
+    /* scaleproduct is prod_j=0^i-1 now */
 
-      ddef->etot[i] = ddef->etot[i-1] +
-	(oxf->xmx[i*p7X_NXCELLS+p7X_E] * oxb->xmx[i*p7X_NXCELLS+p7X_E] * oxf->xmx[i*p7X_NXCELLS+p7X_SCALE] * scaleproduct);
+    ddef->etot[i] = ddef->etot[i - 1] +
+                    (oxf->xmx[i * p7X_NXCELLS + p7X_E] * oxb->xmx[i * p7X_NXCELLS + p7X_E] * oxf->xmx[i * p7X_NXCELLS + p7X_SCALE] * scaleproduct);
 
-      njcp  = oxf->xmx[(i-1)*p7X_NXCELLS+p7X_N] * oxb->xmx[i*p7X_NXCELLS+p7X_N] * om->xf[p7O_N][p7O_LOOP] * scaleproduct;
-      njcp += oxf->xmx[(i-1)*p7X_NXCELLS+p7X_J] * oxb->xmx[i*p7X_NXCELLS+p7X_J] * om->xf[p7O_J][p7O_LOOP] * scaleproduct;
-      njcp += oxf->xmx[(i-1)*p7X_NXCELLS+p7X_C] * oxb->xmx[i*p7X_NXCELLS+p7X_C] * om->xf[p7O_C][p7O_LOOP] * scaleproduct;
-      ddef->mocc[i] = 1. - njcp;
-    }
+    njcp = oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_N] * oxb->xmx[i * p7X_NXCELLS + p7X_N] * om->xf[p7O_N][p7O_LOOP] * scaleproduct;
+    njcp += oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_J] * oxb->xmx[i * p7X_NXCELLS + p7X_J] * om->xf[p7O_J][p7O_LOOP] * scaleproduct;
+    njcp += oxf->xmx[(i - 1) * p7X_NXCELLS + p7X_C] * oxb->xmx[i * p7X_NXCELLS + p7X_C] * om->xf[p7O_C][p7O_LOOP] * scaleproduct;
+    ddef->mocc[i] = 1. - njcp;
+  }
   ddef->L = oxf->L;
 
-  if (isinf(scaleproduct)) return eslERANGE;
-  else                     return eslOK;
+  if (isinf(scaleproduct))
+    return eslERANGE;
+  else
+    return eslOK;
 }
 /*------------------ end, posterior decoding --------------------*/
 
@@ -222,63 +238,67 @@ p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P
 #include "impl_vmx.h"
 
 static ESL_OPTIONS options[] = {
-  /* name           type      default  env  range toggles reqs incomp  help                                       docgroup*/
-  { "-h",        eslARG_NONE,   FALSE, NULL, NULL,  NULL,  NULL, NULL, "show brief help on version and usage",             0 },
-  { "-s",        eslARG_INT,     "42", NULL, NULL,  NULL,  NULL, NULL, "set random number seed to <n>",                    0 },
-  { "-L",        eslARG_INT,    "400", NULL, "n>0", NULL,  NULL, NULL, "length of random target seqs",                     0 },
-  { "-N",        eslARG_INT,  "50000", NULL, "n>0", NULL,  NULL, NULL, "number of random target seqs",                     0 },
-  {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* name           type      default  env  range toggles reqs incomp  help                                       docgroup*/
+    {"-h", eslARG_NONE, FALSE, NULL, NULL, NULL, NULL, NULL, "show brief help on version and usage", 0},
+    {"-s", eslARG_INT, "42", NULL, NULL, NULL, NULL, NULL, "set random number seed to <n>", 0},
+    {"-L", eslARG_INT, "400", NULL, "n>0", NULL, NULL, NULL, "length of random target seqs", 0},
+    {"-N", eslARG_INT, "50000", NULL, "n>0", NULL, NULL, NULL, "number of random target seqs", 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-static char usage[]  = "[-options] <hmmfile>";
+static char usage[] = "[-options] <hmmfile>";
 static char banner[] = "benchmark driver for posterior residue decoding, VMX version";
 
-int 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-  ESL_GETOPTS    *go      = p7_CreateDefaultApp(options, 1, argc, argv, banner, usage);
-  char           *hmmfile = esl_opt_GetArg(go, 1);
-  ESL_STOPWATCH  *w       = esl_stopwatch_Create();
-  ESL_RANDOMNESS *r       = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
-  ESL_ALPHABET   *abc     = NULL;
-  P7_HMMFILE     *hfp     = NULL;
-  P7_HMM         *hmm     = NULL;
-  P7_BG          *bg      = NULL;
-  P7_PROFILE     *gm      = NULL;
-  P7_OPROFILE    *om      = NULL;
-  P7_OMX         *fwd     = NULL;
-  P7_OMX         *bck     = NULL;
-  P7_OMX         *pp      = NULL;
-  int             L       = esl_opt_GetInteger(go, "-L");
-  int             N       = esl_opt_GetInteger(go, "-N");
-  ESL_DSQ        *dsq     = malloc(sizeof(ESL_DSQ) * (L+2));
-  int             i;
-  float           fsc, bsc;
-  double          Mcs;
+  ESL_GETOPTS *go = p7_CreateDefaultApp(options, 1, argc, argv, banner, usage);
+  char *hmmfile = esl_opt_GetArg(go, 1);
+  ESL_STOPWATCH *w = esl_stopwatch_Create();
+  ESL_RANDOMNESS *r = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
+  ESL_ALPHABET *abc = NULL;
+  P7_HMMFILE *hfp = NULL;
+  P7_HMM *hmm = NULL;
+  P7_BG *bg = NULL;
+  P7_PROFILE *gm = NULL;
+  P7_OPROFILE *om = NULL;
+  P7_OMX *fwd = NULL;
+  P7_OMX *bck = NULL;
+  P7_OMX *pp = NULL;
+  int L = esl_opt_GetInteger(go, "-L");
+  int N = esl_opt_GetInteger(go, "-N");
+  ESL_DSQ *dsq = malloc(sizeof(ESL_DSQ) * (L + 2));
+  int i;
+  float fsc, bsc;
+  double Mcs;
 
-  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK) p7_Fail("Failed to open HMM file %s", hmmfile);
-  if (p7_hmmfile_Read(hfp, &abc, &hmm)            != eslOK) p7_Fail("Failed to read HMM");
+  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK)
+    p7_Fail("Failed to open HMM file %s", hmmfile);
+  if (p7_hmmfile_Read(hfp, &abc, &hmm) != eslOK)
+    p7_Fail("Failed to read HMM");
 
-  bg = p7_bg_Create(abc);                 p7_bg_SetLength(bg, L);
-  gm = p7_profile_Create(hmm->M, abc);    p7_ProfileConfig(hmm, bg, gm, L, p7_LOCAL);
-  om = p7_oprofile_Create(gm->M, abc);    p7_oprofile_Convert(gm, om);
+  bg = p7_bg_Create(abc);
+  p7_bg_SetLength(bg, L);
+  gm = p7_profile_Create(hmm->M, abc);
+  p7_ProfileConfig(hmm, bg, gm, L, p7_LOCAL);
+  om = p7_oprofile_Create(gm->M, abc);
+  p7_oprofile_Convert(gm, om);
   p7_oprofile_ReconfigLength(om, L);
 
   fwd = p7_omx_Create(gm->M, L, L);
   bck = p7_omx_Create(gm->M, L, L);
-  pp  = p7_omx_Create(gm->M, L, L);
+  pp = p7_omx_Create(gm->M, L, L);
 
   esl_rsq_xfIID(r, bg->f, abc->K, L, dsq);
-  p7_Forward (dsq, L, om, fwd,      &fsc);
+  p7_Forward(dsq, L, om, fwd, &fsc);
   p7_Backward(dsq, L, om, fwd, bck, &bsc);
 
   esl_stopwatch_Start(w);
   for (i = 0; i < N; i++)
-    p7_Decoding(om, fwd, bck, pp);              
+    p7_Decoding(om, fwd, bck, pp);
   esl_stopwatch_Stop(w);
 
-  Mcs = (double) N * (double) L * (double) gm->M * 1e-6 / (double) w->user;
+  Mcs = (double)N * (double)L * (double)gm->M * 1e-6 / (double)w->user;
   esl_stopwatch_Display(stdout, w, "# CPU time: ");
-  printf("# M    = %d\n",   gm->M);
+  printf("# M    = %d\n", gm->M);
   printf("# %.1f Mc/s\n", Mcs);
 
   free(dsq);
@@ -299,9 +319,6 @@ main(int argc, char **argv)
 #endif /*p7DECODING_BENCHMARK*/
 /*------------------ end, benchmark driver ----------------------*/
 
-
-
-
 /*****************************************************************
  * 3. Unit tests
  *****************************************************************/
@@ -313,39 +330,49 @@ main(int argc, char **argv)
 static void
 utest_decoding(ESL_RANDOMNESS *r, ESL_ALPHABET *abc, P7_BG *bg, int M, int L, int N, float tolerance)
 {
-  char        *msg  = "decoding unit test failed";
-  P7_HMM      *hmm  = NULL;
-  P7_PROFILE  *gm   = NULL;
-  P7_OPROFILE *om   = NULL;
-  ESL_DSQ     *dsq  = malloc(sizeof(ESL_DSQ) * (L+2));
-  P7_OMX      *fwd  = p7_omx_Create(M, L, L);
-  P7_OMX      *bck  = p7_omx_Create(M, L, L);
-  P7_OMX      *pp   = p7_omx_Create(M, L, L);
-  P7_GMX      *gxf  = p7_gmx_Create(M, L);
-  P7_GMX      *gxb  = p7_gmx_Create(M, L);
-  P7_GMX      *gxp1 = p7_gmx_Create(M, L);
-  P7_GMX      *gxp2 = p7_gmx_Create(M, L);
+  char *msg = "decoding unit test failed";
+  P7_HMM *hmm = NULL;
+  P7_PROFILE *gm = NULL;
+  P7_OPROFILE *om = NULL;
+  ESL_DSQ *dsq = malloc(sizeof(ESL_DSQ) * (L + 2));
+  P7_OMX *fwd = p7_omx_Create(M, L, L);
+  P7_OMX *bck = p7_omx_Create(M, L, L);
+  P7_OMX *pp = p7_omx_Create(M, L, L);
+  P7_GMX *gxf = p7_gmx_Create(M, L);
+  P7_GMX *gxb = p7_gmx_Create(M, L);
+  P7_GMX *gxp1 = p7_gmx_Create(M, L);
+  P7_GMX *gxp2 = p7_gmx_Create(M, L);
   float fsc1, fsc2;
   float bsc1, bsc2;
 
-  if (p7_oprofile_Sample(r, abc, bg, M, L, &hmm, &gm, &om) != eslOK) esl_fatal(msg);
+  if (p7_oprofile_Sample(r, abc, bg, M, L, &hmm, &gm, &om) != eslOK)
+    esl_fatal(msg);
   while (N--)
-    {
-      if (esl_rsq_xfIID(r, bg->f, abc->K, L, dsq) != eslOK) esl_fatal(msg);
-      if (p7_Forward       (dsq, L, om, fwd,      &fsc1) != eslOK) esl_fatal(msg);
-      if (p7_Backward      (dsq, L, om, fwd, bck, &bsc1) != eslOK) esl_fatal(msg);
-      if (p7_Decoding(om, fwd, bck, pp)                  != eslOK) esl_fatal(msg);
-      if (p7_omx_FDeconvert(pp, gxp1)                    != eslOK) esl_fatal(msg);
-      
-      if (p7_GForward (dsq, L, gm, gxf, &fsc2)           != eslOK) esl_fatal(msg);
-      if (p7_GBackward(dsq, L, gm, gxb, &bsc2)           != eslOK) esl_fatal(msg);
-      if (p7_GDecoding(gm, gxf, gxb, gxp2)               != eslOK) esl_fatal(msg);
+  {
+    if (esl_rsq_xfIID(r, bg->f, abc->K, L, dsq) != eslOK)
+      esl_fatal(msg);
+    if (p7_Forward(dsq, L, om, fwd, &fsc1) != eslOK)
+      esl_fatal(msg);
+    if (p7_Backward(dsq, L, om, fwd, bck, &bsc1) != eslOK)
+      esl_fatal(msg);
+    if (p7_Decoding(om, fwd, bck, pp) != eslOK)
+      esl_fatal(msg);
+    if (p7_omx_FDeconvert(pp, gxp1) != eslOK)
+      esl_fatal(msg);
 
-      //p7_gmx_Dump(stdout, gxp1, p7_DEFAULT);
-      //p7_gmx_Dump(stdout, gxp2, p7_DEFAULT);
+    if (p7_GForward(dsq, L, gm, gxf, &fsc2) != eslOK)
+      esl_fatal(msg);
+    if (p7_GBackward(dsq, L, gm, gxb, &bsc2) != eslOK)
+      esl_fatal(msg);
+    if (p7_GDecoding(gm, gxf, gxb, gxp2) != eslOK)
+      esl_fatal(msg);
 
-      if (p7_gmx_Compare(gxp1, gxp2, tolerance)          != eslOK) esl_fatal(msg);
-    }
+    //p7_gmx_Dump(stdout, gxp1, p7_DEFAULT);
+    //p7_gmx_Dump(stdout, gxp2, p7_DEFAULT);
+
+    if (p7_gmx_Compare(gxp1, gxp2, tolerance) != eslOK)
+      esl_fatal(msg);
+  }
 
   p7_gmx_Destroy(gxp1);
   p7_gmx_Destroy(gxp2);
@@ -361,9 +388,6 @@ utest_decoding(ESL_RANDOMNESS *r, ESL_ALPHABET *abc, P7_BG *bg, int M, int L, in
 }
 #endif /*p7DECODING_TESTDRIVE*/
 /*--------------------- end, unit tests -------------------------*/
-
-
-
 
 /*****************************************************************
  * 4. Test driver
@@ -388,34 +412,33 @@ utest_decoding(ESL_RANDOMNESS *r, ESL_ALPHABET *abc, P7_BG *bg, int M, int L, in
 #include "impl_vmx.h"
 
 static ESL_OPTIONS options[] = {
-  /* name  type         default  env   range togs  reqs  incomp  help                docgrp */
-  { "-h",  eslARG_NONE,    FALSE, NULL, NULL, NULL, NULL, NULL, "show help and usage",                  0},
-  { "-s",  eslARG_INT,     "42",  NULL, NULL, NULL, NULL, NULL, "set random number seed to <n>",        0 },
-  { "-t",  eslARG_REAL,  "0.01",  NULL, NULL, NULL, NULL, NULL, "floating point comparison tolerance",  0 },
-  { "-L",  eslARG_INT,     "40",  NULL, NULL, NULL, NULL, NULL, "length of sampled sequences",          0 },
-  { "-M",  eslARG_INT,     "40",  NULL, NULL, NULL, NULL, NULL, "length of sampled test profile",       0 },
-  { "-N",  eslARG_INT,     "10",  NULL, NULL, NULL, NULL, NULL, "number of sampled test sequences",     0 },
-  { 0,0,0,0,0,0,0,0,0,0},
+    /* name  type         default  env   range togs  reqs  incomp  help                docgrp */
+    {"-h", eslARG_NONE, FALSE, NULL, NULL, NULL, NULL, NULL, "show help and usage", 0},
+    {"-s", eslARG_INT, "42", NULL, NULL, NULL, NULL, NULL, "set random number seed to <n>", 0},
+    {"-t", eslARG_REAL, "0.01", NULL, NULL, NULL, NULL, NULL, "floating point comparison tolerance", 0},
+    {"-L", eslARG_INT, "40", NULL, NULL, NULL, NULL, NULL, "length of sampled sequences", 0},
+    {"-M", eslARG_INT, "40", NULL, NULL, NULL, NULL, NULL, "length of sampled test profile", 0},
+    {"-N", eslARG_INT, "10", NULL, NULL, NULL, NULL, NULL, "number of sampled test sequences", 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-static char usage[]  = "[-options]";
+static char usage[] = "[-options]";
 static char banner[] = "test driver for VMX posterior decoding";
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-  ESL_GETOPTS    *go   = p7_CreateDefaultApp(options, 0, argc, argv, banner, usage);
-  ESL_RANDOMNESS *r    = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
-  ESL_ALPHABET   *abc  = esl_alphabet_Create(eslAMINO);
-  P7_BG          *bg   = p7_bg_Create(abc);
-  int             M    = esl_opt_GetInteger(go, "-M");
-  int             L    = esl_opt_GetInteger(go, "-L");
-  int             N    = esl_opt_GetInteger(go, "-N");
-  float           tol  = esl_opt_GetReal   (go, "-t");
-  
+  ESL_GETOPTS *go = p7_CreateDefaultApp(options, 0, argc, argv, banner, usage);
+  ESL_RANDOMNESS *r = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
+  ESL_ALPHABET *abc = esl_alphabet_Create(eslAMINO);
+  P7_BG *bg = p7_bg_Create(abc);
+  int M = esl_opt_GetInteger(go, "-M");
+  int L = esl_opt_GetInteger(go, "-L");
+  int N = esl_opt_GetInteger(go, "-N");
+  float tol = esl_opt_GetReal(go, "-t");
+
   p7_FLogsumInit();
 
   utest_decoding(r, abc, bg, M, L, N, tol);
-  
+
   esl_getopts_Destroy(go);
   esl_randomness_Destroy(r);
   esl_alphabet_Destroy(abc);
@@ -424,7 +447,3 @@ main(int argc, char **argv)
 }
 #endif /*p7DECODING_TESTDRIVE*/
 /*-------------------- end, test driver -------------------------*/
-
-
-
-

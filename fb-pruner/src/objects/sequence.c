@@ -25,15 +25,17 @@
 #include "sequence.h"
 
 
-/* Constructor */
-SEQUENCE* SEQUENCE_Create() 
+/** FUNCTION:  SEQUENCE_Create()
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    Return pointer to new SEQUENCE object.
+ */
+SEQUENCE* 
+SEQUENCE_Create() 
 {
-   SEQUENCE *seq = malloc(sizeof(SEQUENCE));
-   if (seq == NULL) {
-      perror("Error while malloc'ing SEQUENCE.\n");
-      exit(EXIT_FAILURE);
-   }
+   SEQUENCE *seq = ERROR_malloc(sizeof(SEQUENCE));
 
+   seq->full_N   = 0;
    seq->N        = 0;
    seq->Nalloc   = 0;
 
@@ -50,8 +52,14 @@ SEQUENCE* SEQUENCE_Create()
    return seq;
 }
 
-/* Destructor */
-void* SEQUENCE_Destroy( SEQUENCE *seq )
+
+/** FUNCTION:  SEQUENCE_Destroy()
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    If successful, returns NULL pointer.
+ */
+SEQUENCE* 
+SEQUENCE_Destroy( SEQUENCE *seq )
 {
    if ( seq == NULL ) return seq;
 
@@ -64,12 +72,18 @@ void* SEQUENCE_Destroy( SEQUENCE *seq )
    ERROR_free(seq->dseq);
 
    ERROR_free(seq);
-   seq = NULL;
-   return seq;
+   
+   return NULL;
 }
 
-/* Reuse sequence by reinitializing all fields except seq field */
-void SEQUENCE_Reuse( SEQUENCE* seq )
+
+/** FUNCTION:  SEQUENCE_Reuse()
+ *  SYNOPSIS:  Reuse sequence by reinitializing all fields except <seq> field.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Reuse( SEQUENCE* seq )
 {
    seq->N = 0;
 
@@ -85,20 +99,33 @@ void SEQUENCE_Reuse( SEQUENCE* seq )
    seq->seq[0] = '\0';
 }
 
-/* Set Sequence String to SEQUENCE and update length */
-void SEQUENCE_Set_Seq(  SEQUENCE* seq,
-                        char*     seq_text )
+
+/** FUNCTION:  SEQUENCE_Reuse()
+ *  SYNOPSIS:  Set Sequence String <seq_text> to SEQUENCE <seq> and update length.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Set_Seq( SEQUENCE* seq,
+                  char*     seq_text )
 {
    seq->N = strlen(seq_text);
    /* resize string if necessary */
-   if ( seq->N >= seq->Nalloc ) 
+   if ( seq->N >= seq->Nalloc ) {
       SEQUENCE_Resize_Seq( seq, (seq->N + 1) );
+   }  
    strcpy( seq->seq, seq_text );
 }
 
-/* Append Sequence String onto current SEQUENCE and update length */
-void SEQUENCE_Append_Seq(  SEQUENCE* seq,
-                           char*     seq_text )
+
+/** FUNCTION:  SEQUENCE_Append_Seq()
+ *  SYNOPSIS:  Append Sequence String <seq_text> onto current SEQUENCE <seq> and update length.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Append_Seq( SEQUENCE* seq,
+                     char*     seq_text )
 {
    seq->N  += strlen(seq_text);
    /* resize string if necessary (allocate twice the space currently needed) */
@@ -107,37 +134,92 @@ void SEQUENCE_Append_Seq(  SEQUENCE* seq,
    strcat( seq->seq, seq_text );
 }
 
-/* Reallocate space for SEQUENCE */
-void SEQUENCE_Resize_Seq( SEQUENCE* seq,
-                          int       size )
+
+/** FUNCTION:  SEQUENCE_Resize_Seq()
+ *  SYNOPSIS:  Reallocate space for SEQUENCE <seq>
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Resize_Seq( SEQUENCE* seq,
+                     int       size )
 {
-   seq->Nalloc = size;
-   seq->seq    = realloc( seq->seq, sizeof(char) * seq->Nalloc );
-   if (seq->seq == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc SEQ_TEXT for SEQUENCE.\n");
-      exit(EXIT_FAILURE);
-   }
+   seq->Nalloc       = size;
+   seq->seq          = ERROR_realloc( seq->seq, sizeof(char) * seq->Nalloc );
+   seq->full_seq     = seq->seq;
    /* make sure final char in string is terminal char */
-   seq->seq[size-1] = '\0';
+   seq->seq[size-1]  = '\0';
 }
 
-/* Set Textfield to SEQUENCE field (overwrites) */
-void SEQUENCE_Set_Textfield(  char** seq_field,
-                              char*  text )
+
+/** FUNCTION:  SEQUENCE_Resize_Seq()
+ *  SYNOPSIS:  Set Textfield <test> to SEQUENCE field <seq_field> (overwrites).
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Set_Textfield( char** seq_field,
+                        char*  text )
 {
    *seq_field = ERROR_realloc( *seq_field, sizeof(char) * (strlen(text) + 1) );
    strcpy( *seq_field, text );
 }
 
-/* Create a digitized version of current sequence */
-void SEQUENCE_Digitize( SEQUENCE* seq )
+
+/** FUNCTION:  SEQUENCE_Digitize()
+ *  SYNOPSIS:  Digitize text <seq> to create digital sequence <dseq>. 
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Digitize( SEQUENCE* seq )
 {
-   
+   seq->dseq = ERROR_realloc( seq->seq, sizeof(int) * seq->Nalloc );
+
+   for ( int i = 0; i < seq->N; i++ ) {
+      seq->dseq[i] = seq->full_seq[i] - 'A';
+   }
 }
 
-/* Output SEQUENCE to FILE POINTER */
-void SEQUENCE_Dump(  SEQUENCE* seq,
-                     FILE*     fp )
+
+/** FUNCTION:  SEQUENCE_SetSubsequence()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
+ *             Subsequence covers range <q_beg, q_end>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_SetSubsequence( SEQUENCE*  seq, 
+                         int        q_beg,
+                         int        q_end )
+{
+   seq->seq = seq->full_seq + q_beg;
+   seq->N   = strlen( seq->seq );
+}
+
+
+/** FUNCTION:  SEQUENCE_UnsetSubsequence()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
+ *             Subsequence covers range <q_beg, q_end>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_UnsetSubsequence( SEQUENCE*  seq )
+{
+   seq->seq = seq->full_seq;
+   seq->N   = strlen( seq->seq );
+}
+
+
+/** FUNCTION:  SEQUENCE_Dump()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to file pointer <fp>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_Dump( SEQUENCE* seq,
+               FILE*     fp )
 {
    /* check for bad pointer */
    if (fp == NULL) {

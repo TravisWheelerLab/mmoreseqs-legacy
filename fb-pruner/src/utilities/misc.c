@@ -120,6 +120,39 @@ float logsum_exact( float  x,
 }
 
 /*
+ *  FUNCTION:  logdiff()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real diff (approximation).
+ *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
+ *             LOGSUM_LOOKUP must have been initialized before use.
+ */
+inline
+float logdiff( float  x,
+               float  y )
+{
+   float max; 
+   float min;
+
+   y = -y;
+   
+   if ( x == -INF && y == -INF ) return -INF;
+   if ( x == INF && y == INF ) return INF;
+
+   if (x > y)
+   {
+      max = x;
+      min = y;
+   }
+   else
+   {
+      max = y;
+      min = x;
+   }
+
+   return (min == -INF || (max - min) >= 15.7f) ?
+          max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
+}
+
+/*
  *  FUNCTION:  logsum_Dump()
  *  SYNOPSIS:  Output LOGSUM_LOOKUP table to file.
  */

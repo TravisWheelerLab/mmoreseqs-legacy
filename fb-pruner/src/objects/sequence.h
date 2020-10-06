@@ -3,40 +3,63 @@
  *  PURPOSE:   SEQUENCE object
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
  *******************************************************************************/
-
 
 #ifndef _SEQUENCE_H
 #define _SEQUENCE_H
 
-/* Constructor */
-SEQUENCE* SEQUENCE_Create();
+/** FUNCTION:  SEQUENCE_Create()
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    Return pointer to new SEQUENCE object.
+ */
+SEQUENCE* 
+SEQUENCE_Create();
 
-/* Destructor */
-void* SEQUENCE_Destroy(SEQUENCE*  seq);
+/** FUNCTION:  SEQUENCE_Destroy()
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    Return NULL pointer.
+ */
+SEQUENCE* 
+SEQUENCE_Destroy( SEQUENCE*  seq );
 
 /* Reuse sequence by reinitializing all fields except seq field */
-void SEQUENCE_Reuse(SEQUENCE* seq);
+void 
+SEQUENCE_Reuse( SEQUENCE* seq );
 
 /* Set Sequence String to SEQUENCE and update length */
-void SEQUENCE_Set_Seq(SEQUENCE*  seq,
-                      char*      seq_text);
+void 
+SEQUENCE_Set_Seq( SEQUENCE*  seq,
+                  char*      seq_text );
 
 /* Append Sequence String onto current SEQUENCE and update length */
-void SEQUENCE_Append_Seq(SEQUENCE*  seq,
-                         char*      seq_text);
+void 
+SEQUENCE_Append_Seq( SEQUENCE*  seq,
+                     char*      seq_text);
 
 /* Reallocate space for SEQUENCE */
-void SEQUENCE_Resize_Seq( SEQUENCE*    seq,
-                          int          size );
+void 
+SEQUENCE_Resize_Seq( SEQUENCE*    seq,
+                     int          size );
 
 /* Set Textfield to SEQUENCE field */
-void SEQUENCE_Set_Textfield(char**  seq_field,
-                            char*   text);
+void 
+SEQUENCE_Set_Textfield( char**  seq_field,
+                        char*   text);
+
+/* Set sequence to a subsequence */
+void 
+SEQUENCE_SetSubsequence( SEQUENCE*  seq, 
+                         int        q_beg,
+                         int        q_end );
+
+void 
+SEQUENCE_UnsetSubsequence( SEQUENCE*  seq );
 
 /* Output SEQUENCE out to FILE POINTER */
-void SEQUENCE_Dump(SEQUENCE*  seq,
-                   FILE*      fp);
+void 
+SEQUENCE_Dump( SEQUENCE*  seq,
+               FILE*      fp);
 
 #endif /* _SEQUENCE_H */

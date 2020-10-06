@@ -36,4 +36,12 @@ void HMM_PROFILE_CalcOccupancy( HMM_PROFILE* prof,
 void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof, 
                                  int           L );
 
+/* Configure the Length of the HMM_PROFILE based on the length of the sequence */
+void HMM_PROFILE_ReconfigUnihit( HMM_PROFILE*  prof,
+                                 int           L );
+
+/* Configure the Length of the HMM_PROFILE based on the length of the sequence */
+void HMM_PROFILE_ReconfigMultihit(  HMM_PROFILE*  prof,
+                                    int           L );
+
 #endif /* _HMM_PARSER_H */

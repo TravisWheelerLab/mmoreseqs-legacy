@@ -50,10 +50,10 @@
 #endif
 
 /* whether to use function calls for matrix accesses or explicit array accesses */
-#define MATRIX_FUNCTIONS 	TRUE
+#define MATRIX_FUNCTIONS 	FALSE
 
 /* types of cloud pruning methods */
-#define PRUNER_NONE  						0 
+#define PRUNER_NONE  							0 
 #define PRUNER_XDROP_EDGETRIM 				1
 #define PRUNER_XDROP_BIFURCATE				2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
@@ -146,6 +146,15 @@
 #define IMX3(qx0, tx0)          	MX_3D( st_MX3, INS_ST, (qx0), (tx0) )
 #define DMX3(qx0, tx0)          	MX_3D( st_MX3, DEL_ST, (qx0), (tx0) )
 
+/* match, insert, delete for st_MX matrix (quadratic space matrix) (specify matrix) */
+#define MMX_X(mx, q_0, t_0)      MX_3D( mx, MAT_ST, (q_0), (t_0) )
+#define IMX_X(mx, q_0, t_0)      MX_3D( mx, INS_ST, (q_0), (t_0) )
+#define DMX_X(mx, q_0, t_0)      MX_3D( mx, DEL_ST, (q_0), (t_0) )
+/* match, insert, delete for st_MX3 matrix (linear space matrix) (specify matrix) */
+#define MMX3_X(mx, qx0, tx0)     MX_3D( mx, MAT_ST, (qx0), (tx0) )
+#define IMX3_X(mx, qx0, tx0)     MX_3D( mx, INS_ST, (qx0), (tx0) )
+#define DMX3_X(mx, qx0, tx0)     MX_3D( mx, DEL_ST, (qx0), (tx0) )
+
 /* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_3D_SPARSE via function call */
@@ -174,18 +183,19 @@
 
 /* special state */
 #define XMX(st, q_0)          	MX_2D( sp_MX, st, q_0)
+#define XMX_X(mx, st, q_0)       MX_2D( mx, st, q_0)
 
 /* === TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS === */
-/* generic hmm profile functions */
-#define TSC_HMM(prof, j, tr)    ( prof->hmm_model[j].trans[tr] )
-#define XSC_HMM(prof, sp, tr)   ( prof->bg_model->spec[sp][tr] )
-#define MSC_HMM(prof, j, A)     ( prof->hmm_model[j].match[A] )
-#define ISC_HMM(prof, j, A)     ( prof->hmm_model[j].insert[A] )
 /* target hmm profile functions */
-#define TSC(j, tr)             	( target->hmm_model[j].trans[tr] )
+#define TSC(t_0, tr)            	( target->hmm_model[t_0].trans[tr] )
 #define XSC(sp, tr)            	( target->bg_model->spec[sp][tr] )
-#define MSC(j, A)              	( target->hmm_model[j].match[A] )
-#define ISC(j, A)              	( target->hmm_model[j].insert[A] )
+#define MSC(t_0, A)             	( target->hmm_model[t_0].match[A] )
+#define ISC(t_0, A)            	( target->hmm_model[t_0].insert[A] )
+/* generic hmm profile functions */
+#define TSC_X(prof, t_0, tr)   	( prof->hmm_model[t_0].trans[tr] )
+#define XSC_X(prof, sp, tr)    	( prof->bg_model->spec[sp][tr] )
+#define MSC_X(prof, t_0, A)    	( prof->hmm_model[t_0].match[A] )
+#define ISC_X(prof, t_0, A)    	( prof->hmm_model[t_0].insert[A] )
 
 /* edgebounds access */
 #define EDG_X(edg, i) 	 	( *EDGEBOUNDS_Get( edg, i ) )

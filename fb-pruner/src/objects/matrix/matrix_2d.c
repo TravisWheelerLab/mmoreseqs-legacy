@@ -24,9 +24,15 @@
 /* header */
 #include "matrix_2d.h"
 
-/* constructor */
-MATRIX_2D* MATRIX_2D_Create(  int  R,
-                              int  C )
+
+/*! FUNCTION:  MATRIX_2D_Create()
+ *  SYNOPSIS:  Constructor: Allocates memory for MATRIX_2D.
+ *
+ *  RETURN:    Return pointer to new MATRIX_2D object.
+ */
+MATRIX_2D* 
+MATRIX_2D_Create( int  R,
+                  int  C )
 {
    MATRIX_2D* mx = NULL;
 
@@ -48,19 +54,31 @@ MATRIX_2D* MATRIX_2D_Create(  int  R,
    return mx;
 }
 
-/* constructor with all values set to -INF */
-MATRIX_2D* MATRIX_2D_Create_Clean(  int  R,
-                                    int  C )
+/*! FUNCTION:  MATRIX_2D_Create_Clean()
+ *  SYNOPSIS:  Constructor: Allocates memory for MATRIX_2D. Sets all data to -INF.
+ *
+ *  RETURN:    Return pointer to new MATRIX_2D object.
+ */
+MATRIX_2D* 
+MATRIX_2D_Create_Clean(    int  R,
+                           int  C )
 {
-   MATRIX_2D* mx;
+   MATRIX_2D* mx = NULL;
+
    mx = MATRIX_2D_Create( R, C );
    MATRIX_2D_Clean( mx );
    mx->clean = true;
+
    return mx;
 }
 
-/* destructor */
-void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
+/*! FUNCTION:  MATRIX_2D_Destroy()
+ *  SYNOPSIS:  Destructor: Frees memory for MATRIX_2D.
+ *
+ *  RETURN:    Return pointer to new MATRIX_2D object.
+ */
+MATRIX_2D* 
+MATRIX_2D_Destroy( MATRIX_2D*  mx )
 {
    if (mx == NULL) return mx;
 
@@ -70,9 +88,14 @@ void* MATRIX_2D_Destroy(MATRIX_2D*  mx)
    return mx;
 }
 
-/* deep copy: returns dest matrix, will allocate if null */
-MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*           dest,
-                           const MATRIX_2D*     src )
+/*! FUNCTION:  MATRIX_2D_Copy()
+ *  SYNOPSIS:  Deep Copy: Makes deep copy of <src> to <dest>.  Creates new MATRIX_2D object if <dest> is NULL.
+ *
+ *  RETURN:    Return pointer to <dest>.
+ */
+MATRIX_2D* 
+MATRIX_2D_Copy( MATRIX_2D*           dest,
+                const MATRIX_2D*     src )
 {
    /* dim */
    int R = src->R;
@@ -94,9 +117,14 @@ MATRIX_2D* MATRIX_2D_Copy( MATRIX_2D*           dest,
    return dest;
 }
 
-/* fill <mx> with value <val> */
-void MATRIX_2D_Fill( MATRIX_2D*     mx,
-                     float          val)
+/*! FUNCTION:  MATRIX_2D_Destroy()
+ *  SYNOPSIS:  Destructor: Frees memory for MATRIX_2D.
+ *
+ *  RETURN:    Return pointer to new MATRIX_2D object.
+ */
+int 
+MATRIX_2D_Fill( MATRIX_2D*  mx,
+                float       val )
 {
    for (int i = 0; i < mx->R; i++) {
       for (int j = 0; j < mx->C; j++) {
@@ -106,15 +134,27 @@ void MATRIX_2D_Fill( MATRIX_2D*     mx,
 }
 
 /* fill MATRIX_2D with -INF */
-void MATRIX_2D_Clean( MATRIX_2D*   mx)
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Clean( MATRIX_2D*   mx)
 {
    MATRIX_2D_Fill( mx, -INF );
    mx->clean = true;
 }
 
 /* check that all cells are filled with given value */
-int MATRIX_2D_Check_Value(  MATRIX_2D*     mx,
-                           float          val)
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Check_Value(  MATRIX_2D*     mx,
+                        float          val)
 {
    int cnt = 0;
    for (int i = 0; i < mx->R; i++) {
@@ -127,17 +167,28 @@ int MATRIX_2D_Check_Value(  MATRIX_2D*     mx,
 }
 
 /* fill MATRIX_2D with -INF */
-int MATRIX_2D_Check_Clean( MATRIX_2D*   mx)
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Check_Clean( MATRIX_2D*   mx)
 {
    return MATRIX_2D_Check_Value( mx, -INF );
 }
 
 
 /* get a pointer to index <i,j> in <mx> */
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
 inline
-float* MATRIX_2D_Get(MATRIX_2D*  mx,
-                     int         i,
-                     int         j)
+float* MATRIX_2D_Get(   MATRIX_2D*  mx,
+                        int         i,
+                        int         j)
 {
    /* if debugging, do edgechecks */
    #if DEBUG
@@ -156,9 +207,15 @@ float* MATRIX_2D_Get(MATRIX_2D*  mx,
 }
 
 /* get a pointer to index <n> in <mx> (input in 1D-coords) */
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
 inline
-float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
-                           int         n )
+float* 
+MATRIX_2D_Get_1D( MATRIX_2D*  mx,
+                  int         n )
 {
    // /* if debugging, do edgechecks */
    // #if DEBUG
@@ -175,19 +232,31 @@ float* MATRIX_2D_Get_1D(   MATRIX_2D*  mx,
 }
 
 /* convert 2D-coords to 1D-coords */
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
 inline
-int MATRIX_2D_to_1D(MATRIX_2D*  mx,
-                    int         i,
-                    int         j)
+int 
+MATRIX_2D_to_1D(  MATRIX_2D*  mx,
+                  int         i,
+                  int         j)
 {
    // assert(i < mx->R && j < mx->C);
    return (i * mx->C + j);
 }
 
 /* reuse MATRIX_2D by resizing only if new matrix requires more memory */
-float MATRIX_2D_Reuse(  MATRIX_2D*  mx,
-                        int         R,
-                        int         C )
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Reuse(  MATRIX_2D*  mx,
+                  int         R,
+                  int         C )
 {
    if (R * C > mx->Nalloc) {
       MATRIX_2D_Resize( mx, R, C );
@@ -201,55 +270,73 @@ float MATRIX_2D_Reuse(  MATRIX_2D*  mx,
 }
 
 /* reuse MATRIX_2D by resizing only if new matrix requires more memory.  All new matrix values are cleaned. */
-float MATRIX_2D_Reuse_Clean(  MATRIX_2D*  mx,
-                              int         R,
-                              int         C )
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Reuse_Clean(  MATRIX_2D*  mx,
+                        int         R,
+                        int         C )
 {
    /* TODO: fix this function */
    MATRIX_2D_Reuse( mx, R, C );
    MATRIX_2D_Clean( mx );
    return 0.0;
 
-   if ( mx->clean == false )
+   /* if matrix currently isn't cleaned, do it now */
+   if ( mx->clean == false ) {
       MATRIX_2D_Clean( mx );
-
+   }
+   /* previous flat array size */
    int N_prv = mx->R * mx->C;
 
+   /* resize to new dimensions */
    if (R * C > mx->Nalloc) {
       MATRIX_2D_Resize( mx, R, C );
    }
-   else
-   {
+   else {
       mx->R = R;
       mx->C = C;
    }
-
+   /* all cells that have been added to matrix must be cleaned */
    for ( int i = N_prv; i < mx->Nalloc; i++ ) {
       *MATRIX_2D_Get_1D( mx, i ) = -INF;
    }
    mx->clean = true;
+
+   return STATUS_SUCCESS;
 }
 
 
 /* resize MATRIX_2D to new dimensions */
-float MATRIX_2D_Resize(MATRIX_2D*  mx,
-                       int         R,
-                       int         C)
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Resize( MATRIX_2D*  mx,
+                  int         R,
+                  int         C)
 {
    mx->Nalloc  = R * C;
    mx->R       = R;
    mx->C       = C;
 
-   mx->data = (float*) realloc( mx->data, sizeof(float) * (R * C) );
-   if (mx->data == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc DATA for MATRIX_2D.\n");
-      exit(EXIT_FAILURE);
-   }
+   mx->data = (float*) ERROR_realloc( mx->data, sizeof(float) * (R * C) );
 }
 
 /* Outputs MATRIX_2D out to FILE POINTER */
-void MATRIX_2D_Dump( MATRIX_2D*  mx,
-                     FILE*       fp )
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Dump(   MATRIX_2D*  mx,
+                  FILE*       fp )
 {
    /* check for bad pointer */
    if (fp == NULL) {
@@ -267,8 +354,14 @@ void MATRIX_2D_Dump( MATRIX_2D*  mx,
 }
 
 /* Save MATRIX_2D to FILE by FILENAME */
-void MATRIX_2D_Save( MATRIX_2D*  mx,
-                     char*       _filename_ )
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Save(   MATRIX_2D*  mx,
+                  char*       _filename_ )
 {
    FILE* fp = fopen(_filename_, "w");
    MATRIX_2D_Dump(mx, fp);
@@ -277,8 +370,14 @@ void MATRIX_2D_Save( MATRIX_2D*  mx,
 }
 
 /* Compare two MATRIX_2D */
-int MATRIX_2D_Compare(  MATRIX_2D*  mx_A,
-                        MATRIX_2D*  mx_B )
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_Compare(   MATRIX_2D*  mx_A,
+                     MATRIX_2D*  mx_B )
 {
    /* inequality value */
    int      cmp   = 0;
@@ -331,8 +430,10 @@ int MATRIX_2D_Compare(  MATRIX_2D*  mx_A,
    return cmp;
 }
 
-/*  FUNCTION:  MATRIX_2D_Add()
- *  SYNOPSIS:  Takes sum of <mx_A> + <mx_B>.  Result stored in <mx_res>.
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
  */
 int MATRIX_2D_Add(   MATRIX_2D*  mx_A,
                      MATRIX_2D*  mx_B,
@@ -348,16 +449,18 @@ int MATRIX_2D_Add(   MATRIX_2D*  mx_A,
          }
       }
    }
-   return mx_res;
+   return STATUS_SUCCESS;
 }
 
-/*
- *  FUNCTION:  MATRIX_2D_Diff()
- *  SYNOPSIS:  Takes difference of <mx_A> - <mx_B>.  Result stored in <mx_diff>.
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
  */
-int MATRIX_2D_Diff(  MATRIX_2D*  mx_A,
-                     MATRIX_2D*  mx_B,
-                     MATRIX_2D*  mx_diff )
+int 
+MATRIX_2D_Diff(   MATRIX_2D*  mx_A,
+                  MATRIX_2D*  mx_B,
+                  MATRIX_2D*  mx_diff )
 {
    for ( int i = 0; i < mx_A->R; i++ ) {
       for ( int j = 0; j < mx_A->C; j++ ) {
@@ -370,8 +473,13 @@ int MATRIX_2D_Diff(  MATRIX_2D*  mx_A,
    return 0;
 }
 
-/* unit test */
-void MATRIX_2D_UnitTest()
+/*! FUNCTION:  
+ *  SYNOPSIS:  
+ *
+ *  RETURN:    
+ */
+int 
+MATRIX_2D_UnitTest()
 {
    int R = 10;
    int C = 5;

@@ -73,57 +73,63 @@
  *            some sufficient to alter the choice of OA traceback.
  *    
  */
-int
-p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
+int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
 {
-  float      **dp   = pp->dp;
-  float       *xmx  = pp->xmx;
-  int          L    = fwd->L;
-  int          M    = gm->M;
-  int          i,k;
-  float        overall_sc = fwd->xmx[p7G_NXCELLS*L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
-  float        denom;
-  
+  float **dp = pp->dp;
+  float *xmx = pp->xmx;
+  int L = fwd->L;
+  int M = gm->M;
+  int i, k;
+  float overall_sc = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
+  float denom;
+
   pp->M = M;
   pp->L = L;
 
   XMX(0, p7G_E) = 0.0;
-  XMX(0, p7G_N) = 0.0;		
-  XMX(0, p7G_J) = 0.0;		
+  XMX(0, p7G_N) = 0.0;
+  XMX(0, p7G_J) = 0.0;
   XMX(0, p7G_B) = 0.0;
   XMX(0, p7G_C) = 0.0;
   for (k = 0; k <= M; k++)
-    MMX(0,k) = IMX(0,k) = DMX(0,k) = 0.0;
-  
+    MMX(0, k) = IMX(0, k) = DMX(0, k) = 0.0;
+
   for (i = 1; i <= L; i++)
+  {
+    denom = 0.0;
+    MMX(i, 0) = IMX(i, 0) = DMX(i, 0) = 0.0;
+    for (k = 1; k < M; k++)
     {
-      denom = 0.0;
-      MMX(i,0) = IMX(i,0) = DMX(i,0) = 0.0;
-      for (k = 1; k < M; k++)
-	{
-	  MMX(i,k) = expf(fwd->dp[i][k*p7G_NSCELLS + p7G_M] + bck->dp[i][k*p7G_NSCELLS + p7G_M] - overall_sc); denom += MMX(i,k);
-	  IMX(i,k) = expf(fwd->dp[i][k*p7G_NSCELLS + p7G_I] + bck->dp[i][k*p7G_NSCELLS + p7G_I] - overall_sc); denom += IMX(i,k);
-	  DMX(i,k) = 0.;
-	}
-      MMX(i,M)     = expf(fwd->dp[i][M*p7G_NSCELLS + p7G_M] + bck->dp[i][M*p7G_NSCELLS + p7G_M] - overall_sc); denom += MMX(i,M);
-      IMX(i,M)     = 0.;
-      DMX(i,M)     = 0.;
-      
-      /* order doesn't matter.  note that this whole function is trivially simd parallel */
-      XMX(i,p7G_E) = 0.;
-      XMX(i,p7G_N) = expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_N] + bck->xmx[p7G_NXCELLS*i + p7G_N] + gm->xsc[p7P_N][p7P_LOOP] - overall_sc);
-      XMX(i,p7G_J) = expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_J] + bck->xmx[p7G_NXCELLS*i + p7G_J] + gm->xsc[p7P_J][p7P_LOOP] - overall_sc);
-      XMX(i,p7G_B) = 0.;
-      XMX(i,p7G_C) = expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_C] + bck->xmx[p7G_NXCELLS*i + p7G_C] + gm->xsc[p7P_C][p7P_LOOP] - overall_sc);
-      denom += XMX(i,p7G_N) + XMX(i,p7G_J) + XMX(i,p7G_C);
-      
-      denom = 1.0 / denom;
-      for (k = 1; k < M; k++) {  MMX(i,k) *= denom; IMX(i,k) *= denom; }
-      MMX(i,M)     *= denom;
-      XMX(i,p7G_N) *= denom;
-      XMX(i,p7G_J) *= denom;
-      XMX(i,p7G_C) *= denom;
+      MMX(i, k) = expf(fwd->dp[i][k * p7G_NSCELLS + p7G_M] + bck->dp[i][k * p7G_NSCELLS + p7G_M] - overall_sc);
+      denom += MMX(i, k);
+      IMX(i, k) = expf(fwd->dp[i][k * p7G_NSCELLS + p7G_I] + bck->dp[i][k * p7G_NSCELLS + p7G_I] - overall_sc);
+      denom += IMX(i, k);
+      DMX(i, k) = 0.;
     }
+    MMX(i, M) = expf(fwd->dp[i][M * p7G_NSCELLS + p7G_M] + bck->dp[i][M * p7G_NSCELLS + p7G_M] - overall_sc);
+    denom += MMX(i, M);
+    IMX(i, M) = 0.;
+    DMX(i, M) = 0.;
+
+    /* order doesn't matter.  note that this whole function is trivially simd parallel */
+    XMX(i, p7G_E) = 0.;
+    XMX(i, p7G_N) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + bck->xmx[p7G_NXCELLS * i + p7G_N] + gm->xsc[p7P_N][p7P_LOOP] - overall_sc);
+    XMX(i, p7G_J) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + bck->xmx[p7G_NXCELLS * i + p7G_J] + gm->xsc[p7P_J][p7P_LOOP] - overall_sc);
+    XMX(i, p7G_B) = 0.;
+    XMX(i, p7G_C) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + bck->xmx[p7G_NXCELLS * i + p7G_C] + gm->xsc[p7P_C][p7P_LOOP] - overall_sc);
+    denom += XMX(i, p7G_N) + XMX(i, p7G_J) + XMX(i, p7G_C);
+
+    denom = 1.0 / denom;
+    for (k = 1; k < M; k++)
+    {
+      MMX(i, k) *= denom;
+      IMX(i, k) *= denom;
+    }
+    MMX(i, M) *= denom;
+    XMX(i, p7G_N) *= denom;
+    XMX(i, p7G_J) *= denom;
+    XMX(i, p7G_C) *= denom;
+  }
   return eslOK;
 }
 
@@ -204,30 +210,59 @@ p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
  *             implement the <is_multidomain_region()> trigger if
  *             these arrays are available.  
  */
-int
-p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef)
+int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef)
 {
-  int   L            = fwd->L;
-  float overall_logp = fwd->xmx[p7G_NXCELLS*L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
+  int L = fwd->L;
+  float overall_logp = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
   float njcp;
-  int   i;
+  int i;
+
+  printf("# overall_logp: %7.4f\n", overall_logp );
 
   for (i = 1; i <= L; i++)
-    {
-      ddef->btot[i] = ddef->btot[i-1] + exp(fwd->xmx[(i-1)*p7G_NXCELLS+p7G_B] + bck->xmx[(i-1)*p7G_NXCELLS+p7G_B] - overall_logp);
-      ddef->etot[i] = ddef->etot[i-1] + exp(fwd->xmx[i    *p7G_NXCELLS+p7G_E] + bck->xmx[i    *p7G_NXCELLS+p7G_E] - overall_logp);
+  {
+    ddef->btot[i] = ddef->btot[i - 1] + 
+                    exp( fwd->xmx[(i - 1) * p7G_NXCELLS + p7G_B] + 
+                         bck->xmx[(i - 1) * p7G_NXCELLS + p7G_B] - 
+                         overall_logp );
+    ddef->etot[i] = ddef->etot[i - 1] + 
+                    exp( fwd->xmx[i * p7G_NXCELLS + p7G_E] + 
+                         bck->xmx[i * p7G_NXCELLS + p7G_E] - 
+                         overall_logp );
 
-      njcp  = expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_N] + bck->xmx[p7G_NXCELLS*i + p7G_N] + gm->xsc[p7P_N][p7P_LOOP] - overall_logp);
-      njcp += expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_J] + bck->xmx[p7G_NXCELLS*i + p7G_J] + gm->xsc[p7P_J][p7P_LOOP] - overall_logp);
-      njcp += expf(fwd->xmx[p7G_NXCELLS*(i-1) + p7G_C] + bck->xmx[p7G_NXCELLS*i + p7G_C] + gm->xsc[p7P_C][p7P_LOOP] - overall_logp);
-      ddef->mocc[i] = 1. - njcp;
-    }
+    njcp  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
+                  bck->xmx[p7G_NXCELLS * i + p7G_N] + 
+                  gm->xsc[p7P_N][p7P_LOOP] - 
+                  overall_logp );
+    njcp += expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + 
+                  bck->xmx[p7G_NXCELLS * i + p7G_J] + 
+                  gm->xsc[p7P_J][p7P_LOOP] - 
+                  overall_logp );
+    njcp += expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + 
+                  bck->xmx[p7G_NXCELLS * i + p7G_C] + 
+                  gm->xsc[p7P_C][p7P_LOOP] - 
+                  overall_logp );
+    ddef->mocc[i] = 1. - njcp;
+  }
   ddef->L = gm->L;
+
+  for (i = 1; i <= L; i++) 
+  {
+    printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f \n", 
+      i, 
+      ddef->btot[i], fwd->xmx[(i-1)*p7G_NXCELLS+p7G_B], bck->xmx[(i-1)*p7G_NXCELLS+p7G_B],
+      ddef->etot[i], fwd->xmx[i*p7G_NXCELLS+p7G_E], bck->xmx[i*p7G_NXCELLS+p7G_E],
+      ddef->mocc[i] );
+    // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f\n", 
+    //   i, 
+    //   ddef->btot[i], log(fwd->xmx[(i-1) * p7X_NXCELLS + p7X_B]), log(bck->xmx[(i-1) * p7X_NXCELLS + p7X_B]),
+    //   ddef->etot[i], log(fwd->xmx[i * p7X_NXCELLS + p7X_E]), log(bck->xmx[i * p7X_NXCELLS + p7X_E]),
+    //   ddef->mocc[i] );
+  }
+
   return eslOK;
 }
 /*------------------ end, decoding algorithms -------------------*/
-
-
 
 /*****************************************************************
  * 2. Benchmark driver
@@ -252,57 +287,60 @@ p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P
 #include "hmmer.h"
 
 static ESL_OPTIONS options[] = {
-  /* name           type      default  env  range toggles reqs incomp  help                                       docgroup*/
-  { "-h",        eslARG_NONE,   FALSE, NULL, NULL,  NULL,  NULL, NULL, "show brief help on version and usage",           0 },
-  { "-s",        eslARG_INT,     "42", NULL, NULL,  NULL,  NULL, NULL, "set random number seed to <n>",                  0 },
-  { "-L",        eslARG_INT,    "400", NULL, "n>0", NULL,  NULL, NULL, "length of random target seqs",                   0 },
-  { "-N",        eslARG_INT,   "5000", NULL, "n>0", NULL,  NULL, NULL, "number of random target seqs",                   0 },
-  {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* name           type      default  env  range toggles reqs incomp  help                                       docgroup*/
+    {"-h", eslARG_NONE, FALSE, NULL, NULL, NULL, NULL, NULL, "show brief help on version and usage", 0},
+    {"-s", eslARG_INT, "42", NULL, NULL, NULL, NULL, NULL, "set random number seed to <n>", 0},
+    {"-L", eslARG_INT, "400", NULL, "n>0", NULL, NULL, NULL, "length of random target seqs", 0},
+    {"-N", eslARG_INT, "5000", NULL, "n>0", NULL, NULL, NULL, "number of random target seqs", 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-static char usage[]  = "[-options] <hmmfile>";
+static char usage[] = "[-options] <hmmfile>";
 static char banner[] = "benchmark driver for posterior residue decoding, generic version";
 
-int 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-  ESL_GETOPTS    *go      = p7_CreateDefaultApp(options, 1, argc, argv, banner, usage);
-  char           *hmmfile = esl_opt_GetArg(go, 1);
-  ESL_STOPWATCH  *w       = esl_stopwatch_Create();
-  ESL_RANDOMNESS *r       = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
-  ESL_ALPHABET   *abc     = NULL;
-  P7_HMMFILE     *hfp     = NULL;
-  P7_HMM         *hmm     = NULL;
-  P7_BG          *bg      = NULL;
-  P7_PROFILE     *gm      = NULL;
-  P7_GMX         *fwd     = NULL;
-  P7_GMX         *bck     = NULL;
-  P7_GMX         *pp      = NULL;
-  int             L       = esl_opt_GetInteger(go, "-L");
-  int             N       = esl_opt_GetInteger(go, "-N");
-  ESL_DSQ        *dsq     = malloc(sizeof(ESL_DSQ) * (L+2));
-  int             i;
-  float           fsc, bsc;
-  double          Mcs;
+  ESL_GETOPTS *go = p7_CreateDefaultApp(options, 1, argc, argv, banner, usage);
+  char *hmmfile = esl_opt_GetArg(go, 1);
+  ESL_STOPWATCH *w = esl_stopwatch_Create();
+  ESL_RANDOMNESS *r = esl_randomness_CreateFast(esl_opt_GetInteger(go, "-s"));
+  ESL_ALPHABET *abc = NULL;
+  P7_HMMFILE *hfp = NULL;
+  P7_HMM *hmm = NULL;
+  P7_BG *bg = NULL;
+  P7_PROFILE *gm = NULL;
+  P7_GMX *fwd = NULL;
+  P7_GMX *bck = NULL;
+  P7_GMX *pp = NULL;
+  int L = esl_opt_GetInteger(go, "-L");
+  int N = esl_opt_GetInteger(go, "-N");
+  ESL_DSQ *dsq = malloc(sizeof(ESL_DSQ) * (L + 2));
+  int i;
+  float fsc, bsc;
+  double Mcs;
 
-  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK) p7_Fail("Failed to open HMM file %s", hmmfile);
-  if (p7_hmmfile_Read(hfp, &abc, &hmm)            != eslOK) p7_Fail("Failed to read HMM");
+  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK)
+    p7_Fail("Failed to open HMM file %s", hmmfile);
+  if (p7_hmmfile_Read(hfp, &abc, &hmm) != eslOK)
+    p7_Fail("Failed to read HMM");
 
-  bg = p7_bg_Create(abc);                 p7_bg_SetLength(bg, L);
-  gm = p7_profile_Create(hmm->M, abc);    p7_ProfileConfig(hmm, bg, gm, L, p7_LOCAL);
-  fwd = p7_gmx_Create(gm->M, L);  
+  bg = p7_bg_Create(abc);
+  p7_bg_SetLength(bg, L);
+  gm = p7_profile_Create(hmm->M, abc);
+  p7_ProfileConfig(hmm, bg, gm, L, p7_LOCAL);
+  fwd = p7_gmx_Create(gm->M, L);
   bck = p7_gmx_Create(gm->M, L);
-  pp  = p7_gmx_Create(gm->M, L);
+  pp = p7_gmx_Create(gm->M, L);
 
   esl_rsq_xfIID(r, bg->f, abc->K, L, dsq);
-  p7_GForward (dsq, L, gm, fwd, &fsc);
+  p7_GForward(dsq, L, gm, fwd, &fsc);
   p7_GBackward(dsq, L, gm, bck, &bsc);
 
   esl_stopwatch_Start(w);
-  for (i = 0; i < N; i++) 
-    p7_GDecoding(gm, fwd, bck, pp);   
+  for (i = 0; i < N; i++)
+    p7_GDecoding(gm, fwd, bck, pp);
   esl_stopwatch_Stop(w);
 
-  Mcs  = (double) N * (double) L * (double) gm->M * 1e-6 / w->user;
+  Mcs = (double)N * (double)L * (double)gm->M * 1e-6 / w->user;
   esl_stopwatch_Display(stdout, w, "# CPU time: ");
   printf("# M    = %d\n", gm->M);
   printf("# %.1f Mc/s\n", Mcs);
@@ -324,9 +362,6 @@ main(int argc, char **argv)
 #endif /*p7GENERIC_DECODING_BENCHMARK*/
 /*------------------ end, benchmark driver ----------------------*/
 
-
-
-
 /*****************************************************************
  * 3. Unit tests
  *****************************************************************/
@@ -335,9 +370,6 @@ main(int argc, char **argv)
 #endif /*p7GENERIC_DECODING_TESTDRIVE*/
 /*--------------------- end, unit tests -------------------------*/
 
-
-
-
 /*****************************************************************
  * 4. Test driver
  *****************************************************************/
@@ -345,9 +377,6 @@ main(int argc, char **argv)
 
 #endif /*p7GENERIC_DECODING_TESTDRIVE*/
 /*-------------------- end, test driver -------------------------*/
-
-
-
 
 /*****************************************************************
  * 5. Example
@@ -364,71 +393,78 @@ main(int argc, char **argv)
 
 #include "hmmer.h"
 
-#define STYLES     "--fs,--sw,--ls,--s"	  /* Exclusive choice for alignment mode     */
+#define STYLES "--fs,--sw,--ls,--s" /* Exclusive choice for alignment mode     */
 
 static ESL_OPTIONS options[] = {
-  /* name           type      default  env  range  toggles reqs incomp  help                                       docgroup*/
-  { "-h",        eslARG_NONE,   FALSE, NULL, NULL,   NULL,  NULL, NULL, "show brief help on version and usage",             0 },
-  { "--fs",      eslARG_NONE,"default",NULL, NULL, STYLES,  NULL, NULL, "multihit local alignment",                         0 },
-  { "--sw",      eslARG_NONE,   FALSE, NULL, NULL, STYLES,  NULL, NULL, "unihit local alignment",                           0 },
-  { "--ls",      eslARG_NONE,   FALSE, NULL, NULL, STYLES,  NULL, NULL, "multihit glocal alignment",                        0 },
-  { "--s",       eslARG_NONE,   FALSE, NULL, NULL, STYLES,  NULL, NULL, "unihit glocal alignment",                          0 },
-  {  0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+    /* name           type      default  env  range  toggles reqs incomp  help                                       docgroup*/
+    {"-h", eslARG_NONE, FALSE, NULL, NULL, NULL, NULL, NULL, "show brief help on version and usage", 0},
+    {"--fs", eslARG_NONE, "default", NULL, NULL, STYLES, NULL, NULL, "multihit local alignment", 0},
+    {"--sw", eslARG_NONE, FALSE, NULL, NULL, STYLES, NULL, NULL, "unihit local alignment", 0},
+    {"--ls", eslARG_NONE, FALSE, NULL, NULL, STYLES, NULL, NULL, "multihit glocal alignment", 0},
+    {"--s", eslARG_NONE, FALSE, NULL, NULL, STYLES, NULL, NULL, "unihit glocal alignment", 0},
+    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 };
-static char usage[]  = "[-options] <hmmfile> <seqfile>";
+static char usage[] = "[-options] <hmmfile> <seqfile>";
 static char banner[] = "example of posterior decoding, generic implementation";
 
 static void dump_matrix_csv(FILE *fp, P7_GMX *pp, int istart, int iend, int kstart, int kend);
 
-int 
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
-  ESL_GETOPTS    *go      = p7_CreateDefaultApp(options, 2, argc, argv, banner, usage);
-  char           *hmmfile = esl_opt_GetArg(go, 1);
-  char           *seqfile = esl_opt_GetArg(go, 2);
-  ESL_ALPHABET   *abc     = NULL;
-  P7_HMMFILE     *hfp     = NULL;
-  P7_HMM         *hmm     = NULL;
-  P7_BG          *bg      = NULL;
-  P7_PROFILE     *gm      = NULL;
-  P7_GMX         *fwd     = NULL;
-  P7_GMX         *bck     = NULL;
-  ESL_SQ         *sq      = NULL;
-  ESL_SQFILE     *sqfp    = NULL;
-  int             format  = eslSQFILE_UNKNOWN;
-  float           fsc, bsc;
+  ESL_GETOPTS *go = p7_CreateDefaultApp(options, 2, argc, argv, banner, usage);
+  char *hmmfile = esl_opt_GetArg(go, 1);
+  char *seqfile = esl_opt_GetArg(go, 2);
+  ESL_ALPHABET *abc = NULL;
+  P7_HMMFILE *hfp = NULL;
+  P7_HMM *hmm = NULL;
+  P7_BG *bg = NULL;
+  P7_PROFILE *gm = NULL;
+  P7_GMX *fwd = NULL;
+  P7_GMX *bck = NULL;
+  ESL_SQ *sq = NULL;
+  ESL_SQFILE *sqfp = NULL;
+  int format = eslSQFILE_UNKNOWN;
+  float fsc, bsc;
 
   /* Read in one query profile */
-  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK) p7_Fail("Failed to open HMM file %s", hmmfile);
-  if (p7_hmmfile_Read(hfp, &abc, &hmm)            != eslOK) p7_Fail("Failed to read HMM");
+  if (p7_hmmfile_OpenE(hmmfile, NULL, &hfp, NULL) != eslOK)
+    p7_Fail("Failed to open HMM file %s", hmmfile);
+  if (p7_hmmfile_Read(hfp, &abc, &hmm) != eslOK)
+    p7_Fail("Failed to read HMM");
   p7_hmmfile_Close(hfp);
- 
+
   /* Read in one target sequence */
-  sq     = esl_sq_CreateDigital(abc);
-  if (esl_sqfile_Open(seqfile, format, NULL, &sqfp) != eslOK) p7_Fail("Failed to open sequence file %s", seqfile);
-  if (esl_sqio_Read(sqfp, sq)                       != eslOK) p7_Fail("Failed to read sequence");
+  sq = esl_sq_CreateDigital(abc);
+  if (esl_sqfile_Open(seqfile, format, NULL, &sqfp) != eslOK)
+    p7_Fail("Failed to open sequence file %s", seqfile);
+  if (esl_sqio_Read(sqfp, sq) != eslOK)
+    p7_Fail("Failed to read sequence");
   esl_sqfile_Close(sqfp);
- 
+
   /* Configure a profile from the HMM */
   bg = p7_bg_Create(abc);
   gm = p7_profile_Create(hmm->M, abc);
 
   /* Now reconfig the model however we were asked to */
-  if      (esl_opt_GetBoolean(go, "--fs"))  p7_ProfileConfig(hmm, bg, gm, sq->n, p7_LOCAL);
-  else if (esl_opt_GetBoolean(go, "--sw"))  p7_ProfileConfig(hmm, bg, gm, sq->n, p7_UNILOCAL);
-  else if (esl_opt_GetBoolean(go, "--ls"))  p7_ProfileConfig(hmm, bg, gm, sq->n, p7_GLOCAL);
-  else if (esl_opt_GetBoolean(go, "--s"))   p7_ProfileConfig(hmm, bg, gm, sq->n, p7_UNIGLOCAL);
-  
+  if (esl_opt_GetBoolean(go, "--fs"))
+    p7_ProfileConfig(hmm, bg, gm, sq->n, p7_LOCAL);
+  else if (esl_opt_GetBoolean(go, "--sw"))
+    p7_ProfileConfig(hmm, bg, gm, sq->n, p7_UNILOCAL);
+  else if (esl_opt_GetBoolean(go, "--ls"))
+    p7_ProfileConfig(hmm, bg, gm, sq->n, p7_GLOCAL);
+  else if (esl_opt_GetBoolean(go, "--s"))
+    p7_ProfileConfig(hmm, bg, gm, sq->n, p7_UNIGLOCAL);
+
   /* Allocate matrices */
   fwd = p7_gmx_Create(gm->M, sq->n);
   bck = p7_gmx_Create(gm->M, sq->n);
 
   /* Set the profile and null model's target length models */
-  p7_bg_SetLength(bg,   sq->n);
+  p7_bg_SetLength(bg, sq->n);
   p7_ReconfigLength(gm, sq->n);
 
   /* Run Forward, Backward */
-  p7_GForward (sq->dsq, sq->n, gm, fwd, &fsc);
+  p7_GForward(sq->dsq, sq->n, gm, fwd, &fsc);
   p7_GBackward(sq->dsq, sq->n, gm, bck, &bsc);
 
   /* Decoding: <bck> becomes the posterior probability mx */
@@ -452,30 +488,27 @@ main(int argc, char **argv)
 static void
 dump_matrix_csv(FILE *fp, P7_GMX *pp, int istart, int iend, int kstart, int kend)
 {
-  int   width     = 7;
-  int   precision = 5;
-  int   i, k;
+  int width = 7;
+  int precision = 5;
+  int i, k;
   float val;
 
   printf("i,");
   for (k = kstart; k <= kend; k++)
-    printf("%-d%s", k, k==kend ? "\n" : ",");
+    printf("%-d%s", k, k == kend ? "\n" : ",");
 
   for (i = istart; i <= iend; i++)
+  {
+    printf("%-d,", i);
+    for (k = kstart; k <= kend; k++)
     {
-      printf("%-d,", i);
-      for (k = kstart; k <= kend; k++)
-	{
-	  val = pp->dp[i][k * p7G_NSCELLS + p7G_M] + 
-	    pp->dp[i][k * p7G_NSCELLS + p7G_I] + 
-	    pp->dp[i][k * p7G_NSCELLS + p7G_D];
+      val = pp->dp[i][k * p7G_NSCELLS + p7G_M] +
+            pp->dp[i][k * p7G_NSCELLS + p7G_I] +
+            pp->dp[i][k * p7G_NSCELLS + p7G_D];
 
-	  fprintf(fp, "%*.*f%s", width, precision, val, k==kend ? "\n" : ", ");
-	}
+      fprintf(fp, "%*.*f%s", width, precision, val, k == kend ? "\n" : ", ");
     }
-}  
+  }
+}
 #endif /*p7GENERIC_DECODING_EXAMPLE*/
 /*------------------------ example ------------------------------*/
-
-
-

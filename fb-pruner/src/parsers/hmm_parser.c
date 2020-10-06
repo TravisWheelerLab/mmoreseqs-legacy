@@ -567,14 +567,15 @@ void HMM_PROFILE_CalcOccupancy(  HMM_PROFILE*  prof,
 void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof,
                                  int           L)
 {
-   float ploop, pmove;
-   float nj = (float) prof->num_J;
+   float ploop; 
+   float pmove;
+   float num_J = (float) prof->num_J;
 
    /* Configure N,J,C transitions so they bear L/(2+nj) of the total unannotated sequence length L. */
-   pmove = (2.0f + nj) / ((float) L + 2.0f + nj);  /* 2/(L+2) for sw; 3/(L+3) for fs */
-   ploop = 1.0f - pmove;
+   pmove = (2.0 + num_J) / ((float) L + 2.0 + num_J);  /* 2/(L+2) for sw; 3/(L+3) for fs */
+   ploop = 1.0 - pmove;
 
-   /* hardwire numbers from p7_ReconfigLength() */
+   /* ForwardFilter() parameters */
    prof->bg_model->spec[SP_N][SP_LOOP] = log( ploop );
    prof->bg_model->spec[SP_C][SP_LOOP] = log( ploop );
    prof->bg_model->spec[SP_J][SP_LOOP] = log( ploop );
@@ -582,6 +583,8 @@ void HMM_PROFILE_ReconfigLength( HMM_PROFILE*  prof,
    prof->bg_model->spec[SP_N][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_C][SP_MOVE] = log( pmove );
    prof->bg_model->spec[SP_J][SP_MOVE] = log( pmove );
+
+   /* */
 }
 
 /* modeled after p7_bg_SetLength()  */
@@ -592,29 +595,24 @@ void HMM_PROFILE_BG_SetLength(   HMM_PROFILE*   prof,
 }
 
 /* Configure the Length of the HMM_PROFILE based on the length of the sequence */
-void HMM_PROFILE_ReconfigUnithit(   HMM_PROFILE*  prof,
-                                    int           L )
+void HMM_PROFILE_ReconfigUnihit( HMM_PROFILE*  prof,
+                                 int           L )
 {
-  //  om->xf[p7O_E][p7O_MOVE] = 1.0f;
-  //  om->xf[p7O_E][p7O_LOOP] = 0.0f;
-  //  om->nj = 0.0f;
+   prof->bg_model->spec[SP_E][SP_MOVE] = 1.0;
+   prof->bg_model->spec[SP_E][SP_LOOP] = 0.0;
+   prof->num_J = 0.0;
 
-  //  om->xw[p7O_E][p7O_MOVE] = 0;
-  //  om->xw[p7O_E][p7O_LOOP] = -32768;
-
-  // return p7_oprofile_ReconfigLength(om, L);
+  return HMM_PROFILE_ReconfigLength(prof, L);
 }
 
 /* Configure the Length of the HMM_PROFILE based on the length of the sequence */
-void HMM_PROFILE_ReconfigMultihit(     HMM_PROFILE*  prof,
-                                       int           L )
+void HMM_PROFILE_ReconfigMultihit(  HMM_PROFILE*  prof,
+                                    int           L )
 {
-   // om->xf[p7O_E][p7O_MOVE] = 1.0f;
-   // om->xf[p7O_E][p7O_LOOP] = 0.0f;
-   // om->nj = 0.0f;
+   prof->bg_model->spec[SP_E][SP_MOVE] = 0.5;
+   prof->bg_model->spec[SP_E][SP_LOOP] = 0.5;
+   prof->num_J = 0.0;
 
-   // om->xw[p7O_E][p7O_MOVE] = 0;
-   // om->xw[p7O_E][p7O_LOOP] = -32768;
-
-   // return p7_oprofile_ReconfigLength(om, L);
+   HMM_PROFILE_ReconfigLength(prof, L);
 }
+

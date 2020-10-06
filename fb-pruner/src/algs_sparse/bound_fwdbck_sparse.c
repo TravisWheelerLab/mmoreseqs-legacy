@@ -1,13 +1,11 @@
 /*******************************************************************************
- *  FILE:      bounded_fwdbck_linear.c
- *  PURPOSE:   Bounded Forward/Backward Algorithm 
- *             (Linear Space Alg)
+ *     FILE:  bounded_fwdbck_linear.c
+ *  PURPOSE:  Bounded Forward/Backward Algorithm 
+ *            (Linear Space Alg)
  *
- *  AUTHOR:    Dave Rich
- *  BUG:       
+ *   AUTHOR:  Dave Rich
+ *     BUGS:       
  *******************************************************************************/
-
-/* TODO: convert this to sparse matrix implementation */
 
 /* imports */
 #include <stdio.h>
@@ -26,26 +24,24 @@
 /* self header */
 #include "bound_fwdbck_sparse.h"
 
-/*
- *      NOTE: HOW TO CONVERT row-coords to diag-coords
+/* NOTE: HOW TO CONVERT row-coords to diag-coords
  *       MMX3(i-1,j-1) => MMX3(, d_2)
  *       MMX3(i,  j-1) => MMX3(, d_1)
  *       MMX3(i,  j  ) => MMX3(, d_1)
  */
 
-/* 
- *  FUNCTION: run_Bound_Forward_Sparse()
- *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
- *            Runs traditional Forward-Backward Algorithm, but only performs
+/** FUNCTION:  run_Bound_Forward_Sparse()
+ *  SYNOPSIS:  Perform Edge-Bounded Forward step of Cloud Search Algorithm.
+ *             Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
  *             the <edg> EDGEBOUNDS object, which stores a series of 
  *             (left-bound, right-bound) pairs sorted by row.  
- *            Normal state matrix is stored in linear space.
+ *             Normal state matrix is stored in linear space.
  *             <st_MX3> is size [3 * (Q + T + 1)]. Only requires size [2 * (T + 1)],
  *             but is reused from cloud_forward_().
- *            Final score produced by Forward is stored in <sc_final>.
+ *             Final score produced by Forward is stored in <sc_final>.
  *
- *  RETURN:   Returns the final score of the Forward Algorithm.
+ *    RETURN:  Returns the final score of the Forward Algorithm.
  */
 int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query sequence */
                                  const HMM_PROFILE*   target,        /* target HMM model */
@@ -358,19 +354,18 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
 }
 
 
-/* 
- *  FUNCTION: run_Bound_Forward_Sparse()
- *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
- *            Runs traditional Forward-Backward Algorithm, but only performs
+/** FUNCTION:  run_Bound_Forward_Sparse()
+ *  SYNOPSIS:  Perform Edge-Bounded Forward step of Cloud Search Algorithm.
+ *             Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
  *             the <edg> EDGEBOUNDS object, which stores a series of 
  *             (left-bound, right-bound) pairs sorted by row.  
- *            Normal state matrix is stored in linear space.
+ *             Normal state matrix is stored in linear space.
  *             <st_MX3> is size [3 * (Q + T + 1)]. Only requires size [2 * (T + 1)],
  *             but is reused from cloud_forward_().
- *            Final score produced by Forward is stored in <sc_final>.
+ *             Final score produced by Forward is stored in <sc_final>.
  *
- *  RETURN:   Returns the final score of the Forward Algorithm.
+ *    RETURN:  Returns the final score of the Forward Algorithm.
  */
 int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query sequence */
                                  const HMM_PROFILE*   target,        /* target HMM model */

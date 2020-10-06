@@ -24,8 +24,7 @@
 /* header */
 #include "vector_char.h"
 
-/*
- *  FUNCTION:  VECTOR_CHAR_Create()
+/** FUNCTION:  VECTOR_CHAR_Create()
  *  SYNOPSIS:  Create new VECTOR_CHAR object and returns pointer.
  */
 VECTOR_CHAR* VECTOR_CHAR_Create()
@@ -34,8 +33,7 @@ VECTOR_CHAR* VECTOR_CHAR_Create()
    return VECTOR_CHAR_Create_by_Size( init_size );
 }
 
-/*
- *  FUNCTION:  VECTOR_CHAR_Create()
+/** FUNCTION:  VECTOR_CHAR_Create()
  *  SYNOPSIS:  Create new VECTOR_CHAR object at specific size and returns pointer.
  */
 VECTOR_CHAR* VECTOR_CHAR_Create_by_Size( int    size )
@@ -91,13 +89,12 @@ void VECTOR_CHAR_Fill(   VECTOR_CHAR*   vec,
    }
 }
 
-/*
- *  FUNCTION:  VECTOR_CHAR_Copy()
+/** FUNCTION:  VECTOR_CHAR_Copy()
  *  SYNOPSIS:  Create deep copy of <src> object. 
  *             Creates new VECTOR_CHAR for <dest> if <dest> is NULL.
  */
-VECTOR_CHAR* VECTOR_CHAR_Copy(  VECTOR_CHAR*   src, 
-                              VECTOR_CHAR*   dest )
+VECTOR_CHAR* VECTOR_CHAR_Copy(   VECTOR_CHAR*   src, 
+                                 VECTOR_CHAR*   dest )
 {
 
    if ( dest == NULL ) {
@@ -117,8 +114,8 @@ VECTOR_CHAR* VECTOR_CHAR_Copy(  VECTOR_CHAR*   src,
  *  FUNCTION:  VECTOR_CHAR_Resize()
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>. 
  */
-void VECTOR_CHAR_Resize(    VECTOR_CHAR*   vec, 
-                           int           size )
+void VECTOR_CHAR_Resize(   VECTOR_CHAR*   vec, 
+                           int            size )
 {
    vec->data = (CHAR*) realloc( vec->data, sizeof(CHAR) * size );
    if ( vec->data == NULL ) {
@@ -133,8 +130,8 @@ void VECTOR_CHAR_Resize(    VECTOR_CHAR*   vec,
  *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
  *             only if current array length is less than <size>. 
  */
-void VECTOR_CHAR_GrowTo( VECTOR_CHAR*   vec, 
-                        int           size )
+void VECTOR_CHAR_GrowTo(   VECTOR_CHAR*   vec, 
+                           int            size )
 {
    if ( vec->Nalloc < size ) {
       VECTOR_CHAR_Resize( vec, size );

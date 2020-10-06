@@ -66,9 +66,9 @@ typedef enum {
 
 /* Number Format of HMM_PROFILE */
 typedef enum {
-   PROF_FORMAT_REAL      = 0,
-   PROF_FORMAT_NEGLOG    = 1,
-   PROF_FORMAT_LOGODDS   = 2
+   PROF_FORMAT_REAL,
+   PROF_FORMAT_NEGLOG,
+   PROF_FORMAT_LOGODDS,
 } PROF_FORMAT;
 #define NUM_PROF_FORMAT 3
 
@@ -83,27 +83,27 @@ typedef enum {
    DATATYPE_CHAR,
    DATATYPE_BOOL,
 } DATATYPES;
-#define NUM_DATATYPES 5
+#define NUM_DATATYPES 8
 
 /* Pipeline Modes */
 typedef enum {
-   PIPELINE_NULL     = 0,
-   PIPELINE_MAIN     = 1,
-   PIPELINE_TEST     = 2,
-   PIPELINE_TIME     = 3,
-   PIPELINE_MMSEQS   = 4,
-   PIPELINE_INDEX    = 5,
-   PIPELINE_UTEST    = 6,
-   PIPELINE_VIZ      = 7,
+   PIPELINE_NULL,
+   PIPELINE_MAIN,
+   PIPELINE_TEST,
+   PIPELINE_TIME,
+   PIPELINE_MMSEQS,
+   PIPELINE_INDEX,
+   PIPELINE_UTEST,
+   PIPELINE_VIZ,
 } PIPELINE_MODE;
 #define NUM_PIPELINE_MODES 8
 
 /* Verbosity Modes (how much output does user want) */
 typedef enum {
-   VERBOSE_NONE   = 0,
-   VERBOSE_LOW    = 1,
-   VERBOSE_HIGH   = 2,
-   VERBOSE_ALL    = 3
+   VERBOSE_NONE,
+   VERBOSE_LOW,
+   VERBOSE_HIGH,
+   VERBOSE_ALL,
 } VERBOSE_MODE;
 #define NUM_VERBOSITY_MODES 3
 
@@ -126,6 +126,7 @@ typedef enum {
    MODE_UNILOCAL    = 3,    /* unihit local: "sw" mode      */
    MODE_UNIGLOCAL   = 4,    /* unihit glocal: "s" mode      */
 } SEARCH_MODE;
+#define NUM_SEARCH_MODES 5
 
 /* Flags whether EDGEBOUNDS are stored row-wise or antidiagonal-wise */
 typedef enum {
@@ -133,6 +134,17 @@ typedef enum {
    EDG_DIAG,
    EDG_ROW,
 } EDG_MODE;
+#define NUM_EDG_MODES 3
+
+/* Flags which type of data is stored in DP MATRIX */
+typedef enum {
+   DPMX_NONE,
+   DPMX_MX,
+   DPMX_MX3,
+   DPMX_SMX,
+   DPMX_ALL,
+} DPMX_MODE;
+#define NUM_DPMX_MODES 4
 
 /* Flags whether using linear, quadratic, or naive algorithm for cloud search (TESTING) */
 typedef enum {

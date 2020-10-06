@@ -24,16 +24,17 @@
 /* header */
 #include "hmm_profile.h"
 
-/* Constructor */
-HMM_PROFILE* HMM_PROFILE_Create()
+
+/** FUNCTION:  HMM_PROFILE_Create()
+ *  SYNOPSIS:  Constructor for HMM_PROFILE.
+ *  RETURN:    Pointer to HMM_PROFILE object.
+ */
+HMM_PROFILE* 
+HMM_PROFILE_Create()
 {
    HMM_PROFILE*   prof = NULL;
 
-   prof = (HMM_PROFILE*) malloc( sizeof(HMM_PROFILE) );
-   if (prof == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc HMM_PROFILE.\n");
-      exit(EXIT_FAILURE);
-   }
+   prof = (HMM_PROFILE*) ERROR_malloc( sizeof(HMM_PROFILE) );
 
    prof->filepath       = NULL;
    prof->name           = NULL;
@@ -58,8 +59,12 @@ HMM_PROFILE* HMM_PROFILE_Create()
    return prof;
 }
 
-/* Destructor */
-void* HMM_PROFILE_Destroy( HMM_PROFILE* prof )
+/** FUNCTION:  HMM_PROFILE_Destroy()
+ *  SYNOPSIS:  Destructor for HMM_PROFILE. Frees all associated memory.
+ *  RETURN:    NULL pointer.
+ */
+HMM_PROFILE* 
+HMM_PROFILE_Destroy( HMM_PROFILE*   prof )
 {
    if (prof == NULL) return prof;
    
@@ -68,23 +73,28 @@ void* HMM_PROFILE_Destroy( HMM_PROFILE* prof )
    ERROR_free(prof->acc);
    ERROR_free(prof->desc);
    ERROR_free(prof->alph);
+   ERROR_free(prof->consensus);
 
    ERROR_free(prof->bg_model);
    ERROR_free(prof->hmm_model);
 
    ERROR_free(prof);
-   prof = NULL;
+
    return prof;
 }
 
 /* reuse profile by setting length of length of profile to zero */
-void HMM_PROFILE_Reuse( HMM_PROFILE* prof )
+int 
+HMM_PROFILE_Reuse( HMM_PROFILE* prof )
 {
    prof->N = 0;
+
+   return STATUS_SUCCESS;
 }
 
 /* create backround hmm composition from hardcoded background frequencies */
-HMM_COMPO* HMM_COMPO_Create()
+HMM_COMPO* 
+HMM_COMPO_Create()
 {
    HMM_COMPO* bg = (HMM_COMPO*) malloc( sizeof(HMM_COMPO) );
    if (bg == NULL) {
@@ -101,45 +111,35 @@ HMM_COMPO* HMM_COMPO_Create()
 }
 
 /* Set text to given HMM_PROFILE field */
-void HMM_PROFILE_Set_TextField( char** prof_field, 
-                                char*  text )
+void 
+HMM_PROFILE_Set_TextField( char**    prof_field, 
+                           char*     text )
 {
-   *prof_field = realloc( *prof_field, sizeof(char) * ( strlen(text) + 1 ) );
-   if ( *prof_field == NULL ) {
-      fprintf(stderr, "ERROR: Unable to malloc TEXTFIELD for HMM_PROFILE.\n");
-      exit(EXIT_FAILURE);
-   }
+   *prof_field = ERROR_realloc( *prof_field, sizeof(char) * ( strlen(text) + 1 ) );
    strcpy( *prof_field, text );
 }
 
 /* Set HMM Model Length and allocate memory for nodes */
-void HMM_PROFILE_Set_Model_Length( HMM_PROFILE* prof, 
-                                   int          length )
+void 
+HMM_PROFILE_Set_Model_Length( HMM_PROFILE*    prof, 
+                              int             length )
 {
    /* realloc memory if allocated length is less than new length */
    if ( prof->Nalloc < length )
    {
-      prof->hmm_model   = (HMM_NODE*) realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
+      prof->hmm_model   = ERROR_realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
       prof->Nalloc      = length;
-
-      if (prof->hmm_model == NULL) {
-         fprintf(stderr, "ERROR: Unable to malloc HMM_MODEL for HMM_PROFILE.\n");
-         exit(EXIT_FAILURE);
-      }
    }
 
    prof->N = length;
 }
 
 /* Set alphabet (DNA or AMINO ACID) for HMM_PROFILE */
-void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof, 
-                               char*        alph_name )
+void 
+HMM_PROFILE_Set_Alphabet(  HMM_PROFILE*  prof, 
+                           char*         alph_name )
 {
-   prof->alph = malloc( sizeof(char) * (strlen(alph_name) + 1) );
-   if (prof->alph == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc ALPHABET for HMM_PROFILE.\n");
-      exit(EXIT_FAILURE);
-   }
+   prof->alph = ERROR_malloc( sizeof(char) * (strlen(alph_name) + 1) );
 
    int i = 0;
    while (alph_name[i] != '\0') {
@@ -160,7 +160,8 @@ void HMM_PROFILE_Set_Alphabet( HMM_PROFILE* prof,
 }
 
 /* Determine the consensus sequence (highest likelihood output) using HMM_PROFILE */
-void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
+void 
+HMM_PROFILE_Set_Consensus( HMM_PROFILE*    prof )
 {
    float       best_val; 
    float       new_val;
@@ -194,10 +195,11 @@ void HMM_PROFILE_Set_Consensus( HMM_PROFILE* prof )
 }
 
 /* Set Distribution Parameters for HMM_PROFILE */
-void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof, 
-                                          float        param1, 
-                                          float        param2, 
-                                          char*        dist_name )
+void 
+HMM_PROFILE_Set_Distribution_Params(   HMM_PROFILE*   prof, 
+                                       float          param1, 
+                                       float          param2, 
+                                       char*          dist_name )
 {
    float*   parPtr1 = NULL;
    float*   parPtr2 = NULL;
@@ -224,8 +226,9 @@ void HMM_PROFILE_Set_Distribution_Params( HMM_PROFILE* prof,
 }
 
 /* Output HMM_PROFILE to FILE POINTER */
-void HMM_PROFILE_Dump( HMM_PROFILE* prof, 
-                       FILE*        fp )
+void 
+HMM_PROFILE_Dump( HMM_PROFILE* prof, 
+                  FILE*        fp )
 {
    int pad_1, pad_2;
 
@@ -328,8 +331,9 @@ void HMM_PROFILE_Dump( HMM_PROFILE* prof,
    fprintf(fp, "//\n");
 }
 
-void HMM_FILE_Dump(  HMM_PROFILE*   prof,
-                     FILE*          fp )
+void 
+HMM_FILE_Dump( HMM_PROFILE*   prof,
+               FILE*          fp )
 {
    /* hardcoded vars */
    char* format_name = "HMMER3/f [3.2.1 | June 2018]";

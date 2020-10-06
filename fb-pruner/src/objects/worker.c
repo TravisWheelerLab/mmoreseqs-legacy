@@ -25,8 +25,7 @@
 /* header */
 #include "worker.h"
 
-/*
- *  FUNCTION:  WORKER_Create()
+/** FUNCTION:  WORKER_Create()
  *  SYNOPSIS:  Create new WORKER object and returns pointer.
  *             Most data is left NULL to be supplied by WORK_init().
  */
@@ -64,9 +63,11 @@ WORKER_Create()
    worker->edg_diag     = NULL;
    worker->edg_row      = NULL;
 
+   worker->dom_def      = NULL;
+
    worker->edg_rows_tmp = NULL;
 
-   for ( int i=0; i<3; i++ ) 
+   for ( int i = 0; i < 3; i++ ) 
    {
       worker->lb_vec[i] = NULL;
       worker->rb_vec[i] = NULL;
@@ -87,6 +88,8 @@ WORKER_Create()
    worker->results      = NULL;
    worker->results_in   = NULL;
    worker->result       = NULL;
+
+   worker->dom_def      = NULL;
 
    worker->num_searches = 0;
 
@@ -111,8 +114,7 @@ WORKER_Create()
    return worker;
 }
 
-/*
- *  FUNCTION:  WORKER_Create_with_Args()
+/** FUNCTION:  WORKER_Create_with_Args()
  *  SYNOPSIS:  Create new WORKER object and adds <args> to worker.
  */
 WORKER* 
@@ -125,8 +127,7 @@ WORKER_Create_with_Args( ARGS* args )
    return worker;
 }
 
-/*
- *  FUNCTION:  WORKER_Create_Threads()
+/** FUNCTION:  WORKER_Create_Threads()
  *  SYNOPSIS:  Creates {N_threads} WORKER_THREAD objects for {worker}.
  *             Stored in {worker->theads}.
  *             Exact number of threads are allocated (should not change during program lifetime).
@@ -139,8 +140,7 @@ WORKER_Create_Threads(  WORKER*  worker,
    threads = (WORKER_THREAD*) ERROR_realloc( threads, sizeof(WORKER_THREAD) );
 }
 
-/*
- *  FUNCTION:  WORKER_Destroy()
+/** FUNCTION:  WORKER_Destroy()
  *  SYNOPSIS:  Frees WORKER object and returns pointer.
  */
 void* 
@@ -158,7 +158,6 @@ WORKER_Destroy( WORKER* worker )
    ERROR_free( worker->times_totals );
    ERROR_free( worker->scores );
 
-   ERROR_free( worker );
-   worker = NULL;
+   worker = ERROR_free( worker );
    return worker;
 }

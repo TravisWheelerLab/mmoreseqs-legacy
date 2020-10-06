@@ -1,9 +1,9 @@
 /*******************************************************************************
- *    FILE:       traceback_sparse.c
- *    PURPOSE:    Traceback for Viterbi Algorithm for Sparse Matrices.
+ *       FILE:   posterior_traceback_sparse.c
+ *    PURPOSE:   Traceback for Posterior Probability Sparse Matrix.
  *
- *    AUTHOR:     Dave Rich
- *    BUG:     
+ *     AUTHOR:   Dave Rich
+ *        BUG:     
  *******************************************************************************/
 
 /* imports */
@@ -23,20 +23,21 @@
 /* header */
 #include "traceback_quad.h"
 
-/*  FUNCTION:  run_MaxExp_Traceback_Sparse_2()
- *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
- *             Version 2: My implementation. Verifies that Alignment agrees with Matrix data.
+/** FUNCTION:   run_Posterior_Traceback_Sparse_2()
+ *  SYNOPSIS:   Run Viterbi Traceback to recover Optimal Alignment.
+ *              Version 2: My implementation. Verifies that Alignment agrees with Matrix data.
  *
- *    RETURN:  Return <STATUS_SUCCESS> if no errors.
+ *    RETURN:   Return <STATUS_SUCCESS> if no errors.
  */
-int run_MaxPost_Traceback_Sparse(   const SEQUENCE*      query,      /* query sequence */
-                                    const HMM_PROFILE*   target,     /* HMM model */
-                                    const int            Q,          /* query/seq length */
-                                    const int            T,          /* target/model length */
-                                    MATRIX_3D_SPARSE*    st_SMX,     /* Normal State (Match, Insert, Delete) Matrix */
-                                    MATRIX_2D*           sp_MX,      /* Special State (J,N,B,C,E) Matrix */
-                                    EDGEBOUNDS*          edg,        /* edgebounds of sparse matrix */
-                                    ALIGNMENT*           aln )       /* OUTPUT: Traceback Alignment */
+int 
+run_Posterior_Traceback_Sparse(  const SEQUENCE*      query,      /* query sequence */
+                                 const HMM_PROFILE*   target,     /* HMM model */
+                                 const int            Q,          /* query/seq length */
+                                 const int            T,          /* target/model length */
+                                 MATRIX_3D_SPARSE*    st_SMX,     /* Normal State (Match, Insert, Delete) Matrix */
+                                 MATRIX_2D*           sp_MX,      /* Special State (J,N,B,C,E) Matrix */
+                                 EDGEBOUNDS*          edg,        /* edgebounds of sparse matrix */
+                                 ALIGNMENT*           aln )       /* OUTPUT: Traceback Alignment */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */

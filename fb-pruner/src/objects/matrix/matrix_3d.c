@@ -25,9 +25,10 @@
 #include "matrix_3d.h"
 
 /* constructor */
-MATRIX_3D* MATRIX_3D_Create(  const int  R,
-                              const int  C,
-                              const int  N )
+MATRIX_3D* 
+MATRIX_3D_Create( const int  R,
+                  const int  C,
+                  const int  N )
 {
    if ( R <= 0 || C <= 0 ) {
       fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
@@ -35,30 +36,28 @@ MATRIX_3D* MATRIX_3D_Create(  const int  R,
    }
 
    MATRIX_3D* mx;
-   mx = (MATRIX_3D*) malloc( sizeof(MATRIX_3D) );
-   if (mx == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc MATRIX_3D.\n");
-      exit(EXIT_FAILURE);
-   }
+   mx = ERROR_malloc( sizeof(MATRIX_3D) );
 
    mx->R       = 0;
    mx->C       = 0;
    mx->N       = 0;
    mx->Nalloc  = 0;
    mx->data    = NULL;
+   mx->clean   = false;
 
    MATRIX_3D_Reuse( mx, R, C, N );
-   mx->clean = false;
 
    return mx;
 }
 
 /* constructor for clean matrices */
-MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
-                                    const int  C,
-                                    const int  N )
+MATRIX_3D* 
+MATRIX_3D_Create_Clean( const int  R,
+                        const int  C,
+                        const int  N )
 {
    MATRIX_3D* mx;
+
    mx = MATRIX_3D_Create( R, C, N );
    MATRIX_3D_Clean( mx );
    mx->clean = true;
@@ -66,7 +65,8 @@ MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
 }
 
 /* destructor */
-void* MATRIX_3D_Destroy( MATRIX_3D*  mx )
+MATRIX_3D* 
+MATRIX_3D_Destroy( MATRIX_3D*  mx )
 {
    if (mx == NULL) return NULL;
 
@@ -183,12 +183,15 @@ float* MATRIX_3D_Get(   MATRIX_3D*  mx,
    return data;
 }
 
-/* getter for index by reference */
+/** FUNCTION:  MATRIX_3D_Get_X()
+ *  SYNOPSIS:  Get pointer to cell from <mx> at position <i,j,k>.
+ */
 inline
-float* MATRIX_3D_Get_X(    MATRIX_3D*  mx,
-                           const int   i,
-                           const int   j,
-                           const int   k )
+float* 
+MATRIX_3D_Get_X(  MATRIX_3D*  mx,
+                  const int   i,
+                  const int   j,
+                  const int   k )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
@@ -206,10 +209,13 @@ float* MATRIX_3D_Get_X(    MATRIX_3D*  mx,
    return data;
 }
 
-/* getter for index */
-inline
-float* MATRIX_3D_Get_1D(   MATRIX_3D*  mx,
-                           const int   n )
+
+/** FUNCTION:  MATRIX_3D_Get_1D()
+ *  SYNOPSIS:  Get pointer to cell from <mx> at flat-index position <n>.
+ */
+float* 
+MATRIX_3D_Get_1D( MATRIX_3D*  mx,
+                  const int   n )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
@@ -221,27 +227,34 @@ float* MATRIX_3D_Get_1D(   MATRIX_3D*  mx,
    }
    #endif
 
-   float* data = &( mx->data[ n ] );
+   float* data = &( mx->data[n] );
    return data;
 }
 
-/* convert 3D-coords to 1D-coords */
+
+/** FUNCTION:  MATRIX_3D_to_1D()
+ *  SYNOPSIS:  
+ */
 inline
-int MATRIX_3D_to_1D( const MATRIX_3D*  mx,
-                     const int         i,
-                     const int         j,
-                     const int         k )
+int 
+MATRIX_3D_to_1D(  const MATRIX_3D*  mx,
+                  const int         i,
+                  const int         j,
+                  const int         k )
 {
    /* (i,j,k) -> (R,C,N) */
    return ((i * (mx->C * mx->N)) + (j * (mx->N)) + k);
 }
 
 
-/* reuse MATRIX_3D by resizing only if new matrix requires more memory */
-float MATRIX_3D_Reuse(  MATRIX_3D*  mx,
-                        const int   R,
-                        const int   C,
-                        const int   N )
+/** FUNCTION:  MATRIX_3D_Reuse()
+ *  SYNOPSIS:  Reuse MATRIX_3D by resizing only if new matrix requires more memory.
+ */
+float 
+MATRIX_3D_Reuse(  MATRIX_3D*  mx,
+                  const int   R,
+                  const int   C,
+                  const int   N )
 {
    if (R * C * N > mx->Nalloc) {
       MATRIX_3D_Resize(mx, R, C, N);
@@ -255,11 +268,16 @@ float MATRIX_3D_Reuse(  MATRIX_3D*  mx,
    mx->clean = false;
 }
 
-/* reuse MATRIX_3D by resizing only if new matrix requires more memory. New memory is set to -INF. */
-float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
-                              const int   R,
-                              const int   C,
-                              const int   N )
+
+/** FUNCTION:  MATRIX_3D_Reuse_Clean()
+ *  SYNOPSIS:  Reuse MATRIX_3D by resizing only if new matrix requires more memory. 
+ *             New memory is set to -INF.
+ */
+float 
+MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
+                        const int   R,
+                        const int   C,
+                        const int   N )
 {
    /* TODO: fix this function */
    MATRIX_3D_Reuse( mx, R, C, N );
@@ -286,26 +304,30 @@ float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
    #endif
 }
 
-/* resize MATRIX_3D to new dimensions */
-float MATRIX_3D_Resize( MATRIX_3D*  mx,
-                        const int   R,
-                        const int   C,
-                        const int   N )
+
+/** FUNCTION:  MATRIX_3D_Resize()
+ *  SYNOPSIS:  Resize MATRIX_3D to new dimensions.
+ */
+float 
+MATRIX_3D_Resize( MATRIX_3D*  mx,
+                  const int   R,
+                  const int   C,
+                  const int   N )
 {
-   mx->Nalloc = R * C * N;
-   mx->data = (float*) realloc( mx->data, sizeof(float) * (R * C * N) );
-   if (mx->data == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc DATA for MATRIX_3D.\n");
-      exit(EXIT_FAILURE);
-   }
-   mx->R = R;
-   mx->C = C;
-   mx->N = N;
+   mx->Nalloc  = R * C * N;
+   mx->data    = ERROR_realloc( mx->data, sizeof(float) * (R * C * N) );
+   mx->R       = R;
+   mx->C       = C;
+   mx->N       = N;
 }
 
-/* Outputs MATRIX_3D out to FILE POINTER */
-void MATRIX_3D_Dump( MATRIX_3D*  mx,
-                     FILE*       fp )
+
+/** FUNCTION:  MATRIX_3D_Dump()
+ *  SYNOPSIS:  Outputs MATRIX_3D <mx> out to file pointer <fp>.
+ */
+void 
+MATRIX_3D_Dump(   MATRIX_3D*  mx,
+                  FILE*       fp )
 {
    /* check for bad pointer */
    if (fp == NULL) {
@@ -325,22 +347,26 @@ void MATRIX_3D_Dump( MATRIX_3D*  mx,
    }
 }
 
-/* Save MATRIX_3D to FILE by FILENAME */
-void MATRIX_3D_Save( MATRIX_3D*  mx,
-                     char*       _filename_ )
+
+/** FUNCTION:  MATRIX_3D_Save()
+ *  SYNOPSIS:  Save MATRIX_3D <mx> to file with filename <filename>.
+ */
+void 
+MATRIX_3D_Save(   MATRIX_3D*  mx,
+                  char*       _filename_)
 {
    FILE* fp = fopen(_filename_, "w");
    MATRIX_3D_Dump(mx, fp);
    fclose(fp);
 }
 
-/*
- *  FUNCTION:  MATRIX_3D_Compare()
- *  SYNOPSIS:  Compares two MATRIX_3D.  Floats are equal if within tolerance.
- *    RETURN:  Returns 0 if matrices are equal, otherwise return count of unequal cells.
+
+/** FUNCTION:  MATRIX_3D_Compare()
+ *  SYNOPSIS:  Compare MATRIX_3D's <mx_A> and <mx_B>.
  */
-int MATRIX_3D_Compare(  MATRIX_3D*  mx_a,
-                        MATRIX_3D*  mx_b )
+int 
+MATRIX_3D_Compare(   MATRIX_3D*  mx_a,
+                     MATRIX_3D*  mx_b )
 {
    /* inequality value */
    int      cmp   = 0;
@@ -399,13 +425,14 @@ int MATRIX_3D_Compare(  MATRIX_3D*  mx_a,
    return cmp;
 }
 
-/*
- *  FUNCTION:  MATRIX_2D_Add()
+
+/** FUNCTION:  MATRIX_3D_Add()
  *  SYNOPSIS:  Takes sum of <mx_a> + <mx_b>.  Result stored in <mx_res>.
  */
-void MATRIX_3D_Add(  MATRIX_3D*  mx_a,
-                     MATRIX_3D*  mx_b,
-                     MATRIX_3D*  mx_res )
+void 
+MATRIX_3D_Add( MATRIX_3D*  mx_a,
+               MATRIX_3D*  mx_b,
+               MATRIX_3D*  mx_res )
 {
    for ( int i = 0; i < mx_a->R; i++ ) {
       for ( int j = 0; j < mx_a->C; j++ ) {
@@ -416,13 +443,14 @@ void MATRIX_3D_Add(  MATRIX_3D*  mx_a,
    }
 }
 
-/*
- *  FUNCTION:  MATRIX_2D_Diff()
+
+/** FUNCTION:  MATRIX_3D_Diff()
  *  SYNOPSIS:  Takes difference of <mx_a> - <mx_b>.  Result stored in <mx_diff>.
  */
-void MATRIX_3D_Diff( MATRIX_3D*  mx_a,
-                     MATRIX_3D*  mx_b,
-                     MATRIX_3D*  mx_diff )
+void 
+MATRIX_3D_Diff(   MATRIX_3D*  mx_a,
+                  MATRIX_3D*  mx_b,
+                  MATRIX_3D*  mx_diff )
 {
    for ( int i = 0; i < mx_a->R; i++ ) {
       for ( int j = 0; j < mx_a->C; j++ ) {
@@ -436,7 +464,10 @@ void MATRIX_3D_Diff( MATRIX_3D*  mx_a,
    }
 }
 
-/* unit test */
+
+/** FUNCTION:  MATRIX_3D_Utest()
+ *  SYNOPSIS:  Unit Test for MATIX_3D.
+ */
 void MATRIX_3D_Utest()
 {
    int R = 10;

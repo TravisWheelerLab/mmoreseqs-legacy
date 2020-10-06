@@ -46,6 +46,15 @@ float logsum( float     x,
               float     y );
 
 /*
+ *  FUNCTION:  logdiff()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real diff (approximation).
+ *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
+ *             LOGSUM_LOOKUP must have been initialized before use.
+ */
+float logdiff( float  x,
+               float  y );
+
+/*
  *  FUNCTION:  logsum_exact()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (exact).
  *             Slower than logsum().

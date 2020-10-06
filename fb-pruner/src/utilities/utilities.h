@@ -10,7 +10,7 @@
 #define _UTILITIES_H
 
 #include "statistics.h"
-#include "dp_matrix.h"
+#include "dp_matrix_util.h"
 #include "error_handler.h"
 #include "testing.h"
 #include "misc.h"

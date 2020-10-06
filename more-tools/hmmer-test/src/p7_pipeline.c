@@ -752,6 +752,8 @@ p7_Pipeline(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, cons
    p7_omx_GrowTo(pli->oxb, om->M, 0, sq->n);
    p7_BackwardParser(sq->dsq, sq->n, om, pli->oxf, pli->oxb, NULL);
 
+
+
    status = p7_domaindef_ByPosteriorHeuristics(sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
    if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
    if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
@@ -963,7 +965,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // if (P > pli->F1) return eslOK;
    pli->n_past_msv++;
 
-   printf("## MSV seq_score: %f, null_one: %f, ev_param: %f, %f\n", seq_score, nullsc, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+   printf("## MSV :: seq_score: %f, null_one: %f, ev_param: %f, %f\n", seq_score, nullsc, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
    printf("## P: %.9f = %4.3e\n", P, P);
 
    /* biased composition HMM filtering */
@@ -981,7 +983,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       P = esl_gumbel_surv(seq_score,  om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
       //    if (P > pli->F1) return eslOK;
 
-      printf("## BIAS seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
+      printf("## BIAS :: seq_score: %f, ev_param: %f, %f\n", seq_score, om->evparam[p7_MMU],  om->evparam[p7_MLAMBDA]);
       printf("## P: %.9f = %4.3e\n", P, P);
    }
    else {
@@ -1040,37 +1042,39 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("==> UNOPTIMIZED VERSIONS\n");
    float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
    float opt_sc;
-   P7_GMX *gmx = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_vit = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_fwd = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_bck = p7_gmx_Create(om->M, om->L);
    P7_TRACE *tr = p7_trace_Create();
 
    printf("==> VITERBI\n");
-   p7_GViterbi(sq->dsq, sq->n, gm, gmx, &opt_sc);
+   p7_GViterbi(sq->dsq, sq->n, gm, gmx_vit, &opt_sc);
    printf("## Viterbi Score:\t%.9f\n", opt_sc);
    fp = fopen("test_output/hmmer.viterbi.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, fp);
    fclose(fp);
 
    printf("==> TRACEBACK\n");
-   p7_GTrace(sq->dsq, sq->n, gm, gmx, tr);
+   p7_GTrace(sq->dsq, sq->n, gm, gmx_vit, tr);
    fp = fopen("test_output/hmmer.traceback_list.tsv", "w+");
-   trace_Dump(om->L, om->M, sq->dsq, gm, gmx, tr, fp);
+   trace_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, tr, fp);
    fclose(fp);
    fp = fopen("test_output/hmmer.traceback.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, fp);
    fclose(fp);
 
    printf("==> FORWARD\n");
-   p7_GForward(sq->dsq, sq->n, gm, gmx, &opt_sc);
+   p7_GForward(sq->dsq, sq->n, gm, gmx_fwd, &opt_sc);
    printf("## Forward Score:\t%.9f\n", opt_sc);
    fp = fopen("test_output/hmmer.forward.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_fwd, fp);
    fclose(fp);
 
    printf("==> BACKWARD\n");
-   p7_GBackward(sq->dsq, sq->n, gm, gmx, &opt_sc);
+   p7_GBackward(sq->dsq, sq->n, gm, gmx_bck, &opt_sc);
    printf("## Backward Score:\t%.9f\n", opt_sc);
    fp = fopen("test_output/hmmer.backward.tsv", "w+");
-   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx, fp);
+   DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_bck, fp);
    fclose(fp);
    /* DAVID RICH EDIT end */
 
@@ -1084,15 +1088,24 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("# fwdsc: %.9f, nullsc: %.9f, seqbias: %.9f\n", 
       fwdsc, nullsc, seqbias);
 
+   printf("==> GENERIC_DECODING\n");
+   p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
+
+   printf("==> POSTERIOR_HEURISTICS\n");
    status = p7_domaindef_ByPosteriorHeuristics(
       sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
    
+   printf("n2sc [L=%d]:\n", pli->ddef->L);
+   for (int i = 0; i < pli->ddef->L; i++) {
+      printf("[%2d] %-7.4f ", i, pli->ddef->n2sc[i] );
+      if ( (i + 1) % 10 == 0 ) printf("\n");
+   }
+   printf("\n");
 
    if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
    if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
    if (pli->ddef->nenvelopes == 0) return eslOK; /* rarer: region was found, stochastic clustered, no envelopes found */
    if (pli->ddef->ndom       == 0) return eslOK; /* even rarer: envelope found, no domain identified {iss131}         */
-
 
    /* Calculate the null2-corrected per-seq score */
    printf("# seqbias = %.9f, bg->omega = %.9f\n",

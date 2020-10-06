@@ -252,18 +252,22 @@ p7_domaindef_DumpPosteriors(FILE *ofp, P7_DOMAINDEF *ddef)
 {
    int i;
 
+   fprintf(ofp, "# ddef->mocc:\n");
    for (i = 1; i <= ddef->L; i++)
       fprintf(ofp, "%d %f\n", i, ddef->mocc[i]);
    fprintf(ofp, "&\n");
 
+   fprintf(ofp, "# ddef->btot:\n");
    for (i = 1; i <= ddef->L; i++)
       fprintf(ofp, "%d %f\n", i, ddef->btot[i]);
    fprintf(ofp, "&\n");
 
+   fprintf(ofp, "# ddef->etot:\n");
    for (i = 1; i <= ddef->L; i++)
       fprintf(ofp, "%d %f\n", i, ddef->etot[i]);
    fprintf(ofp, "&\n");
 
+   fprintf(ofp, "# ddef->n2sc:\n");
    for (i = 1; i <= ddef->L; i++)
       fprintf(ofp, "%d %f\n", i, ddef->n2sc[i]);
    fprintf(ofp, "&\n");
@@ -309,7 +313,7 @@ p7_domaindef_Destroy(P7_DOMAINDEF *ddef)
  * 2. Routines inferring domain structure of a target sequence
  *****************************************************************/
 
-#if 0
+#if FALSE
 /* Function:  p7_domaindef_ByViterbi()
  * Synopsis:  Define domains in a sequence by maximum likelihood.
  * Incept:    SRE, Fri Jan 25 15:10:21 2008 [Janelia]
@@ -386,6 +390,10 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
                                    P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
                                    P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr)
 {
+   printf("=== POSTERIOR HEURISTICS ===\n");
+   printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
+      ddef->rt1, ddef->rt2, ddef->rt3 );
+
    int i, j;
    int triggered;
    int d;
@@ -396,10 +404,12 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    int save_mode = om->mode;   /* Likewise for the mode. */
    int status;
 
-   // p7_domaindef_DumpPosteriors( stdout, ddef);
-
+   printf("dom decoding...\n");
    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
+
+   // printf("==> ddef (posteriors):\n");
+   // p7_domaindef_DumpPosteriors( stdout, ddef );
 
    esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
    ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
@@ -410,7 +420,16 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
 
    for (j = 1; j <= sq->n; j++)
    {
-      // printf("j=%d, i=%d\n", j, i);
+   //    if (! triggered) {
+   //       float sc = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
+   //       printf("BEG: (i)=(%d) :: mocc[j]: %6.3f, btot[j]: %6.3f, btot[j-1]: %6.3f, sc: %6.3f\n",
+   //          i, ddef->mocc[j], ddef->btot[j], ddef->btot[j - 1], sc );
+   //    }
+   //    else {
+   //       float sc = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
+   //       printf("END: (i)=(%d) :: mocc[j]: %6.3f, etot[j]: %6.3f, etot[j-1]: %6.3f, sc: %6.3f\n",
+   //          i, ddef->mocc[j], ddef->etot[j], ddef->btot[j - 1], sc );
+   //    }
 
       if (! triggered)
       {  /* xref J2/101 for what the logic below is: */
@@ -420,12 +439,14 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
       }
       else if (ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1])  <  ddef->rt2)
       {
+         printf("REGION: (%d,%d)\n", i, j);
          /* We have a region i..j to evaluate. */
          p7_omx_GrowTo(fwd, om->M, j - i + 1, j - i + 1);
          p7_omx_GrowTo(bck, om->M, j - i + 1, j - i + 1);
          ddef->nregions++;
          if (is_multidomain_region(ddef, i, j))
          {
+            printf("MULTI-DOMAIN\n");
             /* This region appears to contain more than one domain, so we have to
              * resolve it by cluster analysis of posterior trace samples, to define
              * one or more domain envelopes.
@@ -479,6 +500,7 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
          }
          else
          {
+            printf("SINGLE-DOMAIN\n");
             /* The region looks simple, single domain; convert the region to an envelope. */
             ddef->nenvelopes++;
             rescore_isolated_domain(ddef, om, sq, ntsq, fwd, bck, i, j, FALSE, bg, long_target, bg_tmp, scores_arr, fwd_emissions_arr);
@@ -539,7 +561,7 @@ is_multidomain_region(P7_DOMAINDEF *ddef, int i, int j)
    max = -1.0;
    for (z = i; z <= j; z++)
    {
-      expected_n = ESL_MIN( (ddef->etot[z] - ddef->etot[i - 1]), (ddef->btot[j] - ddef->btot[z - 1]));
+      expected_n = ESL_MIN( (ddef->etot[z] - ddef->etot[i - 1]), (ddef->btot[j] - ddef->btot[z - 1]) );
       max        = ESL_MAX(max, expected_n);
    }
 
@@ -827,8 +849,6 @@ rescore_isolated_domain(P7_DOMAINDEF *ddef, P7_OPROFILE *om, const ESL_SQ *sq, c
    int            status;
    int            max_env_extra = 20;
    int            orig_L;
-
-   printf("rescore_isolated_domain(%d,%d)\n", i, j);
 
    if (long_target) {
       //temporarily change model length to env_len. The nhmmer pipeline will tack

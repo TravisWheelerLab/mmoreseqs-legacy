@@ -42,6 +42,7 @@
 #include "args.h"
 #include "clock.h"
 #include "debugger.h"
+#include "domain_def.h"
 #include "edgebound.h"
 #include "edgebound_rows.h"
 #include "f_index.h"

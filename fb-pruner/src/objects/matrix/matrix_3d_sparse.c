@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      matrix_3d_sparse.c
+ *     FILE:   matrix_3d_sparse.c
  *  PURPOSE:   MATRIX_3D_SPARSE Float object.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:
+ *     BUG:
  *******************************************************************************/
 
 /* imports */
@@ -24,12 +24,13 @@
 /* header */
 #include "matrix_3d_sparse.h"
 
-/*  FUNCTION: 	MATRIX_3D_SPARSE_Create()
- *  SYNOPSIS: 	Creates sparse matrix <smx>.
+/** FUNCTION: 	 MATRIX_3D_SPARSE_Create()
+ *  SYNOPSIS: 	 Creates sparse matrix <smx>.
  *
- *  RETURN:    Pointer to <smx> if no errors. If errors, NULL.
+ *    RETURN:   Pointer to <smx> if no errors. If errors, NULL.
  */
-MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Create()
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Create()
 {
 	MATRIX_3D_SPARSE* smx = NULL;
 
@@ -57,12 +58,13 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Create()
 	return smx;
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Destroy()
- *  SYNOPSIS:  Destroys <smx> and frees all memory.
+/** FUNCTION:   MATRIX_3D_SPARSE_Destroy()
+ *  SYNOPSIS:   Destroys <smx> and frees all memory.
  *
- *  RETURN:    NULL pointer.
+ *    RETURN:   NULL pointer.
  */
-MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Destroy( MATRIX_3D_SPARSE* smx )
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Destroy( MATRIX_3D_SPARSE* smx )
 {
    /* edgebounds */
    EDGEBOUNDS_Destroy( smx->edg_inner );
@@ -83,10 +85,11 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Destroy( MATRIX_3D_SPARSE* smx )
    return smx;
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Reuse()
- *  SYNOPSIS:  Reuses <smx> by clearing previous data (no realloc).
+/** FUNCTION:   MATRIX_3D_SPARSE_Reuse()
+ *  SYNOPSIS:   Reuses <smx> by clearing previous data (no realloc).
  */
-MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse( MATRIX_3D_SPARSE* smx )
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Reuse( MATRIX_3D_SPARSE* smx )
 {
    /* edgebounds */
    EDGEBOUNDS_Reuse( smx->edg_inner, 0, 0 );
@@ -104,10 +107,11 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse( MATRIX_3D_SPARSE* smx )
    return smx;
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Reuse()
+/** FUNCTION:  MATRIX_3D_SPARSE_Reuse()
  *  SYNOPSIS:  Reuses <smx> by clearing previous data (no realloc).
  */
-MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse_Clean( MATRIX_3D_SPARSE* smx )
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Reuse_Clean( MATRIX_3D_SPARSE* smx )
 {
    /* edgebounds */
    EDGEBOUNDS_Reuse( smx->edg_inner, 0, 0 );
@@ -126,11 +130,12 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Reuse_Clean( MATRIX_3D_SPARSE* smx )
    return smx;
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Copy()
+/** FUNCTION:  MATRIX_3D_SPARSE_Copy()
  *  SYNOPSIS:  Copies data from <src> to <dest>.
  */
-MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Copy(     MATRIX_3D_SPARSE*          mx_dest,
-                                             const MATRIX_3D_SPARSE*    mx_src )
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
+                        const MATRIX_3D_SPARSE*    mx_src )
 {
    if ( mx_dest == NULL ) {
       mx_dest = MATRIX_3D_SPARSE_Create();
@@ -151,15 +156,16 @@ MATRIX_3D_SPARSE* MATRIX_3D_SPARSE_Copy(     MATRIX_3D_SPARSE*          mx_dest,
    return mx_dest;
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Edgebounds()
+/** FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Edgebounds()
  *  SYNOPSIS:  Creates MATRIX_3D_SPARSE object that can contain the matrix needed for 
  *             computing Bounded Forward/Backward and Bounded Viterbi algorithms. 
  *             Uses <edg_inner> as a template.
  *
  *  RETURN:    <STATUS_SUCCESS> if no errors.
  */
-int MATRIX_3D_SPARSE_Shape_Like_Edgebounds(  MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
-                                             EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
+int 
+MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
+                                          EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
 {
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
@@ -188,13 +194,13 @@ int MATRIX_3D_SPARSE_Shape_Like_Edgebounds(  MATRIX_3D_SPARSE*    smx,          
    smx->clean = true;
 }
 
-/*  FUNCTION:     EDGEBOUNDS_Create_Padded_Edgebounds()
- *  SYNOPSIS:     Create new EDGEBOUNDS <edg_outer> from given EDGEBOUNDS <edg_inner>.
- *                <edg_outer> contains all cells contained in <edg_inner> and pads with every cell adjacent to <edg_outer>, 
- *                If <edg_outer> already created, reuses data struct.
- *                Requires <edg_inner> is sorted.
+/** FUNCTION:   EDGEBOUNDS_Create_Padded_Edgebounds()
+ *  SYNOPSIS:   Create new EDGEBOUNDS <edg_outer> from given EDGEBOUNDS <edg_inner>.
+ *              <edg_outer> contains all cells contained in <edg_inner> and pads with every cell adjacent to <edg_outer>, 
+ *              If <edg_outer> already created, reuses data struct.
+ *              Requires <edg_inner> to be sorted.
  *
- *  RETURN:       Returns <edg_outer>.
+ *    RETURN:   Returns <edg_outer>.
  */
 EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,     /* EDGEBOUNDS of the active cells */
                                                    EDGEBOUNDS*    edg_outer )    /* EDGEBOUNDS of the total cells */
@@ -335,7 +341,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,    
  *                Requires <edg_inner> is sorted.
  *                Requires 3x as much memory as non-naive version.
  *
- *  RETURN:       Returns <edg_outer>.
+ *    RETURN:     Returns <edg_outer>.
  */
 EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inner,     /* EDGEBOUNDS of the active cells */
                                                          EDGEBOUNDS*    edg_outer )    /* EDGEBOUNDS of the total cells */

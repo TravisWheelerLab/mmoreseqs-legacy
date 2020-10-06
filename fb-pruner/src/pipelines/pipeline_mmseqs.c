@@ -62,8 +62,8 @@ mmseqs_pipeline( WORKER* worker )
    {
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
-      tasks->lin_fwd          = false;    /* optional, but can't recover alignment */
-      tasks->lin_bck          = false;    /* optional, but can't recover alignment */
+      tasks->lin_fwd          = true;    /* optional, but can't recover alignment */
+      tasks->lin_bck          = true;    /* optional, but can't recover alignment */
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
       tasks->lin_bound_fwd    = true;
@@ -156,7 +156,7 @@ mmseqs_pipeline( WORKER* worker )
       // #if DEBUG
       // {
       //    WORK_viterbi_and_traceback( worker );
-      //    WORK_forward_backward( worker );
+         WORK_forward_backward( worker );
       // }
       // #endif
 
@@ -187,9 +187,9 @@ mmseqs_pipeline( WORKER* worker )
       tr->end = 1;
 
       /* run cloud search */
-      WORK_cloud_search( worker );
+      // WORK_cloud_search( worker );
       /* capture alignment */
-      WORK_capture_alignment( worker );
+      // WORK_capture_alignment( worker );
       /* convert bitscore to eval */
       WORK_convert_scores( worker );
 

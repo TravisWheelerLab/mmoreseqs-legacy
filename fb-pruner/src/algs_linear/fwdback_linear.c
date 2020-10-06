@@ -25,8 +25,7 @@
 #include "fwdback_linear.h"
 
 
-/* ****************************************************************************************** * 
- *  FUNCTION: run_Forward_Linear()
+/** FUNCTION: run_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Forward-Backward Algorithm. (Linear Space Implementation)
  *
  *  PURPOSE:
@@ -43,7 +42,7 @@
  *             <sc_final>  OUTPUT: Score in Log-Bits
  *
  *  RETURN:    <STATUS_SUCCESS> if no errors
- * ****************************************************************************************** */
+ */
 int run_Forward_Linear(    const SEQUENCE*   query, 
                            const HMM_PROFILE* target, 
                            const int          Q, 
@@ -304,11 +303,10 @@ int run_Forward_Linear(    const SEQUENCE*   query,
    return STATUS_SUCCESS;
 }
 
-/* ****************************************************************************************** *
- * FUNCTION: run_Backward_Linear()
- * SYNOPSIS: Perform Backward part of Forward-Backward Algorithm. (LINEAR ALG)
+/** FUNCTION:  run_Backward_Linear()
+ *  SYNOPSIS:  Perform Backward part of Forward-Backward Algorithm. (LINEAR ALG)
  *
- * PURPOSE:
+ *  PURPOSE:
  *
  *  ARGS:      <query>     query sequence, 
  *             <target>    HMM model,
@@ -319,8 +317,8 @@ int run_Forward_Linear(    const SEQUENCE*   query,
  *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
  *             <sc_final>  OUTPUT: Score in Log-Bits
  *
- * RETURN:     <STATUS_SUCCESS> if no errors.
- * ****************************************************************************************** */
+ *  RETURN:     <STATUS_SUCCESS> if no errors.
+ */
 int run_Backward_Linear(   const SEQUENCE*    query, 
                            const HMM_PROFILE* target, 
                            const int          Q, 

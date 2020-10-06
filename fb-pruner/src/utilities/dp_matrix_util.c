@@ -18,7 +18,7 @@
 #include "objects.h"
 
 /* header */
-#include "dp_matrix.h"
+#include "dp_matrix_util.h"
 
 /* TODO:*/
 /*
@@ -245,6 +245,148 @@ void DP_MATRIX_Dump( const int         Q,
    fprintf(fp, "%*s ", -6, "B");
    for (int i = 0; i <= Q; i++) { 
       fprintf(fp, "%7.3f ", XMX(SP_B, i) ); 
+   }
+   fprintf(fp, "\n");
+}
+
+/*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Norm_Dump(  const int         Q,
+                           const int         T,
+                           MATRIX_3D*        st_MX,
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp )
+{
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
+   /* Header */
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= T; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "M %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f ", MMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f ", IMX(i, j) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%7.3f ", DMX(i, j) );
+      }
+      fprintf(fp, "\n\n");
+   }
+}
+
+/*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Spec_Dump(  const int         Q,
+                           const int         T,
+                           MATRIX_3D*        st_MX,
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp )
+{
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "N");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_N, i) ); 
+   }
+   fprintf(fp, "\n");
+   
+   fprintf(fp, "%*s ", -6, "J");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_J, i) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "E");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_E, i) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "C");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_C, i) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "B");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", XMX(SP_B, i) ); 
+   }
+   fprintf(fp, "\n");
+}
+
+/*
+ *  FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_SpecExp_Dump(  const int         Q,
+                              const int         T,
+                              MATRIX_3D*        st_MX,
+                              MATRIX_2D*        sp_MX,
+                              FILE*             fp )
+{
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "N");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", exp(XMX(SP_N, i)) ); 
+   }
+   fprintf(fp, "\n");
+   
+   fprintf(fp, "%*s ", -6, "J");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", exp(XMX(SP_J, i)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "E");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", exp(XMX(SP_E, i)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "C");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", exp(XMX(SP_C, i)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "B");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%7.3f ", exp(XMX(SP_B, i)) ); 
    }
    fprintf(fp, "\n");
 }

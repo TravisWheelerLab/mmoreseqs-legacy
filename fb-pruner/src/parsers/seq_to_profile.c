@@ -72,9 +72,9 @@ void HMM_PROFILE_From_Seq( HMM_PROFILE*   prof,
    HMM_PROFILE_Set_TextField( &prof->name, seq->name );
 
    /* special match probabilities for initial node */
-   MSC_HMM( prof, 0, 0 ) = 1.;
+   MSC_X( prof, 0, 0 ) = 1.;
    for ( int j = 1; j < NUM_AMINO; j++ )
-      MSC_HMM( prof, 0, j ) = 0.;
+      MSC_X( prof, 0, j ) = 0.;
 
    /* for each node in sequence */
    for ( int i = 0; i <= N; i++ )
@@ -86,30 +86,30 @@ void HMM_PROFILE_From_Seq( HMM_PROFILE*   prof,
          for ( int j = 0; j < NUM_AMINO; j++ ) 
          {
             b = AA[j];
-            MSC_HMM( prof, i, j ) = SCORE_MATRIX_Get_Score( bld, a, b );
+            MSC_X( prof, i, j ) = SCORE_MATRIX_Get_Score( bld, a, b );
          }
       }
 
       /* insertion emmission (uses hardcoded background frequencies) */
       for ( int j = 0; j < NUM_AMINO; j++ ) {
-         ISC_HMM( prof, i, j ) = BG_MODEL[j];
+         ISC_X( prof, i, j ) = BG_MODEL[j];
       }
 
       /* transition scores */
-      TSC_HMM( prof, i, M2M ) = 1.0 - 2 * popen;
-      TSC_HMM( prof, i, M2I ) = popen;
-      TSC_HMM( prof, i, M2D ) = popen;
-      TSC_HMM( prof, i, I2M ) = 1.0 - pextend;
-      TSC_HMM( prof, i, I2I ) = pextend;
-      TSC_HMM( prof, i, D2M ) = 1.0 - pextend;
-      TSC_HMM( prof, i, D2D ) = pextend;
+      TSC_X( prof, i, M2M ) = 1.0 - 2 * popen;
+      TSC_X( prof, i, M2I ) = popen;
+      TSC_X( prof, i, M2D ) = popen;
+      TSC_X( prof, i, I2M ) = 1.0 - pextend;
+      TSC_X( prof, i, I2I ) = pextend;
+      TSC_X( prof, i, D2M ) = 1.0 - pextend;
+      TSC_X( prof, i, D2D ) = pextend;
    }
 
    /* final node transitions */
-   TSC_HMM( prof, N, M2M ) = 1.0 - popen;
-   TSC_HMM( prof, N, M2D ) = 0.0;
-   TSC_HMM( prof, N, D2M ) = 1.0;
-   TSC_HMM( prof, N, D2D ) = 0.0;
+   TSC_X( prof, N, M2M ) = 1.0 - popen;
+   TSC_X( prof, N, M2D ) = 0.0;
+   TSC_X( prof, N, D2M ) = 1.0;
+   TSC_X( prof, N, D2D ) = 0.0;
 
    /* update bg data to reflect insert and transition (same as all but first and last node) */
    for ( int j = 0; j < NUM_AMINO; j++ ) {

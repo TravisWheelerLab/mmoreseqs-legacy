@@ -310,28 +310,24 @@ typedef struct {
    char     outmap[(1 << 8)];    /* map: char value -> index */
 } ALPHABET;
 
-/* Null Model for computing Composition Bias (reference esl) */
+/* Null Model for computing Composition Bias (Modeled after Easel) */
 typedef struct {
-   float*         f;       /* null1 background residue frequencies [0..K-1]: set at initialization */
+   float*         f;       /* null_1 background residue frequencies [0..K-1]: set at initialization */
    float          p1;      /* null1's transition prob:  */
-
    ESL_HMM*       fhmm;    /* bias filter: p7_bg_SetFilter() sets this, from model's mean composition */
-
    float          omega;   /* the "prior" on null2/null3: set at initialization (one omega for both null types)  */
-
-   ESL_ALPHABET*  abc;    /* reference to alphabet in use: set at initialization */
-
+   ESL_ALPHABET*  abc;     /* reference to alphabet in use: set at initialization */
    /* NOTE: should move this to SEQUENCE? */
-   ESL_SQ*        sq;
+   ESL_SQ*        sq;      /* sequence  */
 } HMM_BG;
 
-/* position specific state probabilities */
+/* position-specific state probabilities */
 typedef struct {
-   /* match emission probabilities for each amino acid */
+   /* match emission probabilities for each amino acid at position */
    float    match[NUM_AMINO_PLUS_SPEC];
-   /* insert emission probabilities for each amino acid */
+   /* insert emission probabilities for each amino acid at position */
    float    insert[NUM_AMINO_PLUS_SPEC];
-   /* transition state probabilities (default same as COMPO) */
+   /* transition state probabilities at position (default same as COMPO) */
    float    trans[NUM_TRANS_STATES];
 } HMM_NODE;
 
@@ -378,7 +374,7 @@ typedef struct {
    bool           isLocal;          /* local or global? */
    bool           isMultihit;       /* multi hit or single hit? */
    /* jump value for configuring HMM */
-   int            num_J;            /* number of jumps allowed by model (single hit = 1) */
+   float          num_J;            /* number of jumps allowed by model (single hit = 1) */
    /* distribution parameters for scoring */
    DIST_PARAM     msv_dist;         /* Parameters for the Distribution for Ungapped Viterbi Scores */
    DIST_PARAM     viterbi_dist;     /* Parameters for the Distribution for Viterbi Scores */
@@ -396,10 +392,12 @@ typedef struct {
 
 /* sequence */
 typedef struct {
-   int            N;          /* length of sequence */
+   int            N;          /* length of sequence (can be the length of a subsequence) */
    int            Nalloc;     /* allocated memory length */
-   char*          seq;        /* genomic sequence */
-   VECTOR_INT*    dseq;       /* digitized genomic sequence */
+   int            full_N;     /* length of entire sequence */
+   char*          full_seq;   /* entire sequence */
+   char*          seq;        /* genomic sequence (can point to the start of a subsequence) */
+   int*           dseq;       /* digitized genomic sequence */
    /* imported from easel */
    ESL_SQ*        esl_dsq;    /* easel's digitized sequence */
    /* meta data */
@@ -433,7 +431,7 @@ typedef struct {
    bool        clean;   /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D;
 
-/* 3-dimensional sparse float matrix */
+/** 3-dimensional sparse float matrix */
 typedef struct {
    /* dimensions */
    int            D1;          /* number of rows = length of query */
@@ -455,6 +453,22 @@ typedef struct {
    VECTOR_FLT*    data;       /* matrix cells */
    bool           clean;      /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D_SPARSE;
+
+/** full  */
+typedef struct {
+   /* dimensions */
+   int                  Q;             /* query length */
+   int                  T;             /* target length */
+   /* normal state data {MID} */ 
+   MATRIX_3D*           st_MX;         /* quadratic space normal state matrix */
+   MATRIX_3D*           st_MX3;        /* linear space normal state matrix */
+   MATRIX_3D_SPARSE*    st_SMX;        /* sparse space normal state matrix */
+   /* special state data {ENJCB} */
+   MATRIX_2D*           sp_MX;         /* special state matrix */     
+   /* meta data */
+   int                  mx_type;       /* specifies which type of dp_matrix this is */
+   bool                 clean;         /* if matrix is clean (all cells set to -INF)  */
+} DP_MATRIX;
 
 /* commandline arguments */
 typedef struct {
@@ -702,11 +716,11 @@ typedef struct {
 
 /* substitution/scoring matrix */
 typedef struct {
-   char*    filename;
-   char*    alph;
-   int      alph_len;
-   int      map[256];
-   float*   scores; 
+   char*    filename;               /* */
+   char*    alph;                   /* */
+   int      alph_len;               /* */
+   int      map[256];               /* */
+   float*   scores;                 /* */
 } SCORE_MATRIX;
 
 /* data struct for passing debugger data */
@@ -801,9 +815,9 @@ typedef struct {
 /* aggregate stats */
 typedef struct {
    /* times */
-   int      time_start; 
-   int      time_end;
-   int      total_time;
+   float    time_start;       /* start of program */
+   float    time_end;         /* end of program */
+   float    total_time;       /*  */
    /* database sizes */
    int      n_query_db;       /* number of queries in database */
    int      n_target_db;      /* number of targets in database */
@@ -813,20 +827,64 @@ typedef struct {
    int      resides_total;    /* total number of sequence residues */
    int      n_searches;       /* number of individual searches */
    /* threshold passes */
-   int      passed_prefilter;    /* number passed prefilter (mmseqs only) */
-   int      passed_vit;          /* number passed viterbi filter */
-   int      passed_fwd;          /* number passed forward filter */
-   int      passed_fbpruner;     /* number passed fbpruner filter */
-   int      passed_queries;      /* number of queries which reported over threshold */
+   int      n_passed_prefilter;    /* number passed prefilter (mmseqs only) */
+   int      n_passed_vit;          /* number passed viterbi filter */
+   int      n_passed_fwd;          /* number passed forward filter */
+   int      n_passed_fbpruner;     /* number passed fbpruner filter */
+   int      n_passed_queries;      /* number of queries which reported over threshold */
 } STATS;
 
 /* TODO: pass list of target/query ids for searching */
 typedef struct {
-   int            N;
-   int            Nalloc;
-   int*           q_ids;
-   int*           t_ids;
+   int            N;       /* list length */
+   int            Nalloc;  /* allocate list length  */
+   int*           q_ids;   /* query id list */
+   int*           t_ids;   /* target id list */
 } HITLIST;
+
+/* single domain data */
+typedef struct {
+   /* envelope range */
+   int            env_beg; 
+   int            env_end;
+   /* alignement range */
+   int            aln_beg;
+   int            aln_end;
+   /* scores */
+   float          env_sc;           /* forward score of envelope */
+   float          dom_corr;         /* domain correction -> null2 score when calculating per-domain score (in NATS) */ 
+   float          dom_bias;         /* domain bias -> */ 
+   float          optacc_sc;        /* optimal accuraccy score: (units: expected # residues correctly aligned) */
+   float          bitsc;            /* overall score in blocks */
+   bool           is_reported;      /* if domain meets reporting threshold */
+   bool           is_included;      /* if domain meets inclusion threshold */
+} DOMAIN;
+
+/* all domains data */
+typedef struct {
+   /* vector data */
+   VECTOR_FLT*    b_tot;         /* cumulative number of times expected to BEGIN at or before q_0 */
+   VECTOR_FLT*    e_tot;         /* cumulative number of times expected to END at or before q_0 */
+   VECTOR_FLT*    m_occ;         /* probability X emitted by core model */
+   VECTOR_FLT*    null2_sc;      /* null2 scores */
+   /* working space for computing null2 score */
+   VECTOR_FLT*    st_freq;       /* */
+   VECTOR_FLT*    sp_freq;       /* */
+   /* stats */
+   float          n_expected;    /* posterior expectation for number of domains */
+   int            n_regions;     /* number of regions */
+   int            n_domains;     /* number of domains */
+   int            n_envelopes;   /* number of envelopes */
+   int            n_clustered;   /* number of clusters of domains */
+   int            n_overlaps;    /* number of overlaps of domains */
+   /* scores */
+   float          dom_fwd;       /* domain forward score */
+   float          seq_bias;      /* computed using sum of null score */
+   /* domain thresholds */
+   float          rt1;           /*  */
+   float          rt2;           /*  */
+   float          rt3;           /*  */
+} DOMAIN_DEF;
 
 /* TODO: for multi-threading (stored in WORKER object) */
 typedef struct {
@@ -846,14 +904,14 @@ typedef struct {
    /* edgebound row object; helper for reorientation of edgebounds */
    EDGEBOUND_ROWS*      edg_rows_tmp;
    /* int vector for cloud search */
-   VECTOR_INT*          lb_vec[3];
-   VECTOR_INT*          rb_vec[3];
+   VECTOR_INT*          lb_vec[3];     /* left-bound lookback vector for bounds */
+   VECTOR_INT*          rb_vec[3];     /* right-bound lookback vector for bounds */
    /* cloud pruning parameters */
-   CLOUD_PARAMS         cloud_params;
+   CLOUD_PARAMS         cloud_params;  /* */
    /* alignment traceback for viterbi */
-   ALIGNMENT*           traceback;
+   ALIGNMENT*           traceback;     /* traceback */
    /* alignment traceback for maximum posterior */
-   ALIGNMENT*           trace_post;
+   ALIGNMENT*           trace_post;    /* posterior traceback */
    /* dynamic programming matrices */
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
@@ -892,38 +950,42 @@ typedef struct {
    /* results from mmseqs */
    RESULTS*             results_in;
    /* if given a list of query/target pairs */
-   HITLIST*             hitlist_in;
+   HITLIST*             hitlist_in;    /* */
    /* number of searches */
-   int                  num_searches;
+   int                  num_searches;  /* number of searches */
    /* id of currently loaded query and target */
-   int                  q_id;
-   int                  t_id;
+   int                  q_id;          /* currently loaded query id */
+   int                  t_id;          /* currently loaded target id */
    /* currently loaded mmseqs or hitlist id */
-   int                  mmseqs_id;
-   int                  hitlist_id;
+   int                  mmseqs_id;     /* */
+   int                  hitlist_id;    /* */
    /* current query and target data */
-   SEQUENCE*            q_seq;
-   SEQUENCE*            t_seq;
-   HMM_PROFILE*         t_prof;
-   HMM_BG*              hmm_bg;
+   SEQUENCE*            q_seq;         /* */
+   SEQUENCE*            t_seq;         /* */
+   HMM_PROFILE*         t_prof;        /* */
+   HMM_BG*              hmm_bg;        /* */
    /* edgebounds for cloud search */
-   EDGEBOUNDS*          edg_fwd;
-   EDGEBOUNDS*          edg_bck;
-   EDGEBOUNDS*          edg_diag;
-   EDGEBOUNDS*          edg_row;
+   EDGEBOUNDS*          edg_fwd;       /* */
+   EDGEBOUNDS*          edg_bck;       /* */
+   EDGEBOUNDS*          edg_diag;      /* */
+   EDGEBOUNDS*          edg_row;       /* */
    /* edgebound row object; helper for reorientation of edgebounds */
-   EDGEBOUND_ROWS*      edg_rows_tmp;
+   EDGEBOUND_ROWS*      edg_rows_tmp;  /* */
    /* int vector for cloud search */
-   VECTOR_INT*          lb_vec[3];
-   VECTOR_INT*          rb_vec[3];
+   VECTOR_INT*          lb_vec[3];     /* */
+   VECTOR_INT*          rb_vec[3];     /* */
    /* cloud pruning parameters */
-   CLOUD_PARAMS         cloud_params;
+   CLOUD_PARAMS         cloud_params;  /* */
    /* alignment traceback for viterbi */
-   ALIGNMENT*           traceback;
-   ALIGNMENT*           trace_post;
+   ALIGNMENT*           traceback;     /* */
+   ALIGNMENT*           trace_post;    /* */
    /* dynamic programming matrices */
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
+   MATRIX_3D*           st_MX_fwd;     /* normal state matrix (quadratic space) */
+   MATRIX_3D*           st_MX_bck;     /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
+   MATRIX_3D*           st_MX3_fwd;    /* normal state matrix (linear space) */
+   MATRIX_3D*           st_MX3_bck;    /* normal state matrix (linear space) */
    MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
    MATRIX_3D_SPARSE*    st_SMX_fwd;    /* normal states matrix (sparse), exclusive for forward */
    MATRIX_3D_SPARSE*    st_SMX_bck;    /* normal states matrix (sparse), exclusive for backward */
@@ -931,13 +993,15 @@ typedef struct {
    MATRIX_2D*           sp_MX_fwd;     /* special state matrix, exclusive for forward */
    MATRIX_2D*           sp_MX_bck;     /* special state matrix, exclusive for backward */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
+   /* posterior data */
+   DOMAIN_DEF*          dom_def;       /* domain boundary data */
    /* times for tasks */
-   TIMES*               times;
-   TIMES*               times_raw;
-   TIMES*               times_totals;
-   double               runtime;
+   TIMES*               times;         /* current result section runtimes */
+   TIMES*               times_raw;     /* */
+   TIMES*               times_totals;  /* cumulative section runtimes */
+   double               runtime;       /* total program runtime */
    /* raw scores */
-   NAT_SCORES*          scores;
+   NAT_SCORES*          scores;        /*  */
    /* results to output */
    RESULTS*             results; 
    /* current result */

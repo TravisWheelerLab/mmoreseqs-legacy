@@ -9,106 +9,180 @@
 #ifndef _MATRIX_3D_H
 #define _MATRIX_3D_H
 
-/* constructor */
-MATRIX_3D* MATRIX_3D_Create(  const int  R,
-                              const int  C,
-                              const int  N );
+/** FUNCTION:  MATRIX_3D_Create()
+ *  SYNOPSIS:  
+ */
+MATRIX_3D* 
+MATRIX_3D_Create( const int  R,
+                  const int  C,
+                  const int  N );
 
-/* constructor for clean matrices */
-MATRIX_3D* MATRIX_3D_Create_Clean(  const int  R,
-                                    const int  C,
-                                    const int  N );
 
-/* destructor */
-void* MATRIX_3D_Destroy( MATRIX_3D*  mx );
+/** FUNCTION:  MATRIX_3D_Destroy()
+ *  SYNOPSIS:  
+ */
+MATRIX_3D* 
+MATRIX_3D_Destroy( MATRIX_3D*  mx );
 
-/* deep copy: returns dest matrix, will allocate if null */
-MATRIX_3D* MATRIX_3D_Copy(    MATRIX_3D*           dest,
-                              const MATRIX_3D*     src );
 
-/* fill MATRIX_3D with values */
-void MATRIX_3D_Fill( MATRIX_3D*     mx,
-                     const float    val );
+/** FUNCTION:  MATRIX_3D_Create_Clean()
+ *  SYNOPSIS:  
+ */
+MATRIX_3D* 
+MATRIX_3D_Create_Clean( const int  R,
+                        const int  C,
+                        const int  N );
 
-/* fill MATRIX_3D with -INF */
-void MATRIX_3D_Clean(   MATRIX_3D*     mx );
 
-/* check MATRIX_3D and verify all cells contain -INF */
-int MATRIX_3D_Check_Clean( MATRIX_3D*     mx );
+/** FUNCTION:  MATRIX_3D_Copy()
+ *  SYNOPSIS:  
+ */
+MATRIX_3D* 
+MATRIX_3D_Copy(   MATRIX_3D*           dest,
+                  const MATRIX_3D*     src );
 
-/* check MATRIX_3D and verify all cells contain -INF */
-int MATRIX_3D_Check_Value( MATRIX_3D*     mx,
-                           const float    val );
 
-/* getter for index */
-float* MATRIX_3D_Get(   MATRIX_3D*  mx,
-                        const int   i,
-                        const int   j,
-                        const int   k );
+/** FUNCTION:  MATRIX_3D_Fill()
+ *  SYNOPSIS:  
+ */
+void 
+MATRIX_3D_Fill(   MATRIX_3D*     mx,
+                  const float    val );
 
-/* getter for index */
-float* MATRIX_3D_Get_X(     MATRIX_3D*  mx,
-                           const int   i,
-                           const int   j,
-                           const int   k );
 
-/* getter for index */
-float* MATRIX_3D_Get_1D(   MATRIX_3D*  mx,
-                           const int   n );
+/** FUNCTION:  MATRIX_3D_Clean()
+ *  SYNOPSIS:  
+ */
+void 
+MATRIX_3D_Clean(   MATRIX_3D*     mx );
 
-/* convert 3D-coords to 1D-coords */
-int MATRIX_3D_to_1D(const MATRIX_3D*  mx,
-                    const int         i,
-                    const int         j,
-                    const int         k );
 
-/* reuse MATRIX_3D by resizing only if new matrix requires more memory */
-float MATRIX_3D_Reuse(MATRIX_3D*  mx,
-                      const int   R,
-                      const int   C,
-                      const int   N );
+/** FUNCTION:  MATRIX_3D_Check_Clean()
+ *  SYNOPSIS:  
+ */
+int 
+MATRIX_3D_Check_Clean( MATRIX_3D*     mx );
 
-/* reuse MATRIX_3D by resizing only if new matrix requires more memory. New memory is set to -INF. */
-float MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
-                              const int   R,
-                              const int   C,
-                              const int   N );
 
-/* resize MATRIX_3D to new dimensions */
-float MATRIX_3D_Resize(MATRIX_3D*  mx,
-                       const int   R,
-                       const int   C,
-                       const int   N);
+/** FUNCTION:  MATRIX_3D_Check_Value()
+ *  SYNOPSIS:  
+ */
+int 
+MATRIX_3D_Check_Value(  MATRIX_3D*     mx,
+                        const float    val );
 
-/* Outputs MATRIX_3D out to FILE POINTER */
-void MATRIX_3D_Dump(MATRIX_3D*  mx,
-                    FILE*       fp);
 
-/* Save MATRIX_3D to FILE by FILENAME */
-void MATRIX_3D_Save(MATRIX_3D*  mx,
-                    char*       _filename_);
+/** FUNCTION:  MATRIX_3D_Get()
+ *  SYNOPSIS:  
+ */
+float* 
+MATRIX_3D_Get( MATRIX_3D*  mx,
+               const int   i,
+               const int   j,
+               const int   k );
 
-/* Compare two MATRIX_2D */
-int MATRIX_3D_Compare(  MATRIX_3D*  mx_a,
-                        MATRIX_3D*  mx_b );
 
-/*
- *  FUNCTION:  MATRIX_2D_Add()
+/** FUNCTION:  MATRIX_3D_Get_X()
+ *  SYNOPSIS:  Get pointer to cell from <mx> at position <i,j,k>.
+ */
+float* 
+MATRIX_3D_Get_X(  MATRIX_3D*  mx,
+                  const int   i,
+                  const int   j,
+                  const int   k );
+
+
+/** FUNCTION:  MATRIX_3D_Get_1D()
+ *  SYNOPSIS:  Get pointer to cell from <mx> at flat-index position <n>.
+ */
+float* 
+MATRIX_3D_Get_1D( MATRIX_3D*  mx,
+                  const int   n );
+
+
+/** FUNCTION:  MATRIX_3D_to_1D()
+ *  SYNOPSIS:  
+ */
+int 
+MATRIX_3D_to_1D(  const MATRIX_3D*  mx,
+                  const int         i,
+                  const int         j,
+                  const int         k );
+
+
+/** FUNCTION:  MATRIX_3D_Reuse()
+ *  SYNOPSIS:  Reuse MATRIX_3D by resizing only if new matrix requires more memory.
+ */
+float 
+MATRIX_3D_Reuse(  MATRIX_3D*  mx,
+                  const int   R,
+                  const int   C,
+                  const int   N );
+
+
+/** FUNCTION:  MATRIX_3D_Reuse_Clean()
+ *  SYNOPSIS:  Reuse MATRIX_3D by resizing only if new matrix requires more memory. 
+ *             New memory is set to -INF.
+ */
+float 
+MATRIX_3D_Reuse_Clean(  MATRIX_3D*  mx,
+                        const int   R,
+                        const int   C,
+                        const int   N );
+
+
+/** FUNCTION:  MATRIX_3D_Resize()
+ *  SYNOPSIS:  Resize MATRIX_3D to new dimensions.
+ */
+float 
+MATRIX_3D_Resize( MATRIX_3D*  mx,
+                  const int   R,
+                  const int   C,
+                  const int   N );
+
+
+/** FUNCTION:  MATRIX_3D_Dump()
+ *  SYNOPSIS:  Outputs MATRIX_3D <mx> out to file pointer <fp>.
+ */
+void 
+MATRIX_3D_Dump(   MATRIX_3D*  mx,
+                  FILE*       fp );
+
+
+/** FUNCTION:  MATRIX_3D_Save()
+ *  SYNOPSIS:  Save MATRIX_3D <mx> to file with filename <filename>.
+ */
+void 
+MATRIX_3D_Save(   MATRIX_3D*  mx,
+                  char*       _filename_);
+
+
+/** FUNCTION:  MATRIX_3D_Compare()
+ *  SYNOPSIS:  Compare MATRIX_3D's <mx_A> and <mx_B>.
+ */
+int 
+MATRIX_3D_Compare(   MATRIX_3D*  mx_a,
+                     MATRIX_3D*  mx_b );
+
+/** FUNCTION:  MATRIX_3D_Add()
  *  SYNOPSIS:  Takes sum of <mx_a> + <mx_b>.  Result stored in <mx_res>.
  */
-void MATRIX_3D_Add(  MATRIX_3D*  mx_a,
-                     MATRIX_3D*  mx_b,
-                     MATRIX_3D*  mx_res );
+void 
+MATRIX_3D_Add( MATRIX_3D*  mx_a,
+               MATRIX_3D*  mx_b,
+               MATRIX_3D*  mx_res );
 
-/*
- *  FUNCTION:  MATRIX_2D_Diff()
+/** FUNCTION:  MATRIX_3D_Diff()
  *  SYNOPSIS:  Takes difference of <mx_a> - <mx_b>.  Result stored in <mx_diff>.
  */
-void MATRIX_3D_Diff( MATRIX_3D*  mx_a,
-                     MATRIX_3D*  mx_b,
-                     MATRIX_3D*  mx_diff );
+void 
+MATRIX_3D_Diff(   MATRIX_3D*  mx_a,
+                  MATRIX_3D*  mx_b,
+                  MATRIX_3D*  mx_diff );
 
-/* unit test */
+/** FUNCTION:  MATRIX_3D_Utest()
+ *  SYNOPSIS:  Unit Test for MATIX_3D.
+ */
 void MATRIX_3D_Utest();
 
 #endif /* _MATRIX_3D_H */
