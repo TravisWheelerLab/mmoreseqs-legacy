@@ -18,7 +18,7 @@
 
 #define MACRO_STR(macro) 	#macro
 
-/* === SET BUILD TYPE MACROS & FUNCTION COMPTILE-TIME OPTIONS  === */
+/* === SET BUILD TYPE MACROS & FUNCTION COMPILE-TIME OPTIONS  === */
 
 /* === VERSION === */
 #define BUILD_PROGRAM      "FB_PRUNER"

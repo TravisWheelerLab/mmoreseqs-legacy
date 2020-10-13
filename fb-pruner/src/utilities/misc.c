@@ -16,15 +16,12 @@
 #include <time.h>
 
 /* objects */
-#include "objects/structs.h"
-#include "objects/edgebound.h"
-
-/* local imports */
-#include "structs.h"
-#include "objects.h"
+#include "../objects/structs.h"
+#include "../objects/structs.h"
+#include "../objects/edgebound.h"
 
 /* header */
-#include "utilities.h"
+#include "misc.h"
 
 /* GLOBAL STATIC VARIABLES */
 /* table of logsum values */

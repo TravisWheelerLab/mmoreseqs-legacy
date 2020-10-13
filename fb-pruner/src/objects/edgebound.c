@@ -16,7 +16,8 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
+#include "../utilities/utilities.h"
+#include "basic/bound.h"
 #include "objects.h"
 
 /* header */

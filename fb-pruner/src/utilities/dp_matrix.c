@@ -14,8 +14,8 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "objects.h"
+#include "../objects/structs.h"
+#include "../objects/objects.h"
 
 /* header */
 #include "dp_matrix.h"

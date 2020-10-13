@@ -49,3 +49,16 @@ more-tools/mmseqs-pruner-plus/build/
 # programs
 *.depend
 *.swp
+
+# Autotools
+.deps/
+.dirstamp
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.log
+config.status
+depcomp
+install-sh
+missing

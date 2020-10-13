@@ -13,29 +13,29 @@
 #include "structs.h"
 
 /* basic datatypes / wrappers */
-#include "bound.h"
-#include "char.h"
-#include "double.h"
-#include "float.h"
-#include "int.h"
-#include "range.h"
-#include "trace.h"
-#include "template.h"
+#include "basic/bound.h"
+#include "basic/char.h"
+#include "basic/double.h"
+#include "basic/float.h"
+#include "basic/int.h"
+#include "basic/range.h"
+#include "basic/trace.h"
+#include "basic/template.h"
 
 /* vectors */
-#include "vector_bound.h"
-#include "vector_char.h"
-#include "vector_double.h"
-#include "vector_float.h"
-#include "vector_int.h"
-#include "vector_range.h"
-#include "vector_trace.h"
-#include "vector_template.h"
+#include "vectors/vector_bound.h"
+#include "vectors/vector_char.h"
+#include "vectors/vector_double.h"
+#include "vectors/vector_float.h"
+#include "vectors/vector_int.h"
+#include "vectors/vector_range.h"
+#include "vectors/vector_trace.h"
+#include "vectors/vector_template.h"
 
 /* matrix */
-#include "matrix_2d.h"
-#include "matrix_3d.h"
-#include "matrix_3d_sparse.h"
+#include "matrix/matrix_2d.h"
+#include "matrix/matrix_3d.h"
+#include "matrix/matrix_3d_sparse.h"
 
 /* objects */
 #include "alignment.h"
@@ -53,7 +53,7 @@
 #include "sequence.h"
 #include "worker.h"
 #include "worker_thread.h"
-#include "x_string.h"
+#include "basic/x_string.h"
 #include "reader.h"
 
 #endif /* _OBJECTS_H */

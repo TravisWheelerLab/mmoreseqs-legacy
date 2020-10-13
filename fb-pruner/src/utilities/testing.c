@@ -15,11 +15,11 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "objects.h"
+#include "../objects/structs.h"
+#include "../objects/objects.h"
 
 /* header */
-#include "utilities.h"
+#include "testing.h"
 
 /*
  *  FUNCTION:  TEST_set_color()

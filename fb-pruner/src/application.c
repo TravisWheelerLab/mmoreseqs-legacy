@@ -23,11 +23,11 @@
 #include "easel.h"
 
 /* include local files */
-#include "structs.h"
-#include "utilities.h"
-#include "parsers.h"
-#include "pipelines.h"
-#include "objects.h"
+#include "objects/structs.h"
+#include "utilities/utilities.h"
+#include "parsers/parsers.h"
+#include "pipelines/pipelines.h"
+#include "objects/objects.h"
 
 /* === HEADER === */
 

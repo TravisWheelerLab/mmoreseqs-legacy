@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <time.h>
 
-/* */
+/* Easel imports */
 #include "easel.h"
 #include "esl_hmm.h"
 #include "esl_alphabet.h"
@@ -25,7 +25,7 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
+#include "../utilities/utilities.h"
 #include "objects.h"
 
 /* header */

@@ -14,10 +14,10 @@
 #include <sys/types.h>
 
 /* === MACRO FUNCTIONS === */
-#include "objects/structs_macros.h"
+#include "structs_macros.h"
 
 /* === ENUMERATIONS === */
-#include "objects/structs_enums.h"
+#include "structs_enums.h"
 
 /* === DECLARE HIDDEN FUNCTIONS (for older compilers) === */
 /* (*** c99 standard hides this function from <string.h> ***) */

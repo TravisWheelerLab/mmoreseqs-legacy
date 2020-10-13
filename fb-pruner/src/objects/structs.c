@@ -12,11 +12,13 @@
 #include <stdbool.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
+#include "../utilities/utilities.h"
 #include "objects.h"
-#include "parsers.h"
-#include "pipelines.h"
+#include "../parsers/parsers.h"
+#include "../pipelines/pipelines.h"
+
+/* header import */
+#include "structs.h"
 
 char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 

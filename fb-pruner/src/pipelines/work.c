@@ -17,14 +17,15 @@
 #include <time.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
-#include "objects.h"
-#include "parsers.h"
-#include "algs_linear.h"
-#include "algs_quad.h"
-#include "algs_naive.h"
-#include "algs_sparse.h"
+#include "../objects/structs.h"
+#include "../utilities/utilities.h"
+#include "../objects/objects.h"
+#include "../parsers/parsers.h"
+#include "../algs_linear/algs_linear.h"
+#include "../algs_quad/algs_quad.h"
+#include "../algs_naive/algs_naive.h"
+#include "../algs_sparse/algs_sparse.h"
+
 /* easel library */
 #include "easel.h"
 #include "esl_exponential.h"

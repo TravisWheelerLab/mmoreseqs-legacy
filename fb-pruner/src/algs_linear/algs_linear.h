@@ -9,7 +9,7 @@
 #ifndef _ALGS_LINEAR_H
 #define _ALGS_LINEAR_H
 
-#include "objects/structs.h"
+#include "../objects/structs.h"
 
 #include "bound_fwdbck_linear.h"
 #include "cloud_search_linear.h"
