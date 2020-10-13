@@ -62,5 +62,6 @@ config.log
 config.status
 configure
 depcomp
+fbpruner
 install-sh
 missing
