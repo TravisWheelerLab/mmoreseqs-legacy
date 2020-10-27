@@ -25,19 +25,19 @@
 #include "fwdback_quad.h"
 
 
-/*  
- *  FUNCTION:  run_Forward_Quad()
+/** FUNCTION:  run_Forward_Quad()
  *  SYNOPSIS:  Perform Forward part of Forward-Backward Algorithm.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Forward_Quad(   const SEQUENCE*    query,        /* query sequence */
-                        const HMM_PROFILE* target,       /* target hmm model */
-                        const int          Q,            /* query length */
-                        const int          T,            /* target length */
-                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
-                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
-                        float*             sc_final )    /* OUTPUT: final score */
+int 
+run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
+                     const HMM_PROFILE* target,       /* target hmm model */
+                     const int          Q,            /* query length */
+                     const int          T,            /* target length */
+                     MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                     MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                     float*             sc_final )    /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -294,18 +294,19 @@ int run_Forward_Quad(   const SEQUENCE*    query,        /* query sequence */
    return STATUS_SUCCESS;
 }
 
-/* FUNCTION:   run_Backward_Quad()
- * SYNOPSIS:   Perform Backward part of Forward-Backward Algorithm.
+/** FUNCTION:   run_Backward_Quad()
+ *  SYNOPSIS:   Perform Backward part of Forward-Backward Algorithm.
  *
- * RETURN:     Return <STATUS_SUCCESS> if no errors.
+ *  RETURN:     Return <STATUS_SUCCESS> if no errors.
 */
-int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
-                        const HMM_PROFILE* target,       /* target hmm model */
-                        const int          Q,            /* query length */
-                        const int          T,            /* target length */
-                        MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
-                        MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
-                        float*             sc_final )    /* OUTPUT: final score */
+int 
+run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
+                     const HMM_PROFILE* target,       /* target hmm model */
+                     const int          Q,            /* query length */
+                     const int          T,            /* target length */
+                     MATRIX_3D*         st_MX,        /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                     MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                     float*             sc_final )    /* OUTPUT: final score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -441,6 +442,12 @@ int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
       #endif
    }
 
+   // if (t_0 = T-1; t_0 >= 1; t_0--) {
+   //    for (k = 0; k < NUM_AMINO; k++) {
+   //       printf("[%2d]: %f\n", k, ISC(q_0, k) );
+   //    }
+   // }
+
    /* MAIN RECURSION */
    /* FOR every position in QUERY seq */
    for (q_0 = Q-1; q_0 >= 1; q_0--)
@@ -493,6 +500,7 @@ int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
       }
       #endif
 
+      /* NORMAL STATES */
       /* FOR every position in TARGET profile */
       for (t_0 = T-1; t_0 >= 1; t_0--)
       {
@@ -500,7 +508,7 @@ int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
 
          /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
          prv_M = MMX(qx1, t_1) + TSC(t_0, M2M) + MSC(t_1, A);
-         prv_I = IMX(qx1, t_0) + TSC(t_0, M2I) + ISC(t_1, A);
+         prv_I = IMX(qx1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
          prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
          prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
          /* best-to-match */
@@ -508,6 +516,14 @@ int run_Backward_Quad(  const SEQUENCE*    query,        /* query sequence */
                         logsum( prv_M, prv_I ),
                         logsum( prv_E, prv_D ) );
          MMX(qx0, t_0) = prv_sum;
+
+         // if ( q_0 > 0 ) {
+         //    printf("(%2d,%2d)\n", q_0, t_0);
+         //    printf("\t{M,I,D,E}:         %9f %9f %9f %9f == %9f\n", 
+         //       prv_M, prv_I, prv_D, prv_E, prv_sum );
+         //    printf("\t{IMX,TSC,ISC,MSC}: %9f %9f %9f %9f == %9f\n", 
+         //       IMX(qx1, t_0), TSC(t_0, M2I), ISC(t_0, A), MSC(t_1, A), prv_I );
+         // }
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
          prv_M = MMX(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);

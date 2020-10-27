@@ -98,15 +98,18 @@ void WORK_init( WORKER* worker )
    /* create necessary dp matrices */
    worker->st_MX_fwd    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX_bck    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
+   worker->st_MX_post   = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
    worker->st_MX        = worker->st_MX_fwd;
    worker->st_MX3_fwd   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3_bck   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3       = worker->st_MX_fwd;
    worker->st_SMX_fwd   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
+   // worker->st_SMX_post  = MATRIX_3D_SPARSE_Create();
    worker->st_SMX       = worker->st_SMX_fwd;
    worker->sp_MX_fwd    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX_bck    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->sp_MX_post   = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX        = worker->sp_MX_fwd;
    /* domain definition */
    worker->dom_def      = DOMAIN_DEF_Create();
@@ -149,12 +152,14 @@ void WORK_cleanup( WORKER* worker )
    /* necessary dp matrices */
    worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
    worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
+   worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
    worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );
    worker->st_MX3_bck      = MATRIX_3D_Destroy( worker->st_MX3_bck );
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
    worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
+   worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_post );
    /* domain definition */
    worker->dom_def         = DOMAIN_DEF_Destroy( worker->dom_def );
 }
@@ -226,7 +231,9 @@ void WORK_reuse( WORKER* worker )
 
    /* matrix for quadratic algs */
    if ( tasks->quadratic ) {
-      MATRIX_3D_Reuse_Clean( worker->st_MX, NUM_NORMAL_STATES,  Q+1, T+1 );
+      MATRIX_3D_Reuse_Clean( worker->st_MX_fwd, NUM_NORMAL_STATES,  Q+1, T+1 );
+      MATRIX_3D_Reuse_Clean( worker->st_MX_bck, NUM_NORMAL_STATES,  Q+1, T+1 );
+      MATRIX_3D_Reuse_Clean( worker->st_MX_post, NUM_NORMAL_STATES,  Q+1, T+1 );
    }
    /* matrix for linear algs */
    if ( tasks->linear ) {
@@ -238,12 +245,14 @@ void WORK_reuse( WORKER* worker )
    if ( tasks->quadratic || tasks->linear ) {
       MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd, NUM_SPECIAL_STATES, Q+1);
       MATRIX_2D_Reuse_Clean( worker->sp_MX_bck, NUM_SPECIAL_STATES, Q+1);
+      MATRIX_2D_Reuse_Clean( worker->sp_MX_post, NUM_SPECIAL_STATES, Q+1);
       worker->sp_MX = worker->sp_MX_fwd;
    }
 
    /* sparse matrices */
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
+   // MATRIX_3D_SPARSE_Reuse( worker->st_SMX_post );
    worker->st_SMX = worker->st_SMX_fwd;
 
    #if DEBUG 
@@ -905,7 +914,9 @@ void WORK_forward_backward( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing forward linear...\n");
+         printf("# lin forward score: %f\n", scores->lin_fwd);
          DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, tr, "test_output/my.fwd.lin.viz.mx");
       }
       #endif
    } 
@@ -919,6 +930,7 @@ void WORK_forward_backward( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing forward quadratic...\n");
+         printf("# quad forward score: %f\n", scores->quad_fwd);
          DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.quad.mx");
       }
       #endif
@@ -935,7 +947,9 @@ void WORK_forward_backward( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing backward linear...\n");
+         printf("# lin backward score: %f\n", scores->lin_bck);
          DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, tr, "test_output/my.bck.lin.viz.mx");
       }
       #endif
    }
@@ -949,6 +963,7 @@ void WORK_forward_backward( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing backward quadratic...\n");
+         printf("# quad backward score: %f\n", scores->quad_bck);
          DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.quad.mx");
       }
       #endif
@@ -1010,6 +1025,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       t_times->lin_cloud_fwd += times->lin_cloud_fwd;
+      /* TODO: remove this!!! */
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* cloud backward */
@@ -1019,6 +1035,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
       t_times->lin_cloud_bck += times->lin_cloud_bck ;
+      /* TODO: remove this!!! */
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* merge edgebounds */
@@ -1061,11 +1078,20 @@ void WORK_cloud_search( WORKER* worker )
       printf_vall("# ==> bound forward (lin)...\n");
       CLOCK_Start(clok);
       run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      scores->lin_bound_fwd = sc;
       CLOCK_Stop(clok);
+
+      /* compute the number of cells in matrix computed */
+      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
+      result->total_cells  = (Q+1) * (T+1);
+
       #if DEBUG
       {
-         printf_vall("# printing linear bound forward...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
+         printf("# printing linear bound forward...\n");
+         printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
+         printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
+         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_fwd.lin.viz.mx");
       }
       #endif
       times->lin_bound_fwd    = CLOCK_Secs(clok);
@@ -1082,16 +1108,20 @@ void WORK_cloud_search( WORKER* worker )
       printf_vall("# ==> bound backward (lin)...\n");
       CLOCK_Start(clok);
       run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      scores->lin_bound_bck = sc;
       CLOCK_Stop(clok);
       #if DEBUG
       {
          printf_vall("# printing linear bound backward...\n");
+         printf("# lin bound backward: %f\n", scores->lin_bound_bck );
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_bck.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
       }
       #endif
       times->lin_bound_bck    = CLOCK_Secs(clok);
       scores->lin_bound_bck   = sc;
 
+      /* TODO: Remove this!!! */
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
 
@@ -1122,10 +1152,6 @@ void WORK_cloud_search( WORKER* worker )
       EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
       times->quad_merge = CLOCK_Secs(clok);
-      
-      /* compute the number of cells in matrix computed */
-      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
-      result->total_cells  = (Q+1) * (T+1);
    }
 
    /* bounded forward */
@@ -1165,6 +1191,7 @@ void WORK_capture_alignment( WORKER* worker )
    SEQUENCE*      q_seq    = worker->q_seq;
    HMM_PROFILE*   t_prof   = worker->t_prof;
    NAT_SCORES*    scores   = worker->scores;
+   ALIGNMENT*     tr       = worker->traceback;
    float          sc;
 
    int   Q  = q_seq->N;
@@ -1206,7 +1233,8 @@ void WORK_capture_alignment( WORKER* worker )
    {
       printf("# printing sparse bound forward...\n");
       // DP_MATRIX_Copy( Q, T, debugger->test_MX, worker->sp_MX, st_MX_dst, sp_MX_dst );
-      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_fwd.sparse.mx");
+      // DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_fwd.sparse.mx");
+      DP_MATRIX_Trace_Save( Q, T, debugger->test_MX, worker->sp_MX, tr, "test_output/my.bound_fwd.sparse.viz.mx");
    }
    #endif
 
@@ -1217,7 +1245,9 @@ void WORK_capture_alignment( WORKER* worker )
    #if DEBUG
    {
       printf("# printing sparse bound backward...\n");
+      // DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx" );
       DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx" );
+      DP_MATRIX_Trace_Save( Q, T, debugger->test_MX, worker->sp_MX, tr, "test_output/my.bound_bck.sparse.viz.mx" );
    }
    #endif
 
@@ -1291,11 +1321,56 @@ void WORK_convert_scores( WORKER* worker )
 
    /* Find domains and assesses domain-specific correction bias */
    /* see p7_domaindef_ByPosteriorHeuristics() */
-   run_Posterior_Quad(
-      worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, 
-      worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
-      worker->dom_def );
-   printf("nat_sc: %7.3f, null_sc: %7.3f, seq_bias: %7.3f,\n", nat_sc, null_sc, worker->dom_def->seq_bias);
+   // run_Posterior_Quad(
+   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, 
+   //    worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
+   //    worker->dom_def );
+
+   /* temporary: this will be done in the future with sparse matrix */
+   float sc;
+   MATRIX_3D_Reuse_Clean( worker->st_MX_fwd, NUM_NORMAL_STATES, Q+1, T+1 );
+   MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd, NUM_SPECIAL_STATES, Q+1 ); 
+   MATRIX_3D_Reuse_Clean( worker->st_MX_bck, NUM_NORMAL_STATES, Q+1, T+1 );
+   MATRIX_2D_Reuse_Clean( worker->sp_MX_bck, NUM_SPECIAL_STATES, Q+1 );
+   run_Forward_Quad(
+         worker->q_seq, worker->t_prof, Q, T, worker->st_MX_fwd, worker->sp_MX_fwd, &sc );
+   run_Backward_Quad( 
+         worker->q_seq, worker->t_prof, Q, T, worker->st_MX_bck, worker->sp_MX_bck, &sc );
+
+   /* get null2 score */
+   MATRIX_3D_Reuse_Clean( worker->st_MX_post, NUM_NORMAL_STATES, Q+1, T+1 );
+   MATRIX_2D_Reuse_Clean( worker->sp_MX_post, NUM_SPECIAL_STATES, Q+1 );
+   /* temp: sets range to cover entire model */
+   RANGE Q_range = (RANGE){0, worker->q_seq->N};
+   run_Decode_Posterior_Quad( worker->q_seq, worker->t_prof, Q, T,
+         worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_post, worker->sp_MX_post );
+   #if DEBUG 
+   {
+      FILE* fpout; 
+      fpout = fopen("test_output/my.posterior.mx", "w");
+      DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      fclose(fpout);
+      fpout = fopen("test_output/my.posterior.log.mx", "w");
+      DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      fclose(fpout);
+   }
+   #endif
+
+   run_Null2_ByExpectation( worker->q_seq, worker->t_prof, &Q_range, T, 
+         worker->st_MX_post, worker->sp_MX_post, worker->dom_def );
+   /* convert null2 to log scores */
+   for (int k_0 = 0; k_0 < NUM_AMINO; k_0++) {
+      VEC_X(worker->dom_def->null2_sc, k_0) = log( VEC_X(worker->dom_def->null2_sc, k_0) );
+   }
+   /* sum over null2 score vector to get full sequence bias */
+   seq_bias = 0.0f;
+   // for (int i = 0; i < NUM_AMINO; i++) {
+   //    seq_bias += VEC_X(worker->dom_def->null2_sc, i);
+   // }
+   float omega = log(1.0/256.0);
+   // printf("(pre) seq_bias: %7.3f, omega: %7.3f\n", worker->dom_def->seq_bias, omega );
+   seq_bias = logsum(0.0, omega + worker->dom_def->seq_bias);
+   printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
    seq_bias = worker->dom_def->seq_bias;
 
    /* get cloud forward score */

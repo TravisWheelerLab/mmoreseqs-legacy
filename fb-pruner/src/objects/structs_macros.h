@@ -58,7 +58,7 @@
 #define PRUNER_XDROP_BIFURCATE				2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
 /* if bifurcation is allowed, set max limit on forking paths */
-#define MAX_BOUNDS_PER_ROW 		10
+#define MAX_BOUNDS_PER_ROW 					10
 /* set default  of pruner method */
 /* PRUNER METHODS: PRUNER_DBL_XDROP_EDGETRIM_OR_DIE, PRUNER_XDROP_EDGETRIM  */
 #ifndef PRUNER
@@ -68,7 +68,7 @@
 /* types of cloud search: whether to store bounds as rows or antidiags */
 #define CLOUD_NONE 		0
 #define CLOUD_ROWS 		1
-#define CLOUD_DIAGS 	2
+#define CLOUD_DIAGS 		2
 /* set default cloud search method */
 #ifndef CLOUD_METHOD
 #define CLOUD_METHOD 	CLOUD_DIAGS
@@ -76,7 +76,7 @@
 
 /* types of simd vectorization method */
 #define SIMD_NONE 		0
-#define SIMD_SSE		1
+#define SIMD_SSE			1
 /* set default vectorization method */
 #ifndef SIMD_METHOD
 #define SIMD_METHOD 	SIMD_SSE
@@ -102,25 +102,25 @@
 
 /* determines whether output is printed based on verbose_level */
 #define printf_v(v_threshold,...) 	if ( args->verbose_level >= v_threshold ) printf(__VA_ARGS__)
-#define printf_vnone(...) 		printf_v(VERBOSE_NONE, __VA_ARGS__)
-#define printf_vlo(...) 		printf_v(VERBOSE_LOW,  __VA_ARGS__)
-#define printf_vhi(...) 		printf_v(VERBOSE_HIGH, __VA_ARGS__)
-#define printf_vall(...) 		printf_v(VERBOSE_ALL,  __VA_ARGS__)
+#define printf_vnone(...) 			printf_v(VERBOSE_NONE, __VA_ARGS__)
+#define printf_vlo(...) 			printf_v(VERBOSE_LOW,  __VA_ARGS__)
+#define printf_vhi(...) 			printf_v(VERBOSE_HIGH, __VA_ARGS__)
+#define printf_vall(...) 			printf_v(VERBOSE_ALL,  __VA_ARGS__)
 
 /* determines whether output is printed based on verbose_level */
 #define fprintf_v(v_threshold,...) 	if ( args->verbose_level >= v_threshold ) fprintf(__VA_ARGS__)
-#define fprintf_vnone(...) 	fprintf_v(VERBOSE_NONE, __VA_ARGS__)
-#define fprintf_vlo(...) 		fprintf_v(VERBOSE_LOW,  __VA_ARGS__)
-#define fprintf_vhi(...) 		fprintf_v(VERBOSE_HIGH, __VA_ARGS__)
-#define fprintf_vall(...) 		fprintf_v(VERBOSE_ALL,  __VA_ARGS__)
+#define fprintf_vnone(...) 		fprintf_v(VERBOSE_NONE, __VA_ARGS__)
+#define fprintf_vlo(...) 			fprintf_v(VERBOSE_LOW,  __VA_ARGS__)
+#define fprintf_vhi(...) 			fprintf_v(VERBOSE_HIGH, __VA_ARGS__)
+#define fprintf_vall(...) 			fprintf_v(VERBOSE_ALL,  __VA_ARGS__)
 
 /* error-checking macros */
-#define ERROR_alloc(...) 		ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_malloc(...) 		ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_realloc(...) 	ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_free(...) 		ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_fopen(...) 		ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_fclose(...) 		ERRORCHECK_fclose(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_alloc(...) 			ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_malloc(...) 			ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_realloc(...) 		ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_free(...) 			ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_fopen(...) 			ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_fclose(...) 			ERRORCHECK_fclose(__VA_ARGS__, ERRORCHECK_locate() )
 
 /* gets the location where error occurred */
 #define ERRORCHECK_locate()			__FILE__, __LINE__, __FUNCTION__
@@ -200,6 +200,9 @@
 /* edgebounds access */
 #define EDG_X(edg, i) 	 	( *EDGEBOUNDS_Get( edg, i ) )
 
+/* vector access (vector, index) */
+#define VEC_X(vec, i) 		( vec->data[i] )
+
 /* logarithmic sum */
 #define LOGSUM(a, b) 		( logsum( a, b ) )
 
@@ -219,14 +222,14 @@
 /* === SIMD VECTORIZATION FUNCTIONS === */
 #if ( SIMD_METHOD == SIMD_SSE )
 	#define VECTOR_WIDTH 	128
-	typedef __m128i 		__VECTOR_INT;
+	typedef __m128i 			__VECTOR_INT;
 	typedef __m128 			__VECTOR_FLT;	
 	typedef __m128d			__VECTOR_DBL;
 #endif
 
 #define BITS_PER_BYTE		8
-#define CHAR_BITS			1 * BITS_PER_BYTE
-#define INT_BITS 			4 * BITS_PER_BYTE
+#define CHAR_BITS				1 * BITS_PER_BYTE
+#define INT_BITS 				4 * BITS_PER_BYTE
 #define FLOAT_BITS 			4 * BITS_PER_BYTE
 
 #define CHARS_PER_VEC 	 	VECTOR_WIDTH / CHAR_BITS

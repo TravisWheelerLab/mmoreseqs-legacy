@@ -365,10 +365,10 @@ typedef struct {
    int            nseq;             /* number of sequences used to created hmm */
    float          effn;             /* */
    long           checksum;         /* file checksum */
-   /* */
-   float          ga[2];            /* */
-   float          tc[2];            /* */
-   float          nc[2];            /* */
+   /* cutoff thresholds */
+   float          ga[2];            /* "gathering" cutoff :: threshold for family membership */
+   float          nc[2];            /* "noise" cutoff :: threshold for highest known false positive */
+   float          tc[2];            /* "trusted" cutoff :: threshold for lowest scoring true positive that is above all know false positives */
    /* profile settings */
    int            mode;             /* enumerated search mode */
    bool           isLocal;          /* local or global? */
@@ -411,12 +411,12 @@ typedef struct {
 /* 2-dimensional float matrix */
 typedef struct {
    /* dimensions */
-   int      R;       /* number of columns = length of query */
-   int      C;       /* number of rows = number of special states */
+   int         R;       /* number of columns = length of query */
+   int         C;       /* number of rows = number of special states */
    /* allocated size */
-   int      Nalloc;  /* flat length of matrix = rows x cols */
-   float*   data;    /* */
-   bool     clean;   /* whether data has been cleared / all cells set to -INF */
+   int         Nalloc;  /* flat length of matrix = rows x cols */
+   float*      data;    /* */
+   bool        clean;   /* whether data has been cleared / all cells set to -INF */
 } MATRIX_2D;
 
 /* 3-dimensional float matrix */
@@ -467,7 +467,10 @@ typedef struct {
    MATRIX_2D*           sp_MX;         /* special state matrix */     
    /* meta data */
    int                  mx_type;       /* specifies which type of dp_matrix this is */
+   int                  data_type;     /* whether dp is in log-scale, normal-scale, etc */
    bool                 clean;         /* if matrix is clean (all cells set to -INF)  */
+   /* */
+   float                scaled;        /* if all cells are scaled by a common factor */                
 } DP_MATRIX;
 
 /* commandline arguments */
@@ -853,15 +856,21 @@ typedef struct {
    /* scores */
    float          env_sc;           /* forward score of envelope */
    float          dom_corr;         /* domain correction -> null2 score when calculating per-domain score (in NATS) */ 
-   float          dom_bias;         /* domain bias -> */ 
+   float          dom_bias;         /* domain bias -> logsum(0, log(bg->omega) + dom_corr ) */ 
    float          optacc_sc;        /* optimal accuraccy score: (units: expected # residues correctly aligned) */
-   float          bitsc;            /* overall score in blocks */
+   float          bit_sc;           /* overall score in blocks */
+   double         lnP;              /* log(p-value) of the bitscore */
+   /* thresholds for reporting */
    bool           is_reported;      /* if domain meets reporting threshold */
    bool           is_included;      /* if domain meets inclusion threshold */
 } DOMAIN;
 
 /* all domains data */
 typedef struct {
+   /* domains */
+   int            N;             /* number of domains used */
+   int            Nalloc;        /* number of domains allocated for */
+   DOMAIN*        domains;       /* domain array */
    /* vector data */
    VECTOR_FLT*    b_tot;         /* cumulative number of times expected to BEGIN at or before q_0 */
    VECTOR_FLT*    e_tot;         /* cumulative number of times expected to END at or before q_0 */
@@ -880,10 +889,11 @@ typedef struct {
    /* scores */
    float          dom_fwd;       /* domain forward score */
    float          seq_bias;      /* computed using sum of null score */
-   /* domain thresholds */
-   float          rt1;           /*  */
-   float          rt2;           /*  */
-   float          rt3;           /*  */
+   
+   /* domain reporting thresholds */
+   float          rt1;           /* default =  */
+   float          rt2;           /* default =  */
+   float          rt3;           /* default =  */
 } DOMAIN_DEF;
 
 /* TODO: for multi-threading (stored in WORKER object) */
@@ -983,6 +993,7 @@ typedef struct {
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX_fwd;     /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX_bck;     /* normal state matrix (quadratic space) */
+   MATRIX_3D*           st_MX_post;    /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
    MATRIX_3D*           st_MX3_fwd;    /* normal state matrix (linear space) */
    MATRIX_3D*           st_MX3_bck;    /* normal state matrix (linear space) */
@@ -992,6 +1003,7 @@ typedef struct {
    MATRIX_2D*           sp_MX;         /* special state matrix */
    MATRIX_2D*           sp_MX_fwd;     /* special state matrix, exclusive for forward */
    MATRIX_2D*           sp_MX_bck;     /* special state matrix, exclusive for backward */
+   MATRIX_2D*           sp_MX_post;    /* special state matrix, exclusive for posterior */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
    /* posterior data */
    DOMAIN_DEF*          dom_def;       /* domain boundary data */

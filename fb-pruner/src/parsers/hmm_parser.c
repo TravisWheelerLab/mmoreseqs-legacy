@@ -250,7 +250,6 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
          curr_node->insert[j] = 0.0f;
       }
       
-
       /* LINE 3: State Transition Line */
       line_size = getline( &line_buf, &line_buf_size, fp ); /* get next line */
       token = strtok( line_buf, delim ); /* get first word */

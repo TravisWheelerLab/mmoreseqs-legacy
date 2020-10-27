@@ -21,8 +21,7 @@
 #include "dp_matrix_util.h"
 
 /* TODO:*/
-/*
- *  FUNCTION:  DP_MATRIX_Get_Bounds()
+/** FUNCTION:  DP_MATRIX_Get_Bounds()
  *  SYNOPSIS:  Get the edgebounds of matrix at given antidiagonal (closed form).
  *             Stores new bounds in BOUND <bnd>.
  */
@@ -36,8 +35,7 @@ void DP_MATRIX_Get_Bounds( const int   Q,
    BOUND b;
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Copy()
+/** FUNCTION:  DP_MATRIX_Copy()
  *  SYNOPSIS:  Copy dynamic programming matrix into destination.
  */
 void DP_MATRIX_Copy( const int   Q,
@@ -62,8 +60,7 @@ void DP_MATRIX_Copy( const int   Q,
    }
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Fill()
+/** FUNCTION:  DP_MATRIX_Fill()
  *  SYNOPSIS:  Fill entire dynamic programming matrix with value
  */
 void DP_MATRIX_Fill( const int   Q, 
@@ -76,9 +73,8 @@ void DP_MATRIX_Fill( const int   Q,
    MATRIX_2D_Fill( sp_MX, val );
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Clean()
- *  SYNOPSIS:  Fill entire dynamic programming matrix with clean.
+/** FUNCTION:  DP_MATRIX_Clean()
+ *  SYNOPSIS:  Fill entire dynamic programming matrix with clean value (-INF).
  */
 void DP_MATRIX_Clean(   const int   Q, 
                         const int   T,
@@ -89,8 +85,7 @@ void DP_MATRIX_Clean(   const int   Q,
    MATRIX_2D_Clean( sp_MX );
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Clean_Verify()
+/** FUNCTION:  DP_MATRIX_Clean_Verify()
  *  SYNOPSIS:  Check whether there are clean.  If clean, returns true.
  */
 bool DP_MATRIX_Clean_Verify(  const int   Q, 
@@ -101,8 +96,7 @@ bool DP_MATRIX_Clean_Verify(  const int   Q,
    return st_MX->clean && sp_MX->clean;
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Save()
+/** FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS:  Compare two dynamic programming matrices. 
  *    RETURN:  Returns 0 if equal; otherwise returns count of differing cells.
  */
@@ -119,8 +113,7 @@ int DP_MATRIX_Compare ( MATRIX_3D*  st_MX_1,
    return 0;
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Diff()
+/** FUNCTION:  DP_MATRIX_Diff()
  *  SYNOPSIS: Compare two dynamic programming matrices.
  */
 int DP_MATRIX_Diff ( MATRIX_3D*  st_MX_1,
@@ -134,8 +127,7 @@ int DP_MATRIX_Diff ( MATRIX_3D*  st_MX_1,
    MATRIX_2D_Diff( sp_MX_1, sp_MX_2, sp_MX_res );
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Add()
+/** FUNCTION:  DP_MATRIX_Add()
  *  SYNOPSIS: Add two dynamic programming matrices.
  */
 int DP_MATRIX_Add(   MATRIX_3D*  st_MX_1,
@@ -149,8 +141,7 @@ int DP_MATRIX_Add(   MATRIX_3D*  st_MX_1,
    MATRIX_2D_Add( sp_MX_1, sp_MX_2, sp_MX_res );
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Save()
+/** FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS:  Save dynamic programming matrix to file (by filename).
  */
 void DP_MATRIX_Save( const int         Q,
@@ -167,8 +158,7 @@ void DP_MATRIX_Save( const int         Q,
    printf("Saved DP_MATRIX to: '%s'\n", _filename_);
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Dump()
+/** FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
 void DP_MATRIX_Dump( const int         Q,
@@ -177,6 +167,10 @@ void DP_MATRIX_Dump( const int         Q,
                      MATRIX_2D*        sp_MX,
                      FILE*             fp )
 {
+   int pad, dec;
+   pad = 9;
+   dec = 5;
+
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
@@ -193,25 +187,24 @@ void DP_MATRIX_Dump( const int         Q,
    {
       fprintf(fp, "M %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f ", MMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, MMX(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "I %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f ", IMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, IMX(i, j) );
       }
       fprintf(fp, "\n");
 
       fprintf(fp, "D %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f ", DMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, DMX(i, j) );
       }
       fprintf(fp, "\n\n");
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-
    fprintf(fp, "%*s ", -9, "#");
    for (int i = 0; i <= Q; i++) {
       fprintf(fp, "%*d ", -7, i);
@@ -220,37 +213,119 @@ void DP_MATRIX_Dump( const int         Q,
 
    fprintf(fp, "%*s ", -6, "N");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(SP_N, i) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(SP_N, i) ); 
    }
    fprintf(fp, "\n");
    
    fprintf(fp, "%*s ", -6, "J");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(SP_J, i) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(SP_J, i) ); 
    }
    fprintf(fp, "\n");
 
    fprintf(fp, "%*s ", -6, "E");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(SP_E, i) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(SP_E, i) ); 
    }
    fprintf(fp, "\n");
 
    fprintf(fp, "%*s ", -6, "C");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(SP_C, i) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(SP_C, i) ); 
    }
    fprintf(fp, "\n");
 
    fprintf(fp, "%*s ", -6, "B");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(SP_B, i) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(SP_B, i) ); 
    }
-   fprintf(fp, "\n");
+   fprintf(fp, "\n\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Dump()
+/** FUNCTION:  DP_MATRIX_Log_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Log_Dump(   const int         Q,
+                           const int         T,
+                           MATRIX_3D*        st_MX,
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp )
+{
+   /* PRINT resulting dp matrix */
+   int pad, dec;
+   pad = 9;
+   dec = 5;
+
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+   /* Header */
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= T; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "M %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log( MMX(i, j) ) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log( IMX(i, j) ) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log( DMX(i, j) ) );
+      }
+      fprintf(fp, "\n\n");
+   }
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "N");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log( XMX(SP_N, i) ) ); 
+   }
+   fprintf(fp, "\n");
+   
+   fprintf(fp, "%*s ", -6, "J");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log( XMX(SP_J, i) ) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "E");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log( XMX(SP_E, i) ) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "C");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log( XMX(SP_C, i) ) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "B");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log( XMX(SP_B, i) ) ); 
+   }
+   fprintf(fp, "\n\n");
+}
+
+/** FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
 void DP_MATRIX_Norm_Dump(  const int         Q,

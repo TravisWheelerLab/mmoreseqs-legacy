@@ -162,14 +162,16 @@ p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
 int
 p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P7_DOMAINDEF *ddef)
 {
-  printf("--> TEST - Domain Decoding (sse)\n");
+  printf("=== p7_DomainDecoding (sse) ===\n");
 
-  int   L             = oxf->L;
-  float scaleproduct  = 1.0 / oxb->xmx[p7X_N];
-  float njcp;
-  int   i;
+  int     L;
+  float   scaleproduct;
+  float   njcp;
+  int     i;
 
-  scaleproduct = 1.0;
+  L = oxf->L;
+  scaleproduct = 1.0 / oxb->xmx[p7X_N];
+  // scaleproduct = 1.0;
 
   printf("scale: %6.3f / %6.3f = %6.3f\n", 1.0, oxb->xmx[p7X_N], scaleproduct );
   printf("has_own_scales? %s\n", (oxb->has_own_scales ? "TRUE" : "FALSE") );

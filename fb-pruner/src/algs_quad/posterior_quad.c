@@ -25,7 +25,7 @@
 /* header */
 #include "posterior_quad.h"
 
-/** FUNCTION:  run_MaxPost_Quad()
+/*! FUNCTION:  run_MaxPost_Quad()
  *  SYNOPSIS:  Compute the Max Posterior Probability and obtain optimal alignment.
  *             Computes the Forward and Backward.  Max Posterior computed by Viterbi.
  *
@@ -56,7 +56,7 @@ run_MaxPost_Quad( SEQUENCE*            query,            /* query sequence */
    // run_MaxPost_Viterbi_Quad( query, target, Q, T, st_MX_post, sp_MX_post, st_MX_max, sp_MX_max, sc_final );
 }
 
-/** FUNCTION:  run_Posterior_Quad()
+/*! FUNCTION:  run_Posterior_Quad()
  *  SYNOPSIS:  Filled dp matrices for forward <st_MX_fwd> and backward <st_MX_bck>.
  *             Compute the Posterior Probability by multiplying probabilities (added in log space) of Forward and Backward.
  *             Results stored in supplied <st_MX_post> (can override input matrices).
@@ -96,47 +96,81 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    int      Q_dom;                        /* size of query domain */
    float    max_beg, max_end, max_sc;     /* scores for finding best scoring alignment */
    float    fwd_sc, bck_sc;               /* domain scores */
+   /* reporting thresholds for finding domains */
+   float rt1_test, rt2_btest, rt2_etest, rt3_test; 
 
    /* resize domain definition structure to accept  */
    DOMAIN_DEF_GrowTo( dom_def, Q );
 
-   printf("decode_spec...\n");
+   /* compute domain transition probabilities to find regions that reach scoring thresholds */
+   run_DecodeDomain_Quad(
+      q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
    /* compute the posterior probabilties (only need special states) */
    run_Decode_Special_Posterior_Quad( 
       q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, sp_MX_post );
-   printf("decode_domain...\n");
-   /* compute domain transition probabilities */
-   run_DecodeDomain_Quad(
-      q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
+   
+   printf("=> ddef (posteriors):\n");
+   printf("==> ddef->btot:\n");
+   for (int i = 0; i < Q + 1; i++) {
+      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+         i, dom_def->b_tot->data[i], log(dom_def->b_tot->data[i]), exp(dom_def->b_tot->data[i]) );
+   }
+   printf("==> ddef->etot:\n");
+   for (int i = 0; i < Q + 1; i++) {
+      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+         i, dom_def->e_tot->data[i], log(dom_def->e_tot->data[i]), exp(dom_def->e_tot->data[i]) );
+   }
+   printf("==> ddef->mocc:\n");
+   for (int i = 0; i < Q + 1; i++) {
+      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+         i, dom_def->m_occ->data[i], log(dom_def->m_occ->data[i]), exp(dom_def->m_occ->data[i]) );
+   }
 
+   /*  */
+   for (q_0 = 1; q_0 <= Q; q_0++)
+   {
+      q_1 = q_0 - 1;
+
+      rt1_test  = VEC_X(dom_def->m_occ, q_0);
+      rt2_btest = VEC_X(dom_def->m_occ, q_0) - ( VEC_X(dom_def->b_tot, q_0) - VEC_X(dom_def->b_tot, q_1) );
+      rt2_etest = VEC_X(dom_def->m_occ, q_0) - ( VEC_X(dom_def->e_tot, q_0) - VEC_X(dom_def->e_tot, q_1) );
+
+      printf("\n[%2d] ::\n", q_0);
+      printf("       rt1: %9.4f < %9.4f == %s\n",
+         rt1_test, dom_def->rt1, (rt1_test < dom_def->rt1 ? "TRUE" : "FALSE") );
+      printf("     rt2_b: %9.4f < %9.4f == %s\n",
+         rt2_btest, dom_def->rt2, (rt2_btest < dom_def->rt1 ? "TRUE" : "FALSE") );
+      printf("     rt1_e: %9.4f < %9.4f == %s\n",
+         rt2_etest, dom_def->rt2, (rt2_etest < dom_def->rt1 ? "TRUE" : "FALSE") );
+   }
+
+   /* NOTE: only reporting the best region. Refer to p7_domaindef_ByPosteriorHeuristics() to report multiple domains and build multidomain */
    /* find the best scoring region */
    q_max = -1;
    max_sc = -INF;
    for ( q_0 = 1; q_0 <= Q; q_0++ )
    {
       q_1 = q_0 - 1;
-      curr_sc = dom_def->m_occ->data[q_0];
+      curr_sc = VEC_X( dom_def->m_occ, q_0 );
       /* if new max found, update location */
       if ( max_sc < curr_sc ) {
          q_max = q_0;
          max_sc = curr_sc;
       }
    }
-
    /* find beginning of high scoring region, starting from max score location */
    q_beg = -1;
    max_beg = -INF;
    for ( q_0 = q_max; q_0 >= 1; q_0-- )
    {
       q_1 = q_0 - 1;
-      curr_sc = dom_def->m_occ->data[q_0] - ( dom_def->b_tot->data[q_0] - dom_def->b_tot->data[q_1] );
+      curr_sc = VEC_X( dom_def->m_occ, q_0 ) - ( VEC_X( dom_def->b_tot, q_0 ) - VEC_X( dom_def->b_tot, q_1 ) );
       /* if score falls below cutoff threshold */
       q_beg = q_0;
       if ( curr_sc < dom_def->rt2 ) {
          break;
       }
    }
-
    /* find end of high scoring region, starting from max score location  */
    q_end = -1;
    max_end = -INF;
@@ -150,8 +184,6 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
          break;
       }
    }
-
-   printf("q_range=(%d,%d), q_max=%d\n", q_beg, q_end, q_max );
 
    /* set sequence to be the domain subrange */
    SEQUENCE_SetSubsequence( q_seq, q_beg, q_end );
@@ -176,9 +208,10 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    /* capture the posterior */
    run_Forward_Quad( q_seq, t_prof, Q_dom, T, st_MX_fwd, sp_MX_fwd, &fwd_sc );
    run_Backward_Quad( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, &bck_sc );
-   run_Decode_Posterior_Quad( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post );
+   // run_Decode_Posterior_Quad( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post );
+   // DP_MATRIX_Dump(Q_dom, T, st_MX_post, sp_MX_post, stdout);
    /* compute correction bias */
-   run_Null2_ByExpectation( q_seq, t_prof, Q_dom, T, st_MX_post, sp_MX_post, dom_def );
+   // run_Null2_ByExpectation( q_seq, t_prof, Q_dom, T, st_MX_post, sp_MX_post, dom_def );
 
    /* set sequence to be full sequence */
    SEQUENCE_UnsetSubsequence( q_seq );
@@ -189,165 +222,11 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    else {
       HMM_PROFILE_ReconfigUnihit( t_prof, q_seq->N );
    }
+
    return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_Posterior_Quad2()
- *  SYNOPSIS:  Filled dp matrices for forward <st_MX_fwd> and backward <st_MX_bck>.
- *             Compute the Posterior Probability by multiplying probabilities (added in log space) of Forward and Backward.
- *             Results stored in supplied <st_MX_post> (can override input matrices).
- *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>.
- *
- *  RETURN:    Return <STATUS_SUCCESS> if no errors.
- */
-int 
-run_Posterior_Quad2( SEQUENCE*      q_seq,            /* query sequence */
-                     HMM_PROFILE*   t_prof,           /* target hmm model */
-                     int            Q,                /* query length */
-                     int            T,                /* target length */
-                     MATRIX_3D*     st_MX_fwd,        /* normal state matrix for forward */
-                     MATRIX_2D*     sp_MX_fwd,        /* special state matrix for forward */
-                     MATRIX_3D*     st_MX_bck,        /* normal state matrix for backward */
-                     MATRIX_2D*     sp_MX_bck,        /* special state matrix for backward */
-                     MATRIX_3D*     st_MX_post,       /* OUTPUT: normal state matrix for posterior */
-                     MATRIX_2D*     sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
-                     ALIGNMENT*     aln,
-                     DOMAIN_DEF*    dom_def )         /* OUTPUT: domain data */
-{
-   printf("=== POSTERIOR HEURISTICS ===\n");
-   printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
-      dom_def->rt1, dom_def->rt2, dom_def->rt3 );
-
-   int      d_0;                          /* domain index */
-   int      q_0, q_1;                     /* query index */
-   int      t_0, t_1;                     /* target index */
-   int      q_beg, q2_beg;                /* start points of domain */
-   int      q_end, q2_end, q2_end_last;   /* end points of domain */
-   int      q_size;                       /* size of domain in sequence */
-   int      n_cluster;                    /* size of cluster */
-   bool     is_triggered;                 /* specifies whether the conditions have been met for a possible alignment domain */
-   bool     is_multidomain_region;        /* specifies whether the region contains multiple domains */
-   float    threshold_sc;                 /* threshold for testing domain edges */
-   RANGE    Q_range;
-
-   /* resize domain definition structure to accept  */
-   DOMAIN_DEF_GrowTo( dom_def, Q );
-
-   printf("decode_spec...\n");
-   /* compute the posterior probabilties */
-   // run_Decode_Normal_Posterior_Quad( 
-   //    q_seq, t_prof, Q, T, st_MX_fwd, st_MX_bck, st_MX_post );
-   // run_Decode_Special_Posterior_Quad( 
-   //    q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, sp_MX_post );
-   printf("decode_domain...\n");
-   /* compute domain transition probabilities */
-   run_DecodeDomain_Quad(
-      q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
-
-   printf("init null score...\n");
-   /* initialize null2 scores */
-   for ( q_0 = 0; q_0 < Q; q_0++ ) {
-      dom_def->null2_sc->data[q_0] = 0.0;
-   }
-
-   /* iterate through domain data by index in sequence */
-   for ( q_0 = 1; q_0 <= Q; q_0++ )
-   {
-      q_1 = q_0 - 1;
-
-      if ( is_triggered == false ) {
-         threshold_sc = dom_def->m_occ->data[q_0] - ( dom_def->b_tot->data[q_0] - dom_def->b_tot->data[q_1] );
-         printf("BEG(i)=%d :: mocc[j]: %6.3f, btot[j]: %6.3f, btot[j-1]: %6.3f, sc: %6.3f\n",
-            q_beg, dom_def->m_occ->data[q_0], dom_def->b_tot->data[q_0], dom_def->b_tot->data[q_1], threshold_sc );
-      }
-      else {
-         threshold_sc = dom_def->m_occ->data[q_0] - ( dom_def->e_tot->data[q_0] - dom_def->e_tot->data[q_1] );
-         printf("END(i)=%d :: mocc[j]: %6.3f, etot[j]: %6.3f, etot[j-1]: %6.3f, sc: %6.3f\n",
-            q_0, dom_def->m_occ->data[q_0], dom_def->e_tot->data[q_0], dom_def->e_tot->data[q_1], threshold_sc );
-      }
-
-      /* if we have not found the start of a potential new domain */
-      if ( is_triggered == false ) 
-      {
-         /* this logic is explained in hmmer code: xref J2/101 */
-         if ( threshold_sc < dom_def->rt2 ) {
-            q_beg = q_0;
-         }
-         else if ( q_0 == -1 ) {
-            q_beg = q_0;
-         }
-         
-         /* this logic is explained in hmmer code: xref J2/101 */
-         threshold_sc = dom_def->m_occ->data[q_0];
-
-         if ( threshold_sc >= dom_def->rt1 ) {
-            is_triggered = true;
-         }
-      }
-      else /* if we have found the start of a potential new domain */
-      { 
-         /* this logic is explained in hmmer code: xref J2/101 */
-         threshold_sc = dom_def->m_occ->data[q_0] - ( dom_def->e_tot->data[q_0] - dom_def->e_tot->data[q_1] );
-
-         /* if we have found the end of a domain */
-         if ( threshold_sc < dom_def->rt2 )
-         {
-            q_end = q_0;
-            q_size = q_end - q_beg + 1;
-            printf("REGION: (%d-%d)\n", q_beg, q_end);
-
-            /* grow matrices to prepare for forward/backward over domain */
-            MATRIX_3D_Reuse( st_MX_fwd, NUM_NORMAL_STATES, 2, Q+1 );
-            MATRIX_2D_Reuse( sp_MX_fwd, NUM_SPECIAL_STATES, Q+1 );
-            MATRIX_3D_Reuse( st_MX_bck, NUM_NORMAL_STATES, 2, Q+1 );
-            MATRIX_2D_Reuse( sp_MX_bck, NUM_SPECIAL_STATES, Q+1 );
-            dom_def->n_regions++;
-
-            is_multidomain_region = test_Multidomain_Region( dom_def, q_beg, q_end );
-
-            /* verifies whether is a multidomain region (domains overlap) */
-            if ( is_multidomain_region == true )
-            {
-               dom_def->n_clustered++;
-               
-               q2_end_last = 0;
-               for ( int d = 0; d < n_cluster; d++ ) {
-                  /* === p7_spensemble_GetClusterCoords() === */
-
-                  if ( q2_beg <= q2_end_last ) {
-                     dom_def->n_overlaps++;
-                  }
-                  dom_def->n_envelopes++;
-
-                  /* === rescore_isolated_domain() === */
-               }
-            }
-            else /* single domain region (domains do not overlap) */
-            {
-               dom_def->n_envelopes++;
-               
-               Q_range = (RANGE){q_beg,q_end};
-               run_Rescore_Isolated_Domain(
-                  q_seq, t_prof, &Q_range, T, st_MX_fwd, sp_MX_fwd, st_MX_bck, sp_MX_bck, aln, dom_def );
-            }
-            q_beg          = -1;
-            is_triggered   = false;
-         }
-      }
-   }
-
-   /* reconfigure model to its state from beginning of function */
-   if ( t_prof->mode == MODE_MULTIGLOCAL|| t_prof->mode == MODE_MULTILOCAL ) {
-      HMM_PROFILE_ReconfigMultihit( t_prof, q_seq->N );
-   }
-   else {
-      HMM_PROFILE_ReconfigUnihit( t_prof, q_seq->N );
-   }
-   return STATUS_SUCCESS;
-}
-
-
-/** FUNCTION:  test_Multidomain_Region()
+/*! FUNCTION:  test_Multidomain_Region()
  *  SYNOPSIS:  Returns whether sequence range <q_beg,q_end> contains multiple domains.
  *             NOTES: More precisely: return TRUE if  \max_z [ \min (B(z), E(z)) ]  >= rt3
  *             where
@@ -380,8 +259,8 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
    return is_multidomain_region;
 }
 
-/** FUNCTION:  run_Decode_Posterior_Quad()
- *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create normal state posterior into <...post>.
+/*! FUNCTION:  run_Decode_Normal_Posterior_Quad()
+ *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store matrix in <...fwd> or <...bck>.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
  *
@@ -397,77 +276,151 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
                            MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
                            MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
                            MATRIX_3D*        st_MX_post,       /* OUTPUT: normal state matrix for posterior */
-                           MATRIX_2D*        sp_MX_post )      /* OUTPUT: special state matrix for posterior */
+                           MATRIX_2D*        sp_MX_post )      /* OUTPUT: normal state matrix for posterior */
 {
-   run_Decode_Normal_Posterior_Quad( 
-      q_seq, t_prof, Q, T, st_MX_fwd, st_MX_bck, st_MX_post );
-      
-   run_Decode_Special_Posterior_Quad( 
-      q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, sp_MX_post );
+   printf("=== run_Decode_Posterior_Quad ===\n");
+   // printf("==> FWD:\n");
+   // DP_MATRIX_Dump(Q, T, st_MX_fwd, sp_MX_fwd, stdout );
+   // printf("==> BCK:\n");
+   // DP_MATRIX_Dump(Q, T, st_MX_bck, sp_MX_bck, stdout );
 
-}
-
-/** FUNCTION:  run_Decode_Normal_Posterior_Quad()
- *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
- *             Can store matrix in <...fwd> or <...bck>.
- *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
- *
- *  RETURN:    Return <STATUS_SUCCESS> if no errors.
- */
-int
-run_Decode_Normal_Posterior_Quad(   SEQUENCE*         q_seq,            /* query sequence */
-                                    HMM_PROFILE*      t_prof,           /* target hmm model */
-                                    int               Q,                /* query length */
-                                    int               T,                /* target length */
-                                    MATRIX_3D*        st_MX_fwd,        /* normal state matrix for forward */
-                                    MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
-                                    MATRIX_3D*        st_MX_post )      /* OUTPUT: normal state matrix for posterior */
-{
    /* query index */
-   int q_0, q_1;
+   int      q_0, q_1;
    /* target index */ 
-   int t_0, t_1;
+   int      t_0, t_1;
+   /* state index */
+   int      st_0;
+   /* overall score */
+   float    overall_sc;
+   /* common scale factor denominator */
+   float    denom;
+   /* temp mx scores */
+   float    mmx, imx, dmx, smx;
+   float    mmx_, imx_, dmx_, smx_;
 
-   /* init normal state */
+   overall_sc  =  XMX_X( sp_MX_fwd, SP_C, Q ) + 
+                  XSC_X(t_prof, SP_C, SP_MOVE);
+   printf("overall_sc: %f %f ==> %f\n", 
+      XMX_X( sp_MX_fwd, SP_C, Q ), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
+   // overall_sc = 0.0;
+
+   /* init zero row */
    q_0 = 0;
+   XMX_X(sp_MX_post, SP_E, q_0) = 0.0;
+   XMX_X(sp_MX_post, SP_N, q_0) = 0.0;
+   XMX_X(sp_MX_post, SP_J, q_0) = 0.0;
+   XMX_X(sp_MX_post, SP_B, q_0) = 0.0;
+   XMX_X(sp_MX_post, SP_C, q_0) = 0.0;
+
    for ( t_0 = 0; t_0 <= T; t_0++ )
    {
-      MMX_X(st_MX_post, q_0, t_0) = -INF;
-      IMX_X(st_MX_post, q_0, t_0) = -INF;
-      DMX_X(st_MX_post, q_0, t_0) = -INF; 
+      MMX_X(st_MX_post, q_0, t_0) = 0.0;
+      IMX_X(st_MX_post, q_0, t_0) = 0.0;
+      DMX_X(st_MX_post, q_0, t_0) = 0.0; 
    }
    
    /* every position in query */
    for ( q_0 = 1; q_0 <= Q; q_0++ )
    {
-      t_0 = 0;
-      MMX_X(st_MX_post, q_0, t_0) = -INF;
-      IMX_X(st_MX_post, q_0, t_0) = -INF;
-      DMX_X(st_MX_post, q_0, t_0) = -INF; 
+      q_1   = q_0 - 1;
+      denom = 0.0;
+      t_0   = 0;
+
+      MMX_X(st_MX_post, q_0, t_0) = 0.0;
+      IMX_X(st_MX_post, q_0, t_0) = 0.0;
+      DMX_X(st_MX_post, q_0, t_0) = 0.0; 
 
       /* every position in target */
       for ( t_0 = 1; t_0 < T; t_0++ )
       {
-         MMX_X(st_MX_post, q_0, t_0) = logsum(  MMX_X(st_MX_fwd, q_0, t_0), 
-                                                MMX_X(st_MX_bck, q_0, t_0) );
-         IMX_X(st_MX_post, q_0, t_0) = logsum(  IMX_X(st_MX_fwd, q_0, t_0), 
-                                                IMX_X(st_MX_bck, q_0, t_0) );
-         DMX_X(st_MX_post, q_0, t_0) = logsum(  DMX_X(st_MX_fwd, q_0, t_0),
-                                                DMX_X(st_MX_bck, q_0, t_0) ); 
+         t_1 = t_0 - 1;
+
+         /* multiply independent probabilities (adding in logspace) */
+         mmx = MMX_X(st_MX_fwd, q_0, t_0) + 
+               MMX_X(st_MX_bck, q_0, t_0) - 
+               overall_sc;
+
+         mmx_ = expf(mmx);
+         MMX_X(st_MX_post, q_0, t_0) = expf(mmx);
+         denom += MMX_X(st_MX_post, q_0, t_0);
+
+         imx = IMX_X(st_MX_fwd, q_0, t_0) + 
+               IMX_X(st_MX_bck, q_0, t_0) - 
+               overall_sc;
+         imx_ = exp(imx);
+         IMX_X(st_MX_post, q_0, t_0) = exp(imx);
+         denom += IMX_X(st_MX_post, q_0, t_0);
+         
+         DMX_X(st_MX_post, q_0, t_0) = 0.0;
       }
 
+      // printf("(%2d,%2d)\n", q_0, t_0);
       /* unrolled loop */
       t_0 = T;
-      MMX_X(st_MX_post, q_0, t_0) = logsum(  MMX_X(st_MX_fwd, q_0, t_0), 
-                                             MMX_X(st_MX_bck, q_0, t_0) );
-      IMX_X(st_MX_post, q_0, t_0) = -INF;
-      DMX_X(st_MX_post, q_0, t_0) = -INF;
+      t_1 = T-1;
+
+      mmx = MMX_X(st_MX_fwd, q_0, t_0) + 
+            MMX_X(st_MX_bck, q_0, t_0) -
+            overall_sc;
+      MMX_X(st_MX_post, q_0, t_0) = exp(mmx);
+      denom += MMX_X(st_MX_post, q_0, t_0);
+
+      IMX_X(st_MX_post, q_0, t_0) = 0.0;
+      DMX_X(st_MX_post, q_0, t_0) = 0.0;
+
+      /* special states */
+      XMX_X(sp_MX_post, SP_E, q_0) = 0.0;
+      XMX_X(sp_MX_post, SP_B, q_0) = 0.0;
+
+      smx = XMX_X(sp_MX_fwd, SP_N, q_1) +
+            XMX_X(sp_MX_bck, SP_N, q_0) +
+            XSC_X(t_prof, SP_N, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_N, q_0) = exp(smx);
+
+      // printf("\t{N}:   %9f %9f %9f :=> %9f %9f\n", 
+      //       XMX_X(sp_MX_fwd, SP_N, q_1), 
+      //       XMX_X(sp_MX_bck, SP_N, q_0), 
+      //       XSC_X(t_prof, SP_N, SP_LOOP), 
+      //       smx,
+      //       XMX_X(sp_MX_post, SP_N, q_0) ); 
+
+      smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
+            XMX_X(sp_MX_bck, SP_J, q_0) +
+            XSC_X(t_prof, SP_J, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_J, q_0) = exp(smx);
+
+      smx = XMX_X(sp_MX_fwd, SP_C, q_1) +
+            XMX_X(sp_MX_bck, SP_C, q_0) +
+            XSC_X(t_prof, SP_C, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_C, q_0) = exp(smx);
+
+      denom += XMX_X(sp_MX_post, SP_N, q_0) + 
+               XMX_X(sp_MX_post, SP_J, q_0) + 
+               XMX_X(sp_MX_post, SP_C, q_0);
+
+      // printf("[%2d]: denom :=> %9f\n", q_0, denom);
+      /* normalize by scaling row by common factor denominator */
+      denom = 1.0 / denom;
+      for ( t_0 = 1; t_0 < T; t_0++ ) {
+         MMX_X(st_MX_post, q_0, t_0) *= denom;
+         IMX_X(st_MX_post, q_0, t_0) *= denom;
+      }
+      MMX_X(st_MX_post, q_0, T) *= denom;
+      XMX_X(sp_MX_post, SP_N, t_0) *= denom; 
+      XMX_X(sp_MX_post, SP_J, t_0) *= denom; 
+      XMX_X(sp_MX_post, SP_C, t_0) *= denom;
    }
+
+   // printf("==> POSTERIOR:\n");
+   // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout );
 
    return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_Decode_Special_Posterior_Quad()
+/*! FUNCTION:  run_Decode_Special_Posterior_Quad()
  *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store matrix in <...fwd> or <...bck>.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
@@ -483,15 +436,15 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
                                     MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
                                     MATRIX_2D*        sp_MX_post )      /* OUTPUT: special state matrix for posterior */
 {
+   printf("=== run_Decode_Special_Posterior_Quad ===\n");
    /* query index */
    int q_0, q_1;
    /* target index */ 
    int t_0, t_1;
 
-   // printf("=== SPEC FWD ===\n");
+   // printf("==> SPEC FWD:\n");
    // DP_MATRIX_SpecExp_Dump( Q, T, NULL, sp_MX_fwd, stdout );
-
-   // printf("=== SPEC BCK ===\n");
+   // printf("==> SPEC BCK:\n");
    // DP_MATRIX_SpecExp_Dump( Q, T, NULL, sp_MX_bck, stdout );
 
    /* init zero row */
@@ -524,7 +477,7 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
    return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_DecodeDomain_Posterior_Quad()
+/*! FUNCTION:  run_DecodeDomain_Posterior_Quad()
  *  SYNOPSIS:  Using posterior special state matrix <sp_MX_post> to compute domains.
  *             NOTE: Modeled after <p7_DomainDecoding()>
  *
@@ -538,6 +491,8 @@ run_DecodeDomain_Posterior_Quad( SEQUENCE*         q_seq,            /* query se
                                  MATRIX_2D*        sp_MX_post,       /* special state matrix for posterior */ 
                                  DOMAIN_DEF*       dom_def )         /* OUTPUT: domain data */ 
 {
+   printf("=== run_DecodeDomain_Posterior_Quad ===\n");
+
    /* query index */
    int q_0, q_1;
    /* target index */ 
@@ -553,22 +508,20 @@ run_DecodeDomain_Posterior_Quad( SEQUENCE*         q_seq,            /* query se
 
    /* init zero row */
    q_0 = 0;
-   dom_def->b_tot->data[0] = 0.0;
-   dom_def->e_tot->data[0] = 0.0;
-   dom_def->m_occ->data[0] = 0.0;
+   VEC_X(dom_def->b_tot, 0) = 0.0;
+   VEC_X(dom_def->e_tot, 0) = 0.0;
+   VEC_X(dom_def->m_occ, 0) = 0.0;
 
    for ( q_0 = 1; q_0 <= Q; q_0++ )
    {
       q_1 = q_0 - 1;
-      // printf("[%d] B(i-1)= %6.3f E(i)= %6.3f\n", 
-      //    q_0, XMX_X(sp_MX_post, SP_B, q_1), XMX_X(sp_MX_post, SP_E, q_0) );
 
       /* cumulative probability of begin state */
-      dom_def->b_tot->data[q_0] = logsum( dom_def->b_tot->data[q_1], 
-                                          XMX_X(sp_MX_post, SP_B, q_1) ); 
+      VEC_X(dom_def->b_tot, q_0) = logsum( VEC_X(dom_def->b_tot, q_1),
+                                           XMX_X(sp_MX_post, SP_B, q_1) ); 
       /* cumulative probability of end state */
-      dom_def->e_tot->data[q_0] = logsum( dom_def->b_tot->data[q_0], 
-                                          XMX_X(sp_MX_post, SP_E, q_0) ); 
+      VEC_X(dom_def->e_tot, q_0) = logsum( VEC_X(dom_def->e_tot, q_1), 
+                                           XMX_X(sp_MX_post, SP_E, q_0) ); 
       /* cumulative proabaility emitted by core model (not init or term states) */
       njc_pr  =   logsum( logsum( XMX_X(sp_MX_post, SP_N, q_1), 
                                   XMX_X(sp_MX_post, SP_N, q_0) ), 
@@ -579,12 +532,12 @@ run_DecodeDomain_Posterior_Quad( SEQUENCE*         q_seq,            /* query se
       njc_pr +=   logsum( logsum( XMX_X(sp_MX_post, SP_C, q_1), 
                                   XMX_X(sp_MX_post, SP_C, q_0) ), 
                                   XSC_X(t_prof, SP_C, SP_LOOP) );
-      dom_def->m_occ->data[q_0] += 1.0 - njc_pr;
+      VEC_X(dom_def->m_occ, q_0) += (1.0 - njc_pr);
    }
    return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_DecodeDomain_Quad()
+/*! FUNCTION:  run_DecodeDomain_Quad()
  *  SYNOPSIS:  Using posterior special state matrix <sp_MX_bck> and <sp_MX_fwd> to compute domains.
  *             NOTE: Modeled after <p7_DomainDecoding()>
  *
@@ -599,17 +552,22 @@ run_DecodeDomain_Quad(  SEQUENCE*         q_seq,            /* query sequence */
                         MATRIX_2D*        sp_MX_bck,       /* special state matrix for backward */ 
                         DOMAIN_DEF*       dom_def )         /* OUTPUT: domain data */ 
 {
+   printf("=== DECODE DOMAIN ===\n");
+   
    /* query index */
-   int q_0, q_1;
+   int      q_0, q_1;
    /* target index */ 
-   int t_0, t_1;
+   int      t_0, t_1;
+   /* increment into b_tot and e_tot arrays */
+   double   btot_add, etot_add;
    /* cumulative probability of core model states */
-   float tmp_pr;
-   float njc_pr;
-   float overall_logp;
+   float    tmp_pr;
+   float    njc_pr;
+   float    overall_logp;
 
+   /* */
    overall_logp = XMX_X(sp_MX_fwd, SP_C, Q) + XSC_X(t_prof, SP_C, SP_MOVE);
-   // printf("# overall_logp: %7.4f\n", overall_logp);
+   printf("# overall_logp: %7.4f\n", overall_logp );
 
    /* grow vector to necessary size */
    VECTOR_FLT_GrowTo(dom_def->b_tot, Q+1);
@@ -619,24 +577,39 @@ run_DecodeDomain_Quad(  SEQUENCE*         q_seq,            /* query sequence */
 
    /* init zero row */
    q_0 = 0;
-   dom_def->b_tot->data[0] = 0.0;
-   dom_def->e_tot->data[0] = 0.0;
-   dom_def->m_occ->data[0] = 0.0;
+   VEC_X(dom_def->b_tot, 0) = 0.0;
+   VEC_X(dom_def->e_tot, 0) = 0.0;
+   VEC_X(dom_def->m_occ, 0) = 0.0;
 
+   /* for each position in query sequence */
    for ( q_0 = 1; q_0 <= Q; q_0++ )
    {
       q_1 = q_0 - 1;
 
       /* cumulative probability of begin state */
-      dom_def->b_tot->data[q_0] = dom_def->b_tot->data[q_1] + 
-                                  exp( XMX_X(sp_MX_fwd, SP_B, q_1) +
-                                       XMX_X(sp_MX_bck, SP_B, q_1) -
-                                       overall_logp ); 
+      btot_add =  XMX_X(sp_MX_fwd, SP_B, q_1) +
+                  XMX_X(sp_MX_bck, SP_B, q_1) -
+                  overall_logp;
+      VEC_X(dom_def->b_tot, q_0) =  VEC_X(dom_def->b_tot, q_1) +
+                                    exp(btot_add); 
+
       /* cumulative probability of end state */
-      dom_def->e_tot->data[q_0] = dom_def->e_tot->data[q_1] +
-                                  exp( XMX_X(sp_MX_fwd, SP_E, q_0) +
-                                       XMX_X(sp_MX_bck, SP_E, q_0) -
-                                       overall_logp ); 
+      etot_add =  XMX_X(sp_MX_fwd, SP_E, q_0) +
+                  XMX_X(sp_MX_bck, SP_E, q_0) -
+                  overall_logp;
+      VEC_X(dom_def->e_tot, q_0) =  VEC_X(dom_def->e_tot, q_1) +
+                                    exp(etot_add); 
+      
+      // printf("[%2d] ::\n", q_0 );
+      // printf("     (btot): %9.4f %9.4f => %9.4f\n",
+      //    btot_add,
+      //    exp(btot_add),
+      //    VEC_X(dom_def->b_tot, q_0) );
+      // printf("     (etot): %9.4f %9.4f => %9.4f\n",
+      //    etot_add,
+      //    exp(etot_add),
+      //    VEC_X(dom_def->e_tot, q_0) );
+
       /* cumulative proabaility emitted by core model (not init or term states) */
       njc_pr  =   exp(  XMX_X(sp_MX_fwd, SP_N, q_1) +
                         XMX_X(sp_MX_bck, SP_N, q_0) + 
@@ -671,7 +644,7 @@ run_DecodeDomain_Quad(  SEQUENCE*         q_seq,            /* query sequence */
    return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_Rescore_Isolated_Domain()
+/*! FUNCTION:  run_Rescore_Isolated_Domain()
  *  SYNOPSIS:  
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
@@ -708,7 +681,7 @@ run_Rescore_Isolated_Domain(  SEQUENCE*         q_seq,            /* query seque
 }
 
 
-/** FUNCTION:  run_Posterior_Viterbi_Quad()
+/*! FUNCTION:  run_Posterior_Viterbi_Quad()
  *  SYNOPSIS:  Run Viterbi step of Maximum Posterior Probability (no transition states).
  *             Matrices are the Maximum Poster.
  *             Computes the optimal alignment through HHM.
@@ -944,7 +917,7 @@ run_Posterior_Viterbi_Quad(   SEQUENCE*         query,            /* query seque
    // return STATUS_SUCCESS;
 }
 
-/** FUNCTION:  run_Null2_By_Expectation()
+/*! FUNCTION:  run_Null2_By_Expectation()
  *  SYNOPSIS:  Modeled after HMMER p7_GNull2_ByExpectation().
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
@@ -952,91 +925,248 @@ run_Posterior_Viterbi_Quad(   SEQUENCE*         query,            /* query seque
 int
 run_Null2_ByExpectation(   SEQUENCE*         query,            /* query sequence */
                            HMM_PROFILE*      target,           /* target hmm model */
-                           int               Q,                /* query length */
+                           RANGE*            Q,                /* query length */
                            int               T,                /* target length */
                            MATRIX_3D*        st_MX_post,       /* posterior normal matrix */
                            MATRIX_2D*        sp_MX_post,       /* posterior special matrix */
                            DOMAIN_DEF*       dom_def )         /* OUTPUT: domain def's null2_sc vector */
 {
-   int   q_0, t_0, st_0, k_0;
-   float x_factor;
+   // printf("=== run_Null2_ByExpectation ===\n");
+   int      q_beg, q_end, q_len;
+   int      q_0, t_0; 
+   int      st_0, k_0;
+   float    x_factor;
+   float    null2sc;
+
+   q_beg = MAX(1, Q->beg);
+   q_end = MIN(query->N, Q->end);
+   q_len = Q->end - Q->beg;
+
+   // printf("=== POSTERIOR ===\n");
+   // DP_MATRIX_Log_Dump(Q->end, T, st_MX_post, sp_MX_post, stdout);
+   // printf("Q,T=(%d,%d)\n", query->N, target->N );
+   // printf("=================\n");
    
-   VECTOR_FLT_GrowTo( dom_def->st_freq, (Q+1) * NUM_NORMAL_STATES );
+   VECTOR_FLT_GrowTo( dom_def->st_freq, (T+1) * NUM_NORMAL_STATES );
    VECTOR_FLT_GrowTo( dom_def->sp_freq, NUM_SPECIAL_STATES );
    VECTOR_FLT_GrowTo( dom_def->null2_sc, NUM_AMINO_PLUS_SPEC );
-   
-   /* initialize vectors */
-   t_0 = 0;
-   for ( q_0 = 0; q_0 < Q; q_0++ ) {
+
+   q_0 = q_beg;
+   /* sum over each position in target model into vectors  */
+   /* for each position in query domain */
+   for ( t_0 = 0; t_0 <= T; t_0++ ) {
+      /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         dom_def->st_freq->data[(q_0*NUM_NORMAL_STATES) + st_0] = -INF;
+         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = MX_3D( st_MX_post, st_0, q_0, t_0);
       }
    }
+   /* for each special state emissions */
    for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
-      dom_def->sp_freq->data[st_0] = -INF;
+      VEC_X( dom_def->sp_freq, st_0 ) = MX_2D( sp_MX_post, st_0, q_0 );
    }
 
-   /* add emissions from remaining positions into vectors  */
-   for ( int t_0 = 1; t_0 <= T; t_0++ ) 
-   {
-      /* normal state emissions */
-      for ( q_0 = 0; q_0 < Q; q_0++ ) {
+   // printf("<0>\n");
+   // printf("==> NORMAL STATES <=\n");
+   // for (int t_0 = 0; t_0 <= T; t_0++) {
+   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
+   // }
+   // printf("==> SPECIAL STATES <=\n");
+   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+   //    printf("[%d]: %12.9f\n", st_0, 
+   //       VEC_X( dom_def->sp_freq, st_0 ) );
+   // }
+
+   /* sum over each position in query sequence domain into vectors  */
+   for ( q_0 = q_beg + 1; q_0 <= q_end; q_0++ ) {
+      /* for each position in target model */
+      for ( t_0 = 0; t_0 <= T; t_0++ ) {
+         /* for each normal state emissions */
          for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-            dom_def->st_freq->data[(q_0*NUM_NORMAL_STATES) + st_0] = logsum(  dom_def->st_freq->data[(q_0*NUM_NORMAL_STATES) + st_0],
-                                                                              MX_3D( st_MX_post, st_0, q_0, t_0 ) );
+            VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) += MX_3D( st_MX_post, st_0, q_0, t_0 );
          }
       }
-      /* special state emissions */
-      for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
-         dom_def->sp_freq->data[st_0] = logsum( dom_def->sp_freq->data[st_0],
-                                                MX_2D( sp_MX_post, st_0, t_0 ) );
+      /* for each special state emissions */
+      for ( st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
+         VEC_X( dom_def->sp_freq, st_0 ) += MX_2D( sp_MX_post, st_0, q_0 );
       }
    }
 
-   x_factor = XMX_X( sp_MX_post, SP_N, 0 );
+   // printf("<1>\n");
+   // printf("==> NORMAL STATES <=\n");
+   // for (int t_0 = 0; t_0 <= T; t_0++) {
+   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
+   // }
+   // printf("==> SPECIAL STATES <=\n");
+   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+   //    printf("[%d]: %12.9f\n", st_0, 
+   //       VEC_X( dom_def->sp_freq, st_0 ) );
+   // }
+
+   /* convert expected numbers to log frequencies */
+   /* for each position in query domain */
+   for ( t_0 = 0; t_0 <= T; t_0++ ) {
+      /* for each normal state emissions */
+      for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
+         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = log( VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) );
+      }
+   }
+   /* for each special state emissions */
+   for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
+      VEC_X( dom_def->sp_freq, st_0 ) = log( VEC_X( dom_def->sp_freq, st_0 ) );
+   }
+
+   // printf("<3>\n");
+   // printf("==> NORMAL STATES <=\n");
+   // for (int t_0 = 0; t_0 <= T; t_0++) {
+   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
+   // }
+   // printf("==> SPECIAL STATES <=\n");
+   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+   //    printf("[%d]: %12.9f\n", st_0, 
+   //       VEC_X( dom_def->sp_freq, st_0 ) );
+   // }
+
+   float neglog_Q = -log( (float)q_len );
+   // printf("neglog_Q = %d %f\n", q_len, neglog_Q);
+   /* for each position in query domain */
+   for ( t_0 = 0; t_0 <= T; t_0++ ) {
+      /* for each normal state emissions */
+      for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
+         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) += neglog_Q;
+      }
+   }
+   /* for each special state emissions */
+   for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
+      VEC_X( dom_def->sp_freq, st_0 ) += neglog_Q;
+   }
+
+   // printf("<4>\n");
+   // printf("==> NORMAL STATES <=\n");
+   // for (int t_0 = 0; t_0 <= T; t_0++) {
+   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
+   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
+   // }
+   // printf("==> SPECIAL STATES <=\n");
+   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+   //    printf("[%d]: %12.9f\n", st_0, 
+   //       VEC_X( dom_def->sp_freq, st_0 ) );
+   // }
+
+   /* x-factor: */
+   x_factor = VEC_X( dom_def->sp_freq, SP_N);
    x_factor = logsum( x_factor,
-                      XMX_X( sp_MX_post, SP_C, 0 ) );
+                      VEC_X(dom_def->sp_freq, SP_C) );
    x_factor = logsum( x_factor,
-                      XMX_X( sp_MX_post, SP_J, 0 ) );
+                      VEC_X(dom_def->sp_freq, SP_J) );
+
+   // printf("xfactor: %f, NCJ: %f %f %f\n", 
+   //    x_factor, VEC_X( dom_def->sp_freq, SP_N), VEC_X(dom_def->sp_freq, SP_C), VEC_X(dom_def->sp_freq, SP_J) );
 
    /* initialize null2 vector */
-   for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      dom_def->null2_sc->data[k_0] = -INF;
+   for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) {
+      VEC_X( dom_def->null2_sc, k_0 ) = -INF;
+   }
+   for ( k_0 = NUM_AMINO; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+      VEC_X( dom_def->null2_sc, k_0 ) = 0.0;
    }
 
+   /* null2 log emissions probabilities found by summing over 
+    * all emmissions used in paths explaining the domain. 
+    */
    /* for each amino acid */
-   for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) 
-   {
+   for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) {
       /* for each position in model */
-      for ( q_0 = 1; q_0 < Q; q_0++ ) 
-      {
-         dom_def->null2_sc->data[k_0] = logsum( dom_def->null2_sc->data[k_0],
-                                                MMX_X( st_MX_post, 0, q_0 ) + MSC_X( target, q_0, k_0 ) );
-         dom_def->null2_sc->data[k_0] = logsum( dom_def->null2_sc->data[k_0],
-                                                IMX_X( st_MX_post, 0, q_0 ) + ISC_X( target, q_0, k_0 ) );
+      for ( t_0 = 1; t_0 < T; t_0++ ) {
+         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ) );
+
+         // if ( t_0 == 14 ) {
+         //    printf("(k_0,t_0)=%2d,%2d, MSC=%f, ISC=%f, NULL2=%f\n",
+         //       k_0, t_0, 
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ),
+         //       VEC_X( dom_def->null2_sc, k_0 )
+         //    );
+         // }
       }
-      q_0 = Q;
-      dom_def->null2_sc->data[k_0] = logsum( dom_def->null2_sc->data[k_0],
-                                             MMX_X( st_MX_post, 0, Q ) + MSC_X( target, q_0, k_0 ) );
-      dom_def->null2_sc->data[k_0] = logsum( dom_def->null2_sc->data[k_0],
-                                             x_factor );
+      t_0 = T;
+      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
+                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
+                                                x_factor );                            
    }
+
+   // printf("==> NULL2 (pre) <=\n");
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    printf("[%2d] %f\n", k_0, VEC_X( dom_def->null2_sc, k_0) );
+   // }
 
    /* convert log to normal scores */
    for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) {
-      printf("[%d] %8.3f\n", k_0, dom_def->null2_sc->data[k_0] );
-      dom_def->null2_sc->data[k_0] = exp( dom_def->null2_sc->data[k_0] );
+      VEC_X( dom_def->null2_sc, k_0 ) = exp( VEC_X( dom_def->null2_sc, k_0 ) );
    }
+
+   // printf("==> NULL2 (norm) <=\n");
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    printf("[%2d] %f\n", k_0, dom_def->null2_sc->data[k_0] );
+   // }
+
+   /* average the odds ratios */
+   for ( k_0 = NUM_AMINO+1; k_0 < NUM_AMINO_PLUS_SPEC-3; k_0++ ) {
+      VEC_X( dom_def->null2_sc, k_0 ) = exp( VEC_X( dom_def->null2_sc, k_0 ) );
+   }
+
+   // printf("==> NULL2 (avg) <=\n");
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    printf("[%2d] %f\n", k_0, dom_def->null2_sc->data[k_0] );
+   // }
 
    /* set scores for all degenerencies */
+   VEC_X( dom_def->null2_sc, NUM_AMINO_PLUS_SPEC - 1 ) = 1.0;
    for ( k_0 = NUM_AMINO; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      dom_def->null2_sc->data[k_0] = 1.0;
+      VEC_X( dom_def->null2_sc, k_0 ) = 1.0;
    }
 
+   // printf("==> NULL2 (end) <=\n");
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    printf("[%2d] %f\n", k_0, dom_def->null2_sc->data[k_0] );
+   // }
+
+   /* sum over all nullscore vector to get seqbias */
    dom_def->seq_bias = 0.0;
    for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      printf("[%d] %8.3f\n", k_0, dom_def->null2_sc->data[k_0] );
-      dom_def->seq_bias += dom_def->null2_sc->data[k_0];
+      dom_def->seq_bias += VEC_X( dom_def->null2_sc, k_0 );
+   }
+   // printf("seqbias: %f\n", dom_def->seq_bias);
+
+   /* convert nullscore to logscores */
+   for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+      VEC_X( dom_def->null2_sc, k_0 ) = log( VEC_X( dom_def->null2_sc, k_0 ) );
+   }
+
+   /* TODO: Do I need to go in and out of logspace? */
+   // printf("==> NULL2 (logsc) <=\n");
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    printf("[%2d] %f\n", k_0, dom_def->null2_sc->data[k_0] );
+   // }
+
+   /* multiply (add in logspace) all biases by symbol in alphabet */
+   dom_def->seq_bias = VEC_X( dom_def->null2_sc, 0 );
+   for ( k_0 = 1; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+      dom_def->seq_bias += VEC_X( dom_def->null2_sc, k_0 );
    }
 
    return STATUS_SUCCESS;

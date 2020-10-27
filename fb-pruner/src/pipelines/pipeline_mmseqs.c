@@ -62,11 +62,11 @@ mmseqs_pipeline( WORKER* worker )
    {
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
-      tasks->lin_fwd          = true;    /* optional, but can't recover alignment */
-      tasks->lin_bck          = true;    /* optional, but can't recover alignment */
+      tasks->lin_fwd          = true;     /* optional, but can't recover alignment */
+      tasks->lin_bck          = true;     /* optional, but can't recover alignment */
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
-      tasks->lin_bound_fwd    = true;
+      tasks->lin_bound_fwd    = true;     
       tasks->lin_bound_bck    = true;
       /* quadratic algs */
       tasks->quadratic        = true;     /* if any other quadratic tasks are flagged, this must be too */
@@ -155,13 +155,6 @@ mmseqs_pipeline( WORKER* worker )
 
       // #if DEBUG
       // {
-      //    WORK_viterbi_and_traceback( worker );
-         WORK_forward_backward( worker );
-      // }
-      // #endif
-
-      // #if DEBUG
-      // {
       //    /* get search window by running viterbi (debug only) */
       //    tr = worker->traceback;
       //    beg = &(tr->traces[tr->beg]);
@@ -186,8 +179,9 @@ mmseqs_pipeline( WORKER* worker )
       tr->beg = 0;
       tr->end = 1;
 
+      // WORK_forward_backward( worker );
       /* run cloud search */
-      // WORK_cloud_search( worker );
+      WORK_cloud_search( worker );
       /* capture alignment */
       // WORK_capture_alignment( worker );
       /* convert bitscore to eval */

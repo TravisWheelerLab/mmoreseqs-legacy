@@ -100,6 +100,16 @@ void DP_MATRIX_Dump( const int         Q,
                      FILE*             fp );
 
 /*
+ *  FUNCTION:  DP_MATRIX_Log_Dump()
+ *  SYNOPSIS:  Output dynamic programming matrix to file.
+ */
+void DP_MATRIX_Log_Dump(   const int         Q,
+                           const int         T,
+                           MATRIX_3D*        st_MX,
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp );
+
+/*
  *  FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */

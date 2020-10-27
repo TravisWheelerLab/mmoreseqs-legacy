@@ -469,18 +469,18 @@ enum p7g_xcells_e {
 
 
 typedef struct p7_gmx_s {
-  int  M;   /* actual model dimension (model 1..M)    */
-  int  L;   /* actual sequence dimension (seq 1..L)   */
+  int       M;        /* actual model dimension (model 1..M)    */
+  int       L;        /* actual sequence dimension (seq 1..L)   */
 
-  int      allocR;      /* current allocated # of rows : L+1 <= validR <= allocR                */
-  int      validR;  /* # of rows actually pointing at DP memory                             */
-  int      allocW;  /* current set row width :  M+1 <= allocW                               */
-  uint64_t ncells;  /* total # of allocated cells in 2D matrix : ncells >= (validR)(allocW) */
+  int       allocR;   /* current allocated # of rows : L+1 <= validR <= allocR                */
+  int       validR;   /* # of rows actually pointing at DP memory                             */
+  int       allocW;   /* current set row width :  M+1 <= allocW                               */
+  uint64_t  ncells;   /* total # of allocated cells in 2D matrix : ncells >= (validR)(allocW) */
 
-  float **dp;           /* logically [0.1..L][0.1..M][0..p7G_NSCELLS-1]; indexed [i][k*p7G_NSCELLS+s] */
-  float  *xmx;          /* logically [0.1..L][0..p7G_NXCELLS-1]; indexed [i*p7G_NXCELLS+s]            */
+  float     **dp;     /* logically [0.1..L][0.1..M][0..p7G_NSCELLS-1]; indexed [i][k*p7G_NSCELLS+s] */
+  float     *xmx;     /* logically [0.1..L][0..p7G_NXCELLS-1]; indexed [i*p7G_NXCELLS+s]            */
 
-  float  *dp_mem;
+  float     *dp_mem;
 } P7_GMX;
 
 /* Macros below implement indexing idioms for generic DP routines.
@@ -1342,6 +1342,7 @@ extern int p7_EntropyWeight(const P7_HMM *hmm, const P7_BG *bg, const P7_PRIOR *
 extern int p7_EntropyWeight_exp(const P7_HMM *hmm, const P7_BG *bg, const P7_PRIOR *pri, double etarget, double *ret_exp);
 /* generic_decoding.c */
 extern int p7_GDecoding      (const P7_PROFILE *gm, const P7_GMX *fwd,       P7_GMX *bck, P7_GMX *pp);
+extern int p7_GDecoding_old  (const P7_PROFILE *gm, const P7_GMX *fwd,       P7_GMX *bck, P7_GMX *pp);
 extern int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef);
 
 /* generic_fwdback.c */
@@ -1822,6 +1823,13 @@ void DP_MATRIX_Dump(  const int   Q,
                       P7_PROFILE* gm,
                       P7_GMX*     gx,
                       FILE*       fp );
+
+void DP_MATRIX_Log_Dump(   const int   Q, 
+                           const int   T,
+                           ESL_DSQ*    dsq,
+                           P7_PROFILE* gm,
+                           P7_GMX*     gx,
+                           FILE*       fp );
 
 void trace_Build( const int   L,
                   const int   M,

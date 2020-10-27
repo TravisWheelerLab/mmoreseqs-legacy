@@ -507,7 +507,7 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
          t_1 = t_0 + 1;
 
          prv_E = XMX(SP_E, Q) + sc_E;
-         prv_D = DMX(qx0, t_1)  + TSC(t_0, M2D);
+         prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
          MMX(qx0, t_0) = logsum( prv_E, prv_D );
 
          prv_E = XMX(SP_E, Q) + sc_E;
@@ -553,7 +553,7 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
       a = seq[q_0];
       A = AA_REV[a];
 
-      /* UPDATE SPECIAL STATES at the start of EACH ROW */
+      /* SPECIAL STATES */
 
       // /* B STATE (naive) */
       // /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation.   */
@@ -614,6 +614,7 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
          #endif
       }
 
+      /* NORMAL STATES */
       /* FOR every EDGEBOUND in current ROW */
       for (r_0 = r_0b; r_0 > r_0e; r_0--)
       {
@@ -628,7 +629,7 @@ int run_Bound_Backward_Quad(     const SEQUENCE*      query,         /* query se
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
             prv_M = MMX(qx1, t_1) + TSC(t_0, M2M) + MSC(t_1, A);
-            prv_I = IMX(qx1, t_0) + TSC(t_0, M2I) + ISC(t_1, A);
+            prv_I = IMX(qx1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
             prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
             prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */

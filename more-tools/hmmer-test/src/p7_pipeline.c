@@ -22,6 +22,8 @@
 
 #include "esl_sqio.h" //!!!!DEBUG
 
+#include "drich_funcs.h"
+
 /* Struct used to pass a collection of useful temporary objects around
  * within the LongTarget functions
  *  */
@@ -950,6 +952,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("PROFILE:\t%s\n", om->name);
    printf("SEQUENCE:\t%s\n", sq->name);
 
+   // DR_test();
+
    if (sq->n == 0) return eslOK;    /* silently skip length 0 seqs; they'd cause us all sorts of weird problems */
 
    p7_omx_GrowTo(pli->oxf, om->M, 0, sq->n);    /* expand the one-row omx if needed */
@@ -1045,7 +1049,10 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    P7_GMX *gmx_vit = p7_gmx_Create(om->M, om->L);
    P7_GMX *gmx_fwd = p7_gmx_Create(om->M, om->L);
    P7_GMX *gmx_bck = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_pp  = p7_gmx_Create(om->M, om->L);
    P7_TRACE *tr = p7_trace_Create();
+
+   /* GENERIC FUNCTIONS */
 
    printf("==> VITERBI\n");
    p7_GViterbi(sq->dsq, sq->n, gm, gmx_vit, &opt_sc);
@@ -1078,27 +1085,67 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    fclose(fp);
    /* DAVID RICH EDIT end */
 
-   printf("n2sc [L=%d]:\n", pli->ddef->L);
-   for (int i = 0; i < pli->ddef->L; i++) {
-      printf("[%2d] %-7.4f ", i, pli->ddef->n2sc[i] );
-      if ( (i + 1) % 10 == 0 ) printf("\n");
-   }
-   printf("\n");
-
    printf("# fwdsc: %.9f, nullsc: %.9f, seqbias: %.9f\n", 
       fwdsc, nullsc, seqbias);
 
-   printf("==> GENERIC_DECODING\n");
-   p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
+   printf("=== GENERIC POSTERIOR ===\n");
+   // p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
+   p7_GDecoding( gm, gmx_fwd, gmx_bck, gmx_pp );
 
-   printf("==> POSTERIOR_HEURISTICS\n");
+   fp = fopen("test_output/hmmer.posterior.tsv", "w+");
+   DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+   fclose(fp);
+   fp = fopen("test_output/hmmer.posterior.log.tsv", "w+");
+   DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+   fclose(fp);
+   
+   p7_GNull2_ByExpectation( gm, gmx_pp, pli->ddef->n2sc);
+
+   printf("==> GENERIC NULL2 SCORE <=\n"); 
+   printf("n2sc [L=%d]:\n", pli->ddef->L);
+   for (int i = 0; i < gm->abc->Kp; i++) {
+      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
+      if ( (i + 1) % 5 == 0 ) printf("\n");
+   }
+   printf("\n");
+
+   float seqbias1, seqbias2;
+
+   seqbias1 = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
+   seqbias1 = p7_FLogsum(0.0, log(bg->omega) + seqbias1);
+   printf("seqbias1: %f %f, omega: %f %f\n", seqbias1, log(seqbias1), bg->omega, log(bg->omega));
+
+   esl_vec_FLog(pli->ddef->n2sc, gm->abc->Kp);
+
+   printf("==> GENERIC NULL2 SCORE <=\n"); 
+   printf("n2sc [L=%d]:\n", pli->ddef->L);
+   for (int i = 0; i < gm->abc->Kp; i++) {
+      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
+      if ( (i + 1) % 5 == 0 ) printf("\n");
+   }
+   printf("\n");
+
+   seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
+   printf("seqbias (pre): %f, omega: %f\n", seqbias, log(bg->omega));
+   seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
+   printf("seqbias: %f\n", seqbias);
+
+   seqbias1 = esl_vec_FSum(pli->ddef->n2sc, gm->abc->K);
+   printf("seqbias2 (pre): %f\n", seqbias1 );
+   seqbias1 = p7_FLogsum(0.0, log(bg->omega) + seqbias1);
+   printf("seqbias2: %f\n", seqbias1 );
+
+   /* OPTIMIZED FUNCTIONS */
+
+   printf("=== OPTIMIZED POSTERIOR HEURISTICS ===\n");
    status = p7_domaindef_ByPosteriorHeuristics(
       sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
    
+   printf("==> OPTIMIZED NULL2 SCORE <=\n"); 
    printf("n2sc [L=%d]:\n", pli->ddef->L);
    for (int i = 0; i < pli->ddef->L; i++) {
-      printf("[%2d] %-7.4f ", i, pli->ddef->n2sc[i] );
-      if ( (i + 1) % 10 == 0 ) printf("\n");
+      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
+      if ( (i + 1) % 5 == 0 ) printf("\n");
    }
    printf("\n");
 
@@ -1111,15 +1158,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("# seqbias = %.9f, bg->omega = %.9f\n",
           seqbias, bg->omega );
 
-   // printf("n2sc [L=%d]:\n", pli->ddef->L);
-   // for (int i = 0; i < pli->ddef->L; i++) {
-   //    printf("[%2d] %-7.4f ", i, pli->ddef->n2sc[i] );
-   //    if ( (i + 1) % 10 == 0 ) printf("\n");
-   // }
-   // printf("\n");
-
    if (pli->do_null2)
    {
+      printf("=== do_null2 ===\n");
       seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
       seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
    }
@@ -1134,6 +1175,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       fwdsc, nullsc, seqbias);
    printf("# pre_score: %.9f, seq_score: %.9f, fwdsc: %.9f\n",
           pre_score, seq_score, fwdsc );
+   exit(0);
 
    /* prescore */
    lnP = esl_exp_logsurv (pre_score,  om->evparam[p7_FTAU], om->evparam[p7_FLAMBDA]);
@@ -1153,6 +1195,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
     */
    sum_score = 0.0f;
    seqbias   = 0.0f;
+   
 
    printf("# pli->ddef->ndom = %d\n", pli->ddef->ndom);
    Ld        = 0;
@@ -1181,6 +1224,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       }
       seqbias = 0.0;
    } 
+   
    
    /* */
    sum_score += (sq->n - Ld) * log((float) sq->n / (float) (sq->n + 3)); /* NATS */

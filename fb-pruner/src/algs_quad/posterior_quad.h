@@ -68,8 +68,8 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
                            int            q_end );
 
 
-/** FUNCTION:  run_Decode_Posterior_Quad()
- *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create posterior into <...post>.
+/*! FUNCTION:  run_Decode_Normal_Posterior_Quad()
+ *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store matrix in <...fwd> or <...bck>.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
  *
@@ -85,23 +85,8 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
                            MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
                            MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
                            MATRIX_3D*        st_MX_post,       /* OUTPUT: normal state matrix for posterior */
-                           MATRIX_2D*        sp_MX_post );     /* OUTPUT: special state matrix for posterior */
+                           MATRIX_2D*        sp_MX_post );     /* OUTPUT: normal state matrix for posterior */
 
-/** FUNCTION:  run_Decode_Posterior_Quad()
- *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create normal state posterior into <...post>.
- *             Can store matrix in <...fwd> or <...bck>.
- *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
- *
- *  RETURN:    Return <STATUS_SUCCESS> if no errors.
- */
-int
-run_Decode_Normal_Posterior_Quad(   SEQUENCE*         q_seq,            /* query sequence */
-                                    HMM_PROFILE*      t_prof,           /* target hmm model */
-                                    int               Q,                /* query length */
-                                    int               T,                /* target length */
-                                    MATRIX_3D*        st_MX_fwd,        /* normal state matrix for forward */
-                                    MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
-                                    MATRIX_3D*        st_MX_post );     /* OUTPUT: normal state matrix for posterior */
 
 /** FUNCTION:  run_Decode_Posterior_Quad()
  *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
@@ -111,7 +96,7 @@ run_Decode_Normal_Posterior_Quad(   SEQUENCE*         q_seq,            /* query
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Decode_Special_Posterior_Quad(   SEQUENCE*         q_seq,            /* query sequence */
+run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query sequence */
                                     HMM_PROFILE*      t_prof,           /* target hmm model */
                                     int               Q,                /* query length */
                                     int               T,                /* target length */
@@ -175,7 +160,7 @@ run_Rescore_Isolated_Domain(  SEQUENCE*         q_seq,            /* query seque
 int
 run_Null2_ByExpectation(   SEQUENCE*         query,            /* query sequence */
                            HMM_PROFILE*      target,           /* target hmm model */
-                           int               Q,                /* query length */
+                           RANGE*            Q,                /* query length */
                            int               T,                /* target length */
                            MATRIX_3D*        st_MX_post,       /* posterior normal matrix */
                            MATRIX_2D*        sp_MX_post,       /* posterior special matrix */

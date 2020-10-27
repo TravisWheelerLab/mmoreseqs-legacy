@@ -45,6 +45,9 @@ DOMAIN_DEF_Create()
    dom_def->rt2           = 0.10;
    dom_def->rt3           = 0.20;
 
+   /* empty values */
+   
+
    return dom_def;
 }
 

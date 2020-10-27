@@ -8,9 +8,9 @@
 
 
 /* parses arguments from the command line */
-void ARGS_Parse( ARGS*   args,
-				 int     argc, 
-                 char*   argv[] );
+void ARGS_Parse(  ARGS*   args,
+				      int     argc, 
+                  char*   argv[] );
 
 /* set default arguments */
 void ARGS_Set_Defaults( ARGS* args );

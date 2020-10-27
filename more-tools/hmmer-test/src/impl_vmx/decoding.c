@@ -173,7 +173,7 @@ int p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *p
  */
 int p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P7_DOMAINDEF *ddef)
 {
-  printf("--> TEST - Decoding (vmx)\n");
+  printf("=== p7_DomainDecoding -> vmx ===\n");
   int L = oxf->L;
   float scaleproduct = 1.0 / oxb->xmx[p7X_N];
   float njcp;

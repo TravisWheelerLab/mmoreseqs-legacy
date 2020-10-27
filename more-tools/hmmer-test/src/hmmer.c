@@ -34,6 +34,10 @@ void DP_MATRIX_Dump(  const int   Q,
                       P7_GMX*     gx,
                       FILE*       fp )
 {
+   int pad, dec;
+   pad = 9;
+   dec = 5;
+
    float const *tsc  = gm->tsc;
    float      **dp   = gx->dp;
    float       *xmx  = gx->xmx;
@@ -42,60 +46,168 @@ void DP_MATRIX_Dump(  const int   Q,
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
    /* Header */
-   fprintf(fp, "#\t");
+   fprintf(fp, "%*s ", -9, "#");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%d\t", i);
+      fprintf(fp, "%*d ", -7, i);
    }
    fprintf(fp, "\n");
 
    /* Row-by-Row */
    for (int i = 0; i <= Q; i++)
    {
-      fprintf(fp, "M %d\t", i );
+      fprintf(fp, "M %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", MMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, MMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "I %d\t", i );
+      fprintf(fp, "I %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", IMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, IMX(i, j) );
       }
       fprintf(fp, "\n");
 
-      fprintf(fp, "D %d\t", i );
+      fprintf(fp, "D %*d ", -4, i );
       for (int j = 0; j <= T; j++) {
-         fprintf(fp, "%7.3f\t", DMX(i, j) );
+         fprintf(fp, "%*.*f ", pad, dec, DMX(i, j) );
       }
       fprintf(fp, "\n\n");
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "N\t");
-   for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(i, p7G_N)  ); 
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
    }
    fprintf(fp, "\n");
-   fprintf(fp, "J\t");
+
+   fprintf(fp, "%*s ", -6, "N");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(i, p7G_N)  ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "J");
    for (int i = 0; i <= Q; i++)
    { 
-      fprintf(fp, "%7.3f ", XMX(i, p7G_J) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(i, p7G_J) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "E\t");
+
+   fprintf(fp, "%*s ", -6, "E");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(i, p7G_E) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(i, p7G_E) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "C\t");
+
+   fprintf(fp, "%*s ", -6, "C");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(i, p7G_C) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(i, p7G_C) ); 
    }
    fprintf(fp, "\n");
-   fprintf(fp, "B\t");
+
+   fprintf(fp, "%*s ", -6, "B");
    for (int i = 0; i <= Q; i++) { 
-      fprintf(fp, "%7.3f ", XMX(i, p7G_B) ); 
+      fprintf(fp, "%*.*f ", pad, dec, XMX(i, p7G_B) ); 
+   }
+   fprintf(fp, "\n\n");
+}
+
+/*  FUNCTION:  dp_matrix_Save()
+ *  SYNOPSIS:  Save dynamic programming matrix to file.
+ *
+ *  ARGS:      <Q>         query length,
+ *             <T>         target length,
+ *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
+ *             <sp_MX>     Special State (J,N,B,C,E) Matrix
+ *             <f>         Filename
+ */
+void DP_MATRIX_Log_Dump(   const int   Q, 
+                           const int   T,
+                           ESL_DSQ*    dsq,
+                           P7_PROFILE* gm,
+                           P7_GMX*     gx,
+                           FILE*       fp )
+{
+   int pad, dec;
+   pad = 9;
+   dec = 5;
+
+   float const *tsc  = gm->tsc;
+   float      **dp   = gx->dp;
+   float       *xmx  = gx->xmx;
+   int          i, j;
+
+   /* PRINT resulting dp matrix */
+   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
+   /* Header */
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= T; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   /* Row-by-Row */
+   for (int i = 0; i <= Q; i++)
+   {
+      fprintf(fp, "M %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log(MMX(i, j)) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "I %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log(IMX(i, j)) );
+      }
+      fprintf(fp, "\n");
+
+      fprintf(fp, "D %*d ", -4, i );
+      for (int j = 0; j <= T; j++) {
+         fprintf(fp, "%*.*f ", pad, dec, log(DMX(i, j)) );
+      }
+      fprintf(fp, "\n\n");
+   }
+
+   fprintf(fp, "###### SPECIAL STATES #####\n");
+   fprintf(fp, "%*s ", -9, "#");
+   for (int i = 0; i <= Q; i++) {
+      fprintf(fp, "%*d ", -7, i);
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "N");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log(XMX(i, p7G_N))  ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "J");
+   for (int i = 0; i <= Q; i++)
+   { 
+      fprintf(fp, "%*.*f ", pad, dec, log(XMX(i, p7G_J)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "E");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log(XMX(i, p7G_E)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "C");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log(XMX(i, p7G_C)) ); 
+   }
+   fprintf(fp, "\n");
+
+   fprintf(fp, "%*s ", -6, "B");
+   for (int i = 0; i <= Q; i++) { 
+      fprintf(fp, "%*.*f ", pad, dec, log(XMX(i, p7G_B)) ); 
    }
    fprintf(fp, "\n\n");
 }

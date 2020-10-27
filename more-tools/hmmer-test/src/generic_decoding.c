@@ -75,14 +75,30 @@
  */
 int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
 {
+  printf("=== p7_GDecoding ===\n");
+  // printf("==> FWD:\n");
+  // // p7_gmx_Dump(stdout, fwd, 0);
+  // DP_MATRIX_Dump(fwd->L, fwd->M, NULL, gm, fwd, stdout);
+  // printf("==> BCK:\n");
+  // // p7_gmx_Dump(stdout, bck, 0);
+  // DP_MATRIX_Dump(bck->L, bck->M, NULL, gm, bck, stdout);
+
+  float mmx, imx, dmx, smx;
+  float mmx_, imx_, dmx_, smx_;
+
   float **dp = pp->dp;
   float *xmx = pp->xmx;
   int L = fwd->L;
   int M = gm->M;
   int i, k;
-  float overall_sc = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
+  float overall_sc =  fwd->xmx[p7G_NXCELLS * L + p7G_C] + 
+                      gm->xsc[p7P_C][p7P_MOVE];
   float denom;
 
+  printf("overall_sc: %f %f ==> %f\n", 
+    fwd->xmx[p7G_NXCELLS * L + p7G_C], gm->xsc[p7P_C][p7P_MOVE], overall_sc);
+  // overall_sc = 0.0;
+  
   pp->M = M;
   pp->L = L;
 
@@ -91,37 +107,242 @@ int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *p
   XMX(0, p7G_J) = 0.0;
   XMX(0, p7G_B) = 0.0;
   XMX(0, p7G_C) = 0.0;
-  for (k = 0; k <= M; k++)
+
+  for (k = 0; k <= M; k++) {
     MMX(0, k) = IMX(0, k) = DMX(0, k) = 0.0;
+  }
 
   for (i = 1; i <= L; i++)
   {
     denom = 0.0;
+
     MMX(i, 0) = IMX(i, 0) = DMX(i, 0) = 0.0;
+
     for (k = 1; k < M; k++)
     {
-      MMX(i, k) = expf(fwd->dp[i][k * p7G_NSCELLS + p7G_M] + bck->dp[i][k * p7G_NSCELLS + p7G_M] - overall_sc);
+      mmx = fwd->dp[i][k * p7G_NSCELLS + p7G_M] + 
+            bck->dp[i][k * p7G_NSCELLS + p7G_M] - 
+            overall_sc;
+      mmx_ = expf(mmx);
+      MMX(i, k) = mmx_;
       denom += MMX(i, k);
-      IMX(i, k) = expf(fwd->dp[i][k * p7G_NSCELLS + p7G_I] + bck->dp[i][k * p7G_NSCELLS + p7G_I] - overall_sc);
+
+      imx = fwd->dp[i][k * p7G_NSCELLS + p7G_I] + 
+            bck->dp[i][k * p7G_NSCELLS + p7G_I] - 
+            overall_sc;
+      imx_ = expf(imx);
+      IMX(i, k) = imx_;
       denom += IMX(i, k);
-      DMX(i, k) = 0.;
+
+      DMX(i, k) = 0.0;
+
+      // if ( i < 5 ) {
+      //   printf("(%2d,%2d)\n", i, k );
+      //   printf("\t{MMX}: %9f %9f %9f :=> %9f %9f\n", 
+      //       fwd->dp[i][k * p7G_NSCELLS + p7G_M], 
+      //       bck->dp[i][k * p7G_NSCELLS + p7G_M],
+      //       overall_sc, 
+      //       mmx,
+      //       mmx_ );
+      //   printf("\t{IMX}: %9f %9f %9f :=> %9f %9f\n", 
+      //       fwd->dp[i][k * p7G_NSCELLS + p7G_I], 
+      //       bck->dp[i][k * p7G_NSCELLS + p7G_I],
+      //       overall_sc, 
+      //       imx,
+      //       imx_ );  
+      // }
     }
-    MMX(i, M) = expf(fwd->dp[i][M * p7G_NSCELLS + p7G_M] + bck->dp[i][M * p7G_NSCELLS + p7G_M] - overall_sc);
+
+    // printf("(%2d,%2d)\n", i, k );
+    
+    /* unrolled final loop */
+    mmx = fwd->dp[i][M * p7G_NSCELLS + p7G_M] + 
+          bck->dp[i][M * p7G_NSCELLS + p7G_M] - 
+          overall_sc;
+    mmx_ = expf(mmx);
+    MMX(i, M) = expf(mmx);
     denom += MMX(i, M);
+
     IMX(i, M) = 0.;
     DMX(i, M) = 0.;
 
+    /* special states */
     /* order doesn't matter.  note that this whole function is trivially simd parallel */
     XMX(i, p7G_E) = 0.;
-    XMX(i, p7G_N) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + bck->xmx[p7G_NXCELLS * i + p7G_N] + gm->xsc[p7P_N][p7P_LOOP] - overall_sc);
-    XMX(i, p7G_J) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + bck->xmx[p7G_NXCELLS * i + p7G_J] + gm->xsc[p7P_J][p7P_LOOP] - overall_sc);
     XMX(i, p7G_B) = 0.;
-    XMX(i, p7G_C) = expf(fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + bck->xmx[p7G_NXCELLS * i + p7G_C] + gm->xsc[p7P_C][p7P_LOOP] - overall_sc);
+
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_N] + 
+          gm->xsc[p7P_N][p7P_LOOP] - 
+          overall_sc;
+    smx_ = expf(smx);
+    XMX(i, p7G_N) = smx_;
+
+    // printf("\t{N}:   %9f %9f %9f :=> %9f %9f\n", 
+    //     fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N], 
+    //     bck->xmx[p7G_NXCELLS * i + p7G_N],
+    //     gm->xsc[p7P_N][p7P_LOOP], 
+    //     smx,
+    //     smx_ );
+        
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_J] + 
+          gm->xsc[p7P_J][p7P_LOOP] - 
+          overall_sc;
+    smx_ = expf(smx);
+    XMX(i, p7G_J) = smx_;
+
+    // printf("\t{J}:   %9f %9f %9f :=> %9f %9f\n", 
+    //     fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J], 
+    //     bck->xmx[p7G_NXCELLS * i + p7G_J],
+    //     gm->xsc[p7P_J][p7P_LOOP], 
+    //     smx,
+    //     smx_ ); 
+
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_C] + 
+          gm->xsc[p7P_C][p7P_LOOP] - 
+          overall_sc;
+    smx_ = expf(smx);
+    XMX(i, p7G_C) = smx_;
+
+    // printf("\t{C}:   %9f %9f %9f :=> %9f %9f\n", 
+    //     fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C], 
+    //     bck->xmx[p7G_NXCELLS * i + p7G_C],
+    //     gm->xsc[p7P_C][p7P_LOOP], 
+    //     smx,
+    //     smx_ );  
+
     denom += XMX(i, p7G_N) + XMX(i, p7G_J) + XMX(i, p7G_C);
 
-    denom = 1.0 / denom;
+    printf("[%2d]: denom :=> %9f\n", i, denom);
+    /* scale row by common factor denominator */
+    // denom = 1.0 / denom;
+    // for (k = 1; k < M; k++) {
+    //   MMX(i, k) *= denom;
+    //   IMX(i, k) *= denom;
+    // }
+    // MMX(i, M) *= denom;
+    // XMX(i, p7G_N) *= denom;
+    // XMX(i, p7G_J) *= denom;
+    // XMX(i, p7G_C) *= denom;
+  }
+
+  printf("==> POSTERIOR:\n");
+  // p7_gmx_Dump(stdout, pp, 0);
+  DP_MATRIX_Log_Dump(pp->L, pp->M, NULL, gm, pp, stdout);
+
+  return eslOK;
+}
+
+int p7_GDecoding_old(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
+{
+  printf("=== p7_GDecoding ===\n");
+  // printf("==> FWD:\n");
+  // p7_gmx_Dump(stdout, fwd, 0);
+  // DP_MATRIX_Dump(fwd->L, fwd->M, NULL, gm, fwd, stdout);
+  // printf("==> BCK:\n");
+  // p7_gmx_Dump(stdout, bck, 0);
+  // DP_MATRIX_Dump(bck->L, bck->M, NULL, gm, bck, stdout);
+
+
+  float **dp = pp->dp;
+  float *xmx = pp->xmx;
+  int L = fwd->L;
+  int M = gm->M;
+  int i, k;
+  float overall_sc =  fwd->xmx[p7G_NXCELLS * L + p7G_C] + 
+                      gm->xsc[p7P_C][p7P_MOVE];
+  float denom;
+
+  float mmx, imx, dmx, smx;
+  float mmx_, imx_, dmx_, smx_;
+
+  printf("overall_sc: %f %f ==> %f\n", 
+    fwd->xmx[p7G_NXCELLS * L + p7G_C], gm->xsc[p7P_C][p7P_MOVE], overall_sc);
+
+  overall_sc = 0.0;
+  pp->M = M;
+  pp->L = L;
+
+  XMX(0, p7G_E) = 0.0;
+  XMX(0, p7G_N) = 0.0;
+  XMX(0, p7G_J) = 0.0;
+  XMX(0, p7G_B) = 0.0;
+  XMX(0, p7G_C) = 0.0;
+
+  for (k = 0; k <= M; k++) {
+    MMX(0, k) = IMX(0, k) = DMX(0, k) = 0.0;
+  }
+
+  /* every position in target */
+  for (i = 1; i <= L; i++)
+  {
+    denom = 0.0;
+
+    MMX(i, 0) = IMX(i, 0) = DMX(i, 0) = 0.0;
+
+    /* every position in query */
     for (k = 1; k < M; k++)
     {
+      mmx = fwd->dp[i][k * p7G_NSCELLS + p7G_M] + 
+            bck->dp[i][k * p7G_NSCELLS + p7G_M] - 
+            overall_sc;
+      mmx_ = expf(mmx);
+      MMX(i, k) = expf(mmx);
+      denom += MMX(i, k);
+
+      imx = fwd->dp[i][k * p7G_NSCELLS + p7G_I] + 
+            bck->dp[i][k * p7G_NSCELLS + p7G_I] - 
+            overall_sc;
+      imx_ = expf(imx);
+      IMX(i, k) = expf(imx);
+      denom += IMX(i, k);
+      DMX(i, k) = 0.0;
+    }
+
+    printf("(%2d,%2d)\n", i, k );
+    
+    mmx = fwd->dp[i][M * p7G_NSCELLS + p7G_M] + 
+          bck->dp[i][M * p7G_NSCELLS + p7G_M] - 
+          overall_sc;
+    mmx_ = expf(mmx);
+    denom += mmx_;
+    IMX(i, M) = 0.;
+    DMX(i, M) = 0.;
+
+    /* special states */
+    /* order doesn't matter.  note that this whole function is trivially simd parallel */
+    XMX(i, p7G_E) = 0.;
+    XMX(i, p7G_B) = 0.;
+
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_N] + 
+          gm->xsc[p7P_N][p7P_LOOP] - 
+          overall_sc;
+    smx_ = expf(smx);
+    XMX(i, p7G_N) = smx_;
+
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_J] + 
+          gm->xsc[p7P_J][p7P_LOOP] - 
+          overall_sc;
+    smx_ = expf(smx);
+    XMX(i, p7G_J) = expf(smx);
+    
+    smx = fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + 
+          bck->xmx[p7G_NXCELLS * i + p7G_C] + 
+          gm->xsc[p7P_C][p7P_LOOP] - 
+          overall_sc;
+    smx_ = exp(smx);
+    XMX(i, p7G_C) = expf(smx);
+
+    denom += XMX(i, p7G_N) + XMX(i, p7G_J) + XMX(i, p7G_C);
+
+    // printf("[%2d]: denom :=> %9f\n", i, denom);
+    /* scale row by common factor denominator */
+    denom = 1.0 / denom;
+    for (k = 1; k < M; k++) {
       MMX(i, k) *= denom;
       IMX(i, k) *= denom;
     }
@@ -130,6 +351,7 @@ int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *p
     XMX(i, p7G_J) *= denom;
     XMX(i, p7G_C) *= denom;
   }
+
   return eslOK;
 }
 
@@ -212,6 +434,8 @@ int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *p
  */
 int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef)
 {
+  printf("=== p7_GDomainDecoding ===\n");
+
   int L = fwd->L;
   float overall_logp = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
   float njcp;
@@ -221,6 +445,13 @@ int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bc
 
   for (i = 1; i <= L; i++)
   {
+    double btot_add = fwd->xmx[(i - 1) * p7G_NXCELLS + p7G_B] + 
+                      bck->xmx[(i - 1) * p7G_NXCELLS + p7G_B] - 
+                      overall_logp;
+    double etot_add = fwd->xmx[i * p7G_NXCELLS + p7G_E] + 
+                      bck->xmx[i * p7G_NXCELLS + p7G_E] - 
+                      overall_logp;
+
     ddef->btot[i] = ddef->btot[i - 1] + 
                     exp( fwd->xmx[(i - 1) * p7G_NXCELLS + p7G_B] + 
                          bck->xmx[(i - 1) * p7G_NXCELLS + p7G_B] - 
@@ -229,6 +460,16 @@ int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bc
                     exp( fwd->xmx[i * p7G_NXCELLS + p7G_E] + 
                          bck->xmx[i * p7G_NXCELLS + p7G_E] - 
                          overall_logp );
+
+    // printf("[%2d] ::\n", i);
+    // printf("     (btot): %9.4f %9.4f => %9.4f\n",
+    //   btot_add,
+    //   exp(btot_add),
+    //   ddef->btot[i] );
+    // printf("     (etot): %9.4f %9.4f => %9.4f\n",
+    //   etot_add,
+    //   exp(etot_add),
+    //   ddef->etot[i] );
 
     njcp  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
                   bck->xmx[p7G_NXCELLS * i + p7G_N] + 
@@ -248,17 +489,31 @@ int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bc
 
   for (i = 1; i <= L; i++) 
   {
-    printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f \n", 
-      i, 
-      ddef->btot[i], fwd->xmx[(i-1)*p7G_NXCELLS+p7G_B], bck->xmx[(i-1)*p7G_NXCELLS+p7G_B],
-      ddef->etot[i], fwd->xmx[i*p7G_NXCELLS+p7G_E], bck->xmx[i*p7G_NXCELLS+p7G_E],
-      ddef->mocc[i] );
+    // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f \n", 
+    //   i, 
+    //   ddef->btot[i], fwd->xmx[(i-1)*p7G_NXCELLS+p7G_B], bck->xmx[(i-1)*p7G_NXCELLS+p7G_B],
+    //   ddef->etot[i], fwd->xmx[i*p7G_NXCELLS+p7G_E], bck->xmx[i*p7G_NXCELLS+p7G_E],
+    //   ddef->mocc[i] );
     // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f\n", 
     //   i, 
     //   ddef->btot[i], log(fwd->xmx[(i-1) * p7X_NXCELLS + p7X_B]), log(bck->xmx[(i-1) * p7X_NXCELLS + p7X_B]),
     //   ddef->etot[i], log(fwd->xmx[i * p7X_NXCELLS + p7X_E]), log(bck->xmx[i * p7X_NXCELLS + p7X_E]),
     //   ddef->mocc[i] );
   }
+
+  printf("==> ddef (posteriors):\n");
+   printf("==> ddef->btot:\n");
+   for (int i = 0; i < L + 1; i++) {
+      printf("     [%2d]: %9.4f\n", i, ddef->btot[i]);
+   }
+   printf("==> ddef->etot:\n");
+   for (int i = 0; i < L + 1; i++) {
+      printf("     [%2d]: %9.4f\n", i, ddef->etot[i]);
+   }
+   printf("==> ddef->mocc:\n");
+   for (int i = 0; i < L + 1; i++) {
+      printf("     [%2d]: %9.4f\n", i, ddef->mocc[i]);
+   }
 
   return eslOK;
 }

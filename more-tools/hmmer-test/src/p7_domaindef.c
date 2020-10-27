@@ -390,7 +390,7 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
                                    P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
                                    P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr)
 {
-   printf("=== POSTERIOR HEURISTICS ===\n");
+   printf("=== p7_domaindef_ByPosteriorHeuristics ===\n");
    printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
       ddef->rt1, ddef->rt2, ddef->rt3 );
 
@@ -403,41 +403,65 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    int saveL     = om->L;   /* Save the length config of <om>; will restore upon return */
    int save_mode = om->mode;   /* Likewise for the mode. */
    int status;
+   /* reporting thresholds for finding domains */
+   float rt1_test, rt2_btest, rt2_etest, rt3_test; 
 
    printf("dom decoding...\n");
    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
 
-   // printf("==> ddef (posteriors):\n");
-   // p7_domaindef_DumpPosteriors( stdout, ddef );
+   printf("=> ddef (posteriors):\n");
+   printf("==> ddef->btot:\n");
+   for (int i = 0; i < sq->n + 1; i++) {
+      printf("     [%2d]: %f\n", i, ddef->btot[i]);
+   }
+   printf("==> ddef->etot:\n");
+   for (int i = 0; i < sq->n + 1; i++) {
+      printf("     [%2d]: %f\n", i, ddef->etot[i]);
+   }
+   printf("==> ddef->mocc:\n");
+   for (int i = 0; i < sq->n + 1; i++) {
+      printf("     [%2d]: %f\n", i, ddef->mocc[i]);
+   }
 
    esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
    ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
 
    p7_oprofile_ReconfigUnihit(om, saveL);     /* process each domain in unihit mode, regardless of om->mode     */
-   i     = -1;
-   triggered = FALSE;
+   i           = -1;
+   triggered   = FALSE;
+
+   /* check test states at each posi */
+   for (j = 1; j <= sq->n; j++)
+   {
+      rt1_test  = ddef->mocc[j];
+      rt2_btest = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
+      rt2_etest = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
+
+      printf("\n[%2d] ::\n", j);
+      printf("       rt1: %f < %f == %s\n",
+         rt1_test, ddef->rt1, (rt1_test < ddef->rt1 ? "TRUE" : "FALSE") );
+      printf("     rt2_b: %f < %f == %s\n",
+         rt2_btest, ddef->rt2, (rt2_btest < ddef->rt2 ? "TRUE" : "FALSE") );
+      printf("     rt1_e: %f < %f == %s\n",
+         rt2_etest, ddef->rt2, (rt2_etest < ddef->rt2 ? "TRUE" : "FALSE") );
+   }
 
    for (j = 1; j <= sq->n; j++)
    {
-   //    if (! triggered) {
-   //       float sc = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
-   //       printf("BEG: (i)=(%d) :: mocc[j]: %6.3f, btot[j]: %6.3f, btot[j-1]: %6.3f, sc: %6.3f\n",
-   //          i, ddef->mocc[j], ddef->btot[j], ddef->btot[j - 1], sc );
-   //    }
-   //    else {
-   //       float sc = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
-   //       printf("END: (i)=(%d) :: mocc[j]: %6.3f, etot[j]: %6.3f, etot[j-1]: %6.3f, sc: %6.3f\n",
-   //          i, ddef->mocc[j], ddef->etot[j], ddef->btot[j - 1], sc );
-   //    }
+      rt1_test  = ddef->mocc[j];
+      rt2_btest = ddef->mocc[j] - 
+                  (ddef->btot[j] - ddef->btot[j - 1]);
+      rt2_etest = ddef->mocc[j] - 
+                  (ddef->etot[j] - ddef->etot[j - 1]);
 
       if (! triggered)
       {  /* xref J2/101 for what the logic below is: */
-         if       (ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]) <  ddef->rt2)   i = j;
-         else if  (i == -1)                                                            i = j;
-         if       (ddef->mocc[j]                                     >= ddef->rt1)     triggered = TRUE;
+         if       ( rt2_btest < ddef->rt2 ) i = j;
+         else if  ( i == -1 )               i = j;
+         if       ( rt1_test >= ddef->rt1 ) triggered = TRUE;
       }
-      else if (ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1])  <  ddef->rt2)
+      else if ( rt2_etest < ddef->rt2 )
       {
          printf("REGION: (%d,%d)\n", i, j);
          /* We have a region i..j to evaluate. */

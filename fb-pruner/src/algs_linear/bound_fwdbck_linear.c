@@ -288,9 +288,9 @@ int run_Bound_Forward_Linear(    const SEQUENCE*      query,         /* query se
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
-            prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-            prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
+            prv_M = MMX3(qx1, t_1) + TSC(t_1, M2M);
+            prv_I = IMX3(qx1, t_1) + TSC(t_1, I2M);
+            prv_D = DMX3(qx1, t_1) + TSC(t_1, D2M);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
             prv_sum = logsum( 
@@ -692,7 +692,7 @@ int run_Bound_Backward_Linear(   const SEQUENCE*      query,         /* query se
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
             prv_M = MMX3(qx1, t_1) + TSC(t_0, M2M) + MSC(t_1, A);
-            prv_I = IMX3(qx1, t_0) + TSC(t_0, M2I) + ISC(t_1, A);
+            prv_I = IMX3(qx1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
             prv_D = DMX3(qx0, t_1) + TSC(t_0, M2D);
             prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */

@@ -513,6 +513,7 @@ int run_Backward_Linear(   const SEQUENCE*    query,
       }
       #endif
 
+      /* NORMAL STATE */
       /* FOR every position in TARGET profile */
       for (t_0 = T-1; t_0 >= 1; t_0--)
       {
@@ -520,7 +521,7 @@ int run_Backward_Linear(   const SEQUENCE*    query,
 
          /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
          prv_M = MMX3(qx1, t_1) + TSC(t_0, M2M) + MSC(t_1, A);
-         prv_I = IMX3(qx1, t_0) + TSC(t_0, M2I) + ISC(t_1, A);
+         prv_I = IMX3(qx1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
          prv_D = DMX3(qx0, t_1) + TSC(t_0, M2D);
          prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
          /* best-to-match */

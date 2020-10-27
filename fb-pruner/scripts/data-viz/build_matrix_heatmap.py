@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 ###############################################################################
 #  @file prob_to_bitmap
 #  @brief Takes in tsv of dp matrix and creates a bitmap.
@@ -63,6 +62,10 @@ def replace_inf(val, replace):
 def load_matrix(tsv_matrix):
    trace = [[],[]]
 
+   TR = None
+   NM_MX = None
+   SP_MX = None
+
    # read every line in file
    with open(tsv_matrix) as f:
       line = f.readline()
@@ -118,7 +121,7 @@ def load_matrix(tsv_matrix):
             line = f.readline()
             while line and not line.startswith("/"):
                # label which row 
-               line = line.split("\t")
+               line = line.split()
                label = line[0]
 
                # read in row from special state matrix
@@ -336,10 +339,11 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
    im = ax1.imshow( MAT_MX, cmap='jet', interpolation='nearest' )
 
    # plot viterbi traceback
-   tr_len = len(TR[0])-1
+   if (TR != None):
+      tr_len = len(TR[0])-1
 
    # draw the viterbi trace
-   if tr_len >= 2:
+   if TR != None and tr_len >= 2:
       print("making trace...\n")
       ax1.scatter( TR[0][0], TR[1][0], c='white', s=3 )
       ax1.scatter( TR[0][tr_len], TR[1][tr_len], c='white', s=3 )
@@ -375,6 +379,7 @@ def output_heatmap_trace(title, MAT_MX, TR, vmin, vmax, file="", name="test"):
 # default location to save files
 # file = "/Users/Devreckas/Google-Drive/Wheeler-Labs/Personal_Work/fb-pruner/data-vis/heatmaps/"
 file = ""
+title = "heatmap.viz"
 
 # Parse args
 if (len(sys.argv) == 1):

@@ -1,4 +1,4 @@
 #query	target	pident	alnlen	mismatch	gapopen	qstart	qend	tstart	tend	eval	bits	cigar
 #-----	------	------	------	--------	------	------	-----	-------	----	----	----	-----
-test1_2	test1_1	0.500	2	0	0	4	14	8	18	    0.066	   0.0	
+test1_2	test1_1	0.500	2	0	0	4	14	8	18	  5.4e-07	   7.0	
 # [ok]

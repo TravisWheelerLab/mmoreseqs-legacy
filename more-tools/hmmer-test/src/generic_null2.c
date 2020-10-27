@@ -62,14 +62,22 @@
  */
 int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
 {
-  int M = gm->M;
-  int Ld = pp->L;
-  float **dp = pp->dp;
-  float *xmx = pp->xmx;
-  float xfactor;
-  int x; /* over symbols 0..K-1                       */
-  int i; /* over offset envelope dsq positions 1..Ld  */
-  int k; /* over model M states 1..M, I states 1..M-1 */
+  printf("=== p7_GNull2_ByExpectation ===\n");
+
+  int     M     = gm->M;
+  int     Ld    = pp->L;
+  float   **dp  = pp->dp;
+  float   *xmx  = pp->xmx;
+  float   xfactor;
+  int     x; /* over symbols 0..K-1                       */
+  int     i; /* over offset envelope dsq positions 1..Ld  */
+  int     k;
+  int     Sk; /* over model M states 1..M, I states 1..M-1 */
+
+  // printf("=== POSTERIOR ===\n");
+  // p7_gmx_Dump(stdout, pp, p7_SHOW_LOG);
+  // printf("M,L=(%d,%d)\n", M, Ld );
+  // printf("=================\n");
 
   /* Calculate expected # of times that each emitting state was used
    * in generating the Ld residues in this domain.
@@ -77,10 +85,38 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
    */
   esl_vec_FCopy(pp->dp[1], (M + 1) * p7G_NSCELLS, pp->dp[0]);
   esl_vec_FCopy(pp->xmx + p7G_NXCELLS, p7G_NXCELLS, pp->xmx);
+  esl_vec_FSet(null2, gm->abc->K, -eslINFINITY);
+
+  printf("<0>\n");
+  printf("==> NORMAL STATES <=\n");
+  for (int i = 0; i < M+1; i++) {
+    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
+  }
+  printf("==> SPECIAL STATES <=\n");
+  for (int i = 0; i < p7G_NXCELLS; i++) {
+    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
+  }
+
   for (i = 2; i <= Ld; i++)
   {
     esl_vec_FAdd(pp->dp[0], pp->dp[i], (M + 1) * p7G_NSCELLS);
     esl_vec_FAdd(pp->xmx, pp->xmx + i * p7G_NXCELLS, p7G_NXCELLS);
+  }
+
+  printf("<1>\n");
+  printf("==> NORMAL STATES <=\n");
+  for (int i = 0; i < M+1; i++) {
+    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
+  }
+  printf("==> SPECIAL STATES <=\n");
+  for (int i = 0; i < p7G_NXCELLS; i++) {
+    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
   }
 
   /* Convert those expected #'s to log frequencies; these we'll use as
@@ -89,8 +125,36 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   esl_vec_FLog(pp->dp[0], (M + 1) * p7G_NSCELLS);
   esl_vec_FLog(pp->xmx, p7G_NXCELLS);
 
+  printf("<3>\n");
+  printf("==> NORMAL STATES <=\n");
+  for (int i = 0; i < M+1; i++) {
+    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
+  }
+  printf("==> SPECIAL STATES <=\n");
+  for (int i = 0; i < p7G_NXCELLS; i++) {
+    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
+  }
+
+  float neglog_L = -log((float)Ld);
+  printf("neglog_L = %d %f\n", Ld, neglog_L );
   esl_vec_FIncrement(pp->dp[0], (M + 1) * p7G_NSCELLS, -log((float)Ld));
   esl_vec_FIncrement(pp->xmx, p7G_NXCELLS, -log((float)Ld));
+
+  printf("<4>\n");
+  printf("==> NORMAL STATES <=\n");
+  for (int i = 0; i < M+1; i++) {
+    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
+      *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
+  }
+  printf("==> SPECIAL STATES <=\n");
+  for (int i = 0; i < p7G_NXCELLS; i++) {
+    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
+  }
 
   /* Calculate null2's log odds emission probabilities, by taking
    * posterior weighted sum over all emission vectors used in paths
@@ -100,17 +164,33 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   xfactor = XMX(0, p7G_N);
   xfactor = p7_FLogsum(xfactor, XMX(0, p7G_C));
   xfactor = p7_FLogsum(xfactor, XMX(0, p7G_J));
-  esl_vec_FSet(null2, gm->abc->K, -eslINFINITY);
+
+  printf("xfactor: %f, NCJ: %f %f %f\n", 
+    xfactor,  XMX(0, p7G_N), XMX(0, p7G_C), XMX(0, p7G_J) );
+  
   for (x = 0; x < gm->abc->K; x++)
   {
     for (k = 1; k < M; k++)
     {
       null2[x] = p7_FLogsum(null2[x], MMX(0, k) + p7P_MSC(gm, k, x));
       null2[x] = p7_FLogsum(null2[x], IMX(0, k) + p7P_ISC(gm, k, x));
+
+      if ( k == 14 )
+      printf("(k_0,t_0)=%2d,%2d, MSC=%f, ISC=%f, NULL2=%f\n",
+        x, k, 
+        MMX(0, k) + p7P_MSC(gm, k, x),
+        IMX(0, k) + p7P_ISC(gm, k, x),
+        null2[x]
+      );
     }
     null2[x] = p7_FLogsum(null2[x], MMX(0, M) + p7P_MSC(gm, k, x));
     null2[x] = p7_FLogsum(null2[x], xfactor);
   }
+
+  // printf("==> NULL2 (pre) <=\n");
+  // for (int x = 0; x < gm->abc->Kp; x++) {
+  //   printf("[%2d]: %f\n", x, null2[x] );
+  // }
 
   esl_vec_FExp(null2, gm->abc->K);
   /* now null2[x] = \frac{f_d(x)}{f_0(x)} for all x in alphabet,
@@ -118,11 +198,27 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
    * for this envelope.
    */
 
+  printf("==> NULL2 (norm) <=\n");
+  for (int x = 0; x < gm->abc->Kp; x++) {
+    printf("[%2d]: %f\n", x, null2[x] );
+  }
+
   /* make valid scores for all degeneracies, by averaging the odds ratios. */
   esl_abc_FAvgScVec(gm->abc, null2); /* does not set gap, nonres, missing  */
+
+  printf("==> NULL2 (avg) <=\n");
+  for (int x = 0; x < gm->abc->Kp; x++) {
+    printf("[%2d]: %f\n", x, null2[x] );
+  }
+
   null2[gm->abc->K] = 1.0;           /* gap character    */
   null2[gm->abc->Kp - 2] = 1.0;      /* nonresidue "*"   */
   null2[gm->abc->Kp - 1] = 1.0;      /* missing data "~" */
+
+  printf("==> NULL2 (end) <=\n");
+  for (int x = 0; x < gm->abc->Kp; x++) {
+    printf("[%2d]: %f\n", x, null2[x] );
+  }
 
   return eslOK;
 }
