@@ -863,14 +863,14 @@ typedef struct {
    /* thresholds for reporting */
    bool           is_reported;      /* if domain meets reporting threshold */
    bool           is_included;      /* if domain meets inclusion threshold */
-} DOMAIN;
+} DOMAIN_X;
 
 /* all domains data */
 typedef struct {
    /* domains */
    int            N;             /* number of domains used */
    int            Nalloc;        /* number of domains allocated for */
-   DOMAIN*        domains;       /* domain array */
+   DOMAIN_X*      domains;       /* domain array */
    /* vector data */
    VECTOR_FLT*    b_tot;         /* cumulative number of times expected to BEGIN at or before q_0 */
    VECTOR_FLT*    e_tot;         /* cumulative number of times expected to END at or before q_0 */
