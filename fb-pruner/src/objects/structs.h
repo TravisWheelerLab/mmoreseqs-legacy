@@ -849,7 +849,7 @@ typedef struct {
 typedef struct {
    /* envelope range */
    int            env_beg; 
-   int            env_end;:q
+   int            env_end;
    /* alignement range */
    int            aln_beg;
    int            aln_end;
@@ -864,7 +864,6 @@ typedef struct {
    bool           is_reported;      /* if domain meets reporting threshold */
    bool           is_included;      /* if domain meets inclusion threshold */
 } DOMAIN;
-
 
 /* all domains data */
 typedef struct {
