@@ -4,8 +4,11 @@ bin_PROGRAMS = fbpruner
 
 fbpruner_CFLAGS = \
     -I./lib/easel/ \
-    -L./lib/easel/ \
-    -leasel
+    -L./lib/easel/ 
+
+fbpruner_LDADD = \
+    -leasel \
+	-lm 
 
 fbpruner_SOURCES = \
     src/application.c \
