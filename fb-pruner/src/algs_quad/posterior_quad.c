@@ -278,7 +278,7 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
                            MATRIX_3D*        st_MX_post,       /* OUTPUT: normal state matrix for posterior */
                            MATRIX_2D*        sp_MX_post )      /* OUTPUT: normal state matrix for posterior */
 {
-   printf("=== run_Decode_Posterior_Quad ===\n");
+   // printf("=== run_Decode_Posterior_Quad ===\n");
    // printf("==> FWD:\n");
    // DP_MATRIX_Dump(Q, T, st_MX_fwd, sp_MX_fwd, stdout );
    // printf("==> BCK:\n");

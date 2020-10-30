@@ -1,9 +1,10 @@
 # macOS files
 *.DS_Store
 
-# sublime project files
+# project files
 *.sublime-project
 *.sublime-workspace
+*.code-workspace
 
 # test output folders
 */test_output/*
