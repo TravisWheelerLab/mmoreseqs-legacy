@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-# 	FILE:	configure
-#	DESC:  	File initializes Makefile to set directory locations, OS specifications, etc.
-#
-
-# TODO: Implement this. Reference HMMER configure file.

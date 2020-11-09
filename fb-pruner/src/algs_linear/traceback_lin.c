@@ -15,10 +15,10 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
-#include "objects.h"
-#include "algs_quad.h"
+#include "../objects/structs.h"
+#include "../utilities/utilities.h"
+#include "../objects/objects.h"
+#include "../algs_quad/algs_quad.h"
 
 /* header */
 #include "traceback_lin.h"

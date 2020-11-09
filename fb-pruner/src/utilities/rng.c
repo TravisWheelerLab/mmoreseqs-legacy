@@ -16,12 +16,12 @@
 #include <ctype.h>
 
 /* local imports */
-#include "structs.h"
+#include "../objects/structs.h"
 #include "utilities.h"
-#include "objects.h"
+#include "../objects/objects.h"
 
 /* header */
-#include "alignment.h"
+#include "rng.h"
 
 /*
  *  FUNCTION:  RNG_Init()

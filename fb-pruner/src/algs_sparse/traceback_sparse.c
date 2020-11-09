@@ -15,13 +15,13 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
-#include "objects.h"
-#include "algs_quad.h"
+#include "../objects/structs.h"
+#include "../utilities/utilities.h"
+#include "../objects/objects.h"
+#include "../algs_quad/algs_quad.h"
 
 /* header */
-#include "traceback_quad.h"
+#include "traceback_sparse.h"
 
 /*  FUNCTION:  run_MaxExp_Traceback_Sparse_2()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.

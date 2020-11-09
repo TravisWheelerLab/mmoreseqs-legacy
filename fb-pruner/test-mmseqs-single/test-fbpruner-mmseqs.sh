@@ -24,7 +24,7 @@ MYOUTPUT=test-results.myout
 
 VERBOSE=1
 
-time ../build/fb-pruner mmseqs 					\
+time ../build/fbpruner mmseqs 					\
 					$QUERY $TARGET 				\
 	--index 		$QUERY_IDX $TARGET_IDX 		\
 	--alpha 		$ALPHA 						\

@@ -15,9 +15,9 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
-#include "objects.h"
+#include "../structs.h"
+#include "../../utilities/utilities.h"
+#include "../objects.h"
 
 /* header */
 #include "char.h"

@@ -8,6 +8,8 @@
 #ifndef _DP_MATRIX_UTIL_H
 #define _DP_MATRIX_UTIL_H
 
+#include "../objects/structs.h"
+
 /*
  *  FUNCTION:  DP_MATRIX_Get_Bounds()
  *  SYNOPSIS:  Get the edgebounds of matrix at given antidiagonal (closed form).

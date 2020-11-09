@@ -17,11 +17,11 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
+#include "../utilities/utilities.h"
 #include "objects.h"
 
 /* unit test imports */
-#include "index_parser.h"
+#include "../parsers/index_parser.h"
 
 /* header */
 #include "f_index.h"

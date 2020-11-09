@@ -14,9 +14,9 @@
 #include <string.h>
 
 /* local imports */
-#include "structs.h"
-#include "utilities.h"
-#include "objects.h"
+#include "../objects/structs.h"
+#include "../utilities/utilities.h"
+#include "../objects/objects.h"
 
 /* header */
 #include "parsers.h"

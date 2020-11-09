@@ -9,6 +9,8 @@
 #ifndef _STATISTICS_H
 #define _STATISTICS_H
 
+#include "../objects/structs.h"
+
 /* 
  * FUNCTION:  STATS_Nats_to_Bitscore()
  * SYNOPSIS:  Given a score in Nats <nat_sc> and 

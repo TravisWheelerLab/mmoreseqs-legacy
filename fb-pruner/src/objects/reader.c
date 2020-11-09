@@ -20,7 +20,7 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
+#include "../utilities/utilities.h"
 #include "objects.h"
 
 /* header */

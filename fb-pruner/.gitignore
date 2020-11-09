@@ -19,12 +19,18 @@ fb-pruner/test-mmseqs/
 more-tools/hmmer-test/build/
 more-tools/mmseqs-test/build/
 more-tools/mmseqs-pruner-plus/build/
+build/
+bin/
+
+# temporary working folders
+tmp/
 
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+*.c.d
 
 # Compiled Dynamic libraries
 *.so.*
@@ -52,3 +58,19 @@ more-tools/mmseqs-pruner-plus/build/
 # programs
 *.depend
 *.swp
+
+# Autotools
+.deps/
+.dirstamp
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.log
+config.status
+configure
+depcomp
+fbpruner
+install-sh
+missing

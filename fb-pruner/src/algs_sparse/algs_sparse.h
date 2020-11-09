@@ -11,6 +11,5 @@
 #include "bound_fwdbck_sparse.h"
 #include "bound_viterbi_sparse.h"
 #include "traceback_sparse.h"
-#include "posterior_traceback_sparse.h"
 
 #endif /* _ALGS_SPARSE_H */
