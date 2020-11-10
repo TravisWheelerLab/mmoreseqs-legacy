@@ -7,6 +7,3 @@
 [submodule "fb-pruner/lib/libbmp"]
 	path = fb-pruner/lib/libbmp
 	url = https://github.com/marc-q/libbmp.git
-[submodule "fb-pruner/lib/hmmer"]
-	path = fb-pruner/lib/hmmer
-	url = https://github.com/TravisWheelerLab/hmmer.git
