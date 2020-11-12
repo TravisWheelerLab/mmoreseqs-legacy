@@ -1,0 +1,169 @@
+# MMORE-SEQS: DOCUMENTATION
+
+### USAGE
+
+MMORE-SEQS is a software for running profile-to-sequence protein searches.  It takes in *.hmm target file and *.fasta query file and uses MMseqs as a prefilter (with custom parameters), which are passed to a pruned forward-backward.
+
+    -   PIPELINE: 
+        -   There are a few user pipelines options: mmseqs, main, [mmseqs-plus, index, itest, utest, time].
+    
+        -   mmseqs:  
+            -   This is the primary usage case. This runs the entire MMORE-SEQS pipeline.  First it sets the commandline arguments to environmental variables, which then calls a workflow bash script.
+        -   main:  
+            -   This is the entirely internal workflow.  This skips the MMseqs prefilter and uses MMORE-SEQS internal quadratic viterbi algorithm for finding alignment start and end points for  
+
+    -   Options:
+        -   --alpha <positive_float>
+            -   ALPHA parameter determines the amount of pruning on each antidiagonal of the cloud search (pruned forward-backward).  
+            -   Lower => more aggressive, faster, less sensitive 
+            -   Higher => more permissive, slower, more sensitive
+            -   Default: 12.0
+            -   Constraints: 0 < ALPHA < inf
+        -   --beta <positive_float>
+            -   BETA parameter determines when to terminating the cloud search (pruned forward-backward).
+            -   Lower => more aggressive, faster, less sensitive 
+            -   Higher => more permissive, slower, more sensitive
+            -   Default: 16.0
+            -   Constraints: 0 < BETA < inf
+        -   --gamma <positive_int>
+            -   GAMMA parameter determines the number of antidiagonals before beginning pruning of cloud search (pruned forward-backward).
+            -   Default: 5
+            -   Constraints: GAMMA > 0
+        -   --eval, -e <float>
+            -   E-value cutoff for reporting; all E-values <= parameter are reported. 
+            -   Default: 10.0
+        -   --verbose, -v <int>
+            -   Level of verbosity; amount of output
+            -   Settings: 0 => Errors, 
+            -   Default: 
+        -   --null2 <bool>
+            -   Toggles whether to include composition bias filter
+            -   Default: true
+        -   --mmseqs-m8 <string>
+            -   Designates location of *.m8 file for input to pruned forward-backward of MMORE-SEQS.
+        -   --mmseqs-tmp <string>
+            -   Designates location of temporary file.
+        -   --mmseqs-range <int> <int>
+            -   Designates <BEGIN,END> range of mmseqs input for pruned forward-backward.
+            
+### DEVELOPMENT
+
+Notes: 
+    -   All locations are relative to the repository root.
+    -   All source code is located: mmore-seqs/src/
+    -   All imported libraries are located: mmore-seqs/lib/
+    
+    
+#### Pipelines:
+    -   Workflow pipelines are the what are called after from the entry point of the program after parsing the commandline.
+    
+    -   PIPELINES: 
+        -   There are a few pipelines options: mmseqs, main, [mmseqs-plus, index, itest, utest, time].
+    
+        -   mmseqs:  
+            -   This is the primary usage case. This runs the entire MMORE-SEQS pipeline.  First it sets the commandline arguments to environmental variables, which then calls a workflow bash script.
+        -   main:  
+            -   This is the entirely internal workflow.  This skips the MMseqs prefilter and makes
+    
+        -   mmseqs-plus:    
+            -   Not designed to be used by end user.  This runs the pruned forward-backward algorith.  It is by the mmseqs pipeline after MMseqs prefilter has returned a *.m8 results list. 
+        -   index: 
+            -   Not designed to be used by end user.  This generates a linear index of the given file, recording the offsets into the file for faster access.
+        -   itest/utest:    
+            -   Not designed to be used by end user.  Unit tests and integrated tests.
+        -   time:  
+            -   Not designed to be used by end user.  Timed tests.
+
+    
+#### Codebase Organization:
+    -   For each subfolder, each *.c file has its own *.h header file.  Then all header files are compiled into a single folder-level header file, named after the subfolder. These are the headers that are included by external files. (Example: src/algs_sparse/ contains `bound_fwdbck_sparse.c` and `bound_fwdbck_sparse.h`, and `bound_fwdbck_sparse.h` is included with all other header into `algs_sparse.h`)
+
+    
+#### Subfolders:  Other than application.c (the main entry point into the program), all code is stored in a subfolders.
+    - `objects` 
+        -   Contains all the implementations of the data structs, organized in an object-oriented manner.  
+        -   All structs are declared using `typedef` in src/objects/structs.h.  
+        -   Macro definitions, constants, and functions (apart from a few exceptions) are declared in src/objects/structs_macros.h.
+        -   Enumerated types and related constants (apart from a few exceptions) are declared in src/objects/structs_enums.h.
+        -   src/objects contains a few subfolders:
+            -   `basic`
+                -   Contains "wrappers" for primitive data and simple structs.  Simple comparator and to_string operations for other functions like vector sorts.
+            -   `vectors`
+                -   Contains resizing vector implementations for the datatypes in the basic folder.  Vectors use resizing ratio of 2.
+                -   Template builder script was used to generate them. Script located in scripts/builder-helper/build_vector_files.sh. Uses `vector_template.c` as input.
+            -   `matrix`
+                -   Contains 2d, 3d, and sparse matrix implementations.  Uses float as primitive data type.
+                -   2d is used for the special state matrix in all algorithm implementations.
+                -   3d is used for the normal state matrix in linear and quadratic algorithm implementations.
+                -   Sparse is used for the sparse algorithm implementations.
+            -   `map`
+                -   Contains unordered and ordered map implementations.  Value is of type char* (STRING).
+    - `algs_*`
+        -   There are several algorithm subfolders.  They are organized based on the time/space complexity of their implementation. Folders can contain redundant and unused implementations of the same algorithm.
+        - `algs_naive` 
+            -   Contains naive, bruteforce algorithms that were used in veracity testing of other algorithms.
+        - `algs_quad` 
+            -   Contains quadratic-space implementations of algorithms: viterbi/traceback, forward-backward, cloud search and bounded forward-backward (subroutines used in pruned forward-backward), and posterior algorithms for forward-backward alignment recovery. 
+            -   Like naive, these implementations were created as initial implementations of algorithms and are not used in the MMORE-SEQS mmseqs pipeline.  The self-contained pipeline uses this Viterbi/Traceback implementation to find alignment start/end points for pruned forward-backward. However, these algorithms can be set 'on' using flags.
+        - `algs_linear` 
+            -   Contains linear-space implementations of algorithms. All algorithms implemented in quadratic-space are implemented here, except for the traceback for viterbi and the posterior algorithms.  These algorithms require quadratic space to implement these algorithms (they can be implemented with linear space, but necessitate excessive redundant computation).  
+            -   These are the implementations used in the Cloud Search implementation used in 
+        - `algs_sparse`
+            -   Contains sparse implementations of pruned forward-backward and posterior algorithms.  
+            -   These are the implementations of pruned forward-backward and posterior used in MMORE-SEQS. 
+        - `algs_vectorized`
+            -   TODO: This will conain SIMD-vectorized versions of the linear and/or quadratic algorithms.  Currently none are implemented.
+    - `parsers`
+        -   Contains a variety of parsers for handling and converting input data. 
+        -   Includes: 
+            -   hmm_parser.c:   Parses *.hmm file into HMM_PROFILE or SEQUENCE object. 
+            -   arg_parser.c:   Parses commandline arguments into ARGS object.
+            -   m8_parser.c:    Parses *.m8 file into RESULTS object. This is the format of MMseqs output, which is used as input into MMORE-SEQS.
+            -   seq_parser.c:   Parses *.fasta file into SEQUENCE object.  
+    - `pipelines`
+        -   Contains a number of workflow pipelines, as well as subroutines to modularize workflow.
+        -   Pipelines:
+            -   pipeline_main.c:    
+                -   This is a bit of a misnomer.  This is the main pipeline for an independent, self-contained workflow.  It does not use EASEL or any other libraries.
+            -   pipeline_mmseqs.c:      
+                -   This is the pipeline for calling mmseqs.  It simply pulls the arguments from the commandline and calls a shell script with these args which calls mmseqs. 
+            -   pipeline_mmseqs_plus.c
+                -   This is the pipeline for running the fb-pruner package after the completion of the mmseqs portion of the pipeline.
+        -   Subroutines:
+            -   worker.c:
+                -   This contains all the workflow subroutines.  Its ensures that WORKER program has necessary data initialized and manages tracking of scores and data.
+            -   report.c:
+                -   This contains all the routines for outputting data.  This includes outputting *.m8, *.domtblout, and other custom table formats.
+    - `utilities`
+        -   Contains tools for error handling, testing and visualization tools.
+        
+
+#### Workflow:
+    1. Entry Point: src/application.c
+        -   This is one single entry point into the program.  
+        -   Checks debug flags and initializes DEBUGGER if in debug mode.
+        -   Initializes WORKER object (this stores all workflow data) and will free all WORKER data at the end of workflow pipeline.
+        -   Initializes ARGS object (this stores all flags and arguments).
+        -   Calls commandline parser, calls appropriate workflow pipeline, then terminates program.
+    2. Commandline Parsing: src/parsers/arg_parser.c
+        -   This handles all commandline arguments.
+        -   Follows format: <workflow_pipeline> <reqd_arg_1> <reqd_arg_2...> <options...>.  If there are any errors in the input, the program is terminated and error log and help info is shown. 
+        -   Sets the workflow according to the argument.  Proper number of main arguments is determined by the pipeline.
+        -   Sets the main arguments.
+        -   Uses if-else chain to determine options and arguments.
+        -   All input is stored in ARGS.
+    3. Pipeline: src/pipelines/pipeline_*.c
+        -   Main Pipeline
+            -   Each pipeline begins by setting ARGS's default workflow options (not already set by the user).  
+            -   Initializes necessary data structs to be used by pipeline, depending on flags set. 
+            -   Load target file and query files. Parse *.hmm file and/or *.fasta files into HMM_PROFILE and SEQUENCE objects. 
+                -   Program can specify a set, range, all, or a hitlist of target-query pairs to search against one another.  Default is all-to-all, which runs as two embedded loops.
+            -   Depending on flags set, runs any algorithms which has flags set to true (quad/linear/sparse viterbi, forward, pruned forward, etc).
+            -   Scores are outputted (depending on the set ARGS flags, the file formats). Note: scores are currently outputted at the end of each loop.  May be more optimal to store scores and output in bulk?
+            - Once all searches have been completed, pipeline-specific data is freed from WORKER.
+        -   Itest, Utest, Time Pipelines
+            -    These pipelines run a hard-coded set of tasks
+    4. Cleanup: 
+        -   Last of WORKER object freed.
+        -   DEBUG object is freed.
+        

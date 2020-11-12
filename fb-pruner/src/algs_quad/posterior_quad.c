@@ -25,6 +25,13 @@
 /* header */
 #include "posterior_quad.h"
 
+/* private function header */
+bool
+test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
+                           int            q_beg,
+                           int            q_end );
+
+
 /*! FUNCTION:  run_MaxPost_Quad()
  *  SYNOPSIS:  Compute the Max Posterior Probability and obtain optimal alignment.
  *             Computes the Forward and Backward.  Max Posterior computed by Viterbi.
