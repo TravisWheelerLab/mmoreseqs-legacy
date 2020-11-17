@@ -26,6 +26,7 @@ fbpruner_SOURCES = \
     src/algs_quad/merge_reorient_quad.c \
     src/algs_quad/posterior_quad.c \
     src/algs_quad/pruning_quad.c \
+    src/algs_quad/ranged_fwdback_quad.c \
     src/algs_quad/traceback_quad.c \
     src/algs_quad/viterbi_quad.c \
     src/algs_sparse/bound_fwdbck_sparse.c \

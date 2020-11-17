@@ -1323,28 +1323,10 @@ void WORK_convert_scores( WORKER* worker )
    /* Find domains and assesses domain-specific correction bias */
    /* see p7_domaindef_ByPosteriorHeuristics() */
    // run_Posterior_Quad(
-   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, 
+   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
    //    worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
    //    worker->dom_def );
 
-   /* temporary: this will be done in the future with sparse matrix */
-   float sc;
-   MATRIX_3D_Reuse_Clean( worker->st_MX_fwd, NUM_NORMAL_STATES, Q+1, T+1 );
-   MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd, NUM_SPECIAL_STATES, Q+1 ); 
-   MATRIX_3D_Reuse_Clean( worker->st_MX_bck, NUM_NORMAL_STATES, Q+1, T+1 );
-   MATRIX_2D_Reuse_Clean( worker->sp_MX_bck, NUM_SPECIAL_STATES, Q+1 );
-   run_Forward_Quad(
-         worker->q_seq, worker->t_prof, Q, T, worker->st_MX_fwd, worker->sp_MX_fwd, &sc );
-   run_Backward_Quad( 
-         worker->q_seq, worker->t_prof, Q, T, worker->st_MX_bck, worker->sp_MX_bck, &sc );
-
-   /* get null2 score */
-   MATRIX_3D_Reuse_Clean( worker->st_MX_post, NUM_NORMAL_STATES, Q+1, T+1 );
-   MATRIX_2D_Reuse_Clean( worker->sp_MX_post, NUM_SPECIAL_STATES, Q+1 );
-   /* temp: sets range to cover entire model */
-   RANGE Q_range = (RANGE){0, worker->q_seq->N};
-   run_Decode_Posterior_Quad( worker->q_seq, worker->t_prof, Q, T,
-         worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_post, worker->sp_MX_post );
    #if DEBUG 
    {
       FILE* fpout; 
@@ -1356,21 +1338,10 @@ void WORK_convert_scores( WORKER* worker )
       fclose(fpout);
    }
    #endif
-
-   run_Null2_ByExpectation( worker->q_seq, worker->t_prof, &Q_range, T, 
-         worker->st_MX_post, worker->sp_MX_post, worker->dom_def );
-   /* convert null2 to log scores */
-   for (int k_0 = 0; k_0 < NUM_AMINO; k_0++) {
-      VEC_X(worker->dom_def->null2_sc, k_0) = log( VEC_X(worker->dom_def->null2_sc, k_0) );
-   }
-   /* sum over null2 score vector to get full sequence bias */
+   
+   /* compute sequence bias */
    seq_bias = 0.0f;
-   // for (int i = 0; i < NUM_AMINO; i++) {
-   //    seq_bias += VEC_X(worker->dom_def->null2_sc, i);
-   // }
-   float omega = log(1.0/256.0);
-   // printf("(pre) seq_bias: %7.3f, omega: %7.3f\n", worker->dom_def->seq_bias, omega );
-   seq_bias = logsum(0.0, omega + worker->dom_def->seq_bias);
+   seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
    printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
    seq_bias = worker->dom_def->seq_bias;
 
@@ -1379,8 +1350,8 @@ void WORK_convert_scores( WORKER* worker )
    /* compute pre_score and sequence_score by accounting for bias and convert from nats -> bits */
    pre_sc = (nat_sc - null_sc) / eslCONST_LOG2;
    seq_sc = (nat_sc - (null_sc + seq_bias)) / eslCONST_LOG2;
-   // printf("# nat_sc = %7.4f, null_one = %7.4f, null_sc = %7.4f, pre_sc = %7.4f, seq_sc = %7.4f\n",
-   //    nat_sc, null_sc, filter_sc, pre_sc, seq_sc );
+   printf("# nat_sc = %7.4f, null_sc = %7.4f, seq_bias = %7.4f, pre_sc = %7.4f, seq_sc = %7.4f\n",
+      nat_sc, null_sc, seq_bias, pre_sc, seq_sc );
 
    /* compute log of P-value */ 
    ln_pval  = esl_exp_logsurv( seq_sc, tau, lambda );

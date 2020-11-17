@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      posterior_sparse.h
+ *  FILE:      max_quad.h
  *  PURPOSE:   The Maximum Posterior Probability and Optimal Alignment.
  *
  *  AUTHOR:    Dave Rich
@@ -18,12 +18,12 @@
 #include "../objects/structs.h"
 #include "../utilities/utilities.h"
 #include "../objects/objects.h"
-#include "../algs_sparse/algs_sparse.h"
+#include "../algs_quad/algs_quad.h"
 #include "../algs_linear/algs_linear.h"
 #include "../parsers/parsers.h"
 
 /* header */
-#include "posterior_sparse.h"
+#include "posterior_quad.h"
 
 /* private function header */
 bool
@@ -31,7 +31,39 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
                            int            q_beg,
                            int            q_end );
 
-/*! FUNCTION:  run_Posterior_Sparse()
+
+/*! FUNCTION:  run_MaxPost_Quad()
+ *  SYNOPSIS:  Compute the Max Posterior Probability and obtain optimal alignment.
+ *             Computes the Forward and Backward.  Max Posterior computed by Viterbi.
+ *
+ *  RETURN:    <STATUS_SUCCESS> if no errors.
+ */
+int 
+run_MaxPost_Quad( SEQUENCE*            query,            /* query sequence */
+                  HMM_PROFILE*         target,           /* target HMM model */
+                  int                  Q,                /* query length */
+                  int                  T,                /* target length */
+                  MATRIX_3D*           st_MX_fwd,        /* normal matrix for forward */
+                  MATRIX_2D*           sp_MX_fwd,        /* special matrix for forward */
+                  MATRIX_3D*           st_MX_bck,        /* normal matrix for backward */
+                  MATRIX_2D*           sp_MX_bck,        /* special matrix for backward */
+                  MATRIX_3D*           st_MX_post,       /* OUTPUT: normal matrix for posterior (can overwrite fwd and bck data) */
+                  MATRIX_2D*           sp_MX_post,       /* OUTPUT: special matrix for posterior (can overwrite fwd and bck data) */
+                  ALIGNMENT*           aln,              /* OUTPUT: alignment */
+                  DOMAIN_DEF*          dom_def )         /* OUTPUT: domain definition scores */
+{
+   /* initialize logsum lookup table if it has not already been */
+   logsum_Init();
+
+   /* Posterior */
+   run_Posterior_Quad( 
+      query, target, Q, T, st_MX_fwd, sp_MX_fwd, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post, dom_def );
+
+   /* Viterbi for Posterior */
+   // run_MaxPost_Viterbi_Quad( query, target, Q, T, st_MX_post, sp_MX_post, st_MX_max, sp_MX_max, sc_final );
+}
+
+/*! FUNCTION:  run_Posterior_Quad()
  *  SYNOPSIS:  Filled dp matrices for forward <st_MX_fwd> and backward <st_MX_bck>.
  *             Compute the Posterior Probability by multiplying probabilities (added in log space) of Forward and Backward.
  *             Results stored in supplied <st_MX_post> (can override input matrices).
@@ -40,17 +72,17 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int 
-run_Posterior_Sparse(   SEQUENCE*            q_seq,            /* query sequence */
-                        HMM_PROFILE*         t_prof,           /* target hmm model */
-                        int                  Q,                /* query length */
-                        int                  T,                /* target length */
-                        MATRIX_3D_SPARSE*    st_MX_fwd,        /* normal state matrix for forward */
-                        MATRIX_2D*           sp_MX_fwd,        /* special state matrix for forward */
-                        MATRIX_3D_SPARSE*    st_MX_bck,        /* normal state matrix for backward */
-                        MATRIX_2D*           sp_MX_bck,        /* special state matrix for backward */
-                        MATRIX_3D_SPARSE*    st_MX_post,       /* OUTPUT: normal state matrix for posterior */
-                        MATRIX_2D*           sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
-                        DOMAIN_DEF*          dom_def )         /* OUTPUT: domain data */
+run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
+                     HMM_PROFILE*   t_prof,           /* target hmm model */
+                     int            Q,                /* query length */
+                     int            T,                /* target length */
+                     MATRIX_3D*     st_MX_fwd,        /* normal state matrix for forward */
+                     MATRIX_2D*     sp_MX_fwd,        /* special state matrix for forward */
+                     MATRIX_3D*     st_MX_bck,        /* normal state matrix for backward */
+                     MATRIX_2D*     sp_MX_bck,        /* special state matrix for backward */
+                     MATRIX_3D*     st_MX_post,       /* OUTPUT: normal state matrix for posterior */
+                     MATRIX_2D*     sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
+                     DOMAIN_DEF*    dom_def )         /* OUTPUT: domain data */
 {
    printf("=== POSTERIOR HEURISTICS ===\n");
    printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
@@ -78,10 +110,10 @@ run_Posterior_Sparse(   SEQUENCE*            q_seq,            /* query sequence
    DOMAIN_DEF_GrowTo( dom_def, Q );
 
    /* compute domain transition probabilities to find regions that reach scoring thresholds */
-   run_DecodeDomain_Sparse(
+   run_DecodeDomain_Quad(
       q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
    /* compute the posterior probabilties (only need special states) */
-   run_Decode_Special_Posterior_Sparse( 
+   run_Decode_Special_Posterior_Quad( 
       q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, sp_MX_post );
    
    printf("=> ddef (posteriors):\n");
@@ -181,9 +213,9 @@ run_Posterior_Sparse(   SEQUENCE*            q_seq,            /* query sequence
    MATRIX_2D_Reuse( sp_MX_post, NUM_SPECIAL_STATES, Q_dom+1 );
 
    /* capture the posterior */
-   run_Forward_Sparse( q_seq, t_prof, Q_dom, T, st_MX_fwd, sp_MX_fwd, &fwd_sc );
-   run_Backward_Sparse( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, &bck_sc );
-   // run_Decode_Posterior_Sparse( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post );
+   run_Forward_Quad( q_seq, t_prof, Q_dom, T, st_MX_fwd, sp_MX_fwd, &fwd_sc );
+   run_Backward_Quad( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, &bck_sc );
+   // run_Decode_Posterior_Quad( q_seq, t_prof, Q_dom, T, st_MX_bck, sp_MX_bck, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post );
    // DP_MATRIX_Dump(Q_dom, T, st_MX_post, sp_MX_post, stdout);
    /* compute correction bias */
    // run_Null2_ByExpectation( q_seq, t_prof, Q_dom, T, st_MX_post, sp_MX_post, dom_def );
@@ -201,7 +233,6 @@ run_Posterior_Sparse(   SEQUENCE*            q_seq,            /* query sequence
    return STATUS_SUCCESS;
 }
 
-
 /*! FUNCTION:  test_Multidomain_Region()
  *  SYNOPSIS:  Returns whether sequence range <q_beg,q_end> contains multiple domains.
  *             NOTES: More precisely: return TRUE if  \max_z [ \min (B(z), E(z)) ]  >= rt3
@@ -214,9 +245,9 @@ run_Posterior_Sparse(   SEQUENCE*            q_seq,            /* query sequence
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 bool
-test_Multidomain_Region(   DOMAIN_DEF*    dom_def,       /* */
-                           int            q_beg,         /* */
-                           int            q_end )        /* */
+test_Multidomain_Region(   DOMAIN_DEF*    dom_def,
+                           int            q_beg,
+                           int            q_end )
 {
    int   z;
    int   max;
@@ -235,8 +266,7 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,       /* */
    return is_multidomain_region;
 }
 
-
-/*! FUNCTION:  run_Decode_Normal_Posterior_Sparse()
+/*! FUNCTION:  run_Decode_Normal_Posterior_Quad()
  *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store matrix in <...fwd> or <...bck>.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
@@ -244,18 +274,18 @@ test_Multidomain_Region(   DOMAIN_DEF*    dom_def,       /* */
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query sequence */
-                              HMM_PROFILE*         t_prof,           /* target hmm model */
-                              int                  Q,                /* query length */
-                              int                  T,                /* target length */
-                              MATRIX_3D_SPARSE*    st_MX_fwd,        /* normal state matrix for forward */
-                              MATRIX_2D*           sp_MX_fwd,        /* special state matrix for forward */
-                              MATRIX_3D_SPARSE*    st_MX_bck,        /* normal state matrix for backward */
-                              MATRIX_2D*           sp_MX_bck,        /* special state matrix for backward */
-                              MATRIX_3D_SPARSE*    st_MX_post,       /* OUTPUT: normal state matrix for posterior */
-                              MATRIX_2D*           sp_MX_post )      /* OUTPUT: normal state matrix for posterior */
+run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence */
+                           HMM_PROFILE*      t_prof,           /* target hmm model */
+                           int               Q,                /* query length */
+                           int               T,                /* target length */
+                           MATRIX_3D*        st_MX_fwd,        /* normal state matrix for forward */
+                           MATRIX_2D*        sp_MX_fwd,        /* special state matrix for forward */
+                           MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
+                           MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
+                           MATRIX_3D*        st_MX_post,       /* OUTPUT: normal state matrix for posterior */
+                           MATRIX_2D*        sp_MX_post )      /* OUTPUT: normal state matrix for posterior */
 {
-   // printf("=== run_Decode_Posterior_Sparse ===\n");
+   // printf("=== run_Decode_Posterior_Quad ===\n");
    // printf("==> FWD:\n");
    // DP_MATRIX_Dump(Q, T, st_MX_fwd, sp_MX_fwd, stdout );
    // printf("==> BCK:\n");
@@ -397,8 +427,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
    return STATUS_SUCCESS;
 }
 
-
-/*! FUNCTION:  run_Decode_Special_Posterior_Sparse()
+/*! FUNCTION:  run_Decode_Special_Posterior_Quad()
  *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store matrix in <...fwd> or <...bck>.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
@@ -406,7 +435,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Decode_Special_Posterior_Sparse(  SEQUENCE*         q_seq,            /* query sequence */
+run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query sequence */
                                     HMM_PROFILE*      t_prof,           /* target hmm model */
                                     int               Q,                /* query length */
                                     int               T,                /* target length */
@@ -414,7 +443,7 @@ run_Decode_Special_Posterior_Sparse(  SEQUENCE*         q_seq,            /* que
                                     MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
                                     MATRIX_2D*        sp_MX_post )      /* OUTPUT: special state matrix for posterior */
 {
-   printf("=== run_Decode_Special_Posterior_Sparse ===\n");
+   printf("=== run_Decode_Special_Posterior_Quad ===\n");
    /* query index */
    int q_0, q_1;
    /* target index */ 
@@ -455,22 +484,21 @@ run_Decode_Special_Posterior_Sparse(  SEQUENCE*         q_seq,            /* que
    return STATUS_SUCCESS;
 }
 
-
-/*! FUNCTION:  run_DecodeDomain_Posterior_Sparse()
+/*! FUNCTION:  run_DecodeDomain_Posterior_Quad()
  *  SYNOPSIS:  Using posterior special state matrix <sp_MX_post> to compute domains.
  *             NOTE: Modeled after <p7_DomainDecoding()>
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_DecodeDomain_Posterior_Sparse( SEQUENCE*         q_seq,            /* query sequence */
+run_DecodeDomain_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence */
                                  HMM_PROFILE*      t_prof,           /* target hmm model */
                                  int               Q,                /* query length */
                                  int               T,                /* target length */
                                  MATRIX_2D*        sp_MX_post,       /* special state matrix for posterior */ 
                                  DOMAIN_DEF*       dom_def )         /* OUTPUT: domain data */ 
 {
-   printf("=== run_DecodeDomain_Posterior_Sparse ===\n");
+   printf("=== run_DecodeDomain_Posterior_Quad ===\n");
 
    /* query index */
    int q_0, q_1;
@@ -516,15 +544,14 @@ run_DecodeDomain_Posterior_Sparse( SEQUENCE*         q_seq,            /* query 
    return STATUS_SUCCESS;
 }
 
-
-/*! FUNCTION:  run_DecodeDomain_Sparse()
+/*! FUNCTION:  run_DecodeDomain_Quad()
  *  SYNOPSIS:  Using posterior special state matrix <sp_MX_bck> and <sp_MX_fwd> to compute domains.
  *             NOTE: Modeled after <p7_DomainDecoding()>
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_DecodeDomain_Sparse(  SEQUENCE*         q_seq,            /* query sequence */
+run_DecodeDomain_Quad(  SEQUENCE*         q_seq,            /* query sequence */
                         HMM_PROFILE*      t_prof,           /* target hmm model */
                         int               Q,                /* query length */
                         int               T,                /* target length */
@@ -624,23 +651,22 @@ run_DecodeDomain_Sparse(  SEQUENCE*         q_seq,            /* query sequence 
    return STATUS_SUCCESS;
 }
 
-
 /*! FUNCTION:  run_Rescore_Isolated_Domain()
  *  SYNOPSIS:  
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int 
-run_Rescore_Isolated_Domain(  SEQUENCE*            q_seq,            /* query sequence */
-                              HMM_PROFILE*         t_prof,           /* target hmm model */
-                              RANGE*               Q_range,          /* query range */
-                              int                  T,                /* target length */
-                              MATRIX_3D_SPARSE*    st_MX_fwd,        /* normal state matrix for forward */
-                              MATRIX_2D*           sp_MX_fwd,        /* special state matrix for forward */
-                              MATRIX_3D_SPARSE*    st_MX_bck,        /* normal state matrix for backward */
-                              MATRIX_2D*           sp_MX_bck,        /* special state matrix for backward */
-                              ALIGNMENT*           aln,              /* OUTPUT: domain alignment */
-                              DOMAIN_DEF*          dom_def )         /* OUTPUT: domain data */
+run_Rescore_Isolated_Domain(  SEQUENCE*         q_seq,            /* query sequence */
+                              HMM_PROFILE*      t_prof,           /* target hmm model */
+                              RANGE*            Q_range,          /* query range */
+                              int               T,                /* target length */
+                              MATRIX_3D*        st_MX_fwd,        /* normal state matrix for forward */
+                              MATRIX_2D*        sp_MX_fwd,        /* special state matrix for forward */
+                              MATRIX_3D*        st_MX_bck,        /* normal state matrix for backward */
+                              MATRIX_2D*        sp_MX_bck,        /* special state matrix for backward */
+                              ALIGNMENT*        aln,              /* OUTPUT: domain alignment */
+                              DOMAIN_DEF*       dom_def )         /* OUTPUT: domain data */
 {
    int   Q; 
    float fwd_sc;
@@ -662,19 +688,255 @@ run_Rescore_Isolated_Domain(  SEQUENCE*            q_seq,            /* query se
 }
 
 
+/*! FUNCTION:  run_Posterior_Viterbi_Quad()
+ *  SYNOPSIS:  Run Viterbi step of Maximum Posterior Probability (no transition states).
+ *             Matrices are the Maximum Poster.
+ *             Computes the optimal alignment through HHM.
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int 
+run_Posterior_Viterbi_Quad(   SEQUENCE*         query,            /* query sequence */
+                              HMM_PROFILE*      target,           /* target hmm model */
+                              int               Q,                /* query length */
+                              int               T,                /* target length */
+                              MATRIX_3D*        st_MX_post,       /* normal matrix */
+                              MATRIX_2D*        sp_MX_post,       /* special matrix */
+                              MATRIX_3D*        st_MX_max,        /* OUTPUT: normal matrix for max posterior */
+                              MATRIX_2D*        sp_MX_max,        /* OUTPUT: special matrix for max posterior */
+                              float*            sc_final )        /* OUTPUT: final max score */
+{
+   // /* vars for aliasing matrix accesses */
+   // MATRIX_3D*  st_MX;
+   // MATRIX_2D*  sp_MX;
+
+   // /* vars for accessing query/target data structs */
+   // char     a;                               /* store current character in sequence */
+   // int      A;                               /* store int value of character */
+   // char*    seq;                             /* alias for getting seq */
+   // int      N;                               /* length of edgebound list */
+   // bool     is_local;                        /* whether using local or global alignments */
+
+   // /* vars for indexing into data matrices by row-col */
+   // int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
+   // int      q_0, q_1;                        /* real index of current and previous rows (query) */
+   // int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   // int      t_0, t_1;                        /* real index of current and previous columns (target) */
+
+   // /* vars for indexing into data matrices by anti-diag */
+   // int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
+   // int      dx0, dx1, dx2;                   /* mod mapping of antidiagonal index into data matrix */
+   // int      k_0, k_1;                        /* offset into antidiagonal */
+   // int      d_st, d_end, d_cnt;              /* starting and ending diagonal indices */
+   // int      dim_T, dim_Q, dim_TOT;           /* dimensions of submatrix being searched */
+   // int      dim_min, dim_max;                /* diagonal index where num cells reaches highest point and diminishing point */ 
+   // int      num_cells;                       /* number of cells in current diagonal */
+
+   // /* vars for indexing into edgebound lists */
+   // BOUND*   bnd;                             /* current bound */
+   // int      id;                              /* id in edgebound list (row/diag) */
+   // int      r_0;                             /* current index for current row */
+   // int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
+   // int      r_1;                             /* current index for previous row */
+   // int      r_1b, r_1e;                      /* begin and end indices for current row in edgebound list */
+   // int      le_0, re_0;                      /* right/left matrix bounds of current diag */
+   // int      lb_0, rb_0;                      /* bounds of current search space on current diag */
+   // int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
+   // int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
+   // bool     rb_T;                            /* checks if edge touches right bound of matrix */
+
+   // /* vars for recurrance scores */
+   // float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
+   // float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
+   // float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
+   // float    prv_loop, prv_move;            /* previous loop and move for special states */
+   // float    prv_sum, prv_best;             /* temp sub_totaling vars */
+   // float    sc_best;                         /* final best scores */
+   // float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
+   
+   // /* debugger tools */
+   // FILE*       dbfp;
+   // MATRIX_2D*  cloud_MX;
+   // MATRIX_2D*  cloud_MX3;
+   // MATRIX_3D*  test_MX;
+   // MATRIX_3D*  test_MX3;
+   // int         num_writes;
+   // int         num_clears;
+
+   // /* initialize debugging matrix */
+   // #if DEBUG
+   // {
+   //    cloud_MX    = debugger->cloud_MX;
+   //    cloud_MX3   = debugger->cloud_MX3;
+   //    test_MX     = debugger->test_MX;
+   //    test_MX3    = debugger->test_MX3;
+
+   //    MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
+   //    MATRIX_2D_Fill( cloud_MX, 0 );
+   //    MATRIX_2D_Reuse( cloud_MX3, 3, (Q+1)+(T+1) );
+   //    MATRIX_2D_Fill( cloud_MX3, 0 );
+   //    MATRIX_3D_Reuse( test_MX, NUM_NORMAL_STATES, Q+1, T+1 );
+   //    MATRIX_3D_Fill( test_MX, -INF );
+   //    MATRIX_3D_Reuse( test_MX3, NUM_NORMAL_STATES, 3, (Q+1)+(T+1) );
+   //    MATRIX_3D_Fill( test_MX3, -INF );
+
+   //    num_writes = 0;
+   //    num_clears = 0;
+   // }
+   // #endif
+
+   // /* --------------------------------------------------------------------------------- */
+
+   // /* query sequence */
+   // seq         = query->seq;
+   // st_MX       = st_MX_post;
+   // sp_MX       = sp_MX_post;
+   // /* local or global alignments? */
+   // is_local    = target->isLocal;
+   // sc_E        = (is_local) ? 0 : -INF;
+
+   // q_0 = 0;
+   // qx0 = q_0;
+
+   // /* FOR every position in QUERY seq */
+   // for (q_0 = 1; q_0 <= Q; q_0++)
+   // {
+   //    q_1 = q_0 - 1;
+   //    qx0 = q_0;
+   //    qx1 = q_1;
+
+   //    /* FOR every position in TARGET profile */
+   //    for (t_0 = 1; t_0 < T; t_0++)
+   //    {
+   //       t_1 = t_0 - 1;
+
+   //       /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+   //       /* best previous state transition (match takes the diag element of each prev state) */
+   //       prv_M = MMX(qx1, t_1);
+   //       prv_I = IMX(qx1, t_1);
+   //       prv_D = DMX(qx1, t_1);
+   //       prv_B = XMX(SP_B, q_1); /* from begin match state (new alignment) */
+   //       /* best-to-match */
+   //       prv_best = calc_Max( 
+   //                      calc_Max( prv_M, prv_I ), 
+   //                      calc_Max( prv_D, prv_B ) );
+   //       MMX(qx0, t_0)  = prv_best;
+
+   //       /* FIND BEST PATH TO INSERT STATE (FROM MATCH OR INSERT) */
+   //       /* previous states (match takes the left element of each state) */
+   //       prv_M = MMX(qx1, t_0);
+   //       prv_I = IMX(qx1, t_0);
+   //       /* best-to-insert */
+   //       prv_best = calc_Max(prv_M, prv_I);
+   //       IMX(qx0, t_0) = prv_best;
+
+   //       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
+   //       /* previous states (match takes the left element of each state) */
+   //       prv_M = MMX(qx0, t_1);
+   //       prv_D = DMX(qx0, t_1);
+   //       /* best-to-delete */
+   //       prv_best = calc_Max(prv_M, prv_D);
+   //       DMX(qx0, t_0) = prv_best;
+
+   //       /* UPDATE E STATE */
+   //       prv_E = XMX(SP_E, q_0);
+   //       prv_M = MMX(qx0, t_0);
+   //       /* best-to-e-state */
+   //       XMX(SP_E, q_0) = calc_Max( prv_E, prv_M );
+
+   //       /* embed linear row into quadratic test matrix */
+   //       #if DEBUG
+   //       {
+   //          MX_2D(cloud_MX, q_0, t_0) = 1.0;
+   //          MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+   //          MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+   //          MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+   //       }
+   //       #endif
+   //    }
+
+   //    /* UNROLLED FINAL LOOP ITERATION */
+   //    t_0 = T;
+   //    t_1 = t_0 - 1;
+
+   //    /* FIND BEST PATH TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+   //    /* best previous state transition (match takes the diag element of each prev state) */
+   //    prv_M = MMX(qx1, t_1);
+   //    prv_I = IMX(qx1, t_1);
+   //    prv_D = DMX(qx1, t_1);
+   //    prv_B = XMX(SP_B, q_1); /* from begin match state (new alignment) */
+   //    /* best-to-match */
+   //    prv_best = calc_Max(
+   //                   calc_Max( prv_M, prv_I ),
+   //                   calc_Max( prv_D, prv_B ) );
+   //    MMX(qx0, t_0) = prv_best;
+
+   //    /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
+   //    /* previous states (match takes the left element of each state) */
+   //    prv_M = MMX(qx0, t_1);
+   //    prv_D = DMX(qx0, t_1);
+   //    /* best-to-delete */
+   //    prv_best = calc_Max( prv_M, prv_D );
+   //    DMX(qx0, t_0) = prv_best;
+
+   //    /* UPDATE E STATE */
+   //    prv_E = XMX(SP_E, q_0);
+   //    prv_M = MMX(qx0, t_0);
+   //    prv_D = DMX(qx0, t_0);
+   //    XMX(SP_E, q_0) = calc_Max( prv_E, 
+   //                         calc_Max( prv_M, prv_D ) );
+
+   //    /* SPECIAL STATES */
+   //    /* J state */
+   //    prv_J = XMX(SP_J, q_1);     /* J->J */
+   //    prv_E = XMX(SP_E, q_0);     /* E->J is E's "loop" */
+   //    XMX(SP_J, q_0) = calc_Max( prv_J, prv_E );
+
+   //    /* C state */
+   //    prv_C = XMX(SP_C, q_1);
+   //    prv_E = XMX(SP_E, q_0);
+   //    XMX(SP_C, q_0) = calc_Max( prv_C, prv_E );
+
+   //    /* N state */
+   //    prv_N = XMX(SP_N, q_1);
+   //    XMX(SP_N, q_0) = prv_N;
+
+   //    /* B state */
+   //    prv_N = XMX(SP_N, q_0);     /* N->B is N's move */
+   //    prv_J = XMX(SP_J, q_0);     /* J->B is J's move */
+   //    XMX(SP_B, q_0) = calc_Max( prv_N, prv_J );
+
+   //    /* embed linear row into quadratic test matrix */
+   //    #if DEBUG
+   //    {
+   //       MX_2D(cloud_MX, q_0, t_0) = 1.0;
+   //       MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+   //       MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+   //       MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+   //    }
+   //    #endif
+   // }
+
+   // /* T state (stores final state score) */
+   // sc_best = XMX(SP_C, Q);
+   // *sc_final = sc_best;
+
+   // return STATUS_SUCCESS;
+}
+
 /*! FUNCTION:  run_Null2_By_Expectation()
  *  SYNOPSIS:  Modeled after HMMER p7_GNull2_ByExpectation().
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Null2_ByExpectation(   SEQUENCE*            query,            /* query sequence */
-                           HMM_PROFILE*         target,           /* target hmm model */
-                           RANGE*               Q,                /* query length */
-                           int                  T,                /* target length */
-                           MATRIX_3D_SPARSE*    st_MX_post,       /* posterior normal matrix */
-                           MATRIX_2D*           sp_MX_post,       /* posterior special matrix */
-                           DOMAIN_DEF*          dom_def )         /* OUTPUT: domain def's null2_sc vector */
+run_Null2_ByExpectation(   SEQUENCE*         query,            /* query sequence */
+                           HMM_PROFILE*      target,           /* target hmm model */
+                           RANGE*            Q,                /* query length */
+                           int               T,                /* target length */
+                           MATRIX_3D*        st_MX_post,       /* posterior normal matrix */
+                           MATRIX_2D*        sp_MX_post,       /* posterior special matrix */
+                           DOMAIN_DEF*       dom_def )         /* OUTPUT: domain def's null2_sc vector */
 {
    // printf("=== run_Null2_ByExpectation ===\n");
    int      q_beg, q_end, q_len;
@@ -916,4 +1178,3 @@ run_Null2_ByExpectation(   SEQUENCE*            query,            /* query seque
 
    return STATUS_SUCCESS;
 }
-
