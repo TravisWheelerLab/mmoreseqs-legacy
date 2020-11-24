@@ -64,6 +64,14 @@ void VECTOR_FLT_GrowTo(   VECTOR_FLT*     vec,
                            int            size );
 
 /*
+ *  FUNCTION:  VECTOR_FLT_SetSizeTo()
+ *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
+ *             and fix size.
+ */
+void VECTOR_FLT_SetSizeTo( VECTOR_FLT*   vec, 
+                           int           size );
+
+/*
  *  FUNCTION:  VECTOR_FLT_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
  *             and resize array if array is full.

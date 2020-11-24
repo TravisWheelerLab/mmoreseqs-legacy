@@ -130,8 +130,6 @@ void REPORT_stdout_header(    WORKER*     worker,
    if ( args->pipeline_mode == PIPELINE_MMSEQS ) {
       fprintf( fp, "# %*s: %s\n", 
          left_pad, "MMSEQS RESULT file", (args->mmseqs_res_filepath ? args->mmseqs_res_filepath : "--") );
-      fprintf( fp, "# %*s: %s\n", 
-         left_pad, "MMSEQS+ RESULT file", (args->mmseqs_plus_filepath ? args->mmseqs_plus_filepath : "--") );
    }
    if ( args->pipeline_mode == PIPELINE_MAIN ) {
 
@@ -559,13 +557,13 @@ void REPORT_m8out_entry(   WORKER*  worker,
 void REPORT_m8out_footer(    WORKER*  worker,
                               FILE*    fp )
 {
-   fprintf( fp, "# [ok]\n" );
+   fprintf( fp, "# [ok] [m8out]\n" );
 }
 
 /* === MYOUT FUNCTIONS === */
 
-/* === M OUTPUT === */
-/* BLAST-style output 
+/* === MY OUTPUT === */
+/* Custom-style output 
    Description: The file is formatted as a tab-separated list with 12 columns: 
    - (1,2) identifiers query and target sequences/profiles, 
    - (3) sequence identity, 
@@ -598,6 +596,28 @@ void REPORT_m8out_footer(    WORKER*  worker,
 void REPORT_myout_header(  WORKER*  worker,
                            FILE*    fp )
 {
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+      "query",
+      "target",
+      "evalue",
+      "pre-sc",
+      "comp-bias",
+      "seq-sc",
+      "total-cells",
+      "MMORE-cells",
+      "perc-cells"
+   );
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+      "------",
+      "------",
+      "------",
+      "------",
+      "--------",
+      "------",
+      "----------",
+      "----------",
+      "----------"
+   );
 }
 
 /*    FUNCTION:   REPORT_myout_entry()
@@ -608,7 +628,27 @@ void REPORT_myout_entry(   WORKER*  worker,
                            RESULT*  result,
                            FILE*    fp )
 {
-   
+   HMM_PROFILE*   t_prof   = worker->t_prof;
+   SEQUENCE*      q_seq    = worker->q_seq;
+   ALIGNMENT*     aln      = worker->traceback;
+
+   int aln_len = aln->end - aln->beg + 1;
+   TRACE* beg  = &aln->traces->data[aln->beg];
+   TRACE* end  = &aln->traces->data[aln->end];
+
+   float percent_cells = (float)result->cloud_cells / (float)result->total_cells;
+
+   fprintf( fp, "%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.3f\n", 
+      t_prof->name,                    /* target name */
+      q_seq->name,                     /* query name */
+      result->final_scores.eval,       /* evalue */
+      result->final_scores.pre_sc,     /* seq scores before correction */
+      result->final_scores.seq_bias,   /* seq bias */
+      result->final_scores.seq_sc,     /* seq score after correction */
+      result->total_cells,             /* total number of cells computed */
+      result->cloud_cells,             /* total number of cells computed */
+      percent_cells                    /* total number of cells computed */
+   );
 }
 
 /*    FUNCTION:   REPORT_myout_footer()
@@ -618,7 +658,7 @@ void REPORT_myout_entry(   WORKER*  worker,
 void REPORT_myout_footer(    WORKER*  worker,
                               FILE*    fp )
 {
-   fprintf( fp, "# [ok]\n" );
+   fprintf( fp, "# [ok] [myout]\n" );
 }
 
 /* === UTILTITY FUNCTIONS === */

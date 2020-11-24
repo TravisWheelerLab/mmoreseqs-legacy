@@ -16,33 +16,39 @@
 #define TRUE  1
 #define FALSE 0
 
-#define MACRO_STR(macro) 	#macro
+#define MACRO_XSTR(val) 	MACRO_STR(val)
+#define MACRO_STR(val) 		#val
+
+/* used for storing potential string paths. Max determined by Linux */
+#ifndef MAX_PATH_LEN
+#define MAX_PATH_LEN 		4096
+#endif 
 
 /* === SET BUILD TYPE MACROS & FUNCTION COMPILE-TIME OPTIONS  === */
 
 /* === VERSION === */
-#define BUILD_PROGRAM      "FB_PRUNER"
+#define BUILD_PROGRAM      "MMORE-SEQS // MMSEQS-PLUS // FB-PRUNER"
 #define BUILD_VERSION      "0.1"
 #define BUILD_NAME         "tbd"
 #define BUILD_DATE         "Aug 2020"
-#define BUILD_DESCRIPT     "Heuristic Pruning of Forward-Backward for Faster Profile-to-Sequence Search"
+#define BUILD_DESCRIPT     "Heuristic Pruned Forward-Backward for Faster Profile-to-Sequence Search"
 
 /* === INSTALL LOCATION === */
-#ifndef PREFIX
-#define PREFIX             /path/to/project/folder/
+#ifndef PROJECT_LOCATION
+#define PROJECT_LOCATION   ./
 #endif
 
-#ifndef PROJECT_LOCATION
-#define PROJECT_LOCATION   ""
+#ifndef INSTALL_LOCATION 
+#define INSTALL_LOCATION	./
 #endif
 
 /* set default debug build */
 #ifndef DEBUG
-#define DEBUG 	FALSE
+#define DEBUG 		FALSE
 #endif
 /* set visualization build (subset of debug build) */
 #ifndef VIZ
-#define VIZ 	DEBUG
+#define VIZ 		DEBUG
 #endif
 /* set memory checks (subset of debug build) */
 #ifndef MEMCHECK
@@ -54,11 +60,13 @@
 
 /* types of cloud pruning methods */
 #define PRUNER_NONE  							0 
-#define PRUNER_XDROP_EDGETRIM 				1
-#define PRUNER_XDROP_BIFURCATE				2
-#define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE	3
+#define PRUNER_XDROP_EDGETRIM 					1
+#define PRUNER_XDROP_BIFURCATE					2
+#define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE		3
 /* if bifurcation is allowed, set max limit on forking paths */
-#define MAX_BOUNDS_PER_ROW 					10
+#ifndef MAX_BOUNDS_PER_ROW
+#define MAX_BOUNDS_PER_ROW 						10
+#endif
 /* set default  of pruner method */
 /* PRUNER METHODS: PRUNER_DBL_XDROP_EDGETRIM_OR_DIE, PRUNER_XDROP_EDGETRIM  */
 #ifndef PRUNER
@@ -66,16 +74,16 @@
 #endif
 
 /* types of cloud search: whether to store bounds as rows or antidiags */
-#define CLOUD_NONE 		0
-#define CLOUD_ROWS 		1
+#define CLOUD_NONE 			0
+#define CLOUD_ROWS 			1
 #define CLOUD_DIAGS 		2
 /* set default cloud search method */
 #ifndef CLOUD_METHOD
-#define CLOUD_METHOD 	CLOUD_DIAGS
+#define CLOUD_METHOD 		CLOUD_DIAGS
 #endif
 
 /* types of simd vectorization method */
-#define SIMD_NONE 		0
+#define SIMD_NONE 			0
 #define SIMD_SSE			1
 /* set default vectorization method */
 #ifndef SIMD_METHOD
@@ -85,8 +93,8 @@
 /* ============================================================================== */
 
 /* values used for testing matrix accesses */
-#define DIRTY_VAL 1.0
-#define SCRUB_VAL 1.0
+#define DIRTY_VAL 	1.0
+#define SCRUB_VAL 	1.0
 
 /* debug print (eliminated from code when not debugging) */
 #if DEBUG
@@ -117,7 +125,7 @@
 /* error-checking macros */
 #define ERROR_alloc(...) 			ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_malloc(...) 			ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
-#define ERROR_realloc(...) 		ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
+#define ERROR_realloc(...) 			ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_free(...) 			ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_fopen(...) 			ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_fclose(...) 			ERRORCHECK_fclose(__VA_ARGS__, ERRORCHECK_locate() )
@@ -170,6 +178,10 @@
 #define MSMX(qx0, tx0) 			SMX( st_SMX, MAT_ST, (qx0), (tx0) )
 #define ISMX(qx0, tx0) 			SMX( st_SMX, INS_ST, (qx0), (tx0) )
 #define DSMX(qx0, tx0) 			SMX( st_SMX, DEL_ST, (qx0), (tx0) )
+/* match, insert, delete for st_SMX matrix (sparse matrix) */
+#define MSMX_X(mx, qx0, tx0) 	SMX( mx, MAT_ST, (qx0), (tx0) )
+#define ISMX_X(mx, qx0, tx0) 	SMX( mx, INS_ST, (qx0), (tx0) )
+#define DSMX_X(mx, qx0, tx0) 	SMX( mx, DEL_ST, (qx0), (tx0) )
 
 /* whether to access MATRIX_2D via function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )

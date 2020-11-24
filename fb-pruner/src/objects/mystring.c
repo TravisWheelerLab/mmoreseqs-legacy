@@ -27,7 +27,7 @@ char*
 STRING_Create( char*          dest,
                const char*    str ) 
 {
-
+   
 }
 
 /* Get the number of characters in a string (including \0) */

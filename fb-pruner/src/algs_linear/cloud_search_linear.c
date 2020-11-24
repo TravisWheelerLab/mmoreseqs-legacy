@@ -110,8 +110,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prv_loop, prv_move;            /* previous loop and move for special states */
-   float    prv_sum, prv_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -229,7 +229,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    /* verify that starting points are valid */
    if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
       fprintf(stderr, "ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
-      fprintf(stderr, "Target Length: %d, Query Length: %d\n", T, Q );
+      fprintf(stderr, "Query Length: %d, Target Length: %d\n", Q, T );
       exit(EXIT_FAILURE);
    }
 
@@ -795,9 +795,9 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
 
    /* TODO: add this edgecheck to all  */
    /* verify that starting points are valid */
-   if ( end->q_0 < 0 || end->q_0 > Q || end->t_0 < 0 || end->t_0 > T ) {
-      fprintf(stderr, "ERROR: Invalid start points for Cloud Backward Search: (%d,%d)\n", end->q_0, end->t_0 );
-      fprintf(stderr, "Target Length: %d, Query Length: %d\n", T, Q );
+   if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
+      fprintf(stderr, "ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
+      fprintf(stderr, "Query Length: %d, Target Length: %d\n", Q, T );
       exit(EXIT_FAILURE);
    }
 

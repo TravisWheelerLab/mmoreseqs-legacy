@@ -99,6 +99,7 @@ void (*PIPELINES[])(WORKER*) = {
    itest_pipeline,
    time_pipeline,
    mmseqs_pipeline,
+   mmseqs_plus_pipeline,
    index_pipeline,
    utest_pipeline,
    vizualization_pipeline,
@@ -112,6 +113,7 @@ char* PIPELINE_NAMES[] = {
    "itest",
    "time",
    "mmseqs",
+   "mmseqs_plus",
    "index",
    "utest",
    "viz",
@@ -121,6 +123,7 @@ char* PIPELINE_NAMES[] = {
 /* number of primary arguments for each pipeline */
 int PIPELINE_NUM_ARGS[] = {
    0,
+   2,
    2,
    2,
    2,
@@ -257,7 +260,27 @@ char* DATATYPE_NAMES[] = {
    "BOOL"
 };
 
+
 /* initializes single_builder scoring matrix used in HMM_PROFILE_From_Seq() */
 /* SingleBuilder probability matrix (created by HMMER using p7_SingleBuilder, dependent on only bg frequencies) */
 /* TODO: Needs to be freed */ 
 SCORE_MATRIX* bld = NULL;
+
+
+/* --- EXTERNAL EXECUTABLE/SCRIPT LOCATIONS --- */
+/* mmore-seqs script location */
+char* MMSEQS_PLUS_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/mmseqs_plus.sh";
+/* mmore-seqs script location */
+char* MMSEQS_PLUS_EASY_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/mmseqs_plus_easy.sh";
+/* fasta-to-hmm converter script location */
+char* FASTA_TO_HMM_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/convert_fasta_to_hmm.sh";
+/* mmseqs binary location */
+// char* MMSEQS_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/MMseqs2/build/mmseqs";
+char* MMSEQS_BIN = "mmseqs";
+/* hmmer 'hmmbuild' binary location */
+// char* HMMBUILD_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/HMMER/build/";
+char* HMMBUILD_BIN = "hmmbuild";
+/* hmmer 'hmmbuild' binary location */
+// char* HMMSEARCH_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/HMMER/build/";
+char* HMMSEARCH_BIN = "hmmsearch";
+

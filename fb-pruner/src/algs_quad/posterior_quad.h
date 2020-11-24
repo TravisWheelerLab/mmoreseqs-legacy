@@ -72,21 +72,36 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
                                     MATRIX_2D*        sp_MX_post );     /* OUTPUT: special state matrix for posterior */
 
 
-/*! FUNCTION:  run_Null2_By_Expectation()
+/*! FUNCTION:  run_Null2_ByExpectation_Quad()
  *  SYNOPSIS:  Modeled after HMMER p7_GNull2_ByExpectation().
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Null2_ByExpectation(   SEQUENCE*         query,            /* query sequence */
-                           HMM_PROFILE*      target,           /* target hmm model */
-                           int               Q,                /* query length */
-                           int               T,                /* target length */
-                           RANGE*            Q_range,          /* query range */
-                           RANGE*            T_range,          /* target range */ 
-                           MATRIX_3D*        st_MX_post,       /* posterior normal matrix */
-                           MATRIX_2D*        sp_MX_post,       /* posterior special matrix */
-                           DOMAIN_DEF*       dom_def );        /* OUTPUT: domain def's null2_sc vector */
+run_Null2_ByExpectation_Quad(   SEQUENCE*         query,            /* query sequence */
+                                HMM_PROFILE*      target,           /* target hmm model */
+                                int               Q,                /* query length */
+                                int               T,                /* target length */
+                                RANGE*            Q_range,          /* query range */
+                                RANGE*            T_range,          /* target range */ 
+                                MATRIX_3D*        st_MX_post,       /* posterior normal matrix */
+                                MATRIX_2D*        sp_MX_post,       /* posterior special matrix */
+                                DOMAIN_DEF*       dom_def );        /* OUTPUT: domain def's null2_sc vector */
+
+
+/*! FUNCTION:  run_Null2_ByExpectation_Old()
+ *  SYNOPSIS:  Modeled after HMMER p7_GNull2_ByExpectation().
+ *
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+ */
+int
+run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            query,            /* query sequence */
+                                    HMM_PROFILE*         target,           /* target hmm model */
+                                    int                  Q,                /* query length */
+                                    int                  T,                /* target length */
+                                    MATRIX_3D*           st_MX_post,       /* posterior normal matrix */
+                                    MATRIX_2D*           sp_MX_post,       /* posterior special matrix */
+                                    DOMAIN_DEF*          dom_def );        /* OUTPUT: domain def's null2_sc vector */
 
 
 #endif /* _POSTERIOR_QUAD_H */

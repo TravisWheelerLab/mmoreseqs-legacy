@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      pipeline_mmseqs.c
- *  PURPOSE:   Cloud Search Pipeline for MMSEQS.
+ *  PURPOSE:   MMORE-SEQS full pipeline.  Runs MMseqs, then passes results to MMORE-SEQS.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       Lots.
@@ -121,7 +121,7 @@ mmseqs_pipeline( WORKER* worker )
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
       printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
-         i_cnt, i_rng, i, i_end );
+         i_cnt, i_rng, i+1, i_end );
 
       result_in = &worker->results_in->data[i];
 
@@ -171,6 +171,57 @@ mmseqs_pipeline( WORKER* worker )
       //    tr->end = 1;
       // }
       // #endif
+
+      /* if fixing mmseqs alignment, we need to trim in the alignment if it exceeds the bounds of the profile or sequence */
+      if ( args->adjust_mmseqs_alns == true )
+      {
+         int fixed_aln  = false;
+         int t_fix = false;
+         int q_fix = false;
+         COORDS t_mmseqs = (COORDS){result_in->target_start, result_in->target_end};
+         COORDS q_mmseqs = (COORDS){result_in->query_start, result_in->query_end};
+
+         if ( result_in->target_start > worker->t_prof->N - 1 ) {
+            result_in->target_start = worker->t_prof->N - 1;
+            fixed_aln = true;
+            t_fix = true;
+         } 
+         if ( result_in->target_end > worker->t_prof->N - 1 ) {
+            result_in->target_end = worker->t_prof->N - 1;
+            fixed_aln = true;
+            t_fix = true;
+         }
+         if ( result_in->query_start > worker->q_seq->N - 1 ) {
+            result_in->query_start = worker->q_seq->N - 1;
+            fixed_aln = true;
+            q_fix = true;
+         } 
+         if ( result_in->query_end > worker->q_seq->N - 1 ) {
+            result_in->query_end = worker->q_seq->N - 1;
+            fixed_aln = true;
+            q_fix = true;
+         }
+         /* log out viterbi alignment adjustments to error file */ 
+         if (fixed_aln == true) {
+            FILE* ferr = fopen("fixed_aln.err", "a");
+            char* t_str = "<target>";
+            char* q_str = "<query>";
+            int pad = -6;
+            /* log to error file */
+            fprintf(ferr, "%*sERROR occurred on mmseqs results (%d). %s %s was out-of-bounds. Target_size = %d, Query_size = %d\n%*s", 
+               pad, ">>", i, (t_fix ? t_str : ""), (q_fix ? q_str : ""), worker->t_prof->N, worker->q_seq->N, pad, "" );
+            RESULT_M8_Dump( result_in, ferr );
+            fprintf(ferr, "%*sMMseqs coords: (%d,%d)=>(%d,%d) || Adjusted coords: (%d,%d)=>(%d,%d)\n",
+               pad, "", q_mmseqs.i, t_mmseqs.i, q_mmseqs.j, t_mmseqs.j, result_in->query_start, result_in->target_start, result_in->query_end, result_in->target_end );
+            fclose(ferr);
+            /* log to standard error */
+            fprintf(stderr, "%*sERROR occurred on mmseqs results (%d). %s %s was out-of-bounds.  Query_size = %d, Target_size = %d\n", 
+               pad, "#>>", i, (q_fix ? q_str : ""), (t_fix ? t_str : ""), worker->q_seq->N, worker->t_prof->N );
+            RESULT_M8_Dump( result_in, ferr );
+            fprintf(stderr, "%*sMMseqs coords: (%d,%d)=>(%d,%d) || Adjusted coords: (%d,%d)=>(%d,%d)\n",
+               pad, "#",  q_mmseqs.i, t_mmseqs.i, q_mmseqs.j, t_mmseqs.j, result_in->query_start, result_in->target_start, result_in->query_end, result_in->target_end );
+            }
+      }
 
       /* get search window from mmseqs results */
       ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );

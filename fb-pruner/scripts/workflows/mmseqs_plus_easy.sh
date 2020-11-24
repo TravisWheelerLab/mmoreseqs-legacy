@@ -5,7 +5,11 @@
 #	DESC: 		runs mmseqs, then pipes output to fb-pruner search
 ###########################################################################
 
-echo "EXECUTING: mmseqs_plus.sh..."
+# NOTES: to reinstall mmseqs and update scripts => 
+# $ cd build/ 
+# $ make clean 
+# $ make -j 4 
+# $ make install
 
 # PROGRAM:
 # (1) mmseqs creates a temporary copy of query/target dbs
@@ -15,13 +19,13 @@ echo "EXECUTING: mmseqs_plus.sh..."
 # (5) reformat mmseqs results for input in fb-pruner
 # (5) fb-pruner search
 
-# SET VARIABLES
+# SET ENVIRONMENTAL VARIABLES
 
 # commandline variables (verify proper number of variables)
 NUM_ARGS=$#
-if (( $NUM_ARGS < 24 )); then 
-	echo "ERROR: inncorrect number of parameters: $NUM_ARGS of 24"
-	echo "Usage: <target> <query> <...>"
+if (( $NUM_ARGS < 25 )); then 
+	echo "ERROR: illegal number of parameters: $NUM_ARGS of 25"
+	echo "Usage: <target> <query> <results>"
 	exit
 fi
 
@@ -50,11 +54,12 @@ COMP_BIO=$18
 # -- TOOL LOCATION -- #
 FASTA_T0_HMM_SCRIPT=$19
 MMSEQS_BIN=$20
-HMMBUILD=$21
+HMMBUILD_BIN=$21
 # -- OUTPUTS -- #
 STDOUT=$22
-M8_OUT=$23
-MY_OUT=$24
+TBL_OUT=$23
+M8_OUT=$24
+MY_OUT=$25
 
 # default parameters
 ROOT_DIR="${ROOT_DIR:-'/'}"
@@ -101,9 +106,8 @@ CLOUD=./build/fb-pruner
 BENCH_DIR=$(pwd)
 
 # temporary directory
-INSTANCE_ID=$(uuidgen)
-TMP_ROOT=${BENCH_DIR}/tmp-mmseqs-plus/
-TMP=${TMP_ROOT}/${INSTANCE_ID}/
+TMP_ROOT=${TEMP_DIR}/
+TMP=${TMP_ROOT}/
 
 # temporaty subdirectories for mmseqs and 
 TMP_MMSEQS=${TMP}/mmseqs/
@@ -128,28 +132,8 @@ mkdir $TMP_MMSEQS
 # mmseqs options
 MMSEQS_SHUFFLE=""
 
-# ==== MMSEQS CREATE DB ==== #
-echo "# (1/7) Create MMSEQS target database..."
-time $MMSEQS createdb 						\
-	$TARGET $TARGET_MMSEQS 					\
-	--shuffle 			0					\
-
-echo "# (1/7) Create MMSEQS query database..."
-time $MMSEQS createdb						\
-	$QUERY $QUERY_MMSEQS 					\
-	--shuffle 			0 					\
-
-# ==== MMSEQS INDEX ======== #
-echo "# (2/7) Create MMSEQS index of target database..."
-KMER="7" 	# kmer length 
-SPLIT="1" 	# split db in number of sub dbs
-time $MMSEQS createindex 					\
-	$TARGET_MMSEQS $TMP_MMSEQS				\
-	-k $KMER 								\
-	--split $SPLIT 							\
-
 # ==== CLOUD INDEX ==== #
-echo "# (3/7) Create CLOUD index of database..."
+echo "# (1/4) Create CLOUD index of database..."
 time $CLOUD index $TARGET $QUERY
 time mv $TARGET.idx $TMP_CLOUD/target.idx 
 time mv $QUERY.idx $TMP_CLOUD/query.idx
@@ -160,7 +144,7 @@ NUM_QUERIES=$( grep "#" -v $TMP_CLOUD/query.idx | wc -l )
 DB_SIZE=$((NUM_TARGETS))
 
 # ==== MMSEQS SEARCH ======= $
-echo "# (4/7) Performing MMSEQS Search..."
+echo "# (2/4) Performing MMSEQS Search..."
 # --format-output STR       	CSV list of output columns from: query,target,evalue,gapopen,pident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,raw,bits,cigar,qseq,tseq,qheader,theader,qaln,taln,qframe,tframe,mismatch,qcov,tcov,qset,qsetid,tset,tsetid,taxid,taxname,taxlineage  [query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits]
 # -s FLOAT                     	Sensitivity: 1.0 faster; 4.0 fast; 7.5 sensitive [5.700]
 # -k INT                       	k-mer length (0: automatically set to optimum) [0]
@@ -172,25 +156,17 @@ echo "# (4/7) Performing MMSEQS Search..."
 # --e-profile FLOAT             Include sequences matches with < e-value thr. into the profile (>=0.0) [0.001]
 
 FORMAT_OUTPUT="qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
-E_VALUE=$(( P_VALUE * DB_SIZE ))
+EVAL_CUTOFF=$(( PVAL_CUTOFF * DB_SIZE ))
+EVAL_REPORT=$(( PVAL_REPORT * DB_SIZE ))
 
-MIN_UNGAPPED_SCORE="0"
-time $MMSEQS search 
-	$QUERY_MMSEQS $TARGET_MMSEQS 					\
-	$RESULT_RAW_MMSEQS $TMP_MMSEQS 					\
+time $MMSEQS easy-search 
+	$QUERY_MMSEQS  $TARGET_MMSEQS 					\
+	$RESULT_MMSEQS  $TMP_MMSEQS 					\
 	-k 						$KMER 					\
-	--split 				$SPLIT 					\
 	--min-ungapped-score 	$MIN_UNGAPPED_SCORE 	\
-	-e 						$E_VALUE 				\
+	-e 						$EVAL_CUTOFF 			\
 	--k-score 				$K_SCORE 				\
-	--format-out 			$FORMAT_OUTPUT 			\
 	--remove-tmp-files  	0						\
-
-# ==== MMSEQS CONVERT == #
-echo "# (5/7) Convert MMSEQS Alignments..."
-time $MMSEQS convertalis							\
-	$QUERY_MMSEQS $TARGET_MMSEQS  					\
-	$RESULT_RAW_MMSEQS $RESULT_MMSEQS 				\
 
 # ==== FBPRUNER SEARCH ==== #
 echo "(7/7) Performing FB_PRUNER Search..."
@@ -207,12 +183,32 @@ echo "(7/7) Performing FB_PRUNER Search..."
 TARGET_INDEX="$TMP_CLOUD/target.idx" 
 QUERY_INDEX="$TMP_CLOUD/query.idx"
 
+# check if output are set
+if [ "$STDOUT" = "==" ]; then
+	STDOUT=""
+else
+	STDOUT="--stdout $STDOUT"
+fi
+if [ "$M8_OUT" = "==" ]; then
+	M8_OUT=""
+else
+	$STDOUT="--m8-out $STDOUT"
+fi
+if [ "$STDOUT" = "==" ]; then
+	$STDOUT=""
+else
+	$STDOUT="--stdout $STDOUT"
+fi
+
+
 time $FB_PRUNER mmseqs 								\
 	$TARGET_PATH $QUERY_PATH 						\
 	--mmseqs-results 	$RESULT_MMSEQS				\
 	--index 			$TARGET_INDEX $QUERY_INDEX 	\
-	--output 			$STD_OUTPUT 				\
-	--m8out 			$M8_OUTPUT 					\
+	$STDOUT 										\
+	$TBL_OUTPUT										\
+	$M8_OUTPUT 										\
+	$MY_OUTPUT										\
 	--alpha 			$ALPHA 						\
 	--beta 				$BETA 						\
 	--gamma 			$GAMMA 						\

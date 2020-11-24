@@ -142,6 +142,23 @@ void VECTOR_FLT_GrowTo( VECTOR_FLT*   vec,
 }
 
 /*
+ *  FUNCTION:  VECTOR_FLT_SetSizeTo()
+ *  SYNOPSIS:  Reallocate <vec> data array to length of <size>,
+ *             and fix size.
+ */
+void VECTOR_FLT_SetSizeTo( VECTOR_FLT*   vec, 
+                           int           size )
+{
+   vec->data = (FLT*) realloc( vec->data, sizeof(FLT) * size );
+   if ( vec->data == NULL ) {
+      fprintf(stderr, "ERROR: Failure to malloc.\n" );
+      exit(EXIT_FAILURE);
+   }
+   vec->Nalloc = size;
+   vec->N = size;
+}
+
+/*
  *  FUNCTION:  VECTOR_FLT_Push()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
  *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().

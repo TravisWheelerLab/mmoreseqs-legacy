@@ -47,7 +47,7 @@ typedef enum {
 /* Status Flags (for function returns) */
 typedef enum {
    STATUS_SUCCESS,
-   STATUS_FAILURE
+   STATUS_FAILURE,
 } STATUS_FLAGS;
 #define NUM_STATUS_FLAGS 2
 
@@ -100,12 +100,12 @@ typedef enum {
 
 /* Verbosity Modes (how much output does user want) */
 typedef enum {
-   VERBOSE_NONE,
-   VERBOSE_LOW,
-   VERBOSE_HIGH,
-   VERBOSE_ALL,
+   VERBOSE_NONE,     /* 0: quiet */
+   VERBOSE_LOW,      /* 1: +errors */
+   VERBOSE_HIGH,     /* 2: +warnings */
+   VERBOSE_ALL,      /* 3: info */
 } VERBOSE_MODE;
-#define NUM_VERBOSITY_MODES 3
+#define NUM_VERBOSITY_MODES 4
 
 /* select which targets and which queries to perform search against */
 typedef enum {
@@ -116,6 +116,7 @@ typedef enum {
    SELECT_NAME_LIST,       /* Search list of names from targets/queries */
    SELECT_ID_LIST          /* Search list of ids from targets/queries */
 } SELECT_SEARCH;
+#define NUM_SELECT_SEARCHES 6
 
 /* Search modes  */
 /* NOTE: cloud search only supports uniglocal */

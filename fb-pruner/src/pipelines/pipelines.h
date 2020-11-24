@@ -34,7 +34,7 @@ void mmseqs_pipeline( WORKER* worker );
  *  FUNCTION:  	mmseqs_pipeline_plus()
  *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: Runs Cloud Search using results from main MMSeqs Search..	
  */
-void mmseqs_pipeline_plus( WORKER* worker );
+void mmseqs_plus_pipeline( WORKER* worker );
 
 
 /*

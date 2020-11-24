@@ -20,18 +20,23 @@ GAMMA=5
 OUTPUT=test-results.out
 TBLOUT=test-results.tblout
 M8OUT=test-results.m8
-MYOUTPUT=test-results.myout
+MYOUT=test-results.myout
 
 VERBOSE=1
 
-time ../build/fbpruner mmseqs 					\
-					$QUERY $TARGET 				\
-	--index 		$QUERY_IDX $TARGET_IDX 		\
-	--alpha 		$ALPHA 						\
-	--beta 			$BETA						\
-	--gamma 		$GAMMA 						\
-	--mmseqs-m8 	$MMSEQS_M8 					\
-	--m8out 		$M8OUT 						\
- 	--verbose 		$VERBOSE					\
-												\
+time ../../fbpruner mmseqs 								\
+							$QUERY $TARGET 				\
+	--index 				$QUERY_IDX $TARGET_IDX 		\
+	--alpha 				$ALPHA 						\
+	--beta 					$BETA						\
+	--gamma 				$GAMMA 						\
+	--mmseqs-m8 			$MMSEQS_M8 					\
+	--m8out 				$M8OUT 						\
+ 	--myout 				$MYOUT 						\
+	--verbose 				$VERBOSE					\
+	--comp-bias				0							\
+	--mmseqs-kmer   		6 							\
+	--mmseqs-ungapped-vit	13							\
+	--mmseqs-eval   		2.5							\
+	--adjust-mmseqs-aln		1							\
 

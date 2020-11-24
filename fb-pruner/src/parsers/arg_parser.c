@@ -42,7 +42,7 @@ void   ARGS_Parse( ARGS*   args,
          printf("Using DEFAULT arguments...\n\n");
          return;
       #else
-         exit(EXIT_FAILURE);
+         exit(EXIT_SUCCESS);
       #endif
    }
 
@@ -57,6 +57,7 @@ void   ARGS_Parse( ARGS*   args,
       args->pipeline_mode = atoi(argv[1]);
    } else {
       for (int i = 0; i < NUM_PIPELINE_MODES; i++) {
+         // printf("%s ?? %s\n", argv[1], PIPELINE_NAMES[i]);
          if ( strcmp(argv[1], PIPELINE_NAMES[i]) == 0 ) {
             args->pipeline_mode = i;
             found_pipeline = true;
@@ -112,6 +113,102 @@ void   ARGS_Parse( ARGS*   args,
          if ( strcmp(argv[i], (flag = "--help") ) == 0 ) {
             ARGS_Help_Info();
          }
+         else if ( strcmp(argv[i], (flag = "--verbose") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->verbose_level = atoi(argv[i]);
+               if ( args->verbose_level < 0 || args->verbose_level > NUM_VERBOSITY_MODES ) {
+                  fprintf(stderr, "ERROR: Verbose level (%d) is outside acceptable range (%d,%d).\n", 
+                     args->verbose_level, 0, NUM_VERBOSITY_MODES );
+                  args->verbose_level = MAX( args->verbose_level, 0 );
+                  args->verbose_level = MIN( args->verbose_level, NUM_VERBOSITY_MODES-1 );
+               } 
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--enforce-warnings") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               if ( atoi(argv[i]) == 0 ) {
+                  args->enforce_warnings = false;
+               } else if ( atoi(argv[i]) == 1 ) {
+                  args->enforce_warnings = true;
+               }
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--adjust-mmseqs-aln") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               if ( atoi(argv[i]) == 0 ) {
+                  args->adjust_mmseqs_alns = false;
+               } else if ( atoi(argv[i]) == 1 ) {
+                  args->adjust_mmseqs_alns = true;
+               }
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         /* === INPUT FILES === */
+         else if ( strcmp(argv[i], (flag = "--index") ) == 0 ) {
+            req_args = 2;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->t_indexpath);
+               args->t_indexpath = strdup(argv[i]);
+               i++;
+               ERROR_free(args->q_indexpath);
+               args->q_indexpath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--ftype") ) == 0 ) {
+            req_args = 2;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->t_indexpath);
+               args->t_filetype = atoi(argv[i]); 
+               i++;
+               ERROR_free(args->q_indexpath);
+               args->q_filetype = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--tmp") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->tmp_folderpath);
+               args->tmp_folderpath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->mmseqs_res_filepath);
+               args->mmseqs_res_filepath = strdup(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         /* === MMORE PARAMETERS === */
          else if ( strcmp(argv[i], (flag = "--alpha") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -142,60 +239,83 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--verbose") ) == 0 ) {
-            req_args = 1;
-            if (i+req_args < argc) {
-               i++;
-               args->verbose_level = atoi(argv[i]);
-            } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
-            }
-         }
          else if ( strcmp(argv[i], (flag = "--eval") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               args->threshold_fbpruner = atof(argv[i]);
+               args->mmseqs_evalue = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-tmp") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--comp-bias") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->mmseqs_tmp_filepath);
-               args->mmseqs_tmp_filepath = strdup(argv[i]);
+               if ( atoi(argv[i]) == 0 ) {
+                  args->is_compo_bias = false;
+               } else {
+                  args->is_compo_bias = true;
+               }
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
+         /* === MMSEQS PARAMETERS === */
+         else if ( strcmp(argv[i], (flag = "--mmseqs-split") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
-               ERROR_free(args->mmseqs_res_filepath);
-               args->mmseqs_res_filepath = strdup(argv[i]);
+               args->mmseqs_split = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-m8+") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--mmseqs-kmer") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
-               ERROR_free(args->mmseqs_plus_filepath);
-               args->mmseqs_plus_filepath = strdup(argv[i]);
+               args->mmseqs_kmer = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-range") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--mmseqs-ungapped-vit") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_ungapped_vit = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-eval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_evalue = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mmseqs-pval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_pvalue = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         /* === SEARCH/RANGE OPTIONS === */
+         else if ( strcmp(argv[i], (flag = "--search-range") ) == 0 ) {
             req_args = 2;
             if (i+req_args < argc) {
                i++;
@@ -207,40 +327,40 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--mmseqs-lookup") ) == 0 ) {
-            req_args = 2;
-            if (i+req_args <= argc) {
+         else if ( strcmp(argv[i], (flag = "--search-mode") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
                i++;
-               ERROR_free(args->t_lookup_filepath);
-               args->t_lookup_filepath = strdup(argv[i]);
-               i++;
-               ERROR_free(args->q_lookup_filepath);
-               args->q_lookup_filepath = strdup(argv[i]);
+               args->search_mode = atoi(argv[i]);
+               if ( args->search_mode < 0 || args->search_mode > NUM_SELECT_SEARCHES ) {
+                  fprintf(stderr, "ERROR: Verbose level (%d) is outside acceptable range (%d,%d).\n", 
+                     args->search_mode, 0, NUM_SELECT_SEARCHES );
+                  args->search_mode = MAX( args->search_mode, 0 );
+                  args->search_mode = MIN( args->search_mode, NUM_SELECT_SEARCHES-1 );
+               } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--index") ) == 0 ) {
-            req_args = 2;
-            if (i+req_args <= argc) {
+         else if ( strcmp(argv[i], (flag = "--filter-off") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
                i++;
-               ERROR_free(args->t_indexpath);
-               args->t_indexpath = strdup(argv[i]);
-               i++;
-               ERROR_free(args->q_indexpath);
-               args->q_indexpath = strdup(argv[i]);
+               args->search_mode = atoi(argv[i]);
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
+         /* === OUTPUT === */
          else if ( strcmp(argv[i], (flag = "--tblout") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
                ERROR_free(args->tblout_filepath);
                args->tblout_filepath = strdup(argv[i]);
+               args->is_tblout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -252,6 +372,7 @@ void   ARGS_Parse( ARGS*   args,
                i++;
                ERROR_free(args->m8out_filepath);
                args->m8out_filepath = strdup(argv[i]);
+               args->is_m8out = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -263,6 +384,7 @@ void   ARGS_Parse( ARGS*   args,
                i++;
                ERROR_free(args->myout_filepath);
                args->myout_filepath = strdup(argv[i]);
+               args->is_myout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -273,11 +395,37 @@ void   ARGS_Parse( ARGS*   args,
             if (i+req_args <= argc) {
                i++;
                args->output_filepath = strdup(argv[i]);
+               args->is_redirect_stdout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--debugout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->dbg_folderpath);
+               args->dbg_folderpath = strdup(argv[i]);
+               args->is_debug = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--customout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->tblout_filepath);
+               args->tblout_filepath = strdup(argv[i]);
+               args->is_tblout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         /* === NOT PROPER FLAG === */
          else {
             fprintf(stderr, "ERROR: '%s' is not a recognized flag.\n", argv[i]);
             exit(EXIT_FAILURE);
@@ -297,56 +445,62 @@ void   ARGS_Parse( ARGS*   args,
 /* SET DEFAULT ARGUMENTS (generic) */
 void  ARGS_Set_Defaults( ARGS* args )
 {
-   args->qt_search_space         = SELECT_ALL_V_ALL;
-
-   args->t_filepath              = strdup("test-input/test1_2.hmm");
-   args->q_filepath              = strdup("test-input/test1_1.fa");
-
-   args->t_indexpath             = NULL;
-   args->q_indexpath             = NULL;
-
-   args->t_filetype              = FILE_HMM;
-   args->q_filetype              = FILE_FASTA;
-
-   /* TODO: tblout testing */
-   args->is_redirect_stdout      = false;
-   args->output_filepath         = strdup("results.stdout");
-
-   args->is_tblout               = false;
-   args->tblout_filepath         = strdup("results.tblout");
-
-   args->is_m8out                = true;
-   args->m8out_filepath          = strdup("results.m8");
-
-   args->is_myout                = false;
-   args->myout_filepath          = strdup("results.myout");
-
-   args->mmseqs_res_filepath     = NULL;
-   args->mmseqs_plus_filepath    = NULL;
-   args->mmseqs_tmp_filepath     = NULL;
-
-   args->tmp_folderpath          = NULL;
-
-   args->tmp_remove              = false;
-   args->dbg_folderpath          = strdup("test-output/");
-
-   args->alpha                   = 12.0f;
-   args->beta                    = 20.0f;
-   args->gamma                   = 5;
-
+   /* --- PIPELINE OPTIONS --- */
    args->pipeline_mode           = PIPELINE_TEST;
    args->verbose_level           = VERBOSE_LOW;
    args->search_mode             = MODE_UNILOCAL;
-
+   args->qt_search_space         = SELECT_ALL_V_ALL;
+   args->tmp_folderpath          = NULL;
+   args->tmp_remove              = false;
    args->filter_on               = false;
-   args->threshold_vit           = 1e-3f;
-   args->threshold_fwd           = 1e-5f;
-   args->threshold_fbpruner      = 1e-5f;
+   args->is_compo_bias           = true;
 
-   /* these will default to entire file unless filled with positive ints */
+   /* --- DEBUG OPTIONS --- */
+   args->is_debug                = true;
+   args->dbg_folderpath          = strdup("test-output/");
+
+   /* --- INPUT --- */
+   args->t_filepath              = strdup("test-input/test1_2.hmm");
+   args->q_filepath              = strdup("test-input/test1_1.fa");
+   args->t_indexpath             = NULL;
+   args->q_indexpath             = NULL;
+   args->t_filetype              = FILE_HMM;
+   args->q_filetype              = FILE_FASTA;
+   args->mmseqs_res_filepath     = NULL;
+
+   /* --- OUTPUT --- */
+   args->is_redirect_stdout      = false;
+   args->output_filepath         = strdup("results.stdout");
+   args->is_tblout               = false;
+   args->tblout_filepath         = strdup("results.tblout");
+   args->is_m8out                = true;
+   args->m8out_filepath          = strdup("results.m8");
+   args->is_myout                = false;
+   args->myout_filepath          = strdup("results.myout");
+
+   /* --- RANGE OPTIONS --- */
    args->t_range                 = (RANGE) { -1, -1 };    
    args->q_range                 = (RANGE) { -1, -1 };
-   args->list_range             = (RANGE) { -1, -1 };
+   args->list_range              = (RANGE) { -1, -1 };
+
+   /* --- MMORE / FB-PRUNER --- */
+   args->alpha                   = 12.0f;
+   args->beta                    = 20.0f;
+   args->gamma                   = 5;
+   args->mmore_evalue            = 2e2f;
+   args->mmore_pvalue            = 1e-5f;
+
+   /* --- MMSEQS --- */
+   args->mmseqs_kmer             = 7;
+   args->mmseqs_prefilter        = 80;
+   args->mmseqs_ungapped_vit     = 15;
+   args->mmseqs_evalue           = 1000.0;
+   args->mmseqs_pvalue           = 1e-3f;
+
+   /* --- VITERBI / FWDBACK THRESHOLDS --- */
+   args->threshold_vit           = 1e-3f;
+   args->threshold_fwd           = 1e-5f;
+   args->threshold_mmore         = 1e-5f;
 }
 
 
@@ -358,30 +512,42 @@ void ARGS_Dump( ARGS*    args,
    bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
 
    fprintf( fp, "=== ARGS =====================\n");
-   /* parameters */
+   /* --- PIPELINE --- */
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode],   args->pipeline_mode );
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
-   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "ALPHA",           args->alpha );
-   fprintf( fp, "%*s:\t%.3f\n",        align * pad,  "BETA",            args->beta );
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "GAMMA",           args->gamma );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "COMPO_BIAS",      ( args->is_compo_bias ? "True" : "False" ) );
    fprintf( fp, "\n" );
-   /* inputs */
+   /* --- INPUT --- */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILEPATH", args->t_filepath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILEPATH",  args->q_filepath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
-   fprintf( fp, "\n" );
-   /* index input */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "T_INDEX_PATH",    args->t_indexpath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
-   fprintf( fp, "\n" );
-   /* mmseqs input */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_RESULTS",  args->mmseqs_res_filepath );
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_TEMP",     args->mmseqs_tmp_filepath );  
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TMP_FOLDERPATH",  args->tmp_folderpath ); 
    fprintf( fp, "\n" );
-   /* output */
+   /* --- MMSEQS --- */
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_KMER",     args->mmseqs_kmer );
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_KSCORE",   args->mmseqs_prefilter );
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_UNGAPPED", args->mmseqs_ungapped_vit );
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMSEQS_EVALUE",   args->mmseqs_evalue );
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMSEQS_PVALUE",   args->mmseqs_pvalue ); 
+   /* --- MMORE / FB-PRUNER --- */ 
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "ALPHA",           args->alpha );
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "BETA",            args->beta );
+   fprintf( fp, "%*s:\t%d\n",          align * pad,  "GAMMA",           args->gamma );
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "E_VALUE",         args->mmore_evalue );
+   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "P_VALUE",         args->mmore_pvalue );
+   fprintf( fp, "\n" );
+   /* --- OUTPUT --- */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
+   if (args->is_tblout)    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TBLOUT_FILEPATH", args->tblout_filepath );
+   if (args->is_m8out)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "M8OUT_FILEPATH", args->m8out_filepath );
+   if (args->is_myout)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYOUT_FILEPATH", args->myout_filepath );
+   if (args->is_customout) fprintf( fp, "%*s:\t%s\n",          align * pad,  "CUSTOMOUT_FILEPATH", args->customout_filepath );
+   
    fprintf( fp, "=============================\n\n");
 }
 

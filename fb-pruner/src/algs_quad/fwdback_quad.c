@@ -51,8 +51,9 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
    /* vars for indexing into data matrices by row-col */
    int      b, d, i, j, k;                   /* antidiagonal, row, column indices */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
-   int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
+   int      qx0, qx1;                        /* mapping of column index into data matrix (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* mapping of column index into data matrix (target) */
 
    /* vars for indexing into data matrices by anti-diag */
    int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
@@ -154,13 +155,14 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
       qx1 = q_1;
 
       t_0 = 0;
+      tx0 = t_0;
 
       /* Get next sequence character */
       a = seq[q_1];
       A = AA_REV[a];
 
       /* Initialize zero column (left-edge) */
-      MMX(qx0, t_0) = IMX(qx0, t_0) = DMX(qx0, t_0) = -INF;
+      MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
       XMX(SP_E, q_0) = -INF;
 
       /* MAIN RECURSION */
@@ -168,12 +170,14 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
       for (t_0 = 1; t_0 < T; t_0++)
       {
          t_1 = t_0 - 1;
+         tx0 = t_0;
+         tx1 = tx0 - 1;
 
          /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
          /* best previous state transition (match takes the diag element of each prev state) */
-         prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
-         prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-         prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+         prv_M = MMX(qx1, tx1)  + TSC(t_1, M2M);
+         prv_I = IMX(qx1, tx1)  + TSC(t_1, I2M);
+         prv_D = DMX(qx1, tx1)  + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
          prv_sum = logsum( 
@@ -183,23 +187,23 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the previous row (upper) of each state) */
-         prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
-         prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
+         prv_M = MMX(qx1, tx0) + TSC(t_0, M2I);
+         prv_I = IMX(qx1, tx0) + TSC(t_0, I2I);
          /* best-to-insert */
          prv_sum = logsum( prv_M, prv_I );
-         IMX(qx0, t_0) = prv_sum + ISC(t_0, A);
+         IMX(qx0, tx0) = prv_sum + ISC(t_0, A);
 
          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
          /* previous states (match takes the previous column (left) of each state) */
-         prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+         prv_M = MMX(qx0, tx1) + TSC(t_1, M2D);
+         prv_D = DMX(qx0, tx1) + TSC(t_1, D2D);
          /* best-to-delete */
          prv_sum = logsum( prv_M, prv_D );
-         DMX(qx0, t_0) = prv_sum;
+         DMX(qx0, tx0) = prv_sum;
 
          /* UPDATE E STATE */
-         prv_M = MMX(qx0, t_0) + sc_E;
-         prv_D = DMX(qx0, t_0) + sc_E;
+         prv_M = MMX(qx0, tx0) + sc_E;
+         prv_D = DMX(qx0, tx0) + sc_E;
          /* best-to-e-state */
          prv_E = XMX(SP_E, q_0);
          XMX(SP_E, q_0) = logsum( 
@@ -220,36 +224,38 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
       /* UNROLLED FINAL LOOP ITERATION */
       t_0 = T;
       t_1 = t_0 - 1;
+      tx0 = t_0;
+      tx1 = tx0 - 1;
 
       /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
       /* best previous state transition (match takes the diag element of each prev state) */
-      prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
-      prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-      prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+      prv_M = MMX(qx1, tx1)  + TSC(t_1, M2M);
+      prv_I = IMX(qx1, tx1)  + TSC(t_1, I2M);
+      prv_D = DMX(qx1, tx1)  + TSC(t_1, D2M);
       prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
       /* sum-to-match */
       prv_sum = logsum( 
                      logsum( prv_M, prv_I ),
                      logsum( prv_D, prv_B ) );
-      MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
+      MMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
       /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
-      IMX(qx0, t_0) = -INF;
+      IMX(qx0, tx0) = -INF;
 
       /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
       /* previous states (match takes the left element of each state) */
-      prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-      prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+      prv_M = MMX(qx0, tx1) + TSC(t_1, M2D);
+      prv_D = DMX(qx0, tx1) + TSC(t_1, D2D);
       /* sum-to-delete */
       prv_sum = logsum( prv_M, prv_D );
-      DMX(qx0, t_0) = prv_sum;
+      DMX(qx0, tx0) = prv_sum;
 
       /* UPDATE E STATE (unrolled) */
       prv_E = XMX(SP_E, q_0);
-      prv_M = MMX(qx0, t_0);
-      prv_D = DMX(qx0, t_0);
+      prv_M = MMX(qx0, tx0);
+      prv_D = DMX(qx0, tx0);
       /* best-to-begin */
-      XMX(SP_E, q_0) = logsum( 
+      XMX(SP_E, qx0) = logsum( 
                            logsum( prv_D, prv_M ),
                            prv_E );
 
@@ -321,6 +327,7 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    int      q_0, q_1;                        /* real index of current and previous rows (query) */
    int      qx0, qx1;                        /* mod mapping of column index into data matrix (query) */
    int      t_0, t_1;                        /* real index of current and previous columns (target) */
+   int      tx0, tx1;                        /* mod mapping of column index into data matrix (target) */
 
    /* vars for indexing into data matrices by anti-diag */
    int      d_0, d_1, d_2;                   /* real index of current and previous antidiagonals */
@@ -402,13 +409,14 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    q_0 = Q;
    qx0 = q_0;
    t_0 = T;
+   tx0 = t_0;
 
    XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-   MMX(qx0, t_0) = DMX(qx0, t_0) = XMX(SP_E, q_0);
-   IMX(qx0, t_0) = -INF;
+   MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
+   IMX(qx0, tx0) = -INF;
 
    #if DEBUG 
    {
@@ -419,19 +427,21 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    }
    #endif
 
-   for (t_0 = T-1; t_0 >= 1; t_0--)
+   for (t_0 = T - 1; t_0 >= 1; t_0--)
    {
+      tx0 = t_0;
       t_1 = t_0 + 1;
+      tx1 = tx0 + 1;
 
       prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX(qx0, t_1)  + TSC(t_0, M2D);
-      MMX(qx0, t_0) = logsum( prv_E, prv_D );
+      prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
+      MMX(qx0, tx0) = logsum( prv_E, prv_D );
 
       prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX(qx0, t_1)  + TSC(t_0, D2D);
-      DMX(qx0, t_0) = logsum( prv_E, prv_D );
+      prv_D = DMX(qx0, tx1)  + TSC(t_0, D2D);
+      DMX(qx0, tx0) = logsum( prv_E, prv_D );
 
-      IMX(qx0, t_0) = -INF;
+      IMX(qx0, tx0) = -INF;
 
       #if DEBUG 
       {
@@ -451,11 +461,11 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY seq */
-   for (q_0 = Q-1; q_0 >= 1; q_0--)
+   for (q_0 = Q - 1; q_0 >= 1; q_0--)
    {
       q_1 = q_0 + 1;
       qx0 = q_0;
-      qx1 = q_1;
+      qx1 = qx0 + 1;
 
       /* Get next sequence character */
       a = seq[q_0];
@@ -464,9 +474,14 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       /* SPECIAL STATES */
 
       /* B STATE -> MATCH */
-      /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation.   */
-      XMX(SP_B, q_0) = MMX(qx1, 1) + TSC(0, B2M) + MSC(1, A);
-      for (t_0 = 2; t_0 <= T; t_0++) {
+      /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation. */
+      t_0 = 1;
+      t_1 = t_0 - 1;
+      tx0 = t_0;
+      // XMX(SP_B, q_0) = MMX(qx1, 1) + TSC(0, B2M) + MSC(1, A);
+      XMX(SP_B, q_0) = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
+      for (t_0 = t_0 + 1; t_0 <= T; t_0++) 
+      {
          t_1 = t_0 - 1;
          prv_sum = XMX(SP_B, q_0);
          prv_M = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
@@ -489,8 +504,9 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
       t_0 = T;
-      MMX(qx0, T) = DMX(qx0, T) = XMX(SP_E, q_0);
-      IMX(qx0, T) = -INF;
+      tx0 = t_0;
+      MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
+      IMX(qx0, tx0) = -INF;
 
       #if DEBUG 
       {
@@ -506,17 +522,19 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       for (t_0 = T-1; t_0 >= 1; t_0--)
       {
          t_1 = t_0 + 1;
+         tx0 = t_0;
+         tx1 = tx0 + 1;
 
          /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-         prv_M = MMX(qx1, t_1) + TSC(t_0, M2M) + MSC(t_1, A);
-         prv_I = IMX(qx1, t_0) + TSC(t_0, M2I) + ISC(t_0, A);
-         prv_D = DMX(qx0, t_1) + TSC(t_0, M2D);
+         prv_M = MMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
+         prv_I = IMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_0, A);
+         prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
          prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
          /* best-to-match */
          prv_sum = logsum( 
                         logsum( prv_M, prv_I ),
                         logsum( prv_E, prv_D ) );
-         MMX(qx0, t_0) = prv_sum;
+         MMX(qx0, tx0) = prv_sum;
 
          // if ( q_0 > 0 ) {
          //    printf("(%2d,%2d)\n", q_0, t_0);
@@ -527,20 +545,20 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
          // }
 
          /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-         prv_M = MMX(qx1, t_1) + TSC(t_0, I2M) + MSC(t_1, A);
-         prv_I = IMX(qx1, t_0) + TSC(t_0, I2I) + ISC(t_0, A);
+         prv_M = MMX(qx1, tx1) + TSC(t_0, I2M) + MSC(t_1, A);
+         prv_I = IMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
          /* best-to-insert */
          prv_sum = logsum( prv_M, prv_I );
-         IMX(qx0, t_0) = prv_sum;
+         IMX(qx0, tx0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prv_M = MMX(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
-         prv_D = DMX(qx0, t_1) + TSC(t_0, D2D);
+         prv_M = MMX(qx1, tx1) + TSC(t_0, D2M) + MSC(t_1, A);
+         prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
          prv_sum = logsum( prv_M, 
                         logsum( prv_D, prv_E ) );
-         DMX(qx0, t_0) = prv_sum;
+         DMX(qx0, tx0) = prv_sum;
 
          #if DEBUG 
          {
@@ -558,10 +576,12 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    q_0 = 0;
    q_1 = q_0 + 1;
    qx0 = q_0;
-   qx1 = q_1;
+   qx1 = qx0 + 1;
 
    t_0 = 0;
    t_1 = t_0 + 1;
+   tx0 = t_0;
+   tx1 = tx0 + 1;
 
    a = seq[q_0];
    A = AA_REV[a];
@@ -569,12 +589,14 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    /* SPECIAL STATES */
 
    /* B STATE -> MATCH */
-   prv_M = MMX(q_1, t_1) + TSC(0, B2M) + MSC(1, A);
+   prv_M = MMX(qx1, tx1) + TSC(tx0, B2M) + MSC(tx1, A);
    XMX(SP_B, q_0) = prv_M;
    for (t_0 = 2; t_0 <= T; t_0++) {
-      t_1 = t_0-1;
+      t_1 = t_0 - 1;
+      tx0 = t_0;
+      tx1 = tx0 - 1;
       prv_sum = XMX(SP_B, q_0);
-      prv_M = MMX(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
+      prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
       XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
    }
 
@@ -587,7 +609,8 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
    for (t_0 = T; t_0 >= 1; t_0--) {
-      MMX(qx0, t_0) = IMX(qx0, t_0) = DMX(qx0, t_0) = -INF;
+      tx0 = t_0;
+      MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
    }
 
    #if DEBUG 
@@ -604,7 +627,7 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
 
    /* flag matrices that they contain dirty values (not -INF) */
    st_MX->clean = false;
-   sp_MX->clean  = false;
+   sp_MX->clean = false;
 
    return STATUS_SUCCESS;
 }

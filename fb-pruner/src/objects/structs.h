@@ -475,71 +475,94 @@ typedef struct {
 
 /* commandline arguments */
 typedef struct {
+   /* --- FULL CMD LINE --- */
+   /* all commandline and opts */
    char*    cmdline;                /* full commandline */                  
    char*    opts;                   /* all options from commandline */
-   /* index */
-   bool     is_index_given;         /* is an index file supplied? */
+
+   /* --- PIPELINE OPTIONS --- */
+   int      pipeline_mode;          /* which workflow pipeline to use */
+   int      search_mode;            /* alignment search mode */
+   int      verbose_level;          /* levels of verbosity */
+   char*    tmp_folderpath;         /* location to build a temporary work folder */
+   bool     tmp_remove;             /* should temp folder be removed at the end? */
+   bool     filter_on;              /* filter thresholds enforced, or let all through? */
+   bool     is_compo_bias;          /* should composition bias filter be applied? */
+
+   /* --- SEARCH/RANGE OPTIONS --- */
    /* type of searches */
-   bool     qt_search_space;        /* which queries vs which targets? */
+   int      qt_search_space;        /* which queries vs which targets? */
+   /* for specified range of targets/queries in file */
+   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
+   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
+   RANGE    list_range;             /* start-end range of hitlist */
+
+   /* --- DEBUG OPTIONS --- */
+   bool     is_debug;               /* determines whether debug statements appear */
+   char*    dbg_folderpath;         /* location for debugging */
+   bool     enforce_warnings;       /* if error is caught, force close? */
+   bool     adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we 
+
+   /* --- INPUT --- */
    /* file paths */
    char*    t_filepath;             /* filepath to target (hmm or fasta) file */
    char*    q_filepath;             /* filepath to query (fasta) file */
    /* index paths */
+   bool     is_indexpath;           /* is an index file supplied? */
    char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
    char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
+    /* target/query metadata */
+   int      t_filetype;             /* enumerated FILETYPE of target file */
+   int      q_filetype;             /* enumerated FILETYPE of query file */
+   /* mmseqs-plus search (input) */
+   char*    mmseqs_res_filepath;    /* filepath to mmseqs .m8 results file */
+   /* simple hitlist (input) */
+   char*    hitlist_filepath;       /* filepath to simple hitlist */
+   /* database size */
+   int      t_dbsize;               /* number of targets in database */
+   int      q_dbsize;               /* number of queries in database */
+
+   /* --- OUTPUT --- */
    /* standard output path */
    bool     is_redirect_stdout;     /* are we redirecting stdout? */
    char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
    /* tblout option/path (modeled after HMMER --tblout) */
-   bool     is_tblout;              /* report tblout? */
+   bool     is_tblout;              /* report tblout table? */
    char*    tblout_filepath;        /* filepath to output results; if NULL, doesn't output */
    /* m8out option/path (modeled after MMseqs) */
-   bool     is_m8out;               /* report table? */
-   char*    m8out_filepath;        /* filepath to output results; if NULL, doesn't output */
-   /* xxxout option/path (my custom output) */
-   bool     is_myout;               /* report table? */
-   char*    myout_filepath;        /* filepath to output results; if NULL, doesn't output */
-   /* target/query metadata */
-   int      t_filetype;             /* enumerated FILETYPE of target file */
-   int      q_filetype;             /* enumerated FILETYPE of query file */
-   /* for specified range of targets/queries in file */
-   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
-   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
-   /* temporary work folder */
-   char*    tmp_folderpath;         /* location to build a temporary work folder */
-   bool     tmp_remove;             /* should temp folder be removed at the end? */
-   /* debug */
-   char*    dbg_folderpath;         /* debugging folder path */
-   bool     dbg_remove;
-   /* mmseqs-plus search (input) */
-   char*    mmseqs_res_filepath;       /* filepath to mmseqs .m8 results file */
-   char*    mmseqs_plus_filepath;      /* filepath to mmseqs .m8+ results file */
-   char*    mmseqs_tmp_filepath;       /* filepath to mmseqs temporary files root */
-   /* mmseqs reference files */
-   char*    t_lookup_filepath;      /* filepath to mmseqs target lookup file */
-   char*    q_lookup_filepath;      /* filepath to mmseqs query lookup file */
-   /* specified file range for mmseqs or hitlist */
-   RANGE    list_range;
-   /* cloud search tuning vars */
-   float    alpha;                  /* cloud search: x-drop pruning ratio */
-   float    beta;                   /* cloud search: x-drop maximum drop before termination */
-   int      gamma;                  /* cloud search: number of antidiag passes before pruning  */
-   /* pipeline options */
-   int      pipeline_mode;          /* which workflow pipeline to use */
-   int      verbose_level;          /* levels of verbosity */
-   int      search_mode;            /* alignment search mode */
-   bool     is_testing;             /* determines whether debug statements appear */
+   bool     is_m8out;               /* report m8out table? */
+   char*    m8out_filepath;         /* filepath to output results; if NULL, doesn't output */
+   /* myout option/path (my custom output) */
+   bool     is_myout;               /* report myout table? */
+   char*    myout_filepath;         /* filepath to output results; if NULL, doesn't output */
+   /* customized output */
+   bool     is_customout;           /* report myout table? */
+   char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
+   bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
+  
+   /* --- MMSEQS --- */
+   int      mmseqs_kmer;               /* kmer length */
+   int      mmseqs_split;              /* database split size */
+   int      mmseqs_prefilter;          /* double-kmer prefilter kscore */
+   int      mmseqs_ungapped_vit;       /* ungapped viterbi */
+   float    mmseqs_evalue;             /* e-value gapped viterbi */
+   float    mmseqs_pvalue;             /* p-value gapped viterbi */
+
+   /* --- MMORE / FB-PRUNER --- */
    /* if viterbi is precomputed, gives starting and ending coords (single result) */
    COORDS   beg;                    /* beginning coordinates of viterbi alignment */
    COORDS   end;                    /* ending coordinates of viterbi alignment */
-   /* threshold scores for pipeline */
-   bool     filter_on;              /* filter thresholds enforced, or let all through? */
+   /* cloud search tuning parameters */
+   float    alpha;                  /* cloud search: x-drop pruning ratio */
+   float    beta;                   /* cloud search: x-drop maximum drop before termination */
+   int      gamma;                  /* cloud search: number of antidiag passes before pruning  */
+   float    mmore_evalue;           /* e-value mmore / fb-pruner */
+   float    mmore_pvalue;           /* p-value mmore / fb-pruner */
+
+   /* --- VITERBI / FWDBACK --- */
    float    threshold_vit;          /* threshold for viterbi score */
    float    threshold_fwd;          /* threshold for forward score */
-   float    threshold_fbpruner;     /* threshold for fb-pruner score */
-   /* reporting eval */
-   float    threshold_report_seq;   /* threshold to report score for sequence-model */
-   float    threshold_report_dom;   /* threshold to report scores for domain */
+   float    threshold_mmore;        /* threshold for fb-pruner score */
 } ARGS;
 
 /* scores */
@@ -699,6 +722,8 @@ typedef struct {
    float       fbpruner_fwd_natsc;
    float       fbpruner_bck_natsc;
    SCORES      final_scores;
+   /* time spent getting result */
+   float       time;
 } RESULT;
 
 /* results and stats */
@@ -1059,5 +1084,13 @@ extern char*      DATATYPE_NAMES[];
 extern SCORE_MATRIX*    bld;
 /* debugging data */
 extern DEBUG_KIT*       debugger;
+
+/* script locations */
+extern char*       MMSEQS_PLUS_SCRIPT;
+extern char*       MMSEQS_PLUS_EASY_SCRIPT;
+extern char*       FASTA_TO_HMM_SCRIPT;
+/* other tool binary locations */
+extern char*       MMSEQS_BIN;
+extern char*       HMMBUILD_BIN;
 
 #endif /* _STRUCTS_H */

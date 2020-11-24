@@ -12,12 +12,14 @@
  *  FUNCTION:  ARGS_Create()
  *  SYNOPSIS:  
  */
-ARGS* ARGS_Create();
+ARGS* 
+ARGS_Create();
 
 /*
  *  FUNCTION:  ARGS_Destroy()
  *  SYNOPSIS:  
  */
-void ARGS_Destroy(ARGS* args);
+void* 
+ARGS_Destroy(ARGS* args);
 
 #endif /* ARGS_H_ */

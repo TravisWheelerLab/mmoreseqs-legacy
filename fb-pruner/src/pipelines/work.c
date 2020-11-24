@@ -1027,7 +1027,7 @@ void WORK_cloud_search( WORKER* worker )
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       t_times->lin_cloud_fwd += times->lin_cloud_fwd;
       /* TODO: remove this!!! */
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      // DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* cloud backward */
       printf_vall("# ==> cloud backward (lin)...\n");
@@ -1037,7 +1037,7 @@ void WORK_cloud_search( WORKER* worker )
       times->lin_cloud_bck = CLOCK_Secs(clok);
       t_times->lin_cloud_bck += times->lin_cloud_bck ;
       /* TODO: remove this!!! */
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      // DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
 
       /* merge edgebounds */
       printf_vall("# ==> merge (lin)...\n");
@@ -1320,30 +1320,39 @@ void WORK_convert_scores( WORKER* worker )
    /* free digitized sequence TODO: move to sequence */
    // HMM_BG_UnsetSequence( bg, seq );
 
-   /* Find domains and assesses domain-specific correction bias */
-   /* see p7_domaindef_ByPosteriorHeuristics() */
-   // run_Posterior_Quad(
-   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-   //    worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
-   //    worker->dom_def );
-
-   #if DEBUG 
-   {
-      FILE* fpout; 
-      fpout = fopen("test_output/my.posterior.mx", "w");
-      DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
-      fpout = fopen("test_output/my.posterior.log.mx", "w");
-      DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
-   }
-   #endif
-   
-   /* compute sequence bias */
+   /* composition bias */
    seq_bias = 0.0f;
-   seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
-   printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
-   seq_bias = worker->dom_def->seq_bias;
+   if ( worker->args->is_compo_bias )
+   {
+      /* Find domains and assesses domain-specific correction bias */
+      /* see p7_domaindef_ByPosteriorHeuristics() */
+      run_Posterior_Quad(
+         worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+         worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
+         worker->dom_def );
+      
+      // run_Posterior_Sparse(
+      //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+      //    worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
+      //    worker->dom_def );
+
+      #if DEBUG 
+      {
+         FILE* fpout; 
+         fpout = fopen("test_output/my.posterior.mx", "w");
+         DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+         fclose(fpout);
+         fpout = fopen("test_output/my.posterior.log.mx", "w");
+         DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+         fclose(fpout);
+      }
+      #endif
+      
+      /* compute sequence bias */
+      seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
+      printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
+      seq_bias = worker->dom_def->seq_bias;
+   }
 
    /* get cloud forward score */
    nat_sc = worker->scores->lin_bound_fwd;
