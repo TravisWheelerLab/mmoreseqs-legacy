@@ -65,7 +65,7 @@ double CLOCK_Start(CLOCK*cl)
 }
 
 /* Stop the Stopwatch */
-double CLOCK_Stop(CLOCK*cl)
+double CLOCK_Stop(CLOCK* cl)
 {
    cl->stop = CLOCK_Get_RealTime();
    return cl->stop;
