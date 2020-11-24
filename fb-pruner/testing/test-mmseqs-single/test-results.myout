@@ -1,4 +1,6 @@
 #query	target	evalue	pre-sc	comp-bias	seq-sc	total-cells	MMORE-cells	perc-cells
 #------	------	------	------	--------	------	----------	----------	----------
 test1_2	test1_1	4.24e-07	16.379	0.000	16.379	480	177	0.369
+test1_2	test1_1	0.239	-1.158	0.000	-1.158	480	113	0.235
+test1_2	test1_1	9.81e-07	15.268	0.000	15.268	480	91	0.190
 # [ok] [myout]
