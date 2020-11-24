@@ -226,11 +226,12 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    end = &(tr->traces->data[tr->end]);
 
    /* TODO: add this edgecheck to all  */
+   printf("cloud_search_linear() => BEG CHECK\n");
    /* verify that starting points are valid */
    if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
       fprintf(stderr, "# ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
       fprintf(stderr, "# Query Length: %d, Target Length: %d\n", Q, T );
-      exit(EXIT_FAILURE);
+      // exit(EXIT_FAILURE);
    }
    if ( beg->q_0 > Q ) {
       beg->q_0 = Q;
@@ -238,6 +239,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    if ( beg->t_0 > T ) {
       beg->t_0 = T;
    }
+   printf("cloud_search_linear() => BEG SET\n");
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
    if ( beg->q_0 == 0 || beg->t_0 == 0 ) {
@@ -804,7 +806,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
       fprintf(stderr, "# ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
       fprintf(stderr, "# Query Length: %d, Target Length: %d\n", Q, T );
-      exit(EXIT_FAILURE);
+      // exit(EXIT_FAILURE);
    }
    if ( beg->q_0 > Q ) {
       beg->q_0 = Q;
