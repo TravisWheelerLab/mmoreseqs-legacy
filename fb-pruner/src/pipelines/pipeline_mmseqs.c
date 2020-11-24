@@ -187,26 +187,26 @@ mmseqs_pipeline( WORKER* worker )
          COORDS t_mmseqs = (COORDS){result_in->target_start, result_in->target_end};
          COORDS q_mmseqs = (COORDS){result_in->query_start, result_in->query_end};
 
-         // if ( result_in->target_start > worker->t_prof->N - 1 ) {
-         //    result_in->target_start = worker->t_prof->N - 1;
-         //    fixed_aln = true;
-         //    t_fix = true;
-         // } 
-         // if ( result_in->target_end > worker->t_prof->N - 1 ) {
-         //    result_in->target_end = worker->t_prof->N - 1;
-         //    fixed_aln = true;
-         //    t_fix = true;
-         // }
-         // if ( result_in->query_start > worker->q_seq->N - 1 ) {
-         //    result_in->query_start = worker->q_seq->N - 1;
-         //    fixed_aln = true;
-         //    q_fix = true;
-         // } 
-         // if ( result_in->query_end > worker->q_seq->N - 1 ) {
-         //    result_in->query_end = worker->q_seq->N - 1;
-         //    fixed_aln = true;
-         //    q_fix = true;
-         // }
+         if ( result_in->target_start > worker->q_seq->N - 1 ) {
+            result_in->target_start = worker->q_seq->N - 1;
+            fixed_aln = true;
+            t_fix = true;
+         } 
+         if ( result_in->target_end > worker->q_seq->N - 1 ) {
+            result_in->target_end = worker->q_seq->N - 1;
+            fixed_aln = true;
+            t_fix = true;
+         }
+         if ( result_in->query_start > worker->t_prof->N - 1 ) {
+            result_in->query_start = worker->t_prof->N - 1;
+            fixed_aln = true;
+            q_fix = true;
+         } 
+         if ( result_in->query_end > worker->t_prof->N - 1 ) {
+            result_in->query_end = worker->t_prof->N - 1;
+            fixed_aln = true;
+            q_fix = true;
+         }
          /* log out viterbi alignment adjustments to error file */ 
          if (fixed_aln == true) {
             FILE* ferr = fopen("fixed_aln.err", "a");
@@ -227,9 +227,11 @@ mmseqs_pipeline( WORKER* worker )
             fprintf(stderr, "%*sMMseqs coords: (%d,%d)=>(%d,%d) || Adjusted coords: (%d,%d)=>(%d,%d)\n",
                pad, "#",  q_mmseqs.i, t_mmseqs.i, q_mmseqs.j, t_mmseqs.j, result_in->query_start, result_in->target_start, result_in->query_end, result_in->target_end );
          }
-         skips++;
-         printf("# skipping this alignment (%d)...\n", skips);
-         continue;
+         if (fixed_aln == true) {
+            skips++;
+            printf("# skipping this alignment (%d)...\n", skips);
+            continue;
+         }
       }
 
       /* get search window from mmseqs results */
