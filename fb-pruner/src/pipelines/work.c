@@ -684,6 +684,7 @@ void WORK_load_query_by_id(   WORKER*     worker,
 void WORK_load_target_by_name(   WORKER*    worker,
                                  char*      name )
 {
+   printf_vall("==> WORK_load_target_by_name()\n");
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
@@ -713,6 +714,7 @@ void WORK_load_target_by_name(   WORKER*    worker,
 void WORK_load_query_by_name( WORKER*     worker,
                               char*       name )
 {
+   printf_vall("==> WORK_load_query_by_name()\n");
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
