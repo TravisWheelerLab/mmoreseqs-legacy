@@ -229,7 +229,7 @@ mmseqs_pipeline( WORKER* worker )
          }
          if (fixed_aln == true) {
             skips++;
-            printf("# skipping this alignment (%d)...\n", skips);
+            printf("# out-of-bounds. skipping this alignment (%d)...\n", skips);
             continue;
          }
       }

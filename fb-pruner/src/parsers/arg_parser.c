@@ -354,13 +354,14 @@ void   ARGS_Parse( ARGS*   args,
             }
          }
          /* === OUTPUT === */
-         else if ( strcmp(argv[i], (flag = "--stdout") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--stderr") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
                fclose(stdout);
-               stdout = fopen(argv[i], "w+");
-               args->is_redirect_stdout = true;
+               free(args->error_filepath);
+               args->error_filepath = strdup(argv[i]);
+               args->is_redirect_stderr = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -370,6 +371,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
+               free(args->output_filepath);
                args->output_filepath = strdup(argv[i]);
                args->is_redirect_stdout = true;
             } else {

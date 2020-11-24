@@ -526,6 +526,9 @@ typedef struct {
    /* standard output path */
    bool     is_redirect_stdout;     /* are we redirecting stdout? */
    char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
+    /* standard error path */
+   bool     is_redirect_stderr;     /* are we redirecting stdout? */
+   char*    error_filepath;         /* filepath to output results to; "!stdout" => stdout */
    /* tblout option/path (modeled after HMMER --tblout) */
    bool     is_tblout;              /* report tblout table? */
    char*    tblout_filepath;        /* filepath to output results; if NULL, doesn't output */
