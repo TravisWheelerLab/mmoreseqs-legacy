@@ -332,6 +332,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
                                  MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                                  float*             sc_final )    /* OUTPUT: final score */
 {
+   /* size of Query and Target */
+   int      Q, T;
+
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
@@ -421,8 +424,10 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    logsum_Init();
 
    /* Capture ranges */
+   Q     = query->N;
    Q_beg = Q_range->beg;
    Q_end = Q_range->end;
+   T     = target->N;
    T_beg = T_range->beg;
    T_end = T_range->end;
 
@@ -433,41 +438,20 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    sc_E        = (is_local) ? 0 : -INF;
 
    /* Initialize the Q row. */
-   q_0 = Q_end;
+   q_0 = Q;
    qx0 = q_0 - Q_beg;
-   t_0 = T_end;
+   t_0 = T;
    tx0 = t_0 - T_beg;
 
+   /* init special states */
    XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-   MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
-   IMX(qx0, tx0) = -INF;
-
-   #if DEBUG 
+   /* init normal states if range includes Q */
+   if (Q == Q_end)
    {
-      MX_2D(cloud_MX, q_0, t_0) = 1.0;
-      MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-      MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-      MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
-   }
-   #endif
-
-   for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
-   {
-      t_1 = t_0 + 1;
-      tx0 = t_0 - T_beg;
-      tx1 = tx0 + 1;
-
-      prv_E = XMX(SP_E, q_0) + sc_E;
-      prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
-      MMX(qx0, tx0) = logsum( prv_E, prv_D );
-
-      prv_E = XMX(SP_E, q_0) + sc_E;
-      prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
-      DMX(qx0, tx0) = logsum( prv_E, prv_D );
-
+      MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
       IMX(qx0, tx0) = -INF;
 
       #if DEBUG 
@@ -478,11 +462,37 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
          MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
       }
       #endif
-   }
+
+      for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
+      {
+         t_1 = t_0 + 1;
+         tx0 = t_0 - T_beg;
+         tx1 = tx0 + 1;
+
+         prv_E = XMX(SP_E, q_0) + sc_E;
+         prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
+         MMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+         prv_E = XMX(SP_E, q_0) + sc_E;
+         prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
+         DMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+         IMX(qx0, tx0) = -INF;
+
+         #if DEBUG 
+         {
+            MX_2D(cloud_MX, q_0, t_0) = 1.0;
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+         }
+         #endif
+      }
+   }   
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY seq */
-   for (q_0 = Q_end - 1; q_0 >= Q_beg + 1; q_0--)
+   for (q_0 = Q - 1; q_0 >= 1; q_0--)
    {
       q_1 = q_0 + 1;
       qx0 = q_0 - Q_beg;
@@ -538,39 +548,11 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
       }
       #endif
 
-      /* FOR every position in TARGET profile */
-      for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
+      /* initialize Q_beg for normal states */
+      if (q_0 == Q_end)
       {
-         t_1 = t_0 + 1;
-         tx0 = t_0 - T_beg;
-         tx1 = tx0 + 1;
-
-         /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-         prv_M = MMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
-         prv_I = IMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_1, A);
-         prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
-         prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
-         /* best-to-match */
-         prv_sum = logsum( 
-                        logsum( prv_M, prv_I ),
-                        logsum( prv_E, prv_D ) );
-         MMX(qx0, tx0) = prv_sum;
-
-         /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-         prv_M = MMX(qx1, tx1) + TSC(t_0, I2M) + MSC(t_1, A);
-         prv_I = IMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
-         /* best-to-insert */
-         prv_sum = logsum( prv_M, prv_I );
-         IMX(qx0, tx0) = prv_sum;
-
-         /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prv_M = MMX(qx1, tx1) + TSC(t_0, D2M) + MSC(t_1, A);
-         prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
-         prv_E = XMX(SP_E, q_0) + sc_E;
-         /* best-to-delete */
-         prv_sum = logsum( prv_M, 
-                        logsum( prv_D, prv_E ) );
-         DMX(qx0, tx0) = prv_sum;
+         MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
+         IMX(qx0, tx0) = -INF;
 
          #if DEBUG 
          {
@@ -580,6 +562,80 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
             MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
          }
          #endif
+
+         for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
+         {
+            t_1 = t_0 + 1;
+            tx0 = t_0 - T_beg;
+            tx1 = tx0 + 1;
+
+            prv_E = XMX(SP_E, q_0) + sc_E;
+            prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
+            MMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            prv_E = XMX(SP_E, q_0) + sc_E;
+            prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
+            DMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            IMX(qx0, tx0) = -INF;
+
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            }
+            #endif
+         }
+      }
+
+      /* if inside range, run normal states */
+      if (q_0 >= Q_beg && q_0 < Q_end )
+      {
+         /* FOR every position in TARGET profile */
+         for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
+         {
+            t_1 = t_0 + 1;
+            tx0 = t_0 - T_beg;
+            tx1 = tx0 + 1;
+
+            /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
+            prv_M = MMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
+            prv_I = IMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_1, A);
+            prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
+            prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
+            /* best-to-match */
+            prv_sum = logsum( 
+                           logsum( prv_M, prv_I ),
+                           logsum( prv_E, prv_D ) );
+            MMX(qx0, tx0) = prv_sum;
+
+            /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
+            prv_M = MMX(qx1, tx1) + TSC(t_0, I2M) + MSC(t_1, A);
+            prv_I = IMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
+            /* best-to-insert */
+            prv_sum = logsum( prv_M, prv_I );
+            IMX(qx0, tx0) = prv_sum;
+
+            /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
+            prv_M = MMX(qx1, tx1) + TSC(t_0, D2M) + MSC(t_1, A);
+            prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
+            prv_E = XMX(SP_E, q_0) + sc_E;
+            /* best-to-delete */
+            prv_sum = logsum( prv_M, 
+                           logsum( prv_D, prv_E ) );
+            DMX(qx0, tx0) = prv_sum;
+
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            }
+            #endif
+         }
       }
    }
 

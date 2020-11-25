@@ -596,7 +596,7 @@ void REPORT_m8out_footer(    WORKER*  worker,
 void REPORT_myout_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
       "target",
       "evalue",
@@ -605,7 +605,8 @@ void REPORT_myout_header(  WORKER*  worker,
       "seq-sc",
       "total-cells",
       "MMORE-cells",
-      "perc-cells"
+      "perc-cells",
+      "time"
    );
    fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "------",
@@ -617,6 +618,7 @@ void REPORT_myout_header(  WORKER*  worker,
       "----------",
       "----------",
       "----------"
+      "----"
    );
 }
 
@@ -647,7 +649,8 @@ void REPORT_myout_entry(   WORKER*  worker,
       result->final_scores.seq_sc,     /* seq score after correction */
       result->total_cells,             /* total number of cells computed */
       result->cloud_cells,             /* total number of cells computed */
-      percent_cells                    /* total number of cells computed */
+      percent_cells,                   /* total number of cells computed */
+      result->time                     /* time for entire iteration */
    );
 }
 

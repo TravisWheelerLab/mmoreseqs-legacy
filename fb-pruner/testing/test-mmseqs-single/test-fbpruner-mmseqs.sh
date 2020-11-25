@@ -34,7 +34,7 @@ time ../../fbpruner mmseqs 								\
 	--m8out 				$M8OUT 						\
  	--myout 				$MYOUT 						\
 	--verbose 				$VERBOSE					\
-	--comp-bias				0							\
+	--comp-bias				1							\
 	--mmseqs-kmer   		6 							\
 	--mmseqs-ungapped-vit	13							\
 	--mmseqs-eval   		2.5							\

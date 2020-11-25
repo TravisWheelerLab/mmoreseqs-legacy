@@ -123,8 +123,7 @@ mmseqs_pipeline( WORKER* worker )
    /* Look through each input result */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
-      /* start time for current */
-      worker->result->time = CLOCK_Get_RealTime();
+      
 
       printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i+1, i_end );
@@ -148,6 +147,10 @@ mmseqs_pipeline( WORKER* worker )
          WORK_load_target_by_name( worker, t_name );
          // HMM_PROFILE_Dump( worker->t_prof, stdout );
       }
+
+      /* start time for current */
+      worker->result->time = CLOCK_Get_RealTime();
+
       if ( STRING_Equal( q_name, q_name_prv ) == false ) {
          WORK_load_query_by_name( worker, q_name );
          // SEQUENCE_Dump( worker->q_seq, stdout );
