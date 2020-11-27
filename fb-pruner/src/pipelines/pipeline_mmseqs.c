@@ -123,8 +123,6 @@ mmseqs_pipeline( WORKER* worker )
    /* Look through each input result */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
-      
-
       printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i+1, i_end );
 
@@ -252,7 +250,7 @@ mmseqs_pipeline( WORKER* worker )
       WORK_convert_scores( worker );
 
       /* end time */
-      worker->result->time = CLOCK_Get_RealTime() - worker->result->time;
+      worker->result->time = CLOCK_Get_RealTime() - worker->clok->start;
       printf("MYTIME: %f\n", worker->result->time);
 
       if ( args->verbose_level >= VERBOSE_LOW || true  ) 

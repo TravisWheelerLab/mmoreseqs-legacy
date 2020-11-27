@@ -5,8 +5,8 @@
  *  AUTHOR:  Dave Rich
  *******************************************************************************/
 
-#ifndef _EXPMAX_TRACEBACK_SPARSE_H
-#define _EXPMAX_TRACEBACK_SPARSE_H
+#ifndef _TRACEBACK_SPARSE_H
+#define _TRACEBACK_SPARSE_H
 
 
 /*  FUNCTION:  run_MaxExp_Traceback_Sparse_2()
@@ -25,4 +25,4 @@ int run_Traceback_Sparse(   const SEQUENCE*      query,      /* query sequence *
                             ALIGNMENT*           aln );      /* OUTPUT: Traceback Alignment */
 
 
-#endif /* _EXPMAX_TRACEBACK_SPARSE_H */
+#endif /* _TRACEBACK_SPARSE_H */

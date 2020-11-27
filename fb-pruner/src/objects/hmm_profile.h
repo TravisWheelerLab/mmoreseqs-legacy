@@ -54,6 +54,14 @@ HMM_PROFILE_Set_Distribution_Params(   HMM_PROFILE*   prof,
 void HMM_PROFILE_BG_SetLength(   HMM_PROFILE*   prof,
                                  int            length );
 
+/* Constrain model to range [tbeg, tend] */
+void 
+HMM_PROFILE_SetSubmodel( HMM_PROFILE* prof, int tbeg, int tend );
+
+/* Unconstrain model to cover entire */
+void 
+HMM_PROFILE_UnsetSubmodel( HMM_PROFILE* prof );
+
 /* Output HMM_PROFILE to FILE POINTER */
 void 
 HMM_PROFILE_Dump( HMM_PROFILE*    prof, 

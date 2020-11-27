@@ -53,6 +53,10 @@ HMM_PROFILE_Create()
 
    prof->bg_model       = NULL;
    prof->hmm_model      = NULL;
+   
+   /* temporary store of full sequence */
+   prof->N_full         = 0;
+   prof->hmm_model_full = NULL;
 
    prof->bg_model = HMM_COMPO_Create();
 
@@ -76,7 +80,7 @@ HMM_PROFILE_Destroy( HMM_PROFILE*   prof )
    ERROR_free(prof->consensus);
 
    ERROR_free(prof->bg_model);
-   ERROR_free(prof->hmm_model);
+   ERROR_free(prof->hmm_model_full);
 
    ERROR_free(prof);
 
@@ -223,6 +227,35 @@ HMM_PROFILE_Set_Distribution_Params(   HMM_PROFILE*   prof,
 
    parPtr1 = &param1;
    parPtr2 = &param2;
+}
+
+/* Constrain model to range [tbeg, tend] */
+void 
+HMM_PROFILE_SetSubmodel( HMM_PROFILE* prof, int tbeg, int tend )
+{
+   /* check if range is acceptable */
+   int T = prof->N;
+   if (tbeg < 0 && tend < 0 && tbeg > T && tend > T) {
+      printf("Subset range (%d,%d) is outside range (%d,%d).\n", tbeg, tend, 0, T);
+      exit(EXIT_FAILURE);
+   }
+
+   /* save full model */
+   prof->hmm_model_full = prof->hmm_model;
+   prof->N_full = prof->N;
+
+   prof->hmm_model = &(prof->hmm_model[tbeg]);
+   prof->N = tend - tbeg;
+}
+
+/* Unconstrain model to cover entire */
+void 
+HMM_PROFILE_UnsetSubmodel( HMM_PROFILE* prof )
+{
+   prof->hmm_model = prof->hmm_model_full;
+   prof->N = prof->N_full;
+
+   prof->hmm_model_full = NULL;
 }
 
 /* Output HMM_PROFILE to FILE POINTER */

@@ -385,9 +385,12 @@ typedef struct {
    int            alph_type;        /* enumerated alphabet type */
    int            alph_leng;        /* alphabet length: AMINO = 20, DNA = 4 */
    char*          consensus;        /* consensus sequence */
-   /* */
+   /* main model */
    HMM_COMPO*     bg_model;         /* background composition */
    HMM_NODE*      hmm_model;        /* array of position specific probabilities */
+   /* submodel */
+   int            N_full;           /* profile length of full model */
+   HMM_NODE*      hmm_model_full;   /* array of position at start of full model */
 } HMM_PROFILE;
 
 /* sequence */

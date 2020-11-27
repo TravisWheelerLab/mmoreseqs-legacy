@@ -50,12 +50,15 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
                      DOMAIN_DEF*    dom_def )         /* OUTPUT: domain data */
 {
    printf("=== POSTERIOR HEURISTICS ===\n");
-   printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
-      dom_def->rt1, dom_def->rt2, dom_def->rt3 );
+   // printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
+   //    dom_def->rt1, dom_def->rt2, dom_def->rt3 );
    
-   RANGE Q_range, T_range;
-   int   Q_size, T_size;
-   float sc, sc1, sc2;
+   RANGE    Q_range, T_range;
+   int      Q_size, T_size;
+   float    sc, sc1, sc2;
+   
+   FILE*    fp;
+   float    sc_fwd_full, sc_fwd_rng, sc_bck_full, sc_bck_rng;
    
    /* find the target and query range */
    Q_range.beg = Q + 1;
@@ -63,9 +66,8 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    T_range.beg = T + 1;
    T_range.end = 0;
 
-   /* create bounding box for edgebounds */
-   EDGEBOUNDS_Dump(edg, stdout);
-
+   /* create bounding box */
+   // EDGEBOUNDS_Dump(edg, stdout);
    for (int i = 0; i < edg->N; i++) {
       if ( T_range.beg > edg->bounds[i].lb ) {
          T_range.beg = edg->bounds[i].lb;
@@ -81,58 +83,109 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    T_range.end = MIN(T_range.end, T);
    Q_range.beg = MAX(Q_range.beg, 0);
    Q_range.end = MIN(Q_range.end, Q);
+   /* resize matrix to cover bounding box */
+   Q_size = Q_range.end - Q_range.beg;
+   T_size = T_range.end - T_range.beg;
 
    printf("Q: %d {%d,%d}, T: %d {%d,%d}\n", 
       Q, Q_range.beg, Q_range.end, T, T_range.beg, T_range.end );
 
    /* temporary override */
-   Q_range.beg = 0;
-   Q_range.end = Q;
-   T_range.beg = 0;
-   T_range.end = T;
-   printf("Q: %d {%d,%d}, T: %d {%d,%d}\n", 
-      Q, Q_range.beg, Q_range.end, T, T_range.beg, T_range.end );
+   // Q_range.beg = 0;
+   // Q_range.end = Q;
+   // T_range.beg = 0;
+   // T_range.end = T;
+   // printf_vhi("Q: %d {%d,%d}, T: %d {%d,%d}\n", 
+   //    Q, Q_range.beg, Q_range.end, T, T_range.beg, T_range.end );
 
-   /* resize matrix to cover bounding box */
-   Q_size = Q_range.end - Q_range.beg + 2;
-   T_size = T_range.end - T_range.beg + 2;
-   printf("Q_size: %d, T_size: %d\n", Q_size, T_size );
-   MATRIX_3D_Reuse( st_MX_fwd, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
+   
+   /* resize special states */
+   // MATRIX_2D_Reuse( sp_MX_fwd, NUM_SPECIAL_STATES, Q + 1 ); 
+   // MATRIX_2D_Reuse( sp_MX_bck, NUM_SPECIAL_STATES, Q + 1 );
+   // MATRIX_2D_Reuse( sp_MX_post, NUM_SPECIAL_STATES, Q + 1 );
+   /* resize normal states */
+   // MATRIX_3D_Reuse( st_MX_fwd, NUM_NORMAL_STATES, Q + 1, T + 1 );
+   // MATRIX_3D_Reuse( st_MX_bck, NUM_NORMAL_STATES, Q + 1, T + 1 );
+   // MATRIX_3D_Reuse( st_MX_post, NUM_NORMAL_STATES, Q + 1, T + 1 );
+   /* clear previous data */
+   // MATRIX_3D_Fill( st_MX_fwd, -INF );
+   // MATRIX_3D_Fill( st_MX_bck, -INF );
+   // MATRIX_3D_Fill( st_MX_post, -INF );
+
+   /* run forward/backward on entire of profile/sequence */
+   // fprintf(stdout, "# ==> Full Forward\n");
+   // run_Forward_Quad(
+   //    q_seq, t_prof, Q, T, st_MX_fwd, sp_MX_fwd, &sc_fwd_full );
+   // fprintf(stdout, "# ==> Full Backward\n");
+   // run_Backward_Quad(
+   //    q_seq, t_prof, Q, T, st_MX_bck, sp_MX_bck, &sc_bck_full );
+   
+   // fp = fopen("fwd_full.mx", "w+");
+   // DP_MATRIX_Dump(Q, T, st_MX_fwd, sp_MX_fwd, stdout);
+   // fclose(fp);
+   // fp = fopen("bck_full.mx", "w+");
+   // DP_MATRIX_Dump(Q, T, st_MX_bck, sp_MX_bck, stdout);
+   // fclose(fp);
+
+   /* constrain sequence and profile */
+   SEQUENCE_SetSubseq( q_seq, Q_range.beg, Q_range.end );
+   HMM_PROFILE_SetSubmodel( t_prof, T_range.beg, T_range.end ); 
+   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
+   
+   /* resize special states */
    MATRIX_2D_Reuse( sp_MX_fwd, NUM_SPECIAL_STATES, Q_size + 1 ); 
-   MATRIX_3D_Reuse( st_MX_bck, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
    MATRIX_2D_Reuse( sp_MX_bck, NUM_SPECIAL_STATES, Q_size + 1 );
-   MATRIX_3D_Reuse( st_MX_post, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
    MATRIX_2D_Reuse( sp_MX_post, NUM_SPECIAL_STATES, Q_size + 1 );
+   /* resize normal states */
+   MATRIX_3D_Reuse( st_MX_fwd, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
+   MATRIX_3D_Reuse( st_MX_bck, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
+   MATRIX_3D_Reuse( st_MX_post, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
+   /* clear previous data */
+   // MATRIX_3D_Fill( st_MX_fwd, -INF );
+   // MATRIX_3D_Fill( st_MX_bck, -INF );
+   // MATRIX_3D_Fill( st_MX_post, -INF );
 
-   /* run forward and backward */
+   /* run forward/backward on entire of profile/sequence */
    fprintf(stdout, "# ==> Ranged Forward\n");
    run_Forward_Quad(
-      q_seq, t_prof, Q, T, st_MX_fwd, sp_MX_fwd, &sc );
-   run_Ranged_Forward_Quad(
-         q_seq, t_prof, &Q_range, &T_range, st_MX_fwd, sp_MX_fwd, &sc1 );
-   fprintf(stdout, "# score: (full) %7.3f, (ranged) %7.3f\n", sc, sc1);
+      q_seq, t_prof, Q_size, T_size, st_MX_fwd, sp_MX_fwd, &sc_fwd_rng );
    fprintf(stdout, "# ==> Ranged Backward\n");
    run_Backward_Quad(
-      q_seq, t_prof, Q, T, st_MX_bck, sp_MX_bck, &sc );
-   run_Ranged_Backward_Quad( 
-         q_seq, t_prof, &Q_range, &T_range, st_MX_bck, sp_MX_bck, &sc1 );
-   fprintf(stdout, "# score: (full) %7.3f, (ranged) %7.3f\n", sc, sc1);;
+      q_seq, t_prof, Q_size, T_size, st_MX_bck, sp_MX_bck, &sc_bck_rng );
 
+   /** TODO: fix Ranged functions */
+   /* run ranged forward and backward */
+   // fprintf(stdout, "# ==> Ranged Forward\n");
+   // run_Ranged_Forward_Quad(
+   //       q_seq, t_prof, &Q_range, &T_range, st_MX_fwd, sp_MX_fwd, &sc_fwd_rng );
+   // fprintf(stdout, "# ==> Ranged Backward\n");
+   // run_Ranged_Backward_Quad( 
+   //       q_seq, t_prof, &Q_range, &T_range, st_MX_bck, sp_MX_bck, &sc_bck_rng );
+
+   // fp = fopen("fwd_rng.mx", "w+");
+   // DP_MATRIX_Dump(Q_size, T_size, st_MX_fwd, sp_MX_fwd, stdout);
+   // fclose(fp);
+   // fp = fopen("bck_rng.mx", "w+");
+   // DP_MATRIX_Dump(Q_size, T_size, st_MX_bck, sp_MX_bck, stdout);
+   // fclose(fp);
+
+   fprintf(stdout, "# fwd score: (full) %7.3f, (ranged) %7.3f\n", sc_fwd_full, sc_fwd_rng);
+   fprintf(stdout, "# bck score: (full) %7.3f, (ranged) %7.3f\n", sc_bck_full, sc_bck_rng);
 
    /* compute Posterior (forward * backward) */
    fprintf(stdout, "# ==> Posterior\n");
-   run_Decode_Posterior_Quad( q_seq, t_prof, Q, T, &Q_range, &T_range,
+   run_Decode_Posterior_Quad( q_seq, t_prof, Q_size, T_size, &Q_range, &T_range,
          st_MX_fwd, sp_MX_fwd, st_MX_bck, sp_MX_bck, st_MX_post, sp_MX_post );
    
    #if DEBUG 
    {
-      FILE* fpout; 
-      fpout = fopen("test_output/my.posterior.mx", "w");
-      DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
-      fpout = fopen("test_output/my.posterior.log.mx", "w");
-      DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
+      // FILE* fpout; 
+      // fpout = fopen("test_output/my.posterior.mx", "w");
+      // DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      // fclose(fpout);
+      // fpout = fopen("test_output/my.posterior.log.mx", "w");
+      // DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      // fclose(fpout);
    }
    #endif
    
@@ -148,6 +201,9 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    fprintf(stdout, "seq_bias: %f %f\n", seq_bias_old, seq_bias_new);
 
    fprintf(stdout, "# ==> Posterior (end)\n");
+   SEQUENCE_UnsetSubseq( q_seq );
+   HMM_PROFILE_UnsetSubmodel( t_prof ); 
+   HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
 
    return STATUS_SUCCESS;
 }
@@ -174,7 +230,7 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
                            MATRIX_3D*        st_MX_post,       /* OUTPUT: normal state matrix for posterior */
                            MATRIX_2D*        sp_MX_post )      /* OUTPUT: normal state matrix for posterior */
 {
-   // printf("=== run_Decode_Posterior_Quad ===\n");
+   printf("=== run_Decode_Posterior_Quad ===\n");
    // printf("==> FWD:\n");
    // DP_MATRIX_Dump(Q, T, st_MX_fwd, sp_MX_fwd, stdout );
    // printf("==> BCK:\n");
@@ -252,7 +308,6 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
          DMX_X(st_MX_post, q_0, t_0) = 0.0;
       }
 
-      // printf("(%2d,%2d)\n", q_0, t_0);
       /* unrolled loop */
       t_0 = T;
       t_1 = T-1;
@@ -277,13 +332,6 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
             overall_sc;
       XMX_X(sp_MX_post, SP_N, q_0) = exp(smx);
 
-      // printf("\t{N}:   %9f %9f %9f :=> %9f %9f\n", 
-      //       XMX_X(sp_MX_fwd, SP_N, q_1), 
-      //       XMX_X(sp_MX_bck, SP_N, q_0), 
-      //       XSC_X(t_prof, SP_N, SP_LOOP), 
-      //       smx,
-      //       XMX_X(sp_MX_post, SP_N, q_0) ); 
-
       smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
             XMX_X(sp_MX_bck, SP_J, q_0) +
             XSC_X(t_prof, SP_J, SP_LOOP) -
@@ -300,7 +348,6 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
                XMX_X(sp_MX_post, SP_J, q_0) + 
                XMX_X(sp_MX_post, SP_C, q_0);
 
-      // printf("[%2d]: denom :=> %9f\n", q_0, denom);
       /* normalize by scaling row by common factor denominator */
       denom = 1.0 / denom;
       for ( t_0 = 1; t_0 < T; t_0++ ) {
@@ -383,8 +430,8 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query sequence */
-                                 HMM_PROFILE*      target,           /* target hmm model */
+run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query sequence */
+                                 HMM_PROFILE*      t_prof,           /* target hmm model */
                                  int               Q,                /* query length */
                                  int               T,                /* target length */
                                  RANGE*            Q_range,          /* query range */
@@ -410,7 +457,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
 
    // printf("=== POSTERIOR ===\n");
    // DP_MATRIX_Log_Dump(Q->end, T, st_MX_post, sp_MX_post, stdout);
-   // printf("Q,T=(%d,%d)\n", query->N, target->N );
+   // printf("Q,T=(%d,%d)\n", q_seq->N, t_prof->N );
    // printf("=================\n");
    
    VECTOR_FLT_SetSizeTo( dom_def->st_freq, (T+1) * NUM_NORMAL_STATES );
@@ -565,22 +612,22 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
       {
          // printf("t_0 = %d\n", t_0);
          VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
          VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ) );
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ) );
 
          // if ( t_0 == 14 ) {
          //    printf("(k_0,t_0)=%2d,%2d, MSC=%f, ISC=%f, NULL2=%f\n",
          //       k_0, t_0, 
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ),
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ),
          //       VEC_X( dom_def->null2_sc, k_0 )
          //    );
          // }
       }
       t_0 = T;
       VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
       VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
                                                 x_factor );                            
    }
@@ -655,8 +702,8 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            query,            /* query sequence */
-                                    HMM_PROFILE*         target,           /* target hmm model */
+run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* query sequence */
+                                    HMM_PROFILE*         t_prof,           /* target hmm model */
                                     int                  Q,                /* query length */
                                     int                  T,                /* target length */
                                     MATRIX_3D*           st_MX_post,       /* posterior normal matrix */
@@ -681,7 +728,7 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            query,            /* qu
    // printf("=== POSTERIOR ===\n");
    // // DP_MATRIX_Dump(Q, T, st_MX_post, sp_MX_post, stdout);
    // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout);
-   // printf("Q,T=(%d,%d)\n", query->N, target->N );
+   // printf("Q,T=(%d,%d)\n", q_seq->N, t_prof->N );
    // printf("=================\n");
    
    VECTOR_FLT_GrowTo( dom_def->st_freq, (T+1) * NUM_NORMAL_STATES );
@@ -827,22 +874,22 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            query,            /* qu
       /* for each position in model */
       for ( t_0 = 1; t_0 < T; t_0++ ) {
          VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
          VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ) );
+                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ) );
 
          // if ( t_0 == 14 ) {
          //    printf("(k_0,t_0)=%2d,%2d, MSC=%f, ISC=%f, NULL2=%f\n",
          //       k_0, t_0, 
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ),
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( target, t_0, k_0 ),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ),
          //       VEC_X( dom_def->null2_sc, k_0 )
          //    );
          // }
       }
       t_0 = T;
       VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( target, t_0, k_0 ) );
+                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
       VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
                                                 x_factor );                            
    }

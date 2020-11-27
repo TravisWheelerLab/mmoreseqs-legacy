@@ -32,6 +32,7 @@ fbpruner_SOURCES = \
     src/algs_sparse/bound_fwdbck_sparse.c \
     src/algs_sparse/bound_viterbi_sparse.c \
     src/algs_sparse/traceback_sparse.c \
+    src/algs_sparse/posterior_sparse.c \
     src/objects/alignment.c \
     src/objects/args.c \
     src/objects/clock.c \

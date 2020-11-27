@@ -1,6 +1,6 @@
-#query	target	evalue	pre-sc	comp-bias	seq-sc	total-cells	MMORE-cells	perc-cells
-#------	------	------	------	--------	------	----------	----------	----------
-test1_2	test1_1	1.19e-07	16.379	-1.169	18.066	480	177	0.369
-test1_2	test1_1	0.0669	-1.158	-1.169	0.529	480	113	0.235
-test1_2	test1_1	2.74e-07	15.268	-1.169	16.955	480	91	0.190
+#query	target	evalue	pre-sc	comp-bias	seq-sc	total-cells	MMORE-cells	perc-cells	time
+#------	------	------	------	--------	------	----------	----------	--------------
+test1_2	test1_1	5.4e-07	16.379	0.222	16.059	480	177	0.369
+test1_2	test1_1	2.57e-05	-1.158	-8.387	10.941	480	113	0.235
+test1_2	test1_1	9.02e-11	15.268	-8.531	27.576	480	91	0.190
 # [ok] [myout]

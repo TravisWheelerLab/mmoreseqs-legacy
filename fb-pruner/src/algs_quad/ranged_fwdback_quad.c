@@ -39,6 +39,11 @@ int run_Ranged_Forward_Quad(  const SEQUENCE*    query,        /* query sequence
                               MATRIX_2D*         sp_MX,        /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               float*             sc_final )    /* OUTPUT: final score */
 {
+   /* size of Query and Target */
+   int      Q, T;
+   T = target->N;
+   Q = query->N;
+
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
@@ -334,6 +339,8 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
 {
    /* size of Query and Target */
    int      Q, T;
+   T = target->N;
+   Q = query->N;
 
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -424,12 +431,12 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    logsum_Init();
 
    /* Capture ranges */
-   Q     = query->N;
    Q_beg = Q_range->beg;
    Q_end = Q_range->end;
-   T     = target->N;
    T_beg = T_range->beg;
    T_end = T_range->end;
+
+   // printf("Q,T=%d,%d, Q_end,T_end=%d,%d\n", Q, T, Q_end, T_end);
 
    /* query sequence */
    seq         = query->seq;
@@ -446,10 +453,10 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    /* init special states */
    XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
-   XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
+   XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);  
 
    /* init normal states if range includes Q */
-   if (Q == Q_end)
+   if (q_0 == Q_end)
    {
       MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
       IMX(qx0, tx0) = -INF;
@@ -488,7 +495,7 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
          }
          #endif
       }
-   }   
+   } 
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY seq */
@@ -504,23 +511,32 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
 
       /* SPECIAL STATES */
 
-      /* B STATE -> MATCH */
-      /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation.   */
-      t_0 = T_beg + 1;
-      t_1 = t_0 - 1;
-      tx0 = t_0 - T_beg;
-      XMX(SP_B, q_0) = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
-      for (t_0 = T_beg + 2; t_0 <= T_end; t_0++) {
+      /* B STATE -> MATCH (only if q_0 is inside range) */
+      /* NOTE: When j = 0, MMX and MSC do not match HMMER p7_GBackward() implementation. */
+      XMX(SP_B, q_0) = -INF;
+      if (q_0 >= Q_beg && q_0 < Q_end)
+      {
+         t_0 = T_beg + 1;
          t_1 = t_0 - 1;
-         tx0 = t_1 - T_beg;
+         tx0 = t_0 - T_beg;
+         tx1 = tx0 - 1;
+         // XMX(SP_B, q_0) = MMX(qx1, 1) + TSC(0, B2M) + MSC(1, A);
+         XMX(SP_B, q_0) = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
+         for (t_0 = t_0 + 1; t_0 <= T_end; t_0++) 
+         {
+            t_1 = t_0 - 1;
+            tx0 = t_0 - T_beg;
+            tx1 = tx0 - 1;
 
-         prv_sum = XMX(SP_B, q_0);
-         prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
+            prv_sum = XMX(SP_B, q_0);
+            prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
+            XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
+         }
       }
+      // printf("SP_B(%d): %f\n", q_0,  XMX(SP_B, q_0));
 
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
-      prv_B  = XMX(SP_B, q_0) + XSC(SP_J, SP_MOVE);
+      prv_B = XMX(SP_B, q_0) + XSC(SP_J, SP_MOVE);
       XMX(SP_J, q_0) = logsum( prv_J, prv_B );
 
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
@@ -534,21 +550,7 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
       prv_B  = XMX(SP_B, q_0) + XSC(SP_N, SP_MOVE);
       XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
-      t_0 = T_end;
-      tx0 = t_0 - T_beg;
-      MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
-      IMX(qx0, tx0) = -INF;
-
-      #if DEBUG 
-      {
-         MX_2D(cloud_MX, q_0, t_0) = 1.0;
-         MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-         MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-         MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
-      }
-      #endif
-
-      /* initialize Q_beg for normal states */
+      /* init normal states if range includes start of range */
       if (q_0 == Q_end)
       {
          MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
@@ -588,17 +590,64 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
             }
             #endif
          }
-      }
-
+      } 
       /* if inside range, run normal states */
-      if (q_0 >= Q_beg && q_0 < Q_end )
+      else if (q_0 < Q_end && q_0 >= Q_beg + 1)
       {
+         t_0 = T_end;
+         tx0 = t_0 - T_beg;
+
+         MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
+         IMX(qx0, tx0) = -INF;
+
+         #if DEBUG 
+         {
+            MX_2D(cloud_MX, q_0, t_0) = 1.0;
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+         }
+         #endif
+
+         for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
+         {
+            t_1 = t_0 + 1;
+            tx0 = t_0 - T_beg;
+            tx1 = tx0 + 1;
+
+            // printf("END: q_0, t_0: %d,%d => %d,%d\n", q_0, t_0, q_1, t_1);
+            // printf("END: qx0, tx0: %d,%d => %d,%d\n", qx0, tx0, qx1, tx1);
+
+            prv_E = XMX(SP_E, q_0) + sc_E;
+            prv_D = DMX(qx0, tx1) + TSC(t_0, M2D);
+            MMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            prv_E = XMX(SP_E, q_0) + sc_E;
+            prv_D = DMX(qx0, tx1) + TSC(t_0, D2D);
+            DMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            IMX(qx0, tx0) = -INF;
+
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            }
+            #endif
+         }
+      
+         /* NORMAL STATES */
          /* FOR every position in TARGET profile */
          for (t_0 = T_end - 1; t_0 >= T_beg + 1; t_0--)
          {
             t_1 = t_0 + 1;
             tx0 = t_0 - T_beg;
             tx1 = tx0 + 1;
+
+            // printf("q_0, t_0: %d,%d => %d,%d\n", q_0, t_0, q_1, t_1);
+            // printf("qx0, tx0: %d,%d => %d,%d\n", qx0, tx0, qx1, tx1);
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
             prv_M = MMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
@@ -627,6 +676,8 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
                            logsum( prv_D, prv_E ) );
             DMX(qx0, tx0) = prv_sum;
 
+            
+
             #if DEBUG 
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
@@ -641,30 +692,36 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
 
    /* FINAL ROW (i = 0) */
    /* At q_0 = 0, only N,B states are reachable. */
-   q_0 = Q_beg;
+   q_0 = 0;
    q_1 = q_0 + 1;
    qx0 = q_0 - Q_beg;
-   qx1 = qx0 + 1;
-
-   t_0 = T_beg;
-   t_1 = t_0 + 1;
-   tx0 = t_0 - T_beg;
-   tx1 = tx0 + 1;
+   qx1 = qx0 + 1; 
 
    a = seq[q_0];
    A = AA_REV[a];
 
    /* SPECIAL STATES */
 
-   /* B STATE -> MATCH */
-   prv_M = MMX(qx1, tx1) + TSC(0, B2M) + MSC(1, A);
-   XMX(SP_B, qx0) = prv_M;
-   for (t_0 = (T_beg + 1) + 1; t_0 <= T_end; t_0++) {
-      t_1 = t_0 - 1;
+   /* B STATE -> MATCH (only if inside range) */
+   XMX(SP_B, q_0) = -INF;
+   if (Q_beg == 0)
+   {
+      t_0 = T_beg;
+      t_1 = t_0 + 1;
       tx0 = t_0 - T_beg;
-      prv_sum = XMX(SP_B, q_0);
-      prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
-      XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
+      tx1 = tx0 + 1;
+
+      prv_M = MMX(qx1, tx1) + TSC(t_1, B2M) + MSC(t_0, A);
+      XMX(SP_B, q_0) = prv_M;
+      for (t_0 = t_0 + 1; t_0 <= T_end; t_0++) {
+         t_1 = t_0 - 1;
+         tx0 = t_0 - T_beg;
+         tx1 = tx0 - 1;
+
+         prv_sum = XMX(SP_B, q_0);
+         prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
+      }
    }
 
    XMX(SP_J, q_0) = -INF;
@@ -672,12 +729,15 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    XMX(SP_E, q_0) = -INF;
 
    prv_N = XMX(SP_N, q_1) + XSC(SP_N,SP_LOOP);
-   prv_B  = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
+   prv_B = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
    XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
-   for (t_0 = T_end; t_0 >= T_beg + 1; t_0--) {
-      tx0 = t_0 - T_end;
-      MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
+   if (Q_beg == 0)
+   {
+      for (t_0 = T_end; t_0 >= T_beg + 1; t_0--) {
+         tx0 = t_0 - T_end;
+         MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
+      }
    }
 
    #if DEBUG 
@@ -686,9 +746,13 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
       MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
       MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
       MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+
+      FILE* test_fp = fopen("rnged_bck.mx", "w+");
+      DP_MATRIX_Dump(Q, T, test_MX, sp_MX, test_fp);
    }
    #endif
 
+   /* optimal alignment score propogates to final N state */
    sc_best = XMX(SP_N, 0);
    *sc_final = sc_best;
 

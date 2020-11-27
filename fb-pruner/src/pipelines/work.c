@@ -150,12 +150,17 @@ void WORK_cleanup( WORKER* worker )
       worker->lb_vec[i]    = VECTOR_INT_Destroy( worker->lb_vec[i] );
       worker->rb_vec[i]    = VECTOR_INT_Destroy( worker->rb_vec[i] );
    }
+   printf("test\n");
    /* necessary dp matrices */
    worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
+   printf("test\n");
    worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
+   printf("test\n");
    worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
+   printf("test\n");
    worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );
    worker->st_MX3_bck      = MATRIX_3D_Destroy( worker->st_MX3_bck );
+   printf("test\n");
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
@@ -765,7 +770,7 @@ void WORK_load_target_by_index_id(  WORKER*     worker,
          SEQUENCE_Fasta_Parse( worker->t_seq, args->t_filepath, my_idx->offset );
          SEQUENCE_to_HMM_PROFILE( worker->t_seq, worker->t_prof );
          HMM_PROFILE_Dump( worker->t_prof, stdout );
-         exit(0);
+         exit(EXIT_SUCCESS);
       } break;
       default: {
          fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for targets.\n");

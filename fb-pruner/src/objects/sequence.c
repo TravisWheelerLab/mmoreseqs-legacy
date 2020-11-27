@@ -182,30 +182,30 @@ SEQUENCE_Digitize( SEQUENCE* seq )
 }
 
 
-/** FUNCTION:  SEQUENCE_SetSubsequence()
+/** FUNCTION:  SEQUENCE_SetSubseq()
  *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
  *             Subsequence covers range <q_beg, q_end>.
  *
  *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
  */
 void 
-SEQUENCE_SetSubsequence( SEQUENCE*  seq, 
-                         int        q_beg,
-                         int        q_end )
+SEQUENCE_SetSubseq(  SEQUENCE*  seq, 
+                     int        q_beg,
+                     int        q_end )
 {
    seq->seq = seq->full_seq + q_beg;
    seq->N   = strlen( seq->seq );
 }
 
 
-/** FUNCTION:  SEQUENCE_UnsetSubsequence()
+/** FUNCTION:  SEQUENCE_UnsetSubseq()
  *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
  *             Subsequence covers range <q_beg, q_end>.
  *
  *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
  */
 void 
-SEQUENCE_UnsetSubsequence( SEQUENCE*  seq )
+SEQUENCE_UnsetSubseq( SEQUENCE*  seq )
 {
    seq->seq = seq->full_seq;
    seq->N   = strlen( seq->seq );

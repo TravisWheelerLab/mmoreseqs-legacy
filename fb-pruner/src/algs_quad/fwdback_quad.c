@@ -411,10 +411,12 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    t_0 = T;
    tx0 = t_0;
 
+   /* init special states */
    XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
+   /* init normal states */
    MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
    IMX(qx0, tx0) = -INF;
 
@@ -429,8 +431,8 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
 
    for (t_0 = T - 1; t_0 >= 1; t_0--)
    {
-      tx0 = t_0;
       t_1 = t_0 + 1;
+      tx0 = t_0;
       tx1 = tx0 + 1;
 
       prv_E = XMX(SP_E, Q) + sc_E;
@@ -452,12 +454,6 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       }
       #endif
    }
-
-   // if (t_0 = T-1; t_0 >= 1; t_0--) {
-   //    for (k = 0; k < NUM_AMINO; k++) {
-   //       printf("[%2d]: %f\n", k, ISC(q_0, k) );
-   //    }
-   // }
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY seq */
@@ -483,13 +479,17 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       for (t_0 = t_0 + 1; t_0 <= T; t_0++) 
       {
          t_1 = t_0 - 1;
+         tx0 = t_0;
+         tx1 = tx0 - 1;
+
          prv_sum = XMX(SP_B, q_0);
-         prv_M = MMX(qx1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
+         prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
          XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
       }
+      // printf("SP_B(%d): %f\n", q_0,  XMX(SP_B, q_0));
 
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
-      prv_B  = XMX(SP_B, q_0) + XSC(SP_J, SP_MOVE);
+      prv_B = XMX(SP_B, q_0) + XSC(SP_J, SP_MOVE);
       XMX(SP_J, q_0) = logsum( prv_J, prv_B );
 
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
@@ -505,6 +505,7 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
 
       t_0 = T;
       tx0 = t_0;
+
       MMX(qx0, tx0) = DMX(qx0, tx0) = XMX(SP_E, q_0);
       IMX(qx0, tx0) = -INF;
 
@@ -519,7 +520,7 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
 
       /* NORMAL STATES */
       /* FOR every position in TARGET profile */
-      for (t_0 = T-1; t_0 >= 1; t_0--)
+      for (t_0 = T - 1; t_0 >= 1; t_0--)
       {
          t_1 = t_0 + 1;
          tx0 = t_0;
@@ -578,23 +579,24 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    qx0 = q_0;
    qx1 = qx0 + 1;
 
-   t_0 = 0;
-   t_1 = t_0 + 1;
-   tx0 = t_0;
-   tx1 = tx0 + 1;
-
    a = seq[q_0];
    A = AA_REV[a];
 
    /* SPECIAL STATES */
 
    /* B STATE -> MATCH */
-   prv_M = MMX(qx1, tx1) + TSC(tx0, B2M) + MSC(tx1, A);
+   t_0 = 0;
+   t_1 = t_0 + 1;
+   tx0 = t_0;
+   tx1 = tx0 + 1;
+
+   prv_M = MMX(qx1, tx1) + TSC(t_1, B2M) + MSC(t_0, A);
    XMX(SP_B, q_0) = prv_M;
    for (t_0 = 2; t_0 <= T; t_0++) {
       t_1 = t_0 - 1;
       tx0 = t_0;
       tx1 = tx0 - 1;
+
       prv_sum = XMX(SP_B, q_0);
       prv_M = MMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
       XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
@@ -605,7 +607,7 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
    XMX(SP_E, q_0) = -INF;
 
    prv_N = XMX(SP_N, q_1) + XSC(SP_N,SP_LOOP);
-   prv_B  = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
+   prv_B = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
    XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
    for (t_0 = T; t_0 >= 1; t_0--) {
@@ -619,9 +621,13 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
       MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
       MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+
+      FILE* test_fp = fopen("full_bck.mx", "w+");
+      DP_MATRIX_Dump(Q, T, test_MX, sp_MX, test_fp);
    }
    #endif
 
+   /* optimal alignment score propogates to final N state */
    sc_best = XMX(SP_N, 0);
    *sc_final = sc_best;
 

@@ -72,13 +72,13 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    
    #if DEBUG 
    {
-      FILE* fpout; 
-      fpout = fopen("test_output/my.posterior.mx", "w");
-      DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
-      fpout = fopen("test_output/my.posterior.log.mx", "w");
-      DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      fclose(fpout);
+      // FILE* fpout; 
+      // fpout = fopen("test_output/my.posterior.mx", "w");
+      // DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      // fclose(fpout);
+      // fpout = fopen("test_output/my.posterior.log.mx", "w");
+      // DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
+      // fclose(fpout);
    }
    #endif
    
@@ -184,12 +184,14 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
       }
    }
 
+   printf("MAIN\n");
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
    for (q_0 = 1; q_0 <= Q; q_0++)
    {
       q_1 = q_0 - 1;
       t_0 = 0;
+      printf("q_0 = %d/%d\n", q_0, Q);
 
       /* add every inner edgebound from current row */
       r_0b = r_0;
@@ -204,7 +206,8 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          /* get bound data */
          bnd   = &EDG_X(edg, r_0);
          id    = bnd->id; 
-         lb_0  = MAX(0, bnd->lb);         /* can't overflow the left edge */
+         lb_T  = ( bnd->lb == 0 );
+         lb_0  = MAX(1, bnd->lb);         /* can't overflow the left edge */
          rb_T  = ( bnd->rb > T );
          rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
 
@@ -217,7 +220,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
 
          /* special case for zero column */
-         if ( lb_0 == 0 ) 
+         if ( lb_T ) 
          {
             t_0 = lb_0;
             tx0 = t_0 - bnd->lb;
@@ -233,6 +236,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          /* FOR every position in TARGET profile */
          for (t_0 = lb_0; t_0 < rb_0; t_0++)
          {
+            printf("t_0 = %d/%d\n", t_0, rb_0);
             t_1 = t_0 - 1; 
             tx0 = t_0 - bnd->lb;
             tx1 = tx0 - 1;
@@ -257,17 +261,19 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               // MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               // MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+               // MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+               // MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
             }
             #endif
+            printf("t_0 = %d/%d X\n", t_0, rb_0);
          }
 
          /* unrolled loop */
          if ( rb_T )  
          {
+            printf("rb_T\n");
             t_0 = T;
             t_1 = t_0 - 1;
             tx0 = t_0 - bnd->lb;
@@ -284,44 +290,44 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
             ISMX_X(st_SMX_post, qx0, tx0) = 0.0;
             DSMX_X(st_SMX_post, qx0, tx0) = 0.0;
 
-            /* special states */
-            XMX_X(sp_MX_post, SP_E, q_0) = 0.0;
-            XMX_X(sp_MX_post, SP_B, q_0) = 0.0;
-
-            smx = XMX_X(sp_MX_fwd, SP_N, q_1) +
-                  XMX_X(sp_MX_bck, SP_N, q_0) +
-                  XSC_X(t_prof, SP_N, SP_LOOP) -
-                  overall_sc;
-            XMX_X(sp_MX_post, SP_N, q_0) = exp(smx);
-
-            smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
-                  XMX_X(sp_MX_bck, SP_J, q_0) +
-                  XSC_X(t_prof, SP_J, SP_LOOP) -
-                  overall_sc;
-            XMX_X(sp_MX_post, SP_J, q_0) = exp(smx);
-
-            smx = XMX_X(sp_MX_fwd, SP_C, q_1) +
-                  XMX_X(sp_MX_bck, SP_C, q_0) +
-                  XSC_X(t_prof, SP_C, SP_LOOP) -
-                  overall_sc;
-            XMX_X(sp_MX_post, SP_C, q_0) = exp(smx);
-
-            denom += XMX_X(sp_MX_post, SP_N, q_0) + 
-                     XMX_X(sp_MX_post, SP_J, q_0) + 
-                     XMX_X(sp_MX_post, SP_C, q_0);
-
             /* embed linear row into quadratic test matrix */
             #if DEBUG
             {
-               MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               // MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               // MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+               // MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+               // MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
             }
             #endif
          }
 
       }
+
+      /* special states */
+      XMX_X(sp_MX_post, SP_E, q_0) = 0.0;
+      XMX_X(sp_MX_post, SP_B, q_0) = 0.0;
+
+      smx = XMX_X(sp_MX_fwd, SP_N, q_1) +
+            XMX_X(sp_MX_bck, SP_N, q_0) +
+            XSC_X(t_prof, SP_N, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_N, q_0) = exp(smx);
+
+      smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
+            XMX_X(sp_MX_bck, SP_J, q_0) +
+            XSC_X(t_prof, SP_J, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_J, q_0) = exp(smx);
+
+      smx = XMX_X(sp_MX_fwd, SP_C, q_1) +
+            XMX_X(sp_MX_bck, SP_C, q_0) +
+            XSC_X(t_prof, SP_C, SP_LOOP) -
+            overall_sc;
+      XMX_X(sp_MX_post, SP_C, q_0) = exp(smx);
+
+      denom += XMX_X(sp_MX_post, SP_N, q_0) + 
+               XMX_X(sp_MX_post, SP_J, q_0) + 
+               XMX_X(sp_MX_post, SP_C, q_0);
 
       /* apply denominator scaling factor to entire row */
       /* FOR every BOUND in current ROW */
@@ -365,6 +371,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
    }
    // printf("==> POSTERIOR:\n");
    // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout );
+   printf("END\n");
 
    return STATUS_SUCCESS;
 }

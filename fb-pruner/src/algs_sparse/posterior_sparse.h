@@ -8,7 +8,6 @@
 #ifndef _POSTERIOR_SPARSE_H
 #define _POSTERIOR_SPARSE_H
 
-
 /*! FUNCTION:  run_Posterior_Sparse()
  *  SYNOPSIS:  Filled dp matrices for forward <st_MX_fwd> and backward <st_MX_bck>.
  *             Compute the Posterior Probability by multiplying probabilities (added in log space) of Forward and Backward.
