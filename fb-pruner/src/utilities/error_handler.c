@@ -30,11 +30,12 @@
  *  FUNCTION:  ERRORCHECK_handler()
  *  SYNOPSIS:  Passed {error_code} is handled.
  */
-void ERRORCHECK_handler(   const int      error_code,
-                           const char*    _file_,
-                           const int      _line_,
-                           const char*    _func_,
-                           const char*    err_msg )
+void 
+ERRORCHECK_handler(  const int      error_code,
+                     const char*    _file_,
+                     const int      _line_,
+                     const char*    _func_,
+                     const char*    err_msg )
 {
    /* if no message, output default message according to error code */
    if ( err_msg == NULL ) {
@@ -78,11 +79,12 @@ void ERRORCHECK_handler(   const int      error_code,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-FILE* ERRORCHECK_fopen( char*          filename,
-                        const char*    permission,
-                        const char*    _file_,
-                        const int      _line_,
-                        const char*    _func_ )
+FILE* 
+ERRORCHECK_fopen( char*          filename,
+                  const char*    permission,
+                  const char*    _file_,
+                  const int      _line_,
+                  const char*    _func_ )
 {
    FILE* fp = fopen( filename, permission );
    if (fp == NULL) {
@@ -95,10 +97,11 @@ FILE* ERRORCHECK_fopen( char*          filename,
  *  SYNOPSIS:  Closes file and returns NULL pointer.
  */
 inline
-void* ERRORCHECK_fclose(   FILE*          fp,
-                           const char*    _file_,
-                           const int      _line_,
-                           const char*    _func_ )
+void* 
+ERRORCHECK_fclose(   FILE*          fp,
+                     const char*    _file_,
+                     const int      _line_,
+                     const char*    _func_ )
 {
    if (fp != NULL) {
       fclose( fp );
@@ -117,11 +120,12 @@ void* ERRORCHECK_fclose(   FILE*          fp,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-void* ERRORCHECK_alloc( void*          ptr,
-                        const size_t   size,
-                        const char*    _file_,
-                        const int      _line_,
-                        const char*    _func_ )
+void* 
+ERRORCHECK_alloc( void*          ptr,
+                  const size_t   size,
+                  const char*    _file_,
+                  const int      _line_,
+                  const char*    _func_ )
 {
    /* NOTE: realloc behaves like malloc when {ptr} is NULL. */
    ptr = realloc( ptr, size );
@@ -140,10 +144,11 @@ void* ERRORCHECK_alloc( void*          ptr,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-void* ERRORCHECK_malloc(   const size_t   size,
-                           const char*    _file_,
-                           const int      _line_,
-                           const char*    _func_ )
+void* 
+ERRORCHECK_malloc(   const size_t   size,
+                     const char*    _file_,
+                     const int      _line_,
+                     const char*    _func_ )
 {
    void* ptr;
    ptr = malloc( size );
@@ -162,11 +167,12 @@ void* ERRORCHECK_malloc(   const size_t   size,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-void* ERRORCHECK_realloc(  void*          ptr,
-                           const size_t   size,
-                           const char*    _file_,
-                           const int      _line_,
-                           const char*    _func_ )
+void* 
+ERRORCHECK_realloc(  void*          ptr,
+                     const size_t   size,
+                     const char*    _file_,
+                     const int      _line_,
+                     const char*    _func_ )
 {
    ptr = realloc( ptr, size );
    /* if {ptr} is NULL, then we have a memory error */
@@ -184,10 +190,11 @@ void* ERRORCHECK_realloc(  void*          ptr,
  *             Handles the error messaging, with program location, and closes program.
  */
 inline
-void* ERRORCHECK_free(  void*          ptr,
-                        const char*    _file_,
-                        const int      _line_,
-                        const char*    _func_ )
+void* 
+ERRORCHECK_free(  void*          ptr,
+                  const char*    _file_,
+                  const int      _line_,
+                  const char*    _func_ )
 {
    if ( ptr != NULL ) {
       free( ptr );
@@ -200,12 +207,13 @@ void* ERRORCHECK_free(  void*          ptr,
  *  FUNCTION:  ERRORCHECK_boundscheck()
  *  SYNOPSIS:  
  */
-void* ERRORCHECK_boundscheck( int            idx,
-                              int            max,
-                              const int      size,
-                              const char*    _file_,
-                              const int      _line_,
-                              const char*    _func_ )
+void* 
+ERRORCHECK_boundscheck( int            idx,
+                        int            max,
+                        const int      size,
+                        const char*    _file_,
+                        const int      _line_,
+                        const char*    _func_ )
 {
    if (idx > max) {
       ERRORCHECK_handler( ERROR_OUT_OF_BOUNDS, _file_, _line_, _func_, NULL );
@@ -216,10 +224,11 @@ void* ERRORCHECK_boundscheck( int            idx,
  *  FUNCTION:  ERRORCHECK_print_location()
  *  SYNOPSIS:  Prints program location given by ERRORCHECK function.
  */
-void ERRORCHECK_print_location(  FILE*          fp,
-                                 const char*    _file_,
-                                 const int      _line_,
-                                 const char*    _func_ )
+void 
+ERRORCHECK_print_location( FILE*          fp,
+                           const char*    _file_,
+                           const int      _line_,
+                           const char*    _func_ )
 {
    fprintf( fp, "{ FILE: %s, LINE: %d, FUNCTION: %s }\n", 
       _file_, _line_, _func_ );
@@ -229,9 +238,10 @@ void ERRORCHECK_print_location(  FILE*          fp,
  *  FUNCTION:  ERRORCHECK_unsupported_op()
  *  SYNOPSIS:  Error called when function is currently unsupported.
  */
-void ERRORCHECK_unsupported_op( const char*     _file_,
-                                const int       _line_,
-                                const char*     _func_ )
+void 
+ERRORCHECK_unsupported_op(    const char*     _file_,
+                              const int       _line_,
+                              const char*     _func_ )
 {
 
 }
@@ -240,11 +250,12 @@ void ERRORCHECK_unsupported_op( const char*     _file_,
  *  FUNCTION:  ERRORCHECK_memcheck()
  *  SYNOPSIS:  Reports an incorrect value encountered in matrix.
  */
-void ERRORCHECK_memcheck(  int      row, 
-                           int      col, 
-                           float    mat, 
-                           float    ins, 
-                           float    del )
+void 
+ERRORCHECK_memcheck(    int      row, 
+                        int      col, 
+                        float    mat, 
+                        float    ins, 
+                        float    del )
 {
    printf( "#> ERROR: Memory at position (%d,%d) not cleared. Value = ( %9.4f %9.4f %9.4f )\n",
            row, col, mat, ins, del );
@@ -254,7 +265,8 @@ void ERRORCHECK_memcheck(  int      row,
  *  FUNCTION:  ERRORCHECK_stacktrace()
  *  SYNOPSIS:  Print stacktrace.
  */
-void ERRORCHECK_stacktrace()
+void 
+ERRORCHECK_stacktrace()
 {
    void*   array[10];
    size_t  size;
@@ -276,7 +288,8 @@ void ERRORCHECK_stacktrace()
  *  FUNCTION:  ERRORCHECK_exit()
  *  SYNOPSIS:  Exit program and print stacktrace.
  */
-void ERRORCHECK_exit( int exit_flag )
+void 
+ERRORCHECK_exit( int exit_flag )
 {
    ERRORCHECK_stacktrace();
    exit( exit_flag );

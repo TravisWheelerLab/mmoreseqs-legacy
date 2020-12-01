@@ -149,6 +149,13 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  MATRIX_3D_SPARSE*    smx,     /* sparse matr
 /*  FUNCTION:  MATRIX_3D_SPARSE_Dump()
  *  SYNOPSIS:  Dump <smx> to file pointer <fp>.
  */
+void MATRIX_3D_SPARSE_Bounds_Dump(  MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                    FILE*                fp );    /* file pointer to be written to */
+
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Bounds_Dump()
+ *  SYNOPSIS:  Dump <smx> to file pointer <fp>.
+ */
 void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
                               FILE*                fp );    /* file pointer to be written to */
 

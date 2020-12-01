@@ -118,9 +118,9 @@ void   ARGS_Parse( ARGS*   args,
             if (i+req_args < argc) {
                i++;
                args->verbose_level = atoi(argv[i]);
-               if ( args->verbose_level < 0 || args->verbose_level > NUM_VERBOSITY_MODES ) {
+               if ( args->verbose_level < 0 || args->verbose_level > NUM_VERBOSITY_MODES - 1 ) {
                   fprintf(stderr, "ERROR: Verbose level (%d) is outside acceptable range (%d,%d).\n", 
-                     args->verbose_level, 0, NUM_VERBOSITY_MODES );
+                     args->verbose_level, 0, NUM_VERBOSITY_MODES-1 );
                   args->verbose_level = MAX( args->verbose_level, 0 );
                   args->verbose_level = MIN( args->verbose_level, NUM_VERBOSITY_MODES-1 );
                } 

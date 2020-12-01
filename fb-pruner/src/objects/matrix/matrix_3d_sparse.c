@@ -167,6 +167,7 @@ int
 MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
                                           EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
 {
+   printf("MATRIX_3D_SPARSE_Shape_Like_Edgebounds\n");
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
    smx->D2 = edg_inner->T + 1;
@@ -176,6 +177,8 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
    smx->edg_inner = EDGEBOUNDS_Copy( smx->edg_inner, edg_inner );
    // smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds( smx->edg_inner, smx->edg_outer );
 	smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds_Naive( smx->edg_inner, smx->edg_outer );
+   smx->edg_outer->Q = smx->edg_inner->Q;
+   smx->edg_outer->T = smx->edg_inner->T;
    /* index edgebound rows */
    EDGEBOUNDS_Index( smx->edg_inner );
    EDGEBOUNDS_Index( smx->edg_outer );
@@ -184,8 +187,10 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
    MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
    MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
    /* create matrix data */
+   printf("smx->N: %d\n", smx->N );
    VECTOR_FLT_GrowTo( smx->data, smx->N );
    smx->data->N = smx->N;
+   printf("smx->N: %d\n", smx->N );
    /* clear data to all -INF */
    VECTOR_FLT_Fill( smx->data, -INF );
    
@@ -700,19 +705,25 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  MATRIX_3D_SPARSE*    smx,     /* sparse matr
    }
 }
 
-/*  FUNCTION:  MATRIX_3D_SPARSE_Dump()
- *  SYNOPSIS:  Dump <smx> to file pointer <fp>.
+/*  FUNCTION:  MATRIX_3D_SPARSE_Bounds_Dump()
+ *  SYNOPSIS:  Dump <smx> bound data to file pointer <fp>.
  */
-void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
-                              FILE*                fp )     /* file pointer to be written to */
+void MATRIX_3D_SPARSE_Bounds_Dump(  MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                    FILE*                fp )     /* file pointer to be written to */
 {
-   int prv, cur, nxt, rng;
-   int width = 11;
-   int hwidth = 4;
-   int swidth = 3;
+   int   Q, T;
+   int   prv, cur, nxt, rng;
+   int   width = 11;
+   int   hwidth = 4;
+   int   swidth = 3;
+
+   Q = smx->edg_inner->Q;
+   T = smx->edg_inner->T;
+
    fprintf( fp, "%*s :: %*s :: %*s :: %*s ::\n",
       14, "BOUNDS", width, "PREVIOUS", width, "CURRENT", width, "NEXT");
-   for ( int i = 0; i < smx->imap_cur->N; i++) {
+   for ( int i = 0; i < smx->imap_cur->N; i++) 
+   {
       BOUND* bnd =  &smx->edg_inner->bounds[i];
       prv = smx->imap_prv->data[i];
       cur = smx->imap_cur->data[i];
@@ -723,6 +734,70 @@ void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
          hwidth, prv, hwidth, prv + (rng * 3),
          hwidth, cur, hwidth, cur + (rng * 3),
          hwidth, nxt, hwidth, nxt + (rng * 3) );
+   }
+   fprintf(fp, "\n\n");
+
+   BOUND*   bnd_0;
+   int      q_0, t_0;
+   int      lb_0, rb_0;
+   int      r_0b, r_0e, r_0;
+   int      cnt;
+   int      pad;
+
+   cnt = 0;
+   for (int r_0 = 0; r_0 < smx->edg_outer->N; r_0++)
+   {
+      bnd_0 = &smx->edg_outer->bounds[r_0];
+      fprintf(fp, "[%3d]{%3d: %3d, %3d}  ", r_0, bnd_0->id, bnd_0->lb, bnd_0->rb);
+
+      for (int i = -1; i < Q; i++)
+      {
+         if (i >= bnd_0->lb && i < bnd_0->rb) {
+            fprintf(fp, "%*.4f\t", pad, MSMX_X(smx, 0, cnt) );
+            cnt++;
+         }
+         else {
+            fprintf(fp, "%*s\t", pad, "****" );
+         }
+      }
+      fprintf(fp, "\n");
+   }
+}
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Bounds_Dump()
+ *  SYNOPSIS:  Dump <smx> to file pointer <fp>.
+ */
+void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                              FILE*                fp )     /* file pointer to be written to */
+{
+   int      Q, T;
+   BOUND*   bnd_0;
+   int      q_0, t_0;
+   int      lb_0, rb_0;
+   int      r_0b, r_0e, r_0;
+   int      cnt;
+   int      pad;
+
+   Q = smx->edg_inner->Q;
+   T = smx->edg_inner->T;
+
+   cnt = 0;
+   for (int r_0 = 0; r_0 < smx->edg_outer->N; r_0++)
+   {
+      bnd_0 = &smx->edg_outer->bounds[r_0];
+      fprintf(fp, "[%3d]{%3d: %3d, %3d}  ", r_0, bnd_0->id, bnd_0->lb, bnd_0->rb);
+
+      for (int i = -1; i < T+1; i++)
+      {
+         if (i >= bnd_0->lb && i < bnd_0->rb) {
+            fprintf(fp, "%*.4f\t", pad, MSMX_X(smx, 0, cnt) );
+            cnt++;
+         }
+         else {
+            fprintf(fp, "%*s\t", pad, "****" );
+         }
+      }
+      fprintf(fp, "\n");
    }
 }
 

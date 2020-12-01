@@ -55,7 +55,7 @@ HMM_PROFILE_Create()
    prof->hmm_model      = NULL;
    
    /* temporary store of full sequence */
-   prof->N_full         = 0;
+   prof->N_full         = -1;
    prof->hmm_model_full = NULL;
 
    prof->bg_model = HMM_COMPO_Create();
@@ -256,6 +256,7 @@ HMM_PROFILE_UnsetSubmodel( HMM_PROFILE* prof )
    prof->N = prof->N_full;
 
    prof->hmm_model_full = NULL;
+   prof->N_full = -1;
 }
 
 /* Output HMM_PROFILE to FILE POINTER */

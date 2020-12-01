@@ -84,7 +84,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
                      MATRIX_2D*     sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
                      DOMAIN_DEF*    dom_def )         /* OUTPUT: domain data */
 {
-   printf("=== POSTERIOR HEURISTICS ===\n");
+   printf("=== POSTERIOR HEURISTICS (quad) ===\n");
    printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
       dom_def->rt1, dom_def->rt2, dom_def->rt3 );
 
@@ -193,7 +193,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    }
 
    /* set sequence to be the domain subrange */
-   SEQUENCE_SetSubsequence( q_seq, q_beg, q_end );
+   SEQUENCE_SetSubseq( q_seq, q_beg, q_end );
    Q_dom = q_end - q_beg + 1;
    /* reconfigure model for domain */
    if ( t_prof->mode == MODE_MULTIGLOCAL|| t_prof->mode == MODE_MULTILOCAL ) {
@@ -221,7 +221,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    // run_Null2_ByExpectation( q_seq, t_prof, Q_dom, T, st_MX_post, sp_MX_post, dom_def );
 
    /* set sequence to be full sequence */
-   SEQUENCE_UnsetSubsequence( q_seq );
+   SEQUENCE_UnsetSubseq( q_seq );
    /* reconfigure model to its state from beginning of function */
    if ( t_prof->mode == MODE_MULTIGLOCAL|| t_prof->mode == MODE_MULTILOCAL ) {
       HMM_PROFILE_ReconfigMultihit( t_prof, q_seq->N );

@@ -1005,11 +1005,17 @@ void WORK_cloud_search( WORKER* worker )
    int               gamma          = args->gamma;
    float             sc             = 0.0;
 
-   MATRIX_3D*        st_MX          = worker->st_MX;
-   MATRIX_3D*        st_MX3         = worker->st_MX3;
-   MATRIX_2D*        sp_MX          = worker->sp_MX;
    MATRIX_3D*        st_cloud_MX    = worker->st_cloud_MX; 
 
+   MATRIX_3D*        st_MX          = worker->st_MX;
+   MATRIX_3D*        st_MX3         = worker->st_MX3;
+   MATRIX_3D_SPARSE* st_SMX_fwd     = worker->st_SMX_fwd;
+   MATRIX_3D_SPARSE* st_SMX_bck     = worker->st_SMX_bck;
+
+   MATRIX_2D*        sp_MX          = worker->sp_MX;
+   MATRIX_2D*        sp_MX_fwd      = worker->sp_MX_fwd;
+   MATRIX_2D*        sp_MX_bck      = worker->sp_MX_bck;
+    
    ALIGNMENT*        tr             = worker->traceback;
 
    EDGEBOUNDS*       edg_fwd        = worker->edg_fwd;
@@ -1024,30 +1030,37 @@ void WORK_cloud_search( WORKER* worker )
 
    int status;
 
-   /* if performing linear bounded forward or backward  */
-   if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) {
+   /* if performing linear fb-pruner, run cloud search  */
+   if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) 
+   {
       /* cloud forward */
-      printf_vall("# ==> cloud forward (lin)...\n");
+      printf_vall("# ==> cloud forward (linear)...\n");
       CLOCK_Start(clok);
       run_Cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       t_times->lin_cloud_fwd += times->lin_cloud_fwd;
-      /* TODO: remove this!!! */
-      // DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      #if DEBUG
+      {
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_fwd.lin.mx");
+      }
+      #endif
 
       /* cloud backward */
-      printf_vall("# ==> cloud backward (lin)...\n");
+      printf_vall("# ==> cloud backward (linear)...\n");
       CLOCK_Start(clok);
       run_Cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
       t_times->lin_cloud_bck += times->lin_cloud_bck ;
-      /* TODO: remove this!!! */
-      // DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
+      #if DEBUG
+      {
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx");
+      }
+      #endif
 
       /* merge edgebounds */
-      printf_vall("# ==> merge (lin)...\n");
+      printf_vall("# ==> merge (linear)...\n");
       CLOCK_Start(clok);
       EDGEBOUNDS_Merge_Together( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
@@ -1055,13 +1068,17 @@ void WORK_cloud_search( WORKER* worker )
       t_times->lin_merge += times->lin_merge;
 
       /* reorient edgebounds */
-      printf_vall("# ==> reorient (lin)...\n");
+      printf_vall("# ==> reorient (linear)...\n");
       CLOCK_Start(clok);
       int precount  = EDGEBOUNDS_Count( edg_row );
       EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
       times->lin_reorient = CLOCK_Secs(clok);
       t_times->lin_reorient += times->lin_reorient;
+
+      /* compute the number of cells in matrix computed */
+      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
+      result->total_cells  = (Q+1) * (T+1);
 
       /* if debugging, print the cloud */
       #if DEBUG
@@ -1081,17 +1098,15 @@ void WORK_cloud_search( WORKER* worker )
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
    }
-   /* bounded forward */
-   if ( tasks->lin_bound_fwd ) {
-      printf_vall("# ==> bound forward (lin)...\n");
+    
+   /* linear bounded forward */
+   if ( tasks->lin_bound_fwd ) 
+   {
+      printf_vall("# ==> bound forward (linear)...\n");
       CLOCK_Start(clok);
       run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
       scores->lin_bound_fwd = sc;
       CLOCK_Stop(clok);
-
-      /* compute the number of cells in matrix computed */
-      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
-      result->total_cells  = (Q+1) * (T+1);
 
       #if DEBUG
       {
@@ -1110,10 +1125,10 @@ void WORK_cloud_search( WORKER* worker )
                                     times->lin_merge     + times->lin_reorient   +
                                     times->lin_bound_fwd + times->lin_bound_bck;
    }
-
-   /* bounded backward */
-   if ( tasks->lin_bound_bck ) {
-      printf_vall("# ==> bound backward (lin)...\n");
+   /* linear bounded backward */
+   if ( tasks->lin_bound_bck ) 
+   {
+      printf_vall("# ==> bound backward (linear)...\n");
       CLOCK_Start(clok);
       run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
       scores->lin_bound_bck = sc;
@@ -1133,8 +1148,66 @@ void WORK_cloud_search( WORKER* worker )
       DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
 
+   /* if performing sparse fb-pruner, initialize sparse matrix */
+   if (tasks->sparse_bound_fwd || tasks->sparse_bound_bck)
+   {
+      MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
+      MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
+   }
+
+   /* sparse bounded forward */
+   if ( tasks->sparse_bound_fwd ) 
+   {
+      printf_vall("# ==> bound forward (sparse)...\n");
+      CLOCK_Start(clok);
+      run_Bound_Forward_Sparse( q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, &sc );
+      scores->lin_bound_fwd = sc;
+      CLOCK_Stop(clok);
+
+      /* compute the number of cells in matrix computed */
+      result->cloud_cells = EDGEBOUNDS_Count( edg_row );
+      result->total_cells  = (Q+1) * (T+1);
+
+      #if DEBUG
+      {
+         printf("# printing linear bound forward...\n");
+         printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
+         printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
+         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_fwd.lin.viz.mx");
+      }
+      #endif
+      times->sp_bound_fwd        = CLOCK_Secs(clok);
+      t_times->sp_bound_fwd      += times->lin_bound_fwd;
+      scores->sparse_bound_fwd   = sc;
+
+      times->sp_fbpruner_total   =  times->lin_cloud_fwd + times->lin_cloud_bck  + 
+                                    times->lin_merge     + times->lin_reorient   +
+                                    times->sp_bound_fwd + times->sp_bound_bck;
+   }
+   /* sparse bounded backward */
+   if ( tasks->sparse_bound_bck ) 
+   {
+      printf_vall("# ==> bound backward (sparse)...\n");
+      CLOCK_Start(clok);
+      run_Bound_Backward_Sparse( q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg_row, &sc );
+      scores->sparse_bound_bck = sc;
+      CLOCK_Stop(clok);
+      #if DEBUG
+      {
+         printf_vall("# printing linear bound backward...\n");
+         printf("# lin bound backward: %f\n", scores->lin_bound_bck );
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_bck.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
+      }
+      #endif
+      times->sp_bound_bck        = CLOCK_Secs(clok);
+      scores->sparse_bound_bck   = sc;
+   }
+
    /* if performing quadratic bounded forward or backward  */
-   if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) {
+   if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) 
+   {
       /* cloud forward */
       CLOCK_Start(clok);
       run_Cloud_Forward_Quad( 
@@ -1161,9 +1234,9 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       times->quad_merge = CLOCK_Secs(clok);
    }
-
-   /* bounded forward */
-   if ( tasks->quad_bound_fwd ) {
+   /* quadratic bounded forward */
+   if ( tasks->quad_bound_fwd ) 
+   {
       printf_vall("# ==> bound forward (quad)...\n");
       CLOCK_Start(clok);
       run_Bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
@@ -1175,8 +1248,9 @@ void WORK_cloud_search( WORKER* worker )
                                        times->quad_merge       +
                                        times->quad_bound_fwd   + times->quad_bound_bck;
    }
-   /* bounded backward */
-   if ( tasks->quad_bound_bck ) {
+   /* quadratic bounded backward */
+   if ( tasks->quad_bound_bck ) 
+   {
       printf_vall("# ==> bound backward (quad)...\n");
       CLOCK_Start(clok);
       run_Bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
@@ -1184,12 +1258,6 @@ void WORK_cloud_search( WORKER* worker )
       times->quad_bound_bck   = CLOCK_Secs(clok);
       scores->quad_bound_bck  = sc;
    }
-}
-
-/* posterior */
-void WORK_posterior( WORKER* worker )
-{
-   
 }
 
 /* use sparse matrix to cover alignment */
@@ -1259,28 +1327,10 @@ void WORK_capture_alignment( WORKER* worker )
    }
    #endif
 
-   /* sum forward and backward */
-   MATRIX_3D_SPARSE_Add( worker->st_SMX_fwd, worker->st_SMX_bck, worker->st_SMX );
-   MATRIX_2D_Add( worker->sp_MX_fwd, worker->sp_MX_bck, worker->sp_MX );
-   #if DEBUG
-   {
-      printf("# printing sparse bound max posterior...\n");
-      MATRIX_3D_Clean( debugger->test_MX );
-      MATRIX_3D_SPARSE_Embed( worker->st_SMX_fwd, debugger->test_MX );
-      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_maxpost.sparse.mx" );
-   }
-   #endif
-
    /* Recover alignment */
-   // run_Posterior_Traceback_Sparse( 
+   // run_Posterior_Sparse( 
    //    q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
    // ALIGNMENT_Dump(worker->trace_post, stdout);
-
-   /* temp */
-   // run_Viterbi_Quad( 
-   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, &sc );
-   // run_Traceback_Quad( 
-   //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_MX, worker->sp_MX, worker->traceback );
 
    /* generate alignments */
    // ALIGNMENT_Build_MMSEQS_Style( 
@@ -1296,6 +1346,7 @@ void WORK_convert_scores( WORKER* worker )
    HMM_PROFILE*   t_prof   = worker->t_prof;
    SEQUENCE*      q_seq    = worker->q_seq;
    RESULT*        result   = worker->result;
+   TASKS*         tasks    = worker->tasks;
 
    int   T           = worker->t_prof->N;
    int   Q           = worker->q_seq->N;
@@ -1333,27 +1384,15 @@ void WORK_convert_scores( WORKER* worker )
    {
       /* Find domains and assesses domain-specific correction bias */
       /* see p7_domaindef_ByPosteriorHeuristics() */
-      run_Posterior_Quad(
-         worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-         worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
-         worker->dom_def );
-      
-      // run_Posterior_Sparse(
+      // run_Posterior_Quad(
       //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-      //    worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
+      //    worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
       //    worker->dom_def );
 
-      #if DEBUG 
-      {
-         FILE* fpout; 
-         fpout = fopen("test_output/my.posterior.mx", "w");
-         DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-         fclose(fpout);
-         fpout = fopen("test_output/my.posterior.log.mx", "w");
-         DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-         fclose(fpout);
-      }
-      #endif
+      run_Posterior_Sparse(
+         worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+         worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
+         worker->dom_def );
       
       /* compute sequence bias */
       seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);

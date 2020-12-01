@@ -104,8 +104,7 @@ float logsum( float     x,
           max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
 }
 
-/*
- *  FUNCTION:  logsum_exact()
+/*  FUNCTION:  logsum_exact()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (exact).
  *             Slower than logsum().
  */
@@ -114,6 +113,30 @@ float logsum_exact( float  x,
                     float  y )
 {
    return log( exp(x) + exp(y) );
+}
+
+/*  FUNCTION:  logprod()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.
+ */
+inline
+float logprod( float  x,
+               float  y )
+{
+   float max, min;
+
+   if (x > y)
+   {
+      max = x;
+      min = y;
+   }
+   else
+   {
+      max = y;
+      min = x;
+   }
+
+   return (min == -INF ) ?
+          max : min + max;
 }
 
 /*

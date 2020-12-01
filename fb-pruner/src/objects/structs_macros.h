@@ -195,13 +195,13 @@
 
 /* special state */
 #define XMX(st, q_0)          	MX_2D( sp_MX, st, q_0)
-#define XMX_X(mx, st, q_0)       MX_2D( mx, st, q_0)
+#define XMX_X(mx, st, q_0)      MX_2D( mx, st, q_0)
 
 /* === TRANSITION SCORE, SPECIAL TRANSITION SCORE, MATCH SCORE, INSERT SCORE MACROS === */
 /* target hmm profile functions */
-#define TSC(t_0, tr)            	( target->hmm_model[t_0].trans[tr] )
+#define TSC(t_0, tr)            ( target->hmm_model[t_0].trans[tr] )
 #define XSC(sp, tr)            	( target->bg_model->spec[sp][tr] )
-#define MSC(t_0, A)             	( target->hmm_model[t_0].match[A] )
+#define MSC(t_0, A)             ( target->hmm_model[t_0].match[A] )
 #define ISC(t_0, A)            	( target->hmm_model[t_0].insert[A] )
 /* generic hmm profile functions */
 #define TSC_X(prof, t_0, tr)   	( prof->hmm_model[t_0].trans[tr] )
@@ -234,7 +234,7 @@
 /* === SIMD VECTORIZATION FUNCTIONS === */
 #if ( SIMD_METHOD == SIMD_SSE )
 	#define VECTOR_WIDTH 	128
-	typedef __m128i 			__VECTOR_INT;
+	typedef __m128i 		__VECTOR_INT;
 	typedef __m128 			__VECTOR_FLT;	
 	typedef __m128d			__VECTOR_DBL;
 #endif

@@ -62,6 +62,12 @@ float logdiff( float  x,
 float logsum_exact( float  x, 
                     float  y );
 
+/*  FUNCTION:  logprod()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.
+ */
+float logprod( float  x,
+               float  y );
+
 /*
  *  FUNCTION:  logsum_Dump()
  *  SYNOPSIS:  Output LOGSUM_LOOKUP table to file.

@@ -39,75 +39,76 @@ WORKER_Create()
    /* set all pointers null */
    worker->args         = NULL;
    worker->tasks        = NULL;
-
    /* file pointers are all initially NULL */
    worker->output_fp    = NULL;
    worker->tblout_fp    = NULL;
    worker->m8out_fp     = NULL;
    worker->myout_fp     = NULL;
-
+   /* file locations */
    worker->t_file       = NULL;
    worker->q_file       = NULL;
-
-   worker->t_seq        = NULL;
-   worker->t_prof       = NULL;
-   worker->q_seq        = NULL;
-
+   /* file index locations */
    worker->t_index      = NULL;
    worker->q_index      = NULL;
-
+   /* query and target structs */
    worker->q_seq        = NULL;
-
+   worker->t_seq        = NULL;
+   worker->t_prof       = NULL;
+   worker->hmm_bg       = NULL;
+   /* edgebounds */
    worker->edg_fwd      = NULL;
    worker->edg_bck      = NULL;
    worker->edg_diag     = NULL;
    worker->edg_row      = NULL;
-
-   worker->dom_def      = NULL;
-
    worker->edg_rows_tmp = NULL;
-
+   /* domain definitions */
+   worker->dom_def      = NULL;
+   /* tracebacks */
+   worker->traceback    = NULL;
+   worker->trace_post   = NULL;
+   /* left and right bound vectors for cloud search */
    for ( int i = 0; i < 3; i++ ) 
    {
       worker->lb_vec[i] = NULL;
       worker->rb_vec[i] = NULL;
    }
-
-   worker->traceback    = NULL;
-
-   worker->st_MX        = NULL;
+   /* quadratic space dp matrices */
+   worker->st_MX;
+   worker->st_MX_fwd    = NULL;
+   worker->st_MX_bck    = NULL;
+   /* linear space dp matrices */
    worker->st_MX3       = NULL;
-
+   worker->st_MX3_fwd   = NULL;
+   worker->st_MX3_bck   = NULL;
+   /* sparse dp matrices */
+   worker->st_SMX       = NULL;
+   worker->st_SMX_fwd   = NULL;
+   worker->st_SMX_bck   = NULL;
+   /* special state matrices */
    worker->sp_MX        = NULL;
    worker->sp_MX_fwd    = NULL;
    worker->sp_MX_bck    = NULL;
-
+   /* times */
    worker->times        = NULL;
    worker->times_raw    = NULL;
-
+   /* results */
    worker->results      = NULL;
    worker->results_in   = NULL;
    worker->result       = NULL;
-
-   worker->dom_def      = NULL;
-
+   /* number searches */
    worker->num_searches = 0;
-
    /* create complex data structs */
    worker->clok         = CLOCK_Create();
-
    /* malloc all basic data structures */
    worker->tasks        = (TASKS*) ERROR_malloc( sizeof(TASKS) );
    worker->times        = (TIMES*) ERROR_malloc( sizeof(TIMES) );
    worker->times_totals = (TIMES*) ERROR_malloc( sizeof(TIMES) );
    worker->scores       = (NAT_SCORES*) ERROR_malloc( sizeof(NAT_SCORES) );
-
    /* initialize all values to zero */
    memset( worker->tasks, 0, sizeof(TASKS) ); 
    memset( worker->times, 0, sizeof(TIMES) );
    memset( worker->times_totals, 0, sizeof(TIMES) );
    memset( worker->scores, 0, sizeof(NAT_SCORES ) );
-
    /* get start time */
    worker->times->program_start = CLOCK_Get_RealTime();
 
@@ -141,23 +142,22 @@ WORKER_Create_Threads(  WORKER*  worker,
 }
 
 /** FUNCTION:  WORKER_Destroy()
- *  SYNOPSIS:  Frees WORKER object and returns pointer.
+ *  SYNOPSIS:  Frees WORKER object and returns NULL pointer.
  */
 void* 
 WORKER_Destroy( WORKER* worker )
 {
    if (worker == NULL) return worker;
 
-   ARGS_Destroy( worker->args );
-   worker->args = NULL;
-
    worker->clok = CLOCK_Destroy( worker->clok );
 
-   ERROR_free( worker->tasks );
-   ERROR_free( worker->times );
-   ERROR_free( worker->times_totals );
-   ERROR_free( worker->scores );
+   worker->tasks = ERROR_free( worker->tasks );
+   worker->times = ERROR_free( worker->times );
+   worker->times_totals = ERROR_free( worker->times_totals );
+   worker->scores = ERROR_free( worker->scores );
 
-   worker = ERROR_free( worker );
+   args     = ARGS_Destroy( worker->args );
+   worker   = ERROR_free( worker );
+   
    return worker;
 }

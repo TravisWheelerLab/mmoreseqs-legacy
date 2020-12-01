@@ -437,24 +437,24 @@ typedef struct {
 /** 3-dimensional sparse float matrix */
 typedef struct {
    /* dimensions */
-   int            D1;          /* number of rows = length of query */
-   int            D2;          /* number of columns = length of target  */
-   int            D3;          /* number of 3rd dim = number of normal states */
+   int            D1;            /* number of rows = length of query */
+   int            D2;            /* number of columns = length of target  */
+   int            D3;            /* number of 3rd dim = number of normal states */
    /* flat dimension and allocated size */
-   int            N;          /* number of cells in sparse matrix */
-   int            Nalloc;     /* number of total cells alloc'd */
+   int            N;             /* number of cells in sparse matrix */
+   int            Nalloc;        /* number of total cells alloc'd */
    /* definitions of inner and outer edge boundaries */
-   EDGEBOUNDS*    edg_inner;  /* edgebounds which describe of active cells of sparse matrix */
-   EDGEBOUNDS*    edg_outer;  /* edgebounds which describe the shape of sparse matrix */
+   EDGEBOUNDS*    edg_inner;     /* edgebounds which describe of active cells of sparse matrix */
+   EDGEBOUNDS*    edg_outer;     /* edgebounds which describe the shape of sparse matrix */
    /* offset to starts of each inner edgebound ranges (plus upper and lower rows) */
-   VECTOR_INT*    imap_prv;    /* maps edg_inner to offsets into data, at previous row */
-   VECTOR_INT*    imap_cur;    /* maps edg_inner to offsets into data, at current row */
-   VECTOR_INT*    imap_nxt;    /* maps edg_inner to offsets into data, at next row */
+   VECTOR_INT*    imap_prv;      /* maps edg_inner to offsets into data, at previous row */
+   VECTOR_INT*    imap_cur;      /* maps edg_inner to offsets into data, at current row */
+   VECTOR_INT*    imap_nxt;      /* maps edg_inner to offsets into data, at next row */
    /* offset to starts of each outer edgebound ranges */
-   VECTOR_INT*    omap_cur;  /* maps edg_outer to offsets into data */
+   VECTOR_INT*    omap_cur;      /* maps edg_outer to offsets into data */
    /* cell data */
-   VECTOR_FLT*    data;       /* matrix cells */
-   bool           clean;      /* whether data has been cleared / all cells set to -INF */
+   VECTOR_FLT*    data;          /* matrix cells */
+   bool           clean;         /* whether data has been cleared / all cells set to -INF */
 } MATRIX_3D_SPARSE;
 
 /** full  */

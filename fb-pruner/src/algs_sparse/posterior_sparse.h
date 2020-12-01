@@ -80,6 +80,8 @@ run_Null2_ByExpectation_Sparse( SEQUENCE*            query,            /* query 
                                 HMM_PROFILE*         target,           /* target hmm model */
                                 int                  Q,                /* query length */
                                 int                  T,                /* target length */
+                                RANGE*               Q_range,          /* query span of bounds */
+                                RANGE*               T_range,          /* target span of bounds */
                                 EDGEBOUNDS*          edg,              /* edgebounds */
                                 MATRIX_3D_SPARSE*    st_MX_post,       /* posterior normal matrix */
                                 MATRIX_2D*           sp_MX_post,       /* posterior special matrix */

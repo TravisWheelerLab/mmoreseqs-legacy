@@ -305,7 +305,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       le_0 = MAX( beg->q_0, d_0 - T );
       re_0 = le_0 + num_cells;
 
-      /* Prune bounds */
+      /* Macro-controlled - Bounds pruning method */
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
@@ -346,13 +346,13 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
 
          bnd_new = (BOUND){d_0, lb_0, rb_0};
 
+         /* macro-controlled: how to store cloud -> antidiag or row-wise */
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
             /* add new bounds to edgebounds as antidiag-wise */
             EDGEBOUNDS_Pushback( edg, &bnd_new );
          }
          #endif
-
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
@@ -600,6 +600,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    {
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp );
+      printf("MAX CLOUD_FWD SCORE: %f, LIMIT: %f\n", total_max, total_limit);
    }
    #endif 
 
@@ -801,16 +802,18 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
 
    /* TODO: add this edgecheck to all  */
    /* verify that starting points are valid */
-   if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
+   // printf("q_range = {%d,%d}/%d || t_range = {%d,%d}/%d\n");
+   if ( end->q_0 < 0 || end->q_0 > Q || end->t_0 < 0 || end->t_0 > T ) {
       fprintf(stderr, "# ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
       fprintf(stderr, "# Query Length: %d, Target Length: %d\n", Q, T );
-      // exit(EXIT_FAILURE);
+      // ERRORCHECK_exit(EXIT_FAILURE);
    }
-   if ( beg->q_0 > Q ) {
-      beg->q_0 = Q;
+   /* temporary override: this should be handled in pipeline */
+   if ( end->q_0 > Q ) {
+      end->q_0 = Q;
    }
-   if ( beg->t_0 > T ) {
-      beg->t_0 = T;
+   if ( end->t_0 > T ) {
+      end->t_0 = T;
    }
 
    /* We don't want to start on the edge and risk out-of-bounds (go to next match state) */
@@ -1194,6 +1197,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    {
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp );
+      printf("MAX CLOUD_BCK SCORE: %f, LIMIT: %f\n", total_max, total_limit);
    }
    #endif 
 

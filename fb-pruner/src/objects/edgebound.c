@@ -640,7 +640,7 @@ void EDGEBOUNDS_Save(EDGEBOUNDS*  edg,
    FILE *fp;
    fp = fopen(_filename_, "w");
    EDGEBOUNDS_Dump(edg, fp);
-   printf("Saved EDGEBOUNDS to: '%s;'\n", _filename_);
+   printf("Saved EDGEBOUNDS to: '%s'\n", _filename_);
    fclose(fp);
 }
 
@@ -681,7 +681,7 @@ int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
  *  FUNCTION: EDGEBOUNDS_Count()
  *  SYNOPSIS: Count the number of cells in edgebound.
  */
-int EDGEBOUNDS_Count(EDGEBOUNDS*    edg)
+int EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
 {
    int sum = 0;
    for (int i = 0; i < edg->N; i++)
@@ -695,7 +695,7 @@ int EDGEBOUNDS_Count(EDGEBOUNDS*    edg)
  *  FUNCTION: EDGEBOUNDS_Validate()
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
  */
-int EDGEBOUNDS_Validate(EDGEBOUNDS *edg)
+int EDGEBOUNDS_Validate(EDGEBOUNDS*  edg)
 {
    bool     valid = true;
    BOUND*   bnd   = NULL;

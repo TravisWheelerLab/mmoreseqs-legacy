@@ -1,6 +1,0 @@
->>    ERROR occurred on mmseqs results (1).  <query> was out-of-bounds. Target_size = 15, Query_size = 29
-      { test1_1 test1_2 0.000 12 0 0 8 14 4 14 4.200e-07 7 }
-      MMseqs coords: (8,4)=>(18,14) || Adjusted coords: (8,4)=>(14,14)
->>    ERROR occurred on mmseqs results (2). <target> <query> was out-of-bounds. Target_size = 15, Query_size = 29
-      { test1_1 test1_2 0.000 12 0 0 4 14 8 28 4.200e-07 7 }
-      MMseqs coords: (4,8)=>(30,30) || Adjusted coords: (4,8)=>(14,28)

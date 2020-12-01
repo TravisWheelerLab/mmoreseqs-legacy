@@ -63,20 +63,24 @@ mmseqs_pipeline( WORKER* worker )
    /* set flags for pipeline tasks */
    /* TASKS */
    {
+      /* sparse algs */
+      tasks->sparse           = true;
+      tasks->sparse_bound_fwd = true;
+      tasks->sparse_bound_bck = true;
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
       tasks->lin_fwd          = true;     /* optional, but can't recover alignment */
       tasks->lin_bck          = true;     /* optional, but can't recover alignment */
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
-      tasks->lin_bound_fwd    = true;     
-      tasks->lin_bound_bck    = true;
+      tasks->lin_bound_fwd    = true;     /* */  
+      tasks->lin_bound_bck    = true;     /* */
       /* quadratic algs */
-      tasks->quadratic        = true;     /* if any other quadratic tasks are flagged, this must be too */
+      tasks->quadratic        = false;    /* if any other quadratic tasks are flagged, this must be too */
       tasks->quad_fwd         = false;    /* optional */
       tasks->quad_bck         = false;    /* optional */
-      tasks->quad_vit         = true;     /* viterbi required for cloud search */
-      tasks->quad_trace       = true;     /* traceback required for cloud search  */
+      tasks->quad_vit         = false;    /* viterbi required for cloud search */
+      tasks->quad_trace       = false;    /* traceback required for cloud search  */
       tasks->quad_bound_fwd   = false;    /* required step of cloud search */
       tasks->quad_bound_bck   = false;    /* optional */
    }
@@ -135,10 +139,11 @@ mmseqs_pipeline( WORKER* worker )
       }
 
       /* name from results */
+      int pad     = -40;
       t_name      = result_in->target_name;
       q_name      = result_in->query_name;
-      printf_vhi("# T_NAME:\t %-35s => %-35s\n", t_name, t_name_prv );
-      printf_vhi("# Q_NAME:\t %-35s => %-35s\n", q_name, q_name_prv );
+      printf_vhi("# T_NAME:  [cur] %*s =>  [prv] %*s\n", pad, t_name, pad, t_name_prv );
+      printf_vhi("# Q_NAME:  [cur] %*s =>  [prv] %*s\n", pad, q_name, pad, q_name_prv );
 
       /* find target/query in index and load from database */
       if ( STRING_Equal( t_name, t_name_prv ) == false ) {
@@ -159,6 +164,15 @@ mmseqs_pipeline( WORKER* worker )
 
       /* clear old data and change sizes of data structs */
       WORK_reuse( worker );
+
+      /* get search window from mmseqs results */
+      ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
+      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
+      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
+      tr->beg = 0;
+      tr->end = 1;
+      printf_vhi("DIM:: TARGET: {%d}, QUERY: {%d}\n", worker->q_seq->N, worker->t_prof->N );
+      printf_vhi("VIT_TRACEBACK:: {%6d,%6d}->{%6d,%6d}\n", result_in->target_start, result_in->query_start, result_in->target_end, result_in->query_end );
 
       // #if DEBUG
       // {
@@ -233,15 +247,6 @@ mmseqs_pipeline( WORKER* worker )
       //    // }
       // }
 
-
-      /* get search window from mmseqs results */
-      ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
-      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
-      ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
-      tr->beg = 0;
-      tr->end = 1;
-
-      // WORK_forward_backward( worker );
       /* run cloud search */
       WORK_cloud_search( worker );
       /* capture alignment */

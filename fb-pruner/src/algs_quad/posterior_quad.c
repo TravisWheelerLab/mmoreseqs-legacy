@@ -49,7 +49,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
                      MATRIX_2D*     sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
                      DOMAIN_DEF*    dom_def )         /* OUTPUT: domain data */
 {
-   printf("=== POSTERIOR HEURISTICS ===\n");
+   printf("=== POSTERIOR HEURISTICS (quad) ===\n");
    // printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, rt3=%6.3f\n",
    //    dom_def->rt1, dom_def->rt2, dom_def->rt3 );
    
@@ -87,7 +87,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    Q_size = Q_range.end - Q_range.beg;
    T_size = T_range.end - T_range.beg;
 
-   printf("Q: %d {%d,%d}, T: %d {%d,%d}\n", 
+   printf("BOUNDING BOX => Q: %d {%d,%d}, T: %d {%d,%d}\n", 
       Q, Q_range.beg, Q_range.end, T, T_range.beg, T_range.end );
 
    /* temporary override */
@@ -97,7 +97,6 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    // T_range.end = T;
    // printf_vhi("Q: %d {%d,%d}, T: %d {%d,%d}\n", 
    //    Q, Q_range.beg, Q_range.end, T, T_range.beg, T_range.end );
-
    
    /* resize special states */
    // MATRIX_2D_Reuse( sp_MX_fwd, NUM_SPECIAL_STATES, Q + 1 ); 
@@ -127,7 +126,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    // DP_MATRIX_Dump(Q, T, st_MX_bck, sp_MX_bck, stdout);
    // fclose(fp);
 
-   /* constrain sequence and profile */
+   /* constrain sequence and profile to bounding range */
    SEQUENCE_SetSubseq( q_seq, Q_range.beg, Q_range.end );
    HMM_PROFILE_SetSubmodel( t_prof, T_range.beg, T_range.end ); 
    HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
@@ -141,9 +140,9 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    MATRIX_3D_Reuse( st_MX_bck, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
    MATRIX_3D_Reuse( st_MX_post, NUM_NORMAL_STATES, Q_size + 1, T_size + 1 );
    /* clear previous data */
-   // MATRIX_3D_Fill( st_MX_fwd, -INF );
-   // MATRIX_3D_Fill( st_MX_bck, -INF );
-   // MATRIX_3D_Fill( st_MX_post, -INF );
+   MATRIX_3D_Fill( st_MX_fwd, -INF );
+   MATRIX_3D_Fill( st_MX_bck, -INF );
+   MATRIX_3D_Fill( st_MX_post, -INF );
 
    /* run forward/backward on entire of profile/sequence */
    fprintf(stdout, "# ==> Ranged Forward\n");
@@ -152,6 +151,13 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    fprintf(stdout, "# ==> Ranged Backward\n");
    run_Backward_Quad(
       q_seq, t_prof, Q_size, T_size, st_MX_bck, sp_MX_bck, &sc_bck_rng );
+
+   #if DEBUG
+   {
+      DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, "test_output/ranged_fwd.mx");
+      DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, "test_output/ranged_bck.mx");
+   }
+   #endif
 
    /** TODO: fix Ranged functions */
    /* run ranged forward and backward */
@@ -162,13 +168,8 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    // run_Ranged_Backward_Quad( 
    //       q_seq, t_prof, &Q_range, &T_range, st_MX_bck, sp_MX_bck, &sc_bck_rng );
 
-   // fp = fopen("fwd_rng.mx", "w+");
-   // DP_MATRIX_Dump(Q_size, T_size, st_MX_fwd, sp_MX_fwd, stdout);
-   // fclose(fp);
-   // fp = fopen("bck_rng.mx", "w+");
-   // DP_MATRIX_Dump(Q_size, T_size, st_MX_bck, sp_MX_bck, stdout);
-   // fclose(fp);
 
+   fprintf(stdout, ">> FULL vs RANGED:\n");
    fprintf(stdout, "# fwd score: (full) %7.3f, (ranged) %7.3f\n", sc_fwd_full, sc_fwd_rng);
    fprintf(stdout, "# bck score: (full) %7.3f, (ranged) %7.3f\n", sc_bck_full, sc_bck_rng);
 
@@ -189,15 +190,19 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    }
    #endif
    
+   float seq_bias_old, seq_bias_new;
+   seq_bias_old = seq_bias_new = 0.0f;
    /* run Null2 Score to compute Composition Bias */
-   fprintf(stdout, "# ==> Null2 Compo Bias OLD\n");
-   run_Null2_ByExpectation_Quad_Old( q_seq, t_prof, Q, T, 
-         st_MX_post, sp_MX_post, dom_def );
-   float seq_bias_old = dom_def->seq_bias;
+   // fprintf(stdout, "# ==> Null2 Compo Bias OLD\n");
+   // run_Null2_ByExpectation_Quad_Old( q_seq, t_prof, Q, T, 
+   //       st_MX_post, sp_MX_post, dom_def );
+   // seq_bias_old = dom_def->seq_bias;
+
    fprintf(stdout, "# ==> Null2 Compo Bias\n");
    run_Null2_ByExpectation_Quad( q_seq, t_prof, Q, T, &Q_range, &T_range, 
          st_MX_post, sp_MX_post, dom_def );
-   float seq_bias_new = dom_def->seq_bias;
+   seq_bias_new = dom_def->seq_bias;
+
    fprintf(stdout, "seq_bias: %f %f\n", seq_bias_old, seq_bias_new);
 
    fprintf(stdout, "# ==> Posterior (end)\n");
@@ -252,6 +257,7 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
    float    mmx, imx, dmx, smx;
    float    mmx_, imx_, dmx_, smx_;
 
+
    overall_sc  =  XMX_X( sp_MX_fwd, SP_C, Q ) + 
                   XSC_X(t_prof, SP_C, SP_MOVE);
    printf("overall_sc: %f %f ==> %f\n", 
@@ -282,7 +288,7 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
 
       MMX_X(st_MX_post, q_0, t_0) = 0.0;
       IMX_X(st_MX_post, q_0, t_0) = 0.0;
-      DMX_X(st_MX_post, q_0, t_0) = 0.0; 
+      DMX_X(st_MX_post, q_0, t_0) = 0.0;
 
       /* every position in target */
       for ( t_0 = 1; t_0 < T; t_0++ )
@@ -293,7 +299,6 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
          mmx = MMX_X(st_MX_fwd, q_0, t_0) + 
                MMX_X(st_MX_bck, q_0, t_0) - 
                overall_sc;
-
          mmx_ = expf(mmx);
          MMX_X(st_MX_post, q_0, t_0) = expf(mmx);
          denom += MMX_X(st_MX_post, q_0, t_0);
@@ -301,8 +306,8 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
          imx = IMX_X(st_MX_fwd, q_0, t_0) + 
                IMX_X(st_MX_bck, q_0, t_0) - 
                overall_sc;
-         imx_ = exp(imx);
-         IMX_X(st_MX_post, q_0, t_0) = exp(imx);
+         imx_ = expf(imx);
+         IMX_X(st_MX_post, q_0, t_0) = expf(imx);
          denom += IMX_X(st_MX_post, q_0, t_0);
          
          DMX_X(st_MX_post, q_0, t_0) = 0.0;
@@ -316,7 +321,8 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
       mmx = MMX_X(st_MX_fwd, q_0, t_0) + 
             MMX_X(st_MX_bck, q_0, t_0) -
             overall_sc;
-      MMX_X(st_MX_post, q_0, t_0) = exp(mmx);
+      mmx_ = expf(mmx);
+      MMX_X(st_MX_post, q_0, t_0) = expf(mmx);
       denom += MMX_X(st_MX_post, q_0, t_0);
 
       IMX_X(st_MX_post, q_0, t_0) = 0.0;
@@ -330,19 +336,22 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
             XMX_X(sp_MX_bck, SP_N, q_0) +
             XSC_X(t_prof, SP_N, SP_LOOP) -
             overall_sc;
-      XMX_X(sp_MX_post, SP_N, q_0) = exp(smx);
+      smx_ = expf(smx);
+      XMX_X(sp_MX_post, SP_N, q_0) = expf(smx);
 
       smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
             XMX_X(sp_MX_bck, SP_J, q_0) +
             XSC_X(t_prof, SP_J, SP_LOOP) -
             overall_sc;
-      XMX_X(sp_MX_post, SP_J, q_0) = exp(smx);
+      smx_ = expf(smx);
+      XMX_X(sp_MX_post, SP_J, q_0) = expf(smx);
 
       smx = XMX_X(sp_MX_fwd, SP_C, q_1) +
             XMX_X(sp_MX_bck, SP_C, q_0) +
             XSC_X(t_prof, SP_C, SP_LOOP) -
             overall_sc;
-      XMX_X(sp_MX_post, SP_C, q_0) = exp(smx);
+      smx_ = expf(smx);
+      XMX_X(sp_MX_post, SP_C, q_0) = expf(smx);
 
       denom += XMX_X(sp_MX_post, SP_N, q_0) + 
                XMX_X(sp_MX_post, SP_J, q_0) + 
@@ -355,9 +364,9 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
          IMX_X(st_MX_post, q_0, t_0) *= denom;
       }
       MMX_X(st_MX_post, q_0, T) *= denom;
-      XMX_X(sp_MX_post, SP_N, t_0) *= denom; 
-      XMX_X(sp_MX_post, SP_J, t_0) *= denom; 
-      XMX_X(sp_MX_post, SP_C, t_0) *= denom;
+      XMX_X(sp_MX_post, SP_N, q_0) *= denom; 
+      XMX_X(sp_MX_post, SP_J, q_0) *= denom; 
+      XMX_X(sp_MX_post, SP_C, q_0) *= denom;
    }
    // printf("==> POSTERIOR:\n");
    // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout );
@@ -440,7 +449,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
                                  MATRIX_2D*        sp_MX_post,       /* posterior special matrix */
                                  DOMAIN_DEF*       dom_def )         /* OUTPUT: domain def's null2_sc vector */
 {
-   // printf("=== run_Null2_ByExpectation ===\n");
+   printf("=== run_Null2_ByExpectation (quad) ===\n");
    int      Q_beg, Q_end, Q_len;
    int      T_beg, T_end, T_len;
    int      q_0, t_0; 
@@ -507,6 +516,14 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
       }
       /* for each special state emissions */
       for ( st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
+         /* TODO: fix this error (what causes this?) */
+         if ( isnan( MX_2D( sp_MX_post, st_0, q_0 ) ) ) {
+            fprintf(stderr, "ERROR: nan error at position (q_0,st_0)=(%d,%d).\n", q_0, st_0);
+             MX_2D( sp_MX_post, st_0, q_0 ) = 0.0f;
+         }
+         float tot = VEC_X( dom_def->sp_freq, st_0 ) + MX_2D( sp_MX_post, st_0, q_0 );
+         // if ( st_0 == 1 && q_0 > 1000 && q_0 < 2000 ) 
+         //    printf("(%4d::%4d)=>  %7.4f  +  %7.4f =  %7.4f\n", q_0, st_0, VEC_X( dom_def->sp_freq, st_0 ), MX_2D( sp_MX_post, st_0, q_0 ), tot );
          VEC_X( dom_def->sp_freq, st_0 ) += MX_2D( sp_MX_post, st_0, q_0 );
       }
    }
@@ -584,8 +601,8 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
    x_factor = VEC_X( dom_def->sp_freq, SP_N);
    x_factor = logsum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_C) );
-   x_factor = logsum( x_factor,
-                      VEC_X(dom_def->sp_freq, SP_J) );
+   // x_factor = logsum( x_factor,
+   //                    VEC_X(dom_def->sp_freq, SP_J) );
    
    // printf("<5>\n");
    // printf("xfactor: %f, NCJ: %f %f %f\n", 
@@ -820,7 +837,7 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
    // }
 
    float neglog_Q = -log( (float)q_len );
-   // printf("neglog_Q = %d %f\n", q_len, neglog_Q);
+   printf("neglog_Q = %d %f\n", q_len, neglog_Q);
    /* for each position in query domain */
    for ( t_0 = 0; t_0 <= T; t_0++ ) {
       /* for each normal state emissions */

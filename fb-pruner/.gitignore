@@ -10,6 +10,8 @@
 */test_output/*
 */output/*
 */test-db/*
+*/testing/*
+testing/*
 
 # binary folders
 more-tools/hmmer-test/easel/
