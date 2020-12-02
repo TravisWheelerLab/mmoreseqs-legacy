@@ -245,7 +245,7 @@ void   ARGS_Parse( ARGS*   args,
                i++;
                args->mmseqs_evalue = atof(argv[i]);
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
@@ -253,13 +253,9 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               if ( atoi(argv[i]) == 0 ) {
-                  args->is_compo_bias = false;
-               } else {
-                  args->is_compo_bias = true;
-               }
+               args->is_compo_bias = atof(argv[i]);
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }

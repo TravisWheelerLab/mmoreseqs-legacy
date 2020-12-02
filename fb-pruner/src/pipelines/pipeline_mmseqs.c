@@ -67,6 +67,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->sparse           = true;
       tasks->sparse_bound_fwd = true;
       tasks->sparse_bound_bck = true;
+      tasks->sparse_bias_corr = false;
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
       tasks->lin_fwd          = true;     /* optional, but can't recover alignment */
@@ -83,6 +84,14 @@ mmseqs_pipeline( WORKER* worker )
       tasks->quad_trace       = false;    /* traceback required for cloud search  */
       tasks->quad_bound_fwd   = false;    /* required step of cloud search */
       tasks->quad_bound_bck   = false;    /* optional */
+      tasks->quad_bias_corr   = false;
+   }
+
+   if ( args->is_compo_bias == BIAS_CORR_QUAD ) {
+      tasks->quad_bias_corr = true;
+   } 
+   else if ( args->is_compo_bias == BIAS_CORR_SPARSE ) {
+      tasks->sparse_bias_corr = true;
    }
 
    /* get result range */

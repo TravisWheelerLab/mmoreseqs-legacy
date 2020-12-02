@@ -468,11 +468,13 @@ typedef struct {
    MATRIX_3D_SPARSE*    st_SMX;        /* sparse space normal state matrix */
    /* special state data {ENJCB} */
    MATRIX_2D*           sp_MX;         /* special state matrix */     
+   /* normal matrix type */
+   bool                 is_quad;
+   bool                 is_lin;
+   bool                 is_sparse;
    /* meta data */
-   int                  mx_type;       /* specifies which type of dp_matrix this is */
    int                  data_type;     /* whether dp is in log-scale, normal-scale, etc */
    bool                 clean;         /* if matrix is clean (all cells set to -INF)  */
-   /* */
    float                scaled;        /* if all cells are scaled by a common factor */                
 } DP_MATRIX;
 
@@ -490,7 +492,7 @@ typedef struct {
    char*    tmp_folderpath;         /* location to build a temporary work folder */
    bool     tmp_remove;             /* should temp folder be removed at the end? */
    bool     filter_on;              /* filter thresholds enforced, or let all through? */
-   bool     is_compo_bias;          /* should composition bias filter be applied? */
+   int      is_compo_bias;          /* should composition bias filter be applied? */
 
    /* --- SEARCH/RANGE OPTIONS --- */
    /* type of searches */
@@ -794,6 +796,7 @@ typedef struct {
    bool     quad_trace;          /* traceback of viterbi */
    bool     quad_bound_fwd;      /* bounded forward (requires cloud) */
    bool     quad_bound_bck;      /* bounded backward (requires cloud) */
+   bool     quad_bias_corr;      /* bias correction */
    /* linear algs */
    bool     linear;              /* are we running any linear-space algorithms? */
    bool     lin_fwd;             /* forward-backward */
@@ -810,6 +813,7 @@ typedef struct {
    bool     sparse_trace;        /* traceback of viterbi */
    bool     sparse_bound_fwd;    /* bounded forwarded (requires cloud) */ 
    bool     sparse_bound_bck;    /* bounded backward (requires cloud) */
+   bool     sparse_bias_corr;    /* bias correction */
 } TASKS;
 
 typedef struct {

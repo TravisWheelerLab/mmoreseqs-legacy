@@ -368,8 +368,6 @@ run_Decode_Posterior_Quad( SEQUENCE*         q_seq,            /* query sequence
       XMX_X(sp_MX_post, SP_J, q_0) *= denom; 
       XMX_X(sp_MX_post, SP_C, q_0) *= denom;
    }
-   // printf("==> POSTERIOR:\n");
-   // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout );
 
    return STATUS_SUCCESS;
 }

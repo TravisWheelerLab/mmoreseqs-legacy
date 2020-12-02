@@ -280,4 +280,13 @@ typedef enum {
 } SCORE_TYPES;
 #define NUM_SCORE_TYPES 4
 
+/* types of bias correction */
+typedef enum {
+   BIAS_CORR_NONE,
+   BIAS_CORR_SPARSE,
+   BIAS_CORR_QUAD
+} BIAS_CORR;
+#define NUM_BIAS_CORR 3
+
+
 #endif /* _STRUCTS_ENUMS_H */

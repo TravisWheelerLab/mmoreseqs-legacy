@@ -668,23 +668,29 @@ int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,           /* MATRIX_3D_S
  *  RETURN:    Pointer to <mx> if success.
  *             Returns NULL if fails.
  */
-MATRIX_3D* MATRIX_3D_SPARSE_Embed(  MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
+                                    int                  T,
+                                    MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
                                     MATRIX_3D*           mx )     /* matrix */
 {
-   int         id, t_0, q_0, lb_0, rb_0, qx0, tx0;
+   int         id, lb_0, rb_0;
+   int         q_0, t_0;
+   int         qx0, tx0;
+   int         r_0b, r_0e, r_0;
    EDGEBOUNDS* edg = NULL;
    BOUND*      bnd = NULL;
-   
-   edg = smx->edg_inner;
 
-   // /* resize matrix */
-   // if (mx == NULL) {
-   //    mx = MATRIX_3D_Create( smx->D1, smx->D2, smx->D3 );
-   // }
-   // MATRIX_3D_Reuse( mx, smx->D1, smx->D2, smx->D3 );
+   /* resize embedding matrix to contain sparse matrix */
+   MATRIX_3D_Reuse( mx, NUM_NORMAL_STATES, Q+1, T+1 );
+   MATRIX_3D_Fill(mx, -INF);
+
+   /* edgebounds */ 
+   edg   = smx->edg_inner;
+   r_0b = 0;
+   r_0e = edg->N;
 
    /* iterate through edgebounds */
-   for ( int r_0 = 0; r_0 < edg->N; r_0++ ) 
+   for ( int r_0 = r_0b; r_0 < r_0e; r_0++ ) 
    {
       /* get bound */
       bnd   = &EDG_X(edg, r_0);

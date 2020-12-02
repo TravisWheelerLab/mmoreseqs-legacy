@@ -143,7 +143,9 @@ int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,        /* MATRIX_3D_SPAR
  *  RETURN:    Pointer to <mx> if success.
  *             Returns NULL if fails.
  */
-MATRIX_3D* MATRIX_3D_SPARSE_Embed(  MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
+                                    int                  T,
+                                    MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
                                     MATRIX_3D*           mx );    /* matrix */
 
 /*  FUNCTION:  MATRIX_3D_SPARSE_Dump()

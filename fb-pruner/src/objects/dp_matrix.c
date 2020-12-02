@@ -30,11 +30,18 @@
  *             Most data is left NULL to be supplied by WORK_init().
  */
 DP_MATRIX* 
-DP_MATRIX_Create( int   mx_type )
+DP_MATRIX_Create( bool is_quad, 
+                  bool is_lin,
+                  bool is_sparse )
 {
    DP_MATRIX* dp_mx;
    
    dp_mx = ERROR_malloc( sizeof(DP_MATRIX) );
+
+   /* matrix types */
+   dp_mx->is_quad    = is_quad;
+   dp_mx->is_lin     = is_lin;
+   dp_mx->is_sparse  = is_sparse;
 
    /* build necessary matrices */
    dp_mx->st_MX   = NULL;
@@ -52,7 +59,6 @@ DP_MATRIX_Create( int   mx_type )
    /* default values */
    dp_mx->Q       = 0;
    dp_mx->T       = 0;
-   dp_mx->mx_type = false;
 
    return dp_mx;
 }
@@ -61,10 +67,10 @@ DP_MATRIX_Create( int   mx_type )
  *  SYNOPSIS:  
  */
 DP_MATRIX* 
-DP_MATRIX_GrowTo(    DP_MATRIX*     dp_mx,
-                     int            size )
+DP_MATRIX_Reuse(  DP_MATRIX*     dp_mx,
+                  int            Q,
+                  int            T )
 {
-
 }
 
 /** FUNCTION:  DP_MATRIX_Destroy()

@@ -77,15 +77,41 @@ void logsum_Init()
    }
 }
 
-/*
- *  FUNCTION:  logsum()
+/*! FUNCTION:  logsum()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (approximation).
  *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
  *             LOGSUM_LOOKUP must have been initialized before use.
+ *             Note: This one of the vals x,y = -inf, then other value overrides it.
  */
 inline
 float logsum( float     x,
               float     y )
+{
+   float max, min;
+
+   if (x > y) {
+      max = x;
+      min = y;
+   }
+   else {
+      max = y;
+      min = x;
+   }
+
+   return (min == -INF || (max - min) >= 15.7f) ?
+          max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
+}
+
+/*! FUNCTION:  logsum_post()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (approximation).
+ *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
+ *             LOGSUM_LOOKUP must have been initialized before use.
+ *             Note: If one of the vals x,y = -inf, then other value overrides it.
+ *             Note: Handles
+ */
+inline
+float logsum_post(   float     x,
+                     float     y )
 {
    float max, min;
 
@@ -104,7 +130,7 @@ float logsum( float     x,
           max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
 }
 
-/*  FUNCTION:  logsum_exact()
+/*! FUNCTION:  logsum_exact()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (exact).
  *             Slower than logsum().
  */
@@ -115,14 +141,15 @@ float logsum_exact( float  x,
    return log( exp(x) + exp(y) );
 }
 
-/*  FUNCTION:  logprod()
+/*! FUNCTION:  logprod()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.
+ *             This correctly handles -INF and INF.
  */
 inline
 float logprod( float  x,
                float  y )
 {
-   float max, min;
+   float max, min, ret;
 
    if (x > y)
    {
@@ -134,13 +161,16 @@ float logprod( float  x,
       max = y;
       min = x;
    }
-
-   return (min == -INF ) ?
-          max : min + max;
+   
+   if ( min == -INF ) {
+      return -INF;
+   } 
+   else {
+      return min + max;
+   }
 }
 
-/*
- *  FUNCTION:  logdiff()
+/*! FUNCTION:  logdiff()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real diff (approximation).
  *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
  *             LOGSUM_LOOKUP must have been initialized before use.
@@ -172,8 +202,7 @@ float logdiff( float  x,
           max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
 }
 
-/*
- *  FUNCTION:  logsum_Dump()
+/*! FUNCTION:  logsum_Dump()
  *  SYNOPSIS:  Output LOGSUM_LOOKUP table to file.
  */
 void logsum_Dump( FILE *fp )
@@ -186,8 +215,7 @@ void logsum_Dump( FILE *fp )
    fprintf(fp, "\n\n");
 }
 
-/*
- *  FUNCTION:  negln2real()
+/*! FUNCTION:  negln2real()
  *  SYNOPSIS:  Convert negative natural logarithm probability to real probability.
  */
 float negln2real( float negln_prob )
@@ -196,8 +224,7 @@ float negln2real( float negln_prob )
    return real_prob;
 }
 
-/*
- *  FUNCTION:  real2negln()
+/*! FUNCTION:  real2negln()
  *  SYNOPSIS:  Convert real probabilities to negative natural logarithm probability.
  */
 float real2negln(float real_prob)
@@ -206,8 +233,7 @@ float real2negln(float real_prob)
    return negln_prob;
 }
 
-/*
- *  FUNCTION:  cmp_tol()
+/*! FUNCTION:  cmp_tol()
  *  SYNOPSIS:  Checks whether two floats <a> and <b> are within static tolerance <tol> of eachother.
  *    RETURN:  Returns true if numbers absolute difference is less than tolerance <tol>.
  */
@@ -220,8 +246,7 @@ bool cmp_tol( const float a,
    return ( fabs( a - b ) < tol );
 }
 
-/*
- *  FUNCTION:  cmp_tol()
+/*! FUNCTION:  cmp_tol()
  *  SYNOPSIS:  Checks whether two floats <a> and <b> are within custom tolerance <tol> of eachother.
  *    RETURN:  Returns true if numbers absolute difference is less than tolerance <tol>.
  */
@@ -234,7 +259,7 @@ bool cmp_tol_cust(const float a,
    return ( fabs( a - b ) < tol );
 }
 
-/*  FUNCTION:  my_mkdir()
+/*! FUNCTION:  my_mkdir()
  *  SYNOPSIS:  Make directory.
  *    RETURN:  Returns <STATUS_SUCCESS> on success.
  */
@@ -243,7 +268,7 @@ int my_mkdir( const char* folderpath )
     return STATUS_SUCCESS;
 }
   
-/*  FUNCTION:  my_delay()
+/*! FUNCTION:  my_delay()
  *  SYNOPSIS:  Hold for given number of <secs>
  */
 void my_delay( int milli_seconds ) 

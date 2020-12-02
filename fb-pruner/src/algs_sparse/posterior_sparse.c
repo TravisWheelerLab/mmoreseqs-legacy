@@ -83,22 +83,24 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    Q_size = Q_range.end - Q_range.beg;
    T_size = T_range.end - T_range.beg;
 
+   #if DEBUG 
+   {
+      MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_fwd, debugger->test_MX);
+      DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/sparse_fwd.mx");
+      MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX);
+      DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/sparse_bck.mx");
+   }
+   #endif
+
    /* compute Posterior (forward * backward) */
    fprintf(stdout, "# ==> Posterior\n");
    run_Decode_Posterior_Sparse( q_seq, t_prof, Q, T, edg,
          st_SMX_fwd, sp_MX_fwd, st_SMX_bck, sp_MX_bck, st_SMX_post, sp_MX_post );
    
    #if DEBUG 
-   {
-      MATRIX_3D_SPARSE_Embed(st_SMX_post, debugger->test_MX);
-      DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_post, "test_output/sparse_posterior.mx");
-      // FILE* fpout; 
-      // fpout = fopen("test_output/my.posterior.mx", "w");
-      // DP_MATRIX_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      // fclose(fpout);
-      // fpout = fopen("test_output/my.posterior.log.mx", "w");
-      // DP_MATRIX_Log_Dump(Q, T, worker->st_MX_post, worker->sp_MX_post, fpout );
-      // fclose(fpout);
+   { 
+      MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
+      DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_post, "test_output/sparse_post.mx");
    }
    #endif
    
@@ -201,6 +203,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
       for (t_0 = lb_0; t_0 < rb_0; t_0++)
       {
          tx0 = t_0 - bnd->lb;
+         /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
          MSMX_X(st_SMX_post, qx0, tx0) = 0.0;
          ISMX_X(st_SMX_post, qx0, tx0) = 0.0;
          DSMX_X(st_SMX_post, qx0, tx0) = 0.0; 
@@ -237,7 +240,6 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          /* fetch data mapping bound start location to data block in sparse matrix */
          qx0 = VECTOR_INT_Get( st_SMX_fwd->imap_cur, r_0 );    /* (q_0, t_0) location offset */
          qx1 = VECTOR_INT_Get( st_SMX_fwd->imap_prv, r_0 );    /* (q_1, t_0) location offset */
-         // printf("r_0 = %d, qx0 = %d, qx1 = %d\n", r_0, qx0, qx1);
 
          /* initial location for square matrix and mapping to sparse matrix */
          t_0 = lb_0;
@@ -248,7 +250,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          {
             t_0 = lb_0;
             tx0 = t_0 - bnd->lb;
-
+            /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
             MSMX_X(st_SMX_post, qx0, tx0) = 0.0;
             ISMX_X(st_SMX_post, qx0, tx0) = 0.0;
             DSMX_X(st_SMX_post, qx0, tx0) = 0.0; 
@@ -258,25 +260,33 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
 
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         for (t_0 = lb_0 + 1; t_0 < rb_0 - 1; t_0++)
          {
             t_1 = t_0 - 1; 
             tx0 = t_0 - bnd->lb;
             tx1 = tx0 - 1;
-            // printf("t_0 = %d/%d, tx0 = %d ? %d, N = %d\n", t_0, rb_0, tx0, qx0 + tx0, st_SMX_post->data->Nalloc );
 
             /* normal states */
-            mmx = MSMX_X(st_SMX_fwd, qx0, tx0) + 
-                  MSMX_X(st_SMX_bck, qx0, tx0) -
+            /* logprod handles the case in which both are  */
+            mmx = logprod( MSMX_X(st_SMX_fwd, qx0, tx0),
+                           MSMX_X(st_SMX_bck, qx0, tx0) ) -
                   overall_sc;
             mmx_ = expf(mmx);
+            if (mmx_ > 1.0) {
+               printf("M(%d,%d): %9.4f %9.4f => %9.4f %9.4f\n", q_0, t_0,
+                  MSMX_X(st_SMX_fwd, qx0, tx0), MSMX_X(st_SMX_bck, qx0, tx0), mmx, mmx_ );
+            }
             MSMX_X(st_SMX_post, qx0, tx0) = mmx_;
             denom += MSMX_X(st_SMX_post, qx0, tx0);
 
-            imx = ISMX_X(st_SMX_fwd, qx0, tx0) + 
-                  ISMX_X(st_SMX_bck, qx0, tx0) -
+            imx = logprod( ISMX_X(st_SMX_fwd, qx0, tx0), 
+                           ISMX_X(st_SMX_bck, qx0, tx0) ) -
                   overall_sc;
             imx_ = expf(imx);
+            if (imx_ > 1.0) {
+               printf("I(%d,%d): %9.4f %9.4f => %9.4f %9.4f\n", q_0, t_0,
+                  ISMX_X(st_SMX_fwd, qx0, tx0), ISMX_X(st_SMX_bck, qx0, tx0), imx, imx_ );
+            }
             ISMX_X(st_SMX_post, qx0, tx0) = imx_;
             denom += ISMX_X(st_SMX_post, qx0, tx0);
 
@@ -284,7 +294,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          }
 
          /* unrolled loop */
-         if ( rb_T )  
+         if ( rb_T && false )  
          {
             // printf("rb_T\n");
             t_0 = T;
@@ -293,27 +303,20 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
             tx1 = tx0 - 1;
 
             /* normal states */
-            mmx = MSMX_X(st_SMX_fwd, qx0, tx0) + 
-                  MSMX_X(st_SMX_bck, qx0, tx0) -
+            mmx = logprod( MSMX_X(st_SMX_fwd, qx0, tx0), 
+                           MSMX_X(st_SMX_bck, qx0, tx0) ) -
                   overall_sc;
             mmx_ = expf(mmx);
             MSMX_X(st_SMX_post, qx0, tx0) = mmx_;
+            if (mmx_ > 1.0) {
+               printf("M(%d,%d): %9.4f %9.4f => %9.4f %9.4f\n", q_0, t_0,
+                  MSMX_X(st_SMX_fwd, qx0, tx0), MSMX_X(st_SMX_bck, qx0, tx0), mmx, mmx_ );
+            }
             denom += MSMX_X(st_SMX_post, qx0, tx0);
 
             ISMX_X(st_SMX_post, qx0, tx0) = 0.0;
             DSMX_X(st_SMX_post, qx0, tx0) = 0.0;
-
-            /* embed linear row into quadratic test matrix */
-            #if DEBUG
-            {
-               // MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               // MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-               // MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-               // MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
-            }
-            #endif
          }
-
       }
 
       /* special states */
@@ -324,30 +327,18 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
             XMX_X(sp_MX_bck, SP_N, q_0) +
             XSC_X(t_prof, SP_N, SP_LOOP) -
             overall_sc;
-      if (q_0 >= Q - 50 && q_0 < Q) {
-         printf("N(%d): %9.4f %9.4f %9.4f %9.4f\n", 
-            q_0, XMX_X(sp_MX_fwd, SP_N, q_1), XMX_X(sp_MX_bck, SP_N, q_0), smx, expf(smx) );
-      }
       XMX_X(sp_MX_post, SP_N, q_0) = expf(smx);
 
       smx = XMX_X(sp_MX_fwd, SP_J, q_1) +
             XMX_X(sp_MX_bck, SP_J, q_0) +
             XSC_X(t_prof, SP_J, SP_LOOP) -
             overall_sc;
-      if (q_0 >= Q - 50 && q_0 < Q) {
-         printf("J(%d): %9.4f %9.4f %9.4f %9.4f\n", 
-            q_0, XMX_X(sp_MX_fwd, SP_J, q_1), XMX_X(sp_MX_bck, SP_J, q_0), smx, expf(smx) );
-      }
       XMX_X(sp_MX_post, SP_J, q_0) = expf(smx);
 
       smx = XMX_X(sp_MX_fwd, SP_C, q_1) +
             XMX_X(sp_MX_bck, SP_C, q_0) +
             XSC_X(t_prof, SP_C, SP_LOOP) -
             overall_sc;
-      if (q_0 >= Q - 50 && q_0 < Q) {
-         printf("C(%d): %9.4f %9.4f %9.4f %9.4f\n", 
-            q_0, XMX_X(sp_MX_fwd, SP_C, q_1), XMX_X(sp_MX_bck, SP_C, q_0), smx, expf(smx) );
-      }
       XMX_X(sp_MX_post, SP_C, q_0) = expf(smx);
 
       denom += XMX_X(sp_MX_post, SP_N, q_0) + 
@@ -373,25 +364,25 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          t_0 = lb_0;
          tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
 
-         /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0; t_0++)
-         {
-            t_1 = t_0 - 1; 
-            tx0 = t_0 - bnd->lb;
-            tx1 = tx0 - 1;
+         // /* FOR every position in TARGET profile */
+         // for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         // {
+         //    t_1 = t_0 - 1; 
+         //    tx0 = t_0 - bnd->lb;
+         //    tx1 = tx0 - 1;
 
-            // printf("[%2d]: denom :=> %9f\n", q_0, denom);
-            /* normalize by scaling row by common factor denominator */
-            denom = 1.0 / denom;
-            for ( t_0 = 1; t_0 < T; t_0++ ) {
-               MSMX_X(st_SMX_post, qx0, tx0) *= denom;
-               ISMX_X(st_SMX_post, qx0, tx0) *= denom;
-            }
-            MSMX_X(st_SMX_post, q_0, T) *= denom;
-            XMX_X(sp_MX_post, SP_N, q_0) *= denom; 
-            XMX_X(sp_MX_post, SP_J, q_0) *= denom; 
-            XMX_X(sp_MX_post, SP_C, q_0) *= denom;
-         }
+         //    // printf("[%2d]: denom :=> %9f\n", q_0, denom);
+         //    /* normalize by scaling row by common factor denominator */
+         //    denom = 1.0 / denom;
+         //    for ( t_0 = 1; t_0 < T; t_0++ ) {
+         //       MSMX_X(st_SMX_post, qx0, tx0) *= denom;
+         //       ISMX_X(st_SMX_post, qx0, tx0) *= denom;
+         //    }
+         //    MSMX_X(st_SMX_post, q_0, T) *= denom;
+         //    XMX_X(sp_MX_post, SP_N, q_0) *= denom; 
+         //    XMX_X(sp_MX_post, SP_J, q_0) *= denom; 
+         //    XMX_X(sp_MX_post, SP_C, q_0) *= denom;
+         // }
       }
    }
 
@@ -403,10 +394,6 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
          st_SMX_post->data->data[i] = 0.0f;
       }
    }
-
-   // printf("==> POSTERIOR :: posterior\n");
-   // MATRIX_3D_SPARSE_Dump( st_SMX_post, stdout );
-   // MATRIX_2D_Dump( sp_MX_post, stdout );
 
    return STATUS_SUCCESS;
 }
@@ -527,6 +514,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
       VEC_X( dom_def->sp_freq, st_0 ) = 0.0;
    }
 
+   r_0 = r_0b = r_0e = 0;
    /* sum over each position in target model into vectors  */
    /* FOR every position in QUERY sequence (row in matrix) */
    for (q_0 = 1; q_0 <= Q; q_0++)
@@ -607,7 +595,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    }
 
    printf("<4>\n");
-   printf("xfactor: %f, NCJ: %f %f %f\n", 
+   printf("xfactor: %9.4f,  NCJ: %9.4f %9.4f %9.4f\n", 
       x_factor, VEC_X( dom_def->sp_freq, SP_N), VEC_X(dom_def->sp_freq, SP_C), VEC_X(dom_def->sp_freq, SP_J) );
 
    /* x-factor: */
@@ -618,7 +606,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    //                    VEC_X(dom_def->sp_freq, SP_J) );
    
    printf("<5>\n");
-   printf("xfactor: %f, NCJ: %f %f %f\n", 
+   printf("xfactor: %9.4f,  NCJ: %9.4f %9.4f %9.4f\n", 
       x_factor, VEC_X( dom_def->sp_freq, SP_N), VEC_X(dom_def->sp_freq, SP_C), VEC_X(dom_def->sp_freq, SP_J) );
 
    /* initialize null2 vector with logscore */
@@ -631,7 +619,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
 
    printf("<6>\n");
    for (t_0 = 1; t_0 < T; t_0++) {
-      printf("st_freq[%d]: %9.4f %9.4f %9.4f\n", 
+      printf("st_freq[%4d]: %9.4f %9.4f %9.4f\n", 
          t_0, VEC_X(dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST), VEC_X(dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST), VEC_X(dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST) );
    }
 
@@ -655,14 +643,14 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
       /* for each position in model */
       for ( t_0 = 1; t_0 < T; t_0++ ) 
       {
-         if ( VEC_X( dom_def->null2_sc, k_0 ) != -INF ) {
-            printf("(k_0,t_0)= (%3d,%3d) MSC= %9.4f, ISC= %9.4f, NULL2= %9.4f\n",
-               k_0, t_0, 
-               VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST) + MSC_X(target, t_0, k_0),
-               VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST) + ISC_X(target, t_0, k_0),
-               VEC_X( dom_def->null2_sc, k_0 )
-            );
-         }
+         // if ( VEC_X( dom_def->null2_sc, k_0 ) != -INF ) {
+         //    printf("(k_0,t_0)= (%3d,%3d) MSC= %9.4f, ISC= %9.4f, NULL2= %9.4f\n",
+         //       k_0, t_0, 
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST) + MSC_X(target, t_0, k_0),
+         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST) + ISC_X(target, t_0, k_0),
+         //       VEC_X( dom_def->null2_sc, k_0 )
+         //    );
+         // }
 
          VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
                                                    VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST) + MSC_X(target, t_0, k_0) );

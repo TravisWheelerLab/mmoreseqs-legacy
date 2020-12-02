@@ -1384,15 +1384,22 @@ void WORK_convert_scores( WORKER* worker )
    {
       /* Find domains and assesses domain-specific correction bias */
       /* see p7_domaindef_ByPosteriorHeuristics() */
-      // run_Posterior_Quad(
-      //    worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-      //    worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
-      //    worker->dom_def );
 
-      run_Posterior_Sparse(
-         worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-         worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
-         worker->dom_def );
+      if ( tasks->quad_bias_corr == true )
+      {
+         run_Posterior_Quad(
+            worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+            worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
+            worker->dom_def );
+      }
+      if ( tasks->sparse_bias_corr == true )
+      {
+         run_Posterior_Sparse(
+            worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+            worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
+            worker->dom_def );
+      }
+
       
       /* compute sequence bias */
       seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
