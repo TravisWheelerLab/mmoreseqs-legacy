@@ -648,8 +648,9 @@ void EDGEBOUNDS_Save(EDGEBOUNDS*  edg,
  *  FUNCTION: EDGEBOUNDS_Compare()
  *  SYNOPSIS: Compare two EDGEBOUNDS objects.  Return 0 if equal.
  */
-int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
-                        EDGEBOUNDS*    edg_b )
+int 
+EDGEBOUNDS_Compare(  EDGEBOUNDS*    edg_a,
+                     EDGEBOUNDS*    edg_b )
 {
    BOUND* bnd_a;
    BOUND* bnd_b;
@@ -681,7 +682,8 @@ int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
  *  FUNCTION: EDGEBOUNDS_Count()
  *  SYNOPSIS: Count the number of cells in edgebound.
  */
-int EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
+int 
+EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
 {
    int sum = 0;
    for (int i = 0; i < edg->N; i++)
@@ -691,11 +693,11 @@ int EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
    return sum;
 }
 
-/*
- *  FUNCTION: EDGEBOUNDS_Validate()
+/*! FUNCTION: EDGEBOUNDS_Validate()
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
  */
-int EDGEBOUNDS_Validate(EDGEBOUNDS*  edg)
+int 
+EDGEBOUNDS_Validate(EDGEBOUNDS*  edg)
 {
    bool     valid = true;
    BOUND*   bnd   = NULL;
@@ -770,4 +772,28 @@ int EDGEBOUNDS_Validate(EDGEBOUNDS*  edg)
       fprintf(stderr, "matrix dim: (%d,%d), bounds: %d,(%d,%d)\n", edg->Q, edg->T, bnd->id, bnd->lb, bnd->rb);
       exit(EXIT_FAILURE);
    }
+}
+
+/*! FUNCTION: EDGEBOUNDS_Cover_Matrix()
+ *  SYNOPSIS: For testing. Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.
+ */
+void
+EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg, 
+                           int            Q,
+                           int            T )
+{
+   EDGEBOUNDS_Clear(edg);
+   for (int q_0 = 0; q_0 < Q+1; q_0++) {
+      EDGEBOUNDS_Pushback(edg, &(BOUND){q_0,0,T+1});
+   }
+}
+
+/*
+ *  FUNCTION: EDGEBOUNDS_Clear()
+ *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list.
+ */
+void 
+EDGEBOUNDS_Clear( EDGEBOUNDS* edg ) 
+{
+   edg->N = 0;
 }

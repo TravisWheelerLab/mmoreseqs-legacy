@@ -238,4 +238,12 @@ int EDGEBOUNDS_Count(EDGEBOUNDS*    edg);
  */
 int EDGEBOUNDS_Validate(EDGEBOUNDS *edg);
 
+/*! FUNCTION: EDGEBOUNDS_Cover_Matrix()
+ *  SYNOPSIS: For testing. Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.
+ */
+void
+EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg, 
+                           int            Q,
+                           int            T );
+
 #endif /* _EDGEBOUND_H */

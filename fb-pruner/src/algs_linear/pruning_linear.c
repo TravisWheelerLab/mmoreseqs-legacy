@@ -283,21 +283,23 @@ void prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state m
  * 				(4) Stores edgebounds in left and right bound list.
  */
 inline
-void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
-			                            			MATRIX_2D* 		sp_MX,			/* special state matrix */
-				                                	const float     alpha,			/* x-drop value for by-diag prune */
-													const float 	beta, 			/* x-drop value for global prune */
-				                                	const int       gamma,			/* number of antidiagonals before pruning */
-				                                	const int 		d_1,			/* previous antidiagonal */
-				                                	const int 		d_0,			/* current antidiagonal */
-				                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
-				                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
-				                                	const int 		d_cnt, 			/* number of antidiags traversed */
-				                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
-				                                	const int 		re,				/* left edge of dp matrix on current antidiag */
-				                                	float*    		total_max,		/* (UPDATED) current maximum score */
-				                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
-				                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
+void 
+prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
+												MATRIX_2D* 		sp_MX,			/* special state matrix */
+												const float     alpha,			/* x-drop value for by-diag prune */
+												const float 	beta, 			/* x-drop value for global prune */
+												const int       gamma,			/* number of antidiagonals before pruning */
+												const int 		d_1,			/* previous antidiagonal */
+												const int 		d_0,			/* current antidiagonal */
+												const int 		dx1,			/* previous antidiag (mod-mapped) */
+												const int 		dx0, 			/* current antidiag (mod-mapped) */
+												const int 		d_cnt, 			/* number of antidiags traversed */
+												const int 		le, 			/* right edge of dp matrix on current antidiag */
+												const int 		re,				/* left edge of dp matrix on current antidiag */
+												float*    		total_max,		/* (UPDATED) current maximum score */
+												bool* 			is_term_flag, 	/* (UPDATED) if termination trigger has been reached */ 
+												VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
+												VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
 	int 		i, j, k; 					/* indexes */
 	int 		q_0;						/* row index (query position) */
@@ -339,7 +341,10 @@ void prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* norm
 	diag_limit 	= diag_max - alpha;
 
 	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
-	if ( gamma >= d_cnt && diag_max < total_limit ) {
+	*is_term_flag = diag_max < total_limit;
+	// printf("TEST(d_cnt=%d): %9.4f < %9.4f ? %s\n", d_cnt, diag_max, total_limit, (*is_term_flag ? "TRUE" : "FALSE") );
+	if ( d_cnt > gamma && *is_term_flag ) {
+		printf("# FLAG TRIGGERED (d_cnt=%d)!!!\n", d_cnt);
 		return;
 	}
 

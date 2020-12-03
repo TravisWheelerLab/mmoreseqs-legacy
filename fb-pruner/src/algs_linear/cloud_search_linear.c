@@ -116,10 +116,11 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
    /* vars for traceback */
-   TRACE*         beg;                       /* beginning of the alignment */
-   TRACE*         end;                       /* end of the alignment */
+   TRACE*         beg;                             /* beginning of the alignment */
+   TRACE*         end;                             /* end of the alignment */
 
    /* vars for pruning */
+   bool           is_term_flag;                    /* termination flag for end of search */
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
@@ -129,9 +130,9 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
    /* pruning parameters */
-   float alpha;
-   float beta;
-   int   gamma;
+   float       alpha;
+   float       beta;
+   int         gamma;
 
    /* debugger tools */
    FILE*       dbfp;
@@ -276,6 +277,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    num_cells = 0;
 
    /* keeps largest number seen on current diagonal */
+   is_term_flag = false;
    diag_max    = -INF;
    total_max   = -INF;
    /* number of passes through antidiags */
@@ -322,7 +324,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -495,6 +497,11 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       /* disallow starting new alignments after first pass */
       prv_B = -INF;
       // prv_E = -INF;
+
+      /* if termination flag is set, break out of loop */
+      if (is_term_flag == true) {
+         break;
+      }
    }
 
    /* Scrub last two rows */
@@ -598,6 +605,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    /* check if data is cleaned */
    #if DEBUG
    {
+      DP_MATRIX_Save(Q, T, test_MX, sp_MX, "test_output/cloud_search_fwd.mx");
+
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp );
       printf("MAX CLOUD_FWD SCORE: %f, LIMIT: %f\n", total_max, total_limit);
@@ -680,8 +689,8 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prv_loop, prv_move;            /* previous loop and move for special states */
-   float    prv_sum, prv_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -690,6 +699,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    TRACE*         end;                       /* end of the alignment */
 
    /* vars for pruning */
+   bool           is_term_flag;                    /* termination flag set by  */
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
@@ -853,6 +863,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    num_cells = 0;
 
    /* keeps largest number seen on current diagonal */
+   is_term_flag = false;
    diag_max    = -INF;
    total_max   = -INF;
    /* number of antidiags passed through */
@@ -899,7 +910,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -1082,6 +1093,11 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       /* disallow starting new alignments after first pass */
       // prv_B = -INF;
       prv_E = -INF;
+
+      /* if termination flag is set, break out of loop */
+      if (is_term_flag == false) {
+         break;
+      }
    }
 
    /* scrub last two rows */
@@ -1195,6 +1211,8 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    /* check if data is cleaned */
    #if DEBUG
    {
+      DP_MATRIX_Save(Q, T, test_MX, sp_MX, "test_output/cloud_search_bck.mx");
+
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp );
       printf("MAX CLOUD_BCK SCORE: %f, LIMIT: %f\n", total_max, total_limit);

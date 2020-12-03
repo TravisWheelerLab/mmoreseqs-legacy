@@ -215,22 +215,18 @@ int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *p
 
     denom += XMX(i, p7G_N) + XMX(i, p7G_J) + XMX(i, p7G_C);
 
-    printf("[%2d]: denom :=> %9f\n", i, denom);
+    // printf("[%2d]: denom :=> %9f\n", i, denom);
     /* scale row by common factor denominator */
-    // denom = 1.0 / denom;
-    // for (k = 1; k < M; k++) {
-    //   MMX(i, k) *= denom;
-    //   IMX(i, k) *= denom;
-    // }
-    // MMX(i, M) *= denom;
-    // XMX(i, p7G_N) *= denom;
-    // XMX(i, p7G_J) *= denom;
-    // XMX(i, p7G_C) *= denom;
+    denom = 1.0 / denom;
+    for (k = 1; k < M; k++) {
+      MMX(i, k) *= denom;
+      IMX(i, k) *= denom;
+    }
+    MMX(i, M) *= denom;
+    XMX(i, p7G_N) *= denom;
+    XMX(i, p7G_J) *= denom;
+    XMX(i, p7G_C) *= denom;
   }
-
-  printf("==> POSTERIOR:\n");
-  // p7_gmx_Dump(stdout, pp, 0);
-  DP_MATRIX_Log_Dump(pp->L, pp->M, NULL, gm, pp, stdout);
 
   return eslOK;
 }

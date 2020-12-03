@@ -628,7 +628,7 @@ void WORK_load_mmseqs_list( WORKER* worker )
 
    /* Truncate or extract valid result range */
    args->list_range.beg = MAX(args->list_range.beg, 0);
-   args->list_range.end = MIN(args->list_range.end, worker->results_in->N);
+   args->list_range.end = MIN(args->list_range.end, worker->results_in->N + args->list_range.beg);
 }
 
 /* load target by file index id */
@@ -1008,9 +1008,12 @@ void WORK_cloud_search( WORKER* worker )
    MATRIX_3D*        st_cloud_MX    = worker->st_cloud_MX; 
 
    MATRIX_3D*        st_MX          = worker->st_MX;
-   MATRIX_3D*        st_MX3         = worker->st_MX3;
    MATRIX_3D_SPARSE* st_SMX_fwd     = worker->st_SMX_fwd;
    MATRIX_3D_SPARSE* st_SMX_bck     = worker->st_SMX_bck;
+
+   MATRIX_3D*        st_MX3         = worker->st_MX3;
+   MATRIX_3D*        st_MX3_fwd     = worker->st_MX3_fwd;
+   MATRIX_3D*        st_MX3_bck     = worker->st_MX3_bck;
 
    MATRIX_2D*        sp_MX          = worker->sp_MX;
    MATRIX_2D*        sp_MX_fwd      = worker->sp_MX_fwd;
@@ -1090,6 +1093,8 @@ void WORK_cloud_search( WORKER* worker )
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
          printf("# printing cloud rows...\n");
+         /* TEMPORARY OVERRIDE */
+         EDGEBOUNDS_Cover_Matrix(edg_row, Q, T);
          EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif
@@ -1104,7 +1109,7 @@ void WORK_cloud_search( WORKER* worker )
    {
       printf_vall("# ==> bound forward (linear)...\n");
       CLOCK_Start(clok);
-      run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3_fwd, sp_MX_fwd, edg_row, &sc );
       scores->lin_bound_fwd = sc;
       CLOCK_Stop(clok);
 
@@ -1114,7 +1119,7 @@ void WORK_cloud_search( WORKER* worker )
          printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
          printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
          // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_fwd.lin.viz.mx");
+         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.lin.viz.mx");
       }
       #endif
       times->lin_bound_fwd    = CLOCK_Secs(clok);
@@ -1130,15 +1135,15 @@ void WORK_cloud_search( WORKER* worker )
    {
       printf_vall("# ==> bound backward (linear)...\n");
       CLOCK_Start(clok);
-      run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, edg_row, &sc );
+      run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX_bck, edg_row, &sc );
       scores->lin_bound_bck = sc;
       CLOCK_Stop(clok);
       #if DEBUG
       {
          printf_vall("# printing linear bound backward...\n");
          printf("# lin bound backward: %f\n", scores->lin_bound_bck );
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_bck.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
+         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.lin.mx");
+         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
       }
       #endif
       times->lin_bound_bck    = CLOCK_Secs(clok);
@@ -1161,7 +1166,7 @@ void WORK_cloud_search( WORKER* worker )
       printf_vall("# ==> bound forward (sparse)...\n");
       CLOCK_Start(clok);
       run_Bound_Forward_Sparse( q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, &sc );
-      scores->lin_bound_fwd = sc;
+      scores->sparse_bound_fwd = sc;
       CLOCK_Stop(clok);
 
       /* compute the number of cells in matrix computed */
@@ -1170,11 +1175,11 @@ void WORK_cloud_search( WORKER* worker )
 
       #if DEBUG
       {
-         printf("# printing linear bound forward...\n");
-         printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
+         printf("# printing sparse bound forward...\n");
+         printf("# sparse bound forward: %f\n", scores->sparse_bound_fwd );
          printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
-         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_fwd.lin.viz.mx");
+         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
+         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.sp.viz.mx");
       }
       #endif
       times->sp_bound_fwd        = CLOCK_Secs(clok);
@@ -1195,10 +1200,10 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Stop(clok);
       #if DEBUG
       {
-         printf_vall("# printing linear bound backward...\n");
-         printf("# lin bound backward: %f\n", scores->lin_bound_bck );
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_bck.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
+         printf_vall("# printing sparse bound backward...\n");
+         printf("# sparse bound backward: %f\n", scores->sparse_bound_bck );
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.sp.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_bck, tr, "test_output/my.bound_bck.sp.viz.mx");
       }
       #endif
       times->sp_bound_bck        = CLOCK_Secs(clok);

@@ -81,7 +81,7 @@ void RESULTS_M8_Parse( RESULTS* 	results,
       if ( result_count < start_idx ) {
          continue;
       }
-      if ( result_count >= end_idx ) {
+      if ( result_count > end_idx ) {
          break;
       }
 

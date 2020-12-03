@@ -32,6 +32,8 @@
 void 
 mmseqs_pipeline( WORKER* worker )
 {
+   printf("=== MMSEQS PIPELINE ===\n");
+
    /* initialize worker data structures */
    WORK_init( worker );
    WORK_open( worker );
@@ -96,6 +98,7 @@ mmseqs_pipeline( WORKER* worker )
 
    /* get result range */
    int i_rng, i_cnt, i_beg, i_end;
+   i_cnt = 0;
 
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
@@ -131,6 +134,8 @@ mmseqs_pipeline( WORKER* worker )
 
    /* add header to all reports */
    WORK_report_header( worker );
+
+   printf("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
    /* === ITERATE OVER EACH RESULT === */
    /* Look through each input result */
@@ -255,6 +260,12 @@ mmseqs_pipeline( WORKER* worker )
       //    //    continue;
       //    // }
       // }
+
+      #if DEBUG
+      {
+         // WORK_forward_backward( worker );
+      }
+      #endif
 
       /* run cloud search */
       WORK_cloud_search( worker );

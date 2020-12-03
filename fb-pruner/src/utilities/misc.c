@@ -149,25 +149,31 @@ inline
 float logprod( float  x,
                float  y )
 {
-   float max, min, ret;
+   // float max, min, ret;
 
-   if (x > y)
-   {
-      max = x;
-      min = y;
-   }
-   else
-   {
-      max = y;
-      min = x;
-   }
+   return x + y;
+
+   // if (x > y) {
+   //    max = x;
+   //    min = y;
+   // }
+   // else {
+   //    max = y;
+   //    min = x;
+   // }
    
-   if ( min == -INF ) {
-      return -INF;
-   } 
-   else {
-      return min + max;
-   }
+   // // if ( max == INF ) {
+   // //    return min;
+   // // }
+   // if ( max == -INF ) {
+   //    return -INF;
+   // } 
+   // if ( min == -INF ) {
+   //    return max;
+   // }
+   // else {
+   //    return min + max;
+   // }
 }
 
 /*! FUNCTION:  logdiff()

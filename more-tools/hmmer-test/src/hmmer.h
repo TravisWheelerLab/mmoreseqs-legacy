@@ -251,12 +251,12 @@ typedef struct p7_profile_s {
   float **rsc;          /* emissions [0..Kp-1][0.1..M][p7P_NR], hand-indexed       */
   float   xsc[p7P_NXSTATES][p7P_NXTRANS]; /* special transitions [NECJ][LOOP,MOVE] */
 
-  int     mode;         /* configured algorithm mode (e.g. p7_LOCAL)               */
-  int     L;    /* current configured target seq length                    */
-  int     allocM; /* max # of nodes allocated in this structure              */
-  int     M;    /* number of nodes in the model                            */
-  int     max_length; /* calculated upper bound on emitted seq length            */
-  float   nj;   /* expected # of uses of J; precalculated from loop config */
+  int     mode;               /* configured algorithm mode (e.g. p7_LOCAL)               */
+  int     L;                  /* current configured target seq length                    */
+  int     allocM;             /* max # of nodes allocated in this structure              */
+  int     M;                  /* number of nodes in the model                            */
+  int     max_length;         /* calculated upper bound on emitted seq length            */
+  float   nj;                 /* expected # of uses of J; precalculated from loop config */
 
   /* Info, most of which is a copy from parent HMM:                                       */
   char  *name;      /* unique name of model                                   */

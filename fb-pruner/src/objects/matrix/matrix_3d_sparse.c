@@ -167,7 +167,7 @@ int
 MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
                                           EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
 {
-   printf("MATRIX_3D_SPARSE_Shape_Like_Edgebounds\n");
+   printf("==> MATRIX_3D_SPARSE_Shape_Like_Edgebounds\n");
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
    smx->D2 = edg_inner->T + 1;

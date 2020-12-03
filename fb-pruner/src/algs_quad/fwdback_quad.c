@@ -621,9 +621,6 @@ run_Backward_Quad(   const SEQUENCE*    query,        /* query sequence */
       MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
       MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
       MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
-
-      FILE* test_fp = fopen("full_bck.mx", "w+");
-      DP_MATRIX_Dump(Q, T, test_MX, sp_MX, test_fp);
    }
    #endif
 

@@ -1092,22 +1092,22 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
    p7_GDecoding( gm, gmx_fwd, gmx_bck, gmx_pp );
 
-   fp = fopen("test_output/hmmer.posterior.tsv", "w+");
+   fp = fopen("test_output/hmmer.posterior.mx", "w+");
    DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
    fclose(fp);
-   fp = fopen("test_output/hmmer.posterior.log.tsv", "w+");
+   fp = fopen("test_output/hmmer.posterior.log.mx", "w+");
    DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
    fclose(fp);
    
    p7_GNull2_ByExpectation( gm, gmx_pp, pli->ddef->n2sc);
 
-   printf("==> GENERIC NULL2 SCORE <=\n"); 
-   printf("n2sc [L=%d]:\n", pli->ddef->L);
-   for (int i = 0; i < gm->abc->Kp; i++) {
-      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
-      if ( (i + 1) % 5 == 0 ) printf("\n");
-   }
-   printf("\n");
+   // printf("==> GENERIC NULL2 SCORE <=\n"); 
+   // printf("n2sc [L=%d]:\n", pli->ddef->L);
+   // for (int i = 0; i < gm->abc->Kp; i++) {
+   //    printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
+   //    if ( (i + 1) % 5 == 0 ) printf("\n");
+   // }
+   // printf("\n");
 
    float seqbias1, seqbias2;
 
@@ -1117,13 +1117,13 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
 
    esl_vec_FLog(pli->ddef->n2sc, gm->abc->Kp);
 
-   printf("==> GENERIC NULL2 SCORE <=\n"); 
-   printf("n2sc [L=%d]:\n", pli->ddef->L);
-   for (int i = 0; i < gm->abc->Kp; i++) {
-      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
-      if ( (i + 1) % 5 == 0 ) printf("\n");
-   }
-   printf("\n");
+   // printf("==> GENERIC NULL2 SCORE <=\n"); 
+   // printf("n2sc [L=%d]:\n", pli->ddef->L);
+   // for (int i = 0; i < gm->abc->Kp; i++) {
+   //    printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
+   //    if ( (i + 1) % 5 == 0 ) printf("\n");
+   // }
+   // printf("\n");
 
    seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
    printf("seqbias (pre): %f, omega: %f\n", seqbias, log(bg->omega));
@@ -1162,6 +1162,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    {
       printf("=== do_null2 ===\n");
       seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
+      printf("# seqbias (FSum, pre-omega): %f\n", seqbias);
       seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
    }
    else

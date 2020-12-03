@@ -437,8 +437,8 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int
-run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query sequence */
-                                 HMM_PROFILE*      t_prof,           /* target hmm model */
+run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query sequence */
+                                 HMM_PROFILE*      target,           /* target hmm model */
                                  int               Q,                /* query length */
                                  int               T,                /* target length */
                                  RANGE*            Q_range,          /* query range */
@@ -452,28 +452,26 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
    int      T_beg, T_end, T_len;
    int      q_0, t_0; 
    int      st_0, k_0;
+   float    mmx, imx, dmx;
    float    x_factor;
    float    null2sc;
+   FILE*    fp;
 
    Q_beg = MAX(0, Q_range->beg);
    Q_end = MIN(Q, Q_range->end);
-   Q_len = Q_range->end - Q_range->beg;
-   T_beg = MAX(0, T_range->beg);
+   T_beg = MAX(1, T_range->beg);
    T_end = MIN(T, T_range->end);
-   T_len = T_range->end - T_range->beg;
+   Q_len = Q_end - Q_beg;
+   T_len = T_end - T_beg;
 
    // printf("=== POSTERIOR ===\n");
    // DP_MATRIX_Log_Dump(Q->end, T, st_MX_post, sp_MX_post, stdout);
    // printf("Q,T=(%d,%d)\n", q_seq->N, t_prof->N );
    // printf("=================\n");
    
-   VECTOR_FLT_SetSizeTo( dom_def->st_freq, (T+1) * NUM_NORMAL_STATES );
+   MATRIX_2D_Reuse( dom_def->st_freq, (T+1), NUM_NORMAL_STATES );
    VECTOR_FLT_SetSizeTo( dom_def->sp_freq,  NUM_SPECIAL_STATES );
    VECTOR_FLT_SetSizeTo( dom_def->null2_sc, NUM_AMINO_PLUS_SPEC );
-
-   // printf("st_freq->N = %d %d\n", dom_def->st_freq->Nalloc, dom_def->st_freq->N);
-   // printf("sp_freq->N = %d %d\n", dom_def->sp_freq->Nalloc, dom_def->sp_freq->N);
-   // printf("null2_sc->N = %d %d\n", dom_def->null2_sc->Nalloc, dom_def->null2_sc->Nalloc);
 
    q_0 = Q_beg;
    /* sum over each position in target model into vectors  */
@@ -481,27 +479,13 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
    for ( t_0 = T_beg; t_0 <= T_end; t_0++ ) {
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = MX_3D( st_MX_post, st_0, q_0, t_0);
+         MX_2D( dom_def->st_freq, t_0, st_0 ) = MX_3D( st_MX_post, st_0, q_0, t_0);
       }
    }
    /* for each special state emissions */
    for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
       VEC_X( dom_def->sp_freq, st_0 ) = MX_2D( sp_MX_post, st_0, q_0 );
    }
-
-   // printf("<1>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
 
    /* sum over each position in query sequence domain into vectors  */
    for ( q_0 = Q_beg + 1; q_0 <= Q_end; q_0++ ) {
@@ -514,38 +498,37 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
       }
       /* for each special state emissions */
       for ( st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
-         /* TODO: fix this error (what causes this?) */
-         if ( isnan( MX_2D( sp_MX_post, st_0, q_0 ) ) ) {
-            fprintf(stderr, "ERROR: nan error at position (q_0,st_0)=(%d,%d).\n", q_0, st_0);
-             MX_2D( sp_MX_post, st_0, q_0 ) = 0.0f;
-         }
          float tot = VEC_X( dom_def->sp_freq, st_0 ) + MX_2D( sp_MX_post, st_0, q_0 );
-         // if ( st_0 == 1 && q_0 > 1000 && q_0 < 2000 ) 
-         //    printf("(%4d::%4d)=>  %7.4f  +  %7.4f =  %7.4f\n", q_0, st_0, VEC_X( dom_def->sp_freq, st_0 ), MX_2D( sp_MX_post, st_0, q_0 ), tot );
          VEC_X( dom_def->sp_freq, st_0 ) += MX_2D( sp_MX_post, st_0, q_0 );
       }
    }
 
-   // printf("<2>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
+   #if DEBUG
+   {
+      fp = fopen("test_output/post_vec.2.csv", "w+");
+      fprintf(fp, "<2>\n");
+      fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
+      for (int t_0 = 0; t_0 <= T; t_0++) {
+         fprintf(fp, "ST[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+            MX_2D( dom_def->st_freq, t_0, MAT_ST ), 
+            MX_2D( dom_def->st_freq, t_0, INS_ST ), 
+            MX_2D( dom_def->st_freq, t_0, DEL_ST ) );
+      }
+      fprintf(fp, "==> SPECIAL STATES (sp_freq) <=\n");
+      for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+         fprintf(fp, "SP[%d]: %12.9f\n", st_0, 
+            VEC_X( dom_def->sp_freq, st_0 ) );
+      }
+      fclose(fp);
+   }
+   #endif 
 
-   /* convert expected numbers to log frequencies */
+   /* convert probabilities to log frequencies */
    /* for each position in query domain */
    for ( t_0 = T_beg; t_0 <= T_end; t_0++ ) {
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = log( VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) );
+         MX_2D( dom_def->st_freq, t_0, st_0 ) = log( MX_2D( dom_def->st_freq, t_0, st_0 ) );
       }
    }
    /* for each special state emissions */
@@ -553,22 +536,28 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
       VEC_X( dom_def->sp_freq, st_0 ) = log( VEC_X( dom_def->sp_freq, st_0 ) );
    }
 
-   // printf("<3>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
+   #if DEBUG
+   {
+      fp = fopen("test_output/post_vec.3.csv", "w+");
+      fprintf(fp, "<3>\n");
+      fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
+      for (int t_0 = 0; t_0 <= T; t_0++) {
+         fprintf(fp, "ST[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+            MX_2D( dom_def->st_freq, t_0, MAT_ST ), 
+            MX_2D( dom_def->st_freq, t_0, INS_ST ), 
+            MX_2D( dom_def->st_freq, t_0, DEL_ST ) );
+      }
+      fprintf(fp, "==> SPECIAL STATES (sp_freq) <=\n");
+      for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+         fprintf(fp, "SP[%d]: %12.9f\n", st_0, 
+            VEC_X( dom_def->sp_freq, st_0 ) );
+      }
+      fclose(fp);
+   }
+   #endif 
 
-   float neglog_Q = -log( (float)Q_len );
-   // printf("neglog_Q = %d %f\n", q_len, neglog_Q);
+   float neglog_Q = -log( (float)Q );
+   printf("neglog_Q = %d %f\n", Q_len, neglog_Q);
    /* for each position in query domain */
    for ( t_0 = T_beg; t_0 <= T_end; t_0++ ) {
       /* for each normal state emissions */
@@ -581,70 +570,68 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         q_seq,            /* query se
       VEC_X( dom_def->sp_freq, st_0 ) += neglog_Q;
    }
 
-   // printf("<4>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
+   #if DEBUG
+   {
+      fp = fopen("test_output/post_vec.4.csv", "w+");
+      fprintf(fp, "<4>\n");
+      fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
+      for (int t_0 = 0; t_0 <= T; t_0++) {
+         fprintf(fp, "ST[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+            MX_2D( dom_def->st_freq, t_0, MAT_ST ), 
+            MX_2D( dom_def->st_freq, t_0, INS_ST ), 
+            MX_2D( dom_def->st_freq, t_0, DEL_ST ) );
+      }
+      fprintf(fp, "==> SPECIAL STATES (sp_freq) <=\n");
+      for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+         fprintf(fp, "SP[%d]: %12.9f\n", st_0, 
+            VEC_X( dom_def->sp_freq, st_0 ) );
+      }
+      fclose(fp);
+   }
+   #endif 
 
    /* x-factor: */
    x_factor = VEC_X( dom_def->sp_freq, SP_N);
    x_factor = logsum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_C) );
-   // x_factor = logsum( x_factor,
-   //                    VEC_X(dom_def->sp_freq, SP_J) );
+   x_factor = logsum( x_factor,
+                      VEC_X(dom_def->sp_freq, SP_J) );
    
-   // printf("<5>\n");
-   // printf("xfactor: %f, NCJ: %f %f %f\n", 
-   //    x_factor, VEC_X( dom_def->sp_freq, SP_N), VEC_X(dom_def->sp_freq, SP_C), VEC_X(dom_def->sp_freq, SP_J) );
+  #if DEBUG
+   {
+      fprintf(stdout, "xfactor: %9.4f,  NCJ: %9.4f %9.4f %9.4f\n", 
+         x_factor, VEC_X( dom_def->sp_freq, SP_N), VEC_X(dom_def->sp_freq, SP_C), VEC_X(dom_def->sp_freq, SP_J) );
+   }
+   #endif
 
    /* initialize null2 vector */
-   for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) {
+   for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
       VEC_X( dom_def->null2_sc, k_0 ) = -INF;
    }
-   for ( k_0 = NUM_AMINO; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      VEC_X( dom_def->null2_sc, k_0 ) = 0.0;
-   }
 
-   // printf("<6>\n");
    /* null2 log emissions probabilities found by summing over 
     * all emmissions used in paths explaining the domain. 
     */
    /* for each amino acid */
    for ( k_0 = 0; k_0 < NUM_AMINO; k_0++ ) 
    {
-      // printf("k_0 = %d\n", k_0);
       /* for each position in model */
-      for ( t_0 = T_beg + 1; t_0 < T; t_0++ ) 
+      for ( t_0 = T_beg; t_0 < T_end; t_0++ ) 
       {
-         // printf("t_0 = %d\n", t_0);
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                   VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ) );
+         /* look at the log frequencies (weighted probably of position contributed to path score ) 
+          * at the model position and multiply them by the  
+          */ 
+         mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
+         imx = MX_2D( dom_def->st_freq, t_0, INS_ST) + ISC_X(target, t_0, k_0);
 
-         // if ( t_0 == 14 ) {
-         //    printf("(k_0,t_0)=%2d,%2d, MSC=%f, ISC=%f, NULL2=%f\n",
-         //       k_0, t_0, 
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ),
-         //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ) + ISC_X( t_prof, t_0, k_0 ),
-         //       VEC_X( dom_def->null2_sc, k_0 )
-         //    );
-         // }
+         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx );
+         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), imx );
       }
       t_0 = T;
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ) + MSC_X( t_prof, t_0, k_0 ) );
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ),
-                                                x_factor );                            
+      mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
+      
+      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx);
+      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), x_factor );                            
    }
 
    // printf("==> NULL2 (pre) <=\n");
@@ -725,13 +712,14 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
                                     MATRIX_2D*           sp_MX_post,       /* posterior special matrix */
                                     DOMAIN_DEF*          dom_def )         /* OUTPUT: domain def's null2_sc vector */
 {
-   // printf("=== run_Null2_ByExpectation_OLD ===\n");
+   printf("=== run_Null2_ByExpectation_OLD ===\n");
    int      q_beg, q_end, q_len;
    int      t_beg, t_end, t_len;
    int      q_0, t_0; 
    int      st_0, k_0;
    float    x_factor;
    float    null2sc;
+   FILE*    fp;
 
    q_beg = 0;
    q_end = Q;
@@ -739,14 +727,8 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
    t_beg = 0;
    t_end = T;
    t_len = t_end - t_beg;
-
-   // printf("=== POSTERIOR ===\n");
-   // // DP_MATRIX_Dump(Q, T, st_MX_post, sp_MX_post, stdout);
-   // DP_MATRIX_Log_Dump(Q, T, st_MX_post, sp_MX_post, stdout);
-   // printf("Q,T=(%d,%d)\n", q_seq->N, t_prof->N );
-   // printf("=================\n");
    
-   VECTOR_FLT_GrowTo( dom_def->st_freq, (T+1) * NUM_NORMAL_STATES );
+   MATRIX_2D_Reuse( dom_def->st_freq, (T+1), NUM_NORMAL_STATES );
    VECTOR_FLT_GrowTo( dom_def->sp_freq, NUM_SPECIAL_STATES );
    VECTOR_FLT_GrowTo( dom_def->null2_sc, NUM_AMINO_PLUS_SPEC );
 
@@ -756,7 +738,7 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
    for ( t_0 = 0; t_0 <= T; t_0++ ) {
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = MX_3D( st_MX_post, st_0, q_0, t_0);
+         MX_2D( dom_def->st_freq, t_0, st_0 ) = MX_3D( st_MX_post, st_0, q_0, t_0);
       }
    }
    /* for each special state emissions */
@@ -764,27 +746,13 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
       VEC_X( dom_def->sp_freq, st_0 ) = MX_2D( sp_MX_post, st_0, q_0 );
    }
 
-   // printf("<0>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
-
    /* sum over each position in query sequence domain into vectors  */
    for ( q_0 = q_beg + 1; q_0 <= q_end; q_0++ ) {
       /* for each position in target model */
       for ( t_0 = 0; t_0 <= T; t_0++ ) {
          /* for each normal state emissions */
          for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-            VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) += MX_3D( st_MX_post, st_0, q_0, t_0 );
+            MX_2D( dom_def->st_freq, t_0, st_0 ) += MX_3D( st_MX_post, st_0, q_0, t_0 );
          }
       }
       /* for each special state emissions */
@@ -793,26 +761,12 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
       }
    }
 
-   // printf("<1>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
-
    /* convert expected numbers to log frequencies */
    /* for each position in query domain */
    for ( t_0 = 0; t_0 <= T; t_0++ ) {
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) = log( VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + st_0 ) );
+         MX_2D( dom_def->st_freq, t_0, st_0 ) = log( MX_2D( dom_def->st_freq, t_0, st_0 ) );
       }
    }
    /* for each special state emissions */
@@ -820,19 +774,25 @@ run_Null2_ByExpectation_Quad_Old(   SEQUENCE*            q_seq,            /* qu
       VEC_X( dom_def->sp_freq, st_0 ) = log( VEC_X( dom_def->sp_freq, st_0 ) );
    }
 
-   // printf("<2>\n");
-   // printf("==> NORMAL STATES <=\n");
-   // for (int t_0 = 0; t_0 <= T; t_0++) {
-   //    printf("[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + MAT_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + INS_ST ), 
-   //       VEC_X( dom_def->st_freq, (t_0 * NUM_NORMAL_STATES) + DEL_ST ) );
-   // }
-   // printf("==> SPECIAL STATES <=\n");
-   // for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
-   //    printf("[%d]: %12.9f\n", st_0, 
-   //       VEC_X( dom_def->sp_freq, st_0 ) );
-   // }
+   #if DEBUG
+   {
+      fp = fopen("test_output/post_vec.2.csv", "w+");
+      fprintf(fp, "<2>\n");
+      fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
+      for (int t_0 = 0; t_0 <= T; t_0++) {
+         fprintf(fp, "ST[%3d]: %12.9f %12.9f %12.9f\n", t_0, 
+            MX_2D( dom_def->st_freq, t_0, MAT_ST ), 
+            MX_2D( dom_def->st_freq, t_0, INS_ST ), 
+            MX_2D( dom_def->st_freq, t_0, DEL_ST ) );
+      }
+      fprintf(fp, "==> SPECIAL STATES (sp_freq) <=\n");
+      for (int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++) {
+         fprintf(fp, "SP[%d]: %12.9f\n", st_0, 
+            VEC_X( dom_def->sp_freq, st_0 ) );
+      }
+      fclose(fp);
+   }
+   #endif 
 
    float neglog_Q = -log( (float)q_len );
    printf("neglog_Q = %d %f\n", q_len, neglog_Q);

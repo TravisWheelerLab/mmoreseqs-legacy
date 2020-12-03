@@ -912,8 +912,8 @@ typedef struct {
    VECTOR_FLT*    m_occ;         /* probability X emitted by core model */
    VECTOR_FLT*    null2_sc;      /* null2 scores */
    /* working space for computing null2 score */
-   VECTOR_FLT*    st_freq;       /* */
-   VECTOR_FLT*    sp_freq;       /* */
+   MATRIX_2D*     st_freq;       /* normal state frequencies */
+   VECTOR_FLT*    sp_freq;       /* special state frequencies */
    /* stats */
    float          n_expected;    /* posterior expectation for number of domains */
    int            n_regions;     /* number of regions */
