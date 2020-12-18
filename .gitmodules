@@ -1,9 +1,9 @@
 [submodule "fb-pruner/lib/easel"]
-	path = fb-pruner/lib/easel
+	path = fbpruner/lib/easel
 	url = https://github.com/EddyRivasLab/easel.git
 [submodule "fb-pruner/lib/MMseqs2"]
-	path = fb-pruner/lib/MMseqs2
+	path = fbpruner/lib/MMseqs2
 	url = https://github.com/soedinglab/MMseqs2.git
 [submodule "fb-pruner/lib/libbmp"]
-	path = fb-pruner/lib/libbmp
+	path = fbpruner/lib/libbmp
 	url = https://github.com/marc-q/libbmp.git
