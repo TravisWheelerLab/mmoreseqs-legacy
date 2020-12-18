@@ -351,6 +351,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,    
 EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inner,     /* EDGEBOUNDS of the active cells */
                                                          EDGEBOUNDS*    edg_outer )    /* EDGEBOUNDS of the total cells */
 {
+   FILE*    fp;
    BOUND    bnd;
    int      id;
    int      N;
@@ -382,11 +383,14 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inne
 
    EDGEBOUNDS_Sort( edg_outer );
 
-   FILE* fp;
-   fp = fopen("test_output/premerge.edg", "w");
-   EDGEBOUNDS_Dump( edg_outer, fp );
-   fclose(fp);
-
+   #if DEBUG
+   {
+      fp = fopen("test_output/premerge.edg", "w");
+      EDGEBOUNDS_Dump( edg_outer, fp );
+      fclose(fp);
+   }
+   #endif
+   
    EDGEBOUNDS_Merge( edg_outer );
 
    return edg_outer;
