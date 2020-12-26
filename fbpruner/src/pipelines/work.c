@@ -1383,6 +1383,24 @@ void WORK_convert_scores( WORKER* worker )
    /* free digitized sequence TODO: move to sequence */
    // HMM_BG_UnsetSequence( bg, seq );
 
+   /* find bounding box of cloud space */
+   int min_Q, max_Q, min_T, max_T;
+   int N = worker->edg_row->N;
+   min_Q = min_T = INF;
+   max_Q = max_T = -INF;
+   min_Q = worker->edg_row->bounds[0].id;
+   max_Q = worker->edg_row->bounds[N-1].id;
+   for (int i = 0; i < N; i++) {
+      BOUND* bnd = &worker->edg_row->bounds[i];
+      min_T = MIN(min_T, bnd->lb);
+      max_T = MAX(max_T, bnd->rb);
+   }
+   /* cloud bounding box as start/end points for result output */
+   worker->result->query_start   = min_Q;
+   worker->result->query_end     = max_Q;
+   worker->result->target_start  = min_T;
+   worker->result->target_end    = max_T;
+
    /* composition bias */
    seq_bias = 0.0f;
    if ( worker->args->is_compo_bias )

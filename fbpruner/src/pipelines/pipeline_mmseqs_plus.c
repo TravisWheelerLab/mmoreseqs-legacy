@@ -161,7 +161,7 @@ void mmseqs_plus_pipeline( WORKER* worker )
    int exit_code = execvp( command[0], command );
 
    /* code should not reach here */
-   printf("# EXIT CODE = %d\n", exit_code);
+   printf("# EXIT CODE = %d.  COMMAND FAILED.\n", exit_code);
    exit(EXIT_FAILURE);
 }
 
