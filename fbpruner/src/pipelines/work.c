@@ -1423,9 +1423,8 @@ void WORK_convert_scores( WORKER* worker )
             worker->dom_def );
       }
 
-      
       /* compute sequence bias */
-      seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
+      seq_bias = -1 * logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
       printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
       seq_bias = worker->dom_def->seq_bias;
    }
