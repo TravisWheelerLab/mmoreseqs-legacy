@@ -49,6 +49,13 @@ static int region_trace_ensemble  (P7_DOMAINDEF *ddef, const P7_OPROFILE *om, co
 static int rescore_isolated_domain(P7_DOMAINDEF *ddef, P7_OPROFILE *om, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OMX *ox1, P7_OMX *ox2,
                                    int i, int j, int null2_is_done, P7_BG *bg, int long_target, P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr);
 
+static int rescore_isolated_domain_TEST(
+                        P7_DOMAINDEF *ddef, P7_OPROFILE *om, const ESL_SQ *sq, const ESL_SQ *ntsq,
+                        P7_OMX *ox1, P7_OMX *ox2, int i, int j, int null2_is_done, P7_BG *bg, int long_target,
+                        P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr,
+                        /* DRICH EDITS */
+                        P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef);
+
 
 /*****************************************************************
  * 1. The P7_DOMAINDEF object: allocation, reuse, destruction
@@ -390,7 +397,7 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
                                    P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
                                    P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr)
 {
-   printf("=== p7_domaindef_ByPosteriorHeuristics ===\n");
+   printf("=== p7_domaindef_ByPosteriorHeuristics() ===\n");
    printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
       ddef->rt1, ddef->rt2, ddef->rt3 );
 
@@ -410,19 +417,19 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
 
-   printf("=> ddef (posteriors):\n");
-   printf("==> ddef->btot:\n");
-   for (int i = 0; i < sq->n + 1; i++) {
-      printf("     [%2d]: %f\n", i, ddef->btot[i]);
-   }
-   printf("==> ddef->etot:\n");
-   for (int i = 0; i < sq->n + 1; i++) {
-      printf("     [%2d]: %f\n", i, ddef->etot[i]);
-   }
-   printf("==> ddef->mocc:\n");
-   for (int i = 0; i < sq->n + 1; i++) {
-      printf("     [%2d]: %f\n", i, ddef->mocc[i]);
-   }
+   // printf("=> ddef (posteriors):\n");
+   // printf("==> ddef->btot:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->btot[i]);
+   // }
+   // printf("==> ddef->etot:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->etot[i]);
+   // }
+   // printf("==> ddef->mocc:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->mocc[i]);
+   // }
 
    esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
    ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
@@ -438,13 +445,13 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
       rt2_btest = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
       rt2_etest = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
 
-      printf("\n[%2d] ::\n", j);
-      printf("       rt1: %f < %f == %s\n",
-         rt1_test, ddef->rt1, (rt1_test < ddef->rt1 ? "TRUE" : "FALSE") );
-      printf("     rt2_b: %f < %f == %s\n",
-         rt2_btest, ddef->rt2, (rt2_btest < ddef->rt2 ? "TRUE" : "FALSE") );
-      printf("     rt1_e: %f < %f == %s\n",
-         rt2_etest, ddef->rt2, (rt2_etest < ddef->rt2 ? "TRUE" : "FALSE") );
+      // printf("\n[%2d] ::\n", j);
+      // printf("       rt1: %f < %f == %s\n",
+      //    rt1_test, ddef->rt1, (rt1_test < ddef->rt1 ? "TRUE" : "FALSE") );
+      // printf("     rt2_b: %f < %f == %s\n",
+      //    rt2_btest, ddef->rt2, (rt2_btest < ddef->rt2 ? "TRUE" : "FALSE") );
+      // printf("     rt1_e: %f < %f == %s\n",
+      //    rt2_etest, ddef->rt2, (rt2_etest < ddef->rt2 ? "TRUE" : "FALSE") );
    }
 
    for (j = 1; j <= sq->n; j++)
@@ -540,6 +547,169 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    return eslOK;
 }
 
+int
+p7_domaindef_ByPosteriorHeuristics_TEST(
+                                   const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPROFILE *om,
+                                   P7_OMX *oxf, P7_OMX *oxb, P7_OMX *fwd, P7_OMX *bck,
+                                   P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
+                                   P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr,
+                                   /* DRICH EDITS */
+                                   P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef)
+{
+   printf("=== p7_domaindef_ByPosteriorHeuristics_TEST() ===\n");
+   printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
+      ddef->rt1, ddef->rt2, ddef->rt3 );
+
+   int i, j;
+   int triggered;
+   int d;
+   int i2, j2;
+   int last_j2;
+   int nc;
+   int saveL     = om->L;   /* Save the length config of <om>; will restore upon return */
+   int save_mode = om->mode;   /* Likewise for the mode. */
+   int status;
+   /* reporting thresholds for finding domains */
+   float rt1_test, rt2_btest, rt2_etest, rt3_test; 
+
+   printf("dom decoding...\n");
+   if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
+   if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
+
+   if ((status = p7_domaindef_GrowTo(gm_ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
+   if ((status = p7_GDomainDecoding(gm, gxf, gxb, gm_ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
+
+   // printf("=> ddef (posteriors):\n");
+   // printf("==> ddef->btot:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->btot[i]);
+   // }
+   // printf("==> ddef->etot:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->etot[i]);
+   // }
+   // printf("==> ddef->mocc:\n");
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    printf("     [%2d]: %f\n", i, ddef->mocc[i]);
+   // }
+
+   esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
+   ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
+
+   p7_oprofile_ReconfigUnihit(om, saveL);     /* process each domain in unihit mode, regardless of om->mode     */
+   i           = -1;
+   triggered   = FALSE;
+
+   /* check test states at each posi */
+   for (j = 1; j <= sq->n; j++)
+   {
+      rt1_test  = ddef->mocc[j];
+      rt2_btest = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
+      rt2_etest = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
+
+      // printf("\n[%2d] ::\n", j);
+      // printf("       rt1: %f < %f == %s\n",
+      //    rt1_test, ddef->rt1, (rt1_test < ddef->rt1 ? "TRUE" : "FALSE") );
+      // printf("     rt2_b: %f < %f == %s\n",
+      //    rt2_btest, ddef->rt2, (rt2_btest < ddef->rt2 ? "TRUE" : "FALSE") );
+      // printf("     rt1_e: %f < %f == %s\n",
+      //    rt2_etest, ddef->rt2, (rt2_etest < ddef->rt2 ? "TRUE" : "FALSE") );
+   }
+
+   for (j = 1; j <= sq->n; j++)
+   {
+      rt1_test  = ddef->mocc[j];
+      rt2_btest = ddef->mocc[j] - 
+                  (ddef->btot[j] - ddef->btot[j - 1]);
+      rt2_etest = ddef->mocc[j] - 
+                  (ddef->etot[j] - ddef->etot[j - 1]);
+
+      if (! triggered)
+      {  /* xref J2/101 for what the logic below is: */
+         if       ( rt2_btest < ddef->rt2 ) i = j;
+         else if  ( i == -1 )               i = j;
+         if       ( rt1_test >= ddef->rt1 ) triggered = TRUE;
+      }
+      else if ( rt2_etest < ddef->rt2 )
+      {
+         printf("REGION: (%d,%d)\n", i, j);
+         /* We have a region i..j to evaluate. */
+         p7_omx_GrowTo(fwd, om->M, j - i + 1, j - i + 1);
+         p7_omx_GrowTo(bck, om->M, j - i + 1, j - i + 1);
+         ddef->nregions++;
+         if (is_multidomain_region(ddef, i, j))
+         {
+            printf("MULTI-DOMAIN\n");
+            /* This region appears to contain more than one domain, so we have to
+             * resolve it by cluster analysis of posterior trace samples, to define
+             * one or more domain envelopes.
+             */
+            ddef->nclustered++;
+
+            /* Resolve the region into domains by stochastic trace
+             * clustering; assign position-specific null2 model by
+             * stochastic trace clustering; there is redundancy
+             * here; we will consolidate later if null2 strategy
+             * works
+             */
+            p7_oprofile_ReconfigMultihit(om, saveL);
+            p7_Forward(sq->dsq + i - 1, j - i + 1, om, fwd, NULL);
+
+            region_trace_ensemble(ddef, om, sq->dsq, i, j, fwd, bck, &nc);
+            p7_oprofile_ReconfigUnihit(om, saveL);
+            /* ddef->n2sc is now set on i..j by the traceback-dependent method */
+
+            last_j2 = 0;
+            for (d = 0; d < nc; d++) {
+               p7_spensemble_GetClusterCoords(ddef->sp, d, &i2, &j2, NULL, NULL, NULL);
+               if (i2 <= last_j2) ddef->noverlaps++;
+
+               /* Note that k..m coords on model are available, but
+                  * we're currently ignoring them.  This leads to a
+                  * rare clustering bug that we eventually need to fix
+                  * properly [xref J3/32]: two different regions in one
+                  * profile HMM might have hit same seq domain, and
+                  * when we now go to calculate an OA trace, nothing
+                  * constrains us to find the two different alignments
+                  * to the HMM; in fact, because OA is optimal, we'll
+                  * find one and the *same* alignment, leading to an
+                  * apparent duplicate alignment in the output.
+                  *
+                  * Registered as #h74, Dec 2009, after EBI finds and
+                  * reports it.  #h74 is worked around in p7_tophits.c
+                  * by hiding all but one envelope with an identical
+                  * alignment, in the rare event that this
+                  * happens. [xref J5/130].
+               */
+               ddef->nenvelopes++;
+
+               /*the !long_target argument will cause the function to recompute null2
+                * scores if this is part of a long_target (nhmmer) pipeline */
+               if (rescore_isolated_domain_TEST(ddef, om, sq, ntsq, fwd, bck, i2, j2, TRUE, bg, long_target, bg_tmp, scores_arr, fwd_emissions_arr, 
+                                                gm, gxf, gxb, gm_ddef) == eslOK)
+                  last_j2 = j2;
+            }
+            p7_spensemble_Reuse(ddef->sp);
+            p7_trace_Reuse(ddef->tr);
+         }
+         else
+         {
+            printf("SINGLE-DOMAIN\n");
+            /* The region looks simple, single domain; convert the region to an envelope. */
+            ddef->nenvelopes++;
+            rescore_isolated_domain_TEST(ddef, om, sq, ntsq, fwd, bck, i, j, FALSE, bg, long_target, bg_tmp, scores_arr, fwd_emissions_arr,
+                                         gm, gxf, gxb, gm_ddef );
+         }
+         i     = -1;
+         triggered = FALSE;
+      }
+   }
+
+   /* Restore model to uni/multihit mode, and to its original length model */
+   if (p7_IsMulti(save_mode)) p7_oprofile_ReconfigMultihit(om, saveL);
+   else                       p7_oprofile_ReconfigUnihit  (om, saveL);
+   return eslOK;
+}
 
 
 /*****************************************************************
@@ -1004,6 +1174,129 @@ rescore_isolated_domain(P7_DOMAINDEF *ddef, P7_OPROFILE *om, const ESL_SQ *sq, c
 
    }
 
+
+   dom->iali          = dom->ad->sqfrom;
+   dom->jali          = dom->ad->sqto;
+   dom->ienv          = i;
+   dom->jenv          = j;
+   dom->envsc         = envsc;         /* in units of NATS */
+   dom->oasc          = oasc;        /* in units of expected # of correctly aligned residues */
+   dom->dombias       = 0.0; /* gets set later, using bg->omega and dombias */
+   dom->bitscore      = 0.0; /* gets set later by caller, using envsc, null score, and dombias */
+   dom->lnP           = 0.0; /* gets set later by caller, using bitscore */
+   dom->is_reported   = FALSE; /* gets set later by caller */
+   dom->is_included   = FALSE; /* gets set later by caller */
+
+
+   ddef->ndom++;
+
+   p7_trace_Reuse(ddef->tr);
+   return eslOK;
+
+ERROR:
+   p7_trace_Reuse(ddef->tr);
+   return status;
+}
+
+static int
+rescore_isolated_domain_TEST(
+                        P7_DOMAINDEF *ddef, P7_OPROFILE *om, const ESL_SQ *sq, const ESL_SQ *ntsq,
+                        P7_OMX *ox1, P7_OMX *ox2, int i, int j, int null2_is_done, P7_BG *bg, int long_target,
+                        P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr,
+                        /* DRICH EDITS */
+                        P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef)
+{
+   P7_DOMAIN     *dom           = NULL;
+   int            Ld            = j - i + 1;
+   float          domcorrection = 0.0;
+   float          envsc, oasc;
+   int            z;
+   int            pos;
+   float          null2[p7_MAXCODE];
+   int            status;
+   int            max_env_extra = 20;
+   int            orig_L;
+
+   /* GENERIC ADDDITIONS */
+   float          g_envsc, g_oasc;
+   P7_DOMAIN     *gm_dom        = NULL;
+   float          gm_domcorrection = 0.0f;
+
+   // if (long_target) {
+   //    //temporarily change model length to env_len. The nhmmer pipeline will tack
+   //    //on the appropriate cost to account for the longer actual window
+   //    orig_L = om->L;
+   //    p7_oprofile_ReconfigRestLength(om, j - i + 1);
+   // }
+
+   // if (long_target && scores_arr != NULL) {
+   //    // Modify bg and om in-place to avoid having to clone (allocate) a massive
+   //    // number of times when there are many hits
+   //    reparameterize_model (bg, om, sq, i, j - i + 1, fwd_emissions_arr, bg_tmp->f, scores_arr);
+   // }
+
+   p7_Forward (sq->dsq + i - 1, Ld, om,      ox1, &envsc);
+   p7_Backward(sq->dsq + i - 1, Ld, om, ox1, ox2, NULL);
+
+   /* Generic additions */
+   p7_GForward (sq->dsq + i - 1, Ld, gm, gxf,&g_envsc);
+   p7_GBackward(sq->dsq + i - 1, Ld, gm, gxb, NULL);
+   p7_GDecoding(gm, gxf, gxb, gxb);
+
+   status = p7_Decoding(om, ox1, ox2, ox2);      /* <ox2> is now overwritten with post probabilities     */
+   if (status == eslERANGE) { /* rare: numeric overflow; domain is assumed to be repetitive garbage [J3/119-121] */
+      reparameterize_model(bg, om, NULL, 0, 0, fwd_emissions_arr, bg_tmp->f, scores_arr); /* revert to original bg model */
+      status = eslFAIL;
+      goto ERROR;
+   }
+
+   /* Find an optimal accuracy alignment */
+   p7_OptimalAccuracy(om, ox2, ox1, &oasc);      /* <ox1> is now overwritten with OA scores              */
+   p7_OATrace        (om, ox2, ox1, ddef->tr);   /* <tr>'s seq coords are offset by i-1, rel to orig dsq */
+
+   /* hack the trace's sq coords to be correct w.r.t. original dsq */
+   for (z = 0; z < ddef->tr->N; z++) {
+      if (ddef->tr->i[z] > 0) ddef->tr->i[z] += i - 1;
+   }
+
+   /* get ptr to next empty domain structure in domaindef's results */
+   if (ddef->ndom == ddef->nalloc) {
+      ESL_REALLOC(ddef->dcl, sizeof(P7_DOMAIN) * (ddef->nalloc * 2));
+      ddef->nalloc *= 2;
+   }
+   dom = &(ddef->dcl[ddef->ndom]);
+   dom->ad             = p7_alidisplay_Create(ddef->tr, 0, om, sq, ntsq);
+   dom->scores_per_pos = NULL;
+
+   /* Compute bias correction (for non-longtarget case)
+      *
+      * Is null2 set already for this i..j? (It is, if we're in a domain that
+      * was defined by stochastic traceback clustering in a multidomain region;
+      * it isn't yet, if we're in a simple one-domain region). If it isn't,
+      * do it now, by the expectation (posterior decoding) method.
+      */
+   if (!null2_is_done) {
+      p7_Null2_ByExpectation(om, ox2, null2);
+      for (pos = i; pos <= j; pos++) {
+         ddef->n2sc[pos]  = logf(null2[sq->dsq[pos]]);
+      }
+      
+      p7_GNull2_ByExpectation(gm, gxb, null2);
+      for (pos = i; pos <= j; pos++) {
+         gm_ddef->n2sc[pos]  = logf(null2[sq->dsq[pos]]);
+      }
+   }
+   for (pos = i; pos <= j; pos++) {
+      domcorrection   += ddef->n2sc[pos];         /* domcorrection is in units of NATS */
+   }
+   dom->domcorrection = domcorrection; /* in units of NATS */
+
+   for (pos = i; pos <= j; pos++) {
+      gm_domcorrection   += gm_ddef->n2sc[pos];         /* domcorrection is in units of NATS */
+   }
+
+   printf("==> DOM_CORRECTION: OPTIMIZED: %.9f, GENERIC: %.9f\n", 
+      domcorrection, gm_domcorrection);
 
    dom->iali          = dom->ad->sqfrom;
    dom->jali          = dom->ad->sqto;

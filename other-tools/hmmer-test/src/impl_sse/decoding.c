@@ -214,11 +214,11 @@ p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P
     //   i, 
     //   ddef->btot[i], oxf->xmx[(i-1)*p7X_NXCELLS+p7X_B], oxb->xmx[(i-1)*p7X_NXCELLS+p7X_B],
     //   ddef->etot[i], oxf->xmx[i*p7X_NXCELLS+p7X_E], oxb->xmx[i*p7X_NXCELLS+p7X_E] );
-    printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f\n", 
-      i, 
-      ddef->btot[i], log(oxf->xmx[(i-1)*p7X_NXCELLS+p7X_B]), log(oxb->xmx[(i-1)*p7X_NXCELLS+p7X_B]),
-      ddef->etot[i], log(oxf->xmx[i*p7X_NXCELLS+p7X_E]), log(oxb->xmx[i*p7X_NXCELLS+p7X_E]),
-      ddef->mocc[i] );
+    // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f\n", 
+    //   i, 
+    //   ddef->btot[i], log(oxf->xmx[(i-1)*p7X_NXCELLS+p7X_B]), log(oxb->xmx[(i-1)*p7X_NXCELLS+p7X_B]),
+    //   ddef->etot[i], log(oxf->xmx[i*p7X_NXCELLS+p7X_E]), log(oxb->xmx[i*p7X_NXCELLS+p7X_E]),
+    //   ddef->mocc[i] );
   }
 
   if (isinf(scaleproduct)) return eslERANGE;

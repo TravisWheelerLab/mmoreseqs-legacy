@@ -33,12 +33,13 @@ DOMAIN_DEF_Create()
    
    dom_def = (DOMAIN_DEF*) ERROR_malloc( sizeof(DOMAIN_DEF) );
 
-   dom_def->b_tot    = VECTOR_FLT_Create();
-   dom_def->e_tot    = VECTOR_FLT_Create();
-   dom_def->m_occ    = VECTOR_FLT_Create();
-   dom_def->null2_sc = VECTOR_FLT_Create();
-   dom_def->st_freq  = MATRIX_2D_Create(1, 1);
-   dom_def->sp_freq  = VECTOR_FLT_Create();
+   dom_def->b_tot       = VECTOR_FLT_Create();
+   dom_def->e_tot       = VECTOR_FLT_Create();
+   dom_def->m_occ       = VECTOR_FLT_Create();
+   dom_def->null2_sc    = VECTOR_FLT_Create();
+   dom_def->null2_exp   = VECTOR_FLT_Create();
+   dom_def->st_freq     = MATRIX_2D_Create(1, 1);
+   dom_def->sp_freq     = VECTOR_FLT_Create();
 
    /* default values */
    dom_def->rt1           = 0.25;
@@ -62,6 +63,7 @@ DOMAIN_DEF_Destroy( DOMAIN_DEF* dom_def )
    VECTOR_FLT_Destroy( dom_def->e_tot );
    VECTOR_FLT_Destroy( dom_def->m_occ );
    VECTOR_FLT_Destroy( dom_def->null2_sc );
+   VECTOR_FLT_Destroy( dom_def->null2_exp );
    MATRIX_2D_Destroy( dom_def->st_freq );
    VECTOR_FLT_Destroy( dom_def->sp_freq );
 

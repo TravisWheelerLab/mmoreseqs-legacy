@@ -430,7 +430,7 @@ int p7_GDecoding_old(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GM
  */
 int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef)
 {
-  printf("=== p7_GDomainDecoding ===\n");
+  printf("=== p7_GDomainDecoding() ===\n");
 
   int L = fwd->L;
   float overall_logp = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
@@ -497,19 +497,19 @@ int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bc
     //   ddef->mocc[i] );
   }
 
-  printf("==> ddef (posteriors):\n");
-   printf("==> ddef->btot:\n");
-   for (int i = 0; i < L + 1; i++) {
-      printf("     [%2d]: %9.4f\n", i, ddef->btot[i]);
-   }
-   printf("==> ddef->etot:\n");
-   for (int i = 0; i < L + 1; i++) {
-      printf("     [%2d]: %9.4f\n", i, ddef->etot[i]);
-   }
-   printf("==> ddef->mocc:\n");
-   for (int i = 0; i < L + 1; i++) {
-      printf("     [%2d]: %9.4f\n", i, ddef->mocc[i]);
-   }
+  // printf("==> ddef (posteriors):\n");
+  //  printf("==> ddef->btot:\n");
+  //  for (int i = 0; i < L + 1; i++) {
+  //     printf("     [%2d]: %9.4f\n", i, ddef->btot[i]);
+  //  }
+  //  printf("==> ddef->etot:\n");
+  //  for (int i = 0; i < L + 1; i++) {
+  //     printf("     [%2d]: %9.4f\n", i, ddef->etot[i]);
+  //  }
+  //  printf("==> ddef->mocc:\n");
+  //  for (int i = 0; i < L + 1; i++) {
+  //     printf("     [%2d]: %9.4f\n", i, ddef->mocc[i]);
+  //  }
 
   return eslOK;
 }

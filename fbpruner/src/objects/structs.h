@@ -910,7 +910,8 @@ typedef struct {
    VECTOR_FLT*    b_tot;         /* cumulative number of times expected to BEGIN at or before q_0 */
    VECTOR_FLT*    e_tot;         /* cumulative number of times expected to END at or before q_0 */
    VECTOR_FLT*    m_occ;         /* probability X emitted by core model */
-   VECTOR_FLT*    null2_sc;      /* null2 scores */
+   VECTOR_FLT*    null2_exp;     /* null2 expectation by character */
+   VECTOR_FLT*    null2_sc;      /* null2 scores by position */
    /* working space for computing null2 score */
    MATRIX_2D*     st_freq;       /* normal state frequencies */
    VECTOR_FLT*    sp_freq;       /* special state frequencies */

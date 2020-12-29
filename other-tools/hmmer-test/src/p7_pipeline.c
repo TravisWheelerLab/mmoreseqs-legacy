@@ -22,7 +22,7 @@
 
 #include "esl_sqio.h" //!!!!DEBUG
 
-#include "drich_funcs.h"
+#include "dhr/dhr.h"
 
 /* Struct used to pass a collection of useful temporary objects around
  * within the LongTarget functions
@@ -932,7 +932,9 @@ p7_Pipeline(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, cons
 int
 p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, /* DAVID RICH EDIT */ P7_PROFILE *gm)
 {
-   FILE* fp = NULL;
+   int DEBUG_TRUE = 1;
+   FILE* fp       = NULL;
+   float sc       = 0.0f;
 
    P7_HIT          *hit     = NULL;     /* ptr to the current hit output data      */
    float            usc, vfsc, fwdsc;   /* filter scores                           */
@@ -948,7 +950,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    int              d;
    int              status;
 
-   printf("\n=== P7_PIPELINE_TEST (start) ===\n");
+   printf("\n=== P7_PIPELINE_TEST (start) !!!! ===\n");
    printf("PROFILE:\t%s\n", om->name);
    printf("SEQUENCE:\t%s\n", sq->name);
 
@@ -1002,7 +1004,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       printf("p7_SCAN_MODELS reconfig...\n");
       if (pli->hfp) p7_oprofile_ReadRest(pli->hfp, om);
       p7_oprofile_ReconfigRestLength(om, sq->n);
-      if ((status = p7_pli_NewModelThresholds(pli, om)) != eslOK) return status; /* pli->errbuf has err msg set */
+      // if ((status = p7_pli_NewModelThresholds(pli, om)) != eslOK) return status; /* pli->errbuf has err msg set */
    }
 
    /* ONLY RUN IF MSV FINDS STRONG ENOUGH SCORE TO PASS BUT TOO WEAK TO PASS DIRECT TO FORWARD_BACKWARD
@@ -1046,11 +1048,12 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("==> UNOPTIMIZED VERSIONS\n");
    float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
    float opt_sc;
-   P7_GMX *gmx_vit = p7_gmx_Create(om->M, om->L);
-   P7_GMX *gmx_fwd = p7_gmx_Create(om->M, om->L);
-   P7_GMX *gmx_bck = p7_gmx_Create(om->M, om->L);
-   P7_GMX *gmx_pp  = p7_gmx_Create(om->M, om->L);
-   P7_TRACE *tr = p7_trace_Create();
+   P7_GMX *gmx_vit         = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_fwd         = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_bck         = p7_gmx_Create(om->M, om->L);
+   P7_GMX *gmx_pp          = p7_gmx_Create(om->M, om->L);
+   P7_TRACE *tr            = p7_trace_Create();
+   P7_DOMAINDEF *gm_ddef   = p7_domaindef_Create(pli->r);
 
    /* GENERIC FUNCTIONS */
 
@@ -1091,68 +1094,73 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("=== GENERIC POSTERIOR ===\n");
    // p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
    p7_GDecoding( gm, gmx_fwd, gmx_bck, gmx_pp );
-
    fp = fopen("test_output/hmmer.posterior.mx", "w+");
    DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
    fclose(fp);
    fp = fopen("test_output/hmmer.posterior.log.mx", "w+");
    DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
    fclose(fp);
-   
-   p7_GNull2_ByExpectation( gm, gmx_pp, pli->ddef->n2sc);
-
-   // printf("==> GENERIC NULL2 SCORE <=\n"); 
-   // printf("n2sc [L=%d]:\n", pli->ddef->L);
-   // for (int i = 0; i < gm->abc->Kp; i++) {
-   //    printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
-   //    if ( (i + 1) % 5 == 0 ) printf("\n");
-   // }
-   // printf("\n");
 
    float seqbias1, seqbias2;
 
-   seqbias1 = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
-   seqbias1 = p7_FLogsum(0.0, log(bg->omega) + seqbias1);
-   printf("seqbias1: %f %f, omega: %f %f\n", seqbias1, log(seqbias1), bg->omega, log(bg->omega));
-
-   esl_vec_FLog(pli->ddef->n2sc, gm->abc->Kp);
-
-   // printf("==> GENERIC NULL2 SCORE <=\n"); 
-   // printf("n2sc [L=%d]:\n", pli->ddef->L);
-   // for (int i = 0; i < gm->abc->Kp; i++) {
-   //    printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
-   //    if ( (i + 1) % 5 == 0 ) printf("\n");
+   // printf("==> OPTIMIZED NULL2 BYEXPECTATION <=\n");
+   // p7_omx_GrowTo(pli->oxf, om->M, om->L, om->L);
+   // p7_omx_GrowTo(pli->oxb, om->M, om->L, om->L);
+   // p7_Forward (sq->dsq, Ld, om, pli->oxf, &sc);
+   // p7_Backward(sq->dsq, Ld, om, pli->oxf, pli->oxb, NULL);
+   // status = p7_Decoding(om, pli->oxf, pli->oxb, pli->oxb);  
+   // p7_Null2_ByExpectation( om, pli->oxb, pli->ddef->n2sc);
+   // fp = fopen("test_output/hmmer.null2sc.opt.csv", "w+");
+   // fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
+   // for (int i = 0; i < sq->n + 1; i++) {
+   //    fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
    // }
-   // printf("\n");
+   // fprintf(fp, "\n");
+   // fclose(fp);
+   // seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
+   // printf("OPT seqbias[%ld] (Fsum, pre-omega): %f\n", 
+   //    sq->n + 1, seqbias1 );
+   // seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
+   // printf("OPT seqbias: %f %f, omega: %f %f\n", 
+   //    seqbias, log(seqbias), bg->omega, log(bg->omega));
 
+   printf("==> GENERIC NULL2 BYEXPECTATION <=\n"); 
+   p7_GNull2_ByExpectation( gm, gmx_pp, pli->ddef->n2sc);
+
+   fp = fopen("test_output/hmmer.null2sc.gen.csv", "w+");
+   fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
+   for (int i = 0; i < sq->n + 1; i++) {
+      fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
+   }
+   fclose(fp);
    seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
-   printf("seqbias (pre): %f, omega: %f\n", seqbias, log(bg->omega));
+   printf("GEN seqbias (pre): %f, omega: %f\n", 
+      seqbias, log(bg->omega));
    seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
-   printf("seqbias: %f\n", seqbias);
-
-   seqbias1 = esl_vec_FSum(pli->ddef->n2sc, gm->abc->K);
-   printf("seqbias2 (pre): %f\n", seqbias1 );
-   seqbias1 = p7_FLogsum(0.0, log(bg->omega) + seqbias1);
-   printf("seqbias2: %f\n", seqbias1 );
+   printf("GEN seqbias: %f\n", 
+      seqbias);
 
    /* OPTIMIZED FUNCTIONS */
 
    printf("=== OPTIMIZED POSTERIOR HEURISTICS ===\n");
-   status = p7_domaindef_ByPosteriorHeuristics(
-      sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
+   printf("==> OPTIMIZED NULL2 BYEXPECTATION <=\n"); 
+   // status = p7_domaindef_ByPosteriorHeuristics(
+   //    sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
+   status = p7_domaindef_ByPosteriorHeuristics_TEST(
+      sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL,
+      gm, gmx_fwd, gmx_bck, gm_ddef);
    
-   printf("==> OPTIMIZED NULL2 SCORE <=\n"); 
-   printf("n2sc [L=%d]:\n", pli->ddef->L);
+   fp = fopen("test_output/hmmer.null2sc.opt.csv", "w+");
+   fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
    for (int i = 0; i < pli->ddef->L; i++) {
-      printf("[%2d] %-9.6f ", i, pli->ddef->n2sc[i] );
-      if ( (i + 1) % 5 == 0 ) printf("\n");
+      fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
    }
-   printf("\n");
+   fclose(fp);
 
    if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
-   if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
-   if (pli->ddef->nenvelopes == 0) return eslOK; /* rarer: region was found, stochastic clustered, no envelopes found */
-   if (pli->ddef->ndom       == 0) return eslOK; /* even rarer: envelope found, no domain identified {iss131}         */
+   // if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
+   // if (pli->ddef->nenvelopes == 0) return eslOK; /* rarer: region was found, stochastic clustered, no envelopes found */
+   // if (pli->ddef->ndom       == 0) return eslOK; /* even rarer: envelope found, no domain identified {iss131}         */
 
    /* Calculate the null2-corrected per-seq score */
    printf("# seqbias = %.9f, bg->omega = %.9f\n",
@@ -1162,8 +1170,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    {
       printf("=== do_null2 ===\n");
       seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
-      printf("# seqbias (FSum, pre-omega): %f\n", seqbias);
+      printf("# seqbias[%ld] (FSum, pre-omega): %f\n", sq->n + 1, seqbias);
       seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
+      printf("# seqbias (FSum, post-omega): %f\n", seqbias);
    }
    else
    {
@@ -1176,7 +1185,6 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       fwdsc, nullsc, seqbias);
    printf("# pre_score: %.9f, seq_score: %.9f, fwdsc: %.9f\n",
           pre_score, seq_score, fwdsc );
-   exit(0);
 
    /* prescore */
    lnP = esl_exp_logsurv (pre_score,  om->evparam[p7_FTAU], om->evparam[p7_FLAMBDA]);
@@ -1197,7 +1205,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    sum_score = 0.0f;
    seqbias   = 0.0f;
    
-
+   printf("# ==> OPTIMIZED BIAS CORRECTION (PER DOMAIN)\n");
    printf("# pli->ddef->ndom = %d\n", pli->ddef->ndom);
    Ld        = 0;
    if (pli->do_null2)
@@ -1211,6 +1219,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
             seqbias   += pli->ddef->dcl[d].domcorrection; /* NATS */
          }
       }
+      printf("# seq_bias (pre-omega): %.9f, omega: %.9f\n", seqbias, log(bg->omega));
       seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);  /* NATS */
    }
    else
@@ -1225,7 +1234,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       }
       seqbias = 0.0;
    } 
-   
+   printf("# seq_bias (final): %.9f\n", seqbias);
    
    /* */
    sum_score += (sq->n - Ld) * log((float) sq->n / (float) (sq->n + 3)); /* NATS */
@@ -1234,7 +1243,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
 
    // printf("=> DOMAIN POSTERIORS\n");
    // p7_domaindef_DumpPosteriors( stdout, ddef);
-
+   
    printf("# sum_score: %.9f, pre2_score: %.9f\n", 
       sum_score, pre2_score);
 
@@ -1257,8 +1266,9 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    printf("# ln(P): %.9f, P: %.9f = %4.3e, seq_score: %.9f, fparams: %.3f %.3f\n", 
       lnP, exp(lnP), exp(lnP), seq_score, om->evparam[p7_FTAU], om->evparam[p7_FLAMBDA] );
 
-   if (p7_pli_TargetReportable(pli, seq_score, lnP))
+   if (p7_pli_TargetReportable(pli, seq_score, lnP) || 1 )
    {
+      printf("=> HIT ADDED!\n");
       p7_tophits_CreateNextHit(hitlist, &hit);
       if (pli->mode == p7_SEARCH_SEQS) {
          if (                       (status  = esl_strdup(sq->name, -1, &(hit->name)))  != eslOK) ESL_EXCEPTION(eslEMEM, "allocation failure");
@@ -1334,19 +1344,19 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
        */
       if (pli->use_bit_cutoffs)
       {
-         if (p7_pli_TargetReportable(pli, hit->score, hit->lnP))
+         if (p7_pli_TargetReportable(pli, hit->score, hit->lnP) || TRUE)
          {
             hit->flags |= p7_IS_REPORTED;
-            if (p7_pli_TargetIncludable(pli, hit->score, hit->lnP))
+            if (p7_pli_TargetIncludable(pli, hit->score, hit->lnP) || TRUE)
                hit->flags |= p7_IS_INCLUDED;
          }
 
          for (d = 0; d < hit->ndom; d++)
          {
-            if (p7_pli_DomainReportable(pli, hit->dcl[d].bitscore, hit->dcl[d].lnP))
+            if (p7_pli_DomainReportable(pli, hit->dcl[d].bitscore, hit->dcl[d].lnP) || TRUE)
             {
                hit->dcl[d].is_reported = TRUE;
-               if (p7_pli_DomainIncludable(pli, hit->dcl[d].bitscore, hit->dcl[d].lnP))
+               if (p7_pli_DomainIncludable(pli, hit->dcl[d].bitscore, hit->dcl[d].lnP) || TRUE)
                   hit->dcl[d].is_included = TRUE;
             }
          }

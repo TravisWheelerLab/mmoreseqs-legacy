@@ -116,22 +116,22 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    run_Decode_Special_Posterior_Quad( 
       q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, sp_MX_post );
    
-   printf("=> ddef (posteriors):\n");
-   printf("==> ddef->btot:\n");
-   for (int i = 0; i < Q + 1; i++) {
-      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
-         i, dom_def->b_tot->data[i], log(dom_def->b_tot->data[i]), exp(dom_def->b_tot->data[i]) );
-   }
-   printf("==> ddef->etot:\n");
-   for (int i = 0; i < Q + 1; i++) {
-      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
-         i, dom_def->e_tot->data[i], log(dom_def->e_tot->data[i]), exp(dom_def->e_tot->data[i]) );
-   }
-   printf("==> ddef->mocc:\n");
-   for (int i = 0; i < Q + 1; i++) {
-      printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
-         i, dom_def->m_occ->data[i], log(dom_def->m_occ->data[i]), exp(dom_def->m_occ->data[i]) );
-   }
+   // printf("=> ddef (posteriors):\n");
+   // printf("==> ddef->btot:\n");
+   // for (int i = 0; i < Q + 1; i++) {
+   //    printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+   //       i, dom_def->b_tot->data[i], log(dom_def->b_tot->data[i]), exp(dom_def->b_tot->data[i]) );
+   // }
+   // printf("==> ddef->etot:\n");
+   // for (int i = 0; i < Q + 1; i++) {
+   //    printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+   //       i, dom_def->e_tot->data[i], log(dom_def->e_tot->data[i]), exp(dom_def->e_tot->data[i]) );
+   // }
+   // printf("==> ddef->mocc:\n");
+   // for (int i = 0; i < Q + 1; i++) {
+   //    printf("     [%2d]: %9.4f %9.4f %9.4f\n", 
+   //       i, dom_def->m_occ->data[i], log(dom_def->m_occ->data[i]), exp(dom_def->m_occ->data[i]) );
+   // }
 
    /*  */
    for (q_0 = 1; q_0 <= Q; q_0++)
@@ -142,13 +142,13 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
       rt2_btest = VEC_X(dom_def->m_occ, q_0) - ( VEC_X(dom_def->b_tot, q_0) - VEC_X(dom_def->b_tot, q_1) );
       rt2_etest = VEC_X(dom_def->m_occ, q_0) - ( VEC_X(dom_def->e_tot, q_0) - VEC_X(dom_def->e_tot, q_1) );
 
-      printf("\n[%2d] ::\n", q_0);
-      printf("       rt1: %9.4f < %9.4f == %s\n",
-         rt1_test, dom_def->rt1, (rt1_test < dom_def->rt1 ? "TRUE" : "FALSE") );
-      printf("     rt2_b: %9.4f < %9.4f == %s\n",
-         rt2_btest, dom_def->rt2, (rt2_btest < dom_def->rt1 ? "TRUE" : "FALSE") );
-      printf("     rt1_e: %9.4f < %9.4f == %s\n",
-         rt2_etest, dom_def->rt2, (rt2_etest < dom_def->rt1 ? "TRUE" : "FALSE") );
+      // printf("\n[%2d] ::\n", q_0);
+      // printf("       rt1: %9.4f < %9.4f == %s\n",
+      //    rt1_test, dom_def->rt1, (rt1_test < dom_def->rt1 ? "TRUE" : "FALSE") );
+      // printf("     rt2_b: %9.4f < %9.4f == %s\n",
+      //    rt2_btest, dom_def->rt2, (rt2_btest < dom_def->rt1 ? "TRUE" : "FALSE") );
+      // printf("     rt1_e: %9.4f < %9.4f == %s\n",
+      //    rt2_etest, dom_def->rt2, (rt2_etest < dom_def->rt1 ? "TRUE" : "FALSE") );
    }
 
    /* NOTE: only reporting the best region. Refer to p7_domaindef_ByPosteriorHeuristics() to report multiple domains and build multidomain */

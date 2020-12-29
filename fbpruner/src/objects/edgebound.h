@@ -246,4 +246,12 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
                            int            Q,
                            int            T );
 
+/*! FUNCTION:  EDGEBOUNDS_Cover_Range()
+ *  SYNOPSIS:  For testing.
+ *             Creates edgebound space that fills square with Q_range in Query and T_range in Target in DP Matrix.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Cover_Range(    EDGEBOUNDS*    edg,
+                                       RANGE          Q_range,
+                                       RANGE          T_range );
+
 #endif /* _EDGEBOUND_H */

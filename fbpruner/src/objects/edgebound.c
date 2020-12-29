@@ -783,13 +783,35 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
                            int            T )
 {
    EDGEBOUNDS_Clear(edg);
-   for (int q_0 = 0; q_0 < Q+1; q_0++) {
-      EDGEBOUNDS_Pushback(edg, &(BOUND){q_0,0,T+1});
+   for (int q_0 = 0; q_0 < Q; q_0++) {
+      EDGEBOUNDS_Pushback(edg, &(BOUND){q_0,0,T});
    }
 }
 
-/*
- *  FUNCTION: EDGEBOUNDS_Clear()
+/*! FUNCTION:  EDGEBOUNDS_Cover_Range()
+ *  SYNOPSIS:  For testing.
+ *             Creates edgebound space that fills square with Q_range in Query and T_range in Target.
+ */
+EDGEBOUNDS* EDGEBOUNDS_Cover_Range(    EDGEBOUNDS*    edg,
+                                       RANGE          Q_range,
+                                       RANGE          T_range )
+{
+   int Q_beg, Q_end;
+   int T_beg, T_end;
+
+   Q_beg = Q_range.beg;
+   Q_end = Q_range.end;
+   T_beg = T_range.beg;
+   T_end = T_range.end;
+
+   EDGEBOUNDS_Clear(edg);
+   for (int q_0 = Q_beg; q_0 < Q_end; q_0++) {
+      EDGEBOUNDS_Pushback(edg, &(BOUND){q_0, T_beg, T_end});
+   }
+}
+
+
+/*! FUNCTION: EDGEBOUNDS_Clear()
  *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list.
  */
 void 
@@ -797,3 +819,4 @@ EDGEBOUNDS_Clear( EDGEBOUNDS* edg )
 {
    edg->N = 0;
 }
+

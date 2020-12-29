@@ -1158,6 +1158,15 @@ void WORK_cloud_search( WORKER* worker )
    {
       MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
       MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
+
+      #if (DEBUG)
+      {
+         /* for testing: cloud fills entire dp matrix */
+         // EDGEBOUNDS_Cover_Matrix(edg_row, Q, T);
+         // MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
+         // MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
+      }
+      #endif
    }
 
    /* sparse bounded forward */
@@ -1355,6 +1364,7 @@ void WORK_convert_scores( WORKER* worker )
 
    int   T           = worker->t_prof->N;
    int   Q           = worker->q_seq->N;
+   float sc;
    /* alignment scores */
    float nat_sc      = 0.0f;  /* score in NATS */
    float pre_sc      = 0.0f;  /* adjusted for compo bias / score in BITS */
@@ -1405,9 +1415,26 @@ void WORK_convert_scores( WORKER* worker )
    seq_bias = 0.0f;
    if ( worker->args->is_compo_bias )
    {
-      /* Find domains and assesses domain-specific correction bias */
-      /* see p7_domaindef_ByPosteriorHeuristics() */
+      /*! NOTE: Find domains and assesses domain-specific correction bias
+       *  See p7_domaindef_ByPosteriorHeuristics().
+       *  Currently, there is no domain finding. The search cloud is considered 
+       *  a single complete domain and bias is assessed for the entire region. 
+       */
 
+      // #if (DEBUG || TRUE)
+      // {
+      //    /* for testing: cloud fills entire dp matrix */
+      //    EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
+      //    MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
+      //    MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
+      //    run_Bound_Forward_Sparse( worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
+      //    printf("Sparse Forward  (full): %.9f\n", sc);
+      //    run_Bound_Backward_Sparse( worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
+      //    printf("Sparse Backward (full): %.9f\n", sc);
+      // }
+      // #endif
+
+      /* For testing: Quadratic assesses bias for the entire tightest bounding box containing entire cloud. */ 
       if ( tasks->quad_bias_corr == true )
       {
          run_Posterior_Quad(
@@ -1415,6 +1442,7 @@ void WORK_convert_scores( WORKER* worker )
             worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
             worker->dom_def );
       }
+      /* Sparse assesses bias only for cells contained by cloud */ 
       if ( tasks->sparse_bias_corr == true )
       {
          run_Posterior_Sparse(

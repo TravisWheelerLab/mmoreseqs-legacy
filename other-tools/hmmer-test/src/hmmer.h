@@ -1533,7 +1533,14 @@ extern int p7_domaindef_ByViterbi            (P7_PROFILE *gm, const ESL_SQ *sq, 
 extern int p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPROFILE *om, P7_OMX *oxf, P7_OMX *oxb, P7_OMX *fwd, P7_OMX *bck,
     P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
     P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr);
-
+extern int
+p7_domaindef_ByPosteriorHeuristics_TEST(
+                                   const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPROFILE *om,
+                                   P7_OMX *oxf, P7_OMX *oxb, P7_OMX *fwd, P7_OMX *bck,
+                                   P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
+                                   P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr,
+                                   /* DRICH EDITS */
+                                   P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef);
 
 /* p7_gmx.c */
 extern P7_GMX *p7_gmx_Create (int allocM, int allocL);

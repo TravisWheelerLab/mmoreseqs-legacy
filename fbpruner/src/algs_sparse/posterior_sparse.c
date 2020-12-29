@@ -551,6 +551,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    Q_len = Q_end - Q_beg;
    T_len = T_end - T_beg;
 
+   /* TODO: temp var */
    const int NULL2_LEN = NUM_AMINO_PLUS_SPEC;
 
    // printf("=== POSTERIOR ===\n");
@@ -560,19 +561,24 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    
    MATRIX_2D_Reuse( dom_def->st_freq, (T+1), NUM_NORMAL_STATES );
    VECTOR_FLT_GrowTo( dom_def->sp_freq,  NUM_SPECIAL_STATES );
-   VECTOR_FLT_GrowTo( dom_def->null2_sc, NULL2_LEN );
+   VECTOR_FLT_GrowTo( dom_def->null2_sc, NUM_AMINO_PLUS_SPEC );
+   VECTOR_FLT_GrowTo( dom_def->null2_exp, Q+1 );
 
    /* initialize values */
-   /* for each position in query domain (sequence) */
+   /* for each position in target domain */
    for ( t_0 = 0; t_0 <= T; t_0++ ) {
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
-         MX_2D( dom_def->st_freq, t_0, st_0 ) = 0.0;
+         MX_2D( dom_def->st_freq, t_0, st_0 ) = 0.0f;
       }
    }
    /* for each special state emissions */
    for ( int st_0 = 0; st_0 < NUM_SPECIAL_STATES; st_0++ ) {
-      VEC_X( dom_def->sp_freq, st_0 ) = 0.0;
+      VEC_X( dom_def->sp_freq, st_0 ) = 0.0f;
+   }
+   /* for each position in query */
+   for ( q_0 = 0; q_0 <= Q; q_0++ ) {
+      VEC_X( dom_def->null2_exp, q_0 ) = 0.0f;
    }
 
    t_0 = 101;
@@ -786,23 +792,30 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
       VEC_X( dom_def->null2_sc, k_0 ) = log( VEC_X( dom_def->null2_sc, k_0 ) );
    }
 
-   /* multiply (add in logspace) all biases by symbol in alphabet */
-   dom_def->seq_bias = 0.0f;
-   for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      dom_def->seq_bias += VEC_X( dom_def->null2_sc, k_0 );
+   /* (?) now that we have per-character expected bias, assign them according to sequence */
+   for ( q_0 = Q_beg; q_0 < Q_end; q_0++ ) {
+      char aa     = query->seq[q_0];
+      float val   = VEC_X(dom_def->null2_sc, AA_REV[aa]);
+      VEC_X(dom_def->null2_exp, q_0) = val;
    }
 
-   /* add up all biases per character in alphabet. Modeled after esl_vec_FSum() */
-   float sum = 0.0;
-   float y, t, c;
-   c = 0.0;
-   for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
-      y = VEC_X( dom_def->null2_sc, k_0 ) - c;
-      t = sum + y;
-      c = (t - sum) - y;
-      sum = t;
+   /* multiply (add in logspace) all biases by symbol in alphabet */
+   dom_def->seq_bias = 0.0f;
+   for ( q_0 = Q_beg; q_0 < Q_end; q_0++ ) {
+      dom_def->seq_bias += VEC_X( dom_def->null2_exp, k_0 );
    }
-   dom_def->seq_bias = sum;
+
+   // /* add up all biases per character in alphabet. Modeled after esl_vec_FSum() */
+   // float sum = 0.0;
+   // float y, t, c;
+   // c = 0.0;
+   // for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
+   //    y = VEC_X( dom_def->null2_sc, k_0 ) - c;
+   //    t = sum + y;
+   //    c = (t - sum) - y;
+   //    sum = t;
+   // }
+   // dom_def->seq_bias = sum;
 
    #if DEBUG
    {
