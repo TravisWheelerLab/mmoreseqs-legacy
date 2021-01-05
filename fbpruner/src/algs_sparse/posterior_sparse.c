@@ -142,10 +142,6 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
 {
    FILE* fp = NULL;
 
-   fp = fopen("test_output/my.posterior.edg", "w");
-   EDGEBOUNDS_Dump(edg, fp);
-   fclose(fp);
-
    printf("=== run_Decode_Posterior_Sparse ===\n");
    /* query index */
    int      q_0, q_1;
