@@ -77,7 +77,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
       tasks->lin_bound_fwd    = true;     /* */  
-      tasks->lin_bound_bck    = false;     /* */
+      tasks->lin_bound_bck    = false;    /* */
       /* quadratic algs */
       tasks->quadratic        = false;    /* if any other quadratic tasks are flagged, this must be too */
       tasks->quad_fwd         = false;    /* optional */
@@ -86,7 +86,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->quad_trace       = false;    /* traceback required for cloud search  */
       tasks->quad_bound_fwd   = false;    /* required step of cloud search */
       tasks->quad_bound_bck   = false;    /* optional */
-      tasks->quad_bias_corr   = true;
+      tasks->quad_bias_corr   = false;    /* optional: requires quadratic forward backward */
    }
 
    // if ( args->is_compo_bias == BIAS_CORR_QUAD ) {

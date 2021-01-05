@@ -1441,7 +1441,8 @@ void WORK_convert_scores( WORKER* worker )
       /* Sparse assesses bias only for cells contained by cloud */ 
       if ( tasks->sparse_bias_corr == true )
       {
-         #if DEBUG || TRUE
+         /* TODO: verify whether sparse forward/backward has been computed, otherwise compute it now */
+         if (true)
          {
             /* for testing: cloud fills entire dp matrix */
             // EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
@@ -1454,18 +1455,25 @@ void WORK_convert_scores( WORKER* worker )
             run_Bound_Forward_Sparse( 
                worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
             printf("Sparse Forward  (full): %.9f\n", sc);
-            DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
-            MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_fwd, debugger->test_MX);
-            DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.sparse_fwd.mx");
-            
+            #if DEBUG
+            {
+               DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
+               MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_fwd, debugger->test_MX);
+               DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.sparse_fwd.mx");
+            }
+            #endif
+
             run_Bound_Backward_Sparse( 
                worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
             printf("Sparse Backward (full): %.9f\n", sc);
-            DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
-            MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_bck, debugger->test_MX);
-            DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.sparse_bck.mx");
+            #if DEBUG
+            {
+               DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
+               MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_bck, debugger->test_MX);
+               DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.sparse_bck.mx");
+            }
+            #endif
          }
-         #endif
 
          run_Posterior_Sparse(
             worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
@@ -1474,7 +1482,7 @@ void WORK_convert_scores( WORKER* worker )
       }
 
       /* compute sequence bias */
-      seq_bias = -1 * logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
+      seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
       printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
       seq_bias = worker->dom_def->seq_bias;
    }
