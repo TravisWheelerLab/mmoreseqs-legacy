@@ -474,6 +474,38 @@ MATRIX_2D_Diff(   MATRIX_2D*  mx_A,
    return 0;
 }
 
+/*! FUNCTION:  MATRIX_2D_Log()
+ *  SYNOPSIS:  Performs logrithmic function log() on each cell in matrix.
+ *
+ *  RETURN:    None.
+ */
+int 
+MATRIX_2D_Log(   MATRIX_2D*  mx )
+{
+   for ( int i = 0; i < mx->R; i++ ) {
+      for ( int j = 0; j < mx->C; j++ ) {
+         MX_2D( mx, i, j ) = log( MX_2D( mx, i, j ) );  
+      }
+   }
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  MATRIX_2D_Exp()
+ *  SYNOPSIS:  Performs exponential function exp() on each cell in matrix.
+ *
+ *  RETURN:    None.
+ */
+int 
+MATRIX_2D_Exp(   MATRIX_2D*  mx )
+{
+   for ( int i = 0; i < mx->R; i++ ) {
+      for ( int j = 0; j < mx->C; j++ ) {
+         MX_2D( mx, i, j ) = exp( MX_2D( mx, i, j ) );  
+      }
+   }
+   return STATUS_SUCCESS;
+}
+
 /*! FUNCTION:  
  *  SYNOPSIS:  
  *

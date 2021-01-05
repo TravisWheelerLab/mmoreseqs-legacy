@@ -572,7 +572,6 @@ p7_domaindef_ByPosteriorHeuristics_TEST(
    /* reporting thresholds for finding domains */
    float rt1_test, rt2_btest, rt2_etest, rt3_test; 
 
-   printf("dom decoding...\n");
    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
 
@@ -1206,6 +1205,8 @@ rescore_isolated_domain_TEST(
                         /* DRICH EDITS */
                         P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef)
 {
+   printf("=== rescore_isolated_domain_TEST() ===\n");
+
    P7_DOMAIN     *dom           = NULL;
    int            Ld            = j - i + 1;
    float          domcorrection = 0.0;
@@ -1218,7 +1219,9 @@ rescore_isolated_domain_TEST(
    int            orig_L;
 
    /* GENERIC ADDDITIONS */
+   FILE*          fp = NULL;
    float          g_envsc, g_oasc;
+   float          g_fwdsc, g_bcksc;
    P7_DOMAIN     *gm_dom        = NULL;
    float          gm_domcorrection = 0.0f;
 
@@ -1235,13 +1238,32 @@ rescore_isolated_domain_TEST(
    //    reparameterize_model (bg, om, sq, i, j - i + 1, fwd_emissions_arr, bg_tmp->f, scores_arr);
    // }
 
-   p7_Forward (sq->dsq + i - 1, Ld, om,      ox1, &envsc);
-   p7_Backward(sq->dsq + i - 1, Ld, om, ox1, ox2, NULL);
+   printf("## DIMS => gm:{%d,%d}, gxf:{%d,%d}, Ld:%d, i,j:{%d,%d}\n", 
+      gm->L, gm->M, gxf->L, gxf->M, Ld, i, j);
 
    /* Generic additions */
-   p7_GForward (sq->dsq + i - 1, Ld, gm, gxf,&g_envsc);
-   p7_GBackward(sq->dsq + i - 1, Ld, gm, gxb, NULL);
+   p7_GForward (sq->dsq + i - 1, Ld, gm, gxf, &g_fwdsc);
+   p7_GBackward(sq->dsq + i - 1, Ld, gm, gxb, &g_bcksc);
+   printf("## DOMAIN => Forward: %.9f, Backward: %.9f\n", g_fwdsc, g_bcksc);
+   
+   fp = fopen("test_output/hmmer.forward.dom.mx", "w+");
+   // DP_MATRIX_Log_Dump(gxf->L, gxf->M, sq->dsq, gm, gxf, fp);
+   p7_gmx_Dump(fp, gxf, p7_SHOW_LOG);
+   fclose(fp);
+   fp = fopen("test_output/hmmer.backward.dom.mx", "w+");
+   p7_gmx_Dump(fp, gxb, p7_SHOW_LOG);
+   // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
+   fclose(fp);
+
    p7_GDecoding(gm, gxf, gxb, gxb);
+   fp = fopen("test_output/hmmer.posterior.dom.mx", "w+");
+   // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
+   // p7_gmx_DumpWindow(fp, gxb, 0, gxb->L, 0, gxb->M, p7_SHOW_LOG);
+   p7_gmx_DumpWindow(fp, gxb, i, j, 0, gxb->M, p7_SHOW_LOG);
+   fclose(fp);
+
+   p7_Forward (sq->dsq + i - 1, Ld, om,      ox1, &envsc);
+   p7_Backward(sq->dsq + i - 1, Ld, om, ox1, ox2, NULL);
 
    status = p7_Decoding(om, ox1, ox2, ox2);      /* <ox2> is now overwritten with post probabilities     */
    if (status == eslERANGE) { /* rare: numeric overflow; domain is assumed to be repetitive garbage [J3/119-121] */
@@ -1249,10 +1271,13 @@ rescore_isolated_domain_TEST(
       status = eslFAIL;
       goto ERROR;
    }
+   printf("# model reparametized...\n");
 
    /* Find an optimal accuracy alignment */
    p7_OptimalAccuracy(om, ox2, ox1, &oasc);      /* <ox1> is now overwritten with OA scores              */
+   printf("# optimal accuraccy done...\n");
    p7_OATrace        (om, ox2, ox1, ddef->tr);   /* <tr>'s seq coords are offset by i-1, rel to orig dsq */
+   printf("# optimal accuraccy trace done...\n");
 
    /* hack the trace's sq coords to be correct w.r.t. original dsq */
    for (z = 0; z < ddef->tr->N; z++) {
@@ -1280,19 +1305,42 @@ rescore_isolated_domain_TEST(
       for (pos = i; pos <= j; pos++) {
          ddef->n2sc[pos]  = logf(null2[sq->dsq[pos]]);
       }
+      for (pos = i; pos <= j; pos++) {
+         domcorrection   += ddef->n2sc[pos];         /* domcorrection is in units of NATS */
+      }
+      dom->domcorrection = domcorrection; /* in units of NATS */
+
+      fp = fopen("test_output/hmmer.null2sc.opt.dom.csv", "w+");
+      fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
+      for (int k_0; k_0 < sq->abc->Kp; k_0++) {
+         fprintf(fp, "%d %c %.9f\n", k_0, sq->abc->sym[k_0], null2[k_0]);
+      }
+      fprintf(fp, "# === NULL2SC (Expectation by Position) ===\n");
+      for (pos = i; pos <= j; pos++) {
+         fprintf(fp, "%d %.9f\n", pos, ddef->n2sc[pos]);
+      }
+      fprintf(fp, "# === DOMCORRECTION: %.9f\n", domcorrection);
+      fclose(fp);
       
       p7_GNull2_ByExpectation(gm, gxb, null2);
       for (pos = i; pos <= j; pos++) {
          gm_ddef->n2sc[pos]  = logf(null2[sq->dsq[pos]]);
       }
-   }
-   for (pos = i; pos <= j; pos++) {
-      domcorrection   += ddef->n2sc[pos];         /* domcorrection is in units of NATS */
-   }
-   dom->domcorrection = domcorrection; /* in units of NATS */
+      for (pos = i; pos <= j; pos++) {
+         gm_domcorrection += gm_ddef->n2sc[pos];         /* domcorrection is in units of NATS */
+      }
 
-   for (pos = i; pos <= j; pos++) {
-      gm_domcorrection   += gm_ddef->n2sc[pos];         /* domcorrection is in units of NATS */
+      fp = fopen("test_output/hmmer.null2sc.gen.dom.csv", "w+");
+      fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
+      for (int k_0; k_0 < sq->abc->Kp; k_0++) {
+         fprintf(fp, "%d %c %.9f\n", k_0, sq->abc->sym[k_0], null2[k_0]);
+      }
+      fprintf(fp, "# === NULL2SC (Expectation by Position) ===\n");
+      for (pos = i; pos <= j; pos++) {
+         fprintf(fp, "%d %.9f\n", pos, ddef->n2sc[pos]);
+      }
+      fprintf(fp, "# === DOMCORRECTION: %.9f\n", gm_domcorrection);
+      fclose(fp);
    }
 
    printf("==> DOM_CORRECTION: OPTIMIZED: %.9f, GENERIC: %.9f\n", 

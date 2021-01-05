@@ -179,7 +179,7 @@ int run_Ranged_Forward_Quad(  const SEQUENCE*    query,        /* query sequence
       /* initialize E-state */
       XMX(SP_E, q_0) = -INF;
 
-      /* if model falls inside range */
+      /* NORMAL STATES => if model falls inside range */
       if ( q_0 >= Q_beg + 1 && q_0 < Q_end )
       {
          /* Initialize zero column (left-edge) */
@@ -280,6 +280,16 @@ int run_Ranged_Forward_Quad(  const SEQUENCE*    query,        /* query sequence
          XMX(SP_E, q_0) = logsum( 
                               logsum( prv_D, prv_M ),
                               prv_E );
+         
+         /* embed linear row into quadratic test matrix */
+         #if DEBUG
+         {
+            MX_2D(cloud_MX, q_0, t_0) = 1.0;
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+         }
+         #endif
       }
 
       /* SPECIAL STATES */
@@ -300,17 +310,7 @@ int run_Ranged_Forward_Quad(  const SEQUENCE*    query,        /* query sequence
       /* B state */
       prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
       prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
-      XMX(SP_B, q_0) = logsum( prv_N, prv_J );     
-
-      /* embed linear row into quadratic test matrix */
-      #if DEBUG
-      {
-         MX_2D(cloud_MX, q_0, t_0) = 1.0;
-         MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-         MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-         MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
-      }
-      #endif
+      XMX(SP_B, q_0) = logsum( prv_N, prv_J );
    }
 
    /* T state */
@@ -320,6 +320,14 @@ int run_Ranged_Forward_Quad(  const SEQUENCE*    query,        /* query sequence
    /* flag matrices that they contain dirty values (not -INF) */
    st_MX->clean = false;
    sp_MX->clean = false;
+
+   #if DEBUG 
+   {
+      // dbfp = fopen("test_output/my.ranged_fwd.mx", "w+");
+      // DP_MATRIX_Dump(Q, T, test_MX, sp_MX, dbfp);
+      // fclose(dbfp);
+   }
+   #endif
 
    return STATUS_SUCCESS;
 }
@@ -464,9 +472,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
       #if DEBUG 
       {
          MX_2D(cloud_MX, q_0, t_0) = 1.0;
-         MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-         MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-         MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+         MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+         MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+         MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
       }
       #endif
 
@@ -489,9 +497,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
          #if DEBUG 
          {
             MX_2D(cloud_MX, q_0, t_0) = 1.0;
-            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
          }
          #endif
       }
@@ -559,9 +567,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
          #if DEBUG 
          {
             MX_2D(cloud_MX, q_0, t_0) = 1.0;
-            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
          }
          #endif
 
@@ -584,9 +592,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
             #if DEBUG 
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
             }
             #endif
          }
@@ -603,9 +611,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
          #if DEBUG 
          {
             MX_2D(cloud_MX, q_0, t_0) = 1.0;
-            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
          }
          #endif
 
@@ -631,9 +639,9 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
             #if DEBUG 
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
             }
             #endif
          }
@@ -676,14 +684,12 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
                            logsum( prv_D, prv_E ) );
             DMX(qx0, tx0) = prv_sum;
 
-            
-
             #if DEBUG 
             {
                MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
             }
             #endif
          }
@@ -737,20 +743,17 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
       for (t_0 = T_end; t_0 >= T_beg + 1; t_0--) {
          tx0 = t_0 - T_end;
          MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
+
+         #if DEBUG 
+         {
+            MX_2D(cloud_MX, q_0, t_0) = 1.0;
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
+         }
+         #endif
       }
    }
-
-   #if DEBUG 
-   {
-      MX_2D(cloud_MX, q_0, t_0) = 1.0;
-      MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-      MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-      MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
-
-      FILE* test_fp = fopen("rnged_bck.mx", "w+");
-      DP_MATRIX_Dump(Q, T, test_MX, sp_MX, test_fp);
-   }
-   #endif
 
    /* optimal alignment score propogates to final N state */
    sc_best = XMX(SP_N, 0);
@@ -759,6 +762,14 @@ int run_Ranged_Backward_Quad(    const SEQUENCE*    query,        /* query seque
    /* flag matrices that they contain dirty values (not -INF) */
    st_MX->clean = false;
    sp_MX->clean = false;
+
+   #if DEBUG 
+   {
+      // dbfp = fopen("test_output/my.rnged_bck.mx", "w+");
+      // DP_MATRIX_Dump(Q, T, test_MX, sp_MX, dbfp);
+      // fclose(dbfp);
+   }
+   #endif
 
    return STATUS_SUCCESS;
 }

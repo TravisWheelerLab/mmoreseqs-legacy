@@ -144,7 +144,8 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
 
    /* initialize 0 row (top-edge) */
    for (t_0 = 0; t_0 < T; t_0++) { 
-      MMX(qx0, t_0) = IMX(qx0, t_0) = DMX(qx0, t_0) = -INF;
+      tx0 = t_0;
+      MMX(qx0, tx0) = IMX(qx0, tx0) = DMX(qx0, tx0) = -INF;
    }
 
    /* FOR every position in QUERY seq */
@@ -183,7 +184,7 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
          prv_sum = logsum( 
                         logsum( prv_M, prv_I ),
                         logsum( prv_B, prv_D ) );
-         MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
+         MMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
          /* previous states (match takes the previous row (upper) of each state) */
@@ -214,9 +215,9 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
          #if DEBUG
          {
             MX_2D(cloud_MX, q_0, t_0) = 1.0;
-            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, t_0);
-            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, t_0);
-            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, t_0);
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX(qx0, tx0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX(qx0, tx0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX(qx0, tx0);
          }
          #endif
       }
@@ -232,7 +233,7 @@ run_Forward_Quad(    const SEQUENCE*    query,        /* query sequence */
       prv_M = MMX(qx1, tx1)  + TSC(t_1, M2M);
       prv_I = IMX(qx1, tx1)  + TSC(t_1, I2M);
       prv_D = DMX(qx1, tx1)  + TSC(t_1, D2M);
-      prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
+      prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
       /* sum-to-match */
       prv_sum = logsum( 
                      logsum( prv_M, prv_I ),

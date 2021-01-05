@@ -146,7 +146,18 @@ int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,        /* MATRIX_3D_SPAR
 MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
                                     int                  T,
                                     MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
-                                    MATRIX_3D*           mx );    /* matrix */
+                                    MATRIX_3D*           mx);     /* matrix */
+                                    
+/*  FUNCTION:  MATRIX_3D_SPARSE_Log_Embed()
+ *  SYNOPSIS:  Embed sparse matrix <smx> into matrix <mx>. 
+ *
+ *  RETURN:    Pointer to <mx> if success.
+ *             Returns NULL if fails.
+ */
+MATRIX_3D* MATRIX_3D_SPARSE_Log_Embed(    int                  Q,
+                                          int                  T,
+                                          MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                          MATRIX_3D*           mx );    /* matrix */
 
 /*  FUNCTION:  MATRIX_3D_SPARSE_Dump()
  *  SYNOPSIS:  Dump <smx> to file pointer <fp>.
@@ -171,6 +182,23 @@ void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
 FLT* MATRIX_3D_SPARSE_Get_Ref(   MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPARSE object */
                                  int                  q_0,     /* row/diag id */
                                  int                  t_0 );   /* offset in row/diag */
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Fill_Outer()
+ *  SYNOPSIS:  Fill all cells in sparse matrix <smx> with <val>.
+ */
+void MATRIX_3D_SPARSE_Fill_Outer(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                    float                val );
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Exp()
+ *  SYNOPSIS:  Convert matrix from log-to-normal space with the exp() function.
+ */
+void MATRIX_3D_SPARSE_Exp(  MATRIX_3D_SPARSE*    smx );    /* sparse matrix */
+
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Log()
+ *  SYNOPSIS:  Convert matrix from normal-to-log space with the log() function.
+ */
+void MATRIX_3D_SPARSE_Log(  MATRIX_3D_SPARSE*    smx );    /* sparse matrix */
 
 /* 
  *  FUNCTION:  MATRIX_3D_SPARSE_Test()

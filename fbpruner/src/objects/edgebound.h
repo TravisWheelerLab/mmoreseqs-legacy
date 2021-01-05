@@ -105,34 +105,34 @@ void EDGEBOUNDS_Delete( EDGEBOUNDS*  edg,
  *  FUNCTION: EDGEBOUNDS_Clear()
  *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list.
  */
-void EDGEBOUNDS_Clear( EDGEBOUNDS* edg );
+void EDGEBOUNDS_Clear( EDGEBOUNDS*  edg );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of BOUNDS allocated in EDGEBOUND object (does not downsize).
  */
-void EDGEBOUNDS_GrowTo( EDGEBOUNDS* edg,
-                        int         size );
+void EDGEBOUNDS_GrowTo( EDGEBOUNDS*     edg,
+                        int             size );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of BOUNDS in EDGEBOUND object.
  */
-void EDGEBOUNDS_Resize(EDGEBOUNDS* edg,
-                       int         size);
+void EDGEBOUNDS_Resize( EDGEBOUNDS*     edg,
+                        int             size );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Reverse()
  *  SYNOPSIS:  Reverse order of edgebound list.
  */
-void EDGEBOUNDS_Reverse(EDGEBOUNDS *edg);
+void EDGEBOUNDS_Reverse( EDGEBOUNDS*    edg );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Index()
  *  SYNOPSIS:  Index locations in EDGEBOUND list that start each unique BOUND id.
  *             Assumes <edg> is sorted.
  */
-void EDGEBOUNDS_Index(EDGEBOUNDS *edg);
+void EDGEBOUNDS_Index( EDGEBOUNDS*   edg );
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Sort()
@@ -200,8 +200,8 @@ int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg );
  *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Dump(EDGEBOUNDS* edg,
-                     FILE*       fp);
+void EDGEBOUNDS_Dump( EDGEBOUNDS*    edg,
+                      FILE*          fp );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Print()
@@ -216,8 +216,8 @@ void EDGEBOUNDS_Sub_Dump(  EDGEBOUNDS*    edg,
  *  FUNCTION: EDGEBOUNDS_Dump()
  *  SYNOPSIS: Output EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Save(EDGEBOUNDS*  edg,
-                     const char*  _filename_);
+void EDGEBOUNDS_Save( EDGEBOUNDS*   edg,
+                      const char*   _filename_ );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Compare()
@@ -230,13 +230,13 @@ int EDGEBOUNDS_Compare( EDGEBOUNDS*    edg_a,
  *  FUNCTION: EDGEBOUNDS_Count()
  *  SYNOPSIS: Count the number of cells in edgebound.
  */
-int EDGEBOUNDS_Count(EDGEBOUNDS*    edg);
+int EDGEBOUNDS_Count( EDGEBOUNDS*    edg );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Validate()
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
  */
-int EDGEBOUNDS_Validate(EDGEBOUNDS *edg);
+int EDGEBOUNDS_Validate( EDGEBOUNDS*    edg );
 
 /*! FUNCTION: EDGEBOUNDS_Cover_Matrix()
  *  SYNOPSIS: For testing. Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.

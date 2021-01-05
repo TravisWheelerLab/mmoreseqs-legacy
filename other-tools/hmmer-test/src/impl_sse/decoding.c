@@ -75,7 +75,7 @@
 int
 p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
 {
-  printf("--> TEST - Decoding (sse)\n");
+  printf("=== p7_Decoding() => SSE ===\n");
   __m128 *ppv;
   __m128 *fv;
   __m128 *bv;

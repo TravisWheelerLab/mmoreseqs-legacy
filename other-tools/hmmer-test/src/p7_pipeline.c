@@ -1101,61 +1101,42 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
    fclose(fp);
 
-   float seqbias1, seqbias2;
-
-   // printf("==> OPTIMIZED NULL2 BYEXPECTATION <=\n");
-   // p7_omx_GrowTo(pli->oxf, om->M, om->L, om->L);
-   // p7_omx_GrowTo(pli->oxb, om->M, om->L, om->L);
-   // p7_Forward (sq->dsq, Ld, om, pli->oxf, &sc);
-   // p7_Backward(sq->dsq, Ld, om, pli->oxf, pli->oxb, NULL);
-   // status = p7_Decoding(om, pli->oxf, pli->oxb, pli->oxb);  
-   // p7_Null2_ByExpectation( om, pli->oxb, pli->ddef->n2sc);
-   // fp = fopen("test_output/hmmer.null2sc.opt.csv", "w+");
-   // fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
-   // for (int i = 0; i < sq->n + 1; i++) {
-   //    fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
-   // }
-   // fprintf(fp, "\n");
-   // fclose(fp);
-   // seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
-   // printf("OPT seqbias[%ld] (Fsum, pre-omega): %f\n", 
-   //    sq->n + 1, seqbias1 );
-   // seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
-   // printf("OPT seqbias: %f %f, omega: %f %f\n", 
-   //    seqbias, log(seqbias), bg->omega, log(bg->omega));
-
    printf("==> GENERIC NULL2 BYEXPECTATION <=\n"); 
-   p7_GNull2_ByExpectation( gm, gmx_pp, pli->ddef->n2sc);
+   float null2[p7_MAXCODE];
+   float seq_bias;
+   p7_GNull2_ByExpectation( gm, gmx_pp, null2);
+   for (int i = 0; i < sq->n + 1; i++) {
+      pli->ddef->n2sc[i]  = logf(null2[sq->dsq[i]]);
+   }
+   seq_bias = 0.0f;
+   for (int i = 1; i < sq->n + 1; i++) {
+      seq_bias += pli->ddef->n2sc[i];  /* domcorrection is in units of NATS */
+   }
+   printf("seq_bias: %f\n", seq_bias);
 
    fp = fopen("test_output/hmmer.null2sc.gen.csv", "w+");
-   fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
-   for (int i = 0; i < sq->n + 1; i++) {
-      fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
+   fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
+   for (int k_0 = 0; k_0 < sq->abc->Kp; k_0++) {
+      fprintf(fp, "%d %c %.9f\n", k_0, sq->abc->sym[k_0], null2[k_0]);
    }
+   fprintf(fp, "# === NULL2SC (Expectation by Position) ===\n");
+   for (int q_0 = 0; q_0 <= sq->n + 1; q_0++) {
+      fprintf(fp, "%d %.9f\n", q_0, pli->ddef->n2sc[q_0]);
+   }
+   fprintf(fp, "# === SEQ_BIAS: %.9f\n", seq_bias);
    fclose(fp);
-   seqbias = esl_vec_FSum(pli->ddef->n2sc, sq->n + 1);
-   printf("GEN seqbias (pre): %f, omega: %f\n", 
-      seqbias, log(bg->omega));
-   seqbias = p7_FLogsum(0.0, log(bg->omega) + seqbias);
-   printf("GEN seqbias: %f\n", 
-      seqbias);
+
+   exit(0);
 
    /* OPTIMIZED FUNCTIONS */
 
    printf("=== OPTIMIZED POSTERIOR HEURISTICS ===\n");
-   printf("==> OPTIMIZED NULL2 BYEXPECTATION <=\n"); 
+   printf("==> OPTIMIZED/GENERIC NULL2 BYEXPECTATION <=\n"); 
    // status = p7_domaindef_ByPosteriorHeuristics(
    //    sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL);
    status = p7_domaindef_ByPosteriorHeuristics_TEST(
       sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL,
       gm, gmx_fwd, gmx_bck, gm_ddef);
-   
-   fp = fopen("test_output/hmmer.null2sc.opt.csv", "w+");
-   fprintf(fp, "n2sc [L=%d]:\n", pli->ddef->L);
-   for (int i = 0; i < pli->ddef->L; i++) {
-      fprintf(fp, "[%2d] %-9.6f\n", i, pli->ddef->n2sc[i] );
-   }
-   fclose(fp);
 
    if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
    // if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */

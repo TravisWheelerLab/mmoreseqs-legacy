@@ -347,7 +347,7 @@ int COMPUTE_Bias_Compo( WORKER* worker )
    HMM_PROFILE*   t_prof   = worker->t_prof;
    VECTOR_FLT*    null2sc  = VECTOR_FLT_Create();
 
-   VECTOR_FLT_Set_Size( null2sc, q_seq->N + 1 );
+   VECTOR_FLT_SetSize( null2sc, q_seq->N + 1 );
    VECTOR_FLT_Fill( null2sc, 0.0 );
 
 }

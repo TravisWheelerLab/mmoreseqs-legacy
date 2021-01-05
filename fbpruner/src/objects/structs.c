@@ -26,8 +26,12 @@ char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 char AA[] = { 
    'A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
    'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y',
-   /* unknown character */
-   'X'
+   /* special characters */
+   '-', 
+   /* degen characters */
+   'X', 
+   /* special characters */
+   '*', '~'
 };
 
 /* Maps ASCII Code to corresponding letters in AA2[] */

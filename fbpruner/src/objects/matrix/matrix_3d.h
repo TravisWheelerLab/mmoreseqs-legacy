@@ -180,6 +180,18 @@ MATRIX_3D_Diff(   MATRIX_3D*  mx_a,
                   MATRIX_3D*  mx_b,
                   MATRIX_3D*  mx_diff );
 
+/** FUNCTION:  MATRIX_3D_Log()
+ *  SYNOPSIS:  Takes the logrithm function log() of each value in the matrix.
+ */
+void 
+MATRIX_3D_Log(   MATRIX_3D*  mx );
+
+/** FUNCTION:  MATRIX_3D_Exp()
+ *  SYNOPSIS:  Takes the exponential function exp() of each value in the matrix.
+ */
+void 
+MATRIX_3D_Exp(   MATRIX_3D*  mx );
+
 /** FUNCTION:  MATRIX_3D_Utest()
  *  SYNOPSIS:  Unit Test for MATIX_3D.
  */

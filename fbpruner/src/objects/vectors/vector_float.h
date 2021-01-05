@@ -123,14 +123,14 @@ FLT* VECTOR_FLT_Get_X(  VECTOR_FLT*   vec,
  *  FUNCTION:  VECTOR_FLT_Get_Size()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
-int VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec );
+int VECTOR_FLT_GetSize(    VECTOR_FLT*   vec );
 
 /*
  *  FUNCTION:  VECTOR_FLT_Set_Size()
  *  SYNOPSIS:  Set utilized length of <vec>
  *  RETURN:    Pointer to location to <vec> idx.
  */
-void VECTOR_FLT_Set_Size(  VECTOR_FLT*   vec, 
+void VECTOR_FLT_SetSize(   VECTOR_FLT*   vec, 
                            int           size );
 
 /*

@@ -44,13 +44,13 @@ void DP_MATRIX_Dump(  const int   Q,
    int          i, j;
 
    /* PRINT resulting dp matrix */
-   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "#####_HMMER_DP_MATRIX_##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
-
+   
    /* Header */
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "# #");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -77,9 +77,9 @@ void DP_MATRIX_Dump(  const int   Q,
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "#");
    for (int i = 0; i <= Q; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -133,7 +133,7 @@ void DP_MATRIX_Log_Dump(   const int   Q,
 {
    int pad, dec;
    pad = 9;
-   dec = 5;
+   dec = 3;
 
    float const *tsc  = gm->tsc;
    float      **dp   = gx->dp;
@@ -145,9 +145,9 @@ void DP_MATRIX_Log_Dump(   const int   Q,
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
 
    /* Header */
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "# #");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -174,9 +174,9 @@ void DP_MATRIX_Log_Dump(   const int   Q,
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "#");
    for (int i = 0; i <= Q; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 

@@ -478,7 +478,7 @@ void  ARGS_Set_Defaults( ARGS* args )
 
    /* --- DEBUG OPTIONS --- */
    args->is_debug                = true;
-   args->dbg_folderpath          = strdup("test-output/");
+   args->dbg_folderpath          = strdup("test_output/");
 
    /* --- INPUT --- */
    args->t_filepath              = strdup("test-input/test1_2.hmm");

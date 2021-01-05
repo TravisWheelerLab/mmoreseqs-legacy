@@ -117,14 +117,18 @@ EDGEBOUNDS* EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
 {
    BOUND*   bnd;
 
+   /* if source and destination are the same, then do not copy. */
+   if (edg_dest == edg_src) return edg_dest;
+
+   /* if destination has not been created, do it now */
    if ( edg_dest == NULL ) {
       edg_dest = EDGEBOUNDS_Create_by_Size( edg_src->Nalloc );
    } 
+
+   /* now copying begins */
    edg_dest->Q          = edg_src->Q;
    edg_dest->T          = edg_src->T;
-   edg_dest->edg_mode   = edg_src->edg_mode;
    EDGEBOUNDS_Reuse( edg_dest, edg_src->Q, edg_src->T );
-
    edg_dest->edg_mode = edg_src->edg_mode;
 
    for ( int i = 0; i < edg_src->N; i++ ) 
@@ -320,28 +324,28 @@ void EDGEBOUNDS_Reverse( EDGEBOUNDS*   edg )
  *  SYNOPSIS:  Index locations in EDGEBOUND list that start each unique BOUND id.
  *             Assumes <edg> is sorted.
  */
-void EDGEBOUNDS_Index(EDGEBOUNDS *edg)
+void EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
 {
-   int      i;       /* index of edgebound list */
+   int      i_0;     /* index of edgebound list */
    int      id_0;    /* current id */
    BOUND*   b_0;     /* pointer to current bound in list */
 
    VECTOR_INT_Reuse( edg->ids );
    VECTOR_INT_Reuse( edg->ids_idx );
 
-   i     = 0;
+   i_0   = 0;
    id_0  = edg->bounds[0].id;
    b_0   = &(edg->bounds[0]);
 
    VECTOR_INT_Pushback( edg->ids, id_0 );
-   VECTOR_INT_Pushback( edg->ids_idx, i );
+   VECTOR_INT_Pushback( edg->ids_idx, i_0 );
 
-   for (i; i < edg->N; i++, b_0++)
+   for ( i_0; i_0 < edg->N; i_0++, b_0++)
    {
       if ( b_0->id != id_0 ) {
          id_0 = b_0->id;
          VECTOR_INT_Pushback( edg->ids, id_0 );
-         VECTOR_INT_Pushback( edg->ids_idx, i );
+         VECTOR_INT_Pushback( edg->ids_idx, i_0 );
       }
    }
 
@@ -634,8 +638,8 @@ void EDGEBOUNDS_Sub_Dump(  EDGEBOUNDS*    edg,
  *  FUNCTION: EDGEBOUNDS_Dump()
  *  SYNOPSIS: Output EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Save(EDGEBOUNDS*  edg,
-                     const char*  _filename_)
+void EDGEBOUNDS_Save( EDGEBOUNDS*   edg,
+                      const char*   _filename_ )
 {
    FILE *fp;
    fp = fopen(_filename_, "w");
@@ -683,7 +687,7 @@ EDGEBOUNDS_Compare(  EDGEBOUNDS*    edg_a,
  *  SYNOPSIS: Count the number of cells in edgebound.
  */
 int 
-EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
+EDGEBOUNDS_Count( EDGEBOUNDS*  edg )
 {
    int sum = 0;
    for (int i = 0; i < edg->N; i++)
@@ -697,7 +701,7 @@ EDGEBOUNDS_Count(EDGEBOUNDS*  edg)
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
  */
 int 
-EDGEBOUNDS_Validate(EDGEBOUNDS*  edg)
+EDGEBOUNDS_Validate( EDGEBOUNDS*  edg )
 {
    bool     valid = true;
    BOUND*   bnd   = NULL;
@@ -783,8 +787,8 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
                            int            T )
 {
    EDGEBOUNDS_Clear(edg);
-   for (int q_0 = 0; q_0 < Q; q_0++) {
-      EDGEBOUNDS_Pushback(edg, &(BOUND){q_0,0,T});
+   for (int q_0 = 0; q_0 < Q+1; q_0++) {
+      EDGEBOUNDS_Pushback(edg, &(BOUND){ q_0, 0, T+1 });
    }
 }
 

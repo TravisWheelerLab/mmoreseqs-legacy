@@ -246,10 +246,12 @@ typedef enum {
    AMINO_W = 18,
    AMINO_Y = 19,
    /* special chars */
-   AMINO_X     = 20, /* unknown character */
-   AMINO_GAP   = 21, /* gap character */
-   AMINO_NON   = 22, /* non-residue character */
-   AMINO_MIS   = 23  /* missing character */
+   AMINO_GAP   = 20, /* gap character ("-") */
+   /* degen characters (currently only X) */
+   AMINO_X     = 21, /* any unknown character ("BJZOUX") */
+   /* special chars */
+   AMINO_NON   = 22, /* non-residue character ("*") */
+   AMINO_MIS   = 23  /* missing character ("~") */
 } AMINOS;
 #define NUM_AMINO 20
 #define NUM_AMINO_PLUS_SPEC 24

@@ -40,6 +40,7 @@ DOMAIN_DEF_Create()
    dom_def->null2_exp   = VECTOR_FLT_Create();
    dom_def->st_freq     = MATRIX_2D_Create(1, 1);
    dom_def->sp_freq     = VECTOR_FLT_Create();
+   dom_def->st_num      = VECTOR_FLT_Create();
 
    /* default values */
    dom_def->rt1           = 0.25;
@@ -66,6 +67,7 @@ DOMAIN_DEF_Destroy( DOMAIN_DEF* dom_def )
    VECTOR_FLT_Destroy( dom_def->null2_exp );
    MATRIX_2D_Destroy( dom_def->st_freq );
    VECTOR_FLT_Destroy( dom_def->sp_freq );
+   VECTOR_FLT_Destroy( dom_def->st_num );
 
    dom_def = ERROR_free( dom_def );
 

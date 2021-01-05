@@ -76,6 +76,7 @@ WORKER_Create()
    worker->st_MX;
    worker->st_MX_fwd    = NULL;
    worker->st_MX_bck    = NULL;
+   worker->st_MX_post   = NULL;
    /* linear space dp matrices */
    worker->st_MX3       = NULL;
    worker->st_MX3_fwd   = NULL;
@@ -84,6 +85,7 @@ WORKER_Create()
    worker->st_SMX       = NULL;
    worker->st_SMX_fwd   = NULL;
    worker->st_SMX_bck   = NULL;
+   worker->st_SMX_post  = NULL;
    /* special state matrices */
    worker->sp_MX        = NULL;
    worker->sp_MX_fwd    = NULL;

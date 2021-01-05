@@ -519,6 +519,18 @@ void VECTOR_XXX_Reverse(   VECTOR_XXX*    vec )
    }
 }
 
+/** FUNCTION:  VECTOR_XXX_LoadTSV()
+ *  SYNOPSIS:  Load tsv from <filename> and store in <vec>.
+ */
+void VECTOR_XXX_LoadTSV(   VECTOR_XXX*    vec,
+                           char*          filename )
+{
+   FILE* fp  = fopen(filename, "r+");
+   char buf[1024]; 
+
+   fclose(fp);
+}
+
 /** FUNCTION:  VECTOR_XXX_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */

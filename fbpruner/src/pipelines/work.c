@@ -97,20 +97,24 @@ void WORK_init( WORKER* worker )
    worker->cloud_params.beta     = worker->args->beta;
    worker->cloud_params.gamma    = worker->args->gamma;
    /* create necessary dp matrices */
+   /* quadratic */
    worker->st_MX_fwd    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX_bck    = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX_post   = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
-   worker->st_MX        = worker->st_MX_fwd;
+   worker->st_MX        = worker->st_MX_bck;
+   /* linear */
    worker->st_MX3_fwd   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3_bck   = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX3       = worker->st_MX_fwd;
+   /* sparse */
    worker->st_SMX_fwd   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
-   // worker->st_SMX_post  = MATRIX_3D_SPARSE_Create();
+   worker->st_SMX_post  = worker->st_SMX_bck;
    worker->st_SMX       = worker->st_SMX_fwd;
+   /* special state */
    worker->sp_MX_fwd    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX_bck    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
-   worker->sp_MX_post   = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   worker->sp_MX_post   = worker->sp_MX_bck;
    worker->sp_MX        = worker->sp_MX_fwd;
    /* domain definition */
    worker->dom_def      = DOMAIN_DEF_Create();
@@ -150,22 +154,25 @@ void WORK_cleanup( WORKER* worker )
       worker->lb_vec[i]    = VECTOR_INT_Destroy( worker->lb_vec[i] );
       worker->rb_vec[i]    = VECTOR_INT_Destroy( worker->rb_vec[i] );
    }
-   printf("test\n");
    /* necessary dp matrices */
+   /* quadratic space */
+   // worker->st_MX           = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
-   printf("test\n");
    worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
-   printf("test\n");
    worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
-   printf("test\n");
+   /* linear space */
+   // worker->st_MX3          = MATRIX_3D_Destroy( worker->st_MX3 );
    worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );
    worker->st_MX3_bck      = MATRIX_3D_Destroy( worker->st_MX3_bck );
-   printf("test\n");
+   /* sparse */
+   // worker->st_SMX          = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
+   // worker->st_SMX_post     = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_post );
+   /* special states */
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
    worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
-   worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_post );
+   // worker->sp_MX_post      = MATRIX_2D_Destroy( worker->sp_MX_post );
    /* domain definition */
    worker->dom_def         = DOMAIN_DEF_Destroy( worker->dom_def );
 }
@@ -1356,6 +1363,8 @@ void WORK_capture_alignment( WORKER* worker )
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
 void WORK_convert_scores( WORKER* worker )
 {
+   FILE*          fp       = NULL;
+
    HMM_BG*        bg       = worker->hmm_bg;
    HMM_PROFILE*   t_prof   = worker->t_prof;
    SEQUENCE*      q_seq    = worker->q_seq;
@@ -1396,8 +1405,8 @@ void WORK_convert_scores( WORKER* worker )
    /* find bounding box of cloud space */
    int min_Q, max_Q, min_T, max_T;
    int N = worker->edg_row->N;
-   min_Q = min_T = INF;
-   max_Q = max_T = -INF;
+   min_Q = min_T = (int)INF;
+   max_Q = max_T = (int)-INF;
    min_Q = worker->edg_row->bounds[0].id;
    max_Q = worker->edg_row->bounds[N-1].id;
    for (int i = 0; i < N; i++) {
@@ -1421,19 +1430,6 @@ void WORK_convert_scores( WORKER* worker )
        *  a single complete domain and bias is assessed for the entire region. 
        */
 
-      // #if (DEBUG || TRUE)
-      // {
-      //    /* for testing: cloud fills entire dp matrix */
-      //    EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
-      //    MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
-      //    MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
-      //    run_Bound_Forward_Sparse( worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
-      //    printf("Sparse Forward  (full): %.9f\n", sc);
-      //    run_Bound_Backward_Sparse( worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
-      //    printf("Sparse Backward (full): %.9f\n", sc);
-      // }
-      // #endif
-
       /* For testing: Quadratic assesses bias for the entire tightest bounding box containing entire cloud. */ 
       if ( tasks->quad_bias_corr == true )
       {
@@ -1445,9 +1441,35 @@ void WORK_convert_scores( WORKER* worker )
       /* Sparse assesses bias only for cells contained by cloud */ 
       if ( tasks->sparse_bias_corr == true )
       {
+         #if DEBUG || TRUE
+         {
+            /* for testing: cloud fills entire dp matrix */
+            // EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
+            // MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
+            // MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
+            // MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_bck );
+            MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
+            MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_bck, -INF );
+
+            run_Bound_Forward_Sparse( 
+               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
+            printf("Sparse Forward  (full): %.9f\n", sc);
+            DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
+            MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_fwd, debugger->test_MX);
+            DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.sparse_fwd.mx");
+            
+            run_Bound_Backward_Sparse( 
+               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
+            printf("Sparse Backward (full): %.9f\n", sc);
+            DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
+            MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_bck, debugger->test_MX);
+            DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.sparse_bck.mx");
+         }
+         #endif
+
          run_Posterior_Sparse(
             worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-            worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_bck, worker->sp_MX_bck, 
+            worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_post, worker->sp_MX_post, 
             worker->dom_def );
       }
 

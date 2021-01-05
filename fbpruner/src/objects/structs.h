@@ -455,6 +455,10 @@ typedef struct {
    /* cell data */
    VECTOR_FLT*    data;          /* matrix cells */
    bool           clean;         /* whether data has been cleared / all cells set to -INF */
+   /* iterators for traversing matrix */
+   int            q_iter;        /* current query position iterator */
+   int            t_iter;        /* current target position iterator */
+   int            r_iter;        /* current edgebound iterator for retrieving next row range */
 } MATRIX_3D_SPARSE;
 
 /** full  */
@@ -915,6 +919,7 @@ typedef struct {
    /* working space for computing null2 score */
    MATRIX_2D*     st_freq;       /* normal state frequencies */
    VECTOR_FLT*    sp_freq;       /* special state frequencies */
+   VECTOR_FLT*    st_num;        /* normal state counts (for sparse) */
    /* stats */
    float          n_expected;    /* posterior expectation for number of domains */
    int            n_regions;     /* number of regions */
@@ -1026,20 +1031,26 @@ typedef struct {
    ALIGNMENT*           traceback;     /* */
    ALIGNMENT*           trace_post;    /* */
    /* dynamic programming matrices */
+   /* quadratic space */
    MATRIX_3D*           st_MX;         /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX_fwd;     /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX_bck;     /* normal state matrix (quadratic space) */
    MATRIX_3D*           st_MX_post;    /* normal state matrix (quadratic space) */
+   /* linear space */
    MATRIX_3D*           st_MX3;        /* normal state matrix (linear space) */
    MATRIX_3D*           st_MX3_fwd;    /* normal state matrix (linear space) */
    MATRIX_3D*           st_MX3_bck;    /* normal state matrix (linear space) */
+   /* sparse */
    MATRIX_3D_SPARSE*    st_SMX;        /* normal state matrix (sparse) */
    MATRIX_3D_SPARSE*    st_SMX_fwd;    /* normal states matrix (sparse), exclusive for forward */
    MATRIX_3D_SPARSE*    st_SMX_bck;    /* normal states matrix (sparse), exclusive for backward */
+   MATRIX_3D_SPARSE*    st_SMX_post;   /* normal states matrix (sparse), exclusive for backward */
+   /* special state */
    MATRIX_2D*           sp_MX;         /* special state matrix */
    MATRIX_2D*           sp_MX_fwd;     /* special state matrix, exclusive for forward */
    MATRIX_2D*           sp_MX_bck;     /* special state matrix, exclusive for backward */
    MATRIX_2D*           sp_MX_post;    /* special state matrix, exclusive for posterior */
+   /* testing */
    MATRIX_3D*           st_cloud_MX;   /* matrix for naive cloud search */
    /* posterior data */
    DOMAIN_DEF*          dom_def;       /* domain boundary data */

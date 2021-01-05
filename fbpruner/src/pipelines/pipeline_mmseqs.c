@@ -69,7 +69,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->sparse           = true;
       tasks->sparse_bound_fwd = true;
       tasks->sparse_bound_bck = true;
-      tasks->sparse_bias_corr = false;
+      tasks->sparse_bias_corr = true;
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
       tasks->lin_fwd          = true;     /* optional, but can't recover alignment */
@@ -77,7 +77,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
       tasks->lin_bound_fwd    = true;     /* */  
-      tasks->lin_bound_bck    = true;     /* */
+      tasks->lin_bound_bck    = false;     /* */
       /* quadratic algs */
       tasks->quadratic        = false;    /* if any other quadratic tasks are flagged, this must be too */
       tasks->quad_fwd         = false;    /* optional */
@@ -86,15 +86,15 @@ mmseqs_pipeline( WORKER* worker )
       tasks->quad_trace       = false;    /* traceback required for cloud search  */
       tasks->quad_bound_fwd   = false;    /* required step of cloud search */
       tasks->quad_bound_bck   = false;    /* optional */
-      tasks->quad_bias_corr   = false;
+      tasks->quad_bias_corr   = true;
    }
 
-   if ( args->is_compo_bias == BIAS_CORR_QUAD ) {
-      tasks->quad_bias_corr = true;
-   } 
-   else if ( args->is_compo_bias == BIAS_CORR_SPARSE ) {
-      tasks->sparse_bias_corr = true;
-   }
+   // if ( args->is_compo_bias == BIAS_CORR_QUAD ) {
+   //    tasks->quad_bias_corr = true;
+   // } 
+   // else if ( args->is_compo_bias == BIAS_CORR_SPARSE ) {
+   //    tasks->sparse_bias_corr = true;
+   // }
 
    /* get result range */
    int i_rng, i_cnt, i_beg, i_end;
@@ -189,79 +189,6 @@ mmseqs_pipeline( WORKER* worker )
       tr->end = 1;
       printf_vhi("DIM:: TARGET: {%d}, QUERY: {%d}\n", worker->q_seq->N, worker->t_prof->N );
       printf_vhi("VIT_TRACEBACK:: {%6d,%6d}->{%6d,%6d}\n", result_in->target_start, result_in->query_start, result_in->target_end, result_in->query_end );
-
-      // #if DEBUG
-      // {
-      //    /* get search window by running viterbi (debug only) */
-      //    tr = worker->traceback;
-      //    beg = &(tr->traces[tr->beg]);
-      //    end = &(tr->traces[tr->end]);
-      //    printf_vall("MY TRACEBACK: (%d,%d) -> (%d,%d)\n", beg->i, beg->j, end->i, end->j);
-      // }
-      // #else 
-      // {
-      //    /* get search window from mmseqs results */
-      //    ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
-      //    ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
-      //    ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_end, result_in->query_end, M_ST }) );
-      //    tr->beg = 0;
-      //    tr->end = 1;
-      // }
-      // #endif
-
-      // /* if fixing mmseqs alignment, we need to trim in the alignment if it exceeds the bounds of the profile or sequence */
-      // if ( args->adjust_mmseqs_alns == true )
-      // {
-      //    int fixed_aln  = false;
-      //    int t_fix = false;
-      //    int q_fix = false;
-
-      //    if ( result_in->target_start > worker->q_seq->N - 1 ) {
-      //       result_in->target_start = worker->q_seq->N - 1;
-      //       fixed_aln = true;
-      //       t_fix = true;
-      //    } 
-      //    if ( result_in->target_end > worker->q_seq->N - 1 ) {
-      //       result_in->target_end = worker->q_seq->N - 1;
-      //       fixed_aln = true;
-      //       t_fix = true;
-      //    }
-      //    if ( result_in->query_start > worker->t_prof->N - 1 ) {
-      //       result_in->query_start = worker->t_prof->N - 1;
-      //       fixed_aln = true;
-      //       q_fix = true;
-      //    } 
-      //    if ( result_in->query_end > worker->t_prof->N - 1 ) {
-      //       result_in->query_end = worker->t_prof->N - 1;
-      //       fixed_aln = true;
-      //       q_fix = true;
-      //    }
-      //    /* log out viterbi alignment adjustments to error file */ 
-      //    if (fixed_aln == true) {
-      //       FILE* ferr = fopen("fixed_aln.err", "a");
-      //       char* t_str = "<target>";
-      //       char* q_str = "<query>";
-      //       int pad = -6;
-      //       /* log to error file */
-      //       fprintf(ferr, "%*sERROR occurred on mmseqs results (%d). %s %s was out-of-bounds. Target_size = %d, Query_size = %d\n%*s", 
-      //          pad, ">>", i, (t_fix ? t_str : ""), (q_fix ? q_str : ""), worker->t_prof->N, worker->q_seq->N, pad, "" );
-      //       RESULT_M8_Dump( result_in, ferr );
-      //       fprintf(ferr, "%*sMMseqs coords: (%d,%d)=>(%d,%d) || Adjusted coords: (%d,%d)=>(%d,%d)\n",
-      //          pad, "", q_mmseqs.i, t_mmseqs.i, q_mmseqs.j, t_mmseqs.j, result_in->query_start, result_in->target_start, result_in->query_end, result_in->target_end );
-      //       fclose(ferr);
-      //       /* log to standard error */
-      //       fprintf(stderr, "%*sERROR occurred on mmseqs results (%d). %s %s was out-of-bounds.  Query_size = %d, Target_size = %d\n", 
-      //          pad, "#>>", i, (q_fix ? q_str : ""), (t_fix ? t_str : ""), worker->q_seq->N, worker->t_prof->N );
-      //       RESULT_M8_Dump( result_in, ferr );
-      //       fprintf(stderr, "%*sMMseqs coords: (%d,%d)=>(%d,%d) || Adjusted coords: (%d,%d)=>(%d,%d)\n",
-      //          pad, "#",  q_mmseqs.i, t_mmseqs.i, q_mmseqs.j, t_mmseqs.j, result_in->query_start, result_in->target_start, result_in->query_end, result_in->target_end );
-      //    }
-      //    // if (fixed_aln == true) {
-      //    //    skips++;
-      //    //    printf("# out-of-bounds. skipping this alignment (%d)...\n", skips);
-      //    //    continue;
-      //    // }
-      // }
 
       #if DEBUG
       {

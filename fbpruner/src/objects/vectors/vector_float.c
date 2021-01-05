@@ -271,25 +271,26 @@ FLT* VECTOR_FLT_Get_X(  VECTOR_FLT*   vec,
 }
 
 /*
- *  FUNCTION:  VECTOR_FLT_Get_Size()
+ *  FUNCTION:  VECTOR_FLT_GetSize()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
 inline
-int VECTOR_FLT_Get_Size(   VECTOR_FLT*   vec )
+int VECTOR_FLT_GetSize(   VECTOR_FLT*   vec )
 {
    return vec->N;
 }
 
 /*
- *  FUNCTION:  VECTOR_FLT_Set_Size()
+ *  FUNCTION:  VECTOR_FLT_SetSize()
  *  SYNOPSIS:  Set utilized length of <vec>
  *  RETURN:    Pointer to location to <vec> idx.
  */
 inline
-void VECTOR_FLT_Set_Size(  VECTOR_FLT*   vec, 
+void VECTOR_FLT_SetSize(   VECTOR_FLT*   vec, 
                            int           size )
 {
    vec->N = size;
+   VECTOR_FLT_GrowTo( vec, size );
 }
 
 
@@ -304,7 +305,7 @@ void VECTOR_FLT_Set_Size(  VECTOR_FLT*   vec,
 int VECTOR_FLT_Search(  VECTOR_FLT*   vec, 
                         FLT           val )
 {
-   int N       = VECTOR_FLT_Get_Size( vec );
+   int N       = VECTOR_FLT_GetSize( vec );
    int idx     = (N/2);
    int found   = -1; 
 
@@ -337,7 +338,7 @@ int VECTOR_FLT_Search(  VECTOR_FLT*   vec,
 int VECTOR_FLT_Search_First(  VECTOR_FLT*   vec, 
                               FLT           val )
 {
-   int N       = VECTOR_FLT_Get_Size( vec );
+   int N       = VECTOR_FLT_GetSize( vec );
    int idx     = (N/2);
    int found   = -1; 
 
@@ -370,7 +371,7 @@ int VECTOR_FLT_Search_First(  VECTOR_FLT*   vec,
 int VECTOR_FLT_Search_Last(   VECTOR_FLT*   vec, 
                               FLT           val )
 {
-   int N       = VECTOR_FLT_Get_Size( vec );
+   int N       = VECTOR_FLT_GetSize( vec );
    int idx     = (N/2);
    int found   = -1; 
 
@@ -418,7 +419,7 @@ int VECTOR_FLT_Compare(    VECTOR_FLT*   vec_A,
  */
 void VECTOR_FLT_Sort( VECTOR_FLT*    vec )
 {
-   int N = VECTOR_FLT_Get_Size( vec );
+   int N = VECTOR_FLT_GetSize( vec );
    VECTOR_FLT_Sort_Sub( vec, 0, N );
 
    #if DEBUG 
@@ -449,7 +450,7 @@ void VECTOR_FLT_Sort_Sub(  VECTOR_FLT*    vec,
                            int            end )
 {
    const int begin_select_sort = 4;
-   int N = VECTOR_FLT_Get_Size(vec);
+   int N = VECTOR_FLT_GetSize(vec);
    if (N <= 1) return;
 
    int size = end - beg;
@@ -555,7 +556,7 @@ void VECTOR_FLT_Swap(   VECTOR_FLT*    vec,
 inline
 void VECTOR_FLT_Reverse(   VECTOR_FLT*    vec )
 {
-   int N = VECTOR_FLT_Get_Size( vec );
+   int N = VECTOR_FLT_GetSize( vec );
 
    for (int i = 0; i < (N/2); i++) {
       VECTOR_FLT_Swap( vec, i, (N-1)-i );

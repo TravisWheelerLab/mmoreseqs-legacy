@@ -34,8 +34,9 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
 
 
 /*! FUNCTION:  run_Decode_Normal_Posterior_Quad()
- *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
- *             Can store matrix in <...fwd> or <...bck>.
+ *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices (log-space) to create special state posterior into <...post> (normal-space).
+ *             Can store <...post> matrix in <...bck>.
+ *             Again, input should be in log-space, output matrix is in normal-space (needed for computing null2 score).
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.

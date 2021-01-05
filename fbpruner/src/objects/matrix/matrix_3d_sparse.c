@@ -137,9 +137,22 @@ MATRIX_3D_SPARSE*
 MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
                         const MATRIX_3D_SPARSE*    mx_src )
 {
+   /* if dest has not been allocated, do it now */
    if ( mx_dest == NULL ) {
       mx_dest = MATRIX_3D_SPARSE_Create();
    }
+   /* if dest and src point to the same matrix, do nothing */
+   if ( mx_dest == mx_src ) {
+      return mx_dest;
+   }
+
+   /* metadata */
+   mx_dest->N = mx_src->N;
+   mx_dest->Nalloc = mx_src->Nalloc;
+   mx_dest->D1 = mx_src->D1;
+   mx_dest->D2 = mx_src->D2;
+   mx_dest->D3 = mx_src->D3;
+   mx_dest->clean = mx_src->clean;
    /* edgebounds */
    EDGEBOUNDS_Copy( mx_dest->edg_inner, mx_src->edg_inner );
    EDGEBOUNDS_Copy( mx_dest->edg_outer, mx_src->edg_outer );
@@ -151,7 +164,6 @@ MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
    VECTOR_INT_Copy( mx_dest->omap_cur, mx_src->omap_cur );
    /* data */
    VECTOR_FLT_Copy( mx_dest->data, mx_src->data );   
-   mx_dest->clean = mx_src->clean;
 
    return mx_dest;
 }
@@ -175,10 +187,11 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
 
    /* add inner edgebounds to sparse matrix via deep copy.  NOTE: could use reference? */
    smx->edg_inner = EDGEBOUNDS_Copy( smx->edg_inner, edg_inner );
+	
+   /* create outer edgebounds that includes all cells adjacent to inner edgebounds */
    // smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds( smx->edg_inner, smx->edg_outer );
-	smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds_Naive( smx->edg_inner, smx->edg_outer );
-   smx->edg_outer->Q = smx->edg_inner->Q;
-   smx->edg_outer->T = smx->edg_inner->T;
+   smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds_Naive( smx->edg_inner, smx->edg_outer );
+
    /* index edgebound rows */
    EDGEBOUNDS_Index( smx->edg_inner );
    EDGEBOUNDS_Index( smx->edg_outer );
@@ -344,7 +357,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds(   EDGEBOUNDS*    edg_inner,    
  *                <edg_outer> contains all cells contained in <edg_inner> and pads with every cell adjacent to <edg_outer>, 
  *                If <edg_outer> already created, reuses data struct.
  *                Requires <edg_inner> is sorted.
- *                Requires 3x as much memory as non-naive version.
+ *                Requires 3x as much memory as non-naive version. In practice, this is just ~O(Q).
  *
  *    RETURN:     Returns <edg_outer>.
  */
@@ -360,8 +373,15 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inne
    if ( edg_outer == NULL ) {
       edg_outer = EDGEBOUNDS_Create();
    }
+   /* empty edgebound list */
    EDGEBOUNDS_Reuse( edg_outer, edg_inner->Q, edg_inner->T );
 
+   /* fill metadata */
+   edg_outer->Q = edg_inner->Q;
+   edg_outer->T = edg_inner->T;
+   edg_outer->edg_mode = edg_inner->edg_mode;
+
+   /* iterate over each bound in inner edgebound list */
    N = EDGEBOUNDS_Get_Size( edg_inner );
    for ( int i = 0; i < N; i++ ) 
    {
@@ -385,7 +405,7 @@ EDGEBOUNDS* EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inne
 
    #if DEBUG
    {
-      fp = fopen("test_output/premerge.edg", "w");
+      fp = fopen("test_output/my.premerge.edg", "w");
       EDGEBOUNDS_Dump( edg_outer, fp );
       fclose(fp);
    }
@@ -417,6 +437,9 @@ int MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds(   MATRIX_3D_SPARSE*    smx,       
    N        = edg->N;
    b_0      = edg->bounds;
    offset   = 0;
+
+   /* clear previous data from vector */
+   VECTOR_INT_Reuse( map );
 
    /* initial row */
    VECTOR_INT_Pushback( map, offset );
@@ -478,6 +501,11 @@ int MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds(   MATRIX_3D_SPARSE*    smx,       
    bo_cur = &(edg_outer->bounds[0]);
    bo_nxt_idx = 0;
    bo_nxt = &(edg_outer->bounds[0]);
+
+   /* clear previous data */
+   VECTOR_INT_Reuse( smx->imap_prv );
+   VECTOR_INT_Reuse( smx->imap_cur );
+   VECTOR_INT_Reuse( smx->imap_nxt );
 
    /* iterate over edg_inner rows */
    for (int bi_cur_idx = 0; bi_cur_idx < N; bi_cur_idx++, bi_cur++) 
@@ -665,7 +693,6 @@ int MATRIX_3D_SPARSE_Get_X(   MATRIX_3D_SPARSE*    smx,           /* MATRIX_3D_S
    return idx;
 }
 
-/* TODO */
 /*  FUNCTION:  MATRIX_3D_SPARSE_Embed()
  *  SYNOPSIS:  Embed sparse matrix <smx> into matrix <mx>. 
  *
@@ -677,6 +704,57 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
                                     MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
                                     MATRIX_3D*           mx )     /* matrix */
 {
+   int         id_0, lb_0, rb_0;
+   int         q_0, t_0;
+   int         qx0, tx0;
+   int         r_0b, r_0e, r_0;
+   EDGEBOUNDS* edg;
+   BOUND*      bnd;
+
+   /* resize embedding matrix to contain sparse matrix */
+   MATRIX_3D_Reuse( mx, NUM_NORMAL_STATES, Q+1, T+1 );
+   MATRIX_3D_Fill( mx, -INF );
+ 
+   /* edgebounds */ 
+   edg  = smx->edg_inner;
+   r_0b = 0;
+   r_0e = edg->N;
+
+   /* iterate through edgebounds */
+   for ( int r_0 = r_0b; r_0 < r_0e; r_0++ ) 
+   {
+      /* get bound */
+      bnd   = &EDG_X(edg, r_0);
+      id_0  = bnd->id;
+      lb_0  = bnd->lb;
+      rb_0  = bnd->rb;
+
+      /* fetch data mapping bound start location to data block in sparse matrix */
+      qx0 = VECTOR_INT_Get( smx->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+
+      for (t_0 = lb_0; t_0 < rb_0; t_0++)
+      {
+         tx0 = t_0 - bnd->lb;
+
+         /* embed linear row into quadratic test matrix */
+         MX_3D(mx, MAT_ST, q_0, t_0) = SMX(smx, MAT_ST, qx0, tx0);
+         MX_3D(mx, INS_ST, q_0, t_0) = SMX(smx, INS_ST, qx0, tx0);
+         MX_3D(mx, DEL_ST, q_0, t_0) = SMX(smx, DEL_ST, qx0, tx0);
+      }
+   }
+}
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Log_Embed()
+ *  SYNOPSIS:  Embed sparse matrix <smx> into matrix <mx>. 
+ *
+ *  RETURN:    Pointer to <mx> if success.
+ *             Returns NULL if fails.
+ */
+MATRIX_3D* MATRIX_3D_SPARSE_Log_Embed(    int                  Q,
+                                          int                  T,
+                                          MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                          MATRIX_3D*           mx )     /* matrix */
+{
    int         id, lb_0, rb_0;
    int         q_0, t_0;
    int         qx0, tx0;
@@ -686,8 +764,8 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
 
    /* resize embedding matrix to contain sparse matrix */
    MATRIX_3D_Reuse( mx, NUM_NORMAL_STATES, Q+1, T+1 );
-   MATRIX_3D_Fill(mx, -INF);
-
+   MATRIX_3D_Fill( mx, -INF );
+ 
    /* edgebounds */ 
    edg   = smx->edg_inner;
    r_0b = 0;
@@ -708,9 +786,9 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
          tx0 = t_0 - bnd->lb;
 
          /* embed linear row into quadratic test matrix */
-         MX_3D(mx, MAT_ST, q_0, t_0) = SMX(smx, MAT_ST, qx0, tx0);
-         MX_3D(mx, INS_ST, q_0, t_0) = SMX(smx, INS_ST, qx0, tx0);
-         MX_3D(mx, DEL_ST, q_0, t_0) = SMX(smx, DEL_ST, qx0, tx0);
+         MX_3D(mx, MAT_ST, q_0, t_0) = logf( SMX(smx, MAT_ST, qx0, tx0));
+         MX_3D(mx, INS_ST, q_0, t_0) = logf( SMX(smx, INS_ST, qx0, tx0));
+         MX_3D(mx, DEL_ST, q_0, t_0) = logf( SMX(smx, DEL_ST, qx0, tx0));
       }
    }
 }
@@ -722,7 +800,7 @@ void MATRIX_3D_SPARSE_Bounds_Dump(  MATRIX_3D_SPARSE*    smx,     /* sparse matr
                                     FILE*                fp )     /* file pointer to be written to */
 {
    int   Q, T;
-   int   prv, cur, nxt, rng;
+   int   prv, cur, nxt, len;
    int   width = 11;
    int   hwidth = 4;
    int   swidth = 3;
@@ -732,18 +810,19 @@ void MATRIX_3D_SPARSE_Bounds_Dump(  MATRIX_3D_SPARSE*    smx,     /* sparse matr
 
    fprintf( fp, "%*s :: %*s :: %*s :: %*s ::\n",
       14, "BOUNDS", width, "PREVIOUS", width, "CURRENT", width, "NEXT");
-   for ( int i = 0; i < smx->imap_cur->N; i++) 
+   for ( int i = 0; i < smx->imap_cur->N; i++ ) 
    {
-      BOUND* bnd =  &smx->edg_inner->bounds[i];
+      BOUND* bnd = &smx->edg_inner->bounds[i];
       prv = smx->imap_prv->data[i];
       cur = smx->imap_cur->data[i];
       nxt = smx->imap_nxt->data[i];
-      rng = bnd->rb - bnd->lb;
+      // len = bnd->rb - bnd->lb;
+      len = 0;
       fprintf( fp, "[%*d]{%*d-%*d} :: %*d - %*d :: %*d - %*d :: %*d - %*d ::\n",
          swidth, bnd->id, swidth, bnd->lb, swidth, bnd->rb,
-         hwidth, prv, hwidth, prv + (rng * 3),
-         hwidth, cur, hwidth, cur + (rng * 3),
-         hwidth, nxt, hwidth, nxt + (rng * 3) );
+         hwidth, prv, hwidth, prv + (len * 3),
+         hwidth, cur, hwidth, cur + (len * 3),
+         hwidth, nxt, hwidth, nxt + (len * 3) );
    }
    fprintf(fp, "\n\n");
 
@@ -808,6 +887,37 @@ void MATRIX_3D_SPARSE_Dump(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
          }
       }
       fprintf(fp, "\n");
+   }
+}
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Fill_Outer()
+ *  SYNOPSIS:  Fill all cells in sparse matrix <smx> with <val>.
+ */
+void MATRIX_3D_SPARSE_Fill_Outer(   MATRIX_3D_SPARSE*    smx,     /* sparse matrix */
+                                    float                val )
+{
+   for (int i = 0; i < smx->data->N; i++) {
+      smx->data->data[i] = val;
+   }
+}
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Exp()
+ *  SYNOPSIS:  Convert matrix from log-to-normal space with the exp() function.
+ */
+void MATRIX_3D_SPARSE_Exp(  MATRIX_3D_SPARSE*    smx )     /* sparse matrix */
+{
+   for (int i = 0; i < smx->data->N; i++) {
+      smx->data->data[i] = exp(smx->data->data[i]);
+   }
+}
+
+/*  FUNCTION:  MATRIX_3D_SPARSE_Log()
+ *  SYNOPSIS:  Convert matrix from normal-to-log space with the log() function.
+ */
+void MATRIX_3D_SPARSE_Log(  MATRIX_3D_SPARSE*    smx )     /* sparse matrix */
+{
+   for (int i = 0; i < smx->data->N; i++) {
+      smx->data->data[i] = log(smx->data->data[i]);
    }
 }
 

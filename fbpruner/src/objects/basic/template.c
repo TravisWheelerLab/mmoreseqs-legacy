@@ -26,9 +26,9 @@
 /*
  *  FUNCTION:  XXX_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
- *             Stores it in a char* buffer <buf>.
+ *             Stores it in a preallocated char* buffer <buf>.
  *
- *    RETURN:  Pointer to <buf>
+ *    RETURN:  Pointer to <buf>.
  */
 inline
 char* XXX_To_String( const XXX   d,
@@ -36,6 +36,20 @@ char* XXX_To_String( const XXX   d,
 {
    sprintf( buf, "%d", d );
    return buf;
+}
+
+/*
+ *  FUNCTION:  XXX_To_String()
+ *  SYNOPSIS:  Interpret string representation in char* buffer <buf>.
+ *             Stores result in <d>
+ *
+ *    RETURN:  <STATUS_SUCCESS> if no errors.
+ */
+inline
+int XXX_From_String(    const char*    buf,
+                        XXX            d )
+{
+   d = atoi(buf);
 }
 
 /*

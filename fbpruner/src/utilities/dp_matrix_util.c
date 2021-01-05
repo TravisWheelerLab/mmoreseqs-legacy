@@ -81,8 +81,8 @@ void DP_MATRIX_Clean(   const int   Q,
                         MATRIX_3D*  st_MX,
                         MATRIX_2D*  sp_MX )
 {
-   MATRIX_3D_Clean( st_MX );
-   MATRIX_2D_Clean( sp_MX );
+   if (st_MX != NULL) MATRIX_3D_Clean( st_MX );
+   if (sp_MX != NULL) MATRIX_2D_Clean( sp_MX );
 }
 
 /** FUNCTION:  DP_MATRIX_Clean_Verify()
@@ -169,16 +169,16 @@ void DP_MATRIX_Dump( const int         Q,
 {
    int pad, dec;
    pad = 9;
-   dec = 5;
+   dec = 3;
 
    /* PRINT resulting dp matrix */
-   fprintf(fp, "##### DP MATRIX ##### \n");
+   fprintf(fp, "#####_MMORE_DP_MATRIX_##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
 
    /* Header */
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "# #");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -205,9 +205,9 @@ void DP_MATRIX_Dump( const int         Q,
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "#");
    for (int i = 0; i <= Q; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -242,6 +242,33 @@ void DP_MATRIX_Dump( const int         Q,
    fprintf(fp, "\n\n");
 }
 
+
+/** FUNCTION:  DP_MATRIX_Log()
+ *  SYNOPSIS:  Convert all dp matrix cells to log space
+ */
+void DP_MATRIX_Log(  const int         Q,
+                     const int         T,
+                     MATRIX_3D*        st_MX,
+                     MATRIX_2D*        sp_MX )
+{
+   if (sp_MX != NULL) MATRIX_2D_Log( sp_MX );
+   if (st_MX != NULL) MATRIX_3D_Log( st_MX );
+}
+
+
+/** FUNCTION:  DP_MATRIX_Exp()
+ *  SYNOPSIS:  Convert all dp matrix cells to normal space
+ */
+void DP_MATRIX_Exp(  const int         Q,
+                     const int         T,
+                     MATRIX_3D*        st_MX,
+                     MATRIX_2D*        sp_MX )
+{
+   if (sp_MX != NULL) MATRIX_2D_Log( sp_MX );
+   if (st_MX != NULL) MATRIX_3D_Log( st_MX );
+}
+
+
 /** FUNCTION:  DP_MATRIX_Log_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
@@ -254,14 +281,15 @@ void DP_MATRIX_Log_Dump(   const int         Q,
    /* PRINT resulting dp matrix */
    int pad, dec;
    pad = 9;
-   dec = 5;
+   dec = 3;
 
    fprintf(fp, "##### DP MATRIX ##### \n");
    fprintf(fp, "XDIM\t%d\t%d\n\n", Q, T);
+
    /* Header */
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "# #");
    for (int i = 0; i <= T; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 
@@ -288,9 +316,9 @@ void DP_MATRIX_Log_Dump(   const int         Q,
    }
 
    fprintf(fp, "###### SPECIAL STATES #####\n");
-   fprintf(fp, "%*s ", -9, "#");
+   fprintf(fp, "%*s ", -14, "#");
    for (int i = 0; i <= Q; i++) {
-      fprintf(fp, "%*d ", -7, i);
+      fprintf(fp, "%*d ", -9, i);
    }
    fprintf(fp, "\n");
 

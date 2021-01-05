@@ -605,8 +605,6 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    /* check if data is cleaned */
    #if DEBUG
    {
-      DP_MATRIX_Save(Q, T, test_MX, sp_MX, "test_output/cloud_search_fwd.mx");
-
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp );
       printf("MAX CLOUD_FWD SCORE: %f, LIMIT: %f\n", total_max, total_limit);
@@ -1211,8 +1209,6 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    /* check if data is cleaned */
    #if DEBUG
    {
-      DP_MATRIX_Save(Q, T, test_MX, sp_MX, "test_output/cloud_search_bck.mx");
-
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp );
       printf("MAX CLOUD_BCK SCORE: %f, LIMIT: %f\n", total_max, total_limit);

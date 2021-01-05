@@ -76,11 +76,6 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   int     k;
   int     Sk; /* over model M states 1..M, I states 1..M-1 */
 
-  // printf("=== POSTERIOR ===\n");
-  // p7_gmx_Dump(stdout, pp, p7_SHOW_LOG);
-  // printf("M,L=(%d,%d)\n", M, Ld );
-  // printf("=================\n");
-
   /* Calculate expected # of times that each emitting state was used
    * in generating the Ld residues in this domain.
    * The 0 row in <wrk> is used to hold these numbers.
@@ -92,7 +87,7 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   // printf("<0>\n");
   // printf("==> NORMAL STATES <=\n");
   // for (int i = 0; i < M+1; i++) {
-  //   printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+  //   printf("[%3d]: %12.7f %12.7f %12.7f\n", i, 
   //     *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
   //     *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
   //     *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
@@ -109,10 +104,10 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   }
 
   fp = fopen("test_output/hmmer.post_vec.2.csv", "w+");
-  fprintf(fp, "<1>\n");
+  fprintf(fp, "<2>\n");
   fprintf(fp, "==> NORMAL STATES <=\n");
   for (int i = 0; i < M+1; i++) {
-    fprintf(fp, "[%3d]: %12.9f %12.9f %12.9f\n", i, 
+    fprintf(fp, "[%3d]: %12.7f %12.7f %12.7f\n", i, 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
@@ -129,36 +124,41 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   esl_vec_FLog(pp->dp[0], (M + 1) * p7G_NSCELLS);
   esl_vec_FLog(pp->xmx, p7G_NXCELLS);
 
-  printf("<3>\n");
-  printf("==> NORMAL STATES <=\n");
+  fp = fopen("test_output/hmmer.post_vec.3.csv", "w+");
+  fprintf(fp, "<3>\n");
+  fprintf(fp, "==> NORMAL STATES <=\n");
   for (int i = 0; i < M+1; i++) {
-    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+    fprintf(fp, "[%3d]: %12.7f %12.7f %12.7f\n", i, 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
   }
-  printf("==> SPECIAL STATES <=\n");
+  fprintf(fp, "==> SPECIAL STATES <=\n");
   for (int i = 0; i < p7G_NXCELLS; i++) {
-    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
+    fprintf(fp, "[%d]: %9f\n", i, *(pp->xmx + i) );
   }
+  fclose(fp);
 
+    /* Divide by the length of Q to take the average (subtract by the log(Q) to compute in log space) */
   float neglog_L = -log((float)Ld);
   printf("neglog_L = %d %f\n", Ld, neglog_L );
   esl_vec_FIncrement(pp->dp[0], (M + 1) * p7G_NSCELLS, -log((float)Ld));
   esl_vec_FIncrement(pp->xmx, p7G_NXCELLS, -log((float)Ld));
 
-  printf("<4>\n");
-  printf("==> NORMAL STATES <=\n");
+  fp = fopen("test_output/hmmer.post_vec.4.csv", "w+");
+  fprintf(fp, "<4>\n");
+  fprintf(fp, "==> NORMAL STATES <=\n");
   for (int i = 0; i < M+1; i++) {
-    printf("[%3d]: %12.9f %12.9f %12.9f\n", i, 
+    fprintf(fp, "[%3d]: %12.7f %12.7f %12.7f\n", i, 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 0 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 1 ), 
       *(pp->dp[0] + (i * p7G_NSCELLS) + 2 ) );
   }
-  printf("==> SPECIAL STATES <=\n");
+  fprintf(fp, "==> SPECIAL STATES <=\n");
   for (int i = 0; i < p7G_NXCELLS; i++) {
-    printf("[%d]: %9f\n", i, *(pp->xmx + i) );
+    fprintf(fp, "[%d]: %9f\n", i, *(pp->xmx + i) );
   }
+  fclose(fp);
 
   /* Calculate null2's log odds emission probabilities, by taking
    * posterior weighted sum over all emission vectors used in paths
@@ -186,7 +186,7 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   fp = fopen("test_output/hmmer.null2.csv", "w+");
   fprintf(fp, "==> NULL2 (pre) <=\n");
   for (int x = 0; x < gm->abc->Kp; x++) {
-    fprintf(fp, "[%2d]: %f\n", x, null2[x] );
+    fprintf(fp, "%d %c %.7f\n", x, gm->abc->sym[x], null2[x] );
   }
 
   /* convert from log to normal space */
@@ -198,16 +198,11 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
 
   fprintf(fp, "==> NULL2 (log->normal) <=\n");
   for (int x = 0; x < gm->abc->Kp; x++) {
-    fprintf(fp, "[%2d]: %f\n", x, null2[x] );
+    fprintf(fp, "%d %c %.7f\n", x, gm->abc->sym[x], null2[x] );
   }
 
   /* make valid scores for all degeneracies, by averaging the odds ratios. */
   esl_abc_FAvgScVec(gm->abc, null2); /* does not set gap, nonres, missing  */
-
-  fprintf(fp, "==> NULL2 (avg) <=\n");
-  for (int x = 0; x < gm->abc->Kp; x++) {
-    fprintf(fp, "[%2d]: %f\n", x, null2[x] );
-  }
 
   null2[gm->abc->K] = 1.0;           /* gap character    */
   null2[gm->abc->Kp - 2] = 1.0;      /* nonresidue "*"   */
@@ -217,14 +212,8 @@ int p7_GNull2_ByExpectation(const P7_PROFILE *gm, P7_GMX *pp, float *null2)
   fprintf(fp, "==> NULL2 (end) <=\n");
   seq_bias = 0.0f;
   for (int x = 0; x < gm->abc->Kp; x++) {
-    fprintf(fp, "[%2d]: %f\n", x, null2[x] );
+    fprintf(fp, "%d %c %.7f\n", x, gm->abc->sym[x], null2[x] );
   }
-
-  seq_bias = 0.0f;
-  for (int x = 0; x < gm->abc->Kp; x++) {
-    seq_bias *= null2[x];
-  }
-  fprintf(fp, "seq_bias: %f -> %f\n", seq_bias, log(seq_bias) );
   fclose(fp);
 
   return eslOK;
