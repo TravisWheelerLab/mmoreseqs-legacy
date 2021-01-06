@@ -1041,7 +1041,7 @@ void WORK_cloud_search( WORKER* worker )
    int status;
 
    /* if performing linear fb-pruner, run cloud search  */
-   if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) 
+   if ( tasks->lin_cloud_fwd || tasks->lin_cloud_bck ) 
    {
       /* cloud forward */
       printf_vall("# ==> cloud forward (linear)...\n");
@@ -1454,7 +1454,7 @@ void WORK_convert_scores( WORKER* worker )
 
             run_Bound_Forward_Sparse( 
                worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
-            printf("Sparse Forward  (full): %.9f\n", sc);
+            printf("Sparse Forward  (pre-posterior): %.9f\n", sc);
             #if DEBUG
             {
                DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -1465,7 +1465,7 @@ void WORK_convert_scores( WORKER* worker )
 
             run_Bound_Backward_Sparse( 
                worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
-            printf("Sparse Backward (full): %.9f\n", sc);
+            printf("Sparse Backward (pre-posterior): %.9f\n", sc);
             #if DEBUG
             {
                DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);

@@ -807,6 +807,8 @@ typedef struct {
    bool     lin_bck;             /* backward */
    bool     lin_vit;             /* viterbi */
    bool     lin_trace;           /* traceback of viterbi */
+   bool     lin_cloud_fwd;       /* forward cloud search */
+   bool     lin_cloud_bck;       /* forward cloud search */
    bool     lin_bound_fwd;       /* bounded forwarded (requires cloud) */
    bool     lin_bound_bck;       /* bounded backward (requires cloud) */
    /* sparse algs */

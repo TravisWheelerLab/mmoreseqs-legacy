@@ -656,7 +656,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
             MX_2D( dom_def->st_freq, t_0, D_ST ) += dmx;
 
             /* add to count */
-            VEC_X( dom_def->st_num, t_0 ) += 1;
+            // VEC_X( dom_def->st_num, t_0 ) += 1;
          }
       }
 
@@ -722,15 +722,15 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    }
    #endif 
 
-   /*  This is the cumulative score contributed by each index in the model.
+   /*  This is the cumulative score contributed by each position in the model.
     *  Divide by Q to take the average per cell (or subtract by the log(Q) to compute in log space) 
     */
    neglog_Q = -log( (float)Q );
    printf("neglog_Q = %d %f\n", Q_len, neglog_Q);
-   for ( t_0 = T_beg; t_0 < T_end; t_0++ ) {
-      tx0 = t_0 - T_beg;
-      VEC_X( dom_def->st_num, t_0 ) = -log( (float)VEC_X( dom_def->st_num, t_0 ));
-   }
+   // for ( t_0 = T_beg; t_0 < T_end; t_0++ ) {
+   //    tx0 = t_0 - T_beg;
+   //    VEC_X( dom_def->st_num, t_0 ) = -log( (float)VEC_X( dom_def->st_num, t_0 ));
+   // }
 
    /* for each position in query domain */
    for ( t_0 = T_beg; t_0 < T_end; t_0++ ) {

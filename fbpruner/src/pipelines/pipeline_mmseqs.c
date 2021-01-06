@@ -72,12 +72,14 @@ mmseqs_pipeline( WORKER* worker )
       tasks->sparse_bias_corr = true;
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
-      tasks->lin_fwd          = true;     /* optional, but can't recover alignment */
-      tasks->lin_bck          = true;     /* optional, but can't recover alignment */
+      tasks->lin_fwd          = false;    /* optional, but can't recover alignment */
+      tasks->lin_bck          = false;    /* optional, but can't recover alignment */
       tasks->lin_vit          = false;    /* optional, but can't recover alignment */
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
-      tasks->lin_bound_fwd    = true;     /* */  
-      tasks->lin_bound_bck    = false;    /* */
+      tasks->lin_cloud_fwd    = true;     /* required for sparse and linear bound fwdbck */
+      tasks->lin_cloud_bck    = true;     /* required for sparse and linear bound fwdbck */
+      tasks->lin_bound_fwd    = false;    /* can't be used to recover alignment */  
+      tasks->lin_bound_bck    = false;    /* can't be used to recover alignment */
       /* quadratic algs */
       tasks->quadratic        = false;    /* if any other quadratic tasks are flagged, this must be too */
       tasks->quad_fwd         = false;    /* optional */
