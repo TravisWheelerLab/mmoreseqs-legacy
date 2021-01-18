@@ -43,6 +43,7 @@
 int
 p7_Null2_ByExpectation(const P7_OPROFILE *om, const P7_OMX *pp, float *null2)
 {
+   printf("=== p7_Null2_ByExpectation() (SSE) [BEGIN] ===\n");
    int      M    = om->M;
    int      Ld   = pp->L;
    int      Q    = p7O_NQF(M);
@@ -110,9 +111,11 @@ p7_Null2_ByExpectation(const P7_OPROFILE *om, const P7_OMX *pp, float *null2)
 
    /* make valid scores for all degeneracies, by averaging the odds ratios. */
    esl_abc_FAvgScVec(om->abc, null2);
-   null2[om->abc->K]    = 1.0;        /* gap character    */
-   null2[om->abc->Kp - 2] = 1.0;    /* nonresidue "*"   */
-   null2[om->abc->Kp - 1] = 1.0;    /* missing data "~" */
+   null2[om->abc->K]       = 1.0;    /* gap character    */
+   null2[om->abc->Kp - 2]  = 1.0;    /* nonresidue "*"   */
+   null2[om->abc->Kp - 1]  = 1.0;    /* missing data "~" */
+
+  printf("=== p7_Null2_ByExpectation() (SSE) [END] ===\n");
 
    return eslOK;
 }

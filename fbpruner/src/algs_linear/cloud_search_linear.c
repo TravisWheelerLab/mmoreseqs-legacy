@@ -133,6 +133,9 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    float       alpha;
    float       beta;
    int         gamma;
+   /* antidiag range for the start/end points in the input viterbi alignment */
+   RANGE       vit_range;
+
 
    /* debugger tools */
    FILE*       dbfp;
@@ -189,10 +192,16 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
 
+   /* get start and end points of viterbi alignment */
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
+
    /* get pruning parameters */
    alpha       = params->alpha;
    beta        = params->beta;
    gamma       = params->gamma;
+   /* start and end points of input viterbi alignment */
+   vit_range   = (RANGE){beg->q_0 + beg->t_0, end->q_0 + end->t_0};
 
    /* initialize edges and bounds */
    le_0 = 0;
@@ -219,20 +228,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       rb_vec[i] = VECTOR_INT_Create();
    }
 
-   /* query sequence */
-   seq = query->seq;
-
-   /* get start and end points of viterbi alignment */
-   beg = &(tr->traces->data[tr->beg]);
-   end = &(tr->traces->data[tr->end]);
-
-   /* TODO: add this edgecheck to all  */
-   /* verify that starting points are valid */
-   if ( beg->q_0 < 0 || beg->q_0 > Q || beg->t_0 < 0 || beg->t_0 > T ) {
-      fprintf(stderr, "# ERROR: Invalid start points for Cloud Forward Search: (%d,%d)\n", beg->q_0, beg->t_0 );
-      fprintf(stderr, "# Query Length: %d, Target Length: %d\n", Q, T );
-      // exit(EXIT_FAILURE);
-   }
+   /* endpoint edgechecks */
    if ( beg->q_0 > Q ) {
       beg->q_0 = Q;
    }
@@ -253,7 +249,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    t_1 = t_0 - 1;
 
    /* dimension of submatrix */
-   dim_TOT  = Q + T;
+   dim_TOT  = Q + T;          /* antidiag dimensions */
    dim_Q    = Q - beg->q_0;
    dim_T    = T - beg->t_0;
 
@@ -324,7 +320,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -707,9 +703,10 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    VECTOR_INT*    rb_vec_tmp;                      /* right swap pointer */
 
    /* pruning parameters */
-   float alpha;
-   float beta;
-   int   gamma;
+   float       alpha;
+   float       beta;
+   int         gamma;
+   RANGE       vit_range;
 
    /* debugger tools */
    FILE*       dbfp;
@@ -770,10 +767,16 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
 
+   /* get start and end points of viterbi alignment */
+   beg = &(tr->traces->data[tr->beg]);
+   end = &(tr->traces->data[tr->end]);
+
    /* get pruning parameters */
    alpha       = params->alpha;
    beta        = params->beta;
    gamma       = params->gamma;
+   /* antidiag range for the start/end points in the input viterbi alignment */
+   vit_range   = (RANGE){beg->q_0 + beg->t_0, end->q_0 + end->t_0};
 
    /* initialize edges and bounds */
    le_0 = 0;
@@ -800,13 +803,6 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       lb_vec[i] = VECTOR_INT_Create();
       rb_vec[i] = VECTOR_INT_Create();
    }
-
-   /* query sequence */
-   seq = query->seq;
-
-   /* get start and end points of viterbi alignment */
-   beg = &(tr->traces->data[tr->beg]);
-   end = &(tr->traces->data[tr->end]);
 
    /* TODO: add this edgecheck to all  */
    /* verify that starting points are valid */
@@ -908,7 +904,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 

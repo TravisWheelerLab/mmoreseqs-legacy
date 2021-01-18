@@ -13,11 +13,11 @@
 #include <time.h>
 #include <sys/types.h>
 
-/* === MACRO FUNCTIONS === */
+/* === MACROS === */
 #include "structs_macros.h"
-
-/* === ENUMERATIONS === */
-#include "structs_enums.h"
+#include "structs_consts.h"
+#include "structs_funcs.h"
+#include "structs_buildopts.h"
 
 /* === DECLARE HIDDEN FUNCTIONS (for older compilers) === */
 /* (*** c99 standard hides this function from <string.h> ***) */
@@ -547,6 +547,9 @@ typedef struct {
    /* myout option/path (my custom output) */
    bool     is_myout;               /* report myout table? */
    char*    myout_filepath;         /* filepath to output results; if NULL, doesn't output */
+      /* myout option/path (my custom output) */
+   bool     is_mydomout;            /* report myout table? */
+   char*    mydomout_filepath;      /* filepath to output results; if NULL, doesn't output */
    /* customized output */
    bool     is_customout;           /* report myout table? */
    char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
@@ -891,15 +894,19 @@ typedef struct {
    /* envelope range */
    int            env_beg; 
    int            env_end;
-   /* alignement range */
-   int            aln_beg;
-   int            aln_end;
+   /* alignment range */
+   RANGE          Q_range;
+   RANGE          T_range;
+   /* alignments */
+   ALIGNMENT*     align;
+   VECTOR_TRACE*  trace_aln;
+   VECTOR_CHAR*   cigar_aln;
    /* scores */
    float          env_sc;           /* forward score of envelope */
    float          dom_corr;         /* domain correction -> null2 score when calculating per-domain score (in NATS) */ 
    float          dom_bias;         /* domain bias -> logsum(0, log(bg->omega) + dom_corr ) */ 
    float          optacc_sc;        /* optimal accuraccy score: (units: expected # residues correctly aligned) */
-   float          bit_sc;           /* overall score in blocks */
+   float          bit_sc;           /* overall score in bits */
    double         lnP;              /* log(p-value) of the bitscore */
    /* thresholds for reporting */
    bool           is_reported;      /* if domain meets reporting threshold */
@@ -910,18 +917,42 @@ typedef struct {
 typedef struct {
    /* domains */
    int            N;             /* number of domains used */
-   int            Nalloc;        /* number of domains allocated for */
+   int            Nalloc;        /* number of domains allocated */
    DOMAIN_X*      domains;       /* domain array */
-   /* vector data */
-   VECTOR_FLT*    b_tot;         /* cumulative number of times expected to BEGIN at or before q_0 */
-   VECTOR_FLT*    e_tot;         /* cumulative number of times expected to END at or before q_0 */
-   VECTOR_FLT*    m_occ;         /* probability X emitted by core model */
+   VECTOR_RANGE*  dom_ranges;    /* domain start-end points */
+   VECTOR_FLT*    dom_fwdsc;     /* domain forward score */
+   VECTOR_FLT*    dom_bias;      /* domain sequence bias correction (via null2) */
+   DOMAIN_X       domain;        /* temp for current domain */
+   /* top scoring */
+   int            best;          /* index of highest scoring domain */
+   float          best_sc;       /* corrected score of best domain */
+   float          best_presc;    /* pre-score of best domain */
+   float          best_fwdsc;    /* forward score of best domain */
+   float          best_bias;     /* compo bias of best domain */
+   /* total scoring */
+   float          nullsc;        /* background model nullsc */
+   float          dom_sumsc;     /* all domains sumscore */
+   float          dom_sumbias;   /* all domains biases */
+   
+   /* working data for finding domains */
+   VECTOR_FLT*    b_tot;         /* cumulative probability of having reached BEGIN state */
+   VECTOR_FLT*    e_tot;         /* cumulative probability of having reached END state */
+   VECTOR_FLT*    m_occ;         /* cumulative probability of being in the CORE states (M,I,D) */
+   /* working data for computing null2 composition bias */
    VECTOR_FLT*    null2_exp;     /* null2 expectation by character */
    VECTOR_FLT*    null2_sc;      /* null2 scores by position */
-   /* working space for computing null2 score */
+   /* working data for computing null2 score */
    MATRIX_2D*     st_freq;       /* normal state frequencies */
    VECTOR_FLT*    sp_freq;       /* special state frequencies */
    VECTOR_FLT*    st_num;        /* normal state counts (for sparse) */
+   /* working data for finding alignments */
+   ALIGNMENT*     align;         /* alignment */
+   VECTOR_TRACE*  trace_aln;     /* traceback of alignment */
+   VECTOR_CHAR*   cigar_aln;     /* cigar alignment (ex: "TBBBMIDEEEEC") */
+   float          seq_bias;      /* sequence bias */
+   /* working data for temporary domain edgebounds */
+   EDGEBOUNDS*    edg;           /* edgebounds for domain */
+
    /* stats */
    float          n_expected;    /* posterior expectation for number of domains */
    int            n_regions;     /* number of regions */
@@ -929,10 +960,6 @@ typedef struct {
    int            n_envelopes;   /* number of envelopes */
    int            n_clustered;   /* number of clusters of domains */
    int            n_overlaps;    /* number of overlaps of domains */
-   /* scores */
-   float          dom_fwd;       /* domain forward score */
-   float          seq_bias;      /* computed using sum of null score */
-   
    /* domain reporting thresholds */
    float          rt1;           /* default =  */
    float          rt2;           /* default =  */
@@ -991,6 +1018,7 @@ typedef struct {
    FILE*                tblout_fp;
    FILE*                m8out_fp;
    FILE*                myout_fp;
+   FILE*                mydomout_fp;
    /* indexes of query and target data files */
    F_INDEX*             q_index;
    F_INDEX*             t_index;
@@ -1077,7 +1105,7 @@ typedef struct {
 
 
 /* === GLOBAL VARIABLES === */
-/* */
+/* pipeline */
 extern char*      PIPELINE_NAMES[];
 extern void       (*PIPELINES[])(WORKER*);
 extern int        PIPELINE_NUM_ARGS[];
@@ -1108,7 +1136,6 @@ extern char*      DATATYPE_NAMES[];
 extern SCORE_MATRIX*    bld;
 /* debugging data */
 extern DEBUG_KIT*       debugger;
-
 /* script locations */
 extern char*       MMSEQS_PLUS_SCRIPT;
 extern char*       MMSEQS_PLUS_EASY_SCRIPT;

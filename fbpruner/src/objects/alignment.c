@@ -158,21 +158,21 @@ int ALIGNMENT_Compare(  ALIGNMENT*     a,
 /*
  *  FUNCTION:  ALIGNMENT_Append()
  *  SYNOPSIS:  Append next state to Optimal Alignment.
+ *  
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 inline
 int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
-                        TRACE*       tr_ptr,    /* Traceback being Appended */
                         const int    st,        /* HMM state */
                         const int    q_0,       /* index in query/sequence */
                         const int    t_0 )      /* index in target/model */
 {
-   TRACE tr;
+   TRACE    tr, prv_tr;
 
    /* for debugging: output traces as they are being added. */
    #if DEBUG 
    {
-      // /* Add new state and (i,t_0) to trace */
+      // /* Add new state and (i,t_0) to trace */ 
       // int state_num[] = {MAT_ST, INS_ST, DEL_ST, SP_E, SP_N, SP_J, SP_C, SP_B, -1, -1};
       // if (st < 3) {
       //    fprintf( stderr, "%s:\t(%d,%d)\n", 
@@ -196,7 +196,8 @@ int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
       case N_ST:
       case C_ST:
       case J_ST:
-         tr.q_0 = ( ( tr.st == st) ? q_0 : 0 );
+         prv_tr = VEC_X( aln->traces, aln->traces->N - 1 );
+         tr.q_0 = ( ( tr.st == prv_tr.st ) ? q_0 : 0 );
          tr.t_0 = 0;
          break;
 

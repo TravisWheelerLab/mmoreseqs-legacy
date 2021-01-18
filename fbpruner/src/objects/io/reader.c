@@ -19,12 +19,12 @@
 #include <sys/stat.h>
 
 /* local imports */
-#include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../structs.h"
+#include "../../utilities/utilities.h"
+#include "../objects.h"
 
 /* header */
-#include "debugger.h"
+#include "../debugger.h"
 
 /*  FUNCTION:  READER_Create()
  *  SYNOPSIS:
@@ -39,7 +39,7 @@ READER* READER_Create( char* filename )
    reader->N            = 0;
    reader->Nalloc       = 0;
    reader->token        = NULL;
-   reader->tokens       = VECTOR_CHAR_Create();
+   reader->tokens       = VECTOR_INT_Create();
    /* location in file */
    reader->cur_offset   = 0;
    reader->file_size    = 0;
@@ -69,7 +69,7 @@ void* READER_Destroy( READER* reader )
 }
 
 /*  FUNCTION:  READER_Open()
- *  SYNOPSIS:
+ *  SYNOPSIS:  Opens file for reading.
  */
 int READER_Open( READER* reader )
 {
@@ -99,7 +99,7 @@ int READER_Rewind( READER* reader )
 }
 
 /*  FUNCTION:  READER_JumpTo()
- *  SYNOPSIS:  Jump to nth byte of into file pointer.
+ *  SYNOPSIS:  Jump to nth byte into file.
  */
 int READER_JumpTo(   READER*     reader, 
                      long int    offset )
@@ -111,7 +111,7 @@ int READER_JumpTo(   READER*     reader,
 /*  FUNCTION:  READER_GetLine()
  *  SYNOPSIS:
  */
-char* READER_GetLine( READER* reader )
+char* READER_NextLine(  READER* reader )
 {
    if ( reader->is_eof ) return NULL;
 
@@ -128,13 +128,20 @@ char* READER_GetLine( READER* reader )
    }
 }
 
-/*  FUNCTION:  READER_Split()
+/*  FUNCTION:  READER_SplitLine()
  *  SYNOPSIS:  Split line currently in buffer into tokens.
  */
 int READER_SplitLine(   READER*  reader, 
                         char*    delimiter )
 {
-   VECTOR_CHAR_Reuse( reader->tokens );
 
-   return reader->tokens;
+}
+
+/*  FUNCTION:  READER_Next()
+ *  SYNOPSIS:  Split line currently in buffer into tokens.
+ */
+int READER_NextToken(   READER*  reader, 
+                        char*    delimiter )
+{
+
 }

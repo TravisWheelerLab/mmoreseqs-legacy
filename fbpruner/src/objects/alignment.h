@@ -42,7 +42,6 @@ int ALIGNMENT_Compare(  ALIGNMENT*     a,
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 int ALIGNMENT_Append(   ALIGNMENT*   aln,       /* Traceback Alignment */
-                        TRACE*       tr,        /* Traceback being Appended */
                         const int    st_cur,    /* HMM state */
                         const int    q_0,       /* index in query/sequence */
                         const int    t_0 );     /* index in target/model */

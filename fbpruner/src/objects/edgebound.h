@@ -200,8 +200,8 @@ int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg );
  *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Dump( EDGEBOUNDS*    edg,
-                      FILE*          fp );
+void EDGEBOUNDS_Dump( const EDGEBOUNDS*     edg,
+                      FILE*                 fp );
 
 /*
  *  FUNCTION: EDGEBOUNDS_Print()
@@ -253,5 +253,26 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
 EDGEBOUNDS* EDGEBOUNDS_Cover_Range(    EDGEBOUNDS*    edg,
                                        RANGE          Q_range,
                                        RANGE          T_range );
+
+/*! FUNCTION: EDGEBOUNDS_Find_BoundingBox()
+ *  SYNOPSIS: Find the min/max range of values contained in the edgebounds.
+ *            Assumes edgebounds have been sorted.
+ */
+int 
+EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
+                              RANGE*        Q_range,
+                              RANGE*        T_range );
+
+
+
+/*! FUNCTION: EDGEBOUNDS_Set_Domain()
+ *  SYNOPSIS: Build an EDGEBOUND <edg_out> from QxT EDGEBOUNDS <edg_in>
+ *            and constraining the query range to the domain <dom_range> => <q_beg, q_end>.
+ *            Simply eliminates query rows outside the range and shifts all query id's by <q_beg>.
+ */
+int 
+EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*   edg_in,
+                        EDGEBOUNDS*   edg_out,
+                        RANGE*        dom_range );                      
 
 #endif /* _EDGEBOUND_H */

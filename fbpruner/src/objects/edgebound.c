@@ -581,8 +581,8 @@ int EDGEBOUNDS_Count_Cells( EDGEBOUNDS*   edg )
  *  FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
-void EDGEBOUNDS_Dump( EDGEBOUNDS*   edg,
-                      FILE*         fp )
+void EDGEBOUNDS_Dump( const EDGEBOUNDS*   edg,
+                      FILE*               fp )
 {
    /* test for bad file pointer */
    if (fp == NULL) {
@@ -699,6 +699,7 @@ EDGEBOUNDS_Count( EDGEBOUNDS*  edg )
 
 /*! FUNCTION: EDGEBOUNDS_Validate()
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
+ *            For testing. 
  */
 int 
 EDGEBOUNDS_Validate( EDGEBOUNDS*  edg )
@@ -779,7 +780,8 @@ EDGEBOUNDS_Validate( EDGEBOUNDS*  edg )
 }
 
 /*! FUNCTION: EDGEBOUNDS_Cover_Matrix()
- *  SYNOPSIS: For testing. Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.
+ *  SYNOPSIS: Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.
+ *            For testing.
  */
 void
 EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg, 
@@ -793,8 +795,8 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
 }
 
 /*! FUNCTION:  EDGEBOUNDS_Cover_Range()
- *  SYNOPSIS:  For testing.
- *             Creates edgebound space that fills square with Q_range in Query and T_range in Target.
+ *  SYNOPSIS:  Creates edgebound space that fills square with Q_range in Query and T_range in Target.
+ *             For testing.
  */
 EDGEBOUNDS* EDGEBOUNDS_Cover_Range(    EDGEBOUNDS*    edg,
                                        RANGE          Q_range,
@@ -824,3 +826,76 @@ EDGEBOUNDS_Clear( EDGEBOUNDS* edg )
    edg->N = 0;
 }
 
+/*! FUNCTION: EDGEBOUNDS_Find_BoundingBox()
+ *  SYNOPSIS: Find the min/max range of values contained in the edgebounds.
+ *            Assumes edgebounds have been sorted.
+ */
+int 
+EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
+                              RANGE*        Q_range,
+                              RANGE*        T_range )
+{
+   int Q, T;
+   Q = edg->Q;
+   T = edg->T;
+
+   /* find the target and query range */
+   Q_range->beg = Q + 1;
+   Q_range->end = 0;
+   T_range->beg = T + 1;
+   T_range->end = 0;
+
+   /* create bounding box */
+   for (int i = 0; i < edg->N; i++) {
+      if ( T_range->beg > edg->bounds[i].lb ) {
+         T_range->beg = edg->bounds[i].lb;
+      }
+      if ( T_range->end < edg->bounds[i].rb ) {
+         T_range->end = edg->bounds[i].rb;
+      }
+   }
+   Q_range->beg = edg->bounds[0].id;
+   Q_range->end = edg->bounds[edg->N - 1].id;
+   /* edge checks */
+   T_range->beg = MAX(T_range->beg, 0);
+   T_range->end = MIN(T_range->end, T + 1);
+   Q_range->beg = MAX(Q_range->beg, 0);
+   Q_range->end = MIN(Q_range->end, Q + 1);
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION: EDGEBOUNDS_Set_Domain()
+ *  SYNOPSIS: Build an EDGEBOUND <edg_out> from QxT EDGEBOUNDS <edg_in>
+ *            and constraining the query range to <in_dom_range> => <q_beg, q_end>.
+ *            Simply eliminates query rows outside the range and shifts all query id's 
+ *            by <q_beg>.
+ *            NOTE: Assumes <edg_in> has been sorted.
+ */
+int 
+EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*   edg_in,
+                        EDGEBOUNDS*   edg_out,
+                        RANGE*        dom_range )
+{
+   BOUND bnd;
+   int Q_len, Q_beg, Q_end;
+
+   Q_beg = dom_range->beg;
+   Q_end = dom_range->end;
+   Q_len = Q_end - Q_beg; 
+
+   EDGEBOUNDS_Reuse( edg_out, Q_len, edg_in->T );
+
+   for (int i = 0; i < edg_in->N; i++)
+   {
+      bnd = EDG_X(edg_in, i);
+
+      /* only include if is in edgebound range */
+      if ( IN_RANGE(Q_beg, Q_end, bnd.id) ) {
+         bnd.id -= dom_range->beg;
+         EDGEBOUNDS_Pushback( edg_out, &bnd );
+      }
+   }
+
+   return STATUS_SUCCESS;
+}

@@ -289,6 +289,7 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 												const float     alpha,			/* x-drop value for by-diag prune */
 												const float 	beta, 			/* x-drop value for global prune */
 												const int       gamma,			/* number of antidiagonals before pruning */
+												const RANGE 	vit_range, 		/* antidiagonal locations for the start-end of the input viterbi alignment */ 
 												const int 		d_1,			/* previous antidiagonal */
 												const int 		d_0,			/* current antidiagonal */
 												const int 		dx1,			/* previous antidiag (mod-mapped) */
@@ -339,14 +340,19 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 	total_limit = *total_max - beta;
 	/* Set score limit threshold for pruning */
 	diag_limit 	= diag_max - alpha;
-
-	/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
-	*is_term_flag = diag_max < total_limit;
-	// printf("TEST(d_cnt=%d): %9.4f < %9.4f ? %s\n", d_cnt, diag_max, total_limit, (*is_term_flag ? "TRUE" : "FALSE") );
-	if ( d_cnt > gamma && *is_term_flag ) {
-		printf("# FLAG TRIGGERED (d_cnt=%d)!!!\n", d_cnt);
-		return;
+	
+	/* if we have searched the length of the input viterbi alignment */
+	if ( d_cnt < vit_range.beg || d_cnt > vit_range.end ) 
+	{
+		/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
+		*is_term_flag = diag_max < total_limit;
+		if ( *is_term_flag ) 
+		{
+			printf("# FLAG TRIGGERED!!! d_cnt=%d, vit_range=%d-%d\n", d_cnt, vit_range.beg, vit_range.end);
+			return;
+		}
 	}
+	
 
 	/* All edgebounds in previous antidiagonal */
 	for ( i = 0; i < lb_vec[1]->N; i++ )
@@ -385,8 +391,9 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 			}
 
 			/* If no boundary edges are found on diag, then branch is pruned entirely */
-			if ( lb_0 == INT_MIN )
+			if ( lb_0 == INT_MIN ) {
 				continue;
+			}
 
 			/* Find the first cell from the right which passes above threshold */
 			for ( k_0 = rb_1 - 1; k_0 >= lb_1; k_0-- )

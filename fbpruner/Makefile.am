@@ -17,7 +17,7 @@ fbpruner_SOURCES = \
     src/algs_linear/fwdback_linear.c \
     src/algs_linear/merge_reorient_linear.c \
     src/algs_linear/pruning_linear.c \
-    src/algs_linear/traceback_lin.c \
+    src/algs_linear/traceback_linear.c \
     src/algs_linear/viterbi_linear.c \
     src/algs_quad/bound_fwdbck_quad.c \
     src/algs_quad/bound_viterbi_quad.c \
@@ -31,13 +31,15 @@ fbpruner_SOURCES = \
     src/algs_quad/viterbi_quad.c \
     src/algs_sparse/bound_fwdbck_sparse.c \
     src/algs_sparse/bound_viterbi_sparse.c \
-    src/algs_sparse/traceback_sparse.c \
+    src/algs_sparse/viterbi_traceback_sparse.c \
     src/algs_sparse/posterior_sparse.c \
+    src/algs_sparse/posterior_traceback_sparse.c \
     src/objects/alignment.c \
     src/objects/args.c \
     src/objects/clock.c \
     src/objects/debugger.c \
     src/objects/domain_def.c \
+    src/objects/domain_x.c \
     src/objects/dp_matrix.c \
     src/objects/edgebound_rows.c \
     src/objects/edgebound.c \
@@ -45,13 +47,13 @@ fbpruner_SOURCES = \
     src/objects/hmm_bg.c \
     src/objects/hmm_profile.c \
     src/objects/mystring.c \
-    src/objects/reader.c \
     src/objects/results.c \
     src/objects/score_matrix.c \
     src/objects/sequence.c \
     src/objects/structs.c \
     src/objects/worker.c \
     src/objects/worker_thread.c \
+    src/objects/io/reader.c \
     src/objects/basic/bound.c \
     src/objects/basic/char.c \
     src/objects/basic/double.c \

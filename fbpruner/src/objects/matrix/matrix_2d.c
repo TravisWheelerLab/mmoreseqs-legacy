@@ -348,7 +348,7 @@ MATRIX_2D_Dump(   MATRIX_2D*  mx,
    fprintf(fp, "=== MATRIX_2D { R, C } = { %d, %d }===\n", mx->R, mx->C);
    for (int i = 0; i < mx->R; i++) {
       for (int j = 0; j < mx->C; j++) {
-         fprintf(fp, "%.1f\t", *MATRIX_2D_Get(mx, i, j) );
+         fprintf(fp, "%9.3f ", *MATRIX_2D_Get(mx, i, j) );
       }
       fprintf(fp, "\n");
    }

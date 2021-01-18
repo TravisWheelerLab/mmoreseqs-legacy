@@ -29,6 +29,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
                                  MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
+                                 RANGE*               in_dom_range,  /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final );    /* (OUTPUT) final score */
 
 /** FUNCTION:  run_Bound_Forward_Sparse()
@@ -51,6 +52,7 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
                                  MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
+                                 RANGE*               in_dom_range,  /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final );    /* (OUTPUT) final score */
 
 #endif /* _BOUND_FWDBCK_LINEAR_H */

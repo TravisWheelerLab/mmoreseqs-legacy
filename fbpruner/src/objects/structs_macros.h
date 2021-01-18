@@ -6,15 +6,16 @@
  *  BUG:       Lots.
  *******************************************************************************/
 
-/* vectorization */
-#include <xmmintrin.h>     /* SSE  */
-#include <emmintrin.h>     /* SSE2 */
-
 #ifndef _STRUCTS_MACROS_H
 #define _STRUCTS_MACROS_H
 
-#define TRUE  1
-#define FALSE 0
+/* === BOOLEANS === */
+#define TRUE      1
+#define FALSE     0
+
+/* vectorization */
+#include <xmmintrin.h>     /* SSE  */
+#include <emmintrin.h>     /* SSE2 */
 
 #define MACRO_XSTR(val) 	MACRO_STR(val)
 #define MACRO_STR(val) 		#val
@@ -133,6 +134,7 @@
 /* gets the location where error occurred */
 #define ERRORCHECK_locate()			__FILE__, __LINE__, __FUNCTION__
 
+
 /* === MATRIX FUNCTIONS AND MACROS === */
 
 /* whether to access MATRIX_3D via function calls or direct data accesses */
@@ -225,6 +227,8 @@
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define ABS(i)       (( (i) > (0) ? (i) : (-i) ))
+/* check if value is within [beg, end) range */
+#define IN_RANGE(x_beg, x_end, x) 	( (x) >= (x_beg) && (x) < (x_end) )
 /* check if two value are equal within tolerance */
 #define CMP_TOL(i,j) (( fabs( (i) - (j) ) < tol ? 1 : 0 )) 
 

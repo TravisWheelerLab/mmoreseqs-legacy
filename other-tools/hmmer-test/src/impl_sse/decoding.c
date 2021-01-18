@@ -75,7 +75,8 @@
 int
 p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
 {
-  printf("=== p7_Decoding() => SSE ===\n");
+  printf("=== p7_Decoding(SSE) [BEGIN] ===\n");
+
   __m128 *ppv;
   __m128 *fv;
   __m128 *bv;
@@ -135,6 +136,8 @@ p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
     if (oxb->has_own_scales) scaleproduct *= oxf->xmx[i*p7X_NXCELLS+p7X_SCALE] /  oxb->xmx[i*p7X_NXCELLS+p7X_SCALE];
   }
 
+  printf("=== p7_Decoding(SSE) [END] ===\n");
+
   if (isinf(scaleproduct)) return eslERANGE;
   else                     return eslOK;
 }
@@ -162,7 +165,8 @@ p7_Decoding(const P7_OPROFILE *om, const P7_OMX *oxf, P7_OMX *oxb, P7_OMX *pp)
 int
 p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P7_DOMAINDEF *ddef)
 {
-  printf("=== p7_DomainDecoding (sse) ===\n");
+  printf("=== p7_DomainDecoding (SSE) [BEGIN] ===\n");
+  FILE*   fp;
 
   int     L;
   float   scaleproduct;
@@ -208,6 +212,41 @@ p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P
   }
   ddef->L = oxf->L;
 
+  fp = fopen("test_output/hmmer.njcp.exp.csv", "w+");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11d ", i);
+  }
+  fprintf(fp, "\n");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4f ", ddef->btot[i]);
+  }
+  fprintf(fp, "\n");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4f ", ddef->etot[i]);
+  }
+  fprintf(fp, "\n");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4f ", ddef->mocc[i]);
+  }
+  fprintf(fp, "\n");
+
+  fp = fopen("test_output/hmmer.njcp.log.csv", "w+");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11d ", i);
+  }
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4e ", log(ddef->btot[i]) );
+  }
+  fprintf(fp, "\n");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4e ", log(ddef->etot[i]) );
+  }
+  fprintf(fp, "\n");
+  for (i = 0; i <= L; i++) {
+    fprintf(fp, "%11.4e ", log(ddef->mocc[i]) );
+  }
+  fprintf(fp, "\n");
+
   for (i = 1; i <= L; i++) 
   {
     // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f \n", 
@@ -220,6 +259,8 @@ p7_DomainDecoding(const P7_OPROFILE *om, const P7_OMX *oxf, const P7_OMX *oxb, P
     //   ddef->etot[i], log(oxf->xmx[i*p7X_NXCELLS+p7X_E]), log(oxb->xmx[i*p7X_NXCELLS+p7X_E]),
     //   ddef->mocc[i] );
   }
+
+    printf("=== p7_DomainDecoding (SSE) [END] ===\n");
 
   if (isinf(scaleproduct)) return eslERANGE;
   else                     return eslOK;

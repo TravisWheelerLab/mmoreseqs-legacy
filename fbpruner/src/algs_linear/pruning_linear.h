@@ -80,6 +80,7 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 												const float     alpha,			/* x-drop value for by-diag prune */
 												const float 	beta, 			/* x-drop value for global prune */
 												const int       gamma,			/* number of antidiagonals before pruning */
+												const RANGE 	vit_range, 		/* antidiagonal locations for the start-end of the input viterbi alignment */ 
 												const int 		d_1,			/* previous antidiagonal */
 												const int 		d_0,			/* current antidiagonal */
 												const int 		dx1,			/* previous antidiag (mod-mapped) */

@@ -96,7 +96,7 @@ void WORK_forward_backward( WORKER*  worker );
 void WORK_cloud_search( WORKER* worker );
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
-void WORK_convert_scores( WORKER* worker );
+void WORK_posterior( WORKER* worker );
 
 /* get the alignment from sparse forward/backward */
 void WORK_capture_alignment( WORKER* worker );

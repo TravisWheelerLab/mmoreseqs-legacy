@@ -397,9 +397,7 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
                                    P7_DOMAINDEF *ddef, P7_BG *bg, int long_target,
                                    P7_BG *bg_tmp, float *scores_arr, float *fwd_emissions_arr)
 {
-   printf("=== p7_domaindef_ByPosteriorHeuristics() ===\n");
-   printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
-      ddef->rt1, ddef->rt2, ddef->rt3 );
+   printf("=== p7_domaindef_ByPosteriorHeuristics() [BEGIN] ===\n");
 
    int i, j;
    int triggered;
@@ -413,23 +411,8 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    /* reporting thresholds for finding domains */
    float rt1_test, rt2_btest, rt2_etest, rt3_test; 
 
-   printf("dom decoding...\n");
    if ((status = p7_domaindef_GrowTo(ddef, sq->n))      != eslOK) return status;  /* ddef's btot,etot,mocc now ready for seq of length n */
    if ((status = p7_DomainDecoding(om, oxf, oxb, ddef)) != eslOK) return status;  /* ddef->{btot,etot,mocc} now made.                    */
-
-   // printf("=> ddef (posteriors):\n");
-   // printf("==> ddef->btot:\n");
-   // for (int i = 0; i < sq->n + 1; i++) {
-   //    printf("     [%2d]: %f\n", i, ddef->btot[i]);
-   // }
-   // printf("==> ddef->etot:\n");
-   // for (int i = 0; i < sq->n + 1; i++) {
-   //    printf("     [%2d]: %f\n", i, ddef->etot[i]);
-   // }
-   // printf("==> ddef->mocc:\n");
-   // for (int i = 0; i < sq->n + 1; i++) {
-   //    printf("     [%2d]: %f\n", i, ddef->mocc[i]);
-   // }
 
    esl_vec_FSet(ddef->n2sc, sq->n + 1, 0.0);        /* ddef->n2sc null2 scores are initialized                        */
    ddef->nexpected = ddef->btot[sq->n];             /* posterior expectation for # of domains (same as etot[sq->n])   */
@@ -437,22 +420,6 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
    p7_oprofile_ReconfigUnihit(om, saveL);     /* process each domain in unihit mode, regardless of om->mode     */
    i           = -1;
    triggered   = FALSE;
-
-   /* check test states at each posi */
-   for (j = 1; j <= sq->n; j++)
-   {
-      rt1_test  = ddef->mocc[j];
-      rt2_btest = ddef->mocc[j] - (ddef->btot[j] - ddef->btot[j - 1]);
-      rt2_etest = ddef->mocc[j] - (ddef->etot[j] - ddef->etot[j - 1]);
-
-      // printf("\n[%2d] ::\n", j);
-      // printf("       rt1: %f < %f == %s\n",
-      //    rt1_test, ddef->rt1, (rt1_test < ddef->rt1 ? "TRUE" : "FALSE") );
-      // printf("     rt2_b: %f < %f == %s\n",
-      //    rt2_btest, ddef->rt2, (rt2_btest < ddef->rt2 ? "TRUE" : "FALSE") );
-      // printf("     rt1_e: %f < %f == %s\n",
-      //    rt2_etest, ddef->rt2, (rt2_etest < ddef->rt2 ? "TRUE" : "FALSE") );
-   }
 
    for (j = 1; j <= sq->n; j++)
    {
@@ -541,6 +508,8 @@ p7_domaindef_ByPosteriorHeuristics(const ESL_SQ *sq, const ESL_SQ *ntsq, P7_OPRO
       }
    }
 
+   printf("=== p7_domaindef_ByPosteriorHeuristics() [END] ===\n");
+
    /* Restore model to uni/multihit mode, and to its original length model */
    if (p7_IsMulti(save_mode)) p7_oprofile_ReconfigMultihit(om, saveL);
    else                       p7_oprofile_ReconfigUnihit  (om, saveL);
@@ -556,7 +525,7 @@ p7_domaindef_ByPosteriorHeuristics_TEST(
                                    /* DRICH EDITS */
                                    P7_PROFILE *gm, P7_GMX *gxf, P7_GMX *gxb, P7_DOMAINDEF *gm_ddef)
 {
-   printf("=== p7_domaindef_ByPosteriorHeuristics_TEST() ===\n");
+   printf("=== p7_domaindef_ByPosteriorHeuristics_TEST() [BEGIN] ===\n");
    printf("==> cutoffs: rt1=%6.3f, rt2=%6.3f, tr3=%6.3f\n",
       ddef->rt1, ddef->rt2, ddef->rt3 );
 
@@ -638,7 +607,7 @@ p7_domaindef_ByPosteriorHeuristics_TEST(
          ddef->nregions++;
          if (is_multidomain_region(ddef, i, j))
          {
-            printf("MULTI-DOMAIN\n");
+            printf("=> MULTI-DOMAIN\n");
             /* This region appears to contain more than one domain, so we have to
              * resolve it by cluster analysis of posterior trace samples, to define
              * one or more domain envelopes.
@@ -703,6 +672,8 @@ p7_domaindef_ByPosteriorHeuristics_TEST(
          triggered = FALSE;
       }
    }
+
+   printf("=== p7_domaindef_ByPosteriorHeuristics_TEST() [END] ===\n");
 
    /* Restore model to uni/multihit mode, and to its original length model */
    if (p7_IsMulti(save_mode)) p7_oprofile_ReconfigMultihit(om, saveL);
@@ -1224,43 +1195,46 @@ rescore_isolated_domain_TEST(
    float          g_fwdsc, g_bcksc;
    P7_DOMAIN     *gm_dom        = NULL;
    float          gm_domcorrection = 0.0f;
-
-   // if (long_target) {
-   //    //temporarily change model length to env_len. The nhmmer pipeline will tack
-   //    //on the appropriate cost to account for the longer actual window
-   //    orig_L = om->L;
-   //    p7_oprofile_ReconfigRestLength(om, j - i + 1);
-   // }
-
-   // if (long_target && scores_arr != NULL) {
-   //    // Modify bg and om in-place to avoid having to clone (allocate) a massive
-   //    // number of times when there are many hits
-   //    reparameterize_model (bg, om, sq, i, j - i + 1, fwd_emissions_arr, bg_tmp->f, scores_arr);
-   // }
+   P7_GMX*        gmx_pp  = gxb;
+   P7_GMX*        gmx_opt = gxf;
 
    printf("## DIMS => gm:{%d,%d}, gxf:{%d,%d}, Ld:%d, i,j:{%d,%d}\n", 
       gm->L, gm->M, gxf->L, gxf->M, Ld, i, j);
 
-   /* Generic additions */
-   p7_GForward (sq->dsq + i - 1, Ld, gm, gxf, &g_fwdsc);
-   p7_GBackward(sq->dsq + i - 1, Ld, gm, gxb, &g_bcksc);
-   printf("## DOMAIN => Forward: %.9f, Backward: %.9f\n", g_fwdsc, g_bcksc);
-   
-   fp = fopen("test_output/hmmer.forward.dom.mx", "w+");
-   // DP_MATRIX_Log_Dump(gxf->L, gxf->M, sq->dsq, gm, gxf, fp);
-   p7_gmx_Dump(fp, gxf, p7_SHOW_LOG);
-   fclose(fp);
-   fp = fopen("test_output/hmmer.backward.dom.mx", "w+");
-   p7_gmx_Dump(fp, gxb, p7_SHOW_LOG);
-   // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
-   fclose(fp);
+   /* GENERIC */
+   if (TRUE)
+   {
+      p7_GForward (sq->dsq + i - 1, Ld, gm, gxf, &g_fwdsc);
+      p7_GBackward(sq->dsq + i - 1, Ld, gm, gxb, &g_bcksc);
+      printf("## DOMAIN => Forward: %.9f, Backward: %.9f\n", g_fwdsc, g_bcksc);
+      
+      fp = fopen("test_output/hmmer.forward.dom.mx", "w+");
+      // DP_MATRIX_Log_Dump(gxf->L, gxf->M, sq->dsq, gm, gxf, fp);
+      p7_gmx_Dump(fp, gxf, p7_SHOW_LOG);
+      fclose(fp);
+      fp = fopen("test_output/hmmer.backward.dom.mx", "w+");
+      p7_gmx_Dump(fp, gxb, p7_SHOW_LOG);
+      // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
+      fclose(fp);
 
-   p7_GDecoding(gm, gxf, gxb, gxb);
-   fp = fopen("test_output/hmmer.posterior.dom.mx", "w+");
-   // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
-   // p7_gmx_DumpWindow(fp, gxb, 0, gxb->L, 0, gxb->M, p7_SHOW_LOG);
-   p7_gmx_DumpWindow(fp, gxb, i, j, 0, gxb->M, p7_SHOW_LOG);
-   fclose(fp);
+      p7_GDecoding(gm, gxf, gxb, gxb);
+      fp = fopen("test_output/hmmer.posterior.dom.mx", "w+");
+      // DP_MATRIX_Log_Dump(gxb->L, gxb->M, sq->dsq, gm, gxb, fp);
+      // p7_gmx_DumpWindow(fp, gxb, 0, gxb->L, 0, gxb->M, p7_SHOW_LOG);
+      p7_gmx_DumpWindow(fp, gxb, i, j, 0, gxb->M, p7_SHOW_LOG);
+      fclose(fp);
+
+      p7_GOptimalAccuracy( gm, gmx_pp, gmx_opt, &g_envsc );
+      fprintf(stdout, "# === OPTIMAL: %.9f\n", g_envsc);
+      fp = fopen("test_output/hmmer.optimal.dom.mx", "w+");
+      DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+      fclose(fp);
+
+      p7_GOATrace( gm, gmx_pp, gmx_opt, gm_ddef->tr );
+      fp = fopen("test_output/hmmer.posterior_traceback.gen.tsv", "w+");
+      trace_Dump(om->L, om->M, sq->dsq, gm, gmx_opt, gm_ddef->tr, fp);
+      fclose(fp);
+   }
 
    p7_Forward (sq->dsq + i - 1, Ld, om,      ox1, &envsc);
    p7_Backward(sq->dsq + i - 1, Ld, om, ox1, ox2, NULL);
@@ -1278,6 +1252,9 @@ rescore_isolated_domain_TEST(
    printf("# optimal accuraccy done...\n");
    p7_OATrace        (om, ox2, ox1, ddef->tr);   /* <tr>'s seq coords are offset by i-1, rel to orig dsq */
    printf("# optimal accuraccy trace done...\n");
+   fp = fopen("test_output/hmmer.posterior_traceback.opt.tsv", "w+");
+   trace_Dump(om->L, om->M, sq->dsq, gm, gmx_opt, ddef->tr, fp);
+   fclose(fp);
 
    /* hack the trace's sq coords to be correct w.r.t. original dsq */
    for (z = 0; z < ddef->tr->N; z++) {

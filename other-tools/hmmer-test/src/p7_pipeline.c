@@ -1046,44 +1046,45 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    fclose(fp);
 
    printf("==> UNOPTIMIZED VERSIONS\n");
-   float o_vitsc, o_fwdsc, o_bcksc, g_vitsc, g_fwdsc, g_bcksc;
+   float o_vitsc, o_fwdsc, o_bcksc; 
+   float g_vitsc, g_fwdsc, g_bcksc, g_optsc;
    float opt_sc;
    P7_GMX *gmx_vit         = p7_gmx_Create(om->M, om->L);
    P7_GMX *gmx_fwd         = p7_gmx_Create(om->M, om->L);
    P7_GMX *gmx_bck         = p7_gmx_Create(om->M, om->L);
    P7_GMX *gmx_pp          = p7_gmx_Create(om->M, om->L);
-   P7_TRACE *tr            = p7_trace_Create();
+   P7_GMX *gmx_opt         = p7_gmx_Create(om->M, om->L);
+   P7_TRACE *g_tr          = p7_trace_Create();
    P7_DOMAINDEF *gm_ddef   = p7_domaindef_Create(pli->r);
 
    /* GENERIC FUNCTIONS */
-
    printf("==> VITERBI\n");
    p7_GViterbi(sq->dsq, sq->n, gm, gmx_vit, &opt_sc);
    printf("## Viterbi Score:\t%.9f\n", opt_sc);
-   fp = fopen("test_output/hmmer.viterbi.tsv", "w+");
+   fp = fopen("test_output/hmmer.viterbi.gen.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, fp);
    fclose(fp);
 
    printf("==> TRACEBACK\n");
-   p7_GTrace(sq->dsq, sq->n, gm, gmx_vit, tr);
-   fp = fopen("test_output/hmmer.traceback_list.tsv", "w+");
-   trace_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, tr, fp);
+   p7_GTrace(sq->dsq, sq->n, gm, gmx_vit, g_tr);
+   fp = fopen("test_output/hmmer.viterbi_traceback.tsv", "w+");
+   trace_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, g_tr, fp);
    fclose(fp);
-   fp = fopen("test_output/hmmer.traceback.tsv", "w+");
+   fp = fopen("test_output/hmmer.traceback.gen.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, fp);
    fclose(fp);
 
    printf("==> FORWARD\n");
    p7_GForward(sq->dsq, sq->n, gm, gmx_fwd, &opt_sc);
    printf("## Forward Score:\t%.9f\n", opt_sc);
-   fp = fopen("test_output/hmmer.forward.tsv", "w+");
+   fp = fopen("test_output/hmmer.forward.gen.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_fwd, fp);
    fclose(fp);
 
    printf("==> BACKWARD\n");
    p7_GBackward(sq->dsq, sq->n, gm, gmx_bck, &opt_sc);
    printf("## Backward Score:\t%.9f\n", opt_sc);
-   fp = fopen("test_output/hmmer.backward.tsv", "w+");
+   fp = fopen("test_output/hmmer.backward.gen.tsv", "w+");
    DP_MATRIX_Dump(om->L, om->M, sq->dsq, gm, gmx_bck, fp);
    fclose(fp);
    /* DAVID RICH EDIT end */
@@ -1092,44 +1093,123 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       fwdsc, nullsc, seqbias);
 
    printf("=== GENERIC POSTERIOR ===\n");
-   // p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
-   p7_GDecoding( gm, gmx_fwd, gmx_bck, gmx_pp );
-   fp = fopen("test_output/hmmer.posterior.mx", "w+");
-   DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
-   fclose(fp);
-   fp = fopen("test_output/hmmer.posterior.log.mx", "w+");
-   DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
-   fclose(fp);
+   if (FALSE)
+   {
+      p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
+      printf("=== FIND DOMAINS ===\n");
+      float   rt1, rt2;
+      float   rt1_test, rt2_btest, rt2_etest;
+      int     triggered;
+      int     i,j;
+      P7_DOMAINDEF* ddef;
+      
+      ddef  = pli->ddef;
+      rt1   = pli->ddef->rt1;
+      rt2   = pli->ddef->rt2;
 
-   printf("==> GENERIC NULL2 BYEXPECTATION <=\n"); 
-   float null2[p7_MAXCODE];
-   float seq_bias;
-   p7_GNull2_ByExpectation( gm, gmx_pp, null2);
-   for (int i = 0; i < sq->n + 1; i++) {
-      pli->ddef->n2sc[i]  = logf(null2[sq->dsq[i]]);
-   }
-   seq_bias = 0.0f;
-   for (int i = 1; i < sq->n + 1; i++) {
-      seq_bias += pli->ddef->n2sc[i];  /* domcorrection is in units of NATS */
-   }
-   printf("seq_bias: %f\n", seq_bias);
+      // for (int j = 1; j < 30; j++)
+      // {
+      //    rt1_test  = ddef->mocc[j];
+      //    rt2_btest = ddef->mocc[j] - 
+      //                (ddef->btot[j] - ddef->btot[j - 1]);
+      //    rt2_etest = ddef->mocc[j] - 
+      //                (ddef->etot[j] - ddef->etot[j - 1]);
+      //    printf("IN[%d] %11.4f %11.4f %11.4f %11.4f %11.4f\n", 
+      //       j, ddef->mocc[j], ddef->btot[j], ddef->btot[j - 1], ddef->etot[j], ddef->etot[j - 1]);
+      //    printf("RT[%d] %11.4f %11.4f %11.4f %11.4f %11.4f \n", 
+      //       j, rt1_test, rt2_btest, rt2_etest, ddef->rt1, ddef->rt2);
+      // }
+   
+      {
+         i = -1;
+         j = -1;
+         triggered = FALSE;
+         for (j = 1; j <= sq->n; j++)
+         {
+            rt1_test  = ddef->mocc[j];
+            rt2_btest = ddef->mocc[j] - 
+                        (ddef->btot[j] - ddef->btot[j - 1]);
+            rt2_etest = ddef->mocc[j] - 
+                        (ddef->etot[j] - ddef->etot[j - 1]);
 
-   fp = fopen("test_output/hmmer.null2sc.gen.csv", "w+");
-   fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
-   for (int k_0 = 0; k_0 < sq->abc->Kp; k_0++) {
-      fprintf(fp, "%d %c %.9f\n", k_0, sq->abc->sym[k_0], null2[k_0]);
-   }
-   fprintf(fp, "# === NULL2SC (Expectation by Position) ===\n");
-   for (int q_0 = 0; q_0 <= sq->n + 1; q_0++) {
-      fprintf(fp, "%d %.9f\n", q_0, pli->ddef->n2sc[q_0]);
-   }
-   fprintf(fp, "# === SEQ_BIAS: %.9f\n", seq_bias);
-   fclose(fp);
+            // if (  (j >= 800 && j < 850) || (j < 50) ) {
+            //    printf("RT_SCOR[%d]: %11.4f %11.4f, %11.4f\n", j, rt1_test, rt2_btest, rt2_etest);
+            //    printf("RT_TEST[%d]: %11d %11d, %11d\n", j, rt1_test >= rt1, rt2_btest < rt2, rt2_etest < rt2);
+            // }
 
-   exit(0);
+            if (! triggered)
+            {  /* xref J2/101 for what the logic below is: */
+               if ( rt2_btest < rt2 ) {
+                  i = j;
+               }
+               else 
+               if ( i == -1 ) {
+                  i = j;
+               }
+               if ( rt1_test >= rt1 ) {
+                  triggered = TRUE;
+               }
+            }
+            else if ( rt2_etest < rt2 )
+            {
+               printf("ADDED REGION: (%d,%d)\n", i, j);
+
+               ddef->nregions++;
+               i           = -1;
+               triggered   = FALSE;
+            }
+         }
+      }
+
+      p7_GDecoding(gm, gmx_fwd, gmx_bck, gmx_pp);
+      fp = fopen("test_output/hmmer.posterior.gen.mx", "w+");
+      DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+      fclose(fp);
+      fp = fopen("test_output/hmmer.posterior.log.gen.mx", "w+");
+      DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+      fclose(fp);
+
+      printf("==> GENERIC NULL2 BYEXPECTATION <=\n"); 
+      float null2[p7_MAXCODE];
+      float seq_bias;
+      p7_GNull2_ByExpectation( gm, gmx_pp, null2);
+      for (int i = 0; i < sq->n + 1; i++) {
+         pli->ddef->n2sc[i]  = logf(null2[sq->dsq[i]]);
+      }
+      seq_bias = 0.0f;
+      for (int i = 1; i < sq->n + 1; i++) {
+         seq_bias += pli->ddef->n2sc[i];  /* domcorrection is in units of NATS */
+      }
+      printf("seq_bias: %f\n", seq_bias);
+
+      fp = fopen("test_output/hmmer.null2sc.gen.csv", "w+");
+      fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
+      for (int k_0 = 0; k_0 < sq->abc->Kp; k_0++) {
+         fprintf(fp, "%d %c %.9f\n", k_0, sq->abc->sym[k_0], null2[k_0]);
+      }
+      fprintf(fp, "# === NULL2SC (Expectation by Position) ===\n");
+      for (int q_0 = 0; q_0 <= sq->n + 1; q_0++) {
+         fprintf(fp, "%d %.9f\n", q_0, pli->ddef->n2sc[q_0]);
+      }
+      fprintf(fp, "# === SEQ_BIAS: %.9f\n", seq_bias);
+      fclose(fp);
+
+      printf("# === OPTIMAL ===\n");
+      p7_GOptimalAccuracy( gm, gmx_pp, gmx_opt, &g_optsc );
+      fprintf(stdout, "# === OPTIMAL: %.9f\n", opt_sc);
+      fp = fopen("test_output/hmmer.optimal.gen.mx", "w+");
+      DP_MATRIX_Log_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
+      fclose(fp);
+
+      p7_GOATrace( gm, gmx_pp, gmx_opt, gm_ddef->tr );
+      fp = fopen("test_output/hmmer.posterior_traceback.tsv", "w+");
+      trace_Dump(om->L, om->M, sq->dsq, gm, gmx_vit, gm_ddef->tr, fp);
+      fclose(fp);
+
+      exit(0);
+   }
 
    /* OPTIMIZED FUNCTIONS */
-
    printf("=== OPTIMIZED POSTERIOR HEURISTICS ===\n");
    printf("==> OPTIMIZED/GENERIC NULL2 BYEXPECTATION <=\n"); 
    // status = p7_domaindef_ByPosteriorHeuristics(
@@ -1138,7 +1218,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       sq, ntsq, om, pli->oxf, pli->oxb, pli->fwd, pli->bck, pli->ddef, bg, FALSE, NULL, NULL, NULL,
       gm, gmx_fwd, gmx_bck, gm_ddef);
 
-   if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
+   // if (status != eslOK) ESL_FAIL(status, pli->errbuf, "domain definition workflow failure"); /* eslERANGE can happen  */
    // if (pli->ddef->nregions   == 0) return eslOK; /* score passed threshold but there's no discrete domains here       */
    // if (pli->ddef->nenvelopes == 0) return eslOK; /* rarer: region was found, stochastic clustered, no envelopes found */
    // if (pli->ddef->ndom       == 0) return eslOK; /* even rarer: envelope found, no domain identified {iss131}         */

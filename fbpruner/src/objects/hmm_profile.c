@@ -80,7 +80,7 @@ HMM_PROFILE_Destroy( HMM_PROFILE*   prof )
    ERROR_free(prof->consensus);
 
    ERROR_free(prof->bg_model);
-   ERROR_free(prof->hmm_model_full);
+   ERROR_free(prof->hmm_model);
 
    ERROR_free(prof);
 
@@ -131,8 +131,9 @@ HMM_PROFILE_Set_Model_Length( HMM_PROFILE*    prof,
    /* realloc memory if allocated length is less than new length */
    if ( prof->Nalloc < length )
    {
-      prof->hmm_model   = ERROR_realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
-      prof->Nalloc      = length;
+      prof->hmm_model         = ERROR_realloc( prof->hmm_model, (length + 1) * sizeof(HMM_NODE) );
+      prof->hmm_model_full    = NULL; 
+      prof->Nalloc            = length;
    }
 
    prof->N = length;
@@ -231,30 +232,33 @@ HMM_PROFILE_Set_Distribution_Params(   HMM_PROFILE*   prof,
 
 /* Constrain model to range [tbeg, tend] */
 void 
-HMM_PROFILE_SetSubmodel( HMM_PROFILE* prof, int tbeg, int tend )
+HMM_PROFILE_SetSubmodel( HMM_PROFILE* prof, int t_beg, int t_end )
 {
    /* check if range is acceptable */
    int T = prof->N;
-   if (tbeg < 0 && tend < 0 && tbeg > T && tend > T) {
-      printf("Subset range (%d,%d) is outside range (%d,%d).\n", tbeg, tend, 0, T);
+   if (t_beg < 0 && t_end < 0 && t_beg > T && t_end > T) {
+      printf("Subset range (%d,%d) is outside range (%d,%d).\n", t_beg, t_end, 0, T);
       exit(EXIT_FAILURE);
    }
 
-   /* save full model */
+   /* save full model temporarily */
    prof->hmm_model_full = prof->hmm_model;
    prof->N_full = prof->N;
 
-   prof->hmm_model = &(prof->hmm_model[tbeg]);
-   prof->N = tend - tbeg;
+   /* current submodel */
+   prof->hmm_model = &(prof->hmm_model[t_beg]);
+   prof->N = t_end - t_beg;
 }
 
 /* Unconstrain model to cover entire */
 void 
 HMM_PROFILE_UnsetSubmodel( HMM_PROFILE* prof )
 {
+   /* override temporary model with full model */
    prof->hmm_model = prof->hmm_model_full;
    prof->N = prof->N_full;
 
+   /* clear temporary save */
    prof->hmm_model_full = NULL;
    prof->N_full = -1;
 }

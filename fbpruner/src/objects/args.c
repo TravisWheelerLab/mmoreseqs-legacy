@@ -54,6 +54,7 @@ ARGS* ARGS_Create()
    args->tblout_filepath         = NULL;
    args->m8out_filepath          = NULL;
    args->myout_filepath          = NULL;
+   args->mydomout_filepath       = NULL;
    args->customout_filepath      = NULL;
 
    return args;
@@ -87,6 +88,7 @@ ARGS_Destroy( ARGS* args )
    ERROR_free( args->tblout_filepath );
    ERROR_free( args->m8out_filepath );
    ERROR_free( args->myout_filepath );
+   ERROR_free( args->mydomout_filepath );
    ERROR_free( args->customout_filepath );
 
    ERROR_free( args );

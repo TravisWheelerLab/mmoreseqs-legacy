@@ -571,12 +571,17 @@ void VECTOR_FLT_Dump(   VECTOR_FLT*    vec,
                         FILE*          fp )
 {
    /* stringification of template object */
-   char s[50];
+   char str_buf[50];
+   char* name = NULL;
 
-   fprintf(fp, "%s: ", "VECTOR_FLT");
+   if (name != NULL) {
+      fprintf(fp, "%s: ", name);
+   }
+   
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%s, ", FLT_To_String(vec->data[i], s) );
+      // fprintf(fp, "%s, ", FLT_To_String(vec->data[i], str_buf) );
+      fprintf(fp, "%12.4f ", vec->data[i] );
    }
    fprintf(fp, "]\n" );
 }

@@ -1,19 +1,27 @@
 /*******************************************************************************
- *  FILE:      structs_enums.h
+ *  FILE:      structs_consts.h
  *  PURPOSE:   Enumerated Types and Constants used by Cloud Search.
  *
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
 
-#ifndef _STRUCTS_ENUMS_H
-#define _STRUCTS_ENUMS_H
+#ifndef _STRUCTS_CONSTS_H
+#define _STRUCTS_CONSTS_H
+
+/* === BOOLEANS === */
+#define TRUE      1
+#define FALSE     0
+/* === LOGIC === */
+#define elif      else if
 
 /* === CONSTANTS === */
 #define CONST_LOG2      0.69314718055994529     /* natural log: ln(2) */
 #define SCALE_FACTOR    1000                    /* scaling factor for summing logrithm */
-#define INF             INFINITY                /*  */
+#define INF             INFINITY                /* infinite value */
 #define INT_MIN         -2147483648             /* min value of integer */
 #define INT_MAX         +2147483647             /* max value of integer */
+#define FLT_MIN         1E-38                   /* min value of float before underflow */
+#define FLT_MAX         1E38                    /* max magnitude of float before overflow */
 
 /* === OUTPUT PIPES === */
 #define STDOUT          "/dev/stdout"
@@ -23,13 +31,13 @@
 #define DEBUG_VIZ       "DEBUG.viz"
 
 #define debugout        debugger->dbgout_fp
- 
+
 /* === ENUMERATIONS === */
 
 /* commandline flags */
 #define NUM_FLAG_CMDS 11
 
-/* Method of sort for  */
+/* Field sort for data struct  */
 typedef enum{
    SORT_NONE,  
    SORT_ID,
@@ -39,9 +47,9 @@ typedef enum{
 /* Flag for which models in file are to be loaded */
 typedef enum {
    LOAD_NONE,
-   LOAD_BY_ID,       /* load by id (counting from start of file) */
-   LOAD_BY_OFFSET,   /* laod by offset (referenced from index file) */
-   LOAD_FIRST,        /* load the first model in file */
+   LOAD_BY_ID,          /* load by id (counting from start of file) */
+   LOAD_BY_OFFSET,      /* laod by offset (referenced from index file) */
+   LOAD_FIRST,          /* load the first model in file */
 } LOAD_TYPE;
 
 /* Status Flags (for function returns) */
@@ -291,4 +299,4 @@ typedef enum {
 #define NUM_BIAS_CORR 3
 
 
-#endif /* _STRUCTS_ENUMS_H */
+#endif /* _STRUCTS_CONSTS_H */

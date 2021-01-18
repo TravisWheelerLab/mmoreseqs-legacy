@@ -12,7 +12,8 @@
  *  SYNOPSIS:  Create new DOMAIN_DEF object and returns pointer.
  *             Most data is left NULL to be supplied by WORK_init().
  */
-DOMAIN_DEF* DOMAIN_DEF_Create();
+DOMAIN_DEF* 
+DOMAIN_DEF_Create();
 
 
 /** FUNCTION:  DOMAIN_DEF_Destroy()
@@ -25,14 +26,14 @@ DOMAIN_DEF_Destroy( DOMAIN_DEF* dom_def );
 /** FUNCTION:  DOMAIN_DEF_Reuse()
  *  SYNOPSIS:  
  */
-void
+int
 DOMAIN_DEF_Reuse(   DOMAIN_DEF*    dom_def );
 
 
 /** FUNCTION:  DOMAIN_DEF_Resize()
  *  SYNOPSIS:  
  */
-void
+int
 DOMAIN_DEF_Resize(   DOMAIN_DEF*    dom_def,
                      int            size );
 
@@ -41,7 +42,7 @@ DOMAIN_DEF_Resize(   DOMAIN_DEF*    dom_def,
  *  SYNOPSIS:  Create new DOMAIN_DEF object and returns pointer.
  *             Most data is left NULL to be supplied by WORK_init().
  */
-void
+int
 DOMAIN_DEF_GrowTo(   DOMAIN_DEF*    dom_def,
                      int            size );
 

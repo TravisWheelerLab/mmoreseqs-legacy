@@ -18,6 +18,21 @@
 #include "hmmer.h"
 
 /* DAVID RICH EDIT */
+char* STATE_NAMES[] = {
+   "BOGUS_ST",
+   "M_ST",
+   "D_ST",
+   "I_ST",
+   "S_ST",
+   "N_ST",
+   "B_ST",
+   "E_ST",
+   "C_ST",
+   "T_ST",
+   "J_ST",
+   "X_ST"
+};
+
 /*  FUNCTION:  dp_matrix_Save()
  *  SYNOPSIS:  Save dynamic programming matrix to file.
  *

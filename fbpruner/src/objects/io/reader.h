@@ -41,10 +41,10 @@ int READER_Rewind( READER* reader );
 int READER_JumpTo(   READER*     reader, 
                      long int    offset );
 
-/*  FUNCTION:  READER_GetLine()
+/*  FUNCTION:  READER_NextLine()
  *  SYNOPSIS:
  */
-char* READER_GetLine( READER* reader );
+char* READER_NextLine( READER* reader );
 
 /*  FUNCTION:  READER_Split()
  *  SYNOPSIS:  Split buffer into 

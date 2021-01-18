@@ -21,16 +21,16 @@
 #include "../algs_quad/algs_quad.h"
 
 /* header */
-#include "traceback_lin.h"
+#include "traceback_linear.h"
 
 /*
- *  FUNCTION:  run_Traceback_Lin()
+ *  FUNCTION:  run_Traceback_Linear()
  *  SYNOPSIS:  Selects the default method of run_Traceback_Lin() from the available methods.
  *             Requires that <st_MX> and <sp_MX> are still completely filled.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Lin(    const SEQUENCE*     query,       /* query sequence */
+int run_Traceback_Linear(  const SEQUENCE*     query,       /* query sequence */
                            const HMM_PROFILE*  target,      /* HMM model */
                            const int           Q,           /* query/seq length */
                            const int           T,           /* target/model length */
@@ -38,13 +38,13 @@ int run_Traceback_Lin(    const SEQUENCE*     query,       /* query sequence */
                            MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
                            ALIGNMENT*          aln )        /* OUTPUT: Traceback Alignment */
 {
-   run_Traceback_Lin_via_cmp( 
+   run_Traceback_Linear_via_cmp( 
       query, target, Q, T, st_MX, sp_MX, aln );
 }
 
 /* TODO: Implementation incomplete */
 /*
- *  FUNCTION:  run_Traceback_Lin_via_cmp()
+ *  FUNCTION:  run_Traceback_Linear_via_cmp()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment. (Linear Space)
  *             Version 2: My implementation. Takes maximum next step by finding the state that fulfills equation ( <previous state> + <transition> + <score> == <current state> ).
  *             Verifies that Alignment agrees with Matrix data.
@@ -52,7 +52,7 @@ int run_Traceback_Lin(    const SEQUENCE*     query,       /* query sequence */
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Lin_via_cmp(      const SEQUENCE*     query,       /* query sequence */
+int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query sequence */
                                     const HMM_PROFILE*  target,      /* HMM model */
                                     const int           Q,           /* query/seq length */
                                     const int           T,           /* target/model length */
@@ -113,8 +113,8 @@ int run_Traceback_Lin_via_cmp(      const SEQUENCE*     query,       /* query se
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backtracing, so T is terminal/exit state. C is the non-emit state after the end of the alignment. */
-   ALIGNMENT_Append( aln, tr, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, tr, C_ST, q_0, t_0 );
+   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* initialize previous q_0 */
@@ -126,7 +126,7 @@ int run_Traceback_Lin_via_cmp(      const SEQUENCE*     query,       /* query se
    {
       /* if we have reached the end of the query sequence */
       if (q_0 == 0) {
-         ALIGNMENT_Append( aln, tr, S_ST, q_0, t_0 );
+         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
          break;
       } 
 
@@ -420,7 +420,7 @@ int run_Traceback_Lin_via_cmp(      const SEQUENCE*     query,       /* query se
          }
       }
 
-      ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
+      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
 
       /* For {N,C,J}, we deferred i decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {

@@ -168,6 +168,46 @@ MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
    return mx_dest;
 }
 
+
+/** FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Matrix()
+ *  SYNOPSIS:  Shapes <src> like <dest>, but does not copy data.
+ */
+MATRIX_3D_SPARSE* 
+MATRIX_3D_SPARSE_Shape_Like_Matrix(  MATRIX_3D_SPARSE*          mx_dest,
+                                     const MATRIX_3D_SPARSE*    mx_src )
+{
+   /* if dest has not been allocated, do it now */
+   if ( mx_dest == NULL ) {
+      mx_dest = MATRIX_3D_SPARSE_Create();
+   }
+   /* if dest and src point to the same matrix, do nothing */
+   if ( mx_dest == mx_src ) {
+      return mx_dest;
+   }
+
+   /* metadata */
+   mx_dest->D1 = mx_src->D1;
+   mx_dest->D2 = mx_src->D2;
+   mx_dest->D3 = mx_src->D3;
+   mx_dest->clean = mx_src->clean;
+   /* edgebounds */
+   EDGEBOUNDS_Copy( mx_dest->edg_inner, mx_src->edg_inner );
+   EDGEBOUNDS_Copy( mx_dest->edg_outer, mx_src->edg_outer );
+   /* inner map */
+   VECTOR_INT_Copy( mx_dest->imap_prv, mx_src->imap_prv );
+   VECTOR_INT_Copy( mx_dest->imap_cur, mx_src->imap_cur );
+   VECTOR_INT_Copy( mx_dest->imap_nxt, mx_src->imap_nxt );
+   /* outer map */
+   VECTOR_INT_Copy( mx_dest->omap_cur, mx_src->omap_cur );
+   /* data (no copying, just ensure that they are the proper size to store data) */
+   VECTOR_FLT_GrowTo( mx_dest->data, mx_src->data->N );   
+   mx_dest->N = mx_dest->data->N;
+   mx_dest->Nalloc = mx_dest->data->Nalloc;
+
+   return mx_dest;
+}
+
+
 /** FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Edgebounds()
  *  SYNOPSIS:  Creates MATRIX_3D_SPARSE object that can contain the matrix needed for 
  *             computing Bounded Forward/Backward and Bounded Viterbi algorithms. 
@@ -728,6 +768,7 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
       id_0  = bnd->id;
       lb_0  = bnd->lb;
       rb_0  = bnd->rb;
+      q_0   = id_0;
 
       /* fetch data mapping bound start location to data block in sparse matrix */
       qx0 = VECTOR_INT_Get( smx->imap_cur, r_0 );    /* (q_0, t_0) location offset */

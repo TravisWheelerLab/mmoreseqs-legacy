@@ -109,7 +109,7 @@ void WORK_init( WORKER* worker )
    /* sparse */
    worker->st_SMX_fwd   = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck   = MATRIX_3D_SPARSE_Create();
-   worker->st_SMX_post  = worker->st_SMX_bck;
+   worker->st_SMX_post  = MATRIX_3D_SPARSE_Create();
    worker->st_SMX       = worker->st_SMX_fwd;
    /* special state */
    worker->sp_MX_fwd    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
@@ -168,7 +168,7 @@ void WORK_cleanup( WORKER* worker )
    // worker->st_SMX          = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
-   // worker->st_SMX_post     = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_post );
+   worker->st_SMX_post     = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_post );
    /* special states */
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
    worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
@@ -265,7 +265,9 @@ void WORK_reuse( WORKER* worker )
    /* sparse matrices */
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
    MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
-   // MATRIX_3D_SPARSE_Reuse( worker->st_SMX_post );
+   if ( worker->st_SMX_post != worker->st_SMX_bck ) {
+      MATRIX_3D_SPARSE_Reuse( worker->st_SMX_post );
+   }
    worker->st_SMX = worker->st_SMX_fwd;
 
    #if DEBUG 
@@ -1046,7 +1048,8 @@ void WORK_cloud_search( WORKER* worker )
       /* cloud forward */
       printf_vall("# ==> cloud forward (linear)...\n");
       CLOCK_Start(clok);
-      run_Cloud_Forward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
+      run_Cloud_Forward_Linear( 
+         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_fwd = CLOCK_Secs(clok);
       t_times->lin_cloud_fwd += times->lin_cloud_fwd;
@@ -1059,7 +1062,8 @@ void WORK_cloud_search( WORKER* worker )
       /* cloud backward */
       printf_vall("# ==> cloud backward (linear)...\n");
       CLOCK_Start(clok);
-      run_Cloud_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
+      run_Cloud_Backward_Linear( 
+         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
       CLOCK_Stop(clok);
       times->lin_cloud_bck = CLOCK_Secs(clok);
       t_times->lin_cloud_bck += times->lin_cloud_bck ;
@@ -1100,9 +1104,9 @@ void WORK_cloud_search( WORKER* worker )
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
          printf("# printing cloud rows...\n");
-         /* TEMPORARY OVERRIDE */
+         /* TEMPORARY OVERRIDE */  
          // EDGEBOUNDS_Cover_Matrix(edg_row, Q, T);
-         // EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
+         EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif
 
@@ -1124,7 +1128,6 @@ void WORK_cloud_search( WORKER* worker )
       {
          printf("# printing linear bound forward...\n");
          printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
-         printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
          // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
          // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.lin.viz.mx");
       }
@@ -1149,7 +1152,7 @@ void WORK_cloud_search( WORKER* worker )
       {
          printf_vall("# printing linear bound backward...\n");
          printf("# lin bound backward: %f\n", scores->lin_bound_bck );
-         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.lin.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.lin.mx");
          // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
       }
       #endif
@@ -1163,17 +1166,15 @@ void WORK_cloud_search( WORKER* worker )
    /* if performing sparse fb-pruner, initialize sparse matrix */
    if (tasks->sparse_bound_fwd || tasks->sparse_bound_bck)
    {
-      MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
-      MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
-
       #if (DEBUG)
       {
          /* for testing: cloud fills entire dp matrix */
          // EDGEBOUNDS_Cover_Matrix(edg_row, Q, T);
-         // MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
-         // MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
       }
       #endif
+
+      MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX_fwd, edg_row );
+      MATRIX_3D_SPARSE_Copy( st_SMX_bck, st_SMX_fwd );
    }
 
    /* sparse bounded forward */
@@ -1181,7 +1182,8 @@ void WORK_cloud_search( WORKER* worker )
    {
       printf_vall("# ==> bound forward (sparse)...\n");
       CLOCK_Start(clok);
-      run_Bound_Forward_Sparse( q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, &sc );
+      run_Bound_Forward_Sparse( 
+         q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, NULL, &sc );
       scores->sparse_bound_fwd = sc;
       CLOCK_Stop(clok);
 
@@ -1193,9 +1195,9 @@ void WORK_cloud_search( WORKER* worker )
       {
          printf("# printing sparse bound forward...\n");
          printf("# sparse bound forward: %f\n", scores->sparse_bound_fwd );
-         printf("# cells => total: %d, cloud: %d, perc: %f\n", result->total_cells, result->cloud_cells, (float)result->cloud_cells/(float)result->total_cells );
-         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
-         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.sp.viz.mx");
+         
+         MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_fwd, debugger->test_MX );
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
       }
       #endif
       times->sp_bound_fwd        = CLOCK_Secs(clok);
@@ -1211,15 +1213,17 @@ void WORK_cloud_search( WORKER* worker )
    {
       printf_vall("# ==> bound backward (sparse)...\n");
       CLOCK_Start(clok);
-      run_Bound_Backward_Sparse( q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg_row, &sc );
+      run_Bound_Backward_Sparse( 
+         q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg_row, NULL, &sc );
       scores->sparse_bound_bck = sc;
       CLOCK_Stop(clok);
       #if DEBUG
       {
          printf_vall("# printing sparse bound backward...\n");
          printf("# sparse bound backward: %f\n", scores->sparse_bound_bck );
+         
+         MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX );
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.sp.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_bck, tr, "test_output/my.bound_bck.sp.viz.mx");
       }
       #endif
       times->sp_bound_bck        = CLOCK_Secs(clok);
@@ -1300,19 +1304,6 @@ void WORK_capture_alignment( WORKER* worker )
 
    #if DEBUG 
    {
-      // fp = fopen("test_output/sparse_mx.tbl", "w");
-      // MATRIX_3D_SPARSE_Dump( worker->st_SMX_fwd, fp );
-      // fclose(fp);
-      // fp = fopen("test_output/sparse_mx.inner.edg", "w");
-      // EDGEBOUNDS_Dump( worker->st_SMX_fwd->edg_inner, fp );
-      // fclose(fp);
-      // fp = fopen("test_output/sparse_mx.outer.edg", "w");
-      // EDGEBOUNDS_Dump( worker->st_SMX_fwd->edg_outer, fp );
-      // fclose(fp);
-      // fp = fopen("test_output/sparse_mx.fullmap.tbl", "w");
-      // MATRIX_3D_SPARSE_Map_to_Inner_Dump( worker->st_SMX_fwd, NULL, fp );
-      // fclose(fp);
-
       MATRIX_2D_Fill( debugger->cloud_MX, 0.0 );
       MATRIX_2D_Cloud_Fill( debugger->cloud_MX, worker->st_SMX_fwd->edg_outer, 1.0 );
       MATRIX_2D_Cloud_Fill( debugger->cloud_MX, worker->st_SMX_fwd->edg_inner, 0.1 );
@@ -1322,46 +1313,30 @@ void WORK_capture_alignment( WORKER* worker )
    }
    #endif
 
-   /* run forward */
-   run_Bound_Forward_Sparse( 
-      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc);
-   scores->sparse_bound_fwd = sc;
-   #if DEBUG
-   {
-      printf("# printing sparse bound forward...\n");
-      // DP_MATRIX_Copy( Q, T, debugger->test_MX, worker->sp_MX, st_MX_dst, sp_MX_dst );
-      // DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_fwd.sparse.mx");
-      DP_MATRIX_Trace_Save( Q, T, debugger->test_MX, worker->sp_MX, tr, "test_output/my.bound_fwd.sparse.viz.mx");
-   }
-   #endif
+   // /* run forward */
+   // run_Bound_Forward_Sparse( 
+   //    worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, NULL, &sc);
+   // scores->sparse_bound_fwd = sc;
 
-   /* run backward */
-   run_Bound_Backward_Sparse( 
-      worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
-   scores->sparse_bound_bck = sc;
-   #if DEBUG
-   {
-      printf("# printing sparse bound backward...\n");
-      // DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx" );
-      DP_MATRIX_Save( Q, T, debugger->test_MX, worker->sp_MX, "test_output/my.bound_bck.sparse.mx" );
-      DP_MATRIX_Trace_Save( Q, T, debugger->test_MX, worker->sp_MX, tr, "test_output/my.bound_bck.sparse.viz.mx" );
-   }
-   #endif
+   // /* run backward */
+   // run_Bound_Backward_Sparse( 
+   //    worker->q_seq, worker->t_prof, q_seq->N, t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, NULL, &sc );
+   // scores->sparse_bound_bck = sc;
 
-   /* Recover alignment */
+   // /* Recover alignment */
    // run_Posterior_Sparse( 
    //    q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
    // ALIGNMENT_Dump(worker->trace_post, stdout);
 
    /* generate alignments */
-   // ALIGNMENT_Build_MMSEQS_Style( 
-   //    worker->traceback, worker->q_seq, worker->t_prof );
-   // ALIGNMENT_Build_HMMER_Style( 
-   //    worker->traceback, worker->q_seq, worker->t_prof );
+   ALIGNMENT_Build_MMSEQS_Style( 
+      worker->traceback, worker->q_seq, worker->t_prof );
+   ALIGNMENT_Build_HMMER_Style( 
+      worker->traceback, worker->q_seq, worker->t_prof );
 }
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
-void WORK_convert_scores( WORKER* worker )
+void WORK_posterior( WORKER* worker )
 {
    FILE*          fp       = NULL;
 
@@ -1402,25 +1377,7 @@ void WORK_convert_scores( WORKER* worker )
    /* free digitized sequence TODO: move to sequence */
    // HMM_BG_UnsetSequence( bg, seq );
 
-   /* find bounding box of cloud space */
-   int min_Q, max_Q, min_T, max_T;
-   int N = worker->edg_row->N;
-   min_Q = min_T = (int)INF;
-   max_Q = max_T = (int)-INF;
-   min_Q = worker->edg_row->bounds[0].id;
-   max_Q = worker->edg_row->bounds[N-1].id;
-   for (int i = 0; i < N; i++) {
-      BOUND* bnd = &worker->edg_row->bounds[i];
-      min_T = MIN(min_T, bnd->lb);
-      max_T = MAX(max_T, bnd->rb);
-   }
-   /* cloud bounding box as start/end points for result output */
-   worker->result->query_start   = min_Q;
-   worker->result->query_end     = max_Q;
-   worker->result->target_start  = min_T;
-   worker->result->target_end    = max_T;
-
-   /* composition bias */
+   /* Posterior and Find Domains */
    seq_bias = 0.0f;
    if ( worker->args->is_compo_bias )
    {
@@ -1441,20 +1398,19 @@ void WORK_convert_scores( WORKER* worker )
       /* Sparse assesses bias only for cells contained by cloud */ 
       if ( tasks->sparse_bias_corr == true )
       {
-         /* TODO: verify whether sparse forward/backward has been computed, otherwise compute it now */
-         if (true)
+         /* Verify whether sparse forward/backward has already been computed; if not, compute it now */
+         if ( tasks->sparse_bound_fwd == false || tasks->sparse_bound_bck == false )
          {
             /* for testing: cloud fills entire dp matrix */
-            // EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
-            // MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
-            // MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
-            // MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_bck );
-            MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
-            MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_bck, -INF );
-
+            EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
+            MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
+            MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
+            // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
+            // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_bck, -INF );
+            
             run_Bound_Forward_Sparse( 
-               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, &sc );
-            printf("Sparse Forward  (pre-posterior): %.9f\n", sc);
+               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, NULL, &sc );
+            printf("Sparse Forward  (pre-posterior): %12.6f\n", sc);
             #if DEBUG
             {
                DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -1464,8 +1420,8 @@ void WORK_convert_scores( WORKER* worker )
             #endif
 
             run_Bound_Backward_Sparse( 
-               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, &sc );
-            printf("Sparse Backward (pre-posterior): %.9f\n", sc);
+               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, NULL, &sc );
+            printf("Sparse Backward (pre-posterior): %12.6f\n", sc);
             #if DEBUG
             {
                DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -1483,7 +1439,7 @@ void WORK_convert_scores( WORKER* worker )
 
       /* compute sequence bias */
       seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
-      printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %9.5f,\n", nat_sc, null_sc, seq_bias);
+      printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %7.3f,\n", nat_sc, null_sc, seq_bias);
       seq_bias = worker->dom_def->seq_bias;
    }
 
@@ -1532,6 +1488,9 @@ void WORK_report_header( WORKER* worker )
    if ( args->is_myout ) {
       REPORT_myout_header( worker, worker->myout_fp );
    }
+   if ( args->is_mydomout ) {
+      REPORT_mydomout_header( worker, worker->mydomout_fp );
+   }
 }
 
 /* print current result (default) */
@@ -1549,6 +1508,9 @@ void WORK_report_result_current( WORKER* worker )
    }
    if ( args->is_myout ) { 
       REPORT_myout_entry( worker, worker->result, worker->myout_fp );
+   }
+   if ( args->is_mydomout ) { 
+      REPORT_mydomout_entry( worker, worker->result, worker->mydomout_fp );
    }
 }
 
@@ -1576,6 +1538,9 @@ void WORK_report_footer( WORKER*  worker )
    }
    if ( args->is_myout ) { 
       REPORT_myout_footer( worker, worker->myout_fp );
+   }
+   if ( args->is_mydomout ) { 
+      REPORT_myout_footer( worker, worker->mydomout_fp );
    }
 }
 

@@ -12,6 +12,9 @@
 /* declares all datatypes */
 #include "structs.h"
 
+/* io */
+#include "io/reader.h"
+
 /* basic datatypes / wrappers */
 #include "basic/bound.h"
 #include "basic/char.h"
@@ -21,6 +24,7 @@
 #include "basic/range.h"
 #include "basic/trace.h"
 #include "basic/template.h"
+#include "basic/x_string.h"
 
 /* vectors */
 #include "vectors/vector_bound.h"
@@ -54,7 +58,5 @@
 #include "sequence.h"
 #include "worker.h"
 #include "worker_thread.h"
-#include "basic/x_string.h"
-#include "reader.h"
 
 #endif /* _OBJECTS_H */

@@ -50,7 +50,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    READER_JumpTo( reader, offset );
 
    /* read file line-by-line */
-   while ( ( READER_GetLine( reader ) ), reader->is_eof != true )
+   while ( ( READER_NextLine( reader ) ), reader->is_eof != true )
    {
       line_count++;
       line_buf = reader->buffer;

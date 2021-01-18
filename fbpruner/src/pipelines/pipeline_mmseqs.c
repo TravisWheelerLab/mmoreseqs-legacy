@@ -67,8 +67,8 @@ mmseqs_pipeline( WORKER* worker )
    {
       /* sparse algs */
       tasks->sparse           = true;
-      tasks->sparse_bound_fwd = true;
-      tasks->sparse_bound_bck = true;
+      tasks->sparse_bound_fwd = false;
+      tasks->sparse_bound_bck = false;
       tasks->sparse_bias_corr = true;
       /* linear algs */
       tasks->linear           = true;     /* if any other linear tasks are flagged, this must be too */
@@ -78,7 +78,7 @@ mmseqs_pipeline( WORKER* worker )
       tasks->lin_trace        = false;    /* optional, but can't recover alignment */
       tasks->lin_cloud_fwd    = true;     /* required for sparse and linear bound fwdbck */
       tasks->lin_cloud_bck    = true;     /* required for sparse and linear bound fwdbck */
-      tasks->lin_bound_fwd    = false;    /* can't be used to recover alignment */  
+      tasks->lin_bound_fwd    = true;     /* can't be used to recover alignment */  
       tasks->lin_bound_bck    = false;    /* can't be used to recover alignment */
       /* quadratic algs */
       tasks->quadratic        = false;    /* if any other quadratic tasks are flagged, this must be too */
@@ -197,13 +197,10 @@ mmseqs_pipeline( WORKER* worker )
          // WORK_forward_backward( worker );
       }
       #endif
-
       /* run cloud search */
       WORK_cloud_search( worker );
-      /* capture alignment */
-      // WORK_capture_alignment( worker );
-      /* convert bitscore to eval */
-      WORK_convert_scores( worker );
+      /* computer posterior and bias, find domains, compute domain-specific posterior and bias */
+      WORK_posterior( worker );
 
       /* end time */
       worker->result->time = CLOCK_Get_RealTime() - worker->clok->start;

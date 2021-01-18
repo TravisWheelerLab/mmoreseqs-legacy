@@ -21,7 +21,7 @@
 #include "../algs_quad/algs_quad.h"
 
 /* header */
-#include "traceback_sparse.h"
+#include "viterbi_traceback_sparse.h"
 
 /*  FUNCTION:  run_MaxExp_Traceback_Sparse_2()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
@@ -106,8 +106,8 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backtracing, so C is end state */
-   ALIGNMENT_Append( aln, tr, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, tr, C_ST, q_0, t_0 );
+   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* End of trace is S state */
@@ -115,7 +115,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
    {
       /* if we have reached the end of the query sequence */
       if (q_0 == 0) {
-         ALIGNMENT_Append( aln, tr, S_ST, q_0, t_0 );
+         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
          break;
       } 
 
@@ -251,41 +251,10 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
                   exit(EXIT_FAILURE);
                }
             }
-            else     /* glocal mode: we either come from D_M or M_M */
+            else  /*! TODO: (?) glocal mode: we either come from D_M or M_M */
             {
-               /* get bound data */
-               bnd   = &EDG_X(edg, r_0b);
-               id    = bnd->id;
-               rb_T  = (bnd->rb > T);
-               rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
-
-               /* fetch data mapping bound start location to data block in sparse matrix */
-               qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
-               tx0   = T - bnd->lb;
-
-               /* possible previous states */
-               if ( rb_T ) {
-                  prv_M = MSMX(qx0, tx0);
-                  prv_D = DSMX(qx0, tx0);
-               }
-               else {
-                  prv_M = -INF;
-                  prv_D = -INF;
-               }
-
-               /* verifies if scores agree with true previous state in alignment */
-               if ( CMP_TOL( cur, prv_M ) ) {
-                  st_cur = M_ST;
-                  t_0 = T;
-               }
-               else if ( CMP_TOL( cur, prv_D ) ) {
-                  st_cur = D_ST;
-                  t_0 = T;
-               }
-               else {
-                  fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
-               }
+               fprintf(stderr, "ERROR: Glocal mode not supported for sparse alignment.");
+               ERRORCHECK_exit(STATUS_FAILURE);
             }
          } break;
 
@@ -435,7 +404,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
                st_cur = J_ST;
             }
             else {
-               fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
+               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
                exit(EXIT_FAILURE);
             }
          } break;
@@ -475,7 +444,7 @@ int run_Traceback_Sparse(     const SEQUENCE*      query,      /* query sequence
          }
       }
 
-      ALIGNMENT_Append( aln, tr, st_cur, q_0, t_0 );
+      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
 
       /* For {N,C,J}, we deferred q_0 decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {

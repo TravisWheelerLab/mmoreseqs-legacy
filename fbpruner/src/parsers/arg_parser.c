@@ -411,6 +411,18 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--mydomout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->mydomout_filepath);
+               args->mydomout_filepath = strdup(argv[i]);
+               args->is_mydomout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
          else if ( strcmp(argv[i], (flag = "--output") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
@@ -498,6 +510,8 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->m8out_filepath          = strdup("results.m8");
    args->is_myout                = false;
    args->myout_filepath          = strdup("results.myout");
+   args->is_mydomout             = false;
+   args->mydomout_filepath       = strdup("results.myout");
 
    /* --- RANGE OPTIONS --- */
    args->t_range                 = (RANGE) { -1, -1 };    
@@ -567,6 +581,7 @@ void ARGS_Dump( ARGS*    args,
    if (args->is_tblout)    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TBLOUT_FILEPATH", args->tblout_filepath );
    if (args->is_m8out)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "M8OUT_FILEPATH", args->m8out_filepath );
    if (args->is_myout)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYOUT_FILEPATH", args->myout_filepath );
+   if (args->is_mydomout)  fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYDOMOUT_FILEPATH", args->mydomout_filepath );
    if (args->is_customout) fprintf( fp, "%*s:\t%s\n",          align * pad,  "CUSTOMOUT_FILEPATH", args->customout_filepath );
    
    fprintf( fp, "=============================\n\n");

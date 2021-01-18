@@ -234,13 +234,6 @@ int p7_GDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *p
 int p7_GDecoding_old(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GMX *pp)
 {
   printf("=== p7_GDecoding ===\n");
-  // printf("==> FWD:\n");
-  // p7_gmx_Dump(stdout, fwd, 0);
-  // DP_MATRIX_Dump(fwd->L, fwd->M, NULL, gm, fwd, stdout);
-  // printf("==> BCK:\n");
-  // p7_gmx_Dump(stdout, bck, 0);
-  // DP_MATRIX_Dump(bck->L, bck->M, NULL, gm, bck, stdout);
-
 
   float **dp = pp->dp;
   float *xmx = pp->xmx;
@@ -430,14 +423,21 @@ int p7_GDecoding_old(const P7_PROFILE *gm, const P7_GMX *fwd, P7_GMX *bck, P7_GM
  */
 int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bck, P7_DOMAINDEF *ddef)
 {
-  printf("=== p7_GDomainDecoding() ===\n");
+  printf("=== p7_GDomainDecoding() [BEGIN] ===\n");
+  FILE*   fp;
 
   int L = fwd->L;
   float overall_logp = fwd->xmx[p7G_NXCELLS * L + p7G_C] + gm->xsc[p7P_C][p7P_MOVE];
   float njcp;
+  float xyz;
   int i;
 
-  printf("# overall_logp: %7.4f\n", overall_logp );
+  printf("# overall_logp: %7.4f, L = %d\n", overall_logp, L );
+  // overall_logp = 0.0f;
+
+  ddef->btot[0] = 0.0f;
+  ddef->etot[0] = 0.0f;
+  ddef->mocc[0] = 0.0f;
 
   for (i = 1; i <= L; i++)
   {
@@ -457,59 +457,66 @@ int p7_GDomainDecoding(const P7_PROFILE *gm, const P7_GMX *fwd, const P7_GMX *bc
                          bck->xmx[i * p7G_NXCELLS + p7G_E] - 
                          overall_logp );
 
-    // printf("[%2d] ::\n", i);
-    // printf("     (btot): %9.4f %9.4f => %9.4f\n",
-    //   btot_add,
-    //   exp(btot_add),
-    //   ddef->btot[i] );
-    // printf("     (etot): %9.4f %9.4f => %9.4f\n",
-    //   etot_add,
-    //   exp(etot_add),
-    //   ddef->etot[i] );
-
-    njcp  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
+    float np  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N] + 
                   bck->xmx[p7G_NXCELLS * i + p7G_N] + 
                   gm->xsc[p7P_N][p7P_LOOP] - 
                   overall_logp );
-    njcp += expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + 
+    float jp  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_J] + 
                   bck->xmx[p7G_NXCELLS * i + p7G_J] + 
                   gm->xsc[p7P_J][p7P_LOOP] - 
                   overall_logp );
-    njcp += expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + 
+    float cp  = expf( fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_C] + 
                   bck->xmx[p7G_NXCELLS * i + p7G_C] + 
                   gm->xsc[p7P_C][p7P_LOOP] - 
                   overall_logp );
+    njcp = np + jp + cp;
+
+    if (i >= 0 && i < 100)
+    {
+      printf("B[%d] %11.4f %11.4f %11.4f %11.4f %11.4f\n",
+        i,
+        fwd->xmx[(i - 1) * p7G_NXCELLS + p7G_B],
+        bck->xmx[(i - 1) * p7G_NXCELLS + p7G_B],
+        btot_add,
+        exp(btot_add),
+        ddef->btot[i] );
+      // printf("N[%d] %11.4f %11.4f %11.4f\n", 
+      //   i, 
+      //   fwd->xmx[p7G_NXCELLS * (i - 1) + p7G_N], 
+      //   bck->xmx[p7G_NXCELLS * i + p7G_N], 
+      //   gm->xsc[p7P_N][p7P_LOOP]);
+      // printf("NJC[%d] %11.4f %11.4f %11.4f %11.4f %11.4f\n", 
+      //   i, np, jp, cp, njcp, xyz);
+    }
+
     ddef->mocc[i] = 1. - njcp;
   }
   ddef->L = gm->L;
 
-  for (i = 1; i <= L; i++) 
+  printf("b[0] = %11.4f\n", ddef->btot[0]);
+
+  /* test output */
   {
-    // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f \n", 
-    //   i, 
-    //   ddef->btot[i], fwd->xmx[(i-1)*p7G_NXCELLS+p7G_B], bck->xmx[(i-1)*p7G_NXCELLS+p7G_B],
-    //   ddef->etot[i], fwd->xmx[i*p7G_NXCELLS+p7G_E], bck->xmx[i*p7G_NXCELLS+p7G_E],
-    //   ddef->mocc[i] );
-    // printf("[%2d] B(i-1)= %8.3f %8.3f %8.3f || E(i)= %8.3f %8.3f %8.3f || M_OCC(i)= %8.3f\n", 
-    //   i, 
-    //   ddef->btot[i], log(fwd->xmx[(i-1) * p7X_NXCELLS + p7X_B]), log(bck->xmx[(i-1) * p7X_NXCELLS + p7X_B]),
-    //   ddef->etot[i], log(fwd->xmx[i * p7X_NXCELLS + p7X_E]), log(bck->xmx[i * p7X_NXCELLS + p7X_E]),
-    //   ddef->mocc[i] );
+    fp = fopen("test_output/hmmer.njcp.gen.csv", "w+");
+    for (i = 0; i <= L; i++) {
+      fprintf(fp, "%11d ", i);
+    }
+    fprintf(fp, "\n");
+    for (i = 0; i <= L; i++) {
+      fprintf(fp, "%11.4f ", ddef->btot[i]);
+    }
+    fprintf(fp, "\n");
+    for (i = 0; i <= L; i++) {
+      fprintf(fp, "%11.4f ", ddef->etot[i]);
+    }
+    fprintf(fp, "\n");
+    for (i = 0; i <= L; i++) {
+      fprintf(fp, "%11.4f ", ddef->mocc[i]);
+    }
+    fprintf(fp, "\n");
   }
 
-  // printf("==> ddef (posteriors):\n");
-  //  printf("==> ddef->btot:\n");
-  //  for (int i = 0; i < L + 1; i++) {
-  //     printf("     [%2d]: %9.4f\n", i, ddef->btot[i]);
-  //  }
-  //  printf("==> ddef->etot:\n");
-  //  for (int i = 0; i < L + 1; i++) {
-  //     printf("     [%2d]: %9.4f\n", i, ddef->etot[i]);
-  //  }
-  //  printf("==> ddef->mocc:\n");
-  //  for (int i = 0; i < L + 1; i++) {
-  //     printf("     [%2d]: %9.4f\n", i, ddef->mocc[i]);
-  //  }
+  printf("=== p7_GDomainDecoding() [END] ===\n");
 
   return eslOK;
 }

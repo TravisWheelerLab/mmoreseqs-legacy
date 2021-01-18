@@ -9,29 +9,29 @@
 #define _TRACEBACK_LIN_H
 
 /*
- *  FUNCTION:  run_Traceback_Lin()
+ *  FUNCTION:  run_Traceback_Linear()
  *  SYNOPSIS:  Selects the default method of run_Traceback_Lin() from the available methods.
  *             Requires that <st_MX> and <sp_MX> are still completely filled.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Lin(     const SEQUENCE*     query,       /* query sequence */
-                           const HMM_PROFILE*  target,      /* HMM model */
-                           const int           Q,           /* query/seq length */
-                           const int           T,           /* target/model length */
-                           MATRIX_3D*          st_MX3,      /* Normal State (Match, Insert, Delete) Matrix */
-                           MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
-                           ALIGNMENT*          aln );       /* OUTPUT: Traceback Alignment */
+int run_Traceback_Linear(   const SEQUENCE*     query,       /* query sequence */
+                            const HMM_PROFILE*  target,      /* HMM model */
+                            const int           Q,           /* query/seq length */
+                            const int           T,           /* target/model length */
+                            MATRIX_3D*          st_MX3,      /* Normal State (Match, Insert, Delete) Matrix */
+                            MATRIX_2D*          sp_MX,       /* Special State (J,N,B,C,E) Matrix */
+                            ALIGNMENT*          aln );       /* OUTPUT: Traceback Alignment */
 
 /*
- *  FUNCTION:  run_Traceback_Lin_via_cmp()
+ *  FUNCTION:  run_Traceback_Linear_via_cmp()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment. (Linear Space)
  *             Version 2: My implementation. Takes maximum next step by finding the state that fulfills equation ( <previous state> + <transition> + <score> == <current state> ).
  *             Verifies that Alignment agrees with Matrix data.
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Traceback_Lin_via_cmp(      const SEQUENCE*     query,       /* query sequence */
+int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query sequence */
                                     const HMM_PROFILE*  target,      /* HMM model */
                                     const int           Q,           /* query/seq length */
                                     const int           T,           /* target/model length */

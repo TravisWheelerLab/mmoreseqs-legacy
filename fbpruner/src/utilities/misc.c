@@ -176,7 +176,8 @@ float logprod( float  x,
    // }
 }
 
-/*! FUNCTION:  logdiff()
+/*! NOTE: This is a WIP.  Currently does not work as intended.
+ *  FUNCTION:  logdiff()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real diff (approximation).
  *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
  *             LOGSUM_LOOKUP must have been initialized before use.

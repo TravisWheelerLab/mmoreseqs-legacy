@@ -50,6 +50,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
                                  MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
+                                 RANGE*               in_dom_range,  /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final )     /* (OUTPUT) final score */
 {
    /* vars for matrix access */
@@ -106,6 +107,11 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
    MATRIX_3D_SPARSE*    mx;
    EDGEBOUNDS*          edg_inner;           /* edgebounds for search space of backward/forward */
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
+   RANGE                dom_range;
+   RANGE                T_range;
+   RANGE                Q_range;
+   bool                 is_q_0_in_dom_range;
+   bool                 is_q_1_in_dom_range;
 
    /* debugger tools */
    FILE*          dbfp;
@@ -155,13 +161,26 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
 
+   /* domain range */
+   if (in_dom_range == NULL) {
+      dom_range.beg = 1;
+      dom_range.end = Q + 1;
+   } else {
+      dom_range = *in_dom_range;
+   }
+
    /* initialize special states for zero row */
    XMX(SP_N, q_0) = 0;                                         /* S->N, p=1             */
    XMX(SP_B, q_0) = XSC(SP_N,SP_MOVE);                         /* S->N->B, no N-tail    */
-   XMX(SP_E, q_0) = XMX(SP_C, q_0) = XMX(SP_J, q_0) = -INF;    /* need seq to get here (?)  */
+   XMX(SP_E, q_0) = -INF; 
+   XMX(SP_C, q_0) = -INF; 
+   XMX(SP_J, q_0) = -INF; 
 
    /* pass over preceding edgebounds from list */
    q_0  = 0;
+   /* check if query position is in domain */
+   is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
+
    r_0b = r_0 = 0;  /* beginning index for current row in list */
    /* add every inner edgebound from current row */
    r_0b = r_0;
@@ -177,37 +196,42 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
    }
    r_0e = r_0;
 
-   /* FOR every BOUND in zero row (-INF values set during initialization, so unneccessary) */
-   for (r_0 = r_0b; r_0 < r_0e; r_0++)
+   /* only compute if in domain range */
+   if ( is_q_0_in_dom_range == true )
    {
-      /* get bound data */
-      bnd   = &EDG_X(edg, r_0);
-      id    = bnd->id;
-      lb_0  = bnd->lb;           /* can't overflow the left edge */
-      rb_0  = bnd->rb;           /* can't overflow the right edge */
-
-      /* fetch data mapping bound start location to data block in sparse matrix */
-      qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-      qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
-
-      /* initial location for square matrix and mapping to sparse matrix */
-      t_0 = lb_0;
-      tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-      /* FOR every position in TARGET profile */
-      for (t_0 = lb_0; t_0 < rb_0; t_0++)
+      /* FOR every BOUND in zero row (-INF values set during initialization, so unneccessary) */
+      for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
-         tx0 = t_0 - bnd->lb;
-         /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
-         MSMX(qx0, tx0) = -INF;
-         ISMX(qx0, tx0) = -INF;
-         DSMX(qx0, tx0) = -INF; 
-      }
-   }
+         /* get bound data */
+         bnd   = &EDG_X(edg, r_0);
+         id    = bnd->id;
+         lb_0  = (bnd->lb, 1);           /* can't overflow the left edge */
+         rb_0  = (bnd->rb, T);           /* can't overflow the right edge */
 
-   /* init lookback 1 row */
-   r_1b = r_0b;
-   r_1e = r_0e;
+         /* fetch data mapping bound start location to data block in sparse matrix */
+         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+         qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+         /* initial location for square matrix and mapping to sparse matrix */
+         t_0 = lb_0;
+         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+         /* FOR every position in TARGET profile */
+         for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         {
+            tx0 = t_0 - bnd->lb;
+            /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
+            MSMX(qx0, tx0) = -INF;
+            ISMX(qx0, tx0) = -INF;
+            DSMX(qx0, tx0) = -INF; 
+         }
+      }
+
+      /* init lookback 1 row */
+      r_1b = r_0b;
+      r_1e = r_0e;
+   }
+   
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
@@ -215,6 +239,9 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
    {
       q_1 = q_0 - 1;
       t_0 = 0;
+
+      /* check if query position is in domain */
+      is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
 
       /* add every inner edgebound from current row */
       r_0b = r_0;
@@ -229,159 +256,153 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
 
       XMX(SP_E, q_0) = -INF;
 
-      /* FOR every BOUND in current ROW */
-      for (r_0 = r_0b; r_0 < r_0e; r_0++)
+      /* only compute if in domain range */
+      if ( is_q_0_in_dom_range == true )
       {
-         /* get bound data */
-         bnd   = &EDG_X(edg, r_0);
-         id    = bnd->id;
-         lb_0  = MAX(1, bnd->lb);         /* can't overflow the left edge */
-         rb_0  = bnd->rb;
-         // rb_T  = (bnd->rb > T);
-         // rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
-
-         /* fetch data mapping bound start location to data block in sparse matrix */
-         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-         qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
-
-         /* initial location for square matrix and mapping to sparse matrix */
-         t_0 = lb_0;
-         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-         tx1 = tx0 - 1;
-
-         int tmp_00 = (qx0) + ( (tx0) * NUM_NORMAL_STATES );
-         int tmp_10 = (qx1) + ( (tx0) * NUM_NORMAL_STATES );
-         int tmp_11 = (qx1) + ( (tx1) * NUM_NORMAL_STATES );
-
-         // if (q_0 < 10)
-         // printf("q_0=%d, (qx0,tx0)=%d,%d=> %d, (qx1,tx0)=%d,%d=> %d\n", 
-         //    q_0, qx0, tx0, tmp_00, qx1, tx0, tmp_10 );
-
-         /* MAIN RECURSION */
-         /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0 - 1; t_0++)
+         /* FOR every BOUND in current ROW */
+         for (r_0 = r_0b; r_0 < r_0e; r_0++)
          {
-            t_1 = t_0 - 1; 
-            tx0 = t_0 - bnd->lb;
+            /* get bound data */
+            bnd   = &EDG_X(edg, r_0);
+            id    = bnd->id;
+            lb_0  = MAX(bnd->lb, 1);         /* can't overflow left edge */
+            rb_0  = MIN(bnd->rb, T);         /* can't overflow right edge */
+
+            /* fetch data mapping bound start location to data block in sparse matrix */
+            qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+            qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+            /* initial location for square matrix and mapping to sparse matrix */
+            t_0 = lb_0;
+            tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
             tx1 = tx0 - 1;
 
-            /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
-            /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M);
-            prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M);
-            prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M);
-            prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
-            /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_B, prv_D ) );
-            MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
-
-            /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
-            /* previous states (match takes the previous row (upper) of each state) */
-            prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I);
-            prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I);
-            /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
-            ISMX(qx0, tx0) = prv_sum + ISC(t_0, A);
-
-            // if (q_0 == 1 && t_0 > 12 && t_0 < 15 ) {
-            //    printf("(q_0,t_0)=(%d,%d): MMX=%f, IMX=%f => IMX=%f\n", 
-            //       q_0, t_0, MSMX(qx1, tx0), ISMX(qx1, tx0), ISMX(qx0, tx0));
-            // }
-
-            /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
-            /* previous states (match takes the previous column (left) of each state) */
-            prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
-            /* best-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
-            DSMX(qx0, tx0) = prv_sum;
-
-
-            /* UPDATE E STATE */
-            prv_M = MSMX(qx0, tx0) + sc_E;
-            prv_D = DSMX(qx0, tx0) + sc_E;
-            /* best-to-e-state */
-            prv_E = XMX(SP_E, q_0);
-            XMX(SP_E, q_0) = logsum( 
-                                 logsum( prv_M, prv_D ),
-                                 prv_E );
-
-            /* embed linear row into quadratic test matrix */
-            #if DEBUG
+            /* MAIN RECURSION */
+            /* FOR every position in TARGET profile */
+            for (t_0 = lb_0; t_0 < rb_0 - 1; t_0++)
             {
-               MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               t_1 = t_0 - 1; 
+               tx0 = t_0 - bnd->lb;
+               tx1 = tx0 - 1;
+
+               /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+               /* best previous state transition (match takes the diag element of each prev state) */
+               prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M);
+               prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M);
+               prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M);
+               prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
+               /* best-to-match */
+               prv_sum = logsum( logsum( prv_M, prv_I ),
+                                 logsum( prv_B, prv_D ) );
+               MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
+
+               /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
+               /* previous states (match takes the previous row (upper) of each state) */
+               prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I);
+               prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I);
+               /* best-to-insert */
+               prv_sum = logsum( prv_M, prv_I );
+               ISMX(qx0, tx0) = prv_sum + ISC(t_0, A);
+
+               // if (q_0 == 1 && t_0 > 12 && t_0 < 15 ) {
+               //    printf("(q_0,t_0)=(%d,%d): MMX=%f, IMX=%f => IMX=%f\n", 
+               //       q_0, t_0, MSMX(qx1, tx0), ISMX(qx1, tx0), ISMX(qx0, tx0));
+               // }
+
+               /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
+               /* previous states (match takes the previous column (left) of each state) */
+               prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
+               prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
+               /* best-to-delete */
+               prv_sum = logsum( prv_M, prv_D );
+               DSMX(qx0, tx0) = prv_sum;
+
+
+               /* UPDATE E STATE */
+               prv_M = MSMX(qx0, tx0) + sc_E;
+               prv_D = DSMX(qx0, tx0) + sc_E;
+               prv_E = XMX(SP_E, q_0);
+               /* best-to-e-state */
+               prv_sum = logsum( logsum(  prv_M, prv_D ),
+                                          prv_E );
+               XMX(SP_E, q_0) = prv_sum;
+
+               /* embed linear row into quadratic test matrix */
+               #if DEBUG
+               {
+                  MX_2D(cloud_MX, q_0, t_0) = 1.0;
+                  MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+                  MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+                  MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               }
+               #endif
             }
-            #endif
-         }
 
-         /* UNROLLED FINAL LOOP ITERATION */
-         if ( true )  
-         {
-            // printf("q_0,t_0 = %d,%d\n", q_0, t_0);
-            t_0 = rb_0 - 1;
-            t_1 = t_0 - 1; 
-            tx0 = t_0 - bnd->lb;
-            tx1 = tx0 - 1;
-
-            /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
-            /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M);
-            prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M);
-            prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M);
-            prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
-            /* sum-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_D, prv_B ) );
-            MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
-
-            /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
-            ISMX(qx0, tx0) = -INF;
-
-            /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
-            /* previous states (match takes the left element of each state) */
-            prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
-            /* sum-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
-            DSMX(qx0, tx0) = prv_sum;
-
-            /* UPDATE E STATE (unrolled) */
-            prv_E = XMX(SP_E, q_0);
-            prv_M = MSMX(qx0, tx0);
-            prv_D = DSMX(qx0, tx0);
-            /* best-to-begin */
-            XMX(SP_E, q_0) = logsum( 
-                                 logsum( prv_D, prv_M ),
-                                 prv_E ); 
-
-            /* embed linear row into quadratic test matrix */
-            #if DEBUG
+            /* UNROLLED FINAL LOOP ITERATION */
+            if ( true )  
             {
-               MX_2D(cloud_MX, q_0, t_0) = 1.0;
-               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               // printf("q_0,t_0 = %d,%d\n", q_0, t_0);
+               t_0 = rb_0 - 1;
+               t_1 = t_0 - 1; 
+               tx0 = t_0 - bnd->lb;
+               tx1 = tx0 - 1;
+
+               /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+               /* best previous state transition (match takes the diag element of each prev state) */
+               prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M);
+               prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M);
+               prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M);
+               prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
+               /* sum-to-match */
+               prv_sum = logsum( logsum( prv_M, prv_I ),
+                                 logsum( prv_D, prv_B ) );
+               MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
+
+               /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
+               ISMX(qx0, tx0) = -INF;
+
+               /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
+               /* previous states (match takes the left element of each state) */
+               prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
+               prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
+               /* sum-to-delete */
+               prv_sum = logsum( prv_M, prv_D );
+               DSMX(qx0, tx0) = prv_sum;
+
+               /* UPDATE E STATE (unrolled) */
+               prv_E = XMX(SP_E, q_0);
+               prv_M = MSMX(qx0, tx0);
+               prv_D = DSMX(qx0, tx0);
+               /* best-to-begin */
+               prv_sum = logsum( logsum(  prv_D, prv_M ),
+                                          prv_E ); 
+               XMX(SP_E, q_0) = prv_sum;
+
+               /* embed linear row into quadratic test matrix */
+               #if DEBUG
+               {
+                  MX_2D(cloud_MX, q_0, t_0) = 1.0;
+                  MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+                  MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+                  MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               }
+               #endif
             }
-            #endif
          }
       }
-
+      
       /* SPECIAL STATES */
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
       prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
-      XMX(SP_J, q_0) = logsum( prv_J, prv_E );         
+      prv_sum = logsum( prv_J, prv_E );
+      XMX(SP_J, q_0) = prv_sum;
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
       prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
-      XMX(SP_C, q_0) = logsum( prv_C, prv_E );
+      prv_sum = logsum( prv_C, prv_E );
+      XMX(SP_C, q_0) = prv_sum;
 
       /* N state */
       prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
@@ -390,7 +411,8 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
       /* B state */
       prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
       prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
-      XMX(SP_B, q_0) = logsum( prv_N, prv_J );    
+      prv_sum = logsum( prv_N, prv_J ); 
+      XMX(SP_B, q_0) = prv_sum;
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       r_1b = r_0b;
@@ -425,6 +447,7 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
                                  MATRIX_3D_SPARSE*    st_SMX,        /* normal state matrix */
                                  MATRIX_2D*           sp_MX,         /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
+                                 RANGE*               in_dom_range,  /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final )     /* (OUTPUT) final score */
 {
    /* vars for matrix access */
@@ -481,6 +504,11 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    MATRIX_3D_SPARSE*    mx;
    EDGEBOUNDS*          edg_inner;           /* edgebounds for search space of backward/forward */
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
+   RANGE                dom_range;
+   RANGE                T_range;
+   RANGE                Q_range;
+   bool                 is_q_0_in_dom_range;
+   bool                 is_q_1_in_dom_range;
 
    /* debugger tools */
    FILE*                dbfp;
@@ -528,9 +556,17 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    /* local or global alignments? */
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
+   /* domain range */
+   if (in_dom_range == NULL) {
+      dom_range.beg = 1;
+      dom_range.end = Q + 1;
+   } else {
+      dom_range = *in_dom_range;
+   }
 
    /* Initialize the Q row. */
-   q_0 = Q;             /* current row in matrix */
+   q_0 = Q;
+   is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
 
    /* pass over (Q) bottom-row edgebounds from list */
    r_0  = N-1;          /* current index in edgebounds */
@@ -538,71 +574,33 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    while ( r_0 >= 0 && EDG_X(edg, r_0).id == q_0 ) {
       r_0--;
    }
-   r_0e = r_0;            /* ending index for current row in list */
+   r_0e = r_0;          /* ending index for current row in list */
 
    /* Initialize special states */
-   XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
+   XMX(SP_J, q_0) = -INF;
+   XMX(SP_B, q_0) = -INF;
+   XMX(SP_N, q_0) = -INF;
    XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
    XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-   /* if Q-row bounds are not empty and the right-most bound spans T ( covers bottom-right corner ) */
-   if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
+   /* if sequence position is in domain range */ 
+   if ( is_q_0_in_dom_range == true )
    {
-      /* get bound data */
-      bnd   = &EDG_X(edg, r_0b);
-      /* fetch data location to bound start location (in offset) */
-      qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );     /* (q_0, t_0) location offset */
-
-      /* location for square matrix and mapping to sparse matrix */
-      t_0 = T;
-      tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-      MSMX(qx0, tx0) = DSMX(qx0, tx0) = XMX(SP_E, q_0);
-      ISMX(qx0, tx0) = -INF;
-
-      #if DEBUG 
+      /* if Q-row bounds are not empty and the right-most bound spans T ( covers bottom-right corner ) */
+      if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
       {
-         MX_2D(cloud_MX, q_0, t_0) = 1.0;
-         MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-         MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-         MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
-      }
-      #endif
-   }
+         /* get bound data */
+         bnd   = &EDG_X(edg, r_0b);
+         /* fetch data location to bound start location (in offset) */
+         qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );     /* (q_0, t_0) location offset */
 
-   /* Initialize normal states (sparse) */
-   for (r_0 = r_0b; r_0 > r_0e; r_0--) 
-   {
-      /* get bound data */
-      bnd   = &EDG_X(edg, r_0);        /* bounds for current bound */
-      lb_0  = MAX(1, bnd->lb);         /* can't overflow the left edge */
-      rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
+         /* location for square matrix and mapping to sparse matrix */
+         t_0 = T;
+         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
 
-      /* fetch data mapping bound start location to data block in sparse matrix */
-      qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-      qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_1, t_0) location offset */
-
-      /* location for square matrix and mapping to sparse matrix */
-      t_0 = lb_0;
-      tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-      for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
-      {
-         /* real target index */
-         t_1 = t_0 + 1;
-         /* calculate offset from beginning of sparse data block */ 
-         tx0 = t_0 - bnd->lb;
-         tx1 = tx0 + 1;
-
-         prv_E = XMX(SP_E, Q) + sc_E;
-         prv_D = DSMX(qx0, tx1)  + TSC(t_0, M2D);
-         MSMX(qx0, tx0) = logsum( prv_E, prv_D );
-
-         prv_E = XMX(SP_E, Q) + sc_E;
-         prv_D = DSMX(qx0, tx1)  + TSC(t_0, D2D);
-         DSMX(qx0, tx0) = logsum( prv_E, prv_D );
-
+         MSMX(qx0, tx0) = XMX(SP_E, q_0);
          ISMX(qx0, tx0) = -INF;
+         DSMX(qx0, tx0) = XMX(SP_E, q_0);
 
          #if DEBUG 
          {
@@ -610,8 +608,53 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
             MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
             MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
             MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
-         }  
+         }
          #endif
+      }
+
+      /* Initialize normal states (sparse) */
+      for (r_0 = r_0b; r_0 > r_0e; r_0--) 
+      {
+         /* get bound data */
+         bnd   = &EDG_X(edg, r_0);              /* bounds for current bound */
+         lb_0  = MAX(bnd->lb, dom_range.beg);   /* can't overflow the left edge */
+         rb_0  = MIN(bnd->rb, dom_range.end);   /* can't overflow the right edge */
+
+         /* fetch data mapping bound start location to data block in sparse matrix */
+         qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+         qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_1, t_0) location offset */
+
+         /* location for square matrix and mapping to sparse matrix */
+         t_0 = lb_0;
+         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+         for (t_0 = rb_0 - 1; t_0 >= lb_0; t_0--)
+         {
+            /* real target index */
+            t_1 = t_0 + 1;
+            /* calculate offset from beginning of sparse data block */ 
+            tx0 = t_0 - bnd->lb;
+            tx1 = tx0 + 1;
+
+            prv_E = XMX(SP_E, Q) + sc_E;
+            prv_D = DSMX(qx0, tx1)  + TSC(t_0, M2D);
+            MSMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            prv_E = XMX(SP_E, Q) + sc_E;
+            prv_D = DSMX(qx0, tx1)  + TSC(t_0, D2D);
+            DSMX(qx0, tx0) = logsum( prv_E, prv_D );
+
+            ISMX(qx0, tx0) = -INF;
+
+            #if DEBUG 
+            {
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+            }  
+            #endif
+         }
       }
    }
 
@@ -625,6 +668,9 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
    {
       q_1 = q_0 + 1;
       t_0 = 0;
+
+      is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
+      is_q_1_in_dom_range = (q_1 >= dom_range.beg && q_1 < dom_range.end);
 
       /* add every edgebound from current row */
       r_0b = r_0;
@@ -641,30 +687,34 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
 
       /* B STATE (sparse) */
       XMX(SP_B, q_0) = -INF;
-      for (r_1 = r_1b; r_1 > r_1e; r_1--) 
+      /* if previous q is in domain range */
+      if ( is_q_1_in_dom_range == true )
       {
-         /* get bound data */
-         bnd   = &EDG_X(edg, r_1);          /* bounds for current bound */
-         lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
-         rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
-
-         /* fetch data location to bound start location (in offset) */
-         qx1 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
-
-         /* location for square matrix and mapping to sparse matrix */
-         t_0 = lb_0;
-         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-         for (t_0 = lb_0; t_0 <= rb_0; t_0++)
+         for (r_1 = r_1b; r_1 > r_1e; r_1--) 
          {
-            t_1 = t_0 - 1;
-            /* calculate offset from beginning of sparse data block */ 
-            tx0 = t_0 - bnd->lb;
-            tx1 = tx0 - 1;
+            /* get bound data */
+            bnd   = &EDG_X(edg, r_1);              /* bounds for current bound */
+            lb_0  = MAX(bnd->lb, dom_range.beg);   /* can't overflow the left edge */
+            rb_0  = MIN(bnd->rb, dom_range.end);   /* can't overflow the right edge */
 
-            prv_sum = XMX(SP_B, q_0);
-            prv_M = MSMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
-            XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
+            /* fetch data location to bound start location (in offset) */
+            qx1 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
+
+            /* location for square matrix and mapping to sparse matrix */
+            t_0 = lb_0;
+            tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+            for (t_0 = rb_0 - 1; t_0 >= lb_0; t_0--)
+            {
+               t_1 = t_0 - 1;
+               /* calculate offset from beginning of sparse data block */ 
+               tx0 = t_0 - bnd->lb;
+               tx1 = tx0 - 1;
+
+               prv_sum = XMX(SP_B, q_0);
+               prv_M = MSMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
+               XMX(SP_B, q_0) = logsum( prv_sum, prv_M);
+            }
          }
       }
 
@@ -683,85 +733,26 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
       prv_B = XMX(SP_B, q_0) + XSC(SP_N, SP_MOVE);
       XMX(SP_N, q_0) = logsum( prv_N, prv_B );
 
-      /* if there is a bound on row and the right-most bound spans T (right edge of matrix) */
-      if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
+      if ( is_q_0_in_dom_range == true )
       {
-         /* get bound data */
-         bnd   = &EDG_X(edg, r_0b);          /* bounds for current bound */
-         lb_0  = MAX(1, bnd->lb);            /* can't overflow the left edge */
-         rb_0  = MIN(bnd->rb, T);            /* can't overflow the right edge */
-
-         /* fetch data location to bound start location (in offset) */
-         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
-
-         /* location for square matrix and mapping to sparse matrix */
-         t_0 = T;
-         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-         MSMX(qx0, tx0) = DSMX(qx0, tx0) = XMX(SP_E, q_0);
-         ISMX(qx0, tx0) = -INF;
-
-         #if DEBUG 
+         /* if there is a bound on row and the right-most bound spans T (right edge of matrix) */
+         if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
          {
-            MX_2D(cloud_MX, q_0, t_0) = 1.0;
-            MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
-            MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
-            MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
-         }
-         #endif
-      }
+            /* get bound data */
+            bnd   = &EDG_X(edg, r_0b);       /* bounds for current bound */
+            lb_0  = MAX(bnd->lb, 1);         /* can't overflow the left edge */
+            rb_0  = MIN(bnd->rb, T);         /* can't overflow the right edge */
 
-      /* FOR every EDGEBOUND in current ROW */
-      for (r_0 = r_0b; r_0 > r_0e; r_0--)
-      {
-         /* get bound data */
-         bnd   = &EDG_X(edg, r_0);         /* bounds for current bound */
-         lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
-         rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
+            /* fetch data location to bound start location (in offset) */
+            qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0b );    /* (q_0, t_0) location offset */
 
-         /* fetch data location to bound start location (in offset) */
-         /* NOTE */
-         qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-         qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_0, t_0) location offset */
+            /* location for square matrix and mapping to sparse matrix */
+            t_0 = T;
+            tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
 
-         /* location for square matrix and mapping to sparse matrix */
-         t_0 = T;
-         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-         /* FOR every position in TARGET profile */
-         for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
-         {
-            t_1 = t_0 + 1;
-            /* calculate offset from beginning of sparse data block */ 
-            tx0 = t_0 - bnd->lb;
-            tx1 = tx0 + 1;
-
-            /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-            prv_M = MSMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
-            prv_I = ISMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_1, A);
-            prv_D = DSMX(qx0, tx1) + TSC(t_0, M2D);
-            prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
-            /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_E, prv_D ) );
-            MSMX(qx0, tx0) = prv_sum;
-
-            /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-            prv_M = MSMX(qx1, tx1) + TSC(t_0, I2M) + MSC(t_1, A);
-            prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
-            /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
-            ISMX(qx0, tx0) = prv_sum;
-
-            /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prv_M = MSMX(qx1, tx1) + TSC(t_0, D2M) + MSC(t_1, A);
-            prv_D = DSMX(qx0, tx1) + TSC(t_0, D2D);
-            prv_E = XMX(SP_E, q_0) + sc_E;
-            /* best-to-delete */
-            prv_sum = logsum( prv_M, 
-                           logsum( prv_D, prv_E ) );
-            DSMX(qx0, tx0) = prv_sum;
+            MSMX(qx0, tx0) = XMX(SP_E, q_0);
+            ISMX(qx0, tx0) = -INF;
+            DSMX(qx0, tx0) = XMX(SP_E, q_0);
 
             #if DEBUG 
             {
@@ -772,8 +763,71 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
             }
             #endif
          }
-      }
 
+         /* FOR every EDGEBOUND in current ROW */
+         for (r_0 = r_0b; r_0 > r_0e; r_0--)
+         {
+            /* get bound data */
+            bnd   = &EDG_X(edg, r_0);              /* bounds for current bound */
+            lb_0  = MAX(bnd->lb, 1);   /* can't overflow the left edge */
+            rb_0  = MIN(bnd->rb, T);   /* can't overflow the right edge */
+            
+            /* fetch data location to bound start location (in offset) */
+            /* NOTE */
+            qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+            qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_0, t_0) location offset */
+
+            /* location for square matrix and mapping to sparse matrix */
+            t_0 = T;
+            tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+            /* FOR every position in TARGET profile */
+            for (t_0 = rb_0 - 1; t_0 >= lb_0; t_0--)
+            {
+               t_1 = t_0 + 1;
+               /* calculate offset from beginning of sparse data block */ 
+               tx0 = t_0 - bnd->lb;
+               tx1 = tx0 + 1;
+
+               /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
+               prv_M = MSMX(qx1, tx1) + TSC(t_0, M2M) + MSC(t_1, A);
+               prv_I = ISMX(qx1, tx0) + TSC(t_0, M2I) + ISC(t_1, A);
+               prv_D = DSMX(qx0, tx1) + TSC(t_0, M2D);
+               prv_E = XMX(SP_E, q_0) + sc_E;     /* from end match state (new alignment) */
+               /* best-to-match */
+               prv_sum = logsum( 
+                              logsum( prv_M, prv_I ),
+                              logsum( prv_E, prv_D ) );
+               MSMX(qx0, tx0) = prv_sum;
+
+               /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
+               prv_M = MSMX(qx1, tx1) + TSC(t_0, I2M) + MSC(t_1, A);
+               prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I) + ISC(t_0, A);
+               /* best-to-insert */
+               prv_sum = logsum( prv_M, prv_I );
+               ISMX(qx0, tx0) = prv_sum;
+
+               /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
+               prv_M = MSMX(qx1, tx1) + TSC(t_0, D2M) + MSC(t_1, A);
+               prv_D = DSMX(qx0, tx1) + TSC(t_0, D2D);
+               prv_E = XMX(SP_E, q_0) + sc_E;
+               /* best-to-delete */
+               prv_sum = logsum( prv_M, 
+                              logsum( prv_D, prv_E ) );
+               DSMX(qx0, tx0) = prv_sum;
+
+               #if DEBUG 
+               {
+                  MX_2D(cloud_MX, q_0, t_0) = 1.0;
+                  MX_3D(test_MX, MAT_ST, q_0, t_0) = MSMX(qx0, tx0);
+                  MX_3D(test_MX, INS_ST, q_0, t_0) = ISMX(qx0, tx0);
+                  MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
+               }
+               #endif
+            }
+         }
+      }
+      
       /* SET CURRENT ROW TO PREVIOUS ROW */
       r_1b = r_0b;
       r_1e = r_0e;
@@ -803,29 +857,33 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
 
    /* B STATE (SPARSE) */
    XMX(SP_B, q_0) = -INF;
-   for (r_1 = r_1b; r_1 > r_1e; r_1--) 
+   /* if q_0 is in range */
+   if ( is_q_1_in_dom_range == true )
    {
-      bnd   = &EDG_X(edg, r_1);          /* bounds for current bound */
-      lb_0  = MAX(1, bnd->lb);          /* can't overflow the left edge */
-      rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
-
-      /* fetch data location to bound start location (in offset) */
-      qx1 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
-
-      /* location for square matrix and mapping to sparse matrix */
-      t_0 = lb_0;
-      tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-      for (t_0 = rb_0-1; t_0 >= lb_0; t_0--)
+      for (r_1 = r_1b; r_1 > r_1e; r_1--) 
       {
-         t_1 = t_0 - 1;
-         /* calculate offset from beginning of sparse data block */ 
-         tx0 = t_0 - bnd->lb;
-         tx1 = tx0 - 1;
+         bnd   = &EDG_X(edg, r_1);         /* bounds for current bound */
+         lb_0  = MAX(bnd->lb, 1);          /* can't overflow the left edge */
+         rb_0  = MIN(bnd->rb, T);          /* can't overflow the right edge */
 
-         prv_sum = XMX(SP_B, q_0);
-         prv_M = MSMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
-         XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
+         /* fetch data location to bound start location (in offset) */
+         qx1 = VECTOR_INT_Get( st_SMX->imap_cur, r_1 );    /* (q_0, t_0) location offset */
+
+         /* location for square matrix and mapping to sparse matrix */
+         t_0 = lb_0;
+         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+         for (t_0 = rb_0 - 1; t_0 >= lb_0; t_0--)
+         {
+            t_1 = t_0 - 1;
+            /* calculate offset from beginning of sparse data block */ 
+            tx0 = t_0 - bnd->lb;
+            tx1 = tx0 - 1;
+
+            prv_sum = XMX(SP_B, q_0);
+            prv_M = MSMX(qx1, tx0) + TSC(t_1, B2M) + MSC(t_0, A);
+            XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
+         }
       }
    }
 

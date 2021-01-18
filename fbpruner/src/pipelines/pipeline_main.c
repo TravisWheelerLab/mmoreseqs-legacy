@@ -121,9 +121,8 @@ void main_pipeline( WORKER* worker )
 			printf_vall("# => cloud search...\n");
 			WORK_cloud_search( worker );
 
-			/* capture  */
-			WORK_capture_alignment( worker );
-			WORK_convert_scores( worker );
+			/* capture */
+			WORK_posterior( worker );
 
 			if ( args->verbose_level >= VERBOSE_LOW || true  ) 
 	      {

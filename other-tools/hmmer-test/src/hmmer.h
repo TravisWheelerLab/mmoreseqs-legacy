@@ -1819,6 +1819,8 @@ extern int fm_getOccCount     (const FM_DATA *fm, const FM_CFG *cfg, int pos, ui
 extern int fm_getOccCountLT   (const FM_DATA *fm, const FM_CFG *cfg, int pos, uint8_t c, uint32_t *cnteq, uint32_t *cntlt);
 
 /* DAVID RICH EDIT */
+extern char* STATE_NAMES[];
+
 int
 p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq, const ESL_SQ *ntsq, P7_TOPHITS *hitlist, /* DAVID RICH EDIT */ P7_PROFILE *gm);
 int
