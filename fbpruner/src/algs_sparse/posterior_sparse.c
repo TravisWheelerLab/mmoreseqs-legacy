@@ -62,7 +62,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    RANGE       D_range;
    DOMAIN_X    domain;
    float       compo_bias, null_sc;
-   float       fwd_sc, bck_sc, post_sc, opt_sc, dom_sc;
+   float       pre_sc, fwd_sc, bck_sc, post_sc, opt_sc, dom_sc;
    int         N_domains;
    int         D_total;
 
@@ -215,13 +215,16 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       VECTOR_FLT_Pushback( dom_def->dom_bias, compo_bias );
 
       /* check if best score */
-      dom_sc = (fwd_sc - (null_sc + compo_bias));
+      pre_sc = (fwd_sc - (null_sc)) / CONST_LOG2;
+      dom_sc = (fwd_sc - (null_sc + compo_bias)) / CONST_LOG2;
       if ( dom_sc > dom_def->best_sc )
       {
          dom_def->best        = i;
          dom_def->best_sc     = dom_sc;
          dom_def->best_fwdsc  = fwd_sc;
+         dom_def->best_presc  = pre_sc;
          dom_def->best_bias   = compo_bias;
+         dom_def->best_range  = D_range;
       }
 
       /* constructed score over all domains */

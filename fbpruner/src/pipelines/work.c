@@ -199,6 +199,9 @@ void WORK_open( WORKER* worker )
    if ( args->is_myout ) {
       worker->myout_fp     = ERROR_fopen( args->myout_filepath, "w" );
    }
+   if ( args->is_mydomout ) {
+      worker->mydomout_fp  = ERROR_fopen( args->mydomout_filepath, "w" );
+   }
 }
 
 /* close worker files */
@@ -221,6 +224,9 @@ void WORK_close( WORKER* worker )
    }
    if ( args->is_myout ) {
       worker->myout_fp    = ERROR_fclose( worker->myout_fp );
+   }
+   if ( args->is_mydomout ) {
+      worker->mydomout_fp = ERROR_fclose( worker->mydomout_fp );
    }
 }
 

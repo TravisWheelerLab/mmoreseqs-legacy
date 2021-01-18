@@ -719,9 +719,10 @@ void REPORT_myout_footer(    WORKER*  worker,
 void REPORT_mydomout_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
       "target",
+      "n_domains",
       "evalue",
       "pre-sc",
       "comp-bias",
@@ -734,9 +735,10 @@ void REPORT_mydomout_header(  WORKER*  worker,
       "t-range",
       "time"
    );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "------",
       "------",
+      "---------",
       "------",
       "------",
       "--------",
@@ -764,19 +766,26 @@ void REPORT_mydomout_entry(   WORKER*  worker,
    ALIGNMENT*     aln      = worker->traceback;
    DOMAIN_DEF*    dom_def  = worker->dom_def;
 
+   /* if no domains were found, skip entry */
+   if ( dom_def->n_domains <= 0 ) {
+      return;
+   }
+
    int      best_idx    = dom_def->best;
-   RANGE    dom_rng     = VEC_X( dom_def->dom_ranges, best_idx );
-   float    dom_fwdsc   = VEC_X( dom_def->dom_fwdsc, best_idx );
-   float    dom_bias    = VEC_X( dom_def->dom_bias, best_idx);
+   RANGE    dom_rng     = dom_def->best_range;
+   float    dom_fwdsc   = dom_def->best_fwdsc;
+   float    dom_presc   = dom_def->best_presc;
+   float    dom_bias    = dom_def->best_bias;
    float    dom_sc      = dom_def->best_sc;
 
    float percent_cells = (float)result->cloud_cells / (float)result->total_cells;
 
-   fprintf( fp, "%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
+   fprintf( fp, "%s\t%s\t%d/%d\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
+      best_idx+1, dom_def->n_domains,
       result->final_scores.eval,       /* evalue */
-      dom_fwdsc,     /* seq scores before correction */
+      dom_presc,     /* seq scores before correction */
       dom_bias,   /* seq bias */
       dom_sc,     /* seq score after correction */
       result->vit_natsc,               /* viterbi score (in mmore, this comes from mmseqs) */

@@ -929,6 +929,7 @@ typedef struct {
    float          best_presc;    /* pre-score of best domain */
    float          best_fwdsc;    /* forward score of best domain */
    float          best_bias;     /* compo bias of best domain */
+   RANGE          best_range;    /* query range of best domain */
    /* total scoring */
    float          nullsc;        /* background model nullsc */
    float          dom_sumsc;     /* all domains sumscore */
