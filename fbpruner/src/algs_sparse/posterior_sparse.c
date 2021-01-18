@@ -151,94 +151,97 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    #endif
 
    /* run through Domains and compute score, bias correction, and optimal alignment */
-   dom_def->n_domains      = N_domains;
-   dom_def->dom_sumsc      = 0.0f;
-   dom_def->dom_sumbias    = 0.0f;
-   D_total                 = 0;
-   null_sc                 = dom_def->nullsc;
-   for (int i = 0; i < N_domains; i++)
+   if (false)
    {
-      D_range = VEC_X( dom_def->dom_ranges, i );
-      printf("Domain (%d of %d): {%d,%d}\n", 
-         i+1, N_domains, D_range.beg, D_range.end);
-
-      /*! TODO: (?) change sequence to only cover domain range 
-       *  NOTE: This is require rebuilding or remapping sparse matrix
-       */
-      // EDGEBOUNDS_Set_Domain( edg, dom_def->edg, D_range );
-      
-      /* clear previous data */
-      MATRIX_3D_SPARSE_Fill_Outer( st_SMX_fwd, -INF );
-      MATRIX_3D_SPARSE_Fill_Outer( st_SMX_bck, -INF );
-      if (st_SMX_bck != st_SMX_post) {
-         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_post, -INF );
-      }
-
-      /* compute Forward/Backward for the domain range */
-      run_Bound_Forward_Sparse( 
-         q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, &D_range, &fwd_sc );
-      fprintf(stdout, "# ==> Forward   (domain %d/%d): %11.4f\n", 
-         i+1, N_domains, fwd_sc);
-
-      /* compute Forward/Backward for the domain range */
-      run_Bound_Backward_Sparse( 
-         q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, &D_range, &bck_sc );
-      fprintf(stdout, "# ==> Backward  (domain %d/%d): %11.4f\n", 
-         i+1, N_domains, bck_sc);
-
-      /* compute Posterior (forward * backward) for domain range */
-      fprintf(stdout, "# ==> Posterior (domain %d/%d)\n", 
-         i+1, N_domains);
-      run_Decode_Posterior_Sparse( q_seq, t_prof, Q, T, edg, &D_range,
-            st_SMX_fwd, sp_MX_fwd, st_SMX_bck, sp_MX_bck, st_SMX_post, sp_MX_post );
-      
-      #if DEBUG 
+      dom_def->n_domains      = N_domains;
+      dom_def->dom_sumsc      = 0.0f;
+      dom_def->dom_sumbias    = 0.0f;
+      D_total                 = 0;
+      null_sc                 = dom_def->nullsc;
+      for (int i = 0; i < N_domains; i++)
       {
-         fp = fopen("test_output/my.sparse_post.dom.mx", "w+");
-         MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
-         MATRIX_2D_Log(sp_MX_post);
-         DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
-         MATRIX_2D_Exp(sp_MX_post);
-         fclose(fp);
+         D_range = VEC_X( dom_def->dom_ranges, i );
+         printf("Domain (%d of %d): {%d,%d}\n", 
+            i+1, N_domains, D_range.beg, D_range.end);
+
+         /*! TODO: (?) change sequence to only cover domain range 
+         *  NOTE: This is require rebuilding or remapping sparse matrix
+         */
+         // EDGEBOUNDS_Set_Domain( edg, dom_def->edg, D_range );
+         
+         /* clear previous data */
+         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_fwd, -INF );
+         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_bck, -INF );
+         if (st_SMX_bck != st_SMX_post) {
+            MATRIX_3D_SPARSE_Fill_Outer( st_SMX_post, -INF );
+         }
+
+         /* compute Forward/Backward for the domain range */
+         run_Bound_Forward_Sparse( 
+            q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, &D_range, &fwd_sc );
+         fprintf(stdout, "# ==> Forward   (domain %d/%d): %11.4f\n", 
+            i+1, N_domains, fwd_sc);
+
+         /* compute Forward/Backward for the domain range */
+         run_Bound_Backward_Sparse( 
+            q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, &D_range, &bck_sc );
+         fprintf(stdout, "# ==> Backward  (domain %d/%d): %11.4f\n", 
+            i+1, N_domains, bck_sc);
+
+         /* compute Posterior (forward * backward) for domain range */
+         fprintf(stdout, "# ==> Posterior (domain %d/%d)\n", 
+            i+1, N_domains);
+         run_Decode_Posterior_Sparse( q_seq, t_prof, Q, T, edg, &D_range,
+               st_SMX_fwd, sp_MX_fwd, st_SMX_bck, sp_MX_bck, st_SMX_post, sp_MX_post );
+         
+         #if DEBUG 
+         {
+            fp = fopen("test_output/my.sparse_post.dom.mx", "w+");
+            MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
+            MATRIX_2D_Log(sp_MX_post);
+            DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
+            MATRIX_2D_Exp(sp_MX_post);
+            fclose(fp);
+         }
+         #endif
+         
+         /* run Null2 Score to compute Composition Bias */
+         fprintf(stdout, "# ==> Null2 Compo Bias\n");
+         run_Null2_ByExpectation_Sparse( q_seq, t_prof, Q, T, &Q_range, &T_range, st_SMX_post->edg_inner,
+            st_SMX_post, sp_MX_post, dom_def, &compo_bias );
+
+         /** TODO: Get optimal alignment */ 
+         
+         /* add domain data */
+         VECTOR_FLT_Pushback( dom_def->dom_fwdsc, fwd_sc );
+         VECTOR_FLT_Pushback( dom_def->dom_bias, compo_bias );
+
+         /* check if best score */
+         pre_sc = (fwd_sc - (null_sc)) / CONST_LOG2;
+         dom_sc = (fwd_sc - (null_sc + compo_bias)) / CONST_LOG2;
+         if ( dom_sc > dom_def->best_sc )
+         {
+            dom_def->best        = i;
+            dom_def->best_sc     = dom_sc;
+            dom_def->best_fwdsc  = fwd_sc;
+            dom_def->best_presc  = pre_sc;
+            dom_def->best_bias   = compo_bias;
+            dom_def->best_range  = D_range;
+         }
+
+         /* constructed score over all domains */
+         dom_def->dom_sumsc   += fwd_sc;
+         dom_def->dom_sumbias += compo_bias;
+         D_total              += (D_range.end - D_range.beg + 1);
       }
-      #endif
-      
-      /* run Null2 Score to compute Composition Bias */
-      fprintf(stdout, "# ==> Null2 Compo Bias\n");
-      run_Null2_ByExpectation_Sparse( q_seq, t_prof, Q, T, &Q_range, &T_range, st_SMX_post->edg_inner,
-         st_SMX_post, sp_MX_post, dom_def, &compo_bias );
 
-      /** TODO: Get optimal alignment */ 
-      
-      /* add domain data */
-      VECTOR_FLT_Pushback( dom_def->dom_fwdsc, fwd_sc );
-      VECTOR_FLT_Pushback( dom_def->dom_bias, compo_bias );
-
-      /* check if best score */
-      pre_sc = (fwd_sc - (null_sc)) / CONST_LOG2;
-      dom_sc = (fwd_sc - (null_sc + compo_bias)) / CONST_LOG2;
-      if ( dom_sc > dom_def->best_sc )
+      if (N_domains > 0)
       {
-         dom_def->best        = i;
-         dom_def->best_sc     = dom_sc;
-         dom_def->best_fwdsc  = fwd_sc;
-         dom_def->best_presc  = pre_sc;
-         dom_def->best_bias   = compo_bias;
-         dom_def->best_range  = D_range;
+         /* constructed score over all domains */
+         dom_def->dom_sumbias = logsum(0.0f, log(bg->omega) + dom_def->dom_sumbias);
+         dom_def->dom_sumsc  += (Q - D_total) * log((float) Q / (float) (Q + 3));
+         dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;
       }
-
-      /* constructed score over all domains */
-      dom_def->dom_sumsc   += fwd_sc;
-      dom_def->dom_sumbias += compo_bias;
-      D_total              += (D_range.end - D_range.beg + 1);
-   }
-
-   if (N_domains > 0)
-   {
-      /* constructed score over all domains */
-      dom_def->dom_sumbias = logsum(0.0f, log(bg->omega) + dom_def->dom_sumbias);
-      dom_def->dom_sumsc  += (Q - D_total) * log((float) Q / (float) (Q + 3));
-      dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;
    }
 
    printf("=== run_Posterior_Sparse() [END] ===\n");
