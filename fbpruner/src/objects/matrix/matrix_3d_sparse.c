@@ -224,7 +224,7 @@ int
 MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
                                           EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
 {
-   printf("==> MATRIX_3D_SPARSE_Shape_Like_Edgebounds\n");
+   // printf("==> MATRIX_3D_SPARSE_Shape_Like_Edgebounds\n");
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
    smx->D2 = edg_inner->T + 1;
@@ -245,10 +245,8 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
    MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
    MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
    /* create matrix data */
-   printf("smx->N: %d\n", smx->N );
    VECTOR_FLT_GrowTo( smx->data, smx->N );
    smx->data->N = smx->N;
-   printf("smx->N: %d\n", smx->N );
    /* clear data to all -INF */
    VECTOR_FLT_Fill( smx->data, -INF );
    

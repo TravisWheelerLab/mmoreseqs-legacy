@@ -634,7 +634,6 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
             lb_0  = MAX(bnd->lb, T_range.beg);   /* can't overflow left edge */
             rb_T  = bnd->rb >= T;
             rb_0  = MIN(bnd->rb, T_range.end);   /* can't overflow right edge */
-            printf("INIT q=%d, r=%d, {%d,%d,%d}\n", q_0, r_0, id, bnd->lb, bnd->rb);
 
             /* fetch data mapping bound start location to data block in sparse matrix */
             qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */

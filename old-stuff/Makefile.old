@@ -16,10 +16,10 @@ ROOT_DIR ?= $(shell pwd)
 # package information 
 PACKAGE = FB-PRUNER 
 PACKAGE_VERSION = 0.1A
-PACKAGE_TARNAME = fb-pruner
+PACKAGE_TARNAME = mmore
 
 # final executable
-TARGET_EXEC ?= fb-pruner
+TARGET_EXEC ?= mmore
 
 # library directories 
 EASEL_DIR ?= ./lib/easel
@@ -55,8 +55,10 @@ CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
 DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1 -fsanitize=address
+# flags for alpha version
+ALPHAFLAGS := $(INC_FLAGS) $(INC_LIBS) -O3 -fsanitize=address
 # flags for release version
-RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -Wall -O3
+RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -O3 -fsanitize=address
 
 # TODO: 
 # Build Easel using its own makefile
@@ -70,11 +72,20 @@ ifeq ($(BUILD), RELEASE)
 # 	$(info RELEASE FLAGGED)
 	CFLAGS+=$(RELEASEFLAGS)
 	CPPFLAGS+=$(RELEASEFLAGS)
+	TARGET_EXEC=mmore-RELEASE
+endif
+# special flags for ALPHA 
+ifeq ($(BUILD), ALPHA)
+# 	$(info RELEASE FLAGGED)
+	CFLAGS+=$(ALPHAFLAGS)
+	CPPFLAGS+=$(RELEASEFLAGS)
+	TARGET_EXEC=mmore-ALPHA
 endif
 # special flags for DEBUG
 ifeq ($(BUILD), DEBUG)
 	CFLAGS+=$(DEBUGFLAGS)
 	CPPFLAGS+=$(DEBUGFLAGS)
+	TARGET_EXEC=mmore-DEBUG
 endif
 
 # compile each object file before executable

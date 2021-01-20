@@ -75,18 +75,6 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    Q_size = Q_range.end - Q_range.beg;
    T_size = T_range.end - T_range.beg;
 
-   /* list found domains */
-   #if DEBUG || TRUE
-   {
-      fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
-      for (int i = 0; i < dom_def->dom_ranges->N; i++) 
-      {
-         RANGE r_0 = VEC_X( dom_def->dom_ranges, i );
-         fprintf(stdout, "[%d] {%d,%d}\n", i, r_0.beg, r_0.end);
-      }
-   }
-   #endif
-
    /* compute score and bias for entire cloud */
    {
       /* compute Forward */
@@ -125,6 +113,17 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
             q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
          N_domains = dom_def->dom_ranges->N;
       }
+      /* list found domains */
+      #if DEBUG || TRUE
+      {
+         fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
+         for (int i = 0; i < dom_def->dom_ranges->N; i++) 
+         {
+            RANGE r_0 = VEC_X( dom_def->dom_ranges, i );
+            fprintf(stdout, "[%d] {%d,%d}\n", i, r_0.beg, r_0.end);
+         }
+      }
+      #endif
 
       /* compute Posterior */
       fprintf(stdout, "# ==> Posterior (full cloud)\n");

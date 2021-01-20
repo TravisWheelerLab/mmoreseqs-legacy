@@ -311,6 +311,7 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
 	float 		diag_limit 	= -INF;			/* pruning threshold based on global max */
 	float 		total_limit = -INF; 		/* termination threshold based on antidiag max */
+	bool 		is_d_0_in_viterbi; 			/* checks if we have gone past the seed viterbi alignment */
 
 	/* clear data int vectors (which will be used to create edgebounds) */
 	VECTOR_INT_Reuse( lb_vec[0] );
@@ -340,15 +341,17 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 	total_limit = *total_max - beta;
 	/* Set score limit threshold for pruning */
 	diag_limit 	= diag_max - alpha;
-	
-	/* if we have searched the length of the input viterbi alignment */
-	if ( d_cnt < vit_range.beg || d_cnt > vit_range.end ) 
+	/* check if outside seed viterbi alignment */
+	is_d_0_in_viterbi = IS_IN_RANGE(vit_range.beg, vit_range.end, d_0);
+	/* if we have searched the length of the input viterbi alignment, check termination condition */
+	if ( is_d_0_in_viterbi == false ) 
 	{
+		// fprintf(stdout, "# OUT OF RANGE: d_cnt=%d, d_0=%d, vit_range={%d,%d}\n", d_cnt, d_0, vit_range.beg, vit_range.end);
 		/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
 		*is_term_flag = (diag_max < total_limit);
 		if ( *is_term_flag == true ) 
 		{
-			printf("# FLAG TRIGGERED!!! d_cnt=%d, vit_range=%d-%d\n", d_cnt, vit_range.beg, vit_range.end);
+			fprintf(stdout, "# FLAG TRIGGERED!!! d_cnt=%d, d_0=%d, vit_range={%d,%d}\n", d_cnt, d_0, vit_range.beg, vit_range.end);
 			return;
 		}
 	}
@@ -383,6 +386,7 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 				/* prune in left edgebound */
 				if ( cell_max >= diag_limit )
 				{
+					/* when first cell found above limit if found, set boundary and end search */
 					lb_0 = k_0;
 					VECTOR_INT_Pushback( lb_vec[0], lb_0 );
 					break;
@@ -406,6 +410,7 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 				/* prune in right edgebound */
 				if ( cell_max >= diag_limit )
 				{
+					/* when first cell found above limit if found, set boundary and end search */
 					rb_0 = k_0 + 1;
 					VECTOR_INT_Pushback( rb_vec[0], rb_0 );
 					break;
