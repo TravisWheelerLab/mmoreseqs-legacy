@@ -652,7 +652,7 @@ void REPORT_myout_entry(   WORKER*  worker,
 
    float percent_cells = (float)result->cloud_cells / (float)result->total_cells;
 
-   fprintf( fp, "%s\t%s\t%.3g\t%.3f%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
+   fprintf( fp, "%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
       result->final_scores.eval,       /* evalue */

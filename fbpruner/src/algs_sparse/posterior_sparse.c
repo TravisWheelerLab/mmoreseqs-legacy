@@ -75,6 +75,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    Q_size = Q_range.end - Q_range.beg;
    T_size = T_range.end - T_range.beg;
 
+   /* store begin/end points */
+   result->query_start  = Q_range.beg;
+   result->query_end    = Q_range.end;
+   result->target_start = T_range.beg;
+   result->target_start = T_range.end;
+
    /* compute score and bias for entire cloud */
    {
       /* compute Forward */
@@ -97,7 +103,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       fprintf(stdout, "# ==> Backward (full cloud): %11.4f %11.4f\n", 
          bck_sc, bck_sc/CONST_LOG2);
       result->bound_bck_natsc = bck_sc;
-      #if DEBUG
+      #if DEBUG && VIZ
       {
          DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
          MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX);
@@ -106,24 +112,17 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       #endif
 
       /* find the Domain ranges */
-      if ( is_run_domains )
-      {
-         fprintf(stdout, "# ==> Find Domains\n");
-         run_Decode_Domains( 
-            q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
-         N_domains = dom_def->dom_ranges->N;
-      }
+      fprintf(stdout, "# ==> Find Domains\n");
+      run_Decode_Domains( 
+         q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
+      N_domains = dom_def->dom_ranges->N;
       /* list found domains */
-      #if DEBUG || TRUE
+      fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
+      for (int i = 0; i < dom_def->dom_ranges->N; i++) 
       {
-         fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
-         for (int i = 0; i < dom_def->dom_ranges->N; i++) 
-         {
-            RANGE r_0 = VEC_X( dom_def->dom_ranges, i );
-            fprintf(stdout, "[%d] {%d,%d}\n", i, r_0.beg, r_0.end);
-         }
+         RANGE r_0 = VEC_X( dom_def->dom_ranges, i );
+         fprintf(stdout, "[%d] {%d,%d}\n", i, r_0.beg, r_0.end);
       }
-      #endif
 
       /* compute Posterior */
       fprintf(stdout, "# ==> Posterior (full cloud)\n");

@@ -56,9 +56,9 @@ CPPFLAGS ?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP -O3
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
 DEBUGFLAGS := $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1 -fsanitize=address
 # flags for alpha version
-ALPHAFLAGS := $(INC_FLAGS) $(INC_LIBS) -O3 -fsanitize=address
+ALPHAFLAGS := $(INC_FLAGS) $(INC_LIBS) -fsanitize=address
 # flags for release version
-RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -O3 -fsanitize=address
+RELEASEFLAGS := $(INC_FLAGS) $(INC_LIBS) -O3
 
 # TODO: 
 # Build Easel using its own makefile
