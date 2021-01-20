@@ -83,8 +83,8 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
       T_range = *t_range;
    }
 
-   Q_len = Q_range.end - Q_range.beg;
-   T_len = T_range.end - T_range.beg;
+   Q_len = Q_range.end - Q_range.beg + 1;
+   T_len = T_range.end - T_range.beg + 1;
 
    /* TODO: temp var */
    const int NULL2_LEN = NUM_AMINO_PLUS_SPEC;
@@ -230,7 +230,8 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    /* for each position in query domain */
    for ( t_0 = T_range.beg; t_0 < T_range.end; t_0++ ) {
       tx0 = t_0 - T_range.beg;
-      neglog_cnt = VEC_X( dom_def->st_num, t_0 );
+      // neglog_cnt = VEC_X( dom_def->st_num, t_0 );
+
       /* for each normal state emissions */
       for ( st_0 = 0; st_0 < NUM_NORMAL_STATES; st_0++ ) {
          MX_2D( dom_def->st_freq, t_0, st_0 ) += neglog_Q;

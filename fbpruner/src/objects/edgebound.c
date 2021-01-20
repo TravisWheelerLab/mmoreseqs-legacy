@@ -366,7 +366,7 @@ EDGEBOUNDS_NxtRow(   EDGEBOUNDS*          edg,     /* edgebounds */
 {
    int r_0;
 
-   /* skip over rows less than <q_0> */
+   /* skip over rows before <q_0> */
    r_0 = *r_0e;
    while ( (r_0 < edg->N ) && (EDG_X(edg, r_0).id < q_0) ) {
       r_0++;
@@ -393,7 +393,7 @@ EDGEBOUNDS_PrvRow(   EDGEBOUNDS*          edg,     /* edgebounds */
 {
    int r_0;
    
-   /* skip over rows less than <q_0> */
+   /* skip over rows before <q_0> */
    r_0 = *r_0e;
    while ( (r_0 > 0) && (EDG_X(edg, r_0).id > q_0) ) {
       r_0--;

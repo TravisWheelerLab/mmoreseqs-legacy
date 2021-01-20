@@ -600,13 +600,14 @@ void REPORT_m8out_footer(    WORKER*  worker,
 void REPORT_myout_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
       "target",
       "evalue",
       "pre-sc",
       "comp-bias",
       "seq-sc",
+      "dom-sum-sc",
       "mmseqs-vit-sc",
       "total-cells",
       "MMORE-cells",
@@ -615,7 +616,7 @@ void REPORT_myout_header(  WORKER*  worker,
       "t-range",
       "time"
    );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "------",
       "------",
       "------",
@@ -643,6 +644,7 @@ void REPORT_myout_entry(   WORKER*  worker,
    HMM_PROFILE*   t_prof   = worker->t_prof;
    SEQUENCE*      q_seq    = worker->q_seq;
    ALIGNMENT*     aln      = worker->traceback;
+   DOMAIN_DEF*    dom_def  = worker->dom_def;
 
    int aln_len = aln->end - aln->beg + 1;
    TRACE* beg  = &aln->traces->data[aln->beg];
@@ -650,13 +652,14 @@ void REPORT_myout_entry(   WORKER*  worker,
 
    float percent_cells = (float)result->cloud_cells / (float)result->total_cells;
 
-   fprintf( fp, "%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
+   fprintf( fp, "%s\t%s\t%.3g\t%.3f%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
       result->final_scores.eval,       /* evalue */
       result->final_scores.pre_sc,     /* seq scores before correction */
       result->final_scores.seq_bias,   /* seq bias */
       result->final_scores.seq_sc,     /* seq score after correction */
+      dom_def->dom_sumsc,              /* sum of all domain scores; if domains were not computed, zero */
       result->vit_natsc,               /* viterbi score (in mmore, this comes from mmseqs) */
       result->total_cells,             /* total number of cells computed by full viterbi */
       result->cloud_cells,             /* total number of cells computed by mmore */
@@ -719,7 +722,7 @@ void REPORT_myout_footer(    WORKER*  worker,
 void REPORT_mydomout_header(  WORKER*  worker,
                               FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
       "target",
       "n_domains",
@@ -727,6 +730,7 @@ void REPORT_mydomout_header(  WORKER*  worker,
       "pre-sc",
       "comp-bias",
       "seq-sc",
+      "dom-sum-sc",
       "mmseqs-vit-sc",
       "total-cells",
       "MMORE-cells",
@@ -735,7 +739,7 @@ void REPORT_mydomout_header(  WORKER*  worker,
       "t-range",
       "time"
    );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
+   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "------",
       "------",
       "---------",
@@ -743,6 +747,7 @@ void REPORT_mydomout_header(  WORKER*  worker,
       "------",
       "--------",
       "------",
+      "----------",
       "-------------",
       "----------",
       "----------",
@@ -777,10 +782,11 @@ void REPORT_mydomout_entry(   WORKER*  worker,
    float    dom_presc   = dom_def->best_presc;
    float    dom_bias    = dom_def->best_bias;
    float    dom_sc      = dom_def->best_sc;
+   float    dom_sumsc   = dom_def->dom_sumsc;
 
    float percent_cells = (float)result->cloud_cells / (float)result->total_cells;
 
-   fprintf( fp, "%s\t%s\t%d/%d\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
+   fprintf( fp, "%s\t%s\t%d/%d\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
       best_idx+1, dom_def->n_domains,  /* domain id */
@@ -788,6 +794,7 @@ void REPORT_mydomout_entry(   WORKER*  worker,
       dom_presc,                       /* seq scores before correction */
       dom_bias,                        /* seq bias */
       dom_sc,                          /* seq score after correction */
+      dom_sumsc,                       /* sum of all domain scores */
       result->vit_natsc,               /* viterbi score (in mmore, this comes from mmseqs) */
       result->total_cells,             /* total number of cells computed by full viterbi */
       result->cloud_cells,             /* total number of cells computed by mmore */

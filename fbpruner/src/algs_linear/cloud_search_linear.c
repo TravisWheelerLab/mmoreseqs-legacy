@@ -273,9 +273,9 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    num_cells = 0;
 
    /* keeps largest number seen on current diagonal */
-   is_term_flag = false;
-   diag_max    = -INF;
-   total_max   = -INF;
+   is_term_flag   = false;
+   diag_max       = -INF;
+   total_max      = -INF;
    /* number of passes through antidiags */
    d_cnt = 0;
 
@@ -494,8 +494,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       prv_B = -INF;
       // prv_E = -INF;
 
-      /* if termination flag is set, break out of loop */
-      if (is_term_flag == true) {
+      /* if termination condition has been triggered, then break out of loop */
+      if ( is_term_flag == true ) {
          break;
       }
    }
@@ -857,9 +857,9 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    num_cells = 0;
 
    /* keeps largest number seen on current diagonal */
-   is_term_flag = false;
-   diag_max    = -INF;
-   total_max   = -INF;
+   is_term_flag   = false;
+   diag_max       = -INF;
+   total_max      = -INF;
    /* number of antidiags passed through */
    d_cnt    = 0;
 
@@ -1089,7 +1089,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       prv_E = -INF;
 
       /* if termination flag is set, break out of loop */
-      if (is_term_flag == false) {
+      if ( is_term_flag == true ) {
          break;
       }
    }

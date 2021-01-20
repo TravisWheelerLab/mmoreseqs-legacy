@@ -345,15 +345,14 @@ prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal st
 	if ( d_cnt < vit_range.beg || d_cnt > vit_range.end ) 
 	{
 		/* if entire antidiagonal falls below termination threshold (total_limit), then remove all branches and terminate search */
-		*is_term_flag = diag_max < total_limit;
-		if ( *is_term_flag ) 
+		*is_term_flag = (diag_max < total_limit);
+		if ( *is_term_flag == true ) 
 		{
 			printf("# FLAG TRIGGERED!!! d_cnt=%d, vit_range=%d-%d\n", d_cnt, vit_range.beg, vit_range.end);
 			return;
 		}
 	}
 	
-
 	/* All edgebounds in previous antidiagonal */
 	for ( i = 0; i < lb_vec[1]->N; i++ )
 	{

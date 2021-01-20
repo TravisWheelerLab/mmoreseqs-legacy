@@ -285,12 +285,17 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          D_total              += (D_range.end - D_range.beg + 1);
       }
 
+      /* final reconstructed score */
       if (N_domains > 0)
       {
          /* constructed score over all domains */
          dom_def->dom_sumbias = logsum(0.0f, log(hmm_bg->omega) + dom_def->dom_sumbias);
          dom_def->dom_sumsc  += (Q - D_total) * log((float) Q / (float) (Q + 3));
          dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;
+      }
+      else {
+         dom_def->dom_sumbias = -INF;
+         dom_def->dom_sumsc   = -INF;
       }
    }
 

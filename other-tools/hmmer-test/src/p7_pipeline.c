@@ -1305,8 +1305,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
    // printf("=> DOMAIN POSTERIORS\n");
    // p7_domaindef_DumpPosteriors( stdout, ddef);
    
-   printf("# sum_score: %.9f, pre2_score: %.9f\n", 
-      sum_score, pre2_score);
+   printf("# sum_score: %.9f vs seq_score: %.9f, pre2_score: %.9f\n", 
+      sum_score, seq_score, pre2_score);
 
    /* A special case: let sum_score override the seq_score when it's better, and it includes at least 1 domain */
    if (Ld > 0 && sum_score > seq_score)
