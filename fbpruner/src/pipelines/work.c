@@ -1375,6 +1375,10 @@ void WORK_posterior( WORKER* worker )
    /* number of sequences in database, for computing e-value */
    int      n_seqs      = worker->q_index->N;
 
+   /* init scores */
+   seq_bias = 0.0f;
+   nat_sc   = worker->scores->lin_bound_fwd;
+
    /* initialize hmm_bg */
    HMM_BG_SetSequence( bg, q_seq );
    HMM_BG_SetFilter( bg, t_prof->N, t_prof->bg_model->compo );
@@ -1387,7 +1391,6 @@ void WORK_posterior( WORKER* worker )
    // HMM_BG_UnsetSequence( bg, seq );
 
    /* Posterior and Find Domains */
-   seq_bias = 0.0f;
    if ( worker->args->is_compo_bias )
    {
       /*! NOTE: Find domains and assesses domain-specific correction bias
@@ -1400,7 +1403,7 @@ void WORK_posterior( WORKER* worker )
       if ( tasks->quad_bias_corr == true )
       {
          run_Posterior_Quad(
-            worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+            worker->q_seq, worker->t_prof, Q, T, worker->hmm_bg, worker->edg_row,
             worker->st_MX_fwd, worker->sp_MX_fwd, worker->st_MX_bck, worker->sp_MX_bck, worker->st_MX_bck, worker->sp_MX_bck, 
             worker->dom_def );
       }
@@ -1409,7 +1412,7 @@ void WORK_posterior( WORKER* worker )
       {
          /* if running full fwdbackward or pruned (for comparison testing) */
          if ( worker->args->is_run_full == true ) {
-            /* for testing: cloud fills entire dp matrix */
+            /* cloud fills entire dp matrix */
             EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
             result->cloud_cells  = EDGEBOUNDS_Count( worker->edg_row );
          }
@@ -1425,7 +1428,7 @@ void WORK_posterior( WORKER* worker )
          /* run full posterior */
          bool is_run_domains = worker->args->is_run_domains;
          run_Posterior_Sparse(
-            worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
+            worker->q_seq, worker->t_prof, Q, T, worker->hmm_bg, worker->edg_row,
             worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, 
             worker->st_SMX_post, worker->sp_MX_post, worker->st_SMX_fwd, worker->sp_MX_fwd,
             worker->result, worker->dom_def, is_run_domains );
@@ -1439,8 +1442,6 @@ void WORK_posterior( WORKER* worker )
       seq_bias = worker->dom_def->seq_bias;
    }
 
-   /* get cloud forward score */
-   nat_sc = worker->scores->lin_bound_fwd;
    /* compute pre_score and sequence_score by accounting for bias and convert from nats -> bits */
    pre_sc = (nat_sc - null_sc) / eslCONST_LOG2;
    seq_sc = (nat_sc - (null_sc + seq_bias)) / eslCONST_LOG2;
