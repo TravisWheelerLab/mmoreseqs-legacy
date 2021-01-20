@@ -31,6 +31,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
                         MATRIX_2D*              sp_MX_post,       /* OUTPUT: special state matrix for posterior */     
                         MATRIX_3D_SPARSE*       st_SMX_opt,       /* OUTPUT: normal state matrix for optimal accuracy */
                         MATRIX_2D*              sp_MX_opt,        /* OUTPUT: special state matrix for optimal accuracy */     
+                        RESULT*                 result,           /* OUPUT: full cloud results */
                         DOMAIN_DEF*             dom_def,          /* OUTPUT: domain data */
                         bool                    is_run_domains ); /* if run posterior on domains */   
 

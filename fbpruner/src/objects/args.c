@@ -67,7 +67,7 @@ ARGS* ARGS_Create()
 void* 
 ARGS_Destroy( ARGS* args )
 {
-   if (args == NULL) return;
+   if (args == NULL) return NULL;
    
    /* free all strings */
    ERROR_free( args->cmdline );

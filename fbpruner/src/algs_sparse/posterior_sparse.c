@@ -48,6 +48,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
                         MATRIX_2D*              sp_MX_post,       /* OUTPUT: special state matrix for posterior */   
                         MATRIX_3D_SPARSE*       st_SMX_opt,       /* OUTPUT: normal state matrix for optimal accuracy */
                         MATRIX_2D*              sp_MX_opt,        /* OUTPUT: special state matrix for optimal accuracy */       
+                        RESULT*                 result,           /* OUPUT: full cloud results */
                         DOMAIN_DEF*             dom_def,          /* OUTPUT: domain data */
                         bool                    is_run_domains )  /* if run posterior on domains */  
 {
@@ -55,16 +56,15 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    FILE*    fp;
 
    /* working space needed for computing optimal alignment. Can recycle <...fwd> */
-   EDGEBOUNDS*          edg_dom;
-
-   RANGE       Q_range, T_range;
-   int         Q_size, T_size, D_size;
-   RANGE       D_range;
-   DOMAIN_X    domain;
-   float       compo_bias, null_sc;
-   float       pre_sc, fwd_sc, bck_sc, post_sc, opt_sc, dom_sc;
-   int         N_domains;
-   int         D_total;
+   EDGEBOUNDS*    edg_dom;
+   RANGE          Q_range, T_range;
+   int            Q_size, T_size, D_size;
+   RANGE          D_range;
+   DOMAIN_X       domain;
+   float          compo_bias, null_sc;
+   float          pre_sc, fwd_sc, bck_sc, post_sc, opt_sc, dom_sc;
+   int            N_domains;
+   int            D_total;
 
    /* init and clear data from previous search */
    DOMAIN_DEF_Reuse( dom_def );
@@ -92,7 +92,9 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       /* compute Forward */
       run_Bound_Forward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, NULL, &fwd_sc );
-      fprintf(stdout, "# ==> Forward  (full cloud): %12.6f\n", fwd_sc);
+      fprintf(stdout, "# ==> Forward  (full cloud): %11.4f %11.4f\n", 
+         fwd_sc, fwd_sc/CONST_LOG2);
+      result->bound_fwd_natsc = fwd_sc;
       #if DEBUG
       {
          DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -104,7 +106,9 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       /* compute Backward */
       run_Bound_Backward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, NULL, &bck_sc );
-      fprintf(stdout, "# ==> Backward (full cloud): %12.6f\n", bck_sc);
+      fprintf(stdout, "# ==> Backward (full cloud): %11.4f %11.4f\n", 
+         bck_sc, bck_sc/CONST_LOG2);
+      result->bound_bck_natsc = bck_sc;
       #if DEBUG
       {
          DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -144,7 +148,8 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       run_Null2_ByExpectation_Sparse( 
          q_seq, t_prof, Q, T, edg, NULL, NULL, NULL,
          st_SMX_post, sp_MX_post, dom_def, &compo_bias );
-      fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f\n", compo_bias);
+      fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", compo_bias, compo_bias/CONST_LOG2);
+      result->final_scores.seq_bias;
 
       // /* Optimal Alignment */
       // fprintf(stdout, "# ==> Optimal Accuracy (full cloud)\n");
@@ -205,9 +210,9 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
 
          /* compute Forward/Backward for the domain range */
          run_Bound_Forward_Sparse( 
-            q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_dom, &D_range, &fwd_sc );
-         fprintf(stdout, "# ==> Forward   (domain %d/%d): %11.4f\n", 
-            i+1, N_domains, fwd_sc);
+            q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, &D_range, &fwd_sc );
+         fprintf(stdout, "# ==> Forward   (domain %d/%d): %11.4f %11.4f\n", 
+            i+1, N_domains, fwd_sc, fwd_sc/CONST_LOG2);
          #if DEBUG 
          {
             fp = fopen("test_output/my.sparse_fwd.dom.mx", "w+");
@@ -220,8 +225,8 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          /* compute Forward/Backward for the domain range */
          run_Bound_Backward_Sparse( 
             q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, &D_range, &bck_sc );
-         fprintf(stdout, "# ==> Backward  (domain %d/%d): %11.4f\n", 
-            i+1, N_domains, bck_sc);
+         fprintf(stdout, "# ==> Backward  (domain %d/%d): %11.4f %11.4f\n", 
+            i+1, N_domains, bck_sc, bck_sc/CONST_LOG2);
          #if DEBUG 
          {
             fp = fopen("test_output/my.sparse_bck.dom.mx", "w+");
@@ -252,8 +257,8 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          fprintf(stdout, "# ==> Null2 Compo Bias\n");
          run_Null2_ByExpectation_Sparse( q_seq, t_prof, Q, T, edg, &D_range, NULL, NULL,
             st_SMX_post, sp_MX_post, dom_def, &compo_bias );
-         fprintf(stdout, "# ==> Null2 Compo Bias  (domain %d/%d): %11.4f\n", 
-            i+1, N_domains, compo_bias);
+         fprintf(stdout, "# ==> Null2 Compo Bias  (domain %d/%d): %11.4f %11.4f\n", 
+            i+1, N_domains, compo_bias, compo_bias/CONST_LOG2);
 
          /** TODO: Get optimal alignment */ 
          

@@ -233,7 +233,6 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
       r_1e = r_0e;
    }
    
-
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
    for (q_0 = 1; q_0 <= Q; q_0++)

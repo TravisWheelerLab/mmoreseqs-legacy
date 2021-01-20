@@ -1411,11 +1411,12 @@ void WORK_posterior( WORKER* worker )
          if ( worker->args->is_run_full == true ) {
             /* for testing: cloud fills entire dp matrix */
             EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
+            result->cloud_cells  = EDGEBOUNDS_Count( worker->edg_row );
          }
 
          /* build sparse matrices */
          MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
-         // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
+         MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
          MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
          if ( worker->st_SMX_post != worker->st_SMX_bck ) {
             MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_fwd );
@@ -1427,10 +1428,12 @@ void WORK_posterior( WORKER* worker )
             worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
             worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, 
             worker->st_SMX_post, worker->sp_MX_post, worker->st_SMX_fwd, worker->sp_MX_fwd,
-            worker->dom_def, is_run_domains );
+            worker->result, worker->dom_def, is_run_domains );
       }
 
       /* compute sequence bias */
+      nat_sc   = result->bound_fwd_natsc;
+      seq_bias = result->final_scores.seq_bias;
       seq_bias = logsum(0.0, worker->hmm_bg->omega + worker->dom_def->seq_bias);
       printf("nat_sc: %7.3f, null_sc: %7.3f, (final) seq_bias: %7.3f,\n", nat_sc, null_sc, seq_bias);
       seq_bias = worker->dom_def->seq_bias;
@@ -1441,15 +1444,17 @@ void WORK_posterior( WORKER* worker )
    /* compute pre_score and sequence_score by accounting for bias and convert from nats -> bits */
    pre_sc = (nat_sc - null_sc) / eslCONST_LOG2;
    seq_sc = (nat_sc - (null_sc + seq_bias)) / eslCONST_LOG2;
-   printf("# nat_sc = %7.4f, null_sc = %7.4f, seq_bias = %7.4f, pre_sc = %7.4f, seq_sc = %7.4f\n",
-      nat_sc, null_sc, seq_bias, pre_sc, seq_sc );
+   fprintf(stdout, "# nat_sc = %11.4f, null_sc = %11.4f, seq_bias = %7.4f\n",
+      nat_sc, null_sc, seq_bias );
+   fprintf(stdout, "# pre_sc = %7.4f, seq_sc = %7.4f\n", 
+      pre_sc, seq_sc );
 
    /* compute log of P-value */ 
    ln_pval  = esl_exp_logsurv( seq_sc, tau, lambda );
    pval     = exp(ln_pval);
    eval     = pval * n_seqs;
-   // printf("# ln_pval = %7.4f, pval = %9.2e, eval = %9.2e\n",
-   //    ln_pval, pval, eval );
+   fprintf(stdout, "# ln_pval = %7.4f, pval = %9.2e, eval = %9.2e\n",
+      ln_pval, pval, eval );
 
    /* save scores */
    result->final_scores.nat_sc      = nat_sc;

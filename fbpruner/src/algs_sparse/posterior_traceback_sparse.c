@@ -104,7 +104,11 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    /* --------------------------------------------------------------------------- */
 
    /* open test file */
-   fp = fopen("test_output/my.optimal_traceback.tsv", "w+");
+   #if DEBUG
+   {
+      fp = fopen("test_output/my.optimal_traceback.tsv", "w+");
+   }
+   #endif
 
    /* get sequence and trace */
    st_SMX   = st_SMX_opt;
