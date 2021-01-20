@@ -127,12 +127,31 @@ void EDGEBOUNDS_Resize( EDGEBOUNDS*     edg,
  */
 void EDGEBOUNDS_Reverse( EDGEBOUNDS*    edg );
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Index()
+/*! FUNCTION:  EDGEBOUNDS_Index()
  *  SYNOPSIS:  Index locations in EDGEBOUND list that start each unique BOUND id.
  *             Assumes <edg> is sorted.
  */
 void EDGEBOUNDS_Index( EDGEBOUNDS*   edg );
+
+/*! FUNCTION:  EDGEBOUNDS_NxtRow()
+ *  SYNOPSIS:  Using iterators, gets the row index range <r_0> that are on <q_0> position.
+ *             Skips over rows less than <q_0>.  Presumes that edgebounds is sorted.  
+ */
+void 
+EDGEBOUNDS_NxtRow(   EDGEBOUNDS*          edg,     /* edgebounds */
+                     int*                 r_0b,    /* row range begin */
+                     int*                 r_0e,    /* row range end */
+                     int                  q_0 );   /* query sequence position */
+
+/*! FUNCTION:  EDGEBOUNDS_PrvRow()
+ *  SYNOPSIS:  Using iterators, gets the row index range <r_0> that are on <q_0> position.
+ *             Skips over rows greater than <q_0>.  Presumes that edgebounds is sorted.  
+ */
+void 
+EDGEBOUNDS_PrvRow(   EDGEBOUNDS*          edg,     /* edgebounds */
+                     int*                 r_0b,    /* row range begin */
+                     int*                 r_0e,    /* row range end */
+                     int                  q_0 );   /* query sequence position */
 
 /*
  *  FUNCTION:  EDGEBOUNDS_Sort()
@@ -140,8 +159,7 @@ void EDGEBOUNDS_Index( EDGEBOUNDS*   edg );
  */
 void EDGEBOUNDS_Sort( EDGEBOUNDS*   edg );
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Sort_Sub()
+/*! FUNCTION:  EDGEBOUNDS_Sort_Sub()
  *  SYNOPSIS:  Sort the edgebounds subarray on range (beg, end]. Sorts in place.
  */
 void EDGEBOUNDS_Sort_Sub(  EDGEBOUNDS*    edg,
@@ -271,8 +289,8 @@ EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
  *            Simply eliminates query rows outside the range and shifts all query id's by <q_beg>.
  */
 int 
-EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*   edg_in,
-                        EDGEBOUNDS*   edg_out,
-                        RANGE*        dom_range );                      
+EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*     edg_in,
+                        EDGEBOUNDS*     edg_out,
+                        RANGE           dom_range );                      
 
 #endif /* _EDGEBOUND_H */

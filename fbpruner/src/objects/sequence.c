@@ -182,19 +182,18 @@ SEQUENCE_Digitize( SEQUENCE* seq )
 }
 
 
-/** FUNCTION:  SEQUENCE_SetSubseq()
+/** FUNCTION:  SEQUENCE_Set_Domain()
  *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
- *             Subsequence covers range <q_beg, q_end>.
+ *             Subsequence covers domain range <q_beg, q_end>.
  *
  *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
  */
 void 
-SEQUENCE_SetSubseq(  SEQUENCE*  seq, 
-                     int        q_beg,
-                     int        q_end )
+SEQUENCE_Set_Domain( SEQUENCE*  seq, 
+                     RANGE      Q_range )
 {
-   seq->seq = seq->full_seq + q_beg;
-   seq->N   = strlen( seq->seq );
+   seq->seq = seq->full_seq + Q_range.beg;
+   seq->N   = Q_range.end - Q_range.beg + 1;
 }
 
 

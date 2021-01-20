@@ -149,14 +149,14 @@ BOUND* EDGEBOUNDS_Get(  EDGEBOUNDS*   edg,
                         int           i )
 {
    /* if debugging, do edgebound checks */
-   #if DEBUG
-      int N = EDGEBOUNDS_Get_Size( edg );
-      if ( i >= N || i < 0 ) {
-         fprintf(stderr, "ERROR: EDGEBOUNDS Access Out-of-Bounds\n");
-         fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
-         exit(EXIT_FAILURE);
-      }
-   #endif
+   // #if DEBUG 
+   //    int N = EDGEBOUNDS_Get_Size( edg );
+   //    if ( i >= N || i < 0 ) {
+   //       fprintf(stderr, "ERROR: EDGEBOUNDS Access Out-of-Bounds\n");
+   //       fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
+   //       exit(EXIT_FAILURE);
+   //    }
+   // #endif
 
    return &(edg->bounds[i]);
 }
@@ -352,6 +352,60 @@ void EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
    id_0 = b_0->id;
    VECTOR_INT_Pushback( edg->ids, id_0 );
    VECTOR_INT_Pushback( edg->ids_idx, edg->N );
+}
+
+/*! FUNCTION:  EDGEBOUNDS_NxtRow()
+ *  SYNOPSIS:  Iterating from front to back, gets the row index range <r_0> that are on <q_0> position, starting from <r_0e>.
+ *             Skips over rows less than <q_0>.  Presumes that edgebounds is sorted and <r_e> precedes <q_0> row start.  
+ */
+void 
+EDGEBOUNDS_NxtRow(   EDGEBOUNDS*          edg,     /* edgebounds */
+                     int*                 r_0b,    /* row range begin */
+                     int*                 r_0e,    /* row range end */
+                     int                  q_0 )    /* query sequence position */
+{
+   int r_0;
+
+   /* skip over rows less than <q_0> */
+   r_0 = *r_0e;
+   while ( (r_0 < edg->N ) && (EDG_X(edg, r_0).id < q_0) ) {
+      r_0++;
+   }
+   /* capture rows on <q_0> */
+   *r_0b = r_0;
+   while ( (r_0 < edg->N ) && (EDG_X(edg, r_0).id == q_0) ) {
+      r_0++;
+   }
+   *r_0e = r_0;
+
+   return;
+}
+
+/*! FUNCTION:  EDGEBOUNDS_PrvRow()
+ *  SYNOPSIS:  Iterating from back to front, gets the row index range <r_0> that are on <q_0> position, starting from .
+ *             Skips over rows greater than <q_0>.  Presumes that edgebounds is sorted and <r_0e> precedes <q_0> row start.  
+ */
+void 
+EDGEBOUNDS_PrvRow(   EDGEBOUNDS*          edg,     /* edgebounds */
+                     int*                 r_0b,    /* row range begin */
+                     int*                 r_0e,    /* row range end */
+                     int                  q_0 )    /* query sequence position */
+{
+   int r_0;
+   
+   /* skip over rows less than <q_0> */
+   r_0 = *r_0e;
+   while ( (r_0 > 0) && (EDG_X(edg, r_0).id > q_0) ) {
+      r_0--;
+   }
+   /* capture rows on <q_0> */
+   *r_0b = r_0;
+   while ( (r_0 > 0) && (EDG_X(edg, r_0).id == q_0) ) {
+      r_0--;
+   }
+   *r_0e = r_0;
+
+   return;
 }
 
 /*
@@ -789,7 +843,7 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
                            int            T )
 {
    EDGEBOUNDS_Clear(edg);
-   for (int q_0 = 0; q_0 < Q+1; q_0++) {
+   for (int q_0 = 0; q_0 <= Q; q_0++) {
       EDGEBOUNDS_Pushback(edg, &(BOUND){ q_0, 0, T+1 });
    }
 }
@@ -868,33 +922,26 @@ EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
 /*! FUNCTION: EDGEBOUNDS_Set_Domain()
  *  SYNOPSIS: Build an EDGEBOUND <edg_out> from QxT EDGEBOUNDS <edg_in>
  *            and constraining the query range to <in_dom_range> => <q_beg, q_end>.
- *            Simply eliminates query rows outside the range and shifts all query id's 
- *            by <q_beg>.
+ *            Simply shifts all query indexes by <q_beg>.
  *            NOTE: Assumes <edg_in> has been sorted.
  */
 int 
-EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*   edg_in,
-                        EDGEBOUNDS*   edg_out,
-                        RANGE*        dom_range )
+EDGEBOUNDS_Set_Domain(  EDGEBOUNDS*    edg_in,
+                        EDGEBOUNDS*    edg_out,
+                        RANGE          Q_range )
 {
    BOUND bnd;
-   int Q_len, Q_beg, Q_end;
+   int Q_len;
+   Q_len = Q_range.end - Q_range.beg + 1; 
 
-   Q_beg = dom_range->beg;
-   Q_end = dom_range->end;
-   Q_len = Q_end - Q_beg; 
-
+   /* clears old data */
    EDGEBOUNDS_Reuse( edg_out, Q_len, edg_in->T );
-
+   /* shift all query indexes to set <q_beg> to 0. */
    for (int i = 0; i < edg_in->N; i++)
    {
       bnd = EDG_X(edg_in, i);
-
-      /* only include if is in edgebound range */
-      if ( IN_RANGE(Q_beg, Q_end, bnd.id) ) {
-         bnd.id -= dom_range->beg;
-         EDGEBOUNDS_Pushback( edg_out, &bnd );
-      }
+      bnd.id -= Q_range.beg;
+      EDGEBOUNDS_Pushback( edg_out, &bnd );
    }
 
    return STATUS_SUCCESS;

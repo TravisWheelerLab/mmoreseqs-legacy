@@ -18,11 +18,11 @@
 #include "../objects/structs.h"
 #include "../utilities/utilities.h"
 #include "../objects/objects.h"
-#include "../algs_sparse/algs_sparse.h"
 #include "../algs_linear/algs_linear.h"
 #include "../parsers/parsers.h"
 
 /* header */
+#include "_algs_sparse.h"
 #include "posterior_traceback_sparse.h"
 
 /* This determines whether optimal alignment will be computed for cell, prevent NaN errors */
@@ -43,7 +43,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                                             const int               Q,                /* query length */
                                             const int               T,                /* target length */
                                             EDGEBOUNDS*             edg,              /* edgebounds */
-                                            RANGE*                  in_dom_range,     /* query span of bounds */
+                                            RANGE*                  dom_range,        /* query span of bounds */
                                             MATRIX_3D_SPARSE*       st_SMX_opt,       /* optimal accuracy normal matrix */
                                             MATRIX_2D*              sp_MX_opt,        /* optimal accuracy special matrix */
                                             ALIGNMENT*              aln )             /* OUTPUT: optimal alignment */
@@ -120,6 +120,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
 
    /* add every edgebound from current row */
    r_0b = edg->N - 1;
+
    r_0 = r_0e = r_0b;
    while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
       r_0--;
@@ -545,12 +546,12 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                                           const int            Q,             /* query length */
                                           const int            T,             /* target length */
                                           EDGEBOUNDS*          edg,           /* edgebounds */
-                                          RANGE*               in_dom_range,  /* OPTIONAL: domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                                          RANGE*               dom_range,     /* OPTIONAL: domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                           MATRIX_3D_SPARSE*    st_SMX_post,   /* posterior normal state matrix */
                                           MATRIX_2D*           sp_MX_post,    /* posterior special state matrix */
                                           MATRIX_3D_SPARSE*    st_SMX_opt,    /* OUTPUT: optimal normal state matrix */
                                           MATRIX_2D*           sp_MX_opt,     /* OUTPUT: optimal special state matrix */        
-                                          float*               sc_final )    /* OUTPUT: final score */
+                                          float*               sc_final )     /* OUTPUT: final score */
 {
    /* vars for matrix access */
    MATRIX_3D_SPARSE*    st_SMX;              /* normal state matrix */
@@ -591,14 +592,14 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
    int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
-   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+   bool     lb_T, rb_T;                      /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prv_loop, prv_move;            /* previous loop and move for special states */
-   float    prv_sum, prv_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -606,7 +607,6 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
    MATRIX_3D_SPARSE*    mx;
    EDGEBOUNDS*          edg_inner;           /* edgebounds for search space of backward/forward */
    EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
-   RANGE                dom_range;
    RANGE                T_range;
    RANGE                Q_range;
    bool                 is_q_0_in_dom_range;
@@ -662,94 +662,85 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
 
-   /* domain range */
-   if (in_dom_range == NULL) {
-      dom_range.beg = 1;
-      dom_range.end = Q + 1;
+   /* domain range (query sequence) */
+   if (dom_range == NULL) {
+      Q_range.beg = 0;
+      Q_range.end = Q + 1;
    } else {
-      dom_range = *in_dom_range;
+      Q_range = *dom_range;
    }
+   /* target range */
+   T_range.beg = 0;
+   T_range.end = T + 1;
 
-   /* initialize special states for zero row */
-   XMX(SP_N, q_0) = 0.0f;     /* S->N, p=1 */
-   XMX(SP_B, q_0) = 0.0f;     /* S->N->B, no N-tail */
-   XMX(SP_E, q_0) = -INF; 
-   XMX(SP_C, q_0) = -INF; 
-   XMX(SP_J, q_0) = -INF; 
+   /* init index */
+   q_0   = 0;
+   r_0b  = 0; 
+   r_0e  = 0;
 
-   /* pass over preceding edgebounds from list */
-   q_0  = 0;
-   /* check if query position is in domain */
-   is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
-
-   r_0b = r_0 = 0;  /* beginning index for current row in list */
-   /* add every inner edgebound from current row */
-   r_0b = r_0;
-   while ( (r_0 < N) && (EDG_X(edg, r_0).id < q_0) ) {
-      r_0++;
-   }
-   r_0e = r_0;
-
-   /* process zero row edgebounds from list */
-   r_0b = r_0;
-   while ( (r_0 < N) && (EDG_X(edg, r_0).id == q_0) ) {
-      r_0++;
-   }
-   r_0e = r_0;
-
-   /* only compute if in domain range */
-   if ( is_q_0_in_dom_range == true )
+   /* UNROLLED INITIAL ROW */
    {
-      /* FOR every BOUND in zero row (-INF values set during initialization, so unneccessary) */
-      for (r_0 = r_0b; r_0 < r_0e; r_0++)
+      /* check if query position is in domain */
+      is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
+      /* get edgebound range */
+      EDGEBOUNDS_NxtRow( edg, &r_0b, &r_0e, q_0 );
+
+      /* initialize special states */
+      XMX(SP_E, q_0) = -INF; 
+      XMX(SP_J, q_0) = -INF; 
+      XMX(SP_C, q_0) = -INF; 
+      /* S->N, p=1 */
+      XMX(SP_N, q_0) = 0.0f; 
+      /* S->N->B, no N-tail */
+      XMX(SP_B, q_0) = 0.0f; 
+
+      /* only compute if in domain range */
+      if ( is_q_0_in_dom_range == true )
       {
-         /* get bound data */
-         bnd   = &EDG_X(edg, r_0);
-         id    = bnd->id;
-         lb_0  = (bnd->lb, 1);           /* can't overflow the left edge */
-         rb_0  = (bnd->rb, T);           /* can't overflow the right edge */
-
-         /* fetch data mapping bound start location to data block in sparse matrix */
-         qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-         qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
-
-         /* initial location for square matrix and mapping to sparse matrix */
-         t_0 = lb_0;
-         tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-
-         /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         /* FOR every BOUND in zero row (-INF values set during initialization, so unneccessary) */
+         for (r_0 = r_0b; r_0 < r_0e; r_0++)
          {
-            tx0 = t_0 - bnd->lb;
-            /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
-            MSMX(qx0, tx0) = -INF;
-            ISMX(qx0, tx0) = -INF;
-            DSMX(qx0, tx0) = -INF; 
-         }
-      }
+            /* get bound data */
+            bnd   = &EDG_X(edg, r_0);
+            id    = bnd->id;
+            lb_0  = (bnd->lb, 1);           /* can't overflow the left edge */
+            rb_0  = (bnd->rb, T);           /* can't overflow the right edge */
 
-      /* init lookback 1 row */
-      r_1b = r_0b;
-      r_1e = r_0e;
+            /* fetch data mapping bound start location to data block in sparse matrix */
+            qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+            qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+
+            /* initial location for square matrix and mapping to sparse matrix */
+            t_0 = lb_0;
+            tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+
+            /* FOR every position in TARGET profile */
+            for (t_0 = lb_0; t_0 < rb_0; t_0++)
+            {
+               tx0 = t_0 - bnd->lb;
+               /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
+               MSMX(qx0, tx0) = -INF;
+               ISMX(qx0, tx0) = -INF;
+               DSMX(qx0, tx0) = -INF; 
+            }
+         }
+
+         /* init lookback 1 row */
+         r_1b = r_0b;
+         r_1e = r_0e;
+      }
    }
    
-
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
    for (q_0 = 1; q_0 <= Q; q_0++)
    {
       q_1 = q_0 - 1;
-      t_0 = 0;
 
       /* check if query position is in domain */
-      is_q_0_in_dom_range = (q_0 >= dom_range.beg && q_0 < dom_range.end);
-
-      /* add every inner edgebound from current row */
-      r_0b = r_0;
-      while ( (r_0 < N) && (EDG_X(edg, r_0).id == q_0) ) {
-         r_0++;
-      }
-      r_0e = r_0;
+      is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
+      /* get edgebound range */
+      EDGEBOUNDS_NxtRow( edg, &r_0b, &r_0e, q_0 );
 
       /* Get next sequence character */
       a = seq[q_1];  /* off-by-one */
@@ -766,8 +757,10 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
             /* get bound data */
             bnd   = &EDG_X(edg, r_0);
             id    = bnd->id;
-            lb_0  = MAX(bnd->lb, 1);         /* can't overflow left edge */
-            rb_0  = MIN(bnd->rb, T);         /* can't overflow right edge */
+            lb_T  = bnd->lb <= 0;
+            lb_0  = MAX(bnd->lb, T_range.beg);   /* can't overflow left edge */
+            rb_T  = bnd->rb >= T;
+            rb_0  = MIN(bnd->rb, T_range.end);   /* can't overflow right edge */
 
             /* fetch data mapping bound start location to data block in sparse matrix */
             qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
@@ -840,7 +833,6 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
             }
 
             /* UNROLLED FINAL LOOP ITERATION */
-            if ( true )  
             {
                t_0 = rb_0 - 1;
                t_1 = t_0 - 1; 

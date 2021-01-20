@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      algs_sparse.h
+ *  FILE:      _algs_sparse.h
  *  PURPOSE:   /algs_sparse/ folder collective header
  *
  *  AUTHOR:    Dave Rich
@@ -13,6 +13,7 @@
 #include "viterbi_traceback_sparse.h"
 #include "posterior_sparse.h"
 #include "posterior_null2_sparse.h"
+#include "posterior_optacc_sparse.h"
 #include "posterior_traceback_sparse.h"
 
 #endif /* _ALGS_SPARSE_H */

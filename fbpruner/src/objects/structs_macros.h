@@ -227,8 +227,8 @@
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define ABS(i)       (( (i) > (0) ? (i) : (-i) ))
-/* check if value is within [beg, end) range */
-#define IN_RANGE(x_beg, x_end, x) 	( (x) >= (x_beg) && (x) < (x_end) )
+/* check if value is within (beg, end) range */
+#define IS_IN_RANGE(x_beg, x_end, x) 	( (x) >= (x_beg) && (x) <= (x_end) )
 /* check if two value are equal within tolerance */
 #define CMP_TOL(i,j) (( fabs( (i) - (j) ) < tol ? 1 : 0 )) 
 

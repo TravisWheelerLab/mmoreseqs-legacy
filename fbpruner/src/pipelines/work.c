@@ -24,7 +24,7 @@
 #include "../algs_linear/algs_linear.h"
 #include "../algs_quad/algs_quad.h"
 #include "../algs_naive/algs_naive.h"
-#include "../algs_sparse/algs_sparse.h"
+#include "../algs_sparse/_algs_sparse.h"
 
 /* easel library */
 #include "easel.h"
@@ -247,6 +247,8 @@ void WORK_reuse( WORKER* worker )
    EDGEBOUNDS_Reuse( worker->edg_row, Q, T );
    /* clear row-wise edgebounds and resize */
    EDGEBOUND_ROWS_Reuse( worker->edg_rows_tmp, Q, T );
+   /* domain definitions */
+   DOMAIN_DEF_Reuse( worker->dom_def );
 
    /* matrix for quadratic algs */
    if ( tasks->quadratic ) {
@@ -283,8 +285,8 @@ void WORK_reuse( WORKER* worker )
    #endif
 
    /* TODO: remove this? */
-   MATRIX_3D_Clean( worker->st_MX );
-   MATRIX_3D_Clean( worker->st_MX3 );
+   // MATRIX_3D_Clean( worker->st_MX );
+   // MATRIX_3D_Clean( worker->st_MX3 );
 }
 
 /* load or build target and query index files */
@@ -1334,11 +1336,11 @@ void WORK_capture_alignment( WORKER* worker )
    //    q_seq, t_prof, q_seq->N, t_prof->N, worker->st_SMX_fwd, worker->sp_MX, worker->edg_row, worker->trace_post );
    // ALIGNMENT_Dump(worker->trace_post, stdout);
 
-   /* generate alignments */
-   ALIGNMENT_Build_MMSEQS_Style( 
-      worker->traceback, worker->q_seq, worker->t_prof );
-   ALIGNMENT_Build_HMMER_Style( 
-      worker->traceback, worker->q_seq, worker->t_prof );
+   // /* generate alignments */
+   // ALIGNMENT_Build_MMSEQS_Style( 
+   //    worker->traceback, worker->q_seq, worker->t_prof );
+   // ALIGNMENT_Build_HMMER_Style( 
+   //    worker->traceback, worker->q_seq, worker->t_prof );
 }
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
@@ -1352,25 +1354,26 @@ void WORK_posterior( WORKER* worker )
    RESULT*        result   = worker->result;
    TASKS*         tasks    = worker->tasks;
 
-   int   T           = worker->t_prof->N;
-   int   Q           = worker->q_seq->N;
-   float sc;
+   /* size */
+   int      T           = worker->t_prof->N;
+   int      Q           = worker->q_seq->N;
    /* alignment scores */
-   float nat_sc      = 0.0f;  /* score in NATS */
-   float pre_sc      = 0.0f;  /* adjusted for compo bias / score in BITS */
-   float seq_sc      = 0.0f;  /* adjusted for sequence bias / score in BITS */
-   float ln_pval     = 0.0f;  /* natural log of p-value */
-   float pval        = 0.0f;  /* p-value */
-   float eval        = 0.0f;  /* e-value */
+   float    sc;
+   float    nat_sc      = 0.0f;  /* score in NATS */
+   float    pre_sc      = 0.0f;  /* adjusted for compo bias / score in BITS */
+   float    seq_sc      = 0.0f;  /* adjusted for sequence bias / score in BITS */
+   float    ln_pval     = 0.0f;  /* natural log of p-value */
+   float    pval        = 0.0f;  /* p-value */
+   float    eval        = 0.0f;  /* e-value */
    /* bias correction */
-   float null_sc     = 0.0f;  /* in NATS */
-   float filter_sc   = 0.0f;  /* in NATS */
-   float seq_bias    = 0.0f;  /* in NATS */
+   float    null_sc     = 0.0f;  /* in NATS */
+   float    filter_sc   = 0.0f;  /* in NATS */
+   float    seq_bias    = 0.0f;  /* in NATS */
    /* parameters for exponential distribution, for converting bitscore -> p-value */
-   float tau         = worker->t_prof->forward_dist.param1;
-   float lambda      = worker->t_prof->forward_dist.param2;
+   float    tau         = worker->t_prof->forward_dist.param1;
+   float    lambda      = worker->t_prof->forward_dist.param2;
    /* number of sequences in database, for computing e-value */
-   int   n_seqs      = worker->q_index->N;
+   int      n_seqs      = worker->q_index->N;
 
    /* initialize hmm_bg */
    HMM_BG_SetSequence( bg, q_seq );
@@ -1404,43 +1407,27 @@ void WORK_posterior( WORKER* worker )
       /* Sparse assesses bias only for cells contained by cloud */ 
       if ( tasks->sparse_bias_corr == true )
       {
-         /* Verify whether sparse forward/backward has already been computed; if not, compute it now */
-         if ( tasks->sparse_bound_fwd == false || tasks->sparse_bound_bck == false )
-         {
+         /* if running full fwdbackward or pruned (for comparison testing) */
+         if ( worker->args->is_run_full == true ) {
             /* for testing: cloud fills entire dp matrix */
             EDGEBOUNDS_Cover_Matrix(worker->edg_row, Q, T);
-            MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
-            MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
-            // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
-            // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_bck, -INF );
-            
-            run_Bound_Forward_Sparse( 
-               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_fwd, worker->sp_MX_fwd, worker->edg_row, NULL, &sc );
-            printf("Sparse Forward  (pre-posterior): %12.6f\n", sc);
-            #if DEBUG
-            {
-               DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
-               MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_fwd, debugger->test_MX);
-               DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.sparse_fwd.mx");
-            }
-            #endif
-
-            run_Bound_Backward_Sparse( 
-               worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->st_SMX_bck, worker->sp_MX_bck, worker->edg_row, NULL, &sc );
-            printf("Sparse Backward (pre-posterior): %12.6f\n", sc);
-            #if DEBUG
-            {
-               DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
-               MATRIX_3D_SPARSE_Embed(Q, T, worker->st_SMX_bck, debugger->test_MX);
-               DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.sparse_bck.mx");
-            }
-            #endif
          }
 
+         /* build sparse matrices */
+         MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
+         // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
+         MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
+         if ( worker->st_SMX_post != worker->st_SMX_bck ) {
+            MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_fwd );
+         }
+
+         /* run full posterior */
+         bool is_run_domains = worker->args->is_run_domains;
          run_Posterior_Sparse(
             worker->q_seq, worker->t_prof, worker->q_seq->N, worker->t_prof->N, worker->hmm_bg, worker->edg_row,
-            worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, worker->st_SMX_post, worker->sp_MX_post, 
-            worker->dom_def );
+            worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, 
+            worker->st_SMX_post, worker->sp_MX_post, worker->st_SMX_fwd, worker->sp_MX_fwd,
+            worker->dom_def, is_run_domains );
       }
 
       /* compute sequence bias */
@@ -1494,7 +1481,7 @@ void WORK_report_header( WORKER* worker )
    if ( args->is_myout ) {
       REPORT_myout_header( worker, worker->myout_fp );
    }
-   if ( args->is_mydomout ) {
+   if ( args->is_mydomout && args->is_run_domains ) {
       REPORT_mydomout_header( worker, worker->mydomout_fp );
    }
 }
@@ -1515,7 +1502,7 @@ void WORK_report_result_current( WORKER* worker )
    if ( args->is_myout ) { 
       REPORT_myout_entry( worker, worker->result, worker->myout_fp );
    }
-   if ( args->is_mydomout ) { 
+   if ( args->is_mydomout && args->is_run_domains ) { 
       REPORT_mydomout_entry( worker, worker->result, worker->mydomout_fp );
    }
 }
@@ -1545,7 +1532,7 @@ void WORK_report_footer( WORKER*  worker )
    if ( args->is_myout ) { 
       REPORT_myout_footer( worker, worker->myout_fp );
    }
-   if ( args->is_mydomout ) { 
+   if ( args->is_mydomout && args->is_run_domains ) { 
       REPORT_myout_footer( worker, worker->mydomout_fp );
    }
 }

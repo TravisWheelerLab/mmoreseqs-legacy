@@ -25,7 +25,7 @@
 #include "../algs_linear/algs_linear.h"
 #include "../algs_quad/algs_quad.h"
 #include "../algs_naive/algs_naive.h"
-#include "../algs_sparse/algs_sparse.h"
+#include "../algs_sparse/_algs_sparse.h"
 
 /* header */
 #include "pipelines.h"

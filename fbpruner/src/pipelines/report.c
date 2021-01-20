@@ -717,7 +717,7 @@ void REPORT_myout_footer(    WORKER*  worker,
  *                (modeled after HMMER, see example)
  */
 void REPORT_mydomout_header(  WORKER*  worker,
-                           FILE*    fp )
+                              FILE*    fp )
 {
    fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
       "query",
@@ -783,11 +783,11 @@ void REPORT_mydomout_entry(   WORKER*  worker,
    fprintf( fp, "%s\t%s\t%d/%d\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
       t_prof->name,                    /* target name */
       q_seq->name,                     /* query name */
-      best_idx+1, dom_def->n_domains,
+      best_idx+1, dom_def->n_domains,  /* domain id */
       result->final_scores.eval,       /* evalue */
-      dom_presc,     /* seq scores before correction */
-      dom_bias,   /* seq bias */
-      dom_sc,     /* seq score after correction */
+      dom_presc,                       /* seq scores before correction */
+      dom_bias,                        /* seq bias */
+      dom_sc,                          /* seq score after correction */
       result->vit_natsc,               /* viterbi score (in mmore, this comes from mmseqs) */
       result->total_cells,             /* total number of cells computed by full viterbi */
       result->cloud_cells,             /* total number of cells computed by mmore */

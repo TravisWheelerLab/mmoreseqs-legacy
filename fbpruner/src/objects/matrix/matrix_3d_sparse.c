@@ -40,6 +40,11 @@ MATRIX_3D_SPARSE_Create()
    smx->D2           = 0;
    smx->D3           = 0;
 
+   /* iterators */
+   smx->q_0          = 0;
+   smx->t_0          = 0;
+   smx->r_0          = (RANGE) {0, 0};
+
    smx->N            = 0;
    smx->Nalloc       = 0;
    /* edgebounds */
@@ -960,6 +965,17 @@ void MATRIX_3D_SPARSE_Log(  MATRIX_3D_SPARSE*    smx )     /* sparse matrix */
    for (int i = 0; i < smx->data->N; i++) {
       smx->data->data[i] = log(smx->data->data[i]);
    }
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Iter_Reset()
+ *  SYNOPSIS:  Reset iterators for matrix.
+ */
+void 
+MATRIX_3D_SPARSE_Iter_Reset(  MATRIX_3D_SPARSE*    smx )     /* sparse matrix */
+{
+   smx->r_0 = (RANGE) {0, 0};
+   smx->q_0 = 0;
+   smx->t_0 = 0;
 }
 
 /*  FUNCTION:  MATRIX_3D_SPARSE_Test()

@@ -456,9 +456,9 @@ typedef struct {
    VECTOR_FLT*    data;          /* matrix cells */
    bool           clean;         /* whether data has been cleared / all cells set to -INF */
    /* iterators for traversing matrix */
-   int            q_iter;        /* current query position iterator */
-   int            t_iter;        /* current target position iterator */
-   int            r_iter;        /* current edgebound iterator for retrieving next row range */
+   int            q_0;           /* current query position iterator */
+   int            t_0;           /* current target position iterator */
+   RANGE          r_0;           /* current edgebound iterator for retrieving next row range */
 } MATRIX_3D_SPARSE;
 
 /** full  */
@@ -555,6 +555,11 @@ typedef struct {
    char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
    bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
   
+   /* --- TASKS --- */
+   bool     is_run_pruned;          /* run pruned forward backward */
+   bool     is_run_full;            /* run full forward backward */
+   bool     is_run_domains;         /* run domain search */
+
    /* --- MMSEQS --- */
    int      mmseqs_kmer;               /* kmer length */
    int      mmseqs_split;              /* database split size */
@@ -567,6 +572,7 @@ typedef struct {
    /* if viterbi is precomputed, gives starting and ending coords (single result) */
    COORDS   beg;                    /* beginning coordinates of viterbi alignment */
    COORDS   end;                    /* ending coordinates of viterbi alignment */
+
    /* cloud search tuning parameters */
    float    alpha;                  /* cloud search: x-drop pruning ratio */
    float    beta;                   /* cloud search: x-drop maximum drop before termination */
@@ -734,8 +740,9 @@ typedef struct {
    float       vit_natsc;
    float       fwd_natsc;
    float       bck_natsc;
-   float       fbpruner_fwd_natsc;
-   float       fbpruner_bck_natsc;
+   float       full_natsc;
+   float       bound_fwd_natsc;
+   float       bound_bck_natsc;
    SCORES      final_scores;
    /* time spent getting result */
    float       time;

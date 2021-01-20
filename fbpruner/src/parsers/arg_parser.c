@@ -2,8 +2,7 @@
  *     FILE:   arg_parser.h
  *  PURPOSE:   Parses command line arguments. 
  *
- *  AUTHOR:    Dave Rich
- *     BUG:    
+ *   AUTHOR:   Dave Rich
  *******************************************************************************/
 
 /* imports */
@@ -259,6 +258,26 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
+         else if ( strcmp(argv[i], (flag = "--run-full") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               args->is_run_full = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--run-domains") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               args->is_run_domains = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
          /* === MMSEQS PARAMETERS === */
          else if ( strcmp(argv[i], (flag = "--mmseqs-split") ) == 0 ) {
             req_args = 1;
@@ -486,7 +505,12 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->tmp_folderpath          = NULL;
    args->tmp_remove              = false;
    args->filter_on               = false;
+
+   /* --- TASK OPTIONS --- */
    args->is_compo_bias           = true;
+   args->is_run_pruned           = true;
+   args->is_run_full             = false;
+   args->is_run_domains          = true;
 
    /* --- DEBUG OPTIONS --- */
    args->is_debug                = true;

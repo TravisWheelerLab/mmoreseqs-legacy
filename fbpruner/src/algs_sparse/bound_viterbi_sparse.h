@@ -10,8 +10,7 @@
 #ifndef _BOUND_VITERBI_SPARSE_H
 #define _BOUND_VITERBI_SPARSE_H
 
-/* 
- *  FUNCTION: run_Bound_Viterbi_Sparse()
+/*! FUNCTION: run_Bound_Viterbi_Sparse()
  *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
  *            Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
@@ -24,13 +23,14 @@
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-int run_Bound_Viterbi_Sparse(    const SEQUENCE*      query,         /* query sequence */
-                                 const HMM_PROFILE*   target,        /* target HMM model */
-                                 const int            Q,             /* query length */
-                                 const int            T,             /* target length */
-                                 MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
-                                 MATRIX_2D*           sp_MX,         /* special state matrix */
-                                 EDGEBOUNDS*          edg,           /* edgebounds */
-                                 float*               sc_final );    /* (OUTPUT) final score */
+STATUS_FLAG 
+run_Bound_Viterbi_Sparse(   const SEQUENCE*      query,         /* query sequence */
+                            const HMM_PROFILE*   target,        /* target HMM model */
+                            const int            Q,             /* query length */
+                            const int            T,             /* target length */
+                            EDGEBOUNDS*          edg,           /* edgebounds */
+                            MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
+                            MATRIX_2D*           sp_MX,         /* special state matrix */
+                            float*               sc_final );    /* (OUTPUT) final score */
 
-#endif /* _BOUND_VITERBI_LINEAR_H */
+#endif /* _BOUND_VITERBI_SPARSE_H */

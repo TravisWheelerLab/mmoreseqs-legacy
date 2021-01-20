@@ -20,8 +20,8 @@
 #define INF             INFINITY                /* infinite value */
 #define INT_MIN         -2147483648             /* min value of integer */
 #define INT_MAX         +2147483647             /* max value of integer */
-#define FLT_MIN         1E-38                   /* min value of float before underflow */
-#define FLT_MAX         1E38                    /* max magnitude of float before overflow */
+#define FLT_MIN         1E-37                   /* min magnitude of float before underflow */
+#define FLT_MAX         1E+37                   /* max magnitude of float before overflow */
 
 /* === OUTPUT PIPES === */
 #define STDOUT          "/dev/stdout"
@@ -56,7 +56,8 @@ typedef enum {
 typedef enum {
    STATUS_SUCCESS,
    STATUS_FAILURE,
-} STATUS_FLAGS;
+   STATUS_MEMERROR,
+} STATUS_FLAG;
 #define NUM_STATUS_FLAGS 2
 
 /* Error Flags */
@@ -69,7 +70,7 @@ typedef enum {
    ERROR_FILE_IO,
    ERROR_OUT_OF_BOUNDS,
    ERROR_UNSUPPORTED_FUNC,
-} ERROR_FLAGS;
+} ERROR_FLAG;
 #define NUM_ERROR_FLAGS 8
 
 /* Number Format of HMM_PROFILE */

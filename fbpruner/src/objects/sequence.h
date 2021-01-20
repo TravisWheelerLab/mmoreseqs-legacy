@@ -50,12 +50,11 @@ SEQUENCE_Set_Textfield( char**  seq_field,
 
 /* Set sequence to a subsequence */
 void 
-SEQUENCE_SetSubseq( SEQUENCE*  seq, 
-                    int        q_beg,
-                    int        q_end );
+SEQUENCE_Set_Domain( SEQUENCE*   seq, 
+                     RANGE       Q_range );
 
 void 
-SEQUENCE_UnsetSubseq( SEQUENCE*  seq );
+SEQUENCE_Unset_Domain( SEQUENCE*  seq );
 
 /* Output SEQUENCE out to FILE POINTER */
 void 
