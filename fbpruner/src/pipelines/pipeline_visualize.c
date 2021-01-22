@@ -360,7 +360,7 @@ void vizualization_pipeline( WORKER* worker )
 
       /* merge forward and backward clouds, then reorient edgebounds from by-diag to by-row */
       printf("=== MERGE & REORIENT CLOUD (linear) -> START ===\n");
-      EDGEBOUNDS_Merge_Together(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
+      EDGEBOUNDS_Union(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
       EDGEBOUNDS_Reorient_to_Row(Q, T, edg_diag_lin, edg_row_lin);
       EDGEBOUNDS_Save(edg_diag_lin, "test_output/my.cloud.lin.diags.edg");
       EDGEBOUNDS_Save(edg_row_lin, "test_output/my.cloud.lin.rows.edg");

@@ -248,7 +248,7 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--comp-bias") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--run-bias") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
@@ -330,7 +330,7 @@ void   ARGS_Parse( ARGS*   args,
             }
          }
          /* === SEARCH/RANGE OPTIONS === */
-         else if ( strcmp(argv[i], (flag = "--search-range") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--range") ) == 0 ) {
             req_args = 2;
             if (i+req_args < argc) {
                i++;

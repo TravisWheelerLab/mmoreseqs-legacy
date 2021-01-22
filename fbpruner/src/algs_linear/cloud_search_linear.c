@@ -1,11 +1,11 @@
 /*******************************************************************************
  *    FILE:       cloud_search_linear.c
- *    PURPOSE:    Cloud Search for Forward-Backward Pruning Alg.
- *                (Linear Space Alg)
+ *    PURPOSE:    Cloud Search for Pruned Forward-Backward (Linear Space Alg)
  *
  *    AUTHOR:     Dave Rich
- *    BUG:        No known.
- *    TODO:       lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine.       
+ *    BUG:        None known.
+ *    TODO:       - lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine. 
+ *                - 
  *******************************************************************************/
 
 /* imports */
@@ -104,7 +104,7 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
    int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
-   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+   bool     lb_T, rb_T;                      /* checks if edge touches bounds of matrix */
 
    /* vars for recurrance scores */
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
@@ -294,10 +294,12 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       dx2   = d_2 % 3;
 
       /* is dp matrix diagonal growing or shrinking? */
-      if ( d_0 <= dim_min )
+      if ( d_0 <= dim_min ) {
          num_cells++;
-      if ( d_0 > dim_max )
+      }
+      if ( d_0 > dim_max ) {
          num_cells--;
+      }
 
       /* Edgecheck updates: determine antidiag indices within matrix bounds */
       le_0 = MAX( beg->q_0, d_0 - T );
@@ -327,8 +329,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       /* Add pruned bounds to edgebound list */
       for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[i];
-         rb_0 = rb_vec[0]->data[i];
+         lb_0 = VEC_X( lb_vec[0], i );
+         rb_0 = VEC_X( rb_vec[0], i );
 
          /* Update bounds (spans all cells adjacent to previous antidiagonals cells that were not pruned) */
          lb_0 = lb_0;
@@ -339,9 +341,10 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
          rb_0 = MIN(rb_0, re_0);
 
          /* Update changes to list */
-         lb_vec[0]->data[b] = lb_0;
-         rb_vec[0]->data[b] = rb_0;
+         VEC_X( lb_vec[0], b ) = lb_0;
+         VEC_X( rb_vec[0], b ) = rb_0;
 
+         /* Bound to be added */
          bnd_new = (BOUND){d_0, lb_0, rb_0};
 
          /* macro-controlled: how to store cloud -> antidiag or row-wise */
@@ -350,8 +353,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
             /* add new bounds to edgebounds as antidiag-wise */
             EDGEBOUNDS_Pushback( edg, &bnd_new );
          }
-         #endif
-         #if ( CLOUD_METHOD == CLOUD_ROWS )
+         /* antidiag is still WIP */
+         #elif ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
             EDGEBOUND_ROWS_Integrate_Antidiag_Fwd( rows, &bnd_new );
@@ -367,14 +370,16 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       }
 
       /* If diagonal set is empty, then all branches have been pruned, so we're done */
-      if ( lb_vec[0]->N <= 0 ) break;
+      if ( lb_vec[0]->N <= 0 ) {
+         break;
+      } 
 
       /* MAIN RECURSION */
       /* Iterate the ranges of the antidiagonal */
       for ( i = 0; i < lb_vec[0]->N; i++ ) 
       {
-         lb_0 = lb_vec[0]->data[i];
-         rb_0 = rb_vec[0]->data[i];
+         lb_0 = VEC_X( lb_vec[0], i );
+         rb_0 = VEC_X( rb_vec[0], i );
 
          /* Iterate through cells in range */
          for ( k_0 = lb_0; k_0 < rb_0; k_0++ )
@@ -400,9 +405,8 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
             /* NOTE: only allow begin transition at start of viterbi alignment */
             // prv_B = 0; /* assigned once at start */
             /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_D, prv_B ) );
+            prv_sum = logsum( logsum( prv_M, prv_I ),
+                              logsum( prv_D, prv_B ) );
             MMX3(dx0, k_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -677,7 +681,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
    int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
-   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+   bool     lb_T, rb_T;                      /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
@@ -693,7 +697,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    TRACE*         end;                       /* end of the alignment */
 
    /* vars for pruning */
-   bool           is_term_flag;                    /* termination flag set by  */
+   bool           is_term_flag;                    /* termination flag set by pruner */
    float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
@@ -878,10 +882,12 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       dx2  = d_2 % 3;
 
       /* Is dp matrix diagonal growing or shrinking? */
-      if (d_0 >= dim_max)
+      if (d_0 >= dim_max) {
          num_cells++;
-      if (d_0 < dim_min)
+      }
+      if (d_0 < dim_min) {
          num_cells--;
+      }
 
       /* Edgecheck updates: determine antidiag indices within matrix bounds */
       le_0 = MAX( end->q_0 - (d_end - d_0), 0 );
@@ -912,8 +918,8 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       for ( i = 0; i < lb_vec[0]->N; i++ )
       {
          /* pull bounds from list */
-         lb_0 = lb_vec[0]->data[i];
-         rb_0 = rb_vec[0]->data[i];
+         lb_0 = VEC_X( lb_vec[0], i );
+         rb_0 = VEC_X( rb_vec[0], i );
 
          /* Update bounds (spans all cells adjacent to previous antidiagonals cells that were not pruned) */
          lb_0 = lb_0 - 1;
@@ -924,8 +930,8 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
          rb_0 = MIN(rb_0, re_0);
 
          /* Update changes to list */
-         lb_vec[0]->data[i] = lb_0;
-         rb_vec[0]->data[i] = rb_0;
+         VEC_X( lb_vec[0], i ) = lb_0;
+         VEC_X( rb_vec[0], i ) = rb_0;
 
          bnd_new = (BOUND){d_0, lb_0, rb_0};
 
@@ -952,13 +958,20 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       }
 
       /* If diagonal set is empty, then all branches have been pruned, so we're done */
-      if ( lb_vec[0]->N <= 0 ) break;
+      if ( lb_vec[0]->N <= 0 ) {
+         break;
+      } 
 
       /* MAIN RECURSION */
       for ( i = 0; i < lb_vec[0]->N; i++ )
       {
-         lb_0 = lb_vec[0]->data[i];
-         rb_0 = rb_vec[0]->data[i];
+         lb_0 = VEC_X( lb_vec[0], i );
+         rb_0 = VEC_X( rb_vec[0], i );
+         /* if we are in an edgecase */
+         // lb_T = ( lb_0 <= 0 );
+         // rb_T = ( rb_0 >= d_0 );
+         /* zeroth row (when d_0 == k_0) is not a valid state in backward. */
+         rb_0 = MIN( rb_0, d_0 );
 
          /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
          for ( k_0 = lb_0; k_0 < rb_0; k_0++ )
@@ -971,8 +984,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
             t_0 = d_0 - k_0;
             t_1 = t_0 + 1;
 
-            /*    
-             *    === ROW-WISE to DIAG_WISE ===
+            /*    === ROW-WISE to DIAG_WISE ===
              *    MX_M(i+1, j+1) => MX3_M(d_2, k+1)
              *    MX_M(i  , j+1) => MX3_M(d_1, k  )
              *    MX_M(i+1, j  ) => MX3_M(d_1, k+1)

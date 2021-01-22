@@ -25,216 +25,281 @@
 /* header */
 #include "merge_reorient_linear.h"
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Reflect()
+/*! FUNCTION:  EDGEBOUNDS_Reflect()
  *  SYNOPSIS:  Reflect antidiagonal bounds.
+ *             Antidiag <d_0> is indexed from query to target (or vice versa).
+ *             <edg> must be oriented by-antidiagonal.
  */
-void EDGEBOUNDS_Reflect(EDGEBOUNDS *edg) 
+STATUS_FLAG 
+EDGEBOUNDS_Reflect( EDGEBOUNDS*   edg ) 
 {
-   int d, lb, rb, rb_new, lb_new;
+   int d_0, lb, rb, rb_new, lb_new;
 
    for (int i = 0; i < edg->N; i++) {
-      d =  edg->bounds[i].id;
-      lb = edg->bounds[i].lb;
-      rb = edg->bounds[i].rb;
+      d_0   = edg->bounds[i].id;
+      lb    = edg->bounds[i].lb;
+      rb    = edg->bounds[i].rb;
 
-      rb = d - lb + 1;
-      lb = d - rb;
-      edg->bounds[i] = (BOUND){d,lb,rb};
+      rb = d_0 - lb + 1;
+      lb = d_0 - rb;
+      edg->bounds[i] = (BOUND){d_0, lb, rb};
    }
+
+   return STATUS_SUCCESS;
 }
 
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Merge_Together()
- *  SYNOPSIS:  Combine two edgebound lists into one. 
- *             Assumes input lists are sorted and both oriented by-antidiagonal.
+/*! FUNCTION:  EDGEBOUNDS_Union()
+ *  SYNOPSIS:  Combine two edgebound lists into one to cover the union.
+ *             Assumes input lists are sorted ascending.
  */
-void EDGEBOUNDS_Merge_Together(     const int           Q,             /* query length */
-                                    const int           T,             /* target length */
-                                    const EDGEBOUNDS*   edg_in_1,      /* edgebounds (fwd, sorted ascending) */
-                                    const EDGEBOUNDS*   edg_in_2,      /* edgebounds (bck, sorted ascending) */
-                                    EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
+STATUS_FLAG 
+EDGEBOUNDS_Union(    const int           Q,             /* query length */
+                     const int           T,             /* target length */
+                     EDGEBOUNDS*         edg_in_1,      /* edgebounds (fwd, sorted ascending) */
+                     EDGEBOUNDS*         edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                     EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
 {
-   int         i, j;                /* indexes */
-   int         x, y;                /* indexes */
-   int         d, d_max;            /* diagonals */
-   int         lb, rb;              /* left and right bound */
-   int         st_x, end_x;         /* range of x indexes */
-   int         st_y, end_y;         /* range of y indexes */
-
-   bool        has_merged  = false;                /* checks whether to merge or add bounds */
-   const int   tol         = 0;                    /* if clouds are within tolerance range, clouds are merged */
-   const int   num_input   = 2;                    /* number of input edgebounds (current locked to two) */
-   int         starts[]    = {0,0};                /* head pointers for current edgebound ranges */
-
-   /* edgebound meta data */
-
-   /* pointer for looping through all edgebounds */   
-   const EDGEBOUNDS* edg;
-   BOUND             bnd_1;
-   BOUND             bnd_2;
+   EDGEBOUNDS*    edg_in[2];              /* list of input edgebounds */
+   int            edg_head[2];            /* head pointers for current edgebound ranges */
+   int            edg_minmax[2];          /* min/max antidiag for edg_1 and edg_2 */
+   EDGEBOUNDS*    edg;                    /* tmp pointer for edgebounds */
+   int            i, j;                   /* indexes */
+   RANGE          d_range;                /* antidiag range of full matrix */
+   int            r_0, r_0b, r_0e;        /* antidiag range of edgebounds */
+   int            id_0, lb, rb;           /* edgebound data */
+   /* constants */
+   const int      tol         = 0;        /* if clouds are within tolerance range, clouds are merged */
+   const int      num_input   = 2;        /* number of input edgebounds (current locked to two) */
 
    /* list of edgebound sets */
-   const EDGEBOUNDS* edg_in[]  = {edg_in_1, edg_in_2};
+   edg_head[0] = 0;
+   edg_in[0]   = edg_in_1; 
+   edg_head[1] = 0;
+   edg_in[1]   = edg_in_2;
+   /* find ranges */
+   edg_minmax[0] = EDG_X( edg_in[0], 0 ).id;
+   edg_minmax[1] = EDG_X( edg_in[1], 0 ).id;
+   d_range.beg = MIN( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0] = EDG_X( edg_in[0], edg_in[0]->N - 1 ).id;
+   edg_minmax[1] = EDG_X( edg_in[1], edg_in[1]->N - 1 ).id;
+   d_range.end = MAX( edg_minmax[0], edg_minmax[1] );
 
    /* reset output edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
    
    /* verify that all input edgebounds are the same mode */
-   #if DEBUG 
+   if ( edg_in[0]->edg_mode != edg_in[1]->edg_mode ) 
    {
-      for ( i = 0; i < num_input - 1; i++ ) {
-         if ( edg_in[i]->edg_mode != edg_in[i+1]->edg_mode ) 
-         {
-            fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
-            exit(EXIT_FAILURE);
-         }
-      }
+      fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
+      exit(EXIT_FAILURE);
    }
-   #endif
    edg_out->edg_mode = edg_in_1->edg_mode;
 
-   /* new edgebounds which the two old edgebounds will be merged into */
+   /* working space: edgebounds which the two old edgebounds will be merged into (by row) */
    EDGEBOUNDS* edg_cur  = EDGEBOUNDS_Create();
 
-   /* assert edgebounds are sorted */
-   #if DEBUG
+   /* init */
+   r_0b = r_0e = 0;
+
+   /* iterate over all antidiag/row id */
+   for (id_0 = d_range.beg; id_0 < d_range.end; id_0++) 
    {
-      for ( int i = 0; i < num_input; i++ ) 
-      {
-         edg = edg_in[i];
-
-         if ( edg->N > 1)
-         {
-            for ( int j = 1; j < edg->N; j++ ) 
-            {
-               if ( edg->bounds[j].id < edg->bounds[j-1].id ) {
-                  fprintf(stderr, "ERROR: edgebounds are not sorted.\n");
-                  fprintf(stderr, "EDG->N = %d\n", edg->N );
-                  fprintf(stderr, "EDG[%d]: [%d].id = %d VS [%d].id = %d\n", 
-                     i, j-1, edg->bounds[j-1].id, j, edg->bounds[j].id );
-
-                  EDGEBOUNDS_Dump( edg, stderr );
-                  
-                  exit(EXIT_FAILURE);
-               }
-            }
-         }
-      }
-   }
-   #endif 
-
-   /* iterate over all diags */
-   st_y = 0;
-   d_max = (Q+1)+(T+1);
-   for (d = 0; d < d_max; d++) 
-   {
-      end_y = st_y;
-
       /* iterate over input edgebound lists and find all bounds on current diagonal */
       for (int i = 0; i < num_input; i++) 
       {
-         edg = edg_in[i];
-         st_x = starts[i];
+         /* load edgebounds */
+         edg   = edg_in[i];
+         r_0b  = edg_head[i];
+         r_0e  = edg_head[i];
 
-         /* find all in edg in current diag */
-         end_x  = edg->N;
-         for (x = st_x; x < edg->N; x++) 
-         {
-            /* if edge has surpassed the current diagonal, then break */
-            if (edg->bounds[x].id > d) {
-               break;
-            } 
-            // /* if edge preceeds the current, skip to next diagonal (should never occur) */
-            // else if (edg->bounds[x].id < d) {
-            //    continue;
-            // }
-            /* otherwise, add edgebound to list and increment starting location */
-            else {
-               EDGEBOUNDS_Pushback(edg_cur, &(edg->bounds[x]) );
-               st_x++;
-            }
+         /* find range of edgebounds in current antidiag */
+         EDGEBOUNDS_NxtRow( edg, &r_0b, &r_0e, id_0 );
+
+         /* add all edgebounds to merge list */
+         for (r_0 = r_0b; r_0 < r_0e; r_0++) {
+            BOUND* bnd = &EDG_X( edg, r_0 );
+            EDGEBOUNDS_Pushback( edg_cur, bnd );
          }
-         /* update next starting location to the end location of the last */
-         starts[i] = st_x;
+         /* update next starting location to the end location of the last row */
+         edg_head[i] = r_0e;
       }
 
+      /* sort output edgebounds, since inter-row ordering could be lost */
+      EDGEBOUNDS_Sort( edg_cur );
+
       /* merge down current list as much as possible (loop until no merges occur) */
-      has_merged = true;
-      while ( has_merged )
+      bool has_merged = true;
+      while ( has_merged == true )
       {
          has_merged = false;
-         /* check if merge possible for all pairs (n^2 in number of bounds in ) */
+         BOUND bnd_1, bnd_2;
+         /* check if merge possible for all pairs (n^2 for number of bounds in antidiag) */
          for (int i = 0; i < edg_cur->N; i++) 
          {
-            bnd_1 = edg_cur->bounds[i];
+            bnd_1 = EDG_X( edg_cur, i );
+            
             for (int j = i+1; j < edg_cur->N; j++) 
             {
-               bnd_2 = edg_cur->bounds[j];
-                /* if bounds overlap, then merge them */
-               if ( (bnd_1.lb <= bnd_2.rb) && (bnd_2.lb <= bnd_1.rb) ) 
+               bnd_2 = EDG_X( edg_cur, j );
+
+               /* if bounds overlap, then merge them (NOTE: logic can probably be optimized) */
+               bool overlap = IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.lb) ||
+                              IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.rb);
+               if ( overlap == true ) 
                {
                   /* take mins and maxes to build new range */
                   lb = MIN(bnd_1.lb, bnd_2.lb);
                   rb = MAX(bnd_1.rb, bnd_2.rb);
+                  BOUND bnd = (BOUND){ id_0, lb, rb };
+                  
                   /* replace the edgebound at first index */
-                  EDGEBOUNDS_Insert(edg_cur, i, &( (BOUND){d,lb,rb} ) );
+                  EDGEBOUNDS_Insert(edg_cur, i, &bnd );
                   /* delete the edgebound at the second index (backfills from end of list) */
                   EDGEBOUNDS_Delete(edg_cur, j);
+                  
                   /* flag that a merge has occurred */
                   has_merged = true;
-                  /* go back to start of list */
-                  continue;
                }
             }
          }
       }
 
-      /* TODO: sort list (not necessary, since inputs assumed to be sorted) */
-      // edgbounds_Sort(edg_cur);
-
       /* insert all in current list into the output list */
-      for (int i = 0; i < edg_cur->N; i++)
-      {
-         EDGEBOUNDS_Pushback( edg_out, &(edg_cur->bounds[i]) );
+      for (int i = 0; i < edg_cur->N; i++) {
+         BOUND* bnd = &(edg_cur->bounds[i]);
+         EDGEBOUNDS_Pushback( edg_out, bnd );
       }
 
       /* empty current list */
-      edg_cur->N = 0;
+      EDGEBOUNDS_Clear( edg_cur );
    }
+
+   /* free working space */
    EDGEBOUNDS_Destroy( edg_cur );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  EDGEBOUNDS_Union_via_Bridge()
+ *  SYNOPSIS:  Combine two edgebound lists into one. Bridges all bounds on each antidiagonal into single bound.
+ *             Assumes input lists are sorted and both oriented by-antidiagonal.
+ */
+STATUS_FLAG 
+EDGEBOUNDS_Union_via_Bridge(  const int           Q,             /* query length */
+                              const int           T,             /* target length */
+                              EDGEBOUNDS*         edg_in_1,      /* edgebounds (fwd, sorted ascending) */
+                              EDGEBOUNDS*         edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                              EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
+{
+   EDGEBOUNDS*    edg_in[2];              /* list of input edgebounds */
+   int            edg_head[2];            /* head pointers for current edgebound ranges */
+   int            edg_minmax[2];          /* min/max antidiag for edg_1 and edg_2 */
+   EDGEBOUNDS*    edg;                    /* tmp pointer for edgebounds */
+   BOUND          bnd_cur;                /* bound for storing bridged bound */
+   int            i, j;                   /* indexes */
+   RANGE          d_range;                /* antidiag range of full matrix */
+   int            r_0, r_0b, r_0e;        /* antidiag range of edgebounds */
+   int            id_0, lb, rb;           /* edgebound data */
+   int            bnd_cnt;                /* number of bounds of current antidiag */
+   /* constants */
+   const int      tol         = 0;        /* if clouds are within tolerance range, clouds are merged */
+   const int      num_input   = 2;        /* number of input edgebounds (current locked to two) */
+
+   /* list of edgebound sets */
+   edg_head[0] = 0;
+   edg_in[0]   = edg_in_1; 
+   edg_head[1] = 0;
+   edg_in[1]   = edg_in_2;
+   /* find ranges */
+   edg_minmax[0] = EDG_X( edg_in[0], 0 ).id;
+   edg_minmax[1] = EDG_X( edg_in[1], 0 ).id;
+   d_range.beg = MIN( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0] = EDG_X( edg_in[0], edg_in[0]->N - 1 ).id;
+   edg_minmax[1] = EDG_X( edg_in[1], edg_in[1]->N - 1 ).id;
+   d_range.end = MAX( edg_minmax[0], edg_minmax[1] );
+
+   /* reset output edgebounds */
+   EDGEBOUNDS_Reuse( edg_out, Q, T );
+   
+   /* verify that all input edgebounds are the same mode */
+   if ( edg_in[0]->edg_mode != edg_in[1]->edg_mode ) 
+   {
+      fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
+      exit(EXIT_FAILURE);
+   }
+   edg_out->edg_mode = edg_in_1->edg_mode;
+
+   /* init */
+   r_0b = r_0e = 0;
+   /* iterate over all antidiag/row id */
+   for (id_0 = d_range.beg; id_0 < d_range.end; id_0++) 
+   {
+      /* start bound with impossible bounds */
+      bnd_cur = (BOUND) { id_0, INT_MAX, INT_MIN };
+      bnd_cnt = 0;
+      /* iterate over input edgebound lists and find all bounds on current diagonal */
+      for (int i = 0; i < num_input; i++) 
+      {
+         /* load edgebounds */
+         edg   = edg_in[i];
+         r_0b  = edg_head[i];
+         r_0e  = edg_head[i];
+
+         /* find range of edgebounds in current antidiag */
+         EDGEBOUNDS_NxtRow( edg, &r_0b, &r_0e, id_0 );
+         bnd_cnt += (r_0e - r_0b);
+
+         /* add all edgebounds to min/max bound */
+         for (r_0 = r_0b; r_0 < r_0e; r_0++) {
+            BOUND bnd   = EDG_X( edg, r_0 );
+            bnd_cur.lb  = MIN( bnd_cur.lb, bnd.lb );
+            bnd_cur.rb  = MAX( bnd_cur.rb, bnd.rb );
+         }
+         /* update next starting location to the end location of the last row */
+         edg_head[i] = r_0e;
+      }
+
+      /* add bound to new list */
+      EDGEBOUNDS_Pushback( edg_out, &bnd_cur );
+   }
+
+   return STATUS_SUCCESS;
 }
 
 
-/*
- *  FUNCTION: EDGEBOUNDS_Reorient_to_Row()
- *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.       
+/*! FUNCTION: EDGEBOUNDS_Reorient_to_Row()
+ *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.
+ *            For each row, looks at each viable antidiag and checks if that antidiag intersects the row.
+ *            Adds those to growing bound until break is found, then adds it to the row-wise list.   
  */
-void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length */
-                                 const int           T,          /* target length */
-                                 EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                                 EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
+STATUS_FLAG 
+EDGEBOUNDS_Reorient_to_Row(   const int           Q,          /* query length */
+                              const int           T,          /* target length */
+                              EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
+                              EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
-   int       x, y;                              /* indexes into edgebounds */
-   int       y_st, y_end;                       /* index range */
-   int       i,j,k;                             /* indexes for diagonal and x-y coords */
-   int       d,lb,rb;                           /* diag/row, left-bound, right-bound */
-   BOUND     bnd_in     = (BOUND){0,0,0};       /* */
-   BOUND     bnd_out    = (BOUND){0,0,0};       /* */
-   bool      in_cloud   = false;                /* flags whether currently extending bounds along a row */
-   bool      is_covered = false;                /* */
-   const int tol        = 0;                    /* max distance between two row indexes to merge */
+   int         x, y;                              /* indexes into edgebounds */
+   RANGE       q_range;                           /* index range for query row */
+   RANGE       y_beg, y_end;                      /* index range for edgebound list */
+   RANGE       d_range;                           /* index range for valid antidiag ids */
+   int         i, j, k;                           /* indexes for diagonal and x-y coords */
+   int         id, lb, rb;                        /* diag/row, left-bound, right-bound */
+   int         t_0, q_0;                          /* row-wise indexes */
+   int         d_0, k_0;                          /* antidiag-wise indexes */
+   BOUND       bnd_in, bnd_out;                   /* bounds for */
+   bool        in_cloud;                          /* flags whether currently extending bounds along a row */
+   bool        is_covered;                        /* whether antidiagonal range intersects row range */
+   bool        is_first_row;                      /* whether a edgebound cloud has been found on row yet */
+   const int   gap_tolerance  = 0;                /* max distance between two row indexes to merge */
+
+   /* init */
 
    /* first, verify that input edgebounds are stored by-diagonal */
    if ( edg_in->edg_mode != EDG_DIAG ) {
-      // /* if not, then swap pointers and return */
-      EDGEBOUNDS* swap = edg_in;
-      edg_in = edg_out;
-      edg_out = swap;
       /* if not, make a copy of input edgebounds for output */
-      // EDGEBOUNDS_Copy( edg_out, edg_in );
-      return;
+      EDGEBOUNDS_Copy( edg_out, edg_in );
+      return STATUS_SUCCESS;
    }
 
    /* reuse edgebounds */
@@ -242,85 +307,232 @@ void EDGEBOUNDS_Reorient_to_Row( const int           Q,          /* query length
    edg_out->edg_mode = EDG_ROW;
 
    /* range for possible antidiag indexes */
-   y_st = 0;
-   y_end = edg_in->N;
+   q_range.beg = 0;
+   q_range.end = Q+1;
+   y_beg       = (RANGE){0,0};
+   y_end       = (RANGE){0, edg_in->N};
 
-   /* for each row in dp_matrix */
-   for (x = 0; x < Q+1; x++)
+   /* for each row in matrix (position in query) */
+   for (q_0 = q_range.beg; q_0 < q_range.end; q_0++)
    {
-      in_cloud = false;
+      /* initialize bound to invalid range */
+      bnd_out  = (BOUND) { q_0, -1, -1 };
 
-      /* compare against the antidiags at the current row */
-      for (y = y_st; y < y_end; y++)
+      /* constrain bounds to valid ranges */
+      if (false)
       {
-         bnd_in   = edg_in->bounds[y];
-         d        = bnd_in.id;
+         d_range.beg = 0 + q_0;
+         y_beg.beg   = y_beg.end;
+         EDGEBOUNDS_NxtRow( edg_in, &y_beg.beg, &y_beg.end, d_0 );
+         d_range.end = ((T+1) + q_0) +  1;
+         y_end.beg = y_end.end;
+         EDGEBOUNDS_NxtRow( edg_in, &y_end.beg, &y_end.end, d_0 );
+      }
+      
+      /* compare against all antidiags which could intersect row */
+      for (y = y_beg.beg; y < y_end.end; y++)
+      {
+         /* get edgebound */
+         bnd_in   = EDG_X( edg_in, y );
+         d_0      = bnd_in.id;
 
-         /* x-y coords */
-         i = x;         /* row index */
-         j = d - i;     /* column index == offset in antidiagonal */
+         /* row-wise coords */
+         k_0   = q_0;         /* row index = offset index */
+         t_0   = d_0 - k_0;   /* column index where antidiagonal intersects row */
 
-         /* if j < 0, it is outside the left-bounds of the dp_matrix */
-         if (j < 0) {
+         /* edge-checks (NOTE: these checks could be handled outside the loop if the edgebound ids were indexed) */
+         /* if t_0 < 0, it is outside the left-bounds of the dp_matrix */
+         if ( t_0 < 0 ) {
             /* if this antidiag is outside the dp_matrix now, it will be outside for all lower rows as well; begin future row's search at this antidiag */
-            y_st = y;
+            y_beg.beg = y;
             continue;
          }
-         /* if j > T+1, it is output the right-bounds of the dp_matrix */
-         if (j > T+1) {
+         /* if t_0 > T+1, it is outside the right-bounds of the dp_matrix */
+         if ( t_0 > T+1 ) {
             /* if this antidiag is outside the dp_matrix now, all subsequent antidiags will be as well; so go to next row */
             break;
          }
 
          /* check if cell is covered by anti-diag... */
-         rb = d - bnd_in.lb;
-         lb = d - bnd_in.rb + 1;
-         is_covered = (j >= lb && j <= rb);
+         rb = d_0 - bnd_in.lb;
+         lb = d_0 - bnd_in.rb + 1;
+         /* if intersection point t_0 is inside span */
+         is_covered = IS_IN_RANGE( lb, rb, t_0 );
+
+         if (q_0 < 20 && t_0 < 20)
+            printf("y:%d, d:%d => (%d,%d) => is %d in (%d,%d) : %s \n", y, d_0, q_0, t_0, t_0, bnd_in.lb, bnd_in.rb, is_covered ? "YES" : "NO");
+         
+         /* if antidiag range covers cell in row... */
+         if ( is_covered == true ) 
+         {
+            /* if is adjacent (or with gap tolerance) to current cloud, extend bounds */
+            if ( t_0 <= bnd_out.rb + gap_tolerance ) {
+               bnd_out.rb = t_0 + 1;
+            }
+            /* if this is not the first bound on row, push previous bound onto list, and start new */
+            elif ( is_first_row = (bnd_out.lb < 0), is_first_row == true ) {
+               bnd_out.lb = t_0;
+               bnd_out.rb = t_0 + 1;
+            }
+            /* if this is not the first bound on row, close current bound */ 
+            else {
+               if (q_0 < 20)
+                  printf("Added bound: {%d,(%d,%d)}\n", bnd_out.id, bnd_out.lb, bnd_out.rb);
+               EDGEBOUNDS_Pushback(edg_out, &bnd_out);
+               bnd_out.lb = t_0;
+               bnd_out.rb = t_0 + 1;
+            }
+         } 
+      }
+      /* if any bound has been found on row, it will need to be closed at the end. */
+      if ( is_first_row = (bnd_out.lb < 0), is_first_row == false ) 
+      {
+         if (q_0 < 20)
+            printf("Added bound: {%d,(%d,%d)}\n", bnd_out.id, bnd_out.lb, bnd_out.rb);
+         EDGEBOUNDS_Pushback(edg_out, &bnd_out);
+      }
+   }
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION: EDGEBOUNDS_Reorient_to_Row()
+ *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.
+ *            For each antidiagonal look at the disjunctive union to its previous antidiagonal, 
+ *            and only updates those spans at each pass.
+ * TODO: WIP!!!
+ */
+STATUS_FLAG 
+EDGEBOUNDS_Reorient_to_Row_via_Diff(   const int           Q,          /* query length */
+                                       const int           T,          /* target length */
+                                       EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
+                                       EDGEBOUND_ROWS*     edg_rows,   /* OPTIONSAL: temporary working space */
+                                       EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
+{
+   int         x, y;                              /* indexes into edgebounds */
+   RANGE       q_range;                           /* index range for query row */
+   RANGE       y_beg, y_end;                      /* index range for edgebound list */
+   RANGE       d_range;                           /* index range for valid antidiag ids */
+   int         i, j, k;                           /* indexes for diagonal and x-y coords */
+   int         id, lb, rb;                        /* diag/row, left-bound, right-bound */
+   int         t_0, q_0;                          /* row-wise indexes */
+   int         d_0, k_0;                          /* antidiag-wise indexes */
+   BOUND       bnd_in, bnd_out;                   /* bounds for */
+   bool        in_cloud;                          /* flags whether currently extending bounds along a row */
+   bool        is_covered;                        /* whether antidiagonal range intersects row range */
+   bool        is_first_row;                      /* whether a edgebound cloud has been found on row yet */
+   const int   gap_tolerance  = 0;                /* max distance between two row indexes to merge */
+   RANGE       gaps[MAX_BOUNDS_PER_ROW + 1];      /* gaps which indicate the bounds to be updated */ 
+   int         gap_cnt;                           /* current number of gaps currently */
+
+   /* init */
+   gap_cnt = 0;
+   /* if working space is not supplied, create it */
+   if ( edg_rows == NULL ) {
+
+   }
+
+   /* first, verify that input edgebounds are stored by-diagonal */
+   if ( edg_in->edg_mode != EDG_DIAG ) {
+      /* if not, make a copy of input edgebounds for output */
+      EDGEBOUNDS_Copy( edg_out, edg_in );
+      return STATUS_SUCCESS;
+   }
+
+   /* reuse edgebounds */
+   EDGEBOUNDS_Reuse( edg_out, Q, T );
+   edg_out->edg_mode = EDG_ROW;
+
+   /* range for possible antidiag indexes */
+   q_range.beg = 0;
+   q_range.end = Q+1;
+   y_beg       = (RANGE){0,0};
+   y_end       = (RANGE){0, edg_in->N};
+
+   /* for each row in matrix (position in query) */
+   for (q_0 = q_range.beg; q_0 < q_range.end; q_0++)
+   {
+      /* initialize bound to invalid range */
+      bnd_out  = (BOUND) { q_0, -1, -1 };
+
+      /* constrain bounds to valid ranges */
+      if (false)
+      {
+         d_range.beg = 0 + q_0;
+         y_beg.beg   = y_beg.end;
+         EDGEBOUNDS_NxtRow( edg_in, &y_beg.beg, &y_beg.end, d_0 );
+         d_range.end = ((T+1) + q_0) +  1;
+         y_end.beg = y_end.end;
+         EDGEBOUNDS_NxtRow( edg_in, &y_end.beg, &y_end.end, d_0 );
+      }
+      
+      /* compare against all antidiags which could intersect row */
+      for (y = y_beg.beg; y < y_end.end; y++)
+      {
+         /* get edgebound */
+         bnd_in   = EDG_X( edg_in, y );
+         d_0      = bnd_in.id;
+
+         /* row-wise coords */
+         k_0   = q_0;         /* row index = offset index */
+         t_0   = d_0 - k_0;   /* column index where antidiagonal intersects row */
+
+         /* edge-checks (NOTE: these checks could be handled outside the loop if the edgebound ids were indexed) */
+         /* if t_0 < 0, it is outside the left-bounds of the dp_matrix */
+         if ( t_0 < 0 ) {
+            /* if this antidiag is outside the dp_matrix now, it will be outside for all lower rows as well; begin future row's search at this antidiag */
+            y_beg.beg = y;
+            continue;
+         }
+         /* if t_0 > T+1, it is outside the right-bounds of the dp_matrix */
+         if ( t_0 > T+1 ) {
+            /* if this antidiag is outside the dp_matrix now, all subsequent antidiags will be as well; so go to next row */
+            break;
+         }
+
+         /* check if cell is covered by anti-diag... */
+         rb = d_0 - bnd_in.lb;
+         lb = d_0 - bnd_in.rb + 1;
+         /* if intersection point t_0 is inside span */
+         is_covered = IS_IN_RANGE( lb, rb, t_0 );
          // printf("y:%d, d:%d => (%d,%d) => is %d in (%d,%d) : %s \n", y, d, i, j, j, bnd_in.lb, bnd_in.rb, is_covered ? "YES" : "NO");
          
          /* if antidiag range covers cell in row... */
-         if (is_covered) {
-            /* if in cloud, update bounds */
-            if (in_cloud) {
-               bnd_out.rb = j + 1;
+         if ( is_covered == true ) 
+         {
+            /* if is adjacent (or with gap tolerance) to current cloud, extend bounds */
+            if ( t_0 <= bnd_out.rb + gap_tolerance ) {
+               bnd_out.rb = t_0 + 1;
             }
-            /* if not, create new cloud and bound */
-            else 
-            {
-               bnd_out.id = i;
-               bnd_out.lb = j;
-               bnd_out.rb = j + 1;
-               in_cloud = true;
+            /* if this is not the first bound on row, push previous bound onto list, and start new */
+            elif ( is_first_row = (bnd_out.lb < 0), is_first_row == true ) {
+               bnd_out.lb = t_0;
+               bnd_out.rb = t_0 + 1;
+            }
+            /* if this is not the first bound on row, close current bound */ 
+            else {
+               EDGEBOUNDS_Pushback(edg_out, &(bnd_out) );
+               bnd_out.lb = t_0;
+               bnd_out.rb = t_0 + 1;
             }
          } 
-         /* if cell not covered by anti-diag */
-         else 
-         {
-            /* if current antidiag doesn't contain next cell, we're at the end of current cloud */
-            d = bnd_out.id + bnd_out.rb;   /* antidiag containing current cell (unused) */
-            /* if currently building a new cloud in row */
-            if ( in_cloud ) /* removed condition => bnd_in.id > d */
-            {
-               EDGEBOUNDS_Pushback(edg_out, &(bnd_out) );
-               in_cloud = false;
-            }
-         }
       }
-
-      /* if the end of the row is reached and still in cloud */
-      if ( in_cloud ) 
+      /* if any bound has been found on row, it will need to be closed at the end. */
+      if ( is_first_row = (bnd_out.lb < 0), is_first_row == true ) 
       {
          EDGEBOUNDS_Pushback(edg_out, &(bnd_out) );
-         in_cloud = false;
       }
    }
+
+   return STATUS_SUCCESS;
 }
 
-/*
- *  FUNCTION: EDGEBOUNDS_Reorient_Pushback()
+/*! FUNCTION: EDGEBOUNDS_Reorient_Pushback()
  *  SYNOPSIS: Add antidiag-wise BOUND to row-wise EDGEBOUNDS.
  */
-void EDGEBOUNDS_Reorient_Pushback(EDGEBOUNDS*         edg,     /* edgebounds (row-wise, sorted ascending) */
-                                  BOUND*              bnd )    /* bound to be inserted (antdiag-wise) */
+STATUS_FLAG 
+EDGEBOUNDS_Reorient_Pushback(    EDGEBOUNDS*         edg,     /* edgebounds (row-wise, sorted ascending) */
+                                 BOUND*              bnd )    /* bound to be inserted (antdiag-wise) */
 {
+   return STATUS_SUCCESS;
 }

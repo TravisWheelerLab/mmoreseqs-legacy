@@ -1064,6 +1064,7 @@ void WORK_cloud_search( WORKER* worker )
       #if DEBUG
       {
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_fwd.lin.mx");
+         EDGEBOUNDS_Save( edg_fwd, "test_output/my.fwd.edg" );
       }
       #endif
 
@@ -1077,17 +1078,24 @@ void WORK_cloud_search( WORKER* worker )
       t_times->lin_cloud_bck += times->lin_cloud_bck ;
       #if DEBUG
       {
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx");
+         DP_MATRIX_Save( Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx" );
+         EDGEBOUNDS_Save( edg_bck, "test_output/my.bck.edg" );
       }
       #endif
 
       /* merge edgebounds */
       printf_vall("# ==> merge (linear)...\n");
       CLOCK_Start(clok);
-      EDGEBOUNDS_Merge_Together( Q, T, edg_fwd, edg_bck, edg_diag );
+      EDGEBOUNDS_Union( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
       times->lin_merge = CLOCK_Secs(clok);
       t_times->lin_merge += times->lin_merge;
+      #if DEBUG
+      {
+         EDGEBOUNDS_Save( edg_diag, "test_output/my.cloud.diags.edg");
+      }
+      #endif
+
 
       /* reorient edgebounds */
       printf_vall("# ==> reorient (linear)...\n");
@@ -1102,7 +1110,6 @@ void WORK_cloud_search( WORKER* worker )
       result->cloud_cells = EDGEBOUNDS_Count( edg_row );
       result->total_cells  = (Q+1) * (T+1);
 
-      /* if debugging, print the cloud */
       #if DEBUG
       {
          // MATRIX_2D_Fill( debugger->cloud_MX, 0 );
@@ -1111,9 +1118,6 @@ void WORK_cloud_search( WORKER* worker )
          // DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
          // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
          // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
-         printf("# printing cloud rows...\n");
-         /* TEMPORARY OVERRIDE */  
-         // EDGEBOUNDS_Cover_Matrix(edg_row, Q, T);
          EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif
@@ -1166,9 +1170,6 @@ void WORK_cloud_search( WORKER* worker )
       #endif
       times->lin_bound_bck    = CLOCK_Secs(clok);
       scores->lin_bound_bck   = sc;
-
-      /* TODO: Remove this!!! */
-      DP_MATRIX_Clean( Q, T, st_MX3, sp_MX );
    }
 
    /* if performing sparse fb-pruner, initialize sparse matrix */
@@ -1229,7 +1230,6 @@ void WORK_cloud_search( WORKER* worker )
       {
          printf_vall("# printing sparse bound backward...\n");
          printf("# sparse bound backward: %f\n", scores->sparse_bound_bck );
-         
          MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX );
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.sp.mx");
       }
@@ -1257,7 +1257,7 @@ void WORK_cloud_search( WORKER* worker )
 
       /* merge edgebounds */
       CLOCK_Start(clok);
-      EDGEBOUNDS_Merge_Together( Q, T, edg_fwd, edg_bck, edg_diag );
+      EDGEBOUNDS_Union( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
       times->quad_merge = CLOCK_Secs(clok);
 

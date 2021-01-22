@@ -74,12 +74,20 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    EDGEBOUNDS_Find_BoundingBox( edg, &Q_range, &T_range );
    Q_size = Q_range.end - Q_range.beg;
    T_size = T_range.end - T_range.beg;
+   printf("BOUNDING: { Q:(%d,%d), T:(%d,%d) }\n",
+      Q_range.beg, Q_range.end, T_range.beg, T_range.end);
 
    /* store begin/end points */
    result->query_start  = Q_range.beg;
    result->query_end    = Q_range.end;
    result->target_start = T_range.beg;
    result->target_start = T_range.end;
+
+   #if DEBUG
+   {
+      EDGEBOUNDS_Save( edg, "test_output/my.cloud.edg" );
+   }
+   #endif
 
    /* compute score and bias for entire cloud */
    {

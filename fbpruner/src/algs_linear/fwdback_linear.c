@@ -417,39 +417,17 @@ int run_Backward_Linear(   const SEQUENCE*    query,
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
 
-   /* Initialize the Q row. */
-   q_0 = Q;
-   qx0 = q_0 % 2;
-   t_0 = T;
-
-   XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
-   XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
-   XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
-
-   MMX3(qx0, t_0) = DMX3(qx0, t_0) = XMX(SP_E, q_0);
-   IMX3(qx0, t_0) = -INF;
-
-   #if DEBUG 
+   /* FIRST ROW: Qth row. */
    {
-      MX_2D(cloud_MX, q_0, t_0) = 1.0;
-      MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX3(qx0, t_0);
-      MX_3D(test_MX, INS_ST, q_0, t_0) = IMX3(qx0, t_0);
-      MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
-   }
-   #endif
+      q_0 = Q;
+      qx0 = q_0 % 2;
+      t_0 = T;
 
-   for (t_0 = T-1; t_0 >= 1; t_0--)
-   {
-      t_1 = t_0 + 1;
+      XMX(SP_J, q_0) = XMX(SP_B, q_0) = XMX(SP_N, q_0) = -INF;
+      XMX(SP_C, q_0) = XSC(SP_C, SP_MOVE);
+      XMX(SP_E, q_0) = XMX(SP_C, q_0) + XSC(SP_E, SP_MOVE);
 
-      prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX3(qx0, t_1)  + TSC(t_0, M2D);
-      MMX3(qx0, t_0) = logsum( prv_E, prv_D );
-
-      prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX3(qx0, t_1)  + TSC(t_0, D2D);
-      DMX3(qx0, t_0) = logsum( prv_E, prv_D );
-
+      MMX3(qx0, t_0) = DMX3(qx0, t_0) = XMX(SP_E, q_0);
       IMX3(qx0, t_0) = -INF;
 
       #if DEBUG 
@@ -460,6 +438,30 @@ int run_Backward_Linear(   const SEQUENCE*    query,
          MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
       }
       #endif
+
+      for (t_0 = T-1; t_0 >= 1; t_0--)
+      {
+         t_1 = t_0 + 1;
+
+         prv_E = XMX(SP_E, Q) + sc_E;
+         prv_D = DMX3(qx0, t_1)  + TSC(t_0, M2D);
+         MMX3(qx0, t_0) = logsum( prv_E, prv_D );
+
+         prv_E = XMX(SP_E, Q) + sc_E;
+         prv_D = DMX3(qx0, t_1)  + TSC(t_0, D2D);
+         DMX3(qx0, t_0) = logsum( prv_E, prv_D );
+
+         IMX3(qx0, t_0) = -INF;
+
+         #if DEBUG 
+         {
+            MX_2D(cloud_MX, q_0, t_0) = 1.0;
+            MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX3(qx0, t_0);
+            MX_3D(test_MX, INS_ST, q_0, t_0) = IMX3(qx0, t_0);
+            MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
+         }
+         #endif
+      }
    }
 
    /* MAIN RECURSION */
@@ -558,51 +560,53 @@ int run_Backward_Linear(   const SEQUENCE*    query,
       }
    }
 
-   /* FINAL ROW (i = 0) */
-   /* At q_0 = 0, only N,B states are reachable. */
-   q_0 = 0;
-   q_1 = q_0 + 1;
-   qx0 = q_0;
-   qx1 = q_1;
-
-   t_0 = 0;
-   t_1 = t_0 + 1;
-
-   a = seq[q_0];
-   A = AA_REV[a];
-
-   /* SPECIAL STATES */
-
-   /* B STATE -> MATCH */
-   prv_M = MMX3(q_1, t_1) + TSC(0, B2M) + MSC(1, A);
-   XMX(SP_B, q_0) = prv_M;
-   for (t_0 = 2; t_0 <= T; t_0++) {
-      t_1 = t_0-1;
-      prv_sum = XMX(SP_B, q_0);
-      prv_M = MMX3(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
-      XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
-   }
-
-   XMX(SP_J, q_0) = -INF;
-   XMX(SP_C, q_0) = -INF;
-   XMX(SP_E, q_0) = -INF;
-
-   prv_N = XMX(SP_N, q_1) + XSC(SP_N,SP_LOOP);
-   prv_B  = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
-   XMX(SP_N, q_0) = logsum( prv_N, prv_B );
-
-   for (t_0 = T; t_0 >= 1; t_0--) {
-      MMX3(qx0, t_0) = IMX3(qx0, t_0) = DMX3(qx0, t_0) = -INF;
-   }
-
-   #if DEBUG 
+   /* FINAL ROW: zeroth row */
    {
-      MX_2D(cloud_MX, q_0, t_0) = 1.0;
-      MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX3(qx0, t_0);
-      MX_3D(test_MX, INS_ST, q_0, t_0) = IMX3(qx0, t_0);
-      MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
+      /* At q_0 = 0, only N,B states are reachable. */
+      q_0 = 0;
+      q_1 = q_0 + 1;
+      qx0 = q_0;
+      qx1 = q_1;
+
+      t_0 = 0;
+      t_1 = t_0 + 1;
+
+      a = seq[q_0];
+      A = AA_REV[a];
+
+      /* SPECIAL STATES */
+
+      /* B STATE -> MATCH */
+      prv_M = MMX3(q_1, t_1) + TSC(0, B2M) + MSC(1, A);
+      XMX(SP_B, q_0) = prv_M;
+      for (t_0 = 2; t_0 <= T; t_0++) {
+         t_1 = t_0-1;
+         prv_sum = XMX(SP_B, q_0);
+         prv_M = MMX3(q_1, t_0) + TSC(t_1, B2M) + MSC(t_0, A);
+         XMX(SP_B, q_0) = logsum( prv_sum, prv_M );
+      }
+
+      XMX(SP_J, q_0) = -INF;
+      XMX(SP_C, q_0) = -INF;
+      XMX(SP_E, q_0) = -INF;
+
+      prv_N = XMX(SP_N, q_1) + XSC(SP_N,SP_LOOP);
+      prv_B  = XMX(SP_B, q_0) + XSC(SP_N,SP_MOVE);
+      XMX(SP_N, q_0) = logsum( prv_N, prv_B );
+
+      for (t_0 = T; t_0 >= 1; t_0--) {
+         MMX3(qx0, t_0) = IMX3(qx0, t_0) = DMX3(qx0, t_0) = -INF;
+      }
+
+      #if DEBUG 
+      {
+         MX_2D(cloud_MX, q_0, t_0) = 1.0;
+         MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX3(qx0, t_0);
+         MX_3D(test_MX, INS_ST, q_0, t_0) = IMX3(qx0, t_0);
+         MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
+      }
+      #endif
    }
-   #endif
 
    sc_best = XMX(SP_N, 0);
    *sc_final = sc_best;

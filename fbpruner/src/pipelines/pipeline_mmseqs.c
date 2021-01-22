@@ -136,8 +136,7 @@ mmseqs_pipeline( WORKER* worker )
 
    /* add header to all reports */
    WORK_report_header( worker );
-
-   printf("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
+   printf_vlo("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
    /* === ITERATE OVER EACH RESULT === */
    /* Look through each input result */
@@ -150,6 +149,7 @@ mmseqs_pipeline( WORKER* worker )
       /* record the score reported by mmseqs */
       worker->result->vit_natsc = result_in->bit_score;
 
+      /* report the input */
       if ( args->verbose_level >= VERBOSE_LOW ) 
       {
          fprintf( stdout, "=== M8 Entry : [%d] ===\n", i);
@@ -172,11 +172,13 @@ mmseqs_pipeline( WORKER* worker )
       /* start time for current */
       worker->result->time = CLOCK_Get_RealTime();
 
+      /* if the query is not the same as last on list, then get new query */
       if ( STRING_Equal( q_name, q_name_prv ) == false ) {
          WORK_load_query_by_name( worker, q_name );
          // SEQUENCE_Dump( worker->q_seq, stdout );
       }
 
+      /* lookback 1 name */
       t_name_prv  = t_name;
       q_name_prv  = q_name;
 

@@ -49,7 +49,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                                             ALIGNMENT*              aln )             /* OUTPUT: optimal alignment */
 {
    printf("=== run_Posterior_Traceback_Sparse() [BEGIN] ===\n");
-   FILE*    fp;
+   FILE*                fp;
 
    /* generic dp matrix pointers */
    MATRIX_3D_SPARSE*    st_SMX;
@@ -80,7 +80,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    int      lb_0, rb_0;                      /* bounds of current search space on current diag */
    int      lb_1, rb_1;                      /* bounds of current search space on previous diag */
    int      lb_2, rb_2;                      /* bounds of current search space on 2-back diag */
-   bool     rb_T;                            /* checks if edge touches right bound of matrix */
+   bool     lb_T, rb_T;                      /* checks if edge touches right bound of matrix */
 
    /* vars for recurrance scores */
    float    cur;                             /* current state */
@@ -118,18 +118,13 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    /* local or global? */
    is_local = target->isLocal;
 
-   /* intial cell */
-   q_0 = q_prv = Q;
-   t_0 = t_prv = 0;
-
-   /* add every edgebound from current row */
-   r_0b = edg->N - 1;
-
-   r_0 = r_0e = r_0b;
-   while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
-      r_0--;
-   }
-   r_0e = r_0;
+   /* intial indexes */
+   q_0   = q_prv = Q;
+   t_0   = t_prv = 0;
+   r_0b  = edg->N - 1;
+   r_0e  = edg->N - 1;
+   /* get edgebound range */
+   EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
 
    /* clear memory for trace */
    ALIGNMENT_Reuse( aln, Q, T );
@@ -150,13 +145,8 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
 
       /* if q_0 has been decremented, then get edgebound range of next row  */
       if ( q_prv != q_0 ) {
-         r_0b = r_0 = r_0e;
-         while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
-            r_0--;
-         }
-         r_0e = r_0;
-         /* reset r_0 to beginning of row */
-         r_0 = r_0b;
+         /* get edgebound range */
+         EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
       }
 
       /*! TODO: (?) can be optimized by only updating during certain cases */
