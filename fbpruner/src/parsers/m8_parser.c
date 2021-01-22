@@ -91,6 +91,7 @@ void RESULTS_M8_Parse( RESULTS* 	results,
       }
 
       // fprintf(stdout, "[%d] %s\n", line_count, line_buf);
+      res_tmp.result_id = result_count;
 
       /* split line on spaces, tabs, and newlines */
       line_ptr = line_buf;

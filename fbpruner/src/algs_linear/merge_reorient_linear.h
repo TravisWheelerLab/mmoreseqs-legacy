@@ -35,11 +35,11 @@ EDGEBOUNDS_Union(    const int           Q,             /* query length */
  *             Assumes input lists are sorted and both oriented by-antidiagonal.
  */
 STATUS_FLAG 
-EDGEBOUNDS_Union_via_Bridge(  const int           Q,             /* query length */
-                              const int           T,             /* target length */
-                              EDGEBOUNDS*         edg_in_1,      /* edgebounds (fwd, sorted ascending) */
-                              EDGEBOUNDS*         edg_in_2,      /* edgebounds (bck, sorted ascending) */
-                              EDGEBOUNDS*         edg_out );     /* OUTPUT: merged edgebounds (sorted ascending) */
+EDGEBOUNDS_Union_Abridged( const int           Q,             /* query length */
+                           const int           T,             /* target length */
+                           EDGEBOUNDS*         edg_in_1,      /* edgebounds (fwd, sorted ascending) */
+                           EDGEBOUNDS*         edg_in_2,      /* edgebounds (bck, sorted ascending) */
+                           EDGEBOUNDS*         edg_out );     /* OUTPUT: merged edgebounds (sorted ascending) */
 
 /*! FUNCTION: EDGEBOUNDS_Reorient_to_Row()
  *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.       

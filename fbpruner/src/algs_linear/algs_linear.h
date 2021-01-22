@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  FILE:      bounded_fwdbck_linear.c
- *  PURPOSE:   All algorithms with Linear Space implementations.
+ *  FILE:      _algs_linear.h
+ *  PURPOSE:   /algs_linear/ folder collective header
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       

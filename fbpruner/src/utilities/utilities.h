@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      error_handler.h
+ *  FILE:      _utilties.h
  *  PURPOSE:   Functions for handling error calls
  *
  *  AUTHOR:    Dave Rich

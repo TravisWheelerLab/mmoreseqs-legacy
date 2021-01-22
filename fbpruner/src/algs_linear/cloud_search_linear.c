@@ -309,19 +309,19 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
-         prune_via_xdrop_edgetrim_Linear( 
+         PRUNER_via_xdrop_edgetrim_Linear( 
             st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
-         prune_via_xdrop_bifurcate_Linear( 
+         PRUNER_via_xdrop_bifurcate_Linear( 
             st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
-         prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
+         PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
             st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
@@ -897,19 +897,19 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
       #if ( PRUNER == PRUNER_XDROP_EDGETRIM )
       {
          /* prune bounds using x-drop, no bifurcating */
-         prune_via_xdrop_edgetrim_Linear( 
+         PRUNER_via_xdrop_edgetrim_Linear( 
             st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_XDROP_BIFURCATE )
       {
          /* prune bounds using x-drop, bifurcating */
-         prune_via_xdrop_bifurcate_Linear( 
+         PRUNER_via_xdrop_bifurcate_Linear( 
             st_MX3, sp_MX, alpha, gamma, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, lb_vec, rb_vec );
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
-         prune_via_dbl_xdrop_edgetrim_or_die_Linear( 
+         PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
             st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
@@ -928,6 +928,8 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
          /* Update bounds to account for dp matrix bounds */
          lb_0 = MAX(lb_0, le_0);
          rb_0 = MIN(rb_0, re_0);
+         /* zeroth row (when d_0 == k_0) is not a valid state in backward. */
+         rb_0 = MIN( rb_0, d_0 );
 
          /* Update changes to list */
          VEC_X( lb_vec[0], i ) = lb_0;
@@ -971,7 +973,7 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
          // lb_T = ( lb_0 <= 0 );
          // rb_T = ( rb_0 >= d_0 );
          /* zeroth row (when d_0 == k_0) is not a valid state in backward. */
-         rb_0 = MIN( rb_0, d_0 );
+         // rb_0 = MIN( rb_0, d_0 );
 
          /* ITERATE THROUGH CELLS OF ANTI-DIAGONAL */
          for ( k_0 = lb_0; k_0 < rb_0; k_0++ )

@@ -100,10 +100,9 @@ mmseqs_pipeline( WORKER* worker )
 
    /* get result range */
    int i_rng, i_cnt, i_beg, i_end;
-   i_cnt = 0;
-
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
+   
    // RESULTS_M8_Dump( results_in, stdout );
 
    /* current hit */
@@ -133,21 +132,30 @@ mmseqs_pipeline( WORKER* worker )
    i_beg = args->list_range.beg;
    i_end = args->list_range.end;
    i_rng = i_end - i_beg;
+   i_cnt = 0;
 
    /* add header to all reports */
    WORK_report_header( worker );
    printf_vlo("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
    /* === ITERATE OVER EACH RESULT === */
-   /* Look through each input result */
+   /* Look through each input result (i = index in full list, i_cnt = index relative to search range) */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
       printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i+1, i_end );
 
-      result_in = &worker->results_in->data[i];
-      /* record the score reported by mmseqs */
+      /* results should only contain entries which we wish to compute */
+      result_in = &VEC_X( worker->results_in, i_cnt );
+      /* result_id contains the index of the corresponding entry in mmseq's output */
+      worker->result->result_id = i;
+       /* record the score reported by mmseqs */
       worker->result->vit_natsc = result_in->bit_score;
+
+      /* mmseqs viterbi score threshold: if it does not pass, skip this entry */
+      if ( false ) {
+         continue;
+      }
 
       /* report the input */
       if ( args->verbose_level >= VERBOSE_LOW ) 

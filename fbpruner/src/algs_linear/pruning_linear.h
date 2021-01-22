@@ -3,14 +3,13 @@
  *  PURPOSE:   Pruning methods for Cloud Search.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _PRUNING_LINEAR_H
 #define _PRUNING_LINEAR_H
 
-/*
- *  FUNCTION: 	prune_diag_by_xdrop_edgetrim()
+/*! FUNCTION: 	PRUNER_diag_by_xdrop_edgetrim()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.  
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
@@ -18,8 +17,8 @@
  * 				(3) Performs pruning from right-edge, moving left.
  * 				(4) Stores edgebounds in left and right bound list.
  */
-void 
-prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
+STATUS_FLAG 
+PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 									MATRIX_2D* 		sp_MX,			/* special state matrix */
 									const float     alpha,			/* x-drop value */
 									const int       gamma,			/* number of antidiagonals before pruning */
@@ -35,8 +34,7 @@ prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix 
 									VECTOR_INT* 	rb_vec[3] );	/* OUTPUT: current list of right-bounds */
 
 
-/*
- *  FUNCTION: 	prune_diag_by_xdrop_bifurcate_Linear()
+/*! FUNCTION: 	PRUNER_diag_by_xdrop_bifurcate_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and trims all cells which fall below pruning threshold
  * 				(1) Computes the diag_max on the given antidiagonal.
@@ -45,8 +43,8 @@ prune_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix 
  * 				(3a) When cells go from below to above threshold, position added to left-bound list.
  * 				(3b) When a cell go from above to below threshold, position added to right-bound list.
  */
-void 
-prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
+STATUS_FLAG 
+PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 									MATRIX_2D* 		sp_MX,			/* special state matrix */
 									const float     alpha,			/* x-drop value */
 									const int       gamma,			/* number of antidiagonals before pruning */
@@ -61,8 +59,7 @@ prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
 									VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 									VECTOR_INT* 	rb_vec[3] );	/* OUTPUT: current list of right-bounds */
 
-/*
- *  FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
+/*! FUNCTION: 	PRUNER_diag_by_xdrop_edgetrim_or_die_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
  *				Alpha: 		value determining whether cells are pruned in antidiagonal
@@ -74,8 +71,8 @@ prune_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
  * 				(3) Performs pruning from right-edge, moving left.
  * 				(4) Stores edgebounds in left and right bound list.
  */
-void
-prune_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
+STATUS_FLAG
+PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
 												MATRIX_2D* 		sp_MX,			/* special state matrix */
 												const float     alpha,			/* x-drop value for by-diag prune */
 												const float 	beta, 			/* x-drop value for global prune */
