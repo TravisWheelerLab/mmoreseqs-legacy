@@ -19,9 +19,9 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "algs_linear.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "_algs_linear.h"
 
 /* header */
 #include "merge_reorient_linear.h"

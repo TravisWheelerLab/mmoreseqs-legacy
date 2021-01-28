@@ -17,10 +17,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
-#include "algs_linear.h"
+#include "_algs_linear.h"
 
 /* self header */
 #include "bound_fwdbck_linear.h"

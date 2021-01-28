@@ -16,15 +16,7 @@
 #include "io/reader.h"
 
 /* basic datatypes / wrappers */
-#include "basic/bound.h"
-#include "basic/char.h"
-#include "basic/double.h"
-#include "basic/float.h"
-#include "basic/int.h"
-#include "basic/range.h"
-#include "basic/trace.h"
-#include "basic/template.h"
-#include "basic/x_string.h"
+#include "basic/_basic.h"
 
 /* vectors */
 #include "vectors/vector_bound.h"

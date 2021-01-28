@@ -17,8 +17,8 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
 
 /* unit test imports */
 #include "../parsers/index_parser.h"

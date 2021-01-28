@@ -21,9 +21,9 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
-#include "objects.h"
-#include "algs_linear.h"
+#include "_utilities.h"
+#include "_objects.h"
+#include "_algs_linear.h"
 
 /* header */
 #include "fwdback_linear.h"

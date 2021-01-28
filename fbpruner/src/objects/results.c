@@ -16,15 +16,14 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
 
 /* header */
 #include "results.h"
 
-/*
- *  FUNCTION:  RESULTS_Create()
- *  SYNOPSIS:
+/*! FUNCTION:  RESULTS_Create()
+ *  SYNOPSIS:  
  */
 RESULTS* RESULTS_Create()
 {
@@ -43,8 +42,7 @@ RESULTS* RESULTS_Create()
    return results;
 }
 
-/*
- *  FUNCTION:  RESULTS_Destroy()
+/*! FUNCTION:  RESULTS_Destroy()
  *  SYNOPSIS:
  */
 void* RESULTS_Destroy( RESULTS* results )

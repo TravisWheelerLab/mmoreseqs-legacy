@@ -16,10 +16,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../algs_linear/algs_linear.h"
-#include "../parsers/parsers.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../parsers/_parsers.h"
 
 /* header */
 #include "_algs_sparse.h"
@@ -50,6 +50,8 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
                         MATRIX_2D*              sp_MX_opt,        /* OUTPUT: special state matrix for optimal accuracy */       
                         RESULT*                 result,           /* OUPUT: full cloud results */
                         DOMAIN_DEF*             dom_def,          /* OUTPUT: domain data */
+                        CLOCK*                  clok,
+                        TIMES*                  times,
                         bool                    is_run_domains )  /* if run posterior on domains */  
 {
    printf("=== run_Posterior_Sparse() [BEGIN] ===\n");
@@ -65,6 +67,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    float          pre_sc, fwd_sc, bck_sc, post_sc, opt_sc, dom_sc;
    int            N_domains;
    int            D_total;
+   float          dom_start_time;
 
    /* init and clear data from previous search */
    DOMAIN_DEF_Reuse( dom_def );
@@ -81,7 +84,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    result->query_start  = Q_range.beg;
    result->query_end    = Q_range.end;
    result->target_start = T_range.beg;
-   result->target_start = T_range.end;
+   result->target_end   = T_range.end;
 
    #if DEBUG
    {
@@ -92,8 +95,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    /* compute score and bias for entire cloud */
    {
       /* compute Forward */
+      CLOCK_Start( clok );
       run_Bound_Forward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, NULL, &fwd_sc );
+      CLOCK_Stop( clok );
+      times->sp_bound_fwd = CLOCK_Duration( clok );
+
       fprintf(stdout, "# ==> Forward  (full cloud): %11.4f %11.4f\n", 
          fwd_sc, fwd_sc/CONST_LOG2);
       result->bound_fwd_natsc = fwd_sc;
@@ -106,8 +113,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       #endif
 
       /* compute Backward */
+      CLOCK_Start( clok );
       run_Bound_Backward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, NULL, &bck_sc );
+      CLOCK_Stop( clok );
+      times->sp_bound_bck = CLOCK_Duration( clok );
+
       fprintf(stdout, "# ==> Backward (full cloud): %11.4f %11.4f\n", 
          bck_sc, bck_sc/CONST_LOG2);
       result->bound_bck_natsc = bck_sc;
@@ -119,12 +130,17 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       }
       #endif
 
+      /* TODO: add max bound score to thresholds */
+
       /* find the Domain ranges */
       fprintf(stdout, "# ==> Find Domains\n");
+      CLOCK_Start( clok );
       run_Decode_Domains( 
          q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
       N_domains = dom_def->dom_ranges->N;
-      /* list found domains */
+      CLOCK_Stop( clok );
+      times->sp_decodedom = CLOCK_Duration( clok );
+
       fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
       for (int i = 0; i < dom_def->dom_ranges->N; i++) 
       {
@@ -133,11 +149,14 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       }
 
       /* compute Posterior */
-      fprintf(stdout, "# ==> Posterior (full cloud)\n");
+      CLOCK_Start( clok );
       run_Decode_Posterior_Sparse( 
          q_seq, t_prof, Q, T, edg, NULL,
          st_SMX_fwd, sp_MX_fwd, st_SMX_bck, sp_MX_bck, st_SMX_post, sp_MX_post );
+      CLOCK_Stop( clok );
+      times->sp_posterior = CLOCK_Duration( clok );
 
+      fprintf(stdout, "# ==> Posterior (full cloud)\n");
       #if DEBUG 
       {
          fp = fopen("test_output/my.sparse_post.mx", "w+");
@@ -150,43 +169,50 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       #endif
 
       /* Composition Bias */
-      fprintf(stdout, "# ==> Null2 Compo Bias (full cloud)\n");
+      CLOCK_Start( clok );
       run_Null2_ByExpectation_Sparse( 
          q_seq, t_prof, Q, T, edg, NULL, NULL, NULL,
          st_SMX_post, sp_MX_post, dom_def, &compo_bias );
+      CLOCK_Stop( clok );
+      times->sp_biascorr = CLOCK_Duration( clok );
+      
       fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", compo_bias, compo_bias/CONST_LOG2);
       result->final_scores.seq_bias;
 
       // /* Optimal Alignment */
-      // fprintf(stdout, "# ==> Optimal Accuracy (full cloud)\n");
+      // CLOCK_Start( clok );
       // run_Posterior_Optimal_Accuracy_Sparse( 
       //    q_seq, t_prof, Q, T, edg, NULL,
       //    st_SMX_post, sp_MX_post, st_SMX_opt, sp_MX_opt, &opt_sc );
-      // fprintf(stdout, "# ==> Optimal Accuracy (full cloud): %11.4f\n", opt_sc);
+      // CLOCK_Stop( clok );
+      // times->sp_optacc = CLOCK_Duration( clok );
 
-      #if DEBUG 
-      {
-         fp = fopen("test_output/my.sparse_opt.mx", "w+");
-         MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_opt, debugger->test_MX);
-         MATRIX_2D_Log(sp_MX_opt);
-         DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_opt, fp);
-         MATRIX_2D_Exp(sp_MX_post);
-         fclose(fp);
-      }
-      #endif
+      // fprintf(stdout, "# ==> Optimal Accuracy (full cloud): %11.4f\n", opt_sc);
+      // #if DEBUG 
+      // {
+      //    fp = fopen("test_output/my.sparse_opt.mx", "w+");
+      //    MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_opt, debugger->test_MX);
+      //    MATRIX_2D_Log(sp_MX_opt);
+      //    DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_opt, fp);
+      //    MATRIX_2D_Exp(sp_MX_post);
+      //    fclose(fp);
+      // }
+      // #endif
 
       // /* Optimal Alignment Traceback */
-      // fprintf(stdout, "# ==> Optimal Alignment (full cloud)\n");
+      // CLOCK_Start( clok );
       // run_Posterior_Optimal_Traceback_Sparse( 
       //    q_seq, t_prof, Q, T, edg, NULL, 
       //    st_SMX_post, sp_MX_post, dom_def->align );
       // ALIGNMENT_Build_MMSEQS_Style( dom_def->align, q_seq, t_prof );
       // ALIGNMENT_Build_HMMER_Style( dom_def->align, q_seq, t_prof );
-      // fprintf(stdout, "# ==> Cigar Alignment: %s", dom_def->align->cigar_aln);
+      // CLOCK_Stop( clok );
+      // times->sp_optacc += CLOCK_Duration( clok );
+
+      fprintf(stdout, "# ==> Optimal Alignment: %s", dom_def->align->cigar_aln);
    }
 
    /* run through Domains and compute score, bias correction, and optimal alignment */
-   printf("is_run_domains: %d\n", is_run_domains);
    if ( is_run_domains == true )
    {
       dom_def->n_domains      = N_domains;
@@ -194,6 +220,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       dom_def->dom_sumbias    = 0.0f;
       D_total                 = 0;
       null_sc                 = dom_def->nullsc;
+      dom_start_time          = CLOCK_Get_Time( clok );
 
       for (int i = 0; i < N_domains; i++)
       {
@@ -207,6 +234,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          // EDGEBOUNDS_Set_Domain( edg, edg_dom, D_range );
          // HMM_PROFILE_ReconfigLength( t_prof, q_seq->N );
          
+         /* TODO: Should be able to eliminate this */
          /* clear previous data */
          MATRIX_3D_SPARSE_Fill_Outer( st_SMX_fwd, -INF );
          MATRIX_3D_SPARSE_Fill_Outer( st_SMX_bck, -INF );
@@ -215,8 +243,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          }
 
          /* compute Forward/Backward for the domain range */
+         CLOCK_Start( clok );
          run_Bound_Forward_Sparse( 
             q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, &D_range, &fwd_sc );
+         CLOCK_Stop( clok );
+         times->dom_bound_fwd += CLOCK_Duration( clok );
+
          fprintf(stdout, "# ==> Forward   (domain %d/%d): %11.4f %11.4f\n", 
             i+1, N_domains, fwd_sc, fwd_sc/CONST_LOG2);
          #if DEBUG 
@@ -229,8 +261,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          #endif
 
          /* compute Forward/Backward for the domain range */
+         CLOCK_Start( clok );
          run_Bound_Backward_Sparse( 
             q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, &D_range, &bck_sc );
+         CLOCK_Stop( clok );
+         times->dom_bound_bck += CLOCK_Duration( clok );
+         
          fprintf(stdout, "# ==> Backward  (domain %d/%d): %11.4f %11.4f\n", 
             i+1, N_domains, bck_sc, bck_sc/CONST_LOG2);
          #if DEBUG 
@@ -243,11 +279,15 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          #endif
 
          /* compute Posterior (forward * backward) for domain range */
-         fprintf(stdout, "# ==> Posterior (domain %d/%d)\n", 
-            i+1, N_domains);
+         CLOCK_Start( clok );
          run_Decode_Posterior_Sparse( 
             q_seq, t_prof, Q, T, edg, &D_range,
             st_SMX_fwd, sp_MX_fwd, st_SMX_bck, sp_MX_bck, st_SMX_post, sp_MX_post );
+         CLOCK_Stop( clok );
+         times->dom_posterior += CLOCK_Duration( clok );
+
+         fprintf(stdout, "# ==> Posterior (domain %d/%d)\n", 
+            i+1, N_domains);
          #if DEBUG 
          {
             fp = fopen("test_output/my.sparse_post.dom.mx", "w+");
@@ -260,9 +300,12 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          #endif
          
          /* run Null2 Score to compute Composition Bias */
-         fprintf(stdout, "# ==> Null2 Compo Bias\n");
+         CLOCK_Start( clok );
          run_Null2_ByExpectation_Sparse( q_seq, t_prof, Q, T, edg, &D_range, NULL, NULL,
             st_SMX_post, sp_MX_post, dom_def, &compo_bias );
+         CLOCK_Stop( clok );
+         times->dom_biascorr += CLOCK_Duration( clok );
+
          fprintf(stdout, "# ==> Null2 Compo Bias  (domain %d/%d): %11.4f %11.4f\n", 
             i+1, N_domains, compo_bias, compo_bias/CONST_LOG2);
 
@@ -303,6 +346,9 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          dom_def->dom_sumbias = -INF;
          dom_def->dom_sumsc   = -INF;
       }
+
+      /* total dom-scoring time */
+      times->dom_total = CLOCK_Get_Time( clok ) - dom_start_time;
    }
 
    printf("=== run_Posterior_Sparse() [END] ===\n");

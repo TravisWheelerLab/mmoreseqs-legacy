@@ -18,14 +18,13 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
 
 /* header */
 #include "alignment.h"
 
-/*
- *  FUNCTION:  ALIGNMENT_Create()
+/*! FUNCTION:  ALIGNMENT_Create()
  *  SYNOPSIS:
  */
 ALIGNMENT* ALIGNMENT_Create()
@@ -63,8 +62,7 @@ ALIGNMENT* ALIGNMENT_Create()
    return aln;
 }
 
-/*
- *  FUNCTION:  RESULTS_Destroy()
+/*! FUNCTION:  ALIGNMENT_Destroy()
  *  SYNOPSIS:
  */
 void* ALIGNMENT_Destroy(   ALIGNMENT* aln )
@@ -91,8 +89,7 @@ void* ALIGNMENT_Destroy(   ALIGNMENT* aln )
    return aln;
 }
 
-/*
- *  FUNCTION:  RESULTS_Reuse()
+/*! FUNCTION:  ALIGNMENT_Reuse()
  *  SYNOPSIS:  Reuse alignment by clearing traceback and setting dimensions.
  */
 void ALIGNMENT_Reuse(   ALIGNMENT*  aln,
@@ -115,10 +112,8 @@ void ALIGNMENT_Reuse(   ALIGNMENT*  aln,
    aln->state_aln = ERROR_free( aln->state_aln );
 }
 
-/* push trace onto end of alignment */
-/*
- *  FUNCTION:  RESULTS_Reuse()
- *  SYNOPSIS:  Reuse alignment by clearing traceback and setting dimensions.
+/*! FUNCTION:  RESULTS_Reuse()
+ *  SYNOPSIS:  Push trace onto end of alignment.
  */
 void ALIGNMENT_Pushback(   ALIGNMENT* aln,
                            TRACE*     tr )

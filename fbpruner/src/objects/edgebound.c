@@ -16,9 +16,9 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
+#include "../utilities/_utilities.h"
 #include "basic/bound.h"
-#include "objects.h"
+#include "_objects.h"
 
 /* header */
 #include "edgebound.h"

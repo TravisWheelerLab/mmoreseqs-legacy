@@ -12,14 +12,15 @@
 #include <stdbool.h>
 
 /* local imports */
-#include "../utilities/utilities.h"
-#include "objects.h"
-#include "../parsers/parsers.h"
-#include "../pipelines/pipelines.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
+#include "../parsers/_parsers.h"
+#include "../pipelines/_pipelines.h"
 
 /* header import */
 #include "structs.h"
 
+/* Full Protein Alphabet with all Degen characters */
 char ALPH_AMINO_CHARS[] = "ACDEFGHIKLMNPQRSTVWY-BJZOUX~";
 
 /* Proteins in Alphabetical order */

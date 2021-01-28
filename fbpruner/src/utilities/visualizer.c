@@ -20,44 +20,48 @@
 
 /* local imports */
 #include "structs.h"
-#include "objects.h"
+#include "_objects.h"
 
 /* header */
-#include "utilities.h"
+#include "_utilities.h"
+#include "vizualizer.h"
 
-
-/*  FUNCTION:  VIZUALIZE_Edgebounds()
+/*! FUNCTION:  VIZUALIZE_Edgebounds()
  *  SYNOPSIS:  
  */
-void VIZUALIZER_Edgebounds(   EDGEBOUNDS*    edg,
-                              char*          filename )
+void 
+VIZUALIZER_Edgebounds(  EDGEBOUNDS*    edg,
+                        char*          filename )
 {
    
 }
 
-/*  FUNCTION:  VIZUALIZE_Matrix_2D()
+/*! FUNCTION:  VIZUALIZE_Matrix_2D()
  *  SYNOPSIS:  
  */
-void VIZUALIZE_Matrix_2D(  MATRIX_2D*  mx,
-                           char*       filename )
+void 
+VIZUALIZE_Matrix_2D(    MATRIX_2D*  mx,
+                        char*       filename )
 {
 
 }
 
-/*  FUNCTION:  VIZUALIZE_Matrix_3D()
+/*! FUNCTION:  VIZUALIZE_Matrix_3D()
  *  SYNOPSIS:  
  */
-void VIZUALIZE_Matrix_3D(  MATRIX_3D*  mx,
-                           char*       filename )
+void 
+VIZUALIZE_Matrix_3D(    MATRIX_3D*  mx,
+                        char*       filename )
 {
 
 }
 
-/*  FUNCTION:  VIZUALIZE_Matrix_3D()
+/*! FUNCTION:  VIZUALIZE_Matrix_3D()
  *  SYNOPSIS:  
  */
-void VIZUALIZE_Matrix_3D_Sparse(    MATRIX_3D_SPARSE*    mx,
-                                    char*                filename )
+void 
+VIZUALIZE_Matrix_3D_Sparse(   MATRIX_3D_SPARSE*    mx,
+                              char*                filename )
 {
 
 }

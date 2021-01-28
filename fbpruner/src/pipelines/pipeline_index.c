@@ -19,15 +19,15 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../parsers/parsers.h"
-#include "../algs_linear/algs_linear.h"
-#include "../algs_quad/algs_quad.h"
-#include "../algs_naive/algs_naive.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../parsers/_parsers.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../algs_quad/_algs_quad.h"
+#include "../algs_naive/_algs_naive.h"
 
 /* header */
-#include "pipelines.h"
+#include "_pipelines.h"
 
 /* set default args for index pipeline */
 

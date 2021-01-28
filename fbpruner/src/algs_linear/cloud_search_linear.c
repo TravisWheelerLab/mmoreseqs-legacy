@@ -1,11 +1,13 @@
 /*******************************************************************************
  *    FILE:       cloud_search_linear.c
- *    PURPOSE:    Cloud Search for Pruned Forward-Backward (Linear Space Alg)
+ *    PURPOSE:    Cloud Search for Forward-Backward Pruning Algorithm
+ *                (Linear Space Alg)
  *
  *    AUTHOR:     Dave Rich
- *    BUG:        None known.
- *    TODO:       - lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine. 
- *                - 
+ *    BUGS:       
+ *       - None known.
+ *    TODO:       
+ *       - lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine. 
  *******************************************************************************/
 
 /* imports */
@@ -18,13 +20,13 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
-#include "algs_linear.h"
+#include "_algs_linear.h"
 
 /* for debugging */
-#include "../algs_quad/algs_quad.h"
+#include "../algs_quad/_algs_quad.h"
 
 /* header */
 #include "cloud_search_linear.h"
@@ -47,8 +49,7 @@
  *       MX_M(i+1, j  ) => MX3_M(d_1, k+1)
  */
 
-/*
- *  FUNCTION: run_Cloud_Forward_Linear()
+/*! FUNCTION: run_Cloud_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment beginning.  
@@ -59,16 +60,19 @@
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Returns <STATUS_SUCCESS> if no errors.
  */
-int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query sequence */
-                                 const HMM_PROFILE*   target,       /* target hmm model */
-                                 const int            Q,            /* query length */
-                                 const int            T,            /* target length */
-                                 MATRIX_3D*           st_MX3,       /* normal state matrix */
-                                 MATRIX_2D*           sp_MX,        /* special state matrix */
-                                 const ALIGNMENT*     tr,           /* viterbi traceback */
-                                 EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row vector */
-                                 EDGEBOUNDS*          edg,          /* OUTPUT: edgebounds of cloud search space */
-                                 CLOUD_PARAMS*        params )      /* pruning parameters */
+STATUS_FLAG 
+run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence */
+                           const HMM_PROFILE*   target,       /* target hmm model */
+                           const int            Q,            /* query length */
+                           const int            T,            /* target length */
+                           MATRIX_3D*           st_MX3,       /* normal state matrix */
+                           MATRIX_2D*           sp_MX,        /* special state matrix */
+                           const ALIGNMENT*     tr,           /* viterbi traceback */
+                           EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row vector */
+                           EDGEBOUNDS*          edg,          /* OUTPUT: edgebounds of cloud search space */
+                           CLOUD_PARAMS*        params,       /* pruning parameters */
+                           float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
+                           float*               max_sc )      /* OUTPUT: highest score found during search */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -172,6 +176,10 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
 
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
+
+   /* init max scores */
+   *inner_sc   = -INF;
+   *max_sc     = -INF;
 
    /* check if data is cleaned */
    #if DEBUG
@@ -325,6 +333,11 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
             st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
+
+      /* if currently inside viterbi range, update max inner_sc */
+      if ( d_0 < vit_range.end ) {
+         *inner_sc = total_max;
+      }
 
       /* Add pruned bounds to edgebound list */
       for ( i = 0; i < lb_vec[0]->N; i++ )
@@ -620,12 +633,14 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
    /* after search, all cells are set to -INF */
    st_MX3->clean = true;
 
+   /* highest score found in cloud search */
+   *max_sc = total_max;
+
    return STATUS_SUCCESS;
 }
 
 
-/*
- *  FUNCTION: run_Cloud_Backward_Linear()
+/*! FUNCTION: run_Cloud_Backward_Linear()
  *  SYNOPSIS: Perform Backward part of Cloud Search Algorithm.
  *            Traverses the dynamic programming matrix antidiagonally, running the
  *            Forward algorithm, starting at the Viterbi alignment ending.  
@@ -636,16 +651,19 @@ int run_Cloud_Forward_Linear(    const SEQUENCE*      query,        /* query seq
  *            Stores final edgebound data in <edg>.
  *  RETURN:   Maximum score.
  */
-int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query sequence */
-                                 const HMM_PROFILE*   target,       /* target hmm model */
-                                 const int            Q,            /* query length */
-                                 const int            T,            /* target length */
-                                 MATRIX_3D*           st_MX3,       /* normal state matrix */
-                                 MATRIX_2D*           sp_MX,        /* special state matrix */
-                                 const ALIGNMENT*     tr,           /* viterbi traceback */
-                                 EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row */
-                                 EDGEBOUNDS*          edg,          /* (OUTPUT) */
-                                 CLOUD_PARAMS*        params )      /* pruning parameters */
+STATUS_FLAG 
+run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequence */
+                              const HMM_PROFILE*   target,       /* target hmm model */
+                              const int            Q,            /* query length */
+                              const int            T,            /* target length */
+                              MATRIX_3D*           st_MX3,       /* normal state matrix */
+                              MATRIX_2D*           sp_MX,        /* special state matrix */
+                              const ALIGNMENT*     tr,           /* viterbi traceback */
+                              EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row */
+                              EDGEBOUNDS*          edg,          /* (OUTPUT) */
+                              CLOUD_PARAMS*        params,       /* pruning parameters */
+                              float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
+                              float*               max_sc )      /* OUTPUT: highest score found during search */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -751,6 +769,10 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
 
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
+
+   /* init max scores */
+   *inner_sc   = -INF;
+   *max_sc     = -INF;
 
    /* check if data is cleaned */
    #if DEBUG
@@ -913,6 +935,11 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
             st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
+
+      /* if currently inside viterbi range, update max inner_sc */
+      if ( d_0 >= vit_range.beg ) {
+         *inner_sc = total_max;
+      }
 
       /* Add pruned bounds to edgebound list */
       for ( i = 0; i < lb_vec[0]->N; i++ )
@@ -1226,6 +1253,9 @@ int run_Cloud_Backward_Linear(   const SEQUENCE*      query,        /* query seq
    #endif 
 
    st_MX3->clean = true;
+
+   /* highest score found in cloud search */
+   *max_sc = total_max;
 
    return STATUS_SUCCESS;
 }

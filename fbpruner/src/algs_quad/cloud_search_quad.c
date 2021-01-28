@@ -16,10 +16,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
-#include "algs_quad.h"
+#include "_algs_quad.h"
 
 /* header */
 #include "cloud_search_quad.h"
@@ -59,7 +59,9 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
                               VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
                               VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
-                              CLOUD_PARAMS*        params )       /* pruning parameters */
+                              CLOUD_PARAMS*        params,        /* pruning parameters */
+                              float*               inner_sc,      /* OUTPUT: maximum score inside viterbi bounds */
+                              float*               max_sc )       /* OUTPUT: maximum score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -299,6 +301,11 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
       }
       #endif
 
+      /* TODO: Update inside viterbi score if reached */
+      if ( true ) {
+
+      }
+
       /* Add pruned bounds to edgebound list */
       for ( i = 0; i < lb_vec[0]->N; i++ )
       {
@@ -430,6 +437,8 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    }
    #endif
 
+   *max_sc = total_max;
+
    return STATUS_SUCCESS;
 }
 
@@ -439,18 +448,20 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
-int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query sequence */
-                                 const HMM_PROFILE*   target,        /* target hmm model */
-                                 const int            Q,             /* query length */
-                                 const int            T,             /* target length */
-                                 MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
-                                 MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
-                                 const ALIGNMENT*     tr,            /* viterbi traceback */ 
-                                 EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
-                                 VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
-                                 VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
-                                 EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
-                                 CLOUD_PARAMS*        params )       /* pruning parameters */
+int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query sequence */
+                              const HMM_PROFILE*   target,        /* target hmm model */
+                              const int            Q,             /* query length */
+                              const int            T,             /* target length */
+                              MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
+                              MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
+                              const ALIGNMENT*     tr,            /* viterbi traceback */ 
+                              EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                              VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
+                              VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
+                              EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
+                              CLOUD_PARAMS*        params,        /* pruning parameters */
+                              float*               inner_sc,      /* OUTPUT: maximum score inside viterbi bounds */
+                              float*               max_sc )       /* OUTPUT: maximum score */
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -820,6 +831,8 @@ int run_Cloud_Backward_Quad(     const SEQUENCE*      query,         /* query se
       DP_MATRIX_VIZ_Trace( cloud_MX, tr );
    }
    #endif 
+
+   *max_sc = total_max;
 
    return total_max;
 } 

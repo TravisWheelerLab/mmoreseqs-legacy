@@ -14,58 +14,55 @@
 #include <string.h>
 #include <math.h>
 
-/* objects */
-#include "objects/structs.h"
-#include "objects/edgebound.h"
-
 /* local imports */
 #include "structs.h"
-#include "objects.h"
+#include "_objects.h"
 
 /* header */
+#include "_utilities.h"
 #include "statistics.h"
 
 #define SMALLX1 0.001
 
-/* 
- *	FUNCTION:  	STATS_Nats_to_Bitscore()
- * SYNOPSIS:  	Given a score in Nats <nat_sc> and <filter_sc> to account for composition bias,
- * 				Compute the bit-score <bit_sc>, P-value <pval>, and E-value <eval>.
+/*! FUNCTION:  	STATS_Nats_to_Bitscore()
+ *  SYNOPSIS:  	Given a score in Nats <nat_sc> and <filter_sc> to account for composition bias,
+ * 				   Compute the bit-score <bit_sc>, P-value <pval>, and E-value <eval>.
  */
-int STATS_Nats_to_Eval( 	float 	nats_sc,
-									float		filter_sc,
-									float*	bit_sc,
-									float* 	pval,
-									float* 	eval )
+int 
+STATS_Nats_to_Eval( 	float 	nats_sc,
+							float		filter_sc,
+							float*	bit_sc,
+							float* 	pval,
+							float* 	eval )
 {
 	// bit_sc = (nats_sc - filter_sc) / CONST_LOG2;
 }
 
-/* 
- * FUNCTION:  EXPONENTIAL_survivor()
- * SYNOPSIS:  Calculates the survivor function, $P(X>x)$ (that is, 1-CDF,
- *            the right tail probability mass) for an exponential distribution,
- *            given value <x>, offset <mu>, and decay parameter <lambda>.
+/*! FUNCTION:     EXPONENTIAL_survivor()
+ *  SYNOPSIS:     Calculates the survivor function, $P(X>x)$ (that is, 1-CDF,
+ *                the right tail probability mass) for an exponential distribution,
+ *                given value <x>, offset <mu>, and decay parameter <lambda>.
  */
-double EXPONENTIAL_survivor(  double x, 
-                              double mu, 
-                              double lambda )
+double 
+EXPONENTIAL_survivor(  	double x, 
+								double mu, 
+								double lambda )
 {
   if (x < mu) return 1.0;
   return exp(-lambda * (x-mu));
 }
 
 
-/*
- *  FUNCTION:  	GUMBEL_pdf()
+/*! FUNCTION:  	GUMBEL_pdf()
  *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(mu, lambda). 
  * 					<mu> and <lambda> are parameters of the Gumbel distribution.
  * 					y = lambda * (x - mu)
  * 					Pr( G(mu,lambda) > x ) = lamda * exp(-(y) - exp(-(y))).
  */
-double GUMBEL_pdf(	double x, 
-							double mu, 
-							double lambda )
+double 
+GUMBEL_pdf(		double x, 
+					double mu, 
+					double lambda )
 {
   double y;
   y = lambda * (x - mu);
@@ -73,13 +70,13 @@ double GUMBEL_pdf(	double x,
 }
 
 
-/*
- *  FUNCTION:  	GUMBEL_log_pdf()
+/*! FUNCTION:  	GUMBEL_log_pdf()
  *  SYNOPSIS:  	
  */
-double GUMBEL_log_pdf( 	double x, 
-								double mu, 
-								double lambda )
+double 
+GUMBEL_log_pdf( 	double x, 
+						double mu, 
+						double lambda )
 {
   double y;
   y = lambda * (x - mu);
@@ -87,13 +84,13 @@ double GUMBEL_log_pdf( 	double x,
 }
 
 
-/*
- *  FUNCTION:  	GUMBEL_cdf()
+/*! FUNCTION:  	GUMBEL_cdf()
  *  SYNOPSIS:  	
  */
-double GUMBEL_cdf(	double x, 
-							double mu, 
-							double lambda )
+double 
+GUMBEL_cdf(	double x, 
+				double mu, 
+				double lambda )
 {
   double y;
   y = lambda * (x - mu);
@@ -101,26 +98,26 @@ double GUMBEL_cdf(	double x,
 }
 
 
-/*
- *  FUNCTION:  	GUMBEL_log_cdf()
+/*! FUNCTION:  	GUMBEL_log_cdf()
  *  SYNOPSIS:  	
  */
-double GUMBEL_log_cdf( 	double x, 
-								double mu, 
-								double lambda )
+double 
+GUMBEL_log_cdf( 	double x, 
+						double mu, 
+						double lambda )
 {
   double y;
   y = lambda * (x - mu);
   return (-exp(-y));
 }
 
-/*
- *  FUNCTION:  	GUMBEL_survivor()
+/*! FUNCTION:  	GUMBEL_survivor()
  *  SYNOPSIS:  	
  */
-double GUMBEL_survivor( 	double x, 
-									double mu, 
-									double lambda )
+double 
+GUMBEL_survivor( 	double x, 
+						double mu, 
+						double lambda )
 {
 	double y  = lambda*(x-mu);
 	double ey = -exp(-y);
@@ -135,13 +132,13 @@ double GUMBEL_survivor( 	double x,
 }
 
 
-/*
- *  FUNCTION:  	GUMBEL_log_survivor()
+/*! FUNCTION:  	GUMBEL_log_survivor()
  *  SYNOPSIS:  	
  */
-double GUMBEL_log_survivor( 	double x, 
-										double mu, 
-										double lambda)
+double 
+GUMBEL_log_survivor( 	double x, 
+								double mu, 
+								double lambda)
 {
 	double y  = lambda*(x-mu);
 	double ey = -exp(-y);

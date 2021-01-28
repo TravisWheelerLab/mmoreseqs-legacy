@@ -18,20 +18,21 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../parsers/parsers.h"
-#include "../algs_linear/algs_linear.h"
-#include "../algs_quad/algs_quad.h"
-#include "../algs_naive/algs_naive.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../parsers/_parsers.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../algs_quad/_algs_quad.h"
+#include "../algs_naive/_algs_naive.h"
 #include "../algs_sparse/_algs_sparse.h"
+#include "../reporting/_reporting.h"
 
 /* easel library */
 #include "easel.h"
 #include "esl_exponential.h"
 
 /* header */
-#include "pipelines.h"
+#include "_pipelines.h"
 
 /* generic workflow */
 void WORK_main_workflow( WORKER*  worker )
@@ -118,6 +119,10 @@ void WORK_init( WORKER* worker )
    worker->sp_MX        = worker->sp_MX_fwd;
    /* domain definition */
    worker->dom_def      = DOMAIN_DEF_Create();
+
+   // WORK_times_init( worker, worker->times );
+   // WORK_times_init( worker, worker->times_totals );
+   // WORK_times_init( worker, worker->times_raw );
 }
 
 /* clean up data structs */
@@ -177,40 +182,43 @@ void WORK_cleanup( WORKER* worker )
    worker->dom_def         = DOMAIN_DEF_Destroy( worker->dom_def );
 }
 
-/* open worker files */
+/* open all worker files */
 void WORK_open( WORKER* worker )
 {
-   TASKS*   tasks = worker->tasks;
    ARGS*    args  = worker->args;
 
    /* TODO: need to handle results in bulk. currently report one-at-a-time. */
    /* open file pointers */
    if ( args->is_redirect_stdout ) {
-      worker->output_fp    = ERROR_fopen( args->output_filepath, "w" );
+      worker->output_fp = ERROR_fopen( args->output_filepath, "w" );
    } else {
-      worker->output_fp    = stdout;
+      worker->output_fp = stdout;
    }
    if ( args->is_tblout ) {
-      worker->tblout_fp    = ERROR_fopen( args->tblout_filepath, "w" );
+      worker->tblout_fp = ERROR_fopen( args->tblout_filepath, "w" );
    }
    if ( args->is_m8out ) {
-      worker->m8out_fp     = ERROR_fopen( args->m8out_filepath, "w" );
+      worker->m8out_fp = ERROR_fopen( args->m8out_filepath, "w" );
    }
    if ( args->is_myout ) {
-      worker->myout_fp     = ERROR_fopen( args->myout_filepath, "w" );
+      worker->myout_fp = ERROR_fopen( args->myout_filepath, "w" );
    }
    if ( args->is_mydomout ) {
       worker->mydomout_fp  = ERROR_fopen( args->mydomout_filepath, "w" );
    }
+   if ( args->is_mytimeout ) {
+      worker->mytimeout_fp = ERROR_fopen( args->mytimeout_filepath, "w" );
+   }
+   if ( args->is_mythreshout ) {
+      worker->mythreshout_fp = ERROR_fopen( args->mythreshout_filepath, "w" );
+   }
 }
 
-/* close worker files */
+/* close all worker files */
 void WORK_close( WORKER* worker )
 {
-   TASKS*   tasks =  worker->tasks;
    ARGS*    args  =  worker->args;  
 
-   /* open file pointers */
    if ( args->is_redirect_stdout ) {
       if ( worker->output_fp != stdout ) {
          worker->output_fp    = ERROR_fclose( worker->output_fp );
@@ -227,6 +235,12 @@ void WORK_close( WORKER* worker )
    }
    if ( args->is_mydomout ) {
       worker->mydomout_fp = ERROR_fclose( worker->mydomout_fp );
+   }
+   if ( args->is_mytimeout ) {
+      worker->mytimeout_fp = ERROR_fclose( worker->mytimeout_fp );
+   }
+   if ( args->is_mythreshout ) {
+      worker->mythreshout_fp = ERROR_fclose( worker->mythreshout_fp );
    }
 }
 
@@ -315,11 +329,22 @@ void WORK_load_index_by_id( WORKER* worker )
 void WORK_load_index_by_name( WORKER* worker )
 {
    /* load target index */
+   CLOCK_Start( worker->clok );
+
    WORK_load_target_index( worker );
    F_INDEX_Sort_by_Name( worker->t_index );
+
+   CLOCK_Stop( worker->clok ); 
+   worker->times->load_target_index = CLOCK_Duration( worker->clok );
+
    /* load query index */
+   CLOCK_Start( worker->clok );
+
    WORK_load_query_index( worker );
    F_INDEX_Sort_by_Name( worker->q_index );
+
+   CLOCK_Stop( worker->clok ); 
+   worker->times->load_query_index = CLOCK_Duration( worker->clok );
 }
 
 /* load target index (or build them if argument missing) */
@@ -385,7 +410,7 @@ void WORK_load_target_index(  WORKER*     worker )
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_target_index = CLOCK_Secs(clok);
+   times->load_target_index = CLOCK_Duration(clok);
 }
 
 /* load query index (or build them) */
@@ -452,7 +477,7 @@ void WORK_load_query_index(   WORKER*     worker )
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_query_index = CLOCK_Secs(clok);
+   times->load_query_index = CLOCK_Duration(clok);
 }
 
 /* build target index */
@@ -499,7 +524,7 @@ void WORK_build_target_index(    WORKER*     worker )
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_target_index = CLOCK_Secs(clok);
+   times->load_target_index = CLOCK_Duration(clok);
 }
 
 /* load query index (or build them) */
@@ -547,7 +572,7 @@ void WORK_build_query_index(  WORKER*   worker )
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_query_index = CLOCK_Secs(clok);
+   times->load_query_index = CLOCK_Duration(clok);
 }
 
 /* output target index to file */
@@ -672,7 +697,7 @@ void WORK_load_target_by_id(  WORKER*     worker,
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_target = CLOCK_Secs(clok);
+   times->load_target = CLOCK_Duration(clok);
 }
 
 /* load query by file index id */
@@ -699,7 +724,7 @@ void WORK_load_query_by_id(   WORKER*     worker,
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_query = CLOCK_Secs(clok);
+   times->load_query = CLOCK_Duration(clok);
 }
 
 /* load target by file index name */
@@ -710,7 +735,6 @@ void WORK_load_target_by_name(   WORKER*    worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   TIMES*         t_times        = worker->times_totals;
    CLOCK*         clok           = worker->clok;
    int            index_id       = 0;
    int            index_offset   = 0;
@@ -728,8 +752,7 @@ void WORK_load_target_by_name(   WORKER*    worker,
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_target = CLOCK_Secs(clok);
-   t_times->load_target += times->load_target;
+   times->load_target = CLOCK_Duration(clok);
 }
 
 /* load target by file index name */
@@ -740,7 +763,6 @@ void WORK_load_query_by_name( WORKER*     worker,
    ARGS*          args           = worker->args;
    TASKS*         tasks          = worker->tasks;
    TIMES*         times          = worker->times;
-   TIMES*         t_times        = worker->times_totals;
    CLOCK*         clok           = worker->clok;
    int            index_id       = 0;
    int            index_offset   = 0;
@@ -758,8 +780,7 @@ void WORK_load_query_by_name( WORKER*     worker,
 
    /* end and save time */
    CLOCK_Stop(clok);
-   times->load_query = CLOCK_Secs(clok);
-   t_times->load_query += times->load_query;
+   times->load_query = CLOCK_Duration(clok);
 }
 
 /* load target by file index id */
@@ -862,7 +883,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       CLOCK_Start(clok);
       run_Viterbi_Linear( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clok);
-      times->lin_vit = CLOCK_Secs(clok);
+      times->lin_vit = CLOCK_Duration(clok);
       scores->lin_vit = sc;
       #if DEBUG 
       {
@@ -876,7 +897,7 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       CLOCK_Start(clok);
       run_Viterbi_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, &sc );
       CLOCK_Stop(clok);
-      times->quad_vit = CLOCK_Secs(clok);
+      times->quad_vit = CLOCK_Duration(clok);
       scores->quad_vit = sc;
       #if DEBUG 
       {
@@ -895,14 +916,14 @@ void WORK_viterbi_and_traceback( WORKER*  worker )
       // CLOCK_Start(clok);
       // run_Traceback_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
       // CLOCK_Stop(clok);
-      // times->lin_trace = CLOCK_Secs(clok);
+      // times->lin_trace = CLOCK_Duration(clok);
    }
    if ( tasks->quad_trace ) {
       printf_vall("# ==> traceback (quad)...\n");
       CLOCK_Start(clok);
       run_Traceback_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, tr );
       CLOCK_Stop(clok);
-      times->quad_trace = CLOCK_Secs(clok);
+      times->quad_trace = CLOCK_Duration(clok);
    }
 }
 
@@ -934,7 +955,7 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Start(clok);
       run_Forward_Linear( q_seq, t_prof, Q, T, worker->st_MX3_fwd, worker->sp_MX_fwd, &sc );
       CLOCK_Stop(clok);
-      times->lin_fwd    = CLOCK_Secs(clok);
+      times->lin_fwd    = CLOCK_Duration(clok);
       scores->lin_fwd   = sc;
       #if DEBUG 
       {
@@ -950,7 +971,7 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Start(clok);
       run_Forward_Quad( q_seq, t_prof, Q, T, worker->st_MX_fwd, worker->sp_MX_fwd, &sc );
       CLOCK_Stop(clok);
-      times->quad_fwd   = CLOCK_Secs(clok);
+      times->quad_fwd   = CLOCK_Duration(clok);
       scores->quad_fwd  = sc;
       #if DEBUG 
       {
@@ -967,7 +988,7 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Start(clok);
       run_Backward_Linear( q_seq, t_prof, Q, T, worker->st_MX3_bck, worker->sp_MX_bck, &sc );
       CLOCK_Stop(clok);
-      times->lin_bck    = CLOCK_Secs(clok);
+      times->lin_bck    = CLOCK_Duration(clok);
       scores->lin_bck   = sc;
       #if DEBUG 
       {
@@ -983,7 +1004,7 @@ void WORK_forward_backward( WORKER*  worker )
       CLOCK_Start(clok);
       run_Backward_Quad( q_seq, t_prof, Q, T, worker->st_MX_bck, worker->sp_MX_bck, &sc );
       CLOCK_Stop(clok);
-      times->quad_bck   = CLOCK_Secs(clok);
+      times->quad_bck   = CLOCK_Duration(clok);
       scores->quad_bck  = sc;
       #if DEBUG 
       {
@@ -998,11 +1019,121 @@ void WORK_forward_backward( WORKER*  worker )
 /* cloud search */
 void WORK_cloud_search( WORKER* worker )
 {
+   /* workflow */
+   ARGS*             args           = worker->args;
+   TASKS*            tasks          = worker->tasks;
+   TIMES*            times          = worker->times;
+   CLOCK*            clok           = worker->clok;
+   RESULT*           result         = worker->result;
+   /* search parameters */
+   SEQUENCE*         q_seq          = worker->q_seq;
+   HMM_PROFILE*      t_prof         = worker->t_prof;
+   int               Q              = q_seq->N;
+   int               T              = t_prof->N;
+   CLOUD_PARAMS*     cloud_params   = &(worker->cloud_params);
+   /* working data */
+   MATRIX_3D*        st_cloud_MX    = worker->st_cloud_MX;
+   MATRIX_3D*        st_MX          = worker->st_MX;
+   MATRIX_3D_SPARSE* st_SMX_fwd     = worker->st_SMX_fwd;
+   MATRIX_3D_SPARSE* st_SMX_bck     = worker->st_SMX_bck;
+
+   MATRIX_3D*        st_MX3         = worker->st_MX3;
+   MATRIX_3D*        st_MX3_fwd     = worker->st_MX3_fwd;
+   MATRIX_3D*        st_MX3_bck     = worker->st_MX3_bck;
+
+   MATRIX_2D*        sp_MX          = worker->sp_MX;
+   MATRIX_2D*        sp_MX_fwd      = worker->sp_MX_fwd;
+   MATRIX_2D*        sp_MX_bck      = worker->sp_MX_bck;
+    
+   ALIGNMENT*        tr             = worker->traceback;
+
+   EDGEBOUNDS*       edg_fwd        = worker->edg_fwd;
+   EDGEBOUNDS*       edg_bck        = worker->edg_bck;
+   EDGEBOUNDS*       edg_diag       = worker->edg_diag;
+   EDGEBOUNDS*       edg_row        = worker->edg_row;
+   EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
+   VECTOR_INT**      lb_vec         = worker->lb_vec;
+   VECTOR_INT**      rb_vec         = worker->rb_vec;
+   
+
+   float             max_fwdsc, max_bcksc;
+   float             inner_fwdsc, inner_bcksc;
+   float             outer_fwdsc, outer_bcksc;
+   float             max_sc, inner_maxsc, compo_sc;
+   
+
+   /* if performing linear fb-pruner, run cloud search  */
+   if ( tasks->lin_cloud_fwd || tasks->lin_cloud_bck ) 
+   {
+      /* cloud forward */
+      printf_vall("# ==> cloud forward (linear)...\n");
+      CLOCK_Start(clok);
+      run_Cloud_Forward_Linear( 
+         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params, &inner_fwdsc, &max_fwdsc );
+      CLOCK_Stop(clok);
+      times->lin_cloud_fwd = CLOCK_Duration(clok);
+      worker->scores->lin_cloud_fwd = max_fwdsc;
+      #if DEBUG
+      {
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_fwd.lin.mx");
+         EDGEBOUNDS_Save( edg_fwd, "test_output/my.fwd.edg" );
+      }
+      #endif
+
+      /* cloud backward */
+      printf_vall("# ==> cloud backward (linear)...\n");
+      CLOCK_Start(clok);
+      run_Cloud_Backward_Linear( 
+         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params, &inner_bcksc, &max_bcksc );
+      CLOCK_Stop(clok);
+      times->lin_cloud_bck = CLOCK_Duration(clok);
+      worker->scores->lin_cloud_bck = max_bcksc;
+      #if DEBUG
+      {
+         DP_MATRIX_Save( Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx" );
+         EDGEBOUNDS_Save( edg_bck, "test_output/my.bck.edg" );
+      }
+      #endif
+
+      /* take maximum score for threshold test */
+      max_sc      = MAX( max_fwdsc, max_bcksc );
+      /* take composite score for threshold test: */
+      /* max score inside viterbi alignment range plus each search's score outside viterbi alignment range */
+      inner_maxsc = MAX( inner_fwdsc, inner_bcksc );
+      outer_fwdsc = max_fwdsc - inner_fwdsc;
+      outer_bcksc = max_bcksc - inner_bcksc;
+      compo_sc    = inner_maxsc + outer_fwdsc + outer_bcksc;
+
+      worker->scores->threshold_cloud_max    = max_sc;
+      worker->scores->threshold_cloud_compo  = compo_sc;
+   }
+
+   /* if performing quadratic bounded forward or backward  */
+   if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) 
+   {
+      /* cloud forward */
+      CLOCK_Start(clok);
+      run_Cloud_Forward_Quad( 
+         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_fwd, cloud_params, &inner_fwdsc, &max_fwdsc );
+      CLOCK_Stop(clok);
+      times->quad_cloud_fwd = CLOCK_Duration(clok);
+
+      /* cloud backward */
+      CLOCK_Start(clok);
+      run_Cloud_Backward_Quad( 
+         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_bck, cloud_params, &inner_bcksc, &max_bcksc );
+      CLOCK_Stop(clok);
+      times->quad_cloud_bck = CLOCK_Duration(clok);
+   }
+}
+
+/* run bound forward backward */
+void WORK_bound_forward_backward( WORKER*    worker )
+{
    ARGS*             args           = worker->args;
    TASKS*            tasks          = worker->tasks;
 
    TIMES*            times          = worker->times;
-   TIMES*            t_times        = worker->times_totals;
    CLOCK*            clok           = worker->clok;
    RESULT*           result         = worker->result;
 
@@ -1020,7 +1151,7 @@ void WORK_cloud_search( WORKER* worker )
    float             alpha          = args->alpha;
    float             beta           = args->beta;
    int               gamma          = args->gamma;
-   float             sc             = 0.0;
+   float             sc             = 0.0f;
 
    MATRIX_3D*        st_cloud_MX    = worker->st_cloud_MX; 
 
@@ -1053,43 +1184,12 @@ void WORK_cloud_search( WORKER* worker )
    /* if performing linear fb-pruner, run cloud search  */
    if ( tasks->lin_cloud_fwd || tasks->lin_cloud_bck ) 
    {
-      /* cloud forward */
-      printf_vall("# ==> cloud forward (linear)...\n");
-      CLOCK_Start(clok);
-      run_Cloud_Forward_Linear( 
-         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params );
-      CLOCK_Stop(clok);
-      times->lin_cloud_fwd = CLOCK_Secs(clok);
-      t_times->lin_cloud_fwd += times->lin_cloud_fwd;
-      #if DEBUG
-      {
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_fwd.lin.mx");
-         EDGEBOUNDS_Save( edg_fwd, "test_output/my.fwd.edg" );
-      }
-      #endif
-
-      /* cloud backward */
-      printf_vall("# ==> cloud backward (linear)...\n");
-      CLOCK_Start(clok);
-      run_Cloud_Backward_Linear( 
-         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params );
-      CLOCK_Stop(clok);
-      times->lin_cloud_bck = CLOCK_Secs(clok);
-      t_times->lin_cloud_bck += times->lin_cloud_bck ;
-      #if DEBUG
-      {
-         DP_MATRIX_Save( Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx" );
-         EDGEBOUNDS_Save( edg_bck, "test_output/my.bck.edg" );
-      }
-      #endif
-
       /* merge edgebounds */
       printf_vall("# ==> merge (linear)...\n");
       CLOCK_Start(clok);
       EDGEBOUNDS_Union( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
-      times->lin_merge = CLOCK_Secs(clok);
-      t_times->lin_merge += times->lin_merge;
+      times->lin_merge = CLOCK_Duration(clok);
       #if DEBUG
       {
          EDGEBOUNDS_Save( edg_diag, "test_output/my.cloud.diags.edg");
@@ -1103,8 +1203,7 @@ void WORK_cloud_search( WORKER* worker )
       int precount  = EDGEBOUNDS_Count( edg_row );
       EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
-      times->lin_reorient = CLOCK_Secs(clok);
-      t_times->lin_reorient += times->lin_reorient;
+      times->lin_reorient = CLOCK_Duration(clok);
 
       /* compute the number of cells in matrix computed */
       result->cloud_cells = EDGEBOUNDS_Count( edg_row );
@@ -1121,10 +1220,6 @@ void WORK_cloud_search( WORKER* worker )
          EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif
-
-      /* compute the number of cells in matrix computed */
-      result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
-      result->total_cells  = (Q+1) * (T+1);
    }
     
    /* linear bounded forward */
@@ -1133,8 +1228,9 @@ void WORK_cloud_search( WORKER* worker )
       printf_vall("# ==> bound forward (linear)...\n");
       CLOCK_Start(clok);
       run_Bound_Forward_Linear( q_seq, t_prof, Q, T, st_MX3_fwd, sp_MX_fwd, edg_row, &sc );
-      scores->lin_bound_fwd = sc;
       CLOCK_Stop(clok);
+      times->lin_bound_fwd    = CLOCK_Duration(clok);
+      scores->lin_bound_fwd   = sc;
 
       #if DEBUG
       {
@@ -1144,13 +1240,6 @@ void WORK_cloud_search( WORKER* worker )
          // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.lin.viz.mx");
       }
       #endif
-      times->lin_bound_fwd    = CLOCK_Secs(clok);
-      t_times->lin_bound_fwd  += times->lin_bound_fwd;
-      scores->lin_bound_fwd   = sc;
-
-      times->lin_fbpruner_total  =  times->lin_cloud_fwd + times->lin_cloud_bck  + 
-                                    times->lin_merge     + times->lin_reorient   +
-                                    times->lin_bound_fwd + times->lin_bound_bck;
    }
    /* linear bounded backward */
    if ( tasks->lin_bound_bck ) 
@@ -1158,8 +1247,9 @@ void WORK_cloud_search( WORKER* worker )
       printf_vall("# ==> bound backward (linear)...\n");
       CLOCK_Start(clok);
       run_Bound_Backward_Linear( q_seq, t_prof, Q, T, st_MX3, sp_MX_bck, edg_row, &sc );
-      scores->lin_bound_bck = sc;
       CLOCK_Stop(clok);
+      times->lin_bound_bck    = CLOCK_Duration(clok);
+      scores->lin_bound_bck   = sc;
       #if DEBUG
       {
          printf_vall("# printing linear bound backward...\n");
@@ -1168,8 +1258,13 @@ void WORK_cloud_search( WORKER* worker )
          // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
       }
       #endif
-      times->lin_bound_bck    = CLOCK_Secs(clok);
-      scores->lin_bound_bck   = sc;
+   }
+   /* get threshold score */
+   if ( tasks->lin_bound_fwd || tasks->lin_bound_bck ) 
+   {
+      float fwdsc = ( tasks->lin_bound_fwd == true ? scores->lin_bound_fwd : -INF );
+      float bcksc = ( tasks->lin_bound_fwd == true ? scores->lin_bound_bck : -INF );
+      scores->threshold_bound_max = MAX( fwdsc, bcksc );
    }
 
    /* if performing sparse fb-pruner, initialize sparse matrix */
@@ -1209,13 +1304,8 @@ void WORK_cloud_search( WORKER* worker )
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
       }
       #endif
-      times->sp_bound_fwd        = CLOCK_Secs(clok);
-      t_times->sp_bound_fwd      += times->lin_bound_fwd;
+      times->sp_bound_fwd        = CLOCK_Duration(clok);
       scores->sparse_bound_fwd   = sc;
-
-      times->sp_fbpruner_total   =  times->lin_cloud_fwd + times->lin_cloud_bck  + 
-                                    times->lin_merge     + times->lin_reorient   +
-                                    times->sp_bound_fwd + times->sp_bound_bck;
    }
    /* sparse bounded backward */
    if ( tasks->sparse_bound_bck ) 
@@ -1224,8 +1314,9 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       run_Bound_Backward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg_row, NULL, &sc );
-      scores->sparse_bound_bck = sc;
       CLOCK_Stop(clok);
+      times->sp_bound_bck        = CLOCK_Duration(clok);
+      scores->sparse_bound_bck   = sc;
       #if DEBUG
       {
          printf_vall("# printing sparse bound backward...\n");
@@ -1234,38 +1325,22 @@ void WORK_cloud_search( WORKER* worker )
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.sp.mx");
       }
       #endif
-      times->sp_bound_bck        = CLOCK_Secs(clok);
-      scores->sparse_bound_bck   = sc;
    }
 
    /* if performing quadratic bounded forward or backward  */
    if ( tasks->quad_bound_fwd || tasks->quad_bound_bck ) 
    {
-      /* cloud forward */
-      CLOCK_Start(clok);
-      run_Cloud_Forward_Quad( 
-         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_fwd, cloud_params );
-      CLOCK_Stop(clok);
-      times->quad_cloud_fwd = CLOCK_Secs(clok);
-
-      /* cloud backward */
-      CLOCK_Start(clok);
-      run_Cloud_Backward_Quad( 
-         q_seq, t_prof, Q, T, st_MX, sp_MX, tr, edg_rows_tmp, lb_vec, rb_vec, edg_bck, cloud_params );
-      CLOCK_Stop(clok);
-      times->quad_cloud_bck = CLOCK_Secs(clok);
-
       /* merge edgebounds */
       CLOCK_Start(clok);
       EDGEBOUNDS_Union( Q, T, edg_fwd, edg_bck, edg_diag );
       CLOCK_Stop(clok);
-      times->quad_merge = CLOCK_Secs(clok);
+      times->quad_merge = CLOCK_Duration(clok);
 
       /* reorient edgebounds */
       CLOCK_Start(clok);
       EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
       CLOCK_Stop(clok);
-      times->quad_merge = CLOCK_Secs(clok);
+      times->quad_reorient = CLOCK_Duration(clok);
    }
    /* quadratic bounded forward */
    if ( tasks->quad_bound_fwd ) 
@@ -1274,12 +1349,8 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       run_Bound_Forward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
-      times->quad_bound_fwd   = CLOCK_Secs(clok);
+      times->quad_bound_fwd   = CLOCK_Duration(clok);
       scores->quad_bound_fwd  = sc;
-
-      times->quad_fbpruner_total =     times->quad_cloud_fwd   + times->quad_cloud_bck + 
-                                       times->quad_merge       +
-                                       times->quad_bound_fwd   + times->quad_bound_bck;
    }
    /* quadratic bounded backward */
    if ( tasks->quad_bound_bck ) 
@@ -1288,7 +1359,7 @@ void WORK_cloud_search( WORKER* worker )
       CLOCK_Start(clok);
       run_Bound_Backward_Quad( q_seq, t_prof, Q, T, st_MX, sp_MX, edg_row, &sc );
       CLOCK_Stop(clok);
-      times->quad_bound_bck   = CLOCK_Secs(clok);
+      times->quad_bound_bck   = CLOCK_Duration(clok);
       scores->quad_bound_bck  = sc;
    }
 }
@@ -1418,20 +1489,28 @@ void WORK_posterior( WORKER* worker )
          }
 
          /* build sparse matrices */
+         CLOCK_Start( worker->clok );
          MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, worker->edg_row );
          MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
          MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
          if ( worker->st_SMX_post != worker->st_SMX_bck ) {
             MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_fwd );
          }
+         CLOCK_Stop( worker->clok );
+         worker->times->sp_build_mx = CLOCK_Duration( worker->clok );
 
+         /* TODO: Need to break up posterior into WORK subroutines */
          /* run full posterior */
          bool is_run_domains = worker->args->is_run_domains;
+         CLOCK_Start( worker->clok );
+         /* TODO: remove timer from this */
          run_Posterior_Sparse(
             worker->q_seq, worker->t_prof, Q, T, worker->hmm_bg, worker->edg_row,
             worker->st_SMX_fwd, worker->sp_MX_fwd, worker->st_SMX_bck, worker->sp_MX_bck, 
             worker->st_SMX_post, worker->sp_MX_post, worker->st_SMX_fwd, worker->sp_MX_fwd,
-            worker->result, worker->dom_def, is_run_domains );
+            worker->result, worker->dom_def, worker->clok, worker->times, is_run_domains );
+         CLOCK_Stop( worker->clok );
+         worker->times->sp_posterior = CLOCK_Duration( worker->clok );
       }
 
       /* compute sequence bias */
@@ -1470,16 +1549,192 @@ void WORK_posterior( WORKER* worker )
    result->final_scores.eval        = eval;
 }
 
+/* initialize all scores to -inf */
+void WORK_scores_init(  WORKER*        worker,
+                        NAT_SCORES*    scores )
+{
+   const float val = -INF;
+   /* naive algs */
+   scores->naive_bound_fwd          = val;
+   scores->naive_bound_bck          = val;
+   /* quadratic algs */
+   scores->quad_fwd                 = val; 
+   scores->quad_bck                 = val;
+   scores->quad_vit                 = val; 
+   scores->quad_trace               = val;
+   scores->quad_cloud_fwd           = val;
+   scores->quad_cloud_bck           = val;
+   scores->quad_bound_fwd           = val;
+   scores->quad_bound_bck           = val;
+   /* linear algs */   
+   scores->lin_fwd                  = val;
+   scores->lin_bck                  = val;
+   scores->lin_vit                  = val; 
+   scores->lin_trace                = val;
+   scores->lin_cloud_fwd            = val;
+   scores->lin_cloud_bck            = val;
+   scores->lin_bound_fwd            = val;
+   scores->lin_bound_bck            = val;
+   /* sparse algs */
+   scores->sparse_fwd               = val;
+   scores->sparse_bck               = val;
+   scores->sparse_vit               = val; 
+   scores->sparse_trace             = val;
+   scores->sparse_bound_fwd         = val;
+   scores->sparse_bound_bck         = val;
+   /* threshold scores */
+   scores->threshold_vit            = val; 
+   scores->threshold_cloud_max      = val;
+   scores->threshold_cloud_compo    = val;
+   scores->threshold_bound_max      = val;
+   scores->threshold_dom_max        = val;  
+   scores->threshold_dom_compo      = val;   
+}
+
+/* initialize all times to zero */
+void 
+WORK_times_init(  WORKER*    worker,
+                  TIMES*     times )
+{
+   const float val = 0.0f;
+   /* total */
+   times->program_start        = val;
+   times->program_runtime      = val;
+   times->total;
+   /* indexes */
+   times->load_target_index    = val;
+   times->load_query_index     = val;
+   /* load */
+   times->load_target          = val;
+   times->load_query           = val;
+   /* naive algs */
+   times->naive_cloud          = val;        
+   /* quadratic algs */
+   times->quad_fwd             = val;
+   times->quad_bck             = val;
+   times->quad_vit             = val;
+   times->quad_trace           = val;
+   times->quad_cloud_fwd       = val;
+   times->quad_cloud_bck       = val;
+   times->quad_merge           = val;
+   times->quad_reorient        = val;
+   times->quad_bound_fwd       = val;
+   times->quad_bound_bck       = val;
+   times->quad_fbpruner_total  = val;
+   times->quad_posterior       = val;
+   times->quad_optacc          = val;
+   /* linear algs */   
+   times->lin_fwd              = val;
+   times->lin_bck              = val;
+   times->lin_vit              = val;
+   times->lin_trace            = val;
+   times->lin_cloud_fwd        = val;
+   times->lin_cloud_bck        = val;
+   times->lin_merge            = val;
+   times->lin_reorient         = val;
+   times->lin_bound_fwd        = val;
+   times->lin_bound_bck        = val;
+   times->lin_fbpruner_total   = val;
+   /* sparse algs */
+   times->sp_build_mx          = val;
+   times->sp_fwd               = val;
+   times->sp_bck               = val;
+   times->sp_vit               = val;
+   times->sp_trace             = val;
+   times->sp_cloud_fwd         = val;
+   times->sp_cloud_bck         = val;
+   times->sp_bound_fwd         = val;
+   times->sp_bound_bck         = val;
+   times->sp_fbpruner_total    = val;
+   times->sp_posterior         = val;
+   times->sp_optacc            = val;
+   /* doms */
+   times->dom_total            = val;
+   times->dom_bound_fwd        = val;
+   times->dom_bound_bck        = val;
+   times->dom_posterior        = val;
+   times->sp_biascorr          = val;
+   times->dom_optacc           = val;
+}
+
+/* add times to running totals */
+void 
+WORK_times_add( WORKER* worker )
+{
+   TIMES* times = worker->times;
+   TIMES* time_totals = worker->times_totals;
+
+   time_totals->program_start        += times->program_start;
+   time_totals->program_runtime      += times->program_runtime;
+   time_totals->total                += times->total;
+   /* indexes */
+   time_totals->load_target_index    += times->load_target_index;
+   time_totals->load_query_index     += times->load_query_index;
+   /* load */
+   time_totals->load_target          += times->load_target;
+   time_totals->load_query           += times->load_query;
+   /* naive algs */
+   time_totals->naive_cloud          += times->naive_cloud;        
+   /* quadratic algs */
+   time_totals->quad_fwd             += times->quad_fwd;
+   time_totals->quad_bck             += times->quad_bck;
+   time_totals->quad_vit             += times->quad_vit;
+   time_totals->quad_trace           += times->quad_trace;
+   time_totals->quad_cloud_fwd       += times->quad_cloud_fwd;
+   time_totals->quad_cloud_bck       += times->quad_cloud_bck;
+   time_totals->quad_merge           += times->quad_merge;
+   time_totals->quad_reorient        += times->quad_reorient;
+   time_totals->quad_bound_fwd       += times->quad_bound_fwd;
+   time_totals->quad_bound_bck       += times->quad_bound_bck;
+   time_totals->quad_fbpruner_total  += times->quad_fbpruner_total;
+   time_totals->quad_posterior       += times->quad_posterior;
+   time_totals->quad_optacc          += times->quad_optacc;
+   /* linear algs */   
+   time_totals->lin_fwd              += times->lin_fwd;
+   time_totals->lin_bck              += times->lin_bck;
+   time_totals->lin_vit              += times->lin_vit;
+   time_totals->lin_trace            += times->lin_trace;
+   time_totals->lin_cloud_fwd        += times->lin_cloud_fwd;
+   time_totals->lin_cloud_bck        += times->lin_cloud_bck ;
+   time_totals->lin_merge            += times->lin_merge;
+   time_totals->lin_reorient         += times->lin_reorient;
+   time_totals->lin_bound_fwd        += times->lin_bound_fwd;
+   time_totals->lin_bound_bck        += times->lin_bound_bck;
+   time_totals->lin_fbpruner_total   += times->lin_fbpruner_total;
+   /* sparse algs */
+   time_totals->sp_build_mx          += times->sp_build_mx;
+   time_totals->sp_fwd               += times->sp_fwd;
+   time_totals->sp_bck               += times->sp_bck;
+   time_totals->sp_vit               += times->sp_vit;
+   time_totals->sp_trace             += times->sp_trace;
+   time_totals->sp_cloud_fwd         += times->sp_cloud_fwd;
+   time_totals->sp_cloud_bck         += times->sp_cloud_bck;
+   time_totals->sp_bound_fwd         += times->sp_bound_fwd;
+   time_totals->sp_bound_bck         += times->sp_bound_bck;
+   time_totals->sp_fbpruner_total    += times->sp_fbpruner_total;
+   time_totals->sp_posterior         += times->sp_posterior;
+   time_totals->sp_biascorr          += times->sp_biascorr;
+   time_totals->sp_optacc            += times->sp_optacc;
+   /* doms */
+   time_totals->dom_total            += times->dom_total;
+   time_totals->dom_bound_fwd        += times->dom_bound_fwd;
+   time_totals->dom_bound_bck        += times->dom_bound_bck;
+   time_totals->dom_posterior        += times->dom_posterior;
+   time_totals->dom_biascorr         += times->dom_biascorr;
+   time_totals->dom_optacc           += times->dom_optacc;
+}
+
 /* print header for results file (default) */
-void WORK_report_header( WORKER* worker )
+void 
+WORK_report_header( WORKER* worker )
 {
    ARGS* args = worker->args;
 
-   /* open file pointers */
+   /* print footers to all open pointers */
    REPORT_stdout_header( worker, worker->output_fp );
 
    if ( args->is_tblout ) {
-      REPORT_tblout_header( worker, worker->tblout_fp );
+      REPORT_domtblout_header( worker, worker->tblout_fp );
    }
    if ( args->is_m8out ) {
       REPORT_m8out_header( worker, worker->m8out_fp );
@@ -1487,20 +1742,28 @@ void WORK_report_header( WORKER* worker )
    if ( args->is_myout ) {
       REPORT_myout_header( worker, worker->myout_fp );
    }
+   if ( args->is_mytimeout ) {
+      REPORT_mytimeout_header( worker, worker->mytimeout_fp );
+   }
+   if ( args->is_mythreshout ) {
+      REPORT_mythreshout_header( worker, worker->mythreshout_fp );
+   }
    if ( args->is_mydomout && args->is_run_domains ) {
       REPORT_mydomout_header( worker, worker->mydomout_fp );
    }
 }
 
 /* print current result (default) */
-void WORK_report_result_current( WORKER* worker )
+void 
+WORK_report_result_current( WORKER* worker )
 {
    ARGS* args = worker->args;
 
-   /* open file pointers */
+   /* print result to all open pointers */
    REPORT_stdout_entry( worker, worker->result, worker->output_fp );
+
    if ( args->is_tblout ) {
-      REPORT_tblout_entry( worker, worker->result, worker->tblout_fp );
+      REPORT_domtblout_entry( worker, worker->result, worker->tblout_fp );
    }
    if ( args->is_m8out ) {
       REPORT_m8out_entry( worker, worker->result, worker->m8out_fp );
@@ -1508,13 +1771,20 @@ void WORK_report_result_current( WORKER* worker )
    if ( args->is_myout ) { 
       REPORT_myout_entry( worker, worker->result, worker->myout_fp );
    }
+   if ( args->is_mytimeout ) { 
+      REPORT_mytimeout_entry( worker, worker->result, worker->mytimeout_fp );
+   }
+   if ( args->is_mythreshout ) { 
+      REPORT_mythreshout_entry( worker, worker->result, worker->mythreshout_fp );
+   }
    if ( args->is_mydomout && args->is_run_domains ) { 
       REPORT_mydomout_entry( worker, worker->result, worker->mydomout_fp );
    }
 }
 
 /* print all results */
-void WORK_report_result_all( WORKER* worker )
+void 
+WORK_report_result_all( WORKER* worker )
 {
    ARGS* args = worker->args;
 
@@ -1522,21 +1792,28 @@ void WORK_report_result_all( WORKER* worker )
 
 /* initial output printed before search */
 /* for verbose output */
-void WORK_report_footer( WORKER*  worker ) 
+void 
+WORK_report_footer( WORKER*  worker ) 
 {
    ARGS* args = worker->args;
 
-   /* open file pointers */
+   /* print footers to all open pointers */
    REPORT_stdout_footer( worker, worker->output_fp );
 
    if ( args->is_tblout ) {
-      REPORT_tblout_footer( worker, worker->tblout_fp );
+      REPORT_domtblout_footer( worker, worker->tblout_fp );
    }
    if ( args->is_m8out ) {
       REPORT_m8out_footer( worker, worker->m8out_fp );
    }
    if ( args->is_myout ) { 
       REPORT_myout_footer( worker, worker->myout_fp );
+   }
+   if ( args->is_mytimeout ) { 
+      REPORT_mytimeout_footer( worker, worker->mytimeout_fp );
+   }
+   if ( args->is_mythreshout ) { 
+      REPORT_mythreshout_footer( worker, worker->mythreshout_fp );
    }
    if ( args->is_mydomout && args->is_run_domains ) { 
       REPORT_myout_footer( worker, worker->mydomout_fp );

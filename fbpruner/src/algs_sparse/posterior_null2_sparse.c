@@ -16,10 +16,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../algs_linear/algs_linear.h"
-#include "../parsers/parsers.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../parsers/_parsers.h"
 
 /* header */
 #include "_algs_sparse.h"

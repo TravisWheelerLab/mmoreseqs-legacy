@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      structs_consts.h
- *  PURPOSE:   Enumerated Types and Constants used by Cloud Search.
+ *  PURPOSE:   Enumerated Types and Constants.
  *
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
@@ -43,6 +43,7 @@ typedef enum{
    SORT_ID,
    SORT_NAME,
 } SORT_TYPE;
+#define NUM_SORT_TYPES 3
 
 /* Flag for which models in file are to be loaded */
 typedef enum {
@@ -51,6 +52,7 @@ typedef enum {
    LOAD_BY_OFFSET,      /* laod by offset (referenced from index file) */
    LOAD_FIRST,          /* load the first model in file */
 } LOAD_TYPE;
+#define NUM_LOAD_TYPES 4
 
 /* Status Flags (for function returns) */
 typedef enum {
@@ -58,7 +60,7 @@ typedef enum {
    STATUS_FAILURE,
    STATUS_MEMERROR,
 } STATUS_FLAG;
-#define NUM_STATUS_FLAGS 2
+#define NUM_STATUS_FLAGS 3
 
 /* Error Flags */
 typedef enum {
@@ -86,13 +88,16 @@ typedef enum {
    DATATYPE_NONE,
    DATATYPE_INT,
    DATATYPE_FLOAT,
+   DATATYPE_FLOAT_EXP,
    DATATYPE_DOUBLE,
+   DATATYPE_DOUBLE_EXP,
    DATATYPE_LONG,
    DATATYPE_STRING,
    DATATYPE_CHAR,
    DATATYPE_BOOL,
-} DATATYPES;
-#define NUM_DATATYPES 8
+   DATATYPE_POINTER
+} DATATYPE;
+#define NUM_DATATYPES 11
 
 /* Pipeline Modes */
 typedef enum {
@@ -298,6 +303,5 @@ typedef enum {
    BIAS_CORR_QUAD
 } BIAS_CORR;
 #define NUM_BIAS_CORR 3
-
 
 #endif /* _STRUCTS_CONSTS_H */

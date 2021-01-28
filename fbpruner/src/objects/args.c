@@ -16,17 +16,17 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
 
 /* header */
 #include "alignment.h"
 
-/*
- *  FUNCTION:  ARGS_Create()
+/*! FUNCTION:  ARGS_Create()
  *  SYNOPSIS:  
  */
-ARGS* ARGS_Create()
+ARGS* 
+ARGS_Create()
 {
    ARGS* args = NULL;
 
@@ -60,11 +60,10 @@ ARGS* ARGS_Create()
    return args;
 }
 
-/*
- *  FUNCTION:  ARGS_Destroy()
+/*! FUNCTION:  ARGS_Destroy()
  *  SYNOPSIS:  
  */
-void* 
+ARGS* 
 ARGS_Destroy( ARGS* args )
 {
    if (args == NULL) return NULL;

@@ -24,16 +24,20 @@
 
 /* include local files */
 #include "objects/structs.h"
-#include "utilities/utilities.h"
-#include "parsers/parsers.h"
-#include "pipelines/pipelines.h"
-#include "objects/objects.h"
+#include "utilities/_utilities.h"
+#include "parsers/_parsers.h"
+#include "pipelines/_pipelines.h"
+#include "objects/_objects.h"
 
 /* === HEADER === */
 
 /* === MAIN ENTRY-POINT TO PROGRAM === */
-int main ( int argc, char *argv[] )
+int 
+main ( int argc, char *argv[] )
 {
+   /* times */
+   float program_start, program_end, program_runtime;
+
    /* initialize debugging toolkit */
    #if DEBUG
    {
@@ -53,13 +57,14 @@ int main ( int argc, char *argv[] )
    args     = ARGS_Create();
    worker   = WORKER_Create_with_Args( args );
 
+   /* ideally, the clock would start before all, but this will work */
+   program_start = CLOCK_Get_Time( worker->clok );
+
    /* initialize random number generator */
    RNG_Init();
 
    /* parse command line arguments */
    ARGS_Parse( args, argc, argv );
-
-   
 
    /* output arguments */
    ARGS_Dump( args, stdout );
@@ -74,9 +79,13 @@ int main ( int argc, char *argv[] )
    }
    #endif
 
+   program_end = CLOCK_Get_Time( worker->clok );
+   program_runtime = CLOCK_Get_Diff( worker->clok, program_start, program_end );
+
    /* clean up allocated data */
    WORKER_Destroy( worker );
 
-   printf("# Completed successfully.\n");
+   printf("# Program_Runtime: %f\n", program_runtime );
+   printf("# Completed Successfully.\n");
    exit(EXIT_SUCCESS);
 }

@@ -15,35 +15,38 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../objects/objects.h"
+#include "../objects/_objects.h"
 
 /* header */
+#include "_utilities.h"
 #include "dp_matrix_util.h"
 
 /* TODO:*/
-/** FUNCTION:  DP_MATRIX_Get_Bounds()
+/*! FUNCTION:  DP_MATRIX_Get_Bounds()
  *  SYNOPSIS:  Get the edgebounds of matrix at given antidiagonal (closed form).
  *             Stores new bounds in BOUND <bnd>.
  */
 inline
-void DP_MATRIX_Get_Bounds( const int   Q,
-                           const int   T,
-                           int         d_0,
-                           int         d_cnt,
-                           BOUND*      bnd )
+void 
+DP_MATRIX_Get_Bounds(   const int   Q,
+                        const int   T,
+                        int         d_0,
+                        int         d_cnt,
+                        BOUND*      bnd )
 {
    BOUND b;
 }
 
-/** FUNCTION:  DP_MATRIX_Copy()
+/*! FUNCTION:  DP_MATRIX_Copy()
  *  SYNOPSIS:  Copy dynamic programming matrix into destination.
  */
-void DP_MATRIX_Copy( const int   Q,
-                     const int   T,
-                     MATRIX_3D*  st_MX_src,
-                     MATRIX_2D*  sp_MX_src,
-                     MATRIX_3D*  st_MX_dst,
-                     MATRIX_2D*  sp_MX_dst )
+void 
+DP_MATRIX_Copy(   const int   Q,
+                  const int   T,
+                  MATRIX_3D*  st_MX_src,
+                  MATRIX_2D*  sp_MX_src,
+                  MATRIX_3D*  st_MX_dst,
+                  MATRIX_2D*  sp_MX_dst )
 {
    int i, j, st;
 
@@ -60,50 +63,54 @@ void DP_MATRIX_Copy( const int   Q,
    }
 }
 
-/** FUNCTION:  DP_MATRIX_Fill()
+/*! FUNCTION:  DP_MATRIX_Fill()
  *  SYNOPSIS:  Fill entire dynamic programming matrix with value
  */
-void DP_MATRIX_Fill( const int   Q, 
-                     const int   T,
-                     MATRIX_3D*  st_MX,
-                     MATRIX_2D*  sp_MX,
-                     const float val )
+void 
+DP_MATRIX_Fill(   const int   Q, 
+                  const int   T,
+                  MATRIX_3D*  st_MX,
+                  MATRIX_2D*  sp_MX,
+                  const float val )
 {
    MATRIX_3D_Fill( st_MX, val );
    MATRIX_2D_Fill( sp_MX, val );
 }
 
-/** FUNCTION:  DP_MATRIX_Clean()
+/*! FUNCTION:  DP_MATRIX_Clean()
  *  SYNOPSIS:  Fill entire dynamic programming matrix with clean value (-INF).
  */
-void DP_MATRIX_Clean(   const int   Q, 
-                        const int   T,
-                        MATRIX_3D*  st_MX,
-                        MATRIX_2D*  sp_MX )
+void 
+DP_MATRIX_Clean(  const int   Q, 
+                  const int   T,
+                  MATRIX_3D*  st_MX,
+                  MATRIX_2D*  sp_MX )
 {
    if (st_MX != NULL) MATRIX_3D_Clean( st_MX );
    if (sp_MX != NULL) MATRIX_2D_Clean( sp_MX );
 }
 
-/** FUNCTION:  DP_MATRIX_Clean_Verify()
+/*! FUNCTION:  DP_MATRIX_Clean_Verify()
  *  SYNOPSIS:  Check whether there are clean.  If clean, returns true.
  */
-bool DP_MATRIX_Clean_Verify(  const int   Q, 
-                              const int   T,
-                              MATRIX_3D*  st_MX,
-                              MATRIX_2D*  sp_MX )
+bool 
+DP_MATRIX_Clean_Verify(    const int   Q, 
+                           const int   T,
+                           MATRIX_3D*  st_MX,
+                           MATRIX_2D*  sp_MX )
 {
    return st_MX->clean && sp_MX->clean;
 }
 
-/** FUNCTION:  DP_MATRIX_Save()
+/*! FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS:  Compare two dynamic programming matrices. 
  *    RETURN:  Returns 0 if equal; otherwise returns count of differing cells.
  */
-int DP_MATRIX_Compare ( MATRIX_3D*  st_MX_1,
-                        MATRIX_2D*  sp_MX_1,
-                        MATRIX_3D*  st_MX_2,
-                        MATRIX_2D*  sp_MX_2 )
+int 
+DP_MATRIX_Compare(   MATRIX_3D*  st_MX_1,
+                     MATRIX_2D*  sp_MX_1,
+                     MATRIX_3D*  st_MX_2,
+                     MATRIX_2D*  sp_MX_2 )
 {
    int cmp;
    cmp = MATRIX_3D_Compare( st_MX_1, st_MX_2 );
@@ -113,42 +120,45 @@ int DP_MATRIX_Compare ( MATRIX_3D*  st_MX_1,
    return 0;
 }
 
-/** FUNCTION:  DP_MATRIX_Diff()
+/*! FUNCTION:  DP_MATRIX_Diff()
  *  SYNOPSIS: Compare two dynamic programming matrices.
  */
-int DP_MATRIX_Diff ( MATRIX_3D*  st_MX_1,
-                     MATRIX_2D*  sp_MX_1,
-                     MATRIX_3D*  st_MX_2,
-                     MATRIX_2D*  sp_MX_2,
-                     MATRIX_3D*  st_MX_res,
-                     MATRIX_2D*  sp_MX_res )
+int 
+DP_MATRIX_Diff(   MATRIX_3D*  st_MX_1,
+                  MATRIX_2D*  sp_MX_1,
+                  MATRIX_3D*  st_MX_2,
+                  MATRIX_2D*  sp_MX_2,
+                  MATRIX_3D*  st_MX_res,
+                  MATRIX_2D*  sp_MX_res )
 {
    MATRIX_3D_Diff( st_MX_1, st_MX_2, st_MX_res );
    MATRIX_2D_Diff( sp_MX_1, sp_MX_2, sp_MX_res );
 }
 
-/** FUNCTION:  DP_MATRIX_Add()
+/*! FUNCTION:  DP_MATRIX_Add()
  *  SYNOPSIS: Add two dynamic programming matrices.
  */
-int DP_MATRIX_Add(   MATRIX_3D*  st_MX_1,
-                     MATRIX_2D*  sp_MX_1,
-                     MATRIX_3D*  st_MX_2,
-                     MATRIX_2D*  sp_MX_2,
-                     MATRIX_3D*  st_MX_res,
-                     MATRIX_2D*  sp_MX_res )
+int 
+DP_MATRIX_Add(    MATRIX_3D*  st_MX_1,
+                  MATRIX_2D*  sp_MX_1,
+                  MATRIX_3D*  st_MX_2,
+                  MATRIX_2D*  sp_MX_2,
+                  MATRIX_3D*  st_MX_res,
+                  MATRIX_2D*  sp_MX_res )
 {
    MATRIX_3D_Add( st_MX_1, st_MX_2, st_MX_res );
    MATRIX_2D_Add( sp_MX_1, sp_MX_2, sp_MX_res );
 }
 
-/** FUNCTION:  DP_MATRIX_Save()
+/*! FUNCTION:  DP_MATRIX_Save()
  *  SYNOPSIS:  Save dynamic programming matrix to file (by filename).
  */
-void DP_MATRIX_Save( const int         Q,
-                     const int         T,
-                     MATRIX_3D*        st_MX,
-                     MATRIX_2D*        sp_MX,
-                     const char*       _filename_ )
+void 
+DP_MATRIX_Save(   const int         Q,
+                  const int         T,
+                  MATRIX_3D*        st_MX,
+                  MATRIX_2D*        sp_MX,
+                  const char*       _filename_ )
 {
    printf("Saving matrix...\n");
    FILE *fp;
@@ -158,14 +168,15 @@ void DP_MATRIX_Save( const int         Q,
    printf("Saved DP_MATRIX to: '%s'\n", _filename_);
 }
 
-/** FUNCTION:  DP_MATRIX_Dump()
+/*! FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
-void DP_MATRIX_Dump( const int         Q,
-                     const int         T,
-                     MATRIX_3D*        st_MX,
-                     MATRIX_2D*        sp_MX,
-                     FILE*             fp )
+void 
+DP_MATRIX_Dump(   const int         Q,
+                  const int         T,
+                  MATRIX_3D*        st_MX,
+                  MATRIX_2D*        sp_MX,
+                  FILE*             fp )
 {
    int pad, dec;
    pad = 9;
@@ -243,40 +254,43 @@ void DP_MATRIX_Dump( const int         Q,
 }
 
 
-/** FUNCTION:  DP_MATRIX_Log()
+/*! FUNCTION:  DP_MATRIX_Log()
  *  SYNOPSIS:  Convert all dp matrix cells to log space
  */
-void DP_MATRIX_Log(  const int         Q,
-                     const int         T,
-                     MATRIX_3D*        st_MX,
-                     MATRIX_2D*        sp_MX )
+void 
+DP_MATRIX_Log(    const int         Q,
+                  const int         T,
+                  MATRIX_3D*        st_MX,
+                  MATRIX_2D*        sp_MX )
 {
    if (sp_MX != NULL) MATRIX_2D_Log( sp_MX );
    if (st_MX != NULL) MATRIX_3D_Log( st_MX );
 }
 
 
-/** FUNCTION:  DP_MATRIX_Exp()
+/*! FUNCTION:  DP_MATRIX_Exp()
  *  SYNOPSIS:  Convert all dp matrix cells to normal space
  */
-void DP_MATRIX_Exp(  const int         Q,
-                     const int         T,
-                     MATRIX_3D*        st_MX,
-                     MATRIX_2D*        sp_MX )
+void 
+DP_MATRIX_Exp(    const int         Q,
+                  const int         T,
+                  MATRIX_3D*        st_MX,
+                  MATRIX_2D*        sp_MX )
 {
    if (sp_MX != NULL) MATRIX_2D_Log( sp_MX );
    if (st_MX != NULL) MATRIX_3D_Log( st_MX );
 }
 
 
-/** FUNCTION:  DP_MATRIX_Log_Dump()
+/*! FUNCTION:  DP_MATRIX_Log_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
-void DP_MATRIX_Log_Dump(   const int         Q,
-                           const int         T,
-                           MATRIX_3D*        st_MX,
-                           MATRIX_2D*        sp_MX,
-                           FILE*             fp )
+void 
+DP_MATRIX_Log_Dump(  const int         Q,
+                     const int         T,
+                     MATRIX_3D*        st_MX,
+                     MATRIX_2D*        sp_MX,
+                     FILE*             fp )
 {
    /* PRINT resulting dp matrix */
    int pad, dec;
@@ -353,14 +367,15 @@ void DP_MATRIX_Log_Dump(   const int         Q,
    fprintf(fp, "\n\n");
 }
 
-/** FUNCTION:  DP_MATRIX_Dump()
- *  SYNOPSIS:  Output dynamic programming matrix to file.
+/** FUNCTION:  DP_MATRIX_Norm_Dump()
+ *  SYNOPSIS:  Output dynamic programming normal state matrix {M,I,D} to file.
  */
-void DP_MATRIX_Norm_Dump(  const int         Q,
-                           const int         T,
-                           MATRIX_3D*        st_MX,
-                           MATRIX_2D*        sp_MX,
-                           FILE*             fp )
+void 
+DP_MATRIX_Norm_Dump(    const int         Q,
+                        const int         T,
+                        MATRIX_3D*        st_MX,
+                        MATRIX_2D*        sp_MX,
+                        FILE*             fp )
 {
    /* PRINT resulting dp matrix */
    fprintf(fp, "##### DP MATRIX ##### \n");
@@ -396,15 +411,15 @@ void DP_MATRIX_Norm_Dump(  const int         Q,
    }
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Dump()
- *  SYNOPSIS:  Output dynamic programming matrix to file.
+/*! FUNCTION:  DP_MATRIX_Dump()
+ *  SYNOPSIS:  Output dynamic programming special state matrix to file.
  */
-void DP_MATRIX_Spec_Dump(  const int         Q,
-                           const int         T,
-                           MATRIX_3D*        st_MX,
-                           MATRIX_2D*        sp_MX,
-                           FILE*             fp )
+void 
+DP_MATRIX_Spec_Dump(    const int         Q,
+                        const int         T,
+                        MATRIX_3D*        st_MX,
+                        MATRIX_2D*        sp_MX,
+                        FILE*             fp )
 {
    fprintf(fp, "###### SPECIAL STATES #####\n");
 
@@ -445,15 +460,15 @@ void DP_MATRIX_Spec_Dump(  const int         Q,
    fprintf(fp, "\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Dump()
+/*! FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
  */
-void DP_MATRIX_SpecExp_Dump(  const int         Q,
-                              const int         T,
-                              MATRIX_3D*        st_MX,
-                              MATRIX_2D*        sp_MX,
-                              FILE*             fp )
+void 
+DP_MATRIX_SpecExp_Dump(    const int         Q,
+                           const int         T,
+                           MATRIX_3D*        st_MX,
+                           MATRIX_2D*        sp_MX,
+                           FILE*             fp )
 {
    fprintf(fp, "###### SPECIAL STATES #####\n");
 
@@ -494,16 +509,16 @@ void DP_MATRIX_SpecExp_Dump(  const int         Q,
    fprintf(fp, "\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_Trace_Save()
+/*! FUNCTION:  DP_MATRIX_Trace_Save()
  *  SYNOPSIS:  Save dynamic programming matrix with trace to file.
  */
-void DP_MATRIX_Trace_Save( const int         Q,
-                           const int         T,
-                           MATRIX_3D*        st_MX,
-                           MATRIX_2D*        sp_MX,
-                           ALIGNMENT*        tr,
-                           const char*       _filename_ )
+void 
+DP_MATRIX_Trace_Save(   const int         Q,
+                        const int         T,
+                        MATRIX_3D*        st_MX,
+                        MATRIX_2D*        sp_MX,
+                        ALIGNMENT*        tr,
+                        const char*       _filename_ )
 {
    FILE *fp;
    fp = fopen(_filename_, "w");
@@ -513,16 +528,16 @@ void DP_MATRIX_Trace_Save( const int         Q,
 }
 
 
-/*
- *  FUNCTION:  DP_MATRIX_Trace_Dump()
+/*! FUNCTION:  DP_MATRIX_Trace_Dump()
  *  SYNOPSIS:  Save dynamic programming matrix with trace to file.
  */
-void DP_MATRIX_Trace_Dump( const int         Q,
-                           const int         T,
-                           MATRIX_3D*        st_MX,
-                           MATRIX_2D*        sp_MX,
-                           ALIGNMENT*        tr,
-                           FILE*             fp )
+void 
+DP_MATRIX_Trace_Dump(   const int         Q,
+                        const int         T,
+                        MATRIX_3D*        st_MX,
+                        MATRIX_2D*        sp_MX,
+                        ALIGNMENT*        tr,
+                        FILE*             fp )
 {
    int N;
    TRACE* trace;
@@ -624,25 +639,25 @@ void DP_MATRIX_Trace_Dump( const int         Q,
    fprintf(fp, "\n/\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_VIZ_Compare()
+/*! FUNCTION:  DP_MATRIX_VIZ_Compare()
  *  SYNOPSIS:  Projects two EDGEBOUNDS onto 2D_MATRIX.
  */
-void DP_MATRIX_VIZ_Compare(   MATRIX_2D*        cloud_MX,
-                              EDGEBOUNDS*       edg_1,
-                              EDGEBOUNDS*       edg_2 )
+void 
+DP_MATRIX_VIZ_Compare(     MATRIX_2D*        cloud_MX,
+                           EDGEBOUNDS*       edg_1,
+                           EDGEBOUNDS*       edg_2 )
 {
    MATRIX_2D_Fill( cloud_MX, 0.0 );
    MATRIX_2D_Cloud_Fill( cloud_MX, edg_1, 1.0 );
    MATRIX_2D_Cloud_Fill( cloud_MX, edg_2, 2.0 );
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_VIZ_Trace()
+/*! FUNCTION:  DP_MATRIX_VIZ_Trace()
  *  SYNOPSIS:  Adds trace to visulization of dp matrix.
  */
-void DP_MATRIX_VIZ_Trace(  MATRIX_2D*        cloud_MX,
-                           const ALIGNMENT*  aln )
+void 
+DP_MATRIX_VIZ_Trace(    MATRIX_2D*        cloud_MX,
+                        const ALIGNMENT*  aln )
 {
    for ( int i = 0; i < aln->traces->N; i++ ) {
       TRACE* tr = &(aln->traces->data[i]);
@@ -651,12 +666,12 @@ void DP_MATRIX_VIZ_Trace(  MATRIX_2D*        cloud_MX,
    }
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_VIZ_Save()
+/*! FUNCTION:  DP_MATRIX_VIZ_Save()
  *  SYNOPSIS:  Saves simple visualization to filename.
  */
-void DP_MATRIX_VIZ_Save(   MATRIX_2D*        cloud_MX,
-                           char*             filename )
+void 
+DP_MATRIX_VIZ_Save(     MATRIX_2D*        cloud_MX,
+                        char*             filename )
 {
    FILE* fp = fopen( filename, "w+" );
    if ( fp == NULL ) {
@@ -664,12 +679,12 @@ void DP_MATRIX_VIZ_Save(   MATRIX_2D*        cloud_MX,
    }
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_VIZ_Dump()
+/*! FUNCTION:  DP_MATRIX_VIZ_Dump()
  *  SYNOPSIS:  Outputs simple visualization of dp matrix.
  */
-void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
-                           FILE*             fp )
+void 
+DP_MATRIX_VIZ_Dump(     MATRIX_2D*        cloud_MX,
+                        FILE*             fp )
 {
    /* padding between points */
    int   pad   = 2;
@@ -719,14 +734,14 @@ void DP_MATRIX_VIZ_Dump(   MATRIX_2D*        cloud_MX,
    fprintf(fp, "\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_VIZ_Dump()
+/*! FUNCTION:  DP_MATRIX_VIZ_Dump()
  *  SYNOPSIS:  Outputs simple visualization of dp matrix.
  *             Symbols are color-coded.
  *             Only works when piped to stdout or stderr.
  */
-void DP_MATRIX_VIZ_Color_Dump(   MATRIX_2D*        cloud_MX,
-                                 FILE*             fp )
+void 
+DP_MATRIX_VIZ_Color_Dump(     MATRIX_2D*        cloud_MX,
+                              FILE*             fp )
 {
    /* if not being piped to stdout or stderr, don't use color */
    if ( fp != stdout && fp != stderr ) {
@@ -774,14 +789,14 @@ void DP_MATRIX_VIZ_Color_Dump(   MATRIX_2D*        cloud_MX,
    fprintf(fp, "\n");
 }
 
-/*
- *  FUNCTION:  DP_MATRIX_MAT_Dump()
+/*! FUNCTION:  DP_MATRIX_MAT_Dump()
  *  SYNOPSIS:  Outputs match states of matrix.
  */
-void DP_MATRIX_MAT_Dump(   int         Q,
-                           int         T,
-                           MATRIX_3D*  st_MX,
-                           FILE*       fp )
+void 
+DP_MATRIX_MAT_Dump(     int         Q,
+                        int         T,
+                        MATRIX_3D*  st_MX,
+                        FILE*       fp )
 {
    /* Header */
    fprintf(fp, "##### MATRIX - MATCH STATE #####\n");

@@ -16,10 +16,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
-#include "algs_quad.h"
+#include "_algs_quad.h"
 
 /* header */
 #include "bound_fwdbck_quad.h"

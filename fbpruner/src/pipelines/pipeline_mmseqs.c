@@ -18,15 +18,17 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../parsers/parsers.h"
-#include "../algs_linear/algs_linear.h"
-#include "../algs_quad/algs_quad.h"
-#include "../algs_naive/algs_naive.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../parsers/_parsers.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../algs_quad/_algs_quad.h"
+#include "../algs_naive/_algs_naive.h"
+#include "../reporting/_reporting.h"
+#include "../work/_work.h"
 
 /* header */
-#include "pipelines.h"
+#include "_pipelines.h"
 
 /* mmseqs pipeline */
 void 
@@ -41,12 +43,9 @@ mmseqs_pipeline( WORKER* worker )
    /* file pointer for writing out to file */
    ARGS*          args        = worker->args;
    TASKS*         tasks       = worker->tasks;
-   /* set tasks */
-   tasks->linear              = true;
-   tasks->lin_bound_fwd       = true;
-   tasks->lin_bound_bck       = true;
    /* worker objects */
    TIMES*         times       = worker->times;
+   TIMES*         times_tot   = worker->times_totals;
    NAT_SCORES*    scores      = worker->scores;
    /* timer */
    CLOCK*         clok        = worker->clok;
@@ -58,9 +57,6 @@ mmseqs_pipeline( WORKER* worker )
    /* input results */
    RESULTS*       results_out = NULL;
    RESULT*        result_out  = NULL;
-
-   /* counter for skipped alignments */
-   int   skips = 0;
 
    /* set flags for pipeline tasks */
    /* TASKS */
@@ -91,18 +87,11 @@ mmseqs_pipeline( WORKER* worker )
       tasks->quad_bias_corr   = false;    /* optional: requires quadratic forward backward */
    }
 
-   // if ( args->is_compo_bias == BIAS_CORR_QUAD ) {
-   //    tasks->quad_bias_corr = true;
-   // } 
-   // else if ( args->is_compo_bias == BIAS_CORR_SPARSE ) {
-   //    tasks->sparse_bias_corr = true;
-   // }
 
    /* get result range */
    int i_rng, i_cnt, i_beg, i_end;
    /* m8+ file contains target_id, query_id, and result_id fields */
    RESULTS_M8_Parse( results_in, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
-   
    // RESULTS_M8_Dump( results_in, stdout );
 
    /* current hit */
@@ -122,9 +111,16 @@ mmseqs_pipeline( WORKER* worker )
    /* TODO: set values for reporting results */
    bool     report_all        = true;
    float    threshold_sc      = 0;
+   /* scores (for use in cutoff thresholds) */
+   float    vit_sc;
+   float    cloud_sc;
+   float    bound_sc;
+   /* timers */
+   float    iter_start;
 
    /* load indexes  */
    WORK_load_index_by_name( worker );
+
    /* get result range */
    WORK_load_mmseqs_list( worker );
    worker->num_searches = args->list_range.end - args->list_range.beg;
@@ -142,6 +138,13 @@ mmseqs_pipeline( WORKER* worker )
    /* Look through each input result (i = index in full list, i_cnt = index relative to search range) */
    for (int i = i_beg; i < i_end; i++, i_cnt++)
    {
+      /* start timer for iteration */
+      iter_start = CLOCK_Get_Time( clok );
+      /* reset timers */
+      WORK_times_init( worker, worker->times );
+      /* reset scores */
+      WORK_scores_init( worker, worker->scores );
+
       printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n", 
          i_cnt, i_rng, i+1, i_end );
 
@@ -152,16 +155,18 @@ mmseqs_pipeline( WORKER* worker )
        /* record the score reported by mmseqs */
       worker->result->vit_natsc = result_in->bit_score;
 
-      /* mmseqs viterbi score threshold: if it does not pass, skip this entry */
-      if ( false ) {
-         continue;
-      }
-
       /* report the input */
       if ( args->verbose_level >= VERBOSE_LOW ) 
       {
          fprintf( stdout, "=== M8 Entry : [%d] ===\n", i);
          RESULT_M8_Dump( result_in, stdout );
+      }
+
+      /* mmseqs viterbi scoring filter */
+      vit_sc = result_in->vit_natsc;
+      if ( args->filter_on && vit_sc > args->threshold_vit ) {
+         printf("MMSEQS viterbi score does not meet threshold. ");
+         continue;
       }
 
       /* name from results */
@@ -177,9 +182,6 @@ mmseqs_pipeline( WORKER* worker )
          // HMM_PROFILE_Dump( worker->t_prof, stdout );
       }
 
-      /* start time for current */
-      worker->result->time = CLOCK_Get_RealTime();
-
       /* if the query is not the same as last on list, then get new query */
       if ( STRING_Equal( q_name, q_name_prv ) == false ) {
          WORK_load_query_by_name( worker, q_name );
@@ -193,6 +195,8 @@ mmseqs_pipeline( WORKER* worker )
       /* clear old data and change sizes of data structs */
       WORK_reuse( worker );
 
+      // WORK_load_m8();
+
       /* get search window from mmseqs results */
       ALIGNMENT_Reuse( tr, worker->q_seq->N, worker->t_prof->N );
       ALIGNMENT_Pushback( tr, &((TRACE) { result_in->target_start, result_in->query_start, M_ST }) );
@@ -201,47 +205,64 @@ mmseqs_pipeline( WORKER* worker )
       tr->end = 1;
       printf_vhi("DIM:: TARGET: {%d}, QUERY: {%d}\n", worker->q_seq->N, worker->t_prof->N );
       printf_vhi("VIT_TRACEBACK:: {%6d,%6d}->{%6d,%6d}\n", result_in->target_start, result_in->query_start, result_in->target_end, result_in->query_end );
-
-      #if DEBUG
-      {
-         // WORK_forward_backward( worker );
-      }
-      #endif
+      
       /* run cloud search */
       WORK_cloud_search( worker );
-      /* computer posterior and bias, find domains, compute domain-specific posterior and bias */
+
+      /* cloud search scoring filter */
+      cloud_sc = worker->scores->threshold_cloud_compo;
+      if ( args->filter_on && cloud_sc > args->threshold_cloud ) {
+         printf("MMSEQS viterbi score does not meet threshold. ");
+         continue;
+      }
+
+      /* run bounded forward/backward */
+      WORK_bound_forward_backward( worker );
+
+      /* bound forward scoring filter */
+      bound_sc = worker->result->bound_fwd_natsc;
+      if ( args->filter_on && bound_sc > args->threshold_bound_fwd ) {
+         printf("MMSEQS viterbi score does not meet threshold. ");
+         continue;
+      }
+
+      /* compute posterior and bias, find domains, compute domain-specific posterior and bias */
       WORK_posterior( worker );
 
-      /* end time */
-      worker->result->time = CLOCK_Get_RealTime() - worker->clok->start;
-      printf("MYTIME: %f\n", worker->result->time);
+      /* capture total runtime for current iteration */
+      worker->times->total = CLOCK_Get_Diff( clok, iter_start, CLOCK_Get_Time( clok ) );
+      printf("RESULT_TIME: %f\n\n", worker->times->total);
 
-      if ( args->verbose_level >= VERBOSE_LOW || true  ) 
-      {
-         RESULT* result_out = worker->result;
-
-         float percent_cells = (float) result_out->cloud_cells / (float) result_out->total_cells;
-         float cloud_tot = times->lin_cloud_fwd + times->lin_cloud_bck + times->lin_merge + times->lin_reorient + times->lin_bound_fwd;
-         float speedup = cloud_tot / times->quad_fwd; 
-
-         printf("PRUNING =>  cloud_cells: %5d, total_cells: %5d, percent_cells: %2.3f\n", 
-            result_out->cloud_cells, result_out->total_cells, percent_cells );
-         printf("TIMES   =>  cloud_time: %2.3f, fwd_time: %2.3f, speed ratio: %2.3f\n", 
-            cloud_tot, times->quad_fwd, speedup );
-         printf("SCORES  =>  lin_bound_fwd_sc: %2.3f, sparse_bound_fwd_sc: %2.3f, fwd_sc: %2.3f, \n", 
-            scores->lin_bound_fwd, scores->sparse_bound_fwd, scores->quad_fwd );
-         printf("SCORES  =>  lin_bound_bck_sc: %2.3f, sparse_bound_bck_sc: %2.3f, bck_sc: %2.3f, \n", 
-            scores->lin_bound_bck, scores->sparse_bound_bck, scores->quad_bck );
-      }
+      /* add current iteration times to totals */
+      WORK_times_add( worker );
 
       /* print results */
       WORK_report_result_current( worker );
    }
 
+   /* capture total-ish program runtime (from clock init to end of main loop) */
+   worker->times_totals->program_runtime = CLOCK_Get_Diff( clok, clok->program_start, CLOCK_Get_Time( clok ) );
+
+   /* report total times */
+   REPORT_mytimeout_totals( worker, worker->result, stdout );
+
    /* results footer */
    WORK_report_footer( worker ); 
    /* close all file pointers */
    WORK_close( worker );
+
    /* free work data */
    WORK_cleanup( worker );
+}
+
+STATUS_FLAG
+mmseqs_pipeline_Set_Default_Tasks()
+{
+
+}
+
+STATUS_FLAG
+mmseqs_pipeline_Set_Default_Args()
+{
+
 }

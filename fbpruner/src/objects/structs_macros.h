@@ -59,8 +59,16 @@
 /* whether to use function calls for matrix accesses or explicit array accesses */
 #define MATRIX_FUNCTIONS 	FALSE
 
+/* types of timer methods */
+#define CLOCK_EASEL 			0
+#define CLOCK_MYCLOCK		1
+/* set default timer method */
+#ifndef CLOCK_TYPE
+#define CLOCK_TYPE 			CLOCK_EASEL		
+#endif
+
 /* types of cloud pruning methods */
-#define PRUNER_NONE  							0 
+#define PRUNER_NONE  								0 
 #define PRUNER_XDROP_EDGETRIM 					1
 #define PRUNER_XDROP_BIFURCATE					2
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE		3

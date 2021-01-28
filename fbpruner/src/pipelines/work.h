@@ -9,108 +9,159 @@
 #define _WORK_H
 
 /* generic workflow */
-void WORK_main_workflow( WORKER*  work );
+void 
+WORK_main_workflow( WORKER*  work );
 
 /* debugger workflow */
-void WORK_debug_workflow( WORKER* work );
+void 
+WORK_debug_workflow( WORKER* work );
 
 /* initialize dp matrices */
-void WORK_init( WORKER* worker );
+void 
+WORK_init( WORKER* worker );
 
 /* clean up data structs */
-void WORK_cleanup( WORKER* worker );
+void 
+WORK_cleanup( WORKER* worker );
 
 /* resize dp matrices if necessary */
-void WORK_reuse( WORKER* worker );
+void 
+WORK_reuse( WORKER* worker );
 
 /* open worker files */
-void WORK_open( WORKER* worker );
+void 
+WORK_open( WORKER* worker );
 
 /* close worker files */
-void WORK_close( WORKER* worker );
+void 
+WORK_close( WORKER* worker );
 
 /* load or build target and query index files */
-void WORK_index( WORKER* worker );
+void 
+WORK_index( WORKER* worker );
 
 /* load or build target and query index files */
-void WORK_load_index_by_id( WORKER* worker );
+void 
+WORK_load_index_by_id( WORKER* worker );
 
 /* load or build target and query index files */
-void WORK_load_index_by_name( WORKER* worker );
+void 
+WORK_load_index_by_name( WORKER* worker );
 
 /* load query and target indexes (or build them) */
-void WORK_build_target_index( WORKER* worker );
+void 
+WORK_build_target_index( WORKER* worker );
 
 /* load query index (or build them) */
-void WORK_build_query_index( WORKER* worker );
+void 
+WORK_build_query_index( WORKER* worker );
 
 /* load query and target indexes (or build them) */
-void WORK_load_target_index( WORKER* worker );
+void 
+WORK_load_target_index( WORKER* worker );
 
 /* load query index (or build them) */
-void WORK_load_query_index( WORKER* worker );
+void 
+WORK_load_query_index( WORKER* worker );
 
 /* output target index to file */
-void WORK_output_target_index( WORKER* worker );
+void 
+WORK_output_target_index( WORKER* worker );
 
 /* output query index to file */
-void WORK_output_query_index( WORKER* worker );
+void 
+WORK_output_query_index( WORKER* worker );
 
 /* set and verify ranges */
-void WORK_set_ranges( WORKER* worker );
+void 
+WORK_set_ranges( WORKER* worker );
 
 /* Establish and verify that result range is valid */
-void WORK_load_mmseqs_list( WORKER* worker );
+void 
+WORK_load_mmseqs_list( WORKER* worker );
 
 /* load target by file index */
-void WORK_load_target_by_id( WORKER* worker,
-                             int     id );
+void 
+WORK_load_target_by_id(    WORKER*     worker,
+                           int         id );
 
 /* load query by file index id */
-void WORK_load_query_by_id( WORKER* worker,
-                            int     id );
+void 
+WORK_load_query_by_id(  WORKER*     worker,
+                        int         id );
 
 /* load target by file index name */
-void WORK_load_target_by_name( WORKER* worker,
-                               char*   name );
+void 
+WORK_load_target_by_name(  WORKER*     worker,
+                           char*       name );
 
 /* load target by file index name */
-void WORK_load_query_by_name( WORKER* worker,
-                              char*   name );
+void 
+WORK_load_query_by_name(   WORKER*     worker,
+                           char*       name );
 
 /* load target by file index id */
-void WORK_load_target_by_index_id(  WORKER*     worker,
-                                    int         index_id );
+void 
+WORK_load_target_by_index_id(    WORKER*     worker,
+                                 int         index_id );
 
 /* load target by file index id */
-void WORK_load_query_by_index_id(   WORKER*     worker,
-                                    int         index_id );
+void 
+WORK_load_query_by_index_id(  WORKER*     worker,
+                              int         index_id );
 
 /* viterbi and traceback */
-void WORK_viterbi_and_traceback( WORKER*  worker );
+void 
+WORK_viterbi_and_traceback( WORKER*  worker );
 
 /* forward/backward */
-void WORK_forward_backward( WORKER*  worker );
+void 
+WORK_forward_backward( WORKER*  worker );
 
 /* cloud search AKA pruned forward/backward */
-void WORK_cloud_search( WORKER* worker );
+void 
+WORK_cloud_search( WORKER*  worker );
+
+/* run bound forward backward */
+void 
+WORK_bound_forward_backward( WORKER* worker );
 
 /* compute correction bias and convert natscore -> bitscore -> pval -> eval */
-void WORK_posterior( WORKER* worker );
+void 
+WORK_posterior( WORKER*  worker );
 
 /* get the alignment from sparse forward/backward */
-void WORK_capture_alignment( WORKER* worker );
+void 
+WORK_capture_alignment( WORKER*   worker );
+
+/* initialize all scores to -inf */
+void 
+WORK_scores_init(    WORKER*        worker,
+                     NAT_SCORES*    scores );
+
+/* initialize all times to zero */
+void 
+WORK_times_init(  WORKER*     worker,
+                  TIMES*      times );
+
+/* initialize all times to zero */
+void 
+WORK_times_add(   WORKER*     worker );
 
 /* print header for results file (default) */
-void WORK_report_header( WORKER* worker );
+void 
+WORK_report_header( WORKER*    worker );
 
 /* print current result (default) */
-void WORK_report_result_current( WORKER* worker );
+void 
+WORK_report_result_current( WORKER*  worker );
 
 /* print current result (default) */
-void WORK_report_result_all( WORKER* worker );
+void 
+WORK_report_result_all( WORKER*   worker );
 
 /* print header for results file (default) */
-void WORK_report_footer( WORKER* worker );
+void 
+WORK_report_footer( WORKER*    worker );
 
 #endif /* _WORK_H */

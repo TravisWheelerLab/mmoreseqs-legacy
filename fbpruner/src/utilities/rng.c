@@ -17,49 +17,49 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "utilities.h"
-#include "../objects/objects.h"
+#include "../objects/_objects.h"
 
 /* header */
+#include "_utilities.h"
 #include "rng.h"
 
-/*
- *  FUNCTION:  RNG_Init()
+/*! FUNCTION:  RNG_Init()
  *  SYNOPSIS:  Initializes random number generator.
  */
-void RNG_Init()
+void 
+RNG_Init()
 {
    srand(time(NULL));
 }
 
-/*
- *  FUNCTION:  RNG_Generate()
+/*! FUNCTION:  RNG_Generate()
  *  SYNOPSIS:  Generate random number.
  */
 inline
-int RNG_Generate()
+int 
+RNG_Generate()
 {
    return rand();
 }
 
-/*
- *  FUNCTION:  RNG_INT()
+/*! FUNCTION:  RNG_INT()
  *  SYNOPSIS:  Generate random int.
  */
 inline
-int RNG()
+int 
+RNG()
 {
    int r = RNG_Generate();
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_Range()
+/*! FUNCTION:  RNG_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline
-int RNG_Range(    int beg,
-                  int end )
+int 
+RNG_Range(  int   beg,
+            int   end )
 {
    INT range = end - beg;
    INT r = ( RNG_INT() % range ) + beg;
@@ -67,80 +67,79 @@ int RNG_Range(    int beg,
 }
 
 
-/*
- *  FUNCTION:  RNG_INT()
+/*! FUNCTION:  RNG_INT()
  *  SYNOPSIS:  Generate random int.
  */
 inline
-INT RNG_INT()
+INT 
+RNG_INT()
 {
    INT r = (INT) RNG_Generate();
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_INT_Range()
+/*! FUNCTION:  RNG_INT_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline
-INT RNG_INT_Range(   INT beg,
-                     INT end )
+INT 
+RNG_INT_Range(    INT   beg,
+                  INT   end )
 {
    INT range = end - beg;
    INT r = ( RNG_INT() % range ) + beg;
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_CHAR()
+/*! FUNCTION:  RNG_CHAR()
  *  SYNOPSIS:  Generate random int.
  */
 inline
-CHAR RNG_CHAR()
+CHAR 
+RNG_CHAR()
 {
    CHAR r = (CHAR) RNG_Generate();
    return r;
 }
 
-/*FLT
- *  FUNCTION:  RNG_CHAR_Range()
+/*! FUNCTION:  RNG_CHAR_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline
-CHAR RNG_CHAR_Range(    CHAR beg,
-                        CHAR end )
+CHAR 
+RNG_CHAR_Range(   CHAR  beg,
+                  CHAR  end )
 {
    CHAR range = end - beg;
    CHAR r = ( RNG_CHAR() % range ) + beg;
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_FLT()
+/*! FUNCTION:  RNG_FLT()
  *  SYNOPSIS:  Generate random int.
  */
 inline
-FLT RNG_FLT()
+FLT 
+RNG_FLT()
 {
    FLT r = (FLT) RNG_Generate();
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_FLT_Range()
+/*! FUNCTION:  RNG_FLT_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline
-FLT RNG_FLT_Range(   FLT beg,
-                     FLT end )
+FLT 
+RNG_FLT_Range( FLT   beg,
+               FLT   end )
 {
    FLT range = end - beg;
    FLT r = ( RNG_FLT() * range ) / (FLT)RAND_MAX + beg;
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_DBL()
+/*! FUNCTION:  RNG_DBL()
  *  SYNOPSIS:  Generate random int.
  */
 inline
@@ -150,8 +149,7 @@ DBL RNG_DBL()
    return r;
 }
 
-/*
- *  FUNCTION:  RNG_DBL_Range()
+/*! FUNCTION:  RNG_DBL_Range()
  *  SYNOPSIS:  Generate random int in range (beg, end]
  */
 inline

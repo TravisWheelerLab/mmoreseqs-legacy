@@ -17,11 +17,11 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
 /* header */
-#include "parsers.h"
+#include "_parsers.h"
 
 /* Parses Arguments from the command line */
 void   ARGS_Parse( ARGS*   args,
@@ -394,7 +394,7 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( strcmp(argv[i], (flag = "--tblout") ) == 0 ) {
+         else if ( strcmp(argv[i], (flag = "--domtblout") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
@@ -437,6 +437,30 @@ void   ARGS_Parse( ARGS*   args,
                ERROR_free(args->mydomout_filepath);
                args->mydomout_filepath = strdup(argv[i]);
                args->is_mydomout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mytimeout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->mytimeout_filepath);
+               args->mytimeout_filepath = strdup(argv[i]);
+               args->is_mytimeout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( strcmp(argv[i], (flag = "--mythreshout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->mythreshout_filepath);
+               args->mythreshout_filepath = strdup(argv[i]);
+               args->is_mythreshout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -535,7 +559,11 @@ void  ARGS_Set_Defaults( ARGS* args )
    args->is_myout                = false;
    args->myout_filepath          = strdup("results.myout");
    args->is_mydomout             = false;
-   args->mydomout_filepath       = strdup("results.myout");
+   args->mydomout_filepath       = strdup("results.mydomout");
+   args->is_mytimeout            = false;
+   args->mytimeout_filepath      = strdup("results.mytimeout");
+   args->is_mythreshout            = false;
+   args->mythreshout_filepath      = strdup("results.mythreshout");
 
    /* --- RANGE OPTIONS --- */
    args->t_range                 = (RANGE) { -1, -1 };    

@@ -16,9 +16,9 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "algs_linear.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "_algs_linear.h"
 
 /* header */
 #include "pruning_linear.h"
@@ -352,7 +352,7 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 		if ( *is_term_flag == true ) 
 		{
 			fprintf(stdout, "# FLAG TRIGGERED!!! d_cnt=%d, d_0=%d, vit_range={%d,%d}\n", d_cnt, d_0, vit_range.beg, vit_range.end);
-			return;
+			return STATUS_SUCCESS;
 		}
 	}
 	

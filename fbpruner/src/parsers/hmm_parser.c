@@ -17,11 +17,11 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
 /* header */
-#include "parsers.h"
+#include "_parsers.h"
 
 /* Parse .hmm file and builds a HMM_PROFILE object */
 void HMM_PROFILE_Parse( HMM_PROFILE*   prof,

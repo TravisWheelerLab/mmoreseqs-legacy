@@ -17,14 +17,14 @@
 
 /* local imports */
 #include "../structs.h"
-#include "../../utilities/utilities.h"
-#include "../objects.h"
+#include "../../utilities/_utilities.h"
+#include "../_objects.h"
 
 /* header */
+#include "_basic.h"
 #include "template.h"
 
-/*
- *  FUNCTION:  XXX_To_String()
+/*! FUNCTION:  XXX_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf>.
  *
@@ -38,8 +38,7 @@ char* XXX_To_String( const XXX   d,
    return buf;
 }
 
-/*
- *  FUNCTION:  XXX_To_String()
+/*! FUNCTION:  XXX_To_String()
  *  SYNOPSIS:  Interpret string representation in char* buffer <buf>.
  *             Stores result in <d>
  *
@@ -52,8 +51,7 @@ int XXX_From_String(    const char*    buf,
    d = atoi(buf);
 }
 
-/*
- *  FUNCTION:  XXX_Compare()
+/*! FUNCTION:  XXX_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
  *    RETURN:  pos if (a > b), 

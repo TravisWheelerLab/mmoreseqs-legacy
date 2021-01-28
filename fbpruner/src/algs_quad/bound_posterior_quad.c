@@ -16,9 +16,9 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
-#include "objects.h"
-#include "algs_quad.h"
+#include "_utilities.h"
+#include "_objects.h"
+#include "_algs_quad.h"
 
 /* header */
 #include "bound_fwdbck_quad.h"

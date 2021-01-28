@@ -19,8 +19,8 @@
 
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
+#include "_objects.h"
 
 /* header */
 #include "worker.h"
@@ -111,8 +111,6 @@ WORKER_Create()
    memset( worker->times, 0, sizeof(TIMES) );
    memset( worker->times_totals, 0, sizeof(TIMES) );
    memset( worker->scores, 0, sizeof(NAT_SCORES ) );
-   /* get start time */
-   worker->times->program_start = CLOCK_Get_RealTime();
 
    return worker;
 }
@@ -151,15 +149,15 @@ WORKER_Destroy( WORKER* worker )
 {
    if (worker == NULL) return worker;
 
-   worker->clok = CLOCK_Destroy( worker->clok );
+   worker->clok            = CLOCK_Destroy( worker->clok );
 
-   worker->tasks = ERROR_free( worker->tasks );
-   worker->times = ERROR_free( worker->times );
-   worker->times_totals = ERROR_free( worker->times_totals );
-   worker->scores = ERROR_free( worker->scores );
+   worker->tasks           = ERROR_free( worker->tasks );
+   worker->times           = ERROR_free( worker->times );
+   worker->times_totals    = ERROR_free( worker->times_totals );
+   worker->scores          = ERROR_free( worker->scores );
 
-   args     = ARGS_Destroy( worker->args );
-   worker   = ERROR_free( worker );
+   args                    = ARGS_Destroy( worker->args );
+   worker                  = ERROR_free( worker );
    
    return worker;
 }

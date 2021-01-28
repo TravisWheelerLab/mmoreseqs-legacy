@@ -18,8 +18,8 @@
 
 /* local imports */
 #include "../../objects/structs.h"
-#include "../../utilities/utilities.h"
-#include "../../objects/objects.h"
+#include "../../utilities/_utilities.h"
+#include "../../objects/_objects.h"
 
 /* header */
 #include "vector_float.h"

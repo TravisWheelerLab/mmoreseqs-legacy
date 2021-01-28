@@ -29,6 +29,7 @@
 #include "esl_hmm.h"
 #include "esl_alphabet.h"
 #include "esl_sq.h"
+#include "esl_stopwatch.h"
 
 /* === STRUCTS === */
 
@@ -52,12 +53,13 @@ typedef union {
    char*    s;
    char     c;
    bool     b;
+   void*    p;
 } GENERIC;
 
 /* generic data with specified type */
 typedef struct {
    GENERIC        data;
-   DATATYPES      type;
+   DATATYPE       type;
 } GEN_DATA;
 
 /* coordinates in matrix */
@@ -118,7 +120,6 @@ typedef struct {
    int      N;                /* current length of array in use */
    int      Nalloc;           /* current length of array allocated */
 }  VECTOR_STR;
-
 
 /* vector of integers */
 typedef struct {
@@ -287,12 +288,17 @@ typedef struct {
 /* clock for timing events (wrapper for squid stopwatch above) */
 typedef struct {
    /* current time */
-   double      start;            /* captures start time */
-   double      stop;             /* captures stop time */
-   double      duration;         /* captures difference between start and stop */
+   double         start;            /* captures start time */
+   double         stop;             /* captures stop time */
+   double         duration;         /* captures difference between start and stop */
    /* previous times */
-   double      program_start;    /* time captured when clock is created */
-   VECTOR_DBL* stamps;
+   double         program_start;    /* time captured when clock is created */
+   VECTOR_DBL*    stamps;
+   #if ( CLOCK_TYPE == CLOCK_EASEL ) 
+   /* wrapper for easel watch */
+   ESL_STOPWATCH* esl_stopwatch;
+   double         esl_total;
+   #endif
 } CLOCK;
 
 /* distribution parameters */
@@ -547,9 +553,16 @@ typedef struct {
    /* myout option/path (my custom output) */
    bool     is_myout;               /* report myout table? */
    char*    myout_filepath;         /* filepath to output results; if NULL, doesn't output */
-      /* myout option/path (my custom output) */
-   bool     is_mydomout;            /* report myout table? */
+   /* mydomout option/path (my custom output for domains) */
+   bool     is_mydomout;            /* report mydomout table? */
    char*    mydomout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   /* mytimeout option/path (my custom output for times) */
+   bool     is_mytimeout;            /* report mytimeout table? */
+   char*    mytimeout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   /* mythreshout option/path (my custom output for times) */
+   bool     is_mythreshout;            /* report mythreshout table? */
+   char*    mythreshout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   
    /* customized output */
    bool     is_customout;           /* report myout table? */
    char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
@@ -581,13 +594,17 @@ typedef struct {
    float    mmore_pvalue;           /* p-value mmore / fb-pruner */
 
    /* --- VITERBI / FWDBACK --- */
+   float    threshold_pre;          /* threshold for prefilter score */
    float    threshold_vit;          /* threshold for viterbi score */
    float    threshold_fwd;          /* threshold for forward score */
+   float    threshold_cloud;        /* threshold for cloud search score */
+   float    threshold_bound_fwd;    /* threshold for bound forward score */
    float    threshold_mmore;        /* threshold for fb-pruner score */
 } ARGS;
 
 /* scores */
 typedef struct {
+   /* final scores */
    float    nat_sc;  /* in NATS */
    float    pre_sc;  /* in BITS */
    float    seq_sc;  /* in BITS */
@@ -603,12 +620,16 @@ typedef struct {
 } SCORES;
 
 typedef struct {
-   float    program_start;
-   float    program_runtime;
+   /* overall */
+   float    program_start;       /* records start of program time */
+   float    program_runtime;     /* total runtime of the program */
+   /* pre-pipeline */
+   float    parse_args;
+   float    total;               /* total runtime */
    /* indexes */
    float    load_target_index;
    float    load_query_index;
-   /* load query/target */
+   /* load */
    float    load_target;
    float    load_query;
    /* naive algs */
@@ -617,37 +638,50 @@ typedef struct {
    float    quad_fwd;            /* forward */
    float    quad_bck;            /* backward */
    float    quad_vit;            /* viterbi */
-   float    quad_trace;          /* traceback of viterbi */
-   float    quad_cloud_fwd;      /* */
-   float    quad_cloud_bck;      /* */
-   float    quad_merge;          /* */
-   float    quad_reorient;       /* */
-   float    quad_bound_fwd;      /* bounded forward (requires cloud) */
-   float    quad_bound_bck;      /* bounded backward (requires cloud) */
-   float    quad_fbpruner_total; /* */
+   float    quad_trace;          /* viterbi traceback */
+   float    quad_cloud_fwd;      /* cloud search forward */
+   float    quad_cloud_bck;      /* cloud search backward */
+   float    quad_merge;          /* edgebounds merge/union */
+   float    quad_reorient;       /* edgebounds reorient */
+   float    quad_bound_fwd;      /* bound forward */
+   float    quad_bound_bck;      /* bound backward */
+   float    quad_fbpruner_total; /* total */
+   float    quad_posterior;      /* posterior computations */
+   float    quad_optacc;         /* optimal accuracy and traceback */
    /* linear algs */   
-   float    lin_fwd;             /* forward-backward */
+   float    lin_fwd;             /* forward */
    float    lin_bck;             /* backward */
    float    lin_vit;             /* viterbi */
    float    lin_trace;           /* traceback of viterbi */
-   float    lin_cloud_fwd;       /* */
-   float    lin_cloud_bck;       /* */
-   float    lin_merge;           /* */
-   float    lin_reorient;        /* */
-   float    lin_bound_fwd;       /* bounded forwarded (requires cloud) */
-   float    lin_bound_bck;       /* bounded backward (requires cloud) */
-   float    lin_fbpruner_total;  /* */
+   float    lin_cloud_fwd;       /* cloud search forward */
+   float    lin_cloud_bck;       /* cloud search backward */
+   float    lin_merge;           /* edgebounds merge */
+   float    lin_reorient;        /* edgebounds reorient */
+   float    lin_bound_fwd;       /* bound forward */
+   float    lin_bound_bck;       /* bound backward */
+   float    lin_fbpruner_total;  /* total */
    /* sparse algs */
+   float    sp_build_mx;         /* build sparse matrix */
    float    sp_fwd;              /* forward-backward */
    float    sp_bck;              /* backward */
    float    sp_vit;              /* viterbi */
    float    sp_trace;            /* traceback of viterbi */
-   float    sp_cloud_fwd;        /* */
-   float    sp_cloud_bck;        /* */
-   float    sp_merge;            /* */
-   float    sp_bound_fwd;        /* bounded forwarded (requires cloud) */
-   float    sp_bound_bck;        /* bounded backward (requires cloud) */
-   float    sp_fbpruner_total;   /* */
+   float    sp_cloud_fwd;        /* cloud search forward */
+   float    sp_cloud_bck;        /* cloud search backward */
+   float    sp_bound_fwd;        /* bound forward */
+   float    sp_bound_bck;        /* bound backward */
+   float    sp_fbpruner_total;   /* total */
+   float    sp_posterior;        /* posterior computations */
+   float    sp_decodedom;        /* decode domains */
+   float    sp_biascorr;         /* null2 bias correction */
+   float    sp_optacc;           /* optimal accuracy and traceback */
+   /* domain */
+   float    dom_total;           /* total dom runtime */
+   float    dom_bound_fwd;       /* bound forward */
+   float    dom_bound_bck;       /* bound backward */
+   float    dom_posterior;       /* domain posterior */
+   float    dom_biascorr;        /* null2 bias correction */
+   float    dom_optacc;          /* optimal accuracy and traceback */
 } TIMES;
 
 /* hmm location within file */
@@ -660,21 +694,20 @@ typedef struct {
 
 /* index for offset locations into a file, searchable by name or id */
 typedef struct {
-   /* */
+   /* node vector */
    int            N;             /* Number of location index nodes used */
    int            Nalloc;        /* Number of location index nodes allocated */
    F_INDEX_NODE*  nodes;         /* List of nodes for location of each HMM/FASTA in file */    
-   /* */
+   /* sources */
    char*          index_path;    /* Filepath of index file (NULL if built and not loaded) */
    char*          lookup_path;   /* Filepath to mmseqs lookup file (NULL if not used) */
    char*          source_path;   /* Filepath of file being indexed */
    char*          delim;         /* one of more delimiter of header fields */
-   /* */
+   /*  */
    int            filetype;      /* Type of file being indexed (HMM, FASTA, etc) */
    int            sort_type;     /* Whether the index nodes list has been sorted, and by which field */
    int            mmseqs_names;  /* Whether index is using names from mmseqs lookup */
 } F_INDEX;
-
 
 /* flags for command line arguments */
 typedef struct {
@@ -800,35 +833,35 @@ typedef struct {
    /* mmseqs lookup */
    bool     mmseqs_lookup;       /* if we have a mmseqs name lookup table */
    /* naive algs */
-   bool     naive;            
+   bool     naive;               /* are we running any naive algorithms? */
    bool     naive_cloud;         /* naive cloud search */
    /* quadratic algs */
    bool     quadratic;           /* are we running any quadratic-space algorithms? */
    bool     quad_fwd;            /* forward */
    bool     quad_bck;            /* backward */
    bool     quad_vit;            /* viterbi */
-   bool     quad_trace;          /* traceback of viterbi */
-   bool     quad_bound_fwd;      /* bounded forward (requires cloud) */
-   bool     quad_bound_bck;      /* bounded backward (requires cloud) */
+   bool     quad_trace;          /* viterbi traceback */
+   bool     quad_bound_fwd;      /* bound forward */
+   bool     quad_bound_bck;      /* bound backward */
    bool     quad_bias_corr;      /* bias correction */
    /* linear algs */
    bool     linear;              /* are we running any linear-space algorithms? */
    bool     lin_fwd;             /* forward-backward */
    bool     lin_bck;             /* backward */
    bool     lin_vit;             /* viterbi */
-   bool     lin_trace;           /* traceback of viterbi */
+   bool     lin_trace;           /* viterbi traceback */
    bool     lin_cloud_fwd;       /* forward cloud search */
    bool     lin_cloud_bck;       /* forward cloud search */
-   bool     lin_bound_fwd;       /* bounded forwarded (requires cloud) */
-   bool     lin_bound_bck;       /* bounded backward (requires cloud) */
+   bool     lin_bound_fwd;       /* bound forward */
+   bool     lin_bound_bck;       /* bound backward */
    /* sparse algs */
    bool     sparse;              /* are we running any linear-space algorithms? */
    bool     sparse_fwd;          /* forward-backward */
    bool     sparse_bck;          /* backward */
    bool     sparse_vit;          /* viterbi */
-   bool     sparse_trace;        /* traceback of viterbi */
-   bool     sparse_bound_fwd;    /* bounded forwarded (requires cloud) */ 
-   bool     sparse_bound_bck;    /* bounded backward (requires cloud) */
+   bool     sparse_trace;        /*  viterbi traceback */
+   bool     sparse_bound_fwd;    /* bound forward */ 
+   bool     sparse_bound_bck;    /* bound backward */
    bool     sparse_bias_corr;    /* bias correction */
 } TASKS;
 
@@ -841,6 +874,8 @@ typedef struct {
    float     quad_bck;            /* backward */
    float     quad_vit;            /* viterbi */
    float     quad_trace;          /* traceback of viterbi */
+   float     quad_cloud_fwd;      /* cloud forward search */
+   float     quad_cloud_bck;      /* cloud backward search */
    float     quad_bound_fwd;      /* bound forward */
    float     quad_bound_bck;      /* bound backward */
    /* linear algs */   
@@ -848,6 +883,8 @@ typedef struct {
    float     lin_bck;             /* backward */
    float     lin_vit;             /* viterbi */
    float     lin_trace;           /* traceback of viterbi */
+   float     lin_cloud_fwd;      /* cloud forward search */
+   float     lin_cloud_bck;      /* cloud backward search */
    float     lin_bound_fwd;       /* bound forward */
    float     lin_bound_bck;       /* bound backward */
    /* sparse algs */
@@ -857,6 +894,13 @@ typedef struct {
    float     sparse_trace;        /* traceback of viterbi */
    float     sparse_bound_fwd;    /* bound forward */ 
    float     sparse_bound_bck;    /* bound backward */
+   /* threshold scores */
+   float    threshold_vit;          /* threshold for viterbi score */
+   float    threshold_cloud_max;    /* threshold for cloud search max score */
+   float    threshold_cloud_compo;  /* threshold for cloud search composite score */
+   float    threshold_bound_max;    /* threshold for bound fwdback max score */
+   float    threshold_dom_max;      /* threshold for max domain fwdback score */
+   float    threshold_dom_compo;    /* threshold for composite domain fwdback score */
 } NAT_SCORES;
 
 /* collection of all tuning parameters for cloud search */
@@ -968,10 +1012,10 @@ typedef struct {
    int            n_envelopes;   /* number of envelopes */
    int            n_clustered;   /* number of clusters of domains */
    int            n_overlaps;    /* number of overlaps of domains */
-   /* domain reporting thresholds */
-   float          rt1;           /* default =  */
-   float          rt2;           /* default =  */
-   float          rt3;           /* default =  */
+   /* domain region thresholds */
+   float          rt1;           /* default region threshold */
+   float          rt2;           /* default region threshold */
+   float          rt3;           /* default region threshold */
 } DOMAIN_DEF;
 
 /* TODO: for multi-threading (stored in WORKER object) */
@@ -1027,6 +1071,8 @@ typedef struct {
    FILE*                m8out_fp;
    FILE*                myout_fp;
    FILE*                mydomout_fp;
+   FILE*                mytimeout_fp;
+   FILE*                mythreshout_fp;
    /* indexes of query and target data files */
    F_INDEX*             q_index;
    F_INDEX*             t_index;
@@ -1036,7 +1082,7 @@ typedef struct {
    /* file pointers to query and target data file */
    FILE*                q_file;
    FILE*                t_file;
-   /* results from mmseqs */
+   /* m8 results from mmseqs */
    RESULTS*             results_in;
    /* if given a list of query/target pairs */
    HITLIST*             hitlist_in;    /* */

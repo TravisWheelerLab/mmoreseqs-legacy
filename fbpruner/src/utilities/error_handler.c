@@ -6,11 +6,10 @@
  *  BUG:
  *******************************************************************************/
 
-/* imports */
+/* === imports === */
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>
-
 #include <unistd.h>
 #include <stdbool.h>
 #include <string.h>
@@ -18,24 +17,25 @@
 #include <ctype.h>
 #include <time.h>
 
-/* local imports */
+/* === local imports === */
 #include "../objects/structs.h"
-#include "../objects/objects.h"
+#include "../objects/_objects.h"
 
-/* header */
-#include "utilities.h"
+/* === package header === */
+#include "_utilities.h"
 
+/* === private functions === */
+/* NONE */
 
-/*
- *  FUNCTION:  ERRORCHECK_handler()
- *  SYNOPSIS:  Passed {error_code} is handled.
- */
+/* === public functions === */
+#include "error_handler.h"
+
 void 
-ERRORCHECK_handler(  const int      error_code,
-                     const char*    _file_,
-                     const int      _line_,
-                     const char*    _func_,
-                     const char*    err_msg )
+ERRORCHECK_handler(  const ERROR_FLAG      error_code,
+                     const char*          _file_,
+                     const int            _line_,
+                     const char*          _func_,
+                     const char*          err_msg )
 {
    /* if no message, output default message according to error code */
    if ( err_msg == NULL ) {
@@ -72,12 +72,7 @@ ERRORCHECK_handler(  const int      error_code,
    exit(EXIT_FAILURE);
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_fopen()
- *  SYNOPSIS:  Opens file and returns file pointer.  
- *             If it returns NULL pointer, then error is thrown.
- *             Handles the error messaging, with program location, and closes program.
- */
+
 inline
 FILE* 
 ERRORCHECK_fopen( char*          filename,
@@ -92,33 +87,27 @@ ERRORCHECK_fopen( char*          filename,
    }
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_fclose()
- *  SYNOPSIS:  Closes file and returns NULL pointer.
- */
+
 inline
-void* 
+FILE* 
 ERRORCHECK_fclose(   FILE*          fp,
                      const char*    _file_,
                      const int      _line_,
                      const char*    _func_ )
 {
+   /* close file in not null */
    if (fp != NULL) {
       fclose( fp );
    }
+   /* else, attempting to close a NULL file pointer */
    else {
-      /* attempting to close a NULL file pointer */
+      printf("WARNING: Attempted to close a NULL pointer.");
    }
    
    return NULL;
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_alloc()
- *  SYNOPSIS:  Allocates (or reallocates) memory and returns a pointer.
- *             If memory error causes a NULL pointer to be returned, then memory error is thrown.
- *             Handles the error messaging, with program location, and closes program.
- */
+
 inline
 void* 
 ERRORCHECK_alloc( void*          ptr,
@@ -137,12 +126,7 @@ ERRORCHECK_alloc( void*          ptr,
    return ptr;
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_malloc()
- *  SYNOPSIS:  Allocates (or reallocates) memory and returns a pointer.
- *             If memory error causes a NULL pointer to be returned, then memory error is thrown.
- *             Handles the error messaging, with program location, and closes program.
- */
+
 inline
 void* 
 ERRORCHECK_malloc(   const size_t   size,
@@ -160,12 +144,7 @@ ERRORCHECK_malloc(   const size_t   size,
    return ptr;
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_realloc()
- *  SYNOPSIS:  Allocates (or reallocates) memory and returns a pointer.
- *             If memory error causes a NULL pointer to be returned, then memory error is thrown.
- *             Handles the error messaging, with program location, and closes program.
- */
+
 inline
 void* 
 ERRORCHECK_realloc(  void*          ptr,
@@ -183,12 +162,7 @@ ERRORCHECK_realloc(  void*          ptr,
    return ptr;
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_free()
- *  SYNOPSIS:  Allocates (or reallocates) memory and returns a pointer.
- *             If memory error causes a NULL pointer to be returned, then memory error is thrown.
- *             Handles the error messaging, with program location, and closes program.
- */
+
 inline
 void* 
 ERRORCHECK_free(  void*          ptr,
@@ -203,10 +177,7 @@ ERRORCHECK_free(  void*          ptr,
    return NULL;
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_boundscheck()
- *  SYNOPSIS:  
- */
+
 void* 
 ERRORCHECK_boundscheck( int            idx,
                         int            max,
@@ -220,10 +191,7 @@ ERRORCHECK_boundscheck( int            idx,
    }
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_print_location()
- *  SYNOPSIS:  Prints program location given by ERRORCHECK function.
- */
+
 void 
 ERRORCHECK_print_location( FILE*          fp,
                            const char*    _file_,
@@ -234,10 +202,7 @@ ERRORCHECK_print_location( FILE*          fp,
       _file_, _line_, _func_ );
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_unsupported_op()
- *  SYNOPSIS:  Error called when function is currently unsupported.
- */
+
 void 
 ERRORCHECK_unsupported_op(    const char*     _file_,
                               const int       _line_,
@@ -246,10 +211,7 @@ ERRORCHECK_unsupported_op(    const char*     _file_,
 
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_memcheck()
- *  SYNOPSIS:  Reports an incorrect value encountered in matrix.
- */
+
 void 
 ERRORCHECK_memcheck(    int      row, 
                         int      col, 
@@ -261,10 +223,7 @@ ERRORCHECK_memcheck(    int      row,
            row, col, mat, ins, del );
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_stacktrace()
- *  SYNOPSIS:  Print stacktrace.
- */
+
 void 
 ERRORCHECK_stacktrace()
 {
@@ -284,10 +243,7 @@ ERRORCHECK_stacktrace()
    free (strings);
 }
 
-/*
- *  FUNCTION:  ERRORCHECK_exit()
- *  SYNOPSIS:  Exit program and print stacktrace.
- */
+
 void 
 ERRORCHECK_exit( int exit_flag )
 {

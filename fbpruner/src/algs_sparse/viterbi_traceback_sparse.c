@@ -16,9 +16,9 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
-#include "../algs_quad/algs_quad.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
+#include "../algs_quad/_algs_quad.h"
 
 /* header */
 #include "_algs_sparse.h"

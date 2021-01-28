@@ -16,10 +16,10 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
-#include "algs_quad.h"
+#include "_algs_quad.h"
 
 /* header */
 #include "pruning_quad.h"
@@ -278,9 +278,9 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
  *  FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
- *				Alpha: 		x-drop value determining whether cells are pruned in antidiagonal
- * 				Alpha-Max: 	x-drop value determining whether search is terminated
- *				Beta:  		number of free passes before pruning
+ *					<alpha>: 	x-drop value determining whether cells are pruned in antidiagonal
+ * 				<beta>: 		x-drop value determining whether search is terminated
+ *					<gamma>:  	number of free passes before pruning
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
  * 				(1b) If diag_max falls below score global threshold, terminate entire search.
  * 		      	(2) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
@@ -289,30 +289,30 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
  */
 inline
 void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matrix */
-												MATRIX_2D* 		sp_MX,			/* special state matrix */
-												const float     alpha,			/* x-drop value for by-diag prune */
-												const float 	beta, 			/* x-drop value for global prune */
-												const int       gamma,			/* number of antidiagonals before pruning */
-												const int 		d_1,			/* previous antidiagonal */
-												const int 		d_0,			/* current antidiagonal */
-												const int 		d1,				/* previous antidiag (mod-mapped) */
-												const int 		d0, 			/* current antidiag (mod-mapped) */
-												const int 		d_cnt, 			/* number of antidiags traversed */
-												const int 		le, 			/* right edge of dp matrix on current antidiag */
-												const int 		re,				/* left edge of dp matrix on current antidiag */
-												float*    		total_max,		/* (UPDATED) current maximum score */
-												VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
-												VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
+																MATRIX_2D* 		sp_MX,			/* special state matrix */
+																const float    alpha,			/* x-drop value for by-diag prune */
+																const float 	beta, 			/* x-drop value for global prune */
+																const int      gamma,			/* number of antidiagonals before pruning */
+																const int 		d_1,				/* previous antidiagonal */
+																const int 		d_0,				/* current antidiagonal */
+																const int 		d1,				/* previous antidiag (mod-mapped) */
+																const int 		d0, 				/* current antidiag (mod-mapped) */
+																const int 		d_cnt, 			/* number of antidiags traversed */
+																const int 		le, 				/* right edge of dp matrix on current antidiag */
+																const int 		re,				/* left edge of dp matrix on current antidiag */
+																float*    		total_max,		/* (UPDATED) current maximum score */
+																VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
+																VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
 	int 		i, j, k; 					/* indexes */
-	int 		q_0;						/* row index (query position) */
-	int 		t_0;						/* column index (target position) */
-	int 		k_0;						/* offset into antidiagonal */
+	int 		q_0;							/* row index (query position) */
+	int 		t_0;							/* column index (target position) */
+	int 		k_0;							/* offset into antidiagonal */
 	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
-	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
-	float 		diag_limit 	= -INF;			/* pruning threshold based on global max */
-	float 		total_limit = -INF; 		/* termination threshold based on antidiag max */
+	float 	diag_max, cell_max;     /* max score for all normal states in a given cell/antidiagonal */
+	float 	diag_limit 	= -INF;		/* pruning threshold based on global max */
+	float 	total_limit = -INF; 		/* termination threshold based on antidiag max */
 
 	/* reset int vectors */
 	VECTOR_INT_Reuse( lb_vec[0] );

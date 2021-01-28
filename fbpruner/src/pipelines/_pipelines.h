@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      pipeline_main.c
+ *  FILE:      pipeline.h
  *  PURPOSE:   Pipelines and Subroutines
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _PIPELINE_MAIN_H
@@ -11,35 +11,34 @@
 
 /* === PIPELINE SUBROUTINES === */
 #include "work.h"
-#include "report.h"
 
 /* === MAIN PIPELINES === */
 
-/*
- *  FUNCTION:  	main_pipeline()
+/*! FUNCTION:  	main_pipeline()
  *  SYNOPSIS:  	Main pipeline:
- * 				Can optionally run viterbi, forward-backward, and/or pruned forward-backward.
+ * 				      Can optionally run viterbi, forward-backward, and/or pruned forward-backward.
  */
 void main_pipeline( WORKER* worker );
 
 
-/*
- *  FUNCTION:  	mmseqs_pipeline()
- *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: Runs Cloud Search using results from main MMSeqs Search..	
+/*! FUNCTION:  	mmseqs_pipeline()
+ *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: 
+ *                   Runs Cloud Search using results from main MMSeqs Search..	
  */
 void mmseqs_pipeline( WORKER* worker );
 
 
-/*
- *  FUNCTION:  	mmseqs_pipeline_plus()
- *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: Runs Cloud Search using results from main MMSeqs Search..	
+/*! FUNCTION:  	mmseqs_pipeline_plus()
+ *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: 
+ *                   Runs Cloud Search using results from main MMSeqs Search..	
  */
 void mmseqs_plus_pipeline( WORKER* worker );
 
 
 /*
  *  FUNCTION:  	time_pipeline()
- *  SYNOPSIS:  	Time Trial Pipeline: runs all algorithms and reports times.
+ *  SYNOPSIS:  	Time Trial Pipeline: 
+ *                   Runs all algorithms and reports times.
  */
 void time_pipeline( WORKER* worker );
 

@@ -16,8 +16,8 @@
 
 /* local imports */
 #include "structs.h"
-#include "utilities.h"
-#include "objects.h"
+#include "_utilities.h"
+#include "_objects.h"
 
 /* header */
 #include "opts.h"

@@ -3,7 +3,16 @@
  *  PURPOSE:   CLOCK Object for testing runtimes. 
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Unknown.
+ *  BUG:       
+ *    - None.
+ *  NOTES:
+ *    - After implementing a simple clock, it did not run correctly on the cluster.
+ *      So, I have wrapped the Easel stopwatch in this implementation.
+ *      The implementation version is selected by the CLOCK_TYPE macro at compile time.
+ *  ISSUES:
+ *    - Easel's stopwatch doesn't allow for timing multiple events at the same time,
+ *      To capture times, my code just quickly stops easel stopwatch, then starts it again, 
+ *      storing the accumulating offset value. Functional, if a little hacky.
  *******************************************************************************/
 
 /* imports */
@@ -17,19 +26,32 @@
 #include <time.h>
 #include <sys/times.h>
 
+/* easel imports */
+#include "../../lib/easel/esl_stopwatch.h"
+
 /* local imports */
 #include "structs.h"
-#include "../utilities/utilities.h"
-#include "objects.h"
+#include "../utilities/_utilities.h"
 
 /* header */
+#include "_objects.h"
 #include "clock.h"
 
+/* private functions */
+double 
+CLOCK_Get_MyTime();
+double 
+CLOCK_Get_EaselTime();
+/* hack to get esl's realtime function? */
+static double 
+stopwatch_getRealTime(void);
 
-double CLOCK_Get_RealTime();
-
-/* constructor */
-CLOCK* CLOCK_Create()
+/*! FUNCTION:  CLOCK_Create()
+ *  SYNOPSIS:  Create new CLOCK object and returns pointer.
+ *  RETURN:    Pointer to CLOCK object.
+ */
+CLOCK* 
+CLOCK_Create()
 {
    CLOCK*      cl       = NULL;   
    const int   min_size = 16; 
@@ -40,136 +62,153 @@ CLOCK* CLOCK_Create()
    cl->stop    = 0;
    cl->stamps  = VECTOR_DBL_Create_by_Size( min_size );
 
-   /* set program start time */
-   cl->program_start = CLOCK_Get_RealTime();
+   #if ( CLOCK_TYPE == CLOCK_MYCLOCK )
+   {
+      cl->program_start = CLOCK_Get_Time( cl );
+   }
+   #elif ( CLOCK_TYPE == CLOCK_EASEL )
+   {
+      cl->esl_stopwatch = esl_stopwatch_Create();
+      esl_stopwatch_Start( cl->esl_stopwatch );
+      cl->program_start = 0.0f;
+      cl->esl_total     = 0.0f; 
+   }
+   #endif
 
    return cl;
 }
 
-/* destructor */
-void* CLOCK_Destroy( CLOCK* cl )
+/*! FUNCTION:  CLOCK_Destroy()
+ *  SYNOPSIS:  Destroy CLOCK object.
+ *  RETURN:    NULL pointer.
+ */
+CLOCK* 
+CLOCK_Destroy( CLOCK* cl )
 {
    if (cl == NULL) return NULL;
 
+   #if ( CLOCK_TYPE == CLOCK_EASEL )
+   {
+      esl_stopwatch_Destroy( cl->esl_stopwatch );
+   }
+   #endif
    VECTOR_DBL_Destroy( cl->stamps );
    ERROR_free(cl);
 
    return NULL;
 }
 
-/* Set the Stopwatch */
-double CLOCK_Start(CLOCK*cl)
+/*! FUNCTION:  CLOCK_Start()
+ *  SYNOPSIS:  Set start point for <cl> clock stopwatch timer.
+ *  RETURN:    Start time.
+ */
+double 
+CLOCK_Start( CLOCK* cl )
 {
-   cl->start = CLOCK_Get_RealTime();
+   cl->start = CLOCK_Get_Time( cl );
+
    return cl->start;
 }
 
-/* Stop the Stopwatch */
-double CLOCK_Stop(CLOCK* cl)
+/*! FUNCTION:  CLOCK_Stop()
+ *  SYNOPSIS:  Set stop point for <cl> clock timer.
+ *  RETURN:    Stop time.
+ */
+double 
+CLOCK_Stop( CLOCK* cl )
 {
-   cl->stop = CLOCK_Get_RealTime();
+   cl->stop = CLOCK_Get_Time( cl );
+
    return cl->stop;
 }
 
-/* Convert duration from ticks to msec */
-double CLOCK_Secs(CLOCK*cl)
+/*! FUNCTION:  CLOCK_Duration()
+ *  SYNOPSIS:  Get time <duration> between CLOCK_Start() and CLOCK_Stop().
+ *  RETURN:    Duration time.
+ */
+double 
+CLOCK_Duration( CLOCK* cl )
 {
    cl->duration = cl->stop - cl->start;
+
    return (double)(cl->duration);
 }
 
-/* dependencies for Get_RealTime() */
-#if defined(_WIN32)
-#include <Windows.h>
-
-#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
-#include <unistd.h>  /* POSIX flags */
-#include <time.h> /* clock_gettime(), time() */
-#include <sys/time.h>   /* gethrtime(), gettimeofday() */
-
-#if defined(__MACH__) && defined(__APPLE__)
-#include <mach/mach.h>
-#include <mach/mach_time.h>
-#endif
-
-#else
-#error "Unable to define getRealTime( ) for an unknown OS."
-#endif
-
-/* capture time based on system (pulled directly from easel) */
-double CLOCK_Get_RealTime()
+/*! FUNCTION:  CLOCK_Get_Diff()
+ *  SYNOPSIS:  Get time <duration> between <start> and <stop>, acquired from CLOCK_Get_Time().
+ *  RETURN:    Duration time.
+ */
+double 
+CLOCK_Get_Diff(   CLOCK*   cl,
+                  double   start,
+                  double   stop )
 {
-   #if defined(_WIN32)
-   FILETIME tm;
-   ULONGLONG t;
-#if defined(NTDDI_WIN8) && NTDDI_VERSION >= NTDDI_WIN8
-   /* Windows 8, Windows Server 2012 and later. ---------------- */
-   GetSystemTimePreciseAsFileTime( &tm );
-#else
-   /* Windows 2000 and later. ---------------------------------- */
-   GetSystemTimeAsFileTime( &tm );
-#endif
-   t = ((ULONGLONG)tm.dwHighDateTime << 32) | (ULONGLONG)tm.dwLowDateTime;
-   return (double)t / 10000000.0;
+   float duration;
 
-#elif (defined(__hpux) || defined(hpux)) || ((defined(__sun__) || defined(__sun) || defined(sun)) && (defined(__SVR4) || defined(__svr4__)))
-   /* HP-UX, Solaris. ------------------------------------------ */
-   return (double)gethrtime( ) / 1000000000.0;
+   duration = stop - start;
 
-#elif defined(__MACH__) && defined(__APPLE__)
-   /* OSX. ----------------------------------------------------- */
-   static double timeConvert = 0.0;
-   if ( timeConvert == 0.0 )
-   {
-      mach_timebase_info_data_t timeBase;
-      (void)mach_timebase_info( &timeBase );
-      timeConvert = (double)timeBase.numer /
-         (double)timeBase.denom /
-         1000000000.0;
-   }
-   return (double)mach_absolute_time( ) * timeConvert;
-
-#elif defined(_POSIX_VERSION)
-   /* POSIX. --------------------------------------------------- */
-#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
-   {
-      struct timespec ts;
-#if defined(CLOCK_MONOTONIC_PRECISE)
-      /* BSD. --------------------------------------------- */
-      const clockid_t id = CLOCK_MONOTONIC_PRECISE;
-#elif defined(CLOCK_MONOTONIC_RAW)
-      /* Linux. ------------------------------------------- */
-      const clockid_t id = CLOCK_MONOTONIC_RAW;
-#elif defined(CLOCK_HIGHRES)
-      /* Solaris. ----------------------------------------- */
-      const clockid_t id = CLOCK_HIGHRES;
-#elif defined(CLOCK_MONOTONIC)
-      /* AIX, BSD, Linux, POSIX, Solaris. ----------------- */
-      const clockid_t id = CLOCK_MONOTONIC;
-#elif defined(CLOCK_REALTIME)
-      /* AIX, BSD, HP-UX, Linux, POSIX. ------------------- */
-      const clockid_t id = CLOCK_REALTIME;
-#else
-      const clockid_t id = (clockid_t)-1; /* Unknown. */
-#endif /* CLOCK_* */
-      if ( id != (clockid_t)-1 && clock_gettime( id, &ts ) != -1 )
-         return (double)ts.tv_sec +
-            (double)ts.tv_nsec / 1000000000.0;
-      /* Fall thru. */
-   }
-#endif /* _POSIX_TIMERS */
-
-   /* AIX, BSD, Cygwin, HP-UX, Linux, OSX, POSIX, Solaris. ----- */
-   struct timeval tm;
-   gettimeofday( &tm, NULL );
-   return (double)tm.tv_sec + (double)tm.tv_usec / 1000000000.0;
-#else
-   return -1.0;      /* Failed. */
-#endif
+   return duration;
 }
 
-/* returns string containing current date and time */
-char* CLOCK_Get_DateTimeString( CLOCK* cl )
+/*! FUNCTION:  CLOCK_Get_Time()
+ *  SYNOPSIS:  Get current time.
+ *  RETURN:    Current time.
+ */
+double 
+CLOCK_Get_Time( CLOCK* cl )
+{
+   double time;
+   #if   ( CLOCK_TYPE == CLOCK_MYCLOCK )
+   {
+      time = CLOCK_Get_MyTime();
+   }
+   #elif ( CLOCK_TYPE == CLOCK_EASEL )
+   {
+      time = CLOCK_Get_EaselTime( cl );
+   }
+   #endif
+
+   return time;
+}
+
+/*! FUNCTION:  CLOCK_Get_MyTime()
+ *  SYNOPSIS:  Get current time (using simple method).
+ *  RETURN:    Current time.
+ */
+double 
+CLOCK_Get_MyTime()
+{
+   long  ltime = clock();
+   float ftime = (double)ltime / (double)CLOCKS_PER_SEC;
+   return ftime;
+}
+
+/*! FUNCTION:  CLOCK_Get_EaselTime()
+ *  SYNOPSIS:  Capture time (from Easel stopwatch implementation)
+ *  RETURN:    Current time.
+ */
+double 
+CLOCK_Get_EaselTime( CLOCK* cl )
+{
+   double time;
+
+   /* we briefly stop the stopwatch, add that time elapsed to a running total, then restart watch */
+   esl_stopwatch_Stop( cl->esl_stopwatch );
+   cl->esl_total += esl_stopwatch_GetElapsed( cl->esl_stopwatch );
+   esl_stopwatch_Start( cl->esl_stopwatch );
+   time = cl->esl_total;
+
+   return time;
+}
+
+/*! FUNCTION:  CLOCK_Get_DateTimeString()
+ *  SYNOPSIS:  Get string representation of <time>, stores in <str_buf>.
+ *             <str_buf> must be allocated by user.
+ *  RETURN:    Pointer to <str_buf>.
+ */
+char* 
+CLOCK_Get_DateTimeString(  double   time,
+                           char*    str_buf )
 {
       // time_t   t     = time(NULL);
       // struct   tm tm = *localtime(&t);
@@ -179,16 +218,33 @@ char* CLOCK_Get_DateTimeString( CLOCK* cl )
    return NULL;
 }
 
-/* return total runtime since clock created */
-double CLOCK_Get_Total_Runtime( CLOCK* cl )
+/*! FUNCTION:  CLOCK_Get_Total_Runtime()
+ *  SYNOPSIS:  Get lifetime, the total time passed since clock created.
+ *  RETURN:    Pointer to <str_buf>.
+ */
+double 
+CLOCK_Get_Total_Runtime( CLOCK* cl )
 {
-   double current_time  = CLOCK_Get_RealTime();
+   double current_time  = CLOCK_Get_Time( cl );
    double duration      = (cl->stop - cl->start);
    return (double)(cl->duration);
 }
 
-/* Delay for <sec> milliseconds */
-int CLOCK_Delay( int milliseconds )
+/*! FUNCTION:  CLOCK_Delay()
+ *  SYNOPSIS:  Delay (sleep) program for <sec> seconds.
+ */
+STATUS_FLAG
+CLOCK_Delay( int sec )
 {
+   STATUS_FLAG status = sleep(sec);
+   return status;
+}
 
+/*! FUNCTION:  CLOCK_UnitTest()
+ *  SYNOPSIS:  UnitTest for CLOCK object.
+ */
+STATUS_FLAG
+CLOCK_UnitTest( )
+{
+   
 }

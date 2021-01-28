@@ -17,11 +17,11 @@
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/utilities.h"
-#include "../objects/objects.h"
+#include "../utilities/_utilities.h"
+#include "../objects/_objects.h"
 
 /* header */
-#include "parsers.h"
+#include "_parsers.h"
 
 /* parse .fasta file and build SEQUENCE object */
 void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
