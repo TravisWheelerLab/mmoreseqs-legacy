@@ -24,13 +24,20 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/* standard pipeline */
-void main_pipeline( WORKER* worker ) 
+/*! FUNCTION:  	generic_pipeline()
+ *  SYNOPSIS:  	Generic pipeline.
+ * 				   Can optionally run viterbi, forward-backward, and/or adaptive forward-backward.
+ */
+STATUS_FLAG 
+generic_pipeline( WORKER* worker ) 
 {
+   printf("=== GENERIC PIPELINE ===\n");
+
 	/* initialize data structures needed for tasks */
 	WORK_init( worker );
 	WORK_open( worker );

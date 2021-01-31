@@ -32,10 +32,13 @@ RESULTS* RESULTS_Create()
 
    results = (RESULTS*) ERROR_malloc( sizeof(RESULTS) );
 
-   results->filepath  = NULL;
    results->N         = 0;
    results->Nalloc    = 0;
    results->data      = NULL;
+   
+   results->max_in_queue   = 0;
+   results->num_hits       = 0;
+   results->num_searches   = 0;
 
    RESULTS_Resize( results, min_size );
 
@@ -54,13 +57,8 @@ void* RESULTS_Destroy( RESULTS* results )
       ERROR_free(results->data[i].query_name);
    }
 
-   ERROR_free(results->data);
-   results->data = NULL;
-   ERROR_free(results->filepath);
-   results->filepath = NULL;
-   
-   ERROR_free(results);
-   results = NULL;
+   results->data  = ERROR_free(results->data);
+   results        = ERROR_free(results);
    return results;
 }
 

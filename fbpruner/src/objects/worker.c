@@ -73,7 +73,7 @@ WORKER_Create()
       worker->rb_vec[i] = NULL;
    }
    /* quadratic space dp matrices */
-   worker->st_MX;
+   worker->st_MX        = NULL;
    worker->st_MX_fwd    = NULL;
    worker->st_MX_bck    = NULL;
    worker->st_MX_post   = NULL;
@@ -92,25 +92,30 @@ WORKER_Create()
    worker->sp_MX_bck    = NULL;
    /* times */
    worker->times        = NULL;
-   worker->times_raw    = NULL;
+   worker->times_totals = NULL;
    /* results */
-   worker->results      = NULL;
    worker->results_in   = NULL;
+   worker->results      = NULL;
    worker->result       = NULL;
    /* number searches */
    worker->num_searches = 0;
    /* create complex data structs */
    worker->clok         = CLOCK_Create();
+   
    /* malloc all basic data structures */
-   worker->tasks        = (TASKS*) ERROR_malloc( sizeof(TASKS) );
-   worker->times        = (TIMES*) ERROR_malloc( sizeof(TIMES) );
-   worker->times_totals = (TIMES*) ERROR_malloc( sizeof(TIMES) );
-   worker->scores       = (NAT_SCORES*) ERROR_malloc( sizeof(NAT_SCORES) );
+   worker->tasks        = ERROR_malloc( sizeof(TASKS) );
+   worker->times        = ERROR_malloc( sizeof(TIMES) );
+   worker->times_totals = ERROR_malloc( sizeof(TIMES) );
+   worker->scores       = ERROR_malloc( sizeof(NAT_SCORES) );
    /* initialize all values to zero */
-   memset( worker->tasks, 0, sizeof(TASKS) ); 
-   memset( worker->times, 0, sizeof(TIMES) );
+   memset( worker->tasks,        0, sizeof(TASKS) ); 
+   memset( worker->times,        0, sizeof(TIMES) );
    memset( worker->times_totals, 0, sizeof(TIMES) );
-   memset( worker->scores, 0, sizeof(NAT_SCORES ) );
+   memset( worker->scores,       0, sizeof(NAT_SCORES ) );
+
+   /* create all worker threads */
+   worker->N_threads = 0;
+   worker->threads   = NULL;
 
    return worker;
 }

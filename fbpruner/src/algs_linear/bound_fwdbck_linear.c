@@ -20,9 +20,8 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_linear.h"
-
 /* self header */
+#include "_algs_linear.h"
 #include "bound_fwdbck_linear.h"
 
 /*

@@ -3,7 +3,8 @@
  *  PURPOSE:   The Maximum Posterior Probability and Optimal Alignment.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
+ *    - None known.
  *******************************************************************************/
 
 /* imports */

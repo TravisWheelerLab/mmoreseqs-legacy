@@ -22,7 +22,6 @@
 /* header */
 #include "mystring.h"
 
-
 char*
 STRING_Create( char*          dest,
                const char*    str ) 

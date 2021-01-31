@@ -25,15 +25,18 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/*
- *  FUNCTION:  utest_pipeline()
- *  SYNOPSIS:  Pipeline runs unit tests.
+/*! FUNCTION:  	utest_pipeline()
+ *  SYNOPSIS:  	Pipeline runs unit tests.
  */
-void utest_pipeline( WORKER* worker ) 
+STATUS_FLAG 
+utest_pipeline( WORKER* worker ) 
 {
+   printf("=== UNIT TEST PIPELINE ===\n");
    
+   return STATUS_SUCCESS;
 }

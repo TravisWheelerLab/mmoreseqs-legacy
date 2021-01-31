@@ -25,22 +25,20 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/* set default args for index pipeline */
-
-
-/* ****************************************************************************************** *
- *  FUNCTION:  index_pipeline()
- *  SYNOPSIS:  Indexing workflow pipeline.
- *             Indexes a target and query file, then saves those indexes to file.
-/* ****************************************************************************************** */
-void index_pipeline( WORKER* worker )
+/*! FUNCTION:  	index_pipeline()
+ *  SYNOPSIS:     Index Pipeline: Indexes FASTA or HMM files.
+ */
+STATUS_FLAG 
+index_pipeline( WORKER* worker )
 {
-   FILE*       fp       = NULL;
+   printf("=== INDEX PIPELINE ===\n");
 
+   FILE*       fp       = NULL;
    ARGS*       args     = worker->args;
    TASKS*      tasks    = worker->tasks;
    CLOCK*      clok     = worker->clok;

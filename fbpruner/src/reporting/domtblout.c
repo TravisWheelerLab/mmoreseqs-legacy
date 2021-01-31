@@ -188,7 +188,7 @@ REPORT_domtblout_footer(   WORKER*  worker,
 
    /* get current directory */
    char cwd[256];
-   getcwd(cwd, sizeof(cwd));
+   if ( getcwd(cwd, sizeof(cwd)) == NULL ) return STATUS_FAILURE;
    /* get current date/time */
    char* time_str = NULL;
    // time_str = CLOCK_Get_DateTimeString( NULL );
@@ -196,7 +196,7 @@ REPORT_domtblout_footer(   WORKER*  worker,
    fprintf( fp, "# \n");
    fprintf( fp, "# %*s %s\n",       left_pad,   "Program:",          BUILD_PROGRAM);
    fprintf( fp, "# %*s %s (%s)\n",  left_pad,   "Version:",          BUILD_VERSION, BUILD_DATE );
-   fprintf( fp, "# %*s %s\n",       left_pad,   "Pipeline mode:",    PIPELINE_NAMES[args->pipeline_mode] );
+   fprintf( fp, "# %*s %s\n",       left_pad,   "Pipeline mode:",    PIPELINES[args->pipeline_mode].name );
    fprintf( fp, "# %*s %s\n",       left_pad,   "Query file:",       args->q_filepath );
    fprintf( fp, "# %*s %s\n",       left_pad,   "Target file:",      args->t_filepath );
    fprintf( fp, "# %*s %s\n",       left_pad,   "Option settings:",  "" );
@@ -205,5 +205,7 @@ REPORT_domtblout_footer(   WORKER*  worker,
    }
    // if (time_str)  fprintf( fp, "# %*s %s\n",       left_pad,   "Date:",             time_str );
    fprintf( fp, "# %*s\n",          left_pad,   "[ok]" );
+
+   return STATUS_SUCCESS;
 }
 

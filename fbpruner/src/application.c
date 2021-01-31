@@ -69,8 +69,8 @@ main ( int argc, char *argv[] )
    /* output arguments */
    ARGS_Dump( args, stdout );
    
-   /* jumps to pipeline based on -p flag */
-   PIPELINES[ args->pipeline_mode ]( worker );
+   /* Run pipeline determined by args */
+   PIPELINES[ args->pipeline_mode ].func( worker );
 
    /* free debugging toolkit */
    #if DEBUG 

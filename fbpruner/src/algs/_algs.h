@@ -11,6 +11,4 @@
 
 #include "../objects/structs.h"
 
-
-
 #endif /* _ALGS_GENERAL_H */

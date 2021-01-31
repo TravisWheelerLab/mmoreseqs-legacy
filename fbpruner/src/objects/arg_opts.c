@@ -1,9 +1,12 @@
 /*******************************************************************************
- *  FILE:      cmd_opts.c
- *  PURPOSE:   CMD_OPTS Object. Used for Parsing Commandline Args.
+ *  FILE:      arg_opts.c
+ *  PURPOSE:   ARG_OPTS Object. 
+ *             Used for Parsing Commandline Args.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:     
+ *  NOTES:
+ *    - WIP.
  *******************************************************************************/
 
 /* imports */
@@ -16,32 +19,26 @@
 
 /* local imports */
 #include "structs.h"
-#include "_utilities.h"
+#include "../utilities/_utilities.h"
 #include "_objects.h"
 
 /* header */
-#include "opts.h"
+#include "alignment.h"
 
-/*
- *  FUNCTION:  OPTS_Create()
+/*! FUNCTION:  ARGOPTS_Create()
  *  SYNOPSIS:  
  */
-OPTS* OPTS_Create()
+void* 
+ARG_OPTS_Create()
 {
-   OPTS* opts = (OPTS*) ERROR_malloc( sizeof(OPTS) );
-
-   return opts;
+   return NULL;
 }
 
-/*
- *  FUNCTION:  OPTS_Destroy()
- *  SYNOPSIS:  Returns Null pointer.
+/*! FUNCTION:  ARGS_Destroy()
+ *  SYNOPSIS:  
  */
-OPTS* OPTS_Destroy( OPTS* opts )
+void* 
+ARGS_OPTS_Destroy()
 {
-   if (opts == NULL) return NULL;
-   
-   ERROR_free( opts );
-
    return NULL;
 }

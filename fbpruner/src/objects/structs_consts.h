@@ -83,7 +83,7 @@ typedef enum {
 } PROF_FORMAT;
 #define NUM_PROF_FORMAT 3
 
-/* Data Types */
+/* Data Types supported by GEN */
 typedef enum {
    DATATYPE_NONE,
    DATATYPE_INT,
@@ -95,9 +95,10 @@ typedef enum {
    DATATYPE_STRING,
    DATATYPE_CHAR,
    DATATYPE_BOOL,
-   DATATYPE_POINTER
+   DATATYPE_POINTER,
+   DATATYPE_RANGE,
 } DATATYPE;
-#define NUM_DATATYPES 11
+#define NUM_DATATYPES 12
 
 /* Pipeline Modes */
 typedef enum {
@@ -110,7 +111,7 @@ typedef enum {
    PIPELINE_UTEST,
    PIPELINE_VIZ,
 } PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 8
+#define NUM_PIPELINE_MODES 7
 
 /* Verbosity Modes (how much output does user want) */
 typedef enum {

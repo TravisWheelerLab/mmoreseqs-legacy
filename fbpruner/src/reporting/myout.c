@@ -69,9 +69,10 @@
 void REPORT_myout_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
-      "query",
-      "target",
+   const int num_fields = 14;
+   const char* headers[] = {
+      "target-hmm",
+      "query-seq",
       "evalue",
       "pre-sc",
       "comp-bias",
@@ -84,22 +85,9 @@ void REPORT_myout_header(  WORKER*  worker,
       "q-range",
       "t-range",
       "time"
-   );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
-      "------",
-      "------",
-      "------",
-      "------",
-      "--------",
-      "------",
-      "-------------",
-      "----------",
-      "----------",
-      "----------",
-      "-------",
-      "-------",
-      "----"
-   );
+   };
+
+   REPORT_header(fp, headers, num_fields);
 }
 
 /*    FUNCTION:   REPORT_myout_entry()
@@ -139,6 +127,25 @@ void REPORT_myout_entry(   WORKER*  worker,
       result->query_end,               /* end of query range */
       result->time                     /* time for entire iteration */
    );
+
+   /* TODO: WIP */
+   // const int num_fields = 12;
+   // const GEN fields[] = {
+   //    GEN_Create( &t_prof->name,                    DATATYPE_STRING,     sizeof(char*) ),
+   //    GEN_Create( &q_seq->name,                     DATATYPE_STRING,     sizeof(char*) ),
+   //    GEN_Create( &result->final_scores.eval,       DATATYPE_FLOAT_EXP,  sizeof(float) ),
+   //    GEN_Create( &result->final_scores.pre_sc,     DATATYPE_FLOAT,      sizeof(float) ),
+   //    GEN_Create( &result->final_scores.seq_bias,   DATATYPE_FLOAT,      sizeof(float) ),
+   //    GEN_Create( &dom_def->dom_sumsc,              DATATYPE_FLOAT,      sizeof(float) ),
+   //    GEN_Create( &result->vit_natsc,               DATATYPE_FLOAT,      sizeof(float) ),
+   //    GEN_Create( &result->total_cells,             DATATYPE_INT,        sizeof(int) ),
+   //    GEN_Create( &result->cloud_cells,             DATATYPE_INT,        sizeof(int) ),
+   //    GEN_Create( &result->target_range,            DATATYPE_RANGE,      sizeof(int) ),
+   //    GEN_Create( &result->query_range,             DATATYPE_RANGE,      sizeof(int) ),
+   //    GEN_Create( &result->time,                    DATATYPE_FLOAT,      sizeof(float) ),
+   // };
+
+   // REPORT_entry( fp, fields, num_fields, sig_digits );
 }
 
 /*    FUNCTION:   REPORT_myout_footer()

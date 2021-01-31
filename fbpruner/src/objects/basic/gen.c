@@ -1,12 +1,13 @@
 /*******************************************************************************
  *  FILE:      gen_data.c
- *  PURPOSE:   GEN_DATA Object. A union that can store most primitive data types.
+ *  PURPOSE:   GEN Object. A union that can store most primitive data types.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
  *    - None.
  *  TODO:
- *    - Could create an faster (though unsafe) To_String() function
+ *    - Could create an faster (though unsafe) To_String() function.
+ *    - Add support for int RANGE type.
  *******************************************************************************/
 
 /* imports */
@@ -26,20 +27,37 @@
 #include "_basic.h"
 #include "bound.h"
 
-/*! FUNCTION:  GEN_DATA_Create()
- *  SYNOPSIS:  Create a GEN_DATA struct. 
+/* lookup for datatype sizes */
+const size_t DATATYPE_SIZES[] = {
+   0,                /* DATATYPE_NONE */
+   sizeof(int),      /* DATATYPE_INT */
+   sizeof(float),    /* DATATYPE_FLOAT */
+   sizeof(float),    /* DATATYPE_FLOAT_EXP */
+   sizeof(double),   /* DATATYPE_DOUBLE */
+   sizeof(double),   /* DATATYPE_DOUBLE_EXP */
+   sizeof(long),     /* DATATYPE_LONG */
+   sizeof(char*),    /* DATATYPE_STRING */
+   sizeof(char),     /* DATATYPE_CHAR */
+   sizeof(bool),     /* DATATYPE_BOOL */
+   sizeof(void*)     /* DATATYPE_POINTER */
+};
+
+/*! FUNCTION:  GEN_Create()
+ *  SYNOPSIS:  Create a GEN struct. 
  *             <data> should be reference to the data to be stored.
  *             <type> should be one of the enumerated datatypes.
  *             <size> should be sizeof(<type>). 
- *    RETURN:  Pointer to GEN_DATA struct.
+ *    RETURN:  GEN struct.
  */
 inline
-GEN_DATA 
-GEN_DATA_Create( 	const void*       data,
+GEN 
+GEN_Create( 	const void*       data,
                   const DATATYPE    type,
                   const size_t      size )
 {
-   GEN_DATA gdata;
+   GEN gdata;
+   size_t   gsize;
+
    gdata.type = type;
    /* should resist compiler trying to cast <data> */
    memcpy( &gdata.data, data, size );
@@ -47,7 +65,18 @@ GEN_DATA_Create( 	const void*       data,
    return gdata;
 }
 
-/*! FUNCTION:  GEN_DATA_To_String()
+/*! FUNCTION:  GEN_Get_Size()
+ *  SYNOPSIS:  Get the size of an enumerated datatype.
+ *    RETURN:  Pointer to <buf>, or NULL if error.
+ */
+inline
+size_t 
+GEN_Get_Size( 	const DATATYPE    type )
+{
+   return DATATYPE_SIZES[type];
+}
+
+/*! FUNCTION:  GEN_To_String()
  *  SYNOPSIS:  Create a string representation of <data>.
  *             If it is of float-like type, formats with <sig_digits> as number of significant digits.
  *             Stores it in a char* buffer <buf>. Caller must have preallocated buffer. 
@@ -56,7 +85,7 @@ GEN_DATA_Create( 	const void*       data,
  */
 inline
 char* 
-GEN_DATA_To_String( 	const GEN_DATA    data,
+GEN_To_String( 	const GEN    data,
                      char*             buf,
                      const int         buf_size,
                      const int         sig_digits )
@@ -103,7 +132,8 @@ GEN_DATA_To_String( 	const GEN_DATA    data,
    }
 }
 
-/*! FUNCTION:  GEN_DATA_Compare()
+
+/*! FUNCTION:  GEN_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *             Sort first according to type, then by value.
  *    RETURN:  Positive if (a > b), 
@@ -112,8 +142,8 @@ GEN_DATA_To_String( 	const GEN_DATA    data,
  */
 inline
 int 
-GEN_DATA_Compare(    const GEN_DATA   a, 
-                     const GEN_DATA   b )
+GEN_Compare(    const GEN   a, 
+                     const GEN   b )
 {
    
 }

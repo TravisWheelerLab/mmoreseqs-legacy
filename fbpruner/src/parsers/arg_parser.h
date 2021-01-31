@@ -3,9 +3,10 @@
  *  PURPOSE:   Parses command line arguments.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:
  *******************************************************************************/
 
+#ifndef _ARG_PARSER
+#define _ARG_PARSER
 
 /* parses arguments from the command line */
 void ARGS_Parse(  ARGS*   args,
@@ -24,3 +25,5 @@ int ARGS_Find_FileType( char* _filename_ );
 
 /* output help info */
 void ARGS_Help_Info();
+
+#endif /* _ARG_PARSER */

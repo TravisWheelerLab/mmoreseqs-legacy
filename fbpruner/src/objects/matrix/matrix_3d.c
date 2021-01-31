@@ -50,6 +50,32 @@ MATRIX_3D_Create( const int  R,
    return mx;
 }
 
+/* constructor that allocates no matrix data, leaves NULL to be supplied by user */
+MATRIX_3D* 
+MATRIX_3D_Create_NoData(   const int  R,
+                           const int  C,
+                           const int  N )
+{
+   if ( R <= 0 || C <= 0 ) {
+      fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
+      exit(EXIT_FAILURE);
+   }
+
+   MATRIX_3D* mx;
+   mx = ERROR_malloc( sizeof(MATRIX_3D) );
+
+   mx->R       = 0;
+   mx->C       = 0;
+   mx->N       = 0;
+   mx->Nalloc  = 0;
+   mx->data    = NULL;
+   mx->clean   = false;
+
+   MATRIX_3D_Reuse( mx, R, C, N );
+
+   return mx;
+}
+
 /* constructor for clean matrices */
 MATRIX_3D* 
 MATRIX_3D_Create_Clean( const int  R,
@@ -77,8 +103,9 @@ MATRIX_3D_Destroy( MATRIX_3D*  mx )
 }
 
 /* deep copy: returns dest matrix, will allocate if null */
-MATRIX_3D* MATRIX_3D_Copy(    MATRIX_3D*           dest,
-                              const MATRIX_3D*     src )
+MATRIX_3D* 
+MATRIX_3D_Copy(   MATRIX_3D*           dest,
+                  MATRIX_3D*           src )
 {
    /* verify dest and src have same dimensions */
    #if DEBUG

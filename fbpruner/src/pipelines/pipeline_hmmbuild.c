@@ -4,6 +4,12 @@
  *
  *  AUTHOR:    Dave Rich
  *  BUG:      
+ *    - None Known.
+ *  NOTES:
+ *    - WIP.
+ *    - Originally MMORE was going to have its own internal hmm builder for converting fasta sequences to hmms.  
+ *      Implementation became more of a headache than it was worth,
+ *      so now it runs a script which calls out to HMMER's hmmbuild --single. 
  *******************************************************************************/
 
 /* imports */
@@ -24,12 +30,17 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/* mmseqs pipeline */
-void hmmbuild_pipeline( WORKER* worker )
+/*! FUNCTION:     hmmbuild_pipeline()
+ *  SYNOPSIS:     Pipeline that builds HMM model from FASTA file.
+ *                Calls to HMMER suit to run hmmbuild.
+ */
+STATUS_FLAG 
+hmmbuild_pipeline( WORKER* worker )
 {
 	printf("=== HMMBUILD PIPELINE ===\n");
 

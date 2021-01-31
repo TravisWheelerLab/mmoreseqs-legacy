@@ -30,11 +30,20 @@
 /* header */
 #include "_pipelines.h"
 
-/* mmseqs pipeline */
-void 
-mmseqs_pipeline( WORKER* worker )
+/* private functions */
+STATUS_FLAG
+mmore_main_set_default_args( ARGS* args );
+STATUS_FLAG
+mmore_main_set_default_tasks( TASKS* tasks );
+
+/*! FUNCTION:  	mmore_main_pipeline()
+ *  SYNOPSIS:  	Pipeline for tail of MMore, post-MMseqs.
+ *                Runs Adaptive Banding / Cloud Search step of MMORE pipeline.
+ */
+STATUS_FLAG 
+mmore_main_pipeline( WORKER* worker )
 {
-   printf("=== MMSEQS PIPELINE ===\n");
+   printf("=== MMORE (MAIN) PIPELINE ===\n");
 
    /* initialize worker data structures */
    WORK_init( worker );
@@ -119,7 +128,7 @@ mmseqs_pipeline( WORKER* worker )
    float    iter_start;
 
    /* load indexes  */
-   WORK_load_index_by_name( worker );
+   WORK_load_indexes_by_name( worker );
 
    /* get result range */
    WORK_load_mmseqs_list( worker );
@@ -163,7 +172,9 @@ mmseqs_pipeline( WORKER* worker )
       }
 
       /* mmseqs viterbi scoring filter */
-      vit_sc = result_in->vit_natsc;
+      float vitsc_nats = result_in->vit_natsc;
+      // float vitsc_eval = STATS_Viterbi_Nats_to_Eval( 
+      //    vit_sc, NULL, NULL, NULL, NULL, worker->t_prof->viterbi_dist, worker->q_size,  );
       if ( args->filter_on && vit_sc > args->threshold_vit ) {
          printf("MMSEQS viterbi score does not meet threshold. ");
          continue;

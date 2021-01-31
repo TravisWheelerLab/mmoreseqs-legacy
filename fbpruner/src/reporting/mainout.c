@@ -110,7 +110,7 @@ void REPORT_stdout_header(    WORKER*     worker,
    REPORT_horizontal_rule( fp );
    fprintf( fp, "# %s :: %s :: %s\n", 
       BUILD_PROGRAM,
-      PIPELINE_NAMES[args->pipeline_mode],
+      PIPELINES[args->pipeline_mode].name,
       BUILD_DESCRIPT );
    fprintf( fp, "# %s %s (%s): http://github.com/TravisWheelerLab/fb-pruner/\n",
       BUILD_PROGRAM, 

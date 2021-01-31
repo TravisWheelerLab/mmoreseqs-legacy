@@ -4,7 +4,11 @@
  *             Requires -BUILD=DEBUG for full functionality.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:
+ *    - None Known.
+ *  NOTES:
+ *    - WIP.
+ *    - Many unit tests still need to be built.
  *******************************************************************************/
 
 /* imports */
@@ -26,18 +30,21 @@
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
 #include "../algs_sparse/_algs_sparse.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/*
- *  FUNCTION:  itest_pipeline()
+/*! FUNCTION:  itest_pipeline()
  *  SYNOPSIS:  Pipeline runs integration tests. 
  *             Runs optimized and unoptimized versions of search algs and compares results.
  *             For full functionality, must be compiled in DEBUG mode.
  */
-void itest_pipeline( WORKER* worker )
+STATUS_FLAG 
+itest_pipeline( WORKER* worker )
 {
+   printf("=== INTEGRATION PIPELINE ===\n");
+
    // #if DEBUG
    // {
    //    fprintf(stdout, "Running integration test...\n");

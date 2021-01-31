@@ -99,11 +99,11 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       run_Bound_Forward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg, NULL, &fwd_sc );
       CLOCK_Stop( clok );
-      times->sp_bound_fwd = CLOCK_Duration( clok );
+      times->sp_bound_fwd     = CLOCK_Duration( clok );
+      result->bound_fwd_natsc = fwd_sc;
 
       fprintf(stdout, "# ==> Forward  (full cloud): %11.4f %11.4f\n", 
          fwd_sc, fwd_sc/CONST_LOG2);
-      result->bound_fwd_natsc = fwd_sc;
       #if DEBUG
       {
          DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -117,11 +117,11 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       run_Bound_Backward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_bck, sp_MX_bck, edg, NULL, &bck_sc );
       CLOCK_Stop( clok );
-      times->sp_bound_bck = CLOCK_Duration( clok );
+      times->sp_bound_bck     = CLOCK_Duration( clok );
+      result->bound_bck_natsc = bck_sc;
 
       fprintf(stdout, "# ==> Backward (full cloud): %11.4f %11.4f\n", 
          bck_sc, bck_sc/CONST_LOG2);
-      result->bound_bck_natsc = bck_sc;
       #if DEBUG && VIZ
       {
          DP_MATRIX_Clean(Q, T, debugger->test_MX, NULL);
@@ -132,8 +132,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
 
       /* TODO: add max bound score to thresholds */
 
-      /* find the Domain ranges */
-      fprintf(stdout, "# ==> Find Domains\n");
+      /* find Domain ranges */
       CLOCK_Start( clok );
       run_Decode_Domains( 
          q_seq, t_prof, Q, T, sp_MX_fwd, sp_MX_bck, dom_def );
@@ -141,6 +140,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       CLOCK_Stop( clok );
       times->sp_decodedom = CLOCK_Duration( clok );
 
+      fprintf(stdout, "# ==> Find Domains\n");
       fprintf(stdout, "DOMAINS FOUND: %d\n", dom_def->dom_ranges->N);
       for (int i = 0; i < dom_def->dom_ranges->N; i++) 
       {
@@ -209,7 +209,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       // CLOCK_Stop( clok );
       // times->sp_optacc += CLOCK_Duration( clok );
 
-      fprintf(stdout, "# ==> Optimal Alignment: %s", dom_def->align->cigar_aln);
+      fprintf(stdout, "# ==> Optimal Alignment: %s\n", dom_def->align->cigar_aln);
    }
 
    /* run through Domains and compute score, bias correction, and optimal alignment */

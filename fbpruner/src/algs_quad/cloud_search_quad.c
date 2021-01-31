@@ -1,9 +1,16 @@
 /*******************************************************************************
  *  FILE:       cloud_search_quad.c
- *  PURPOSE:    Cloud Search for Forward-Backward Pruning Alg. (QUADRATIC SPACE)
+ *  PURPOSE:    Cloud Search for Forward-Backward Pruning Algorithms with Quadratic Space.
  *
  *  AUTHOR:     Dave Rich
- *  BUG:        Lots.
+ *  BUG:        
+ *    - Bitrot.
+ *  NOTES:
+ *    - This quadratic implementation was originally intended to mirror run_Cloud_*_Linear().
+ *      However, it has not been upkept.  There were significant changes made in both 
+ *      cloud_search_lin.c and pruning_lin.c that have not been reflected here.
+ *      Use not advisable.
+ *      
  *******************************************************************************/
 
 /* imports */

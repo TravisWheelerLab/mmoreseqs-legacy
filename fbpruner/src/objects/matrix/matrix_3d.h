@@ -39,7 +39,7 @@ MATRIX_3D_Create_Clean( const int  R,
  */
 MATRIX_3D* 
 MATRIX_3D_Copy(   MATRIX_3D*           dest,
-                  const MATRIX_3D*     src );
+                  MATRIX_3D*           src );
 
 
 /** FUNCTION:  MATRIX_3D_Fill()
@@ -101,7 +101,7 @@ MATRIX_3D_Get_1D( MATRIX_3D*  mx,
 
 
 /** FUNCTION:  MATRIX_3D_to_1D()
- *  SYNOPSIS:  
+ *  SYNOPSIS:  Converts 3D coords to 1D array access.
  */
 int 
 MATRIX_3D_to_1D(  const MATRIX_3D*  mx,

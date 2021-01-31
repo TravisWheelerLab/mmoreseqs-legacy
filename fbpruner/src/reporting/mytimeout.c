@@ -84,7 +84,6 @@ REPORT_mytimeout_header(   WORKER*  worker,
       "biascorr-dom",
       "optacc-dom"
    };
-   char  hr_buf[128];
 
    REPORT_header( fp, headers, num_fields );
 
@@ -108,32 +107,33 @@ REPORT_mytimeout_entry(    WORKER*  worker,
    const int num_fields = 23;
    const int sig_digits = 7;
 
-   GEN_DATA gen_data[23];
-   gen_data[0]    = GEN_DATA_Create( &t_prof->name,         DATATYPE_STRING,  sizeof(char*) );
-   gen_data[1]    = GEN_DATA_Create( &q_seq->name,          DATATYPE_STRING,  sizeof(char*) );
-   gen_data[2]    = GEN_DATA_Create( &times->total,         DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[3]    = GEN_DATA_Create( &times->load_target,   DATATYPE_FLOAT,   sizeof(float) );  
-   gen_data[4]    = GEN_DATA_Create( &times->load_query,    DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[5]    = GEN_DATA_Create( &times->lin_cloud_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[6]    = GEN_DATA_Create( &times->lin_cloud_bck, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[7]    = GEN_DATA_Create( &times->lin_merge,     DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[8]    = GEN_DATA_Create( &times->lin_reorient,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[9]    = GEN_DATA_Create( &times->lin_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[10]   = GEN_DATA_Create( &times->lin_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[11]   = GEN_DATA_Create( &times->sp_build_mx,   DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[12]   = GEN_DATA_Create( &times->sp_bound_fwd,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[13]   = GEN_DATA_Create( &times->sp_bound_bck,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[14]   = GEN_DATA_Create( &times->sp_posterior,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[15]   = GEN_DATA_Create( &times->sp_decodedom,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[16]   = GEN_DATA_Create( &times->sp_biascorr,   DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[17]   = GEN_DATA_Create( &times->sp_optacc,     DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[18]   = GEN_DATA_Create( &times->dom_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[19]   = GEN_DATA_Create( &times->dom_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[20]   = GEN_DATA_Create( &times->dom_posterior, DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[21]   = GEN_DATA_Create( &times->dom_biascorr,  DATATYPE_FLOAT,   sizeof(float) );
-   gen_data[22]   = GEN_DATA_Create( &times->dom_optacc,    DATATYPE_FLOAT,   sizeof(float) );
+   const GEN fields[] = {
+      GEN_Create( &t_prof->name,         DATATYPE_STRING,  sizeof(char*) ),
+      GEN_Create( &q_seq->name,          DATATYPE_STRING,  sizeof(char*) ),
+      GEN_Create( &times->total,         DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->load_target,   DATATYPE_FLOAT,   sizeof(float) ),  
+      GEN_Create( &times->load_query,    DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_cloud_fwd, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_cloud_bck, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_merge,     DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_reorient,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_bound_fwd, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->lin_bound_bck, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_build_mx,   DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_bound_fwd,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_bound_bck,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_posterior,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_decodedom,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_biascorr,   DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->sp_optacc,     DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->dom_bound_fwd, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->dom_bound_bck, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->dom_posterior, DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->dom_biascorr,  DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &times->dom_optacc,    DATATYPE_FLOAT,   sizeof(float) ),
+   };
 
-   REPORT_entry( fp, gen_data, num_fields, sig_digits );
+   REPORT_entry( fp, fields, num_fields, sig_digits );
 }
 
 /*!  FUNCTION:    REPORT_myout_footer()
@@ -259,30 +259,30 @@ REPORT_mytimeout_totals(   WORKER*  worker,
    }
    fprintf(fp, "\n");
 
-   // GEN_DATA gen_data[23];
-   // gen_data[0]    = GEN_DATA_Create( &t_prof->name,         DATATYPE_STRING,  sizeof(char*) );
-   // gen_data[1]    = GEN_DATA_Create( &q_seq->name,          DATATYPE_STRING,  sizeof(char*) );
-   // gen_data[2]    = GEN_DATA_Create( &worker->result->time, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[3]    = GEN_DATA_Create( &times->load_target,   DATATYPE_FLOAT,   sizeof(float) );  
-   // gen_data[4]    = GEN_DATA_Create( &times->load_query,    DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[5]    = GEN_DATA_Create( &times->lin_cloud_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[6]    = GEN_DATA_Create( &times->lin_cloud_bck, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[7]    = GEN_DATA_Create( &times->lin_merge,     DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[8]    = GEN_DATA_Create( &times->lin_reorient,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[9]    = GEN_DATA_Create( &times->lin_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[10]   = GEN_DATA_Create( &times->lin_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[11]   = GEN_DATA_Create( &times->sp_build_mx,   DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[12]   = GEN_DATA_Create( &times->sp_bound_fwd,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[13]   = GEN_DATA_Create( &times->sp_bound_bck,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[14]   = GEN_DATA_Create( &times->sp_posterior,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[15]   = GEN_DATA_Create( &times->sp_decodedom,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[16]   = GEN_DATA_Create( &times->sp_biascorr,   DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[17]   = GEN_DATA_Create( &times->sp_optacc,     DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[18]   = GEN_DATA_Create( &times->dom_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[19]   = GEN_DATA_Create( &times->dom_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[20]   = GEN_DATA_Create( &times->dom_posterior, DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[21]   = GEN_DATA_Create( &times->dom_biascorr,  DATATYPE_FLOAT,   sizeof(float) );
-   // gen_data[22]   = GEN_DATA_Create( &times->dom_optacc,    DATATYPE_FLOAT,   sizeof(float) );
+   // GEN gen_data[23];
+   // gen_data[0]    = GEN_Create( &t_prof->name,         DATATYPE_STRING,  sizeof(char*) );
+   // gen_data[1]    = GEN_Create( &q_seq->name,          DATATYPE_STRING,  sizeof(char*) );
+   // gen_data[2]    = GEN_Create( &worker->result->time, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[3]    = GEN_Create( &times->load_target,   DATATYPE_FLOAT,   sizeof(float) );  
+   // gen_data[4]    = GEN_Create( &times->load_query,    DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[5]    = GEN_Create( &times->lin_cloud_fwd, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[6]    = GEN_Create( &times->lin_cloud_bck, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[7]    = GEN_Create( &times->lin_merge,     DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[8]    = GEN_Create( &times->lin_reorient,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[9]    = GEN_Create( &times->lin_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[10]   = GEN_Create( &times->lin_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[11]   = GEN_Create( &times->sp_build_mx,   DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[12]   = GEN_Create( &times->sp_bound_fwd,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[13]   = GEN_Create( &times->sp_bound_bck,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[14]   = GEN_Create( &times->sp_posterior,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[15]   = GEN_Create( &times->sp_decodedom,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[16]   = GEN_Create( &times->sp_biascorr,   DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[17]   = GEN_Create( &times->sp_optacc,     DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[18]   = GEN_Create( &times->dom_bound_fwd, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[19]   = GEN_Create( &times->dom_bound_bck, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[20]   = GEN_Create( &times->dom_posterior, DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[21]   = GEN_Create( &times->dom_biascorr,  DATATYPE_FLOAT,   sizeof(float) );
+   // gen_data[22]   = GEN_Create( &times->dom_optacc,    DATATYPE_FLOAT,   sizeof(float) );
 
    // REPORT_entry_multiline( fp, headers, gen_data, num_fields, sig_digits );
 }

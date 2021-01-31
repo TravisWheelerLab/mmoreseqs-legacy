@@ -21,7 +21,8 @@
 #include "../algs_quad/_algs_quad.h"
 
 /* header */
-#include "traceback_linear.h"
+#include "_algs_linear.h"
+#include "viterbi_traceback_linear.h"
 
 /*
  *  FUNCTION:  run_Traceback_Linear()

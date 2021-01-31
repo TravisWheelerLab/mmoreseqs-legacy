@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      _algs_vectorized.h
- *  PURPOSE:   /macros/ folder packaging header
+ *  PURPOSE:   /_algs_vectorized/ folder packaging header
  *
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
@@ -8,6 +8,6 @@
 #ifndef _ALGS_VECTORIZED_H
 #define _ALGS_VECTORIZED_H
 
-#include "fwdback_vec.h"
+#include "fwdback_vectorized.h"
 
 #endif /* _ALGS_VECTORIZED_H */

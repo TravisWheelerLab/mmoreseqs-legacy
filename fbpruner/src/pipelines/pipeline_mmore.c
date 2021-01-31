@@ -24,14 +24,16 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
 /* mmseqs pipeline */
-void mmseqs_plus_pipeline( WORKER* worker )
+STATUS_FLAG 
+mmore_pipeline( WORKER* worker )
 {
-   printf("# begin mmseqs pipeline...\n");
+   printf("=== MMORE PIPELINE ===\n");
    
    /* command and options */
    char* command[27];

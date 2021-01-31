@@ -1,28 +1,35 @@
 /*******************************************************************************
  *  FILE:      gen_data.h
- *  PURPOSE:   GEN_DATA Object.  A union which can hold most primitive datatypes.
+ *  PURPOSE:   GEN Object.  A union which can hold most primitive datatypes.
  *
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
 
-#ifndef _GEN_DATA_H
-#define _GEN_DATA_H
+#ifndef _GEN_H
+#define _GEN_H
 
 #include "../structs.h"
 
-/*! FUNCTION:  GEN_DATA_Create()
- *  SYNOPSIS:  Create a GEN_DATA struct. 
+/*! FUNCTION:  GEN_Create()
+ *  SYNOPSIS:  Create a GEN struct. 
  *             <data> should be reference to the data to be stored.
  *             <type> should be one of the enumerated datatypes.
  *             <size> should be sizeof(<type>). 
- *    RETURN:  Pointer to GEN_DATA struct.
+ *    RETURN:  Pointer to GEN struct.
  */
-GEN_DATA 
-GEN_DATA_Create( 	const void*       data,
+GEN 
+GEN_Create( 	const void*       data,
                   const DATATYPE    type,
                   const size_t      size ); 
 
-/*! FUNCTION:  GEN_DATA_To_String()
+/*! FUNCTION:  GEN_Get_Size()
+ *  SYNOPSIS:  Get the size of an enumerated datatype.
+ *    RETURN:  Pointer to <buf>, or NULL if error.
+ */
+size_t 
+GEN_Get_Size( const DATATYPE    type );
+
+/*! FUNCTION:  GEN_To_String()
  *  SYNOPSIS:  Create a string representation of <data>.
  *             If it is of float-like type, formats with <sig_digits> as number of significant digits.
  *             Stores it in a char* buffer <buf>. Caller must have preallocated buffer. 
@@ -30,7 +37,7 @@ GEN_DATA_Create( 	const void*       data,
  *    RETURN:  Pointer to <buf>.
  */
 char* 
-GEN_DATA_To_String( 	const GEN_DATA    data,
+GEN_To_String( 	const GEN    data,
                      char*             buf,
                      const int         buf_size,
                      const int         sig_digits );
@@ -43,7 +50,7 @@ GEN_DATA_To_String( 	const GEN_DATA    data,
  *             neg if (a < b)
  */
 int 
-GEN_DATA_Compare(    const GEN_DATA   a, 
-                     const GEN_DATA   b );
+GEN_Compare(    const GEN   a, 
+                     const GEN   b );
 
-#endif /* _GEN_DATA_H */
+#endif /* _GEN_H */

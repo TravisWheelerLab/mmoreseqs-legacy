@@ -13,16 +13,14 @@
  *             Most data is left NULL to be supplied by WORK_init().
  */
 DP_MATRIX* 
-DP_MATRIX_Create( bool is_quad, 
-                  bool is_lin,
-                  bool is_sparse );
+DP_MATRIX_Create( DPMX_MODE mode );
 
 /** FUNCTION:  DP_MATRIX_Create()
  *  SYNOPSIS:  Create new DP_MATRIX object and returns pointer.
  *             Most data is left NULL to be supplied by WORK_init().
  */
 DP_MATRIX* 
-DP_MATRIX_GrowTo(   DP_MATRIX*    dom_def,
+DP_MATRIX_GrowTo(    DP_MATRIX*    dom_def,
                      int            size );
 
 /** FUNCTION:  DP_MATRIX_Destroy()

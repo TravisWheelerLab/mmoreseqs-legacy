@@ -46,7 +46,7 @@ REPORT_header(    FILE*          fp,
  */
 STATUS_FLAG 
 REPORT_entry(     FILE*             fp, 
-                  const GEN_DATA    data[],
+                  const GEN    data[],
                   const int         num_fields,
                   const int         sig_digits );
 
@@ -56,7 +56,7 @@ REPORT_entry(     FILE*             fp,
 STATUS_FLAG 
 REPORT_entry_multiline(    FILE*             fp, 
                            const char*       headers[],
-                           const GEN_DATA    data[],
+                           const GEN    data[],
                            const int         num_fields,
                            const int         sig_digits );
 
@@ -65,7 +65,7 @@ REPORT_entry_multiline(    FILE*             fp,
  */
 STATUS_FLAG 
 REPORT_data(   FILE*             fp, 
-               const GEN_DATA    data,
+               const GEN    data,
                const int         sig_digits );
 
 

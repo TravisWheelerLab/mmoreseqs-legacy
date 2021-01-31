@@ -60,12 +60,12 @@ typedef union {
 typedef struct {
    GENERIC        data;
    DATATYPE       type;
-} GEN_DATA;
+} GEN;
 
 /* coordinates in matrix */
 typedef struct {
-   int      i;       /* row index */
-   int      j;       /* col index */
+   int      q_0;       /* row index */
+   int      t_0;       /* col index */
 } COORDS;
 
 /* integer ranges */
@@ -88,11 +88,10 @@ typedef struct {
 } X_STRING;
 
 /* given cell of alignment */
-/* TODO: change to t_0, q_0 indexing */
 typedef struct {
    int      q_0;       /* index in query */
    int      t_0;       /* index in target */
-   int      st;      /* state at index */
+   int      st;        /* state at index */
 } TRACE;
 
 /* === VECTORS === */
@@ -397,9 +396,12 @@ typedef struct {
    /* submodel */
    int            N_full;           /* profile length of full model */
    HMM_NODE*      hmm_model_full;   /* array of position at start of full model */
+   /* database */
+   int            N_tprofs;         /* number of target hmm profile models */
+   int            N_qseqs;          /* number of query sequences */
 } HMM_PROFILE;
 
-/* sequence */
+/* Sequence */
 typedef struct {
    int            N;          /* length of sequence (can be the length of a subsequence) */
    int            Nalloc;     /* allocated memory length */
@@ -479,9 +481,7 @@ typedef struct {
    /* special state data {ENJCB} */
    MATRIX_2D*           sp_MX;         /* special state matrix */     
    /* normal matrix type */
-   bool                 is_quad;
-   bool                 is_lin;
-   bool                 is_sparse;
+   DPMX_MODE            mode;
    /* meta data */
    int                  data_type;     /* whether dp is in log-scale, normal-scale, etc */
    bool                 clean;         /* if matrix is clean (all cells set to -INF)  */
@@ -709,7 +709,7 @@ typedef struct {
    int            mmseqs_names;  /* Whether index is using names from mmseqs lookup */
 } F_INDEX;
 
-/* flags for command line arguments */
+/* desctiptor for command line arguments */
 typedef struct {
    /* */
    char*    name;          /* name of flag */
@@ -717,11 +717,12 @@ typedef struct {
    int      num_args;      /* number of arguments */
    int      data_type;     /* data type of arguments */
    void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
+   void*    arg_bool;      /* toggle boolean? */
    /* */
    char*    long_flag;     /* long "--" flag */
    char*    short_flag;    /* single character "-" flag */
    char*    desc;          /* description of flag */
-} FLAG_CMD;
+} ARG_OPT;
 
 /* results */
 typedef struct {
@@ -730,7 +731,7 @@ typedef struct {
 
 /* results fields */
 typedef struct {
-   /* result unique id */
+   /* result unique id (for mmore pipeline, this is simply the position in mmseqs output) */
    int         result_id;
    /* cloud search lookup index id */
    int         target_id;
@@ -787,14 +788,10 @@ typedef struct {
    size_t   N;                      /* number of current results in queue */
    size_t   Nalloc;                 /* allocated space in queue */
    RESULT*  data;                   /* result queue */
-   /* aggregate stats */
-   int      num_searches;           /* total number of searches */
-   int      num_hits;               /* total number of searches to pass threshold */
-   float    reporting_threshold;    /* eval threshold for input mmseqs */
-   /* output */
    int      max_in_queue;           /* number of results to keep in memory before dumping to file */
-   char*    filepath;               /* path to write file */
-   FILE*    fp;                     /* file to write to */
+   /* aggregate data */
+   int      num_hits;
+   int      num_searches;
 } RESULTS;
 
 /* substitution/scoring matrix */
@@ -865,6 +862,7 @@ typedef struct {
    bool     sparse_bias_corr;    /* bias correction */
 } TASKS;
 
+/* scores */
 typedef struct {
    /* naive algs */
    float     naive_bound_fwd;     /* bound forward */
@@ -883,8 +881,8 @@ typedef struct {
    float     lin_bck;             /* backward */
    float     lin_vit;             /* viterbi */
    float     lin_trace;           /* traceback of viterbi */
-   float     lin_cloud_fwd;      /* cloud forward search */
-   float     lin_cloud_bck;      /* cloud backward search */
+   float     lin_cloud_fwd;       /* cloud forward search */
+   float     lin_cloud_bck;       /* cloud backward search */
    float     lin_bound_fwd;       /* bound forward */
    float     lin_bound_bck;       /* bound backward */
    /* sparse algs */
@@ -895,12 +893,12 @@ typedef struct {
    float     sparse_bound_fwd;    /* bound forward */ 
    float     sparse_bound_bck;    /* bound backward */
    /* threshold scores */
-   float    threshold_vit;          /* threshold for viterbi score */
-   float    threshold_cloud_max;    /* threshold for cloud search max score */
-   float    threshold_cloud_compo;  /* threshold for cloud search composite score */
-   float    threshold_bound_max;    /* threshold for bound fwdback max score */
-   float    threshold_dom_max;      /* threshold for max domain fwdback score */
-   float    threshold_dom_compo;    /* threshold for composite domain fwdback score */
+   float    threshold_vit;          /* threshold for viterbi */
+   float    threshold_cloud_max;    /* threshold for cloud search max */
+   float    threshold_cloud_compo;  /* threshold for cloud search composite */
+   float    threshold_bound_max;    /* threshold for bound fwdback max */
+   float    threshold_dom_max;      /* threshold for max domain fwdback */
+   float    threshold_dom_compo;    /* threshold for composite domain fwdback */
 } NAT_SCORES;
 
 /* collection of all tuning parameters for cloud search */
@@ -1038,8 +1036,8 @@ typedef struct {
    /* int vector for cloud search */
    VECTOR_INT*          lb_vec[3];     /* left-bound lookback vector for bounds */
    VECTOR_INT*          rb_vec[3];     /* right-bound lookback vector for bounds */
-   /* cloud pruning parameters */
-   CLOUD_PARAMS         cloud_params;  /* */
+   /* cloud pruning / adaptive-banding fwdback parameters */
+   CLOUD_PARAMS         cloud_params;  /* alpha, beta, gamma */
    /* alignment traceback for viterbi */
    ALIGNMENT*           traceback;     /* traceback */
    /* alignment traceback for maximum posterior */
@@ -1057,6 +1055,8 @@ typedef struct {
    RESULTS*             results; 
    /* current result */
    RESULT*              result;
+   /* aggregate stats */
+   STATS*               stats;
 } WORKER_THREAD;
 
 /* worker contains the necessary data structures to conduct search */
@@ -1065,7 +1065,7 @@ typedef struct {
    ARGS*                args;
    /* boolean list of pipeline tasks to be performed */
    TASKS*               tasks;
-   /* output file pointer */
+   /* output file pointers */
    FILE*                output_fp;
    FILE*                tblout_fp;
    FILE*                m8out_fp;
@@ -1077,8 +1077,8 @@ typedef struct {
    F_INDEX*             q_index;
    F_INDEX*             t_index;
    /* database size for converting p-value to e-value */
-   int                  q_size;
-   int                  t_size;
+   int                  q_size; /* number of sequences */
+   int                  t_size; /* number of profiles */
    /* file pointers to query and target data file */
    FILE*                q_file;
    FILE*                t_file;
@@ -1143,9 +1143,10 @@ typedef struct {
    TIMES*               times_raw;     /* */
    TIMES*               times_totals;  /* cumulative section runtimes */
    double               runtime;       /* total program runtime */
-   /* raw scores */
+   /* scores */
    NAT_SCORES*          scores;        /*  */
-   /* results to output */
+   NAT_SCORES*          pvals;         /*  */
+   /* results to output (if we are going to output results in batches) */
    RESULTS*             results; 
    /* current result */
    RESULT*              result;
@@ -1157,45 +1158,49 @@ typedef struct {
    WORKER_THREAD*       threads;
 } WORKER;
 
+/* pipeline descriptors */
+typedef struct {
+   char*       name;                /* name of function  */
+   STATUS_FLAG (*func)(WORKER*);    /* pointer to function */
+   int         num_main_args;       /* number of main args  */
+} PIPELINE;
 
 /* === GLOBAL VARIABLES === */
 /* pipeline */
-extern char*      PIPELINE_NAMES[];
-extern void       (*PIPELINES[])(WORKER*);
-extern int        PIPELINE_NUM_ARGS[];
-extern char*      MODE_NAMES[];
-extern char*      VERBOSITY_NAMES[];
-extern char*      ALPHABET_NAMES[];
-extern int        ALPHABET_LENGTHS[];
-extern char*      STATE_NAMES[];
-extern char*      STATE_FULL_NAMES[];
-extern char*      STATE_CHARS[];
+extern PIPELINE      PIPELINES[];
+extern char*         MODE_NAMES[];
+extern char*         VERBOSITY_NAMES[];
+extern char*         ALPHABET_NAMES[];
+extern int           ALPHABET_LENGTHS[];
+extern char*         STATE_NAMES[];
+extern char*         STATE_FULL_NAMES[];
+extern char*         STATE_CHARS[];
 /* input file types and extensions */
-extern char*      FILE_TYPE_EXTS[];
-extern char*      FILE_TYPE_NAMES[];
-extern int        FILE_TYPE_MAP[];
+extern char*         FILE_TYPE_EXTS[];
+extern char*         FILE_TYPE_NAMES[];
+extern int           FILE_TYPE_MAP[];
 /* alphabetically-ordered amino lookup and reverse lookup tables */
-extern char       ALPH_AMINO_CHARS[];
-extern char       AA[];
-extern int        AA_REV[];
+extern char          ALPH_AMINO_CHARS[];
+extern char          AA[];
+extern int           AA_REV[];
 /* background frequencies of null model, normal and log space */
-extern double     BG_MODEL[];
-extern double     BG_MODEL_log[];
+extern double        BG_MODEL[];
+extern double        BG_MODEL_log[];
 /* commandline arg objects */
-extern ARGS*      args;
-extern int        num_flag_cmds;
-extern FLAG_CMD   COMMAND_OPTS[];
-extern char*      DATATYPE_NAMES[];
+extern ARGS*         args;
+extern int           num_flag_cmds;
+extern ARG_OPT       COMMAND_OPTS[];
+extern char*         DATATYPE_NAMES[];
 /* scoring matrix for converting sequences to hmm */
-extern SCORE_MATRIX*    bld;
-/* debugging data */
-extern DEBUG_KIT*       debugger;
+extern SCORE_MATRIX* bld;
 /* script locations */
-extern char*       MMSEQS_PLUS_SCRIPT;
-extern char*       MMSEQS_PLUS_EASY_SCRIPT;
-extern char*       FASTA_TO_HMM_SCRIPT;
+extern char*         MMSEQS_PLUS_SCRIPT;
+extern char*         MMSEQS_PLUS_EASY_SCRIPT;
+extern char*         FASTA_TO_HMM_SCRIPT;
 /* other tool binary locations */
-extern char*       MMSEQS_BIN;
-extern char*       HMMBUILD_BIN;
+extern char*         MMSEQS_BIN;
+extern char*         HMMBUILD_BIN;
+/* debugging data */
+extern DEBUG_KIT*    debugger;
 
 #endif /* _STRUCTS_H */

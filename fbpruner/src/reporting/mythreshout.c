@@ -65,28 +65,21 @@ void REPORT_mythreshout_entry(   WORKER*  worker,
    SEQUENCE*      q_seq    = worker->q_seq;
    NAT_SCORES*    scores   = worker->scores;
 
+   const int num_fields = 8;
    const int sig_digits = 3;
-   const int num_fields = 6;
-   const char* names[] = {
-      t_prof->name,  /* target name */
-      q_seq->name,   /* query name */
-   };
-   const float fields[] = {
-      scores->threshold_vit,
-      scores->threshold_cloud_max,
-      scores->threshold_cloud_compo,
-      scores->threshold_bound_max,
-      scores->threshold_dom_max,
-      scores->threshold_dom_compo
+
+   const GEN fields[] = {
+      GEN_Create( &t_prof->name,                    DATATYPE_STRING,  sizeof(char*) ),
+      GEN_Create( &q_seq->name,                     DATATYPE_STRING,  sizeof(char*) ),
+      GEN_Create( &scores->threshold_vit,           DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &scores->threshold_cloud_max,     DATATYPE_FLOAT,   sizeof(float) ),  
+      GEN_Create( &scores->threshold_cloud_compo,   DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &scores->threshold_bound_max,     DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &scores->threshold_dom_max,       DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Create( &scores->threshold_dom_compo,     DATATYPE_FLOAT,   sizeof(float) )
    };
 
-   for (int i = 0; i < 2; i++) {
-      fprintf(fp, "%s\t", names[i] );
-   }
-   for (int i = 0; i < num_fields; i++) {
-      fprintf(fp, "%.*f\t", sig_digits, fields[i] );
-   }
-   fprintf(fp, "\n");
+   REPORT_entry( fp, fields, num_fields, sig_digits );
 }
 
 /*    FUNCTION:   REPORT_mythreshout_footer()

@@ -3,7 +3,7 @@
  *  PURPOSE:   Bounded Forward-Backward Algorithm (QUADRATIC SPACE)
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 /* imports */

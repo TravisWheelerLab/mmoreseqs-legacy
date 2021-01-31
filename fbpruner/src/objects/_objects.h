@@ -3,7 +3,11 @@
  *  PURPOSE:   All /object/ folder headers.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
+ *    - None Known.
+ *  NOTES:
+ *    - This include folder needs to respect inter-object folder dependencies.
+ *    - The plan is to extract most struct definitions and place them in the files with their function defs.
  *******************************************************************************/
 
 #ifndef _OBJECTS_H
@@ -12,35 +16,26 @@
 /* declares all datatypes */
 #include "structs.h"
 
-/* io */
-#include "io/reader.h"
-
-/* basic datatypes / wrappers */
+/* basic types (no dependencies) */
 #include "basic/_basic.h"
 
-/* vectors */
-#include "vectors/vector_bound.h"
-#include "vectors/vector_char.h"
-#include "vectors/vector_double.h"
-#include "vectors/vector_float.h"
-#include "vectors/vector_int.h"
-#include "vectors/vector_range.h"
-#include "vectors/vector_trace.h"
-#include "vectors/vector_template.h"
+/* vector types (only dependent on basic types) */
+#include "vectors/_vectors.h"
 
-/* matrix */
-#include "matrix/matrix_2d.h"
-#include "matrix/matrix_3d.h"
-#include "matrix/matrix_3d_sparse.h"
+/* matrix dependencies */
+#include "edgebound.h"
+#include "edgebound_rows.h"
 
-/* objects */
+/* matrix types (sparse is dependent on edgebounds) */
+#include "matrix/_matrix.h"
+
+/* complex objects (can be dependent on basics, vectors, and matrices) */
 #include "alignment.h"
+#include "arg_opts.h"
 #include "args.h"
 #include "clock.h"
 #include "debugger.h"
 #include "domain_def.h"
-#include "edgebound.h"
-#include "edgebound_rows.h"
 #include "f_index.h"
 #include "hmm_profile.h"
 #include "hmm_bg.h"
@@ -48,7 +43,12 @@
 #include "results.h"
 #include "score_matrix.h"
 #include "sequence.h"
-#include "worker.h"
+
+/* worker (dependent on most object types) */
 #include "worker_thread.h"
+#include "worker.h"
+
+/* io (dependent on all so that it can read in / write any data type) */
+#include "io/_io.h"
 
 #endif /* _OBJECTS_H */

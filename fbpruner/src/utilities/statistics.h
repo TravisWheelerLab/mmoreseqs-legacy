@@ -14,109 +14,53 @@
 /*! FUNCTION:   STATS_Nats_to_Bitscore()
  *  SYNOPSIS:   Given a score in Nats <nat_sc> and 
  */
-int 
-STATS_Nats_to_Bitscore(    float    nats_sc,
-                           float    filter_sc,
-                           float*   bit_sc );
+float 
+STATS_Nats_to_Bits(  float    nats_sc );
 
-/*! FUNCTION:   BG_FilterScore()
- *  SYNOPSIS:   Calculates the filter null model score.
- *
- *  PURPOSE:    Modeled after p7_bg_FilterScore() in HMMER.
- *              Calculates the filter null model <bg> score for sequence
- *              <dsq> of length <L>, and return it in 
- *              <*ret_sc>.
- *            
- *              The score is calculated as an HMM Forward score using
- *              the two-state filter null model. It is a log-odds ratio,
- *              relative to the iid background frequencies, in nats:
- *              same as main model Forward scores.
- *
- *              The filter null model has no length distribution of its
- *              own; the same geometric length distribution (controlled
- *              by <bg->p1>) that the null1 model uses is imposed.
+/*! FUNCTION:  	STATS_Pval_to_Eval()
+ *  SYNOPSIS:  	Converts a P-VALUE <pval> to and E-VALUE <eval>.
+ * 					Requires <db_size>
  */
-int 
-BG_FilterScore(   HMM_PROFILE*   t_prof, 
-                  SEQUENCE*      q_seq, 
-                  MATRIX_3D*     st_MX,
-                  MATRIX_2D*     sp_MX,
-                  float*         filter_sc );
+float 
+STATS_Pval_to_Eval( 	float 	pval,
+							int 		db_size );
 
-/*! FUNCTION:   p7_bg_FilterScore()
- *  SYNOPSIS:   Calculates the filter null model score.
+/*! FUNCTION:  	STATS_Viterbi_Natsc_to_Eval()
+ *  SYNOPSIS:  	Get an E-VALUE <eval> from a Viterbi NAT score <natsc>.
+ * 					Requires <gumbel_params> = <mu,tau> parameters which fits Gumbel distribution for the model.
+ * 					Requires <db_size>, which is the number of sequence queries in the database.
+ * 					Optionally, can include the <null1_bias> model and <null2_bias> sequence biases, or left as 0.0f.
+ * 					Optionally, other scores <presc>, <seqsc>, <pval> can be captured or left NULL.
+ *  RETURN: 		E-value.
  */
-int 
-NULL_MODEL_Forward(  HMM_PROFILE*   t_prof, 
-                     SEQUENCE*      q_seq, 
-                     MATRIX_3D*     st_MX,
-                     MATRIX_2D*     sp_MX,
-                     float*         null_sc );
+float 
+STATS_Viterbi_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score (in NATS) */
+										float* 			presc_p, 			/* OPT OUTPUT: non-sequence bias corrected score (in BITS) */
+										float* 			seqsc_p, 			/* OPT OUTPUT: sequence bias corrected score (in BITS) */
+										float* 			pval_p, 				/* OPT OUTPUT: P-value (probably to a match given a random sequence) */
+										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
+										DIST_PARAM		gumbel_params, 	/* parameters for fitting gumbel model */
+										int 				db_size, 			/* number of query sequences in database */  	
+										float				null1_bias, 		/* null1 model bias (also called null_sc) */
+										float				null2_bias );		/* null2 sequence bias (also called seq_bias) */
 
-/*! FUNCTION:   EXPONENTIAL_survivor()
- *  SYNOPSIS:   Calculates the survivor function, $P(X>x)$ (that is, 1-CDF,
- *              the right tail probability mass) for an exponential distribution,
- *              given value <x>, offset <mu>, and decay parameter <lambda>.
+/*! FUNCTION:  	STATS_Fwdback_Natsc_to_Eval()
+ *  SYNOPSIS:  	Get an E-VALUE <eval> from a Forward-Backward NAT score <natsc>.
+ * 					Requires <gumbel_params> = <mu,tau> parameters which fits Gumbel distribution for the model.
+ * 					Requires <db_size>, which is the number of sequence queries in the database.
+ * 					Optionally, can include the <null1_bias> model and <null2_bias> sequence biases, or left as 0.0f.
+ * 					Optionally, other scores <presc>, <seqsc>, <pval> can be captured or left NULL.
+ *  RETURN: 		E-value.
  */
-double 
-EXPONENTIAL_survivor(   double x, 
-                        double mu, 
-                        double lambda );
-
-
-/*! FUNCTION:   GUMBEL_pdf()
- *  SYNOPSIS:   Return the right-tail mass about Gumbel Probability Density Function, G(mu, lambda). 
- *              <mu> and <lambda> are parameters of the Gumbel distribution.
- *              y = lambda * (x - mu)
- *              Pr( G(mu,lambda) > x ) = lamda * exp(-(y) - exp(-(y))).
- */
-double 
-GUMBEL_pdf(    double x, 
-               double mu, 
-               double lambda );
-
-
-/*! FUNCTION:     GUMBEL_log_pdf()
- *  SYNOPSIS:     
- */
-double 
-GUMBEL_log_pdf(   double x, 
-                  double mu, 
-                  double lambda );
-
-
-/*! FUNCTION:   GUMBEL_cdf()
- *  SYNOPSIS:     
- */
-double 
-GUMBEL_cdf(    double x, 
-               double mu, 
-               double lambda );
-
-
-/*! FUNCTION:   GUMBEL_log_cdf()
- *  SYNOPSIS:     
- */
-double 
-GUMBEL_log_cdf(   double x, 
-                  double mu, 
-                  double lambda );
-
-/*! FUNCTION:   GUMBEL_survivor()
- *  SYNOPSIS:     
- */
-double 
-GUMBEL_survivor(  double x, 
-                  double mu, 
-                  double lambda );
-
-
-/*! FUNCTION:   GUMBEL_log_survivor()
- *  SYNOPSIS:     
- */
-double 
-GUMBEL_log_survivor(    double x, 
-                        double mu, 
-                        double lambda);
+float 
+STATS_Fwdback_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score (in NATS) */
+										float* 			presc_p, 			/* OPT OUTPUT: non-sequence bias corrected score (in BITS) */
+										float* 			seqsc_p, 			/* OPT OUTPUT: sequence bias corrected score (in BITS) */
+										float* 			pval_p, 				/* OPT OUTPUT: P-value (probably to a match given a random sequence) */
+										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
+										DIST_PARAM		exp_params, 		/* parameters for fitting exponential model */
+										int 				db_size, 			/* number of query sequences in database */  	
+										float				null1_bias, 		/* null1 model bias (also called null_sc) */
+										float				null2_bias );		/* null2 sequence bias (also called seq_bias) */
 
 #endif /* _STATISTICS_H */

@@ -1,6 +1,7 @@
 /*******************************************************************************
  *  FILE:      args.c
- *  PURPOSE:   ARGS Object. Used for Parsing and Storing Commandline Arguments.
+ *  PURPOSE:   ARGS Object. 
+ *             Used for Parsing and Storing Commandline Arguments.
  *
  *  AUTHOR:    Dave Rich
  *******************************************************************************/
@@ -9,15 +10,15 @@
 #define _ARGS_H
 
 /*! FUNCTION:  ARGS_Create()
- *  SYNOPSIS:  
+ *  SYNOPSIS:  Create args object and allocate memory.
  */
 ARGS* 
 ARGS_Create();
 
 /*! FUNCTION:  ARGS_Destroy()
- *  SYNOPSIS:  
+ *  SYNOPSIS:  Destroy ARGS object and free memory.
  */
 ARGS* 
-ARGS_Destroy(ARGS* args);
+ARGS_Destroy( ARGS* args );
 
 #endif /* ARGS_H_ */

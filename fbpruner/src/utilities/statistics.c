@@ -14,6 +14,11 @@
 #include <string.h>
 #include <math.h>
 
+/* library imports */
+#include "easel.h"
+#include "esl_exponential.h"
+#include "esl_gumbel.h"
+
 /* local imports */
 #include "structs.h"
 #include "_objects.h"
@@ -22,139 +27,104 @@
 #include "_utilities.h"
 #include "statistics.h"
 
-#define SMALLX1 0.001
-
-/*! FUNCTION:  	STATS_Nats_to_Bitscore()
- *  SYNOPSIS:  	Given a score in Nats <nat_sc> and <filter_sc> to account for composition bias,
- * 				   Compute the bit-score <bit_sc>, P-value <pval>, and E-value <eval>.
+/*! FUNCTION:  	STATS_Nats_to_Bits()
+ *  SYNOPSIS:  	Converts a score in NATS to score in BITS.
  */
-int 
-STATS_Nats_to_Eval( 	float 	nats_sc,
-							float		filter_sc,
-							float*	bit_sc,
-							float* 	pval,
-							float* 	eval )
+float 
+STATS_Nats_to_Bits( 	float 	nat_sc )
 {
-	// bit_sc = (nats_sc - filter_sc) / CONST_LOG2;
+	float bit_sc;
+	bit_sc = nat_sc / (float)CONST_LOG2;
+	return bit_sc;
 }
 
-/*! FUNCTION:     EXPONENTIAL_survivor()
- *  SYNOPSIS:     Calculates the survivor function, $P(X>x)$ (that is, 1-CDF,
- *                the right tail probability mass) for an exponential distribution,
- *                given value <x>, offset <mu>, and decay parameter <lambda>.
+/*! FUNCTION:  	STATS_Pval_to_Eval()
+ *  SYNOPSIS:  	Converts a P-VALUE <pval> to and E-VALUE <eval>.
+ * 					Requires <db_size>
  */
-double 
-EXPONENTIAL_survivor(  	double x, 
-								double mu, 
-								double lambda )
+float 
+STATS_Pval_to_Eval( 	float 	pval,
+							int 		db_size )
 {
-  if (x < mu) return 1.0;
-  return exp(-lambda * (x-mu));
+	float eval;
+	eval = pval * (float)db_size;
+	return eval;
 }
 
-
-/*! FUNCTION:  	GUMBEL_pdf()
- *  SYNOPSIS:  	Return the right-tail mass about Gumbel Probability Density Function, G(mu, lambda). 
- * 					<mu> and <lambda> are parameters of the Gumbel distribution.
- * 					y = lambda * (x - mu)
- * 					Pr( G(mu,lambda) > x ) = lamda * exp(-(y) - exp(-(y))).
+/*! FUNCTION:  	STATS_Viterbi_Natsc_to_Eval()
+ *  SYNOPSIS:  	Get an E-VALUE <eval> from a Viterbi NAT score <natsc>.
+ * 					Requires <gumbel_params> = <mu,tau> parameters which fits Gumbel distribution for the model.
+ * 					Requires <db_size>, which is the number of sequence queries in the database.
+ * 					Optionally, can include the <null1_bias> model and <null2_bias> sequence biases, or left as 0.0f.
+ * 					Optionally, other scores <presc>, <seqsc>, <pval> can be captured or left NULL.
+ *  RETURN: 		E-value.
  */
-double 
-GUMBEL_pdf(		double x, 
-					double mu, 
-					double lambda )
+inline
+float 
+STATS_Viterbi_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score (in NATS) */
+										float* 			presc_p, 			/* OPT OUTPUT: non-sequence bias corrected score (in BITS) */
+										float* 			seqsc_p, 			/* OPT OUTPUT: sequence bias corrected score (in BITS) */
+										float* 			pval_p, 				/* OPT OUTPUT: P-value (probably to a match given a random sequence) */
+										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
+										DIST_PARAM		gumbel_params, 	/* parameters for fitting gumbel model */
+										int 				db_size, 			/* number of query sequences in database */  	
+										float				null1_bias, 		/* null1 model bias (also called null_sc) */
+										float				null2_bias ) 		/* null2 sequence bias (also called seq_bias) */
 {
-  double y;
-  y = lambda * (x - mu);
-  return (lambda * exp(-y - exp(-y)));
+	float presc, seqsc, ln_pval, pval, eval;
+	float mu, lambda;
+	mu 		= gumbel_params.param1;
+	lambda 	= gumbel_params.param2;
+
+	presc 	= STATS_Nats_to_Bits( natsc - null1_bias );
+	seqsc 	= STATS_Nats_to_Bits( natsc - (null1_bias + null2_bias) );
+	ln_pval 	= esl_gumbel_logsurv( seqsc, mu, lambda );
+	pval 		= exp(ln_pval);
+	eval 		= STATS_Pval_to_Eval( pval, db_size );
+
+	if (presc_p != NULL) *presc_p = presc;
+	if (seqsc_p != NULL) *seqsc_p = seqsc;
+	if (pval_p != NULL) *pval_p = pval;
+	if (eval_p != NULL) *eval_p = eval;
+	
+	return eval;
 }
 
-
-/*! FUNCTION:  	GUMBEL_log_pdf()
- *  SYNOPSIS:  	
+/*! FUNCTION:  	STATS_Fwdback_Natsc_to_Eval()
+ *  SYNOPSIS:  	Get an E-VALUE <eval> from a Forward-Backward NAT score <natsc>.
+ * 					Requires <gumbel_params> = <mu,tau> parameters which fits Gumbel distribution for the model.
+ * 					Requires <db_size>, which is the number of sequence queries in the database.
+ * 					Optionally, can include the <null1_bias> model and <null2_bias> sequence biases, or left as 0.0f.
+ * 					Optionally, other scores <presc>, <seqsc>, <pval> can be captured or left NULL.
+ *  RETURN: 		E-value.
  */
-double 
-GUMBEL_log_pdf( 	double x, 
-						double mu, 
-						double lambda )
+inline
+float 
+STATS_Fwdback_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score (in NATS) */
+										float* 			presc_p, 			/* OPT OUTPUT: non-sequence bias corrected score (in BITS) */
+										float* 			seqsc_p, 			/* OPT OUTPUT: sequence bias corrected score (in BITS) */
+										float* 			pval_p, 				/* OPT OUTPUT: P-value (probably to a match given a random sequence) */
+										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
+										DIST_PARAM		exp_params, 		/* parameters for fitting exponential model */
+										int 				db_size, 			/* number of query sequences in database */  	
+										float				null1_bias, 		/* null1 model bias (also called null_sc) */
+										float				null2_bias ) 		/* null2 sequence bias (also called seq_bias) */
 {
-  double y;
-  y = lambda * (x - mu);
-  return (log(lambda) -y - exp(-y));
-}
+	float presc, seqsc, ln_pval, pval, eval;
+	float mu, lambda;
+	mu 		= exp_params.param1;
+	lambda 	= exp_params.param2;
 
+	presc 	= STATS_Nats_to_Bits( natsc - null1_bias );
+	seqsc 	= STATS_Nats_to_Bits( natsc - (null1_bias + null2_bias) );
+	ln_pval 	= esl_exp_logsurv( seqsc, mu, lambda );
+	pval 		= exp(ln_pval);
+	eval 		= STATS_Pval_to_Eval( pval, db_size );
 
-/*! FUNCTION:  	GUMBEL_cdf()
- *  SYNOPSIS:  	
- */
-double 
-GUMBEL_cdf(	double x, 
-				double mu, 
-				double lambda )
-{
-  double y;
-  y = lambda * (x - mu);
-  return (exp(-exp(-y)));
-}
-
-
-/*! FUNCTION:  	GUMBEL_log_cdf()
- *  SYNOPSIS:  	
- */
-double 
-GUMBEL_log_cdf( 	double x, 
-						double mu, 
-						double lambda )
-{
-  double y;
-  y = lambda * (x - mu);
-  return (-exp(-y));
-}
-
-/*! FUNCTION:  	GUMBEL_survivor()
- *  SYNOPSIS:  	
- */
-double 
-GUMBEL_survivor( 	double x, 
-						double mu, 
-						double lambda )
-{
-	double y  = lambda*(x-mu);
-	double ey = -exp(-y);
-
-	/* Use 1-e^x ~ -x approximation here when e^-y is small. */
-	if (fabs(ey) < SMALLX1) {
-		return -ey;
-	}
-	else {
-		return (1 - exp(ey));
-	}
-}
-
-
-/*! FUNCTION:  	GUMBEL_log_survivor()
- *  SYNOPSIS:  	
- */
-double 
-GUMBEL_log_survivor( 	double x, 
-								double mu, 
-								double lambda)
-{
-	double y  = lambda*(x-mu);
-	double ey = -exp(-y);
-
-	/* The real calculation is log(1-exp(-exp(-y))).
-	* For "large" y, -exp(-y) is small, so 1-exp(-exp(-y) ~ exp(-y),
-	* and log of that gives us -y.
-	* For "small y", exp(-exp(-y) is small, and we can use log(1-x) ~ -x. 
-	*/
-	if ( fabs(ey) < SMALLX1 ) {
-		return -y;
-	} 
-	else if ( fabs(exp(ey)) < SMALLX1 ) {
-		return -exp(ey);
-	} 
-	else {
-		return log(1 - exp(ey));
-	}
+	if (presc_p != NULL) *presc_p = presc;
+	if (seqsc_p != NULL) *seqsc_p = seqsc;
+	if (pval_p != NULL) *pval_p = pval;
+	if (eval_p != NULL) *eval_p = eval;
+	
+	return eval;
 }

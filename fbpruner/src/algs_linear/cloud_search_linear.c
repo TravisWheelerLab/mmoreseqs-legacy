@@ -23,12 +23,11 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_linear.h"
-
-/* for debugging */
+/* for debugging / unit tests */
 #include "../algs_quad/_algs_quad.h"
 
 /* header */
+#include "_algs_linear.h"
 #include "cloud_search_linear.h"
 
 /*
@@ -125,7 +124,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
 
    /* vars for pruning */
    bool           is_term_flag;                    /* termination flag for end of search */
-   float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
+   float          cell_max, diag_max;              /* temp maximum scores */
+   float          inner_max, total_max;            /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
    VECTOR_INT*    lb_vec[3];                       /* left bound list for previous 3 antdiags */
@@ -140,6 +140,9 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    /* antidiag range for the start/end points in the input viterbi alignment */
    RANGE       vit_range;
 
+   /* in order to approximate the score accurately, we need to know the high score position */
+   COORDS      coords_max;
+   COORDS      coords_innermax;
 
    /* debugger tools */
    FILE*       dbfp;
@@ -177,10 +180,6 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
 
-   /* init max scores */
-   *inner_sc   = -INF;
-   *max_sc     = -INF;
-
    /* check if data is cleaned */
    #if DEBUG
    {
@@ -210,6 +209,9 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    gamma       = params->gamma;
    /* start and end points of input viterbi alignment */
    vit_range   = (RANGE){beg->q_0 + beg->t_0, end->q_0 + end->t_0};
+   /* position of maximum score in cloud */
+   coords_innermax = (COORDS){-1, -1};   
+   coords_max      = (COORDS){-1, -1};
 
    /* initialize edges and bounds */
    le_0 = 0;
@@ -288,7 +290,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    d_cnt = 0;
 
    /* begin state probability begins at zero (free to start alignment) */
-   prv_B = 0;
+      prv_B = 0;
    // prv_E = 0;
 
    /* ITERATE THROUGH ANTI-DIAGONALS */
@@ -330,13 +332,14 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
       /* if currently inside viterbi range, update max inner_sc */
       if ( d_0 < vit_range.end ) {
-         *inner_sc = total_max;
+         inner_max = total_max;
+         coords_innermax = coords_max;
       }
 
       /* Add pruned bounds to edgebound list */
@@ -388,7 +391,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       } 
 
       /* MAIN RECURSION */
-      /* Iterate the ranges of the antidiagonal */
+      /* Iterate through list of antidiagonal ranges */
       for ( i = 0; i < lb_vec[0]->N; i++ ) 
       {
          lb_0 = VEC_X( lb_vec[0], i );
@@ -416,7 +419,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
             prv_D = DMX3(dx2, k_1)  + TSC(t_1, D2M);
             /* Free to begin match state (new alignment) */
             /* NOTE: only allow begin transition at start of viterbi alignment */
-            // prv_B = 0; /* assigned once at start */
+            // prv_B only assigned once at start */
             /* best-to-match */
             prv_sum = logsum( logsum( prv_M, prv_I ),
                               logsum( prv_D, prv_B ) );
@@ -454,7 +457,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          }
       }
 
-      /* Scrub 2-back bound data */
+      /* Scrub values from 2-back bound data */
       for ( i = 0; i < lb_vec[2]->N; i++ )
       {
          lb_2 = lb_vec[2]->data[i];
@@ -620,7 +623,6 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    {
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp );
-      printf("MAX CLOUD_FWD SCORE: %f, LIMIT: %f\n", total_max, total_limit);
    }
    #endif 
 
@@ -633,8 +635,50 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    /* after search, all cells are set to -INF */
    st_MX3->clean = true;
 
+   printf("PRECORRECTION: %f, %f\n", total_max, inner_max);
+
+   bool is_score_correction = true;
+   /* score correction: we need B to simulate proper model states */
+   if ( is_score_correction == true )
+   {
+      float presc, postsc;
+
+      /* pre-core model: S->N->...->N->B->(M */
+      presc = 0.0f;
+      for (int q_0 = 1; q_0 < beg->q_0; q_0++) {
+         /* N loop */
+         presc += XSC(SP_N, SP_LOOP);
+      }
+      t_1 = beg->t_0 - 1; 
+      presc += TSC(t_1, B2M);
+      total_max += presc;
+      inner_max += presc;
+
+      /* since total and inner exit core model at different points, we compute their post-core corrections separately */
+      /* post-core model: M)->E->C->...->C->T */
+      postsc = 0.0f;
+      postsc += XSC(SP_E, SP_MOVE);
+      for (int q_0 = coords_max.q_0; q_0 <= Q; q_0++) {
+         postsc += XSC(SP_C, SP_LOOP);
+      }
+      postsc += XSC(SP_C, SP_MOVE);
+      total_max += postsc;
+
+      /* post-core model: M)->E->C->...->C->T */
+      postsc = 0.0f;
+      postsc += XSC(SP_E, SP_MOVE);
+      for (int q_0 = coords_innermax.q_0; q_0 <= Q; q_0++) {
+         postsc += XSC(SP_C, SP_LOOP);
+      }
+      postsc += XSC(SP_C, SP_MOVE);
+      inner_max += postsc;
+   }
+
+   printf("POSTCORRECTION: %f, %f\n", total_max, inner_max);
+   
    /* highest score found in cloud search */
-   *max_sc = total_max;
+   *max_sc     = total_max;
+   *inner_sc   = inner_max;
 
    return STATUS_SUCCESS;
 }
@@ -716,7 +760,8 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
    /* vars for pruning */
    bool           is_term_flag;                    /* termination flag set by pruner */
-   float          cell_max, diag_max, total_max;   /* maximum score found in matrix */
+   float          cell_max, diag_max;              /* temp maximum scores */
+   float          inner_max, total_max;            /* maximum score found in matrix */
    float          total_limit, diag_limit;         /* threshold determined by max_scores - alpha */
    BOUND*         dp_bound;                        /* bounds for dp matrix of current antidiagonal */
    VECTOR_INT*    lb_vec[3];                       /* left bound list for previous 3 antdiags */
@@ -729,6 +774,10 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    float       beta;
    int         gamma;
    RANGE       vit_range;
+
+   /* in order to approximate the score accurately, we need to know the high score position */
+   COORDS      coords_max;
+   COORDS      coords_innermax;
 
    /* debugger tools */
    FILE*       dbfp;
@@ -769,10 +818,6 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
    /* initialize logsum lookup table if it has not already been */
    logsum_Init();
-
-   /* init max scores */
-   *inner_sc   = -INF;
-   *max_sc     = -INF;
 
    /* check if data is cleaned */
    #if DEBUG
@@ -932,13 +977,14 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
       /* if currently inside viterbi range, update max inner_sc */
       if ( d_0 >= vit_range.beg ) {
-         *inner_sc = total_max;
+         inner_max = total_max;
+         coords_innermax = coords_max;
       }
 
       /* Add pruned bounds to edgebound list */
@@ -1248,14 +1294,61 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    {
       int cmp = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp );
-      printf("MAX CLOUD_BCK SCORE: %f, LIMIT: %f\n", total_max, total_limit);
    }
    #endif 
 
    st_MX3->clean = true;
 
+   // printf("PRECORRECTION: %f, %f\n", total_max, inner_max);
+
+   bool is_score_correction = true;
+   /* score correction: we need B to simulate proper model states */
+   if ( is_score_correction == true )
+   {
+      float presc, postsc;
+
+      /* since total and inner enter the core model at different points, compute them separately */
+      /* pre-core model: S->N->...->N->B->(M */
+      presc = 0.0f;
+      for (int q_0 = 1; q_0 < coords_max.q_0; q_0++) {
+         /* N loop */
+         presc += XSC(SP_N, SP_LOOP);
+      }
+      t_1 = beg->t_0 - 1; 
+      /* N->B->M */
+      presc += TSC(t_1, B2M);
+      total_max += presc;
+
+      /* pre-core model: S->N->...->N->B->(M */
+      presc = 0.0f;
+      for (int q_0 = 1; q_0 < coords_max.q_0; q_0++) {
+         /* N loop */
+         presc += XSC(SP_N, SP_LOOP);
+      }
+      t_1 = beg->t_0 - 1;
+      /* N->B->M */
+      presc += TSC(t_1, B2M);
+      inner_max += presc;
+
+      /* post-core model: M)->E->C->...->C->T */
+      postsc = 0.0f;
+      /* M->E->C */
+      postsc += XSC(SP_E, SP_MOVE);
+      for (int q_0 = end->q_0; q_0 <= Q; q_0++) {
+         /* C loop */
+         postsc += XSC(SP_C, SP_LOOP);
+      }
+      /* C->T */
+      postsc += XSC(SP_C, SP_MOVE);
+      total_max += postsc;
+      inner_max += postsc;
+   }
+
+   // printf("POSTCORRECTION: %f, %f\n", total_max, inner_max);
+   
    /* highest score found in cloud search */
-   *max_sc = total_max;
+   *max_sc     = total_max;
+   *inner_sc   = inner_max;
 
    return STATUS_SUCCESS;
 }

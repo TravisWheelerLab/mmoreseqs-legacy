@@ -1,10 +1,13 @@
 /*******************************************************************************
- *  FILE:      fwdback_vec.c
+ *  FILE:      fwdback_vectorized.c
  *  SYNOPSIS:  The Forward-Backward Algorithm for Sequence Alignment Search.
  *             ( Linear O(Q), SIMD Vectorized )
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
+ *    - 
+ *  NOTE:
+ *    - WIP. Not implementated.
  *******************************************************************************/
 
 /* imports */
@@ -23,38 +26,25 @@
 #include "structs.h"
 #include "_utilities.h"
 #include "_objects.h"
-#include "_algs_linear.h"
 
 /* header */
-#include "fwdback_linear.h"
+#include "_algs_vectorized.h"
+#include "fwdback_vectorized.h"
 
-
-/* 
- *  FUNCTION: run_Forward_Vec()
- *  SYNOPSIS: Perform Forward part of Forward-Backward Algorithm. (Linear Space Implementation)
+/*!  FUNCTION:    run_Forward_Vectorized()
+ *   SYNOPSIS:    Perform Forward part of Forward-Backward Algorithm.
+ *                Vectorized Implementation.
  *
- *  PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query sequence length, 
- *             <T>         target profile length,
- *             <st_MX3>    Normal State (Match, Insert, Delete) 3D-Matrix,
- *                         [ NUM_NORMAL_STATES x 3 x (Q+T+1) ]
- *             <st_MX>     Normal State (Match, Insert, Delete) 3D-Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *                         [ NUM_SPECIAL_STATES x (Q+1) ]
- *             <sc_final>  OUTPUT: Score in Log-Bits
- *
- *  RETURN:    <STATUS_SUCCESS> if no errors
+ *   RETURN:      <STATUS_SUCCESS> if no errors
  */
-int run_Forward_Vec(    const SEQUENCE*    query, 
-                        const HMM_PROFILE* target, 
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX3,
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final)
+STATUS_FLAG
+run_Forward_Vectorized(    const SEQUENCE*      query, 
+                           const HMM_PROFILE*   target, 
+                           const int            Q, 
+                           const int            T, 
+                           MATRIX_3D*           st_MX3,
+                           MATRIX_2D*           sp_MX,
+                           float*               sc_final )
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -212,30 +202,20 @@ int run_Forward_Vec(    const SEQUENCE*    query,
    return STATUS_SUCCESS;
 }
 
-/* ****************************************************************************************** *
- * FUNCTION: run_Backward_Vec()
- * SYNOPSIS: Perform Backward part of Forward-Backward Algorithm. (LINEAR ALG)
+/*!  FUNCTION:    run_Backward_Vectorized()
+ *   SYNOPSIS:    Perform Forward part of Forward-Backward Algorithm.
+ *                Vectorized Implementation.
  *
- * PURPOSE:
- *
- *  ARGS:      <query>     query sequence, 
- *             <target>    HMM model,
- *             <Q>         query length, 
- *             <T>         target length,
- *             <st_MX3>    Normal State (Match, Insert, Delete) Matrix,
- *             <st_MX>     Normal State (Match, Insert, Delete) Matrix,
- *             <sp_MX>     Special State (J,N,B,C,E) Matrix,
- *             <sc_final>  OUTPUT: Score in Log-Bits
- *
- * RETURN:     <STATUS_SUCCESS> if no errors.
- * ****************************************************************************************** */
-int run_Backward_Vec(   const SEQUENCE*    query, 
-                        const HMM_PROFILE* target, 
-                        const int          Q, 
-                        const int          T, 
-                        MATRIX_3D*         st_MX3, 
-                        MATRIX_2D*         sp_MX,
-                        float*             sc_final )
+ *   RETURN:      <STATUS_SUCCESS> if no errors
+ */
+STATUS_FLAG 
+run_Backward_Vectorized(   const SEQUENCE*      query, 
+                           const HMM_PROFILE*   target, 
+                           const int            Q, 
+                           const int            T, 
+                           MATRIX_3D*           st_MX3, 
+                           MATRIX_2D*           sp_MX,
+                           float*               sc_final )
 {
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */

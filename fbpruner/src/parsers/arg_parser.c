@@ -3,6 +3,10 @@
  *  PURPOSE:   Parses command line arguments. 
  *
  *   AUTHOR:   Dave Rich
+ *     BUGS:
+ *       - None Known.
+ *    NOTES:
+ *       - Working on making argument options a generic datatype rather than an if-else ladder.
  *******************************************************************************/
 
 /* imports */
@@ -36,7 +40,7 @@ void   ARGS_Parse( ARGS*   args,
 
    /* if no <command> argument given, run test case if in debug mode */
    if (argc < 2) {
-      printf("Usage: fb-pruner <command> <target_hmm_file> <query_fasta_file>\n");
+      printf("Usage: mmore <command> <target_hmm_file> <query_fasta_file>\n");
       #if DEBUG 
          printf("Using DEFAULT arguments...\n\n");
          return;
@@ -57,7 +61,7 @@ void   ARGS_Parse( ARGS*   args,
    } else {
       for (int i = 0; i < NUM_PIPELINE_MODES; i++) {
          // printf("%s ?? %s\n", argv[1], PIPELINE_NAMES[i]);
-         if ( strcmp(argv[1], PIPELINE_NAMES[i]) == 0 ) {
+         if ( strcmp(argv[1], PIPELINES[i].name ) == 0 ) {
             args->pipeline_mode = i;
             found_pipeline = true;
             break;
@@ -69,13 +73,13 @@ void   ARGS_Parse( ARGS*   args,
       fprintf(stderr, "ERROR: invalid pipeline/command was given: (%s, %d).\n", argv[1], args->pipeline_mode);
       fprintf(stderr, "VALID PIPELINE/COMMANDS OPTS: [ ");
       for (int i = 0; i < NUM_PIPELINE_MODES; i++) 
-         fprintf(stderr, "%s, ", PIPELINE_NAMES[i]);
+         fprintf(stderr, "%s, ", PIPELINES[i].name);
       fprintf(stderr, "]\n");
       exit(EXIT_FAILURE);
    }
 
    /* set number of main arguments based on given pipeline */
-   num_main_args = PIPELINE_NUM_ARGS[args->pipeline_mode];
+   num_main_args = PIPELINES[args->pipeline_mode].num_main_args;
    /* check proper number of main args remain */
    if ( argc < 2 + num_main_args ) {
       fprintf(stderr, "ERROR: Improper number of main args. [required: %d]\n", num_main_args);
@@ -600,7 +604,7 @@ void ARGS_Dump( ARGS*    args,
 
    fprintf( fp, "=== ARGS =====================\n");
    /* --- PIPELINE --- */
-   fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINE_NAMES[args->pipeline_mode],   args->pipeline_mode );
+   fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "COMPO_BIAS",      ( args->is_compo_bias ? "True" : "False" ) );
@@ -694,4 +698,32 @@ void ARGS_Help_Info()
 void ARGS_Version_Info()
 {
    
+}
+
+/* initialize default arg options */
+STATUS_FLAG
+ARG_OPTS_Default_Opts( ARGS* args )
+{
+   /* command line flags and options */
+   int   num_flag_cmds = 11;
+   // ARG_OPT COMMAND_OPTS[] = {
+   //    /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
+   //    /* output formats */
+   //    {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
+   //    {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
+   //    /* general options */
+   //    {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
+   //    /* mmseqs options */
+   //    {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
+   //    {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
+   //    {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
+   //    /* mmore main options */
+   //    {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
+   //    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
+   //    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
+      
+   //    {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
+   //    {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
+   //    {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
+   // };
 }

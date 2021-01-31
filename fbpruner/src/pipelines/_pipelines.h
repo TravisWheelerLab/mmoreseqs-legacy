@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      pipeline.h
+ *  FILE:      _pipeline.h
  *  PURPOSE:   Pipelines and Subroutines
  *
  *  AUTHOR:    Dave Rich
@@ -10,76 +10,75 @@
 #define _PIPELINE_MAIN_H
 
 /* === PIPELINE SUBROUTINES === */
-#include "work.h"
+#include "workflow.h"
 
 /* === MAIN PIPELINES === */
 
-/*! FUNCTION:  	main_pipeline()
- *  SYNOPSIS:  	Main pipeline:
- * 				      Can optionally run viterbi, forward-backward, and/or pruned forward-backward.
+/*! FUNCTION:  	mmore_pipeline()
+ *  SYNOPSIS:  	Pipeline for MMore. 
+ *                Runs MMore pipeline. Calls MMseqs pipeline, and results are piped to mmore_tail_pipeline().
  */
-void main_pipeline( WORKER* worker );
+STATUS_FLAG 
+mmore_pipeline( WORKER* worker );
 
-
-/*! FUNCTION:  	mmseqs_pipeline()
- *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: 
- *                   Runs Cloud Search using results from main MMSeqs Search..	
+/*! FUNCTION:  	generic_pipeline()
+ *  SYNOPSIS:  	Generic pipeline.
+ * 				   Can optionally run viterbi, forward-backward, and/or adaptive forward-backward.
  */
-void mmseqs_pipeline( WORKER* worker );
+STATUS_FLAG 
+generic_pipeline( WORKER* worker );
 
-
-/*! FUNCTION:  	mmseqs_pipeline_plus()
- *  SYNOPSIS:  	Pipeline for MMSeqs-Plus: 
- *                   Runs Cloud Search using results from main MMSeqs Search..	
+/*! FUNCTION:  	interactive_pipeline()
+ *  SYNOPSIS:  	Interactive, tutorialized pipeline.
+ *                An interactive pipeline which shows users how to work with tool and purpose of options.
  */
-void mmseqs_plus_pipeline( WORKER* worker );
+STATUS_FLAG 
+interactive_pipeline( WORKER* worker );
 
+/* === HELPER / INTERNAL PIPELINES === */
 
-/*
- *  FUNCTION:  	time_pipeline()
- *  SYNOPSIS:  	Time Trial Pipeline: 
- *                   Runs all algorithms and reports times.
+/*! FUNCTION:  	mmore_main_pipeline()
+ *  SYNOPSIS:  	Internal pipeline for tail of MMore, post-MMseqs.
+ *                Runs Adaptive Banding / Cloud Search step of MMORE pipeline.
  */
-void time_pipeline( WORKER* worker );
+STATUS_FLAG 
+mmore_main_pipeline( WORKER* worker );
 
-/*
- *  FUNCTION:  	index_pipeline()
- *  SYNOPSIS:   Index Pipeline: Indexes FASTA or HMM files.
+/*! FUNCTION:  	index_pipeline()
+ *  SYNOPSIS:     Index Pipeline: Indexes FASTA or HMM files.
  */
-void index_pipeline( WORKER* worker );
+STATUS_FLAG 
+index_pipeline( WORKER* worker );
 
-
-/*
- *  FUNCTION:  hmmbuild_pipeline()
- *  SYNOPSIS:  Pipeline that builds HMM model from FASTA file.
+/*! FUNCTION:     hmmbuild_pipeline()
+ *  SYNOPSIS:     Pipeline that builds HMM model from FASTA file.
+ *                Calls to HMMER suit to run hmmbuild.
  */
-void hmmbuild_pipeline( WORKER* worker );
+STATUS_FLAG 
+hmmbuild_pipeline( WORKER* worker );
 
-/*
- *  FUNCTION:  itest_pipeline()
- *  SYNOPSIS:  Pipeline runs integration tests. 
- *             Runs optimized and unoptimized versions of search algs and compares results.
- *             For full functionality, must be compiled in DEBUG mode.
- */
-void itest_pipeline( WORKER* worker );
+/* === DEBUGGING PIPELINES === */
 
-/*
- *  FUNCTION:  	utest_pipeline()
- *  SYNOPSIS:  	Unit Test Pipeline: runs all unit tests.
+/*! FUNCTION:     itest_pipeline()
+ *  SYNOPSIS:     Pipeline runs integration tests. 
+ *                Runs optimized and unoptimized versions of search algs and compares results.
+ *                For full functionality, must be compiled in BUILD=DEBUG mode.
  */
-void utest_pipeline( WORKER* worker );
+STATUS_FLAG 
+itest_pipeline( WORKER* worker );
 
-/*
- *  FUNCTION:  vizualization_pipeline()
- *  SYNOPSIS:  Pipeline runs viterbi, forward/backward, and cloud search.  
- *             Output visualizations for python scripts.
+/*! FUNCTION:  	utest_pipeline()
+ *  SYNOPSIS:  	Pipeline runs unit test.
+ *                For full functionality, must be compiled in DEBUG mode.
  */
-void vizualization_pipeline( WORKER* worker );
+STATUS_FLAG 
+utest_pipeline( WORKER* worker );
 
-/*
- *  FUNCTION:  null_pipeline()
- *  SYNOPSIS:  Pipeline does nothing.
+/*! FUNCTION:  null_pipeline()
+ *  SYNOPSIS:  Pipeline does nothing. 
+ *             For testing.
  */
-void null_pipeline( WORKER* worker );
+STATUS_FLAG 
+null_pipeline( WORKER* worker );
 
 #endif /* _PIPELINE_MAIN_H */

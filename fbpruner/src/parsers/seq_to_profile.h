@@ -1,9 +1,8 @@
 /*******************************************************************************
  *  FILE:      seq_to_model.c
- *  PURPOSE:   Converts a SEQUENCE to HMM_PROFILE.
+ *  PURPOSE:   Converts a SEQUENCE to HMM_PROFILE model.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
  *******************************************************************************/
 
 #ifndef _SEQ_TO_MODEL_H

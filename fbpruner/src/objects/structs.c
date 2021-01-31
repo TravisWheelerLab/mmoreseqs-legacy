@@ -97,46 +97,16 @@ double BG_MODEL_log[] = {
    3.492875266245181,     /* Y */
 };
 
-/* function pointers to all pipelines */
-void (*PIPELINES[])(WORKER*) = {
-   null_pipeline,
-   main_pipeline,
-   itest_pipeline,
-   time_pipeline,
-   mmseqs_pipeline,
-   mmseqs_plus_pipeline,
-   index_pipeline,
-   utest_pipeline,
-   vizualization_pipeline,
-   hmmbuild_pipeline
-};
-
-/* pipeline names (for outputs) */
-char* PIPELINE_NAMES[] = {
-   "null",
-   "main",
-   "itest",
-   "time",
-   "mmseqs",
-   "mmseqs_plus",
-   "index",
-   "utest",
-   "viz",
-   "hmmbuild"
-};
-
-/* number of primary arguments for each pipeline */
-int PIPELINE_NUM_ARGS[] = {
-   0,
-   2,
-   2,
-   2,
-   2,
-   2,
-   2,
-   2,
-   2,
-   1
+/* descriptors of all pipelines */
+const int num_pipelines = 7;
+PIPELINE PIPELINES[] = {
+   { "null",         null_pipeline,          0 },
+   { "generic",      generic_pipeline,       2 },
+   { "mmore",        mmore_pipeline,         2 },
+   { "mmore_main",   mmore_main_pipeline,    2 },
+   { "index",        index_pipeline,         2 },
+   { "hmmbuild",     hmmbuild_pipeline,      1 },
+   { "interactive",  interactive_pipeline,   0 }
 };
 
 /* full names of the all states */
@@ -234,28 +204,34 @@ char* FILE_TYPE_NAMES[] = {
    "HMMER",
    "FASTA",
 };
-
 /* commandline arguments */
 ARGS*    args;
 
-/* debugging data structures */
-DEBUG_KIT*  debugger;
-
 /* command line flags and options */
 int   num_flag_cmds = 11;
-FLAG_CMD COMMAND_OPTS[] = {
-   {  "OUTFILE",           1,    DATATYPE_INT,     NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
-   {  "INFILES",           2,    DATATYPE_STRING,  NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
-   {  "INDEX",             2,    DATATYPE_STRING,  NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
-   {  "MMSEQS_TMP",        1,    DATATYPE_STRING,  NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
-   {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,  NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
-   {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,  NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
-   {  "ALPHA",             1,    DATATYPE_FLOAT,   NULL,    "--alpha",           "-a",    "X-drop pruning ratio [20.0]." },
-   {  "BETA",              1,    DATATYPE_INT,     NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
-   {  "WINDOW",            4,    DATATYPE_INT,     NULL,    "--window",          "-w",    "Examine substring of query and target."  },
-   {  "Q_RANGE",           2,    DATATYPE_INT,     NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
-   {  "T_RANGE",           2,    DATATYPE_INT,     NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
+ARG_OPT COMMAND_OPTS[] = {
+   /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
+   /* output formats */
+   {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
+   {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
+   /* general options */
+   {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
+   /* mmseqs options */
+   {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
+   {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
+   {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
+   /* mmore main options */
+   {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
+   {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
+   {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
+   
+   {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
+   {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
+   {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
 };
+
+/* debugging data structures */
+DEBUG_KIT*  debugger;
 
 char* DATATYPE_NAMES[] = {
    "NONE",

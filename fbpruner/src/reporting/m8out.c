@@ -65,9 +65,10 @@ STATUS_FLAG
 REPORT_m8out_header(    WORKER*  worker,
                         FILE*    fp )
 {
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
-      "query",
-      "target",
+   const int num_fields = 13;
+   const char* headers[] = {
+      "query-hmm",
+      "target-seq",
       "pident",
       "alnlen",
       "mismatch",
@@ -79,22 +80,9 @@ REPORT_m8out_header(    WORKER*  worker,
       "eval",
       "bits",
       "cigar"
-   );
-   fprintf( fp, "#%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", 
-      "-----",
-      "------",
-      "------",
-      "------",
-      "--------",
-      "------",
-      "------",
-      "-----",
-      "-------",
-      "----",
-      "----",
-      "----",
-      "-----"
-   );
+   };
+
+   REPORT_header(fp, headers, num_fields);
 }
 
 /*!   FUNCTION:   REPORT_m8out_entry()

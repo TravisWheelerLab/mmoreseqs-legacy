@@ -39,7 +39,7 @@ READER* READER_Create( char* filename )
    reader->N            = 0;
    reader->Nalloc       = 0;
    reader->token        = NULL;
-   reader->tokens       = VECTOR_INT_Create();
+   reader->tokens       = VECTOR_CHAR_Create();
    /* location in file */
    reader->cur_offset   = 0;
    reader->file_size    = 0;

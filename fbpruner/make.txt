@@ -141,10 +141,10 @@ In file included from src/reporting/../objects/basic/_basic.h:18,
                  from src/reporting/../objects/_objects.h:19,
                  from src/reporting/report_util.c:22:
 src/reporting/report_util.c: At top level:
-src/reporting/../objects/basic/gen_data.h:35:1: warning: inline function ‘GEN_DATA_To_String’ declared but never defined
-   35 | GEN_DATA_To_String(  const GEN_DATA    data,
+src/reporting/../objects/basic/gen_data.h:35:1: warning: inline function ‘GEN_To_String’ declared but never defined
+   35 | GEN_To_String(  const GEN    data,
       | ^~~~~~~~~~~~~~~~~~
-src/reporting/../objects/basic/gen_data.h:22:1: warning: inline function ‘GEN_DATA_Create’ declared but never defined
-   22 | GEN_DATA_Create(  const void*       data,
+src/reporting/../objects/basic/gen_data.h:22:1: warning: inline function ‘GEN_Create’ declared but never defined
+   22 | GEN_Create(  const void*       data,
       | ^~~~~~~~~~~~~~~
 make: *** [../old-stuff/Makefile.old:103: build/./src/reporting/report_util.c.o] Error 1

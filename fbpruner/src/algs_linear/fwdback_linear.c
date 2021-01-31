@@ -145,7 +145,7 @@ int run_Forward_Linear(    const SEQUENCE*   query,
    q_0 = 0;
    qx0 = 0;
 
-   /* initialize special states (?) */
+   /* initialize special states */
    XMX(SP_N, q_0) = 0;                                            /* S->N, p=1             */
    XMX(SP_B, q_0) = XSC(SP_N, SP_MOVE);                           /* S->N->B, no N-tail    */
    XMX(SP_E, q_0) = XMX(SP_C, q_0) = XMX(SP_J, q_0) = -INF;
@@ -185,9 +185,8 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
-         prv_sum = logsum( 
-                        logsum( prv_M, prv_I ),
-                        logsum( prv_B, prv_D ) );
+         prv_sum = logsum( logsum( prv_M, prv_I ),
+                           logsum( prv_B, prv_D ) );
          MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
 
          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -211,9 +210,8 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          prv_D = DMX3(qx0, t_0) + sc_E;
          /* best-to-e-state */
          prv_E = XMX(SP_E, q_0);
-         XMX(SP_E, q_0) = logsum( 
-                              logsum( prv_M, prv_D ),
-                              prv_E );
+         XMX(SP_E, q_0) = logsum( logsum( prv_M, prv_D ),
+                                          prv_E );
 
          /* embed linear row into quadratic test matrix */
          #if DEBUG
@@ -227,50 +225,50 @@ int run_Forward_Linear(    const SEQUENCE*   query,
       }
 
       /* UNROLLED FINAL LOOP ITERATION */
-      t_0 = T;
-      t_1 = t_0 - 1;
+      {
+         t_0 = T;
+         t_1 = t_0 - 1;
 
-      /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
-      /* best previous state transition (match takes the diag element of each prev state) */
-      prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
-      prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-      prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
-      prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
-      /* sum-to-match */
-      prv_sum = logsum( 
-                     logsum( prv_M, prv_I ),
-                     logsum( prv_D, prv_B ) );
-      MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
+         /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+         /* best previous state transition (match takes the diag element of each prev state) */
+         prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
+         prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
+         prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
+         prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
+         /* sum-to-match */
+         prv_sum = logsum( logsum( prv_M, prv_I ),
+                           logsum( prv_D, prv_B ) );
+         MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
 
-      /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
-      IMX3(qx0, t_0) = -INF;
+         /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
+         IMX3(qx0, t_0) = -INF;
 
-      /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
-      /* previous states (match takes the left element of each state) */
-      prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-      prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
-      /* sum-to-delete */
-      prv_sum = logsum( prv_M, prv_D );
-      DMX3(qx0, t_0) = prv_sum;
+         /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
+         /* previous states (match takes the left element of each state) */
+         prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
+         prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
+         /* sum-to-delete */
+         prv_sum = logsum( prv_M, prv_D );
+         DMX3(qx0, t_0) = prv_sum;
 
-      /* UPDATE E STATE (unrolled) */
-      prv_E = XMX(SP_E, q_0);
-      prv_M = MMX3(qx0, t_0);
-      prv_D = DMX3(qx0, t_0);
-      /* best-to-begin */
-      XMX(SP_E, q_0) = logsum( 
-                           logsum( prv_D, prv_M ),
-                           prv_E );
+         /* UPDATE E STATE (unrolled) */
+         prv_E = XMX(SP_E, q_0);
+         prv_M = MMX3(qx0, t_0);
+         prv_D = DMX3(qx0, t_0);
+         /* best-to-begin */
+         XMX(SP_E, q_0) =  logsum( logsum( prv_D, prv_M ),
+                                           prv_E );
+      }
 
       /* SPECIAL STATES */
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
       XMX(SP_J, q_0) = logsum( prv_J, prv_E );         
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
+      prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
       XMX(SP_C, q_0) = logsum( prv_C, prv_E );
 
       /* N state */

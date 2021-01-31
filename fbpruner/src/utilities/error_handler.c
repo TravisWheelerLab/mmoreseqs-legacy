@@ -52,7 +52,7 @@ ERRORCHECK_handler(  const ERROR_FLAG      error_code,
             fprintf( stderr, "%s\n", "Realloc error." );
          } break;
          case ERROR_FILE_IO: {
-            fprintf( stderr, "%s %s\n", "File I/O error:", err_msg );
+            fprintf( stderr, "%s\n", "File I/O error." );
          }
          default: {
             fprintf( stderr, "%s\n", "Error occurred with invalid error code." );

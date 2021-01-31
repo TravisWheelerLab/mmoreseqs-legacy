@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  FILE:      pipeline_time.c
- *  PURPOSE:   Time Trial Cloud Search Pipeline.
+ *  FILE:      pipeline_interactive.c
+ *  PURPOSE:   Pipeline for building hmm's from single fasta sequence.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:      
  *******************************************************************************/
 
 /* imports */
@@ -24,20 +24,19 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
+#include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/*  FUNCTION:  time_pipeline()
- *  SYNOPSIS:  Runs a workflow pipeline. 
- *             Takes in a single target/query pair.  
- *             Runs generic Forward-Backward algorithm
- *
- *  ARGS:      <args>     parsed commandline arguments
- *
- *  RETURN:    Return <STATUS_SUCCESS> if no errors.
+/*! FUNCTION:  	interactive_pipeline()
+ *  SYNOPSIS:  	Interactive, tutorialized pipeline.
+ *                An interactive pipeline which shows users how to work with tool and purpose of options.
  */
-void time_pipeline( WORKER* worker ) 
+STATUS_FLAG 
+interactive_pipeline( WORKER* worker );
+STATUS_FLAG 
+interactive_pipeline( WORKER* worker )
 {
-   
+	printf("=== INTERACTIVE PIPELINE ===\n");
 }

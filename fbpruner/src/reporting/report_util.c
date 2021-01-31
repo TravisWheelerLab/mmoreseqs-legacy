@@ -73,6 +73,7 @@ STRING_hr_size(   char*          str_buf,
 
 /*!  FUNCTION:    REPORT_header()
  *   SYNOPSIS:    Prints field and horizontal rules for <header> list of length <num_fields>.
+ *   NOTE:        Only supports title lengths under 127 chars.
  */
 STATUS_FLAG 
 REPORT_header(    FILE*          fp, 
@@ -106,7 +107,7 @@ REPORT_header(    FILE*          fp,
 inline
 STATUS_FLAG 
 REPORT_entry(     FILE*             fp, 
-                  const GEN_DATA    data[],
+                  const GEN    data[],
                   const int         num_fields,
                   const int         sig_digits )
 {
@@ -125,7 +126,7 @@ REPORT_entry(     FILE*             fp,
 STATUS_FLAG 
 REPORT_entry_multiline(    FILE*             fp, 
                            const char*       headers[],
-                           const GEN_DATA    data[],
+                           const GEN    data[],
                            const int         num_fields,
                            const int         sig_digits )
 {
@@ -135,7 +136,7 @@ REPORT_entry_multiline(    FILE*             fp,
 
    /* data array */
    for (int i = 0; i < num_fields; i++) {
-      GEN_DATA_To_String( data[i], str_buf, buf_size, sig_digits );
+      GEN_To_String( data[i], str_buf, buf_size, sig_digits );
       fprintf( fp, "%*s:\t%s\n", pad, headers[i], str_buf );
    }
    fprintf( fp, "\n"); 
@@ -149,13 +150,13 @@ REPORT_entry_multiline(    FILE*             fp,
 inline
 STATUS_FLAG 
 REPORT_data(   FILE*             fp, 
-               const GEN_DATA    data,
+               const GEN    data,
                const int         sig_digits )
 {
    char     str_buf[128];
    size_t   buf_size = 128;
 
-   GEN_DATA_To_String( data, str_buf, buf_size, sig_digits );
+   GEN_To_String( data, str_buf, buf_size, sig_digits );
    fprintf( fp, "%s", str_buf);
 
    return STATUS_SUCCESS;

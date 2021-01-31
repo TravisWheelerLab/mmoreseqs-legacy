@@ -3,10 +3,18 @@
  *  PURPOSE:   DP_MATRIX object.
  *             Master dp_mx object. Maintains memory for all data structures used in pipeline.
  *             Contains data shared by all dp_mx threads.
- *             TODO: Worker will have thread dp_mxs.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
+ *    - None known.
+ *  NOTES:
+ *    - WIP.
+ *    - This DP_MATRIX is designed to support the different types of matrices, determined by DPMX_MODE.
+ *    - This should use a mutually-shared databank, so the data can be used for 
+ *      any DP_MATRIX needed.
+ *    - Will require a Create() function for each that does not allocate matrix data.
+ *    - Then Nalloc and ->data location must be passed between matrices.
+ *    - Same with Destroy() function, watch out for double-free.
  *******************************************************************************/
 
 /* imports */
@@ -30,20 +38,15 @@
  *             Most data is left NULL to be supplied by WORK_init().
  */
 DP_MATRIX* 
-DP_MATRIX_Create( bool is_quad, 
-                  bool is_lin,
-                  bool is_sparse )
+DP_MATRIX_Create( DPMX_MODE mode )
 {
    DP_MATRIX* dp_mx;
-   
    dp_mx = ERROR_malloc( sizeof(DP_MATRIX) );
 
    /* matrix types */
-   dp_mx->is_quad    = is_quad;
-   dp_mx->is_lin     = is_lin;
-   dp_mx->is_sparse  = is_sparse;
+   dp_mx->mode = mode;
 
-   /* build necessary matrices */
+   /* Set unneccessary matrices to null */
    dp_mx->st_MX   = NULL;
    dp_mx->st_MX3  = NULL;
    dp_mx->st_SMX  = NULL;
@@ -63,14 +66,16 @@ DP_MATRIX_Create( bool is_quad,
    return dp_mx;
 }
 
-/** FUNCTION:  DP_MATRIX_GrowTo()
+/** FUNCTION:  DP_MATRIX_Reuse()
  *  SYNOPSIS:  
  */
 DP_MATRIX* 
 DP_MATRIX_Reuse(  DP_MATRIX*     dp_mx,
                   int            Q,
-                  int            T )
+                  int            T,
+                  DPMX_MODE      mode )
 {
+   
 }
 
 /** FUNCTION:  DP_MATRIX_Destroy()
