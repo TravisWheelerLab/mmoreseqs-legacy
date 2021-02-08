@@ -208,7 +208,7 @@ WORK_bound_fwdback_test_threshold( WORKER* worker )
    float    fwdback_eval       = finalsc->fwdback_eval;
    
    is_passed = ( fwdback_eval < fwdback_threshold );
-   printf("FWD THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
+   printf("FWDBACK THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
       fwdback_eval, fwdback_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
