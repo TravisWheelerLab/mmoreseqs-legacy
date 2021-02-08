@@ -127,7 +127,7 @@ mmore_main_pipeline( WORKER* worker )
          WORK_posterior( worker );
 
          /* run posterior for each found domain */
-         // WORK_posterior_bydom( worker );
+         WORK_posterior_bydom( worker );
       }
 
       #if DEBUG

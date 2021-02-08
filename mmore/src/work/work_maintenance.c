@@ -101,8 +101,10 @@ WORK_init( WORKER* worker )
    /* quadratic */
    worker->st_MX_fwd       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX_bck       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   worker->st_MX_post      = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
-   worker->st_MX_optacc    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+   // worker->st_MX_post      = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+   // worker->st_MX_optacc    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+   worker->st_MX_post      = worker->st_MX_bck;
+   worker->st_MX_optacc    = worker->st_MX_fwd;
    worker->st_MX           = worker->st_MX_bck;
    /* linear */
    worker->st_MX3_fwd      = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
@@ -159,8 +161,8 @@ WORK_reuse( WORKER* worker )
    if ( tasks->quadratic ) {
       MATRIX_3D_Reuse_Clean( worker->st_MX_fwd,    NUM_NORMAL_STATES,  Q+1, T+1 );
       MATRIX_3D_Reuse_Clean( worker->st_MX_bck,    NUM_NORMAL_STATES,  Q+1, T+1 );
-      MATRIX_3D_Reuse_Clean( worker->st_MX_post,   NUM_NORMAL_STATES,  Q+1, T+1 );
-      MATRIX_3D_Reuse_Clean( worker->st_MX_optacc, NUM_NORMAL_STATES,  Q+1, T+1 );
+      // MATRIX_3D_Reuse_Clean( worker->st_MX_post,   NUM_NORMAL_STATES,  Q+1, T+1 );
+      // MATRIX_3D_Reuse_Clean( worker->st_MX_optacc, NUM_NORMAL_STATES,  Q+1, T+1 );
    }
    /* matrix for linear algs */
    if ( tasks->linear ) {
@@ -251,7 +253,8 @@ WORK_cleanup( WORKER* worker )
    // worker->st_MX           = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
    worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
-   worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
+   // worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
+   // worker->st_MX_optacc    = MATRIX_3D_Destroy( worker->st_MX_optacc );
    /* linear space */
    // worker->st_MX3          = MATRIX_3D_Destroy( worker->st_MX3 );
    worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );

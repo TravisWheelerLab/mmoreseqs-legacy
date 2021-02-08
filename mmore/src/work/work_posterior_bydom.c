@@ -242,6 +242,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
       if ( dom_def->n_domains > 0 )
       {
          /* constructed score over all domains */
+         printf("null_omega = %f, sum_bias = %f\n", dom_def->null_omega, dom_def->dom_sumbias);
          dom_def->dom_sumbias = logsum(0.0f, log(dom_def->null_omega) + dom_def->dom_sumbias);
          dom_def->dom_sumsc  += (Q - dom_def->n_residues) * log((float) Q / (float) (Q + 3));
          dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;

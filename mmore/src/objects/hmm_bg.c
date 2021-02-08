@@ -95,19 +95,20 @@ void HMM_BG_SetSequence( 	HMM_BG*		bg,
 	/* if holding old sequence, get rid of it */
 	if ( bg->sq != NULL ) esl_sq_Destroy( bg->sq );
 	/* create digitized sequence */
-	bg->sq 	= esl_sq_CreateDigital(bg->abc);
-	esl_abc_CreateDsq(bg->abc, seq->seq, &bg->sq->dsq);
+	bg->sq 	= esl_sq_CreateDigital( bg->abc );
+	// esl_abc_CreateDsq( bg->abc, seq->seq, &bg->sq->dsq );
 	// esl_sq_CreateDigitalFrom(abc, name, dsq, n, desc, acc, ss); /* Not necessary since we only use this struct for this function */
 }
 
 /*!  FUNCTION:  HMM_BG_UnsetSequence()
- *   SYNOPSIS:  Set the sequence to create digitized sequence.
+ *   SYNOPSIS:  Unset the sequence to create digitized sequence.
  */
 void HMM_BG_UnsetSequence( 	HMM_BG*		bg,
                               SEQUENCE* 	seq )
 {
-	// free( &bg->sq->dsq );
-	esl_sq_Destroy(bg->sq);
+	// bg->sq->dsq = ERROR_free( bg->sq->dsq );
+	esl_sq_Destroy( bg->sq );
+	bg->sq = NULL;
 }
 
 /*!  FUNCTION:  HMM_BG_SetLength()

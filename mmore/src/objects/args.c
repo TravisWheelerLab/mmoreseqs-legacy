@@ -55,6 +55,8 @@ ARGS_Create()
    args->m8out_filepath          = NULL;
    args->myout_filepath          = NULL;
    args->mydomout_filepath       = NULL;
+   args->mytimeout_filepath      = NULL;
+   args->mythreshout_filepath    = NULL;
    args->customout_filepath      = NULL;
 
    return args;
@@ -69,26 +71,28 @@ ARGS_Destroy( ARGS* args )
    if (args == NULL) return NULL;
    
    /* free all strings */
-   ERROR_free( args->cmdline );
-   ERROR_free( args->opts );
+   STR_Destroy( args->cmdline );
+   STR_Destroy( args->opts );
 
-   ERROR_free( args->tmp_folderpath );
-   ERROR_free( args->dbg_folderpath );
+   STR_Destroy( args->tmp_folderpath );
+   STR_Destroy( args->dbg_folderpath );
 
-   ERROR_free( args->t_filepath );
-   ERROR_free( args->q_filepath );
-   ERROR_free( args->t_indexpath );
-   ERROR_free( args->q_indexpath );
+   STR_Destroy( args->t_filepath );
+   STR_Destroy( args->q_filepath );
+   STR_Destroy( args->t_indexpath );
+   STR_Destroy( args->q_indexpath );
 
-   ERROR_free( args->mmseqs_res_filepath );
-   ERROR_free( args->hitlist_filepath );
+   STR_Destroy( args->mmseqs_res_filepath );
+   STR_Destroy( args->hitlist_filepath );
 
-   ERROR_free( args->output_filepath );
-   ERROR_free( args->tblout_filepath );
-   ERROR_free( args->m8out_filepath );
-   ERROR_free( args->myout_filepath );
-   ERROR_free( args->mydomout_filepath );
-   ERROR_free( args->customout_filepath );
+   STR_Destroy( args->output_filepath );
+   STR_Destroy( args->tblout_filepath );
+   STR_Destroy( args->m8out_filepath );
+   STR_Destroy( args->myout_filepath );
+   STR_Destroy( args->mydomout_filepath );
+   STR_Destroy( args->mytimeout_filepath );
+   STR_Destroy( args->mythreshout_filepath );
+   STR_Destroy( args->customout_filepath );
 
    ERROR_free( args );
    args = NULL;

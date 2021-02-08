@@ -590,6 +590,8 @@ void  ARGS_SetDefaults( ARGS* args )
 
    /* --- VITERBI / FWDBACK THRESHOLDS --- */
    args->threshold_vit           = 1e-3f;
+   args->threshold_cloud         = 1e-5f;
+   args->threshold_bound_fwd     = 1e-5f;
    args->threshold_fwd           = 1e-5f;
    args->threshold_mmore         = 1e-5f;
 }

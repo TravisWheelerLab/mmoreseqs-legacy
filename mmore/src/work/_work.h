@@ -26,6 +26,7 @@
 #include "work_cloud_merge.h"
 #include "work_cloud_fwdback.h"
 #include "work_posterior.h"
+#include "work_posterior_bydom.h"
 #include "work_optacc.h"
 // #include "work_domains.h"
 /* other */

@@ -51,6 +51,7 @@ WORK_posterior( WORKER* worker )
 void 
 WORK_posterior_sparse( WORKER* worker )
 {
+
    /* compute hmm model bias */
    WORK_null1_hmm_bias( worker );
    /* build sparse matrix */
@@ -67,6 +68,9 @@ WORK_posterior_sparse( WORKER* worker )
    // WORK_optimal_accuracy( worker );
    /* backtrace optimal accuracy for posterior alignment */
    // WORK_optacc_traceback( worker );
+
+   /* build final scores */
+   WORK_posterior_construct_scores( worker );
 }
 
 /*! FUNCTION:  WORK_null1_hmm_bias()
@@ -91,21 +95,32 @@ WORK_null1_hmm_bias( WORKER* worker )
    ALL_SCORES*    scores         = &result->scores;
    SCORES*        final_scores   = &result->final_scores;
    DOMAIN_DEF*    dom_def        = worker->dom_def;
+
+   /* temp */
+   scores->null1_hmm_bias  = 0.0f;
+   scores->null1_filtersc  = 0.0f;
+   scores->null_omega      = 0.0f;
+   dom_def->null_omega     = 0.0f;
+   dom_def->null1_hmm_bias = 0.0f;
    
+   /* NOTE: Currently filter score is not used for anything.
+    *       In addition Set/UnsetSequence process has a memory leak
+    *       when building ESL_DSQ.
+    */
    /* initialize hmm_bg */
-   HMM_BG_SetSequence( hmm_bg, q_seq );
+   // HMM_BG_SetSequence( hmm_bg, q_seq );
    HMM_BG_SetFilter( hmm_bg, t_prof->N, t_prof->bg_model->compo );
    HMM_BG_SetLength( hmm_bg, q_seq->N );
    /* compute null one */
    HMM_BG_NullOne( hmm_bg, q_seq->N, &scores->null1_hmm_bias );
    /* compute nullscore for bias */
-   HMM_BG_FilterScore( hmm_bg, q_seq, &scores->null1_filtersc );
+   // HMM_BG_FilterScore( hmm_bg, q_seq, &scores->null1_filtersc );
    /* fetch omega (prior prob of no bias) */
-   scores->null_omega = hmm_bg->omega;
+   scores->null_omega      = hmm_bg->omega;
+   dom_def->null_omega     = hmm_bg->omega;
+   dom_def->null1_hmm_bias = scores->null1_hmm_bias;
    /* free digitized sequence TODO: move to sequence */
    // HMM_BG_UnsetSequence( hmm_bg, q_seq );
-
-   dom_def->null1_hmm_bias = scores->null1_hmm_bias;
 }
 
 /*! FUNCTION:  WORK_decode_domains()
@@ -246,4 +261,49 @@ WORK_null2_seq_bias( WORKER* worker )
    scores->null2_seq_bias  = null2_seq_bias;
 
    fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", null2_seq_bias, null2_seq_bias/CONST_LOG2);
+}
+
+/*! FUNCTION:  WORK_posterior_construct_scores()
+ *  SYNOPSIS:  Construct final scores and evalues from results.
+ */
+void 
+WORK_posterior_construct_scores( WORKER* worker )
+{
+   FILE*          fp             = NULL;
+   TASKS*         tasks          = worker->tasks;
+   ARGS*          args           = worker->args;
+   CLOCK*         timer          = worker->timer;
+   /* input data */
+   HMM_PROFILE*   t_prof         = worker->t_prof;
+   int            db_size        = worker->stats->n_query_db;
+   /* output data */
+   TIMES*         times          = worker->times;
+   RESULT*        result         = worker->result;
+   ALL_SCORES*    scores         = &result->scores;
+   SCORES*        finalsc        = &result->final_scores;
+   DOMAIN_DEF*    dom_def        = worker->dom_def;
+   STATS*         stats          = worker->stats;
+   /* working vars */
+   float          nat_sc         = scores->sparse_bound_fwd;
+   float          null_omega     = scores->null_omega;
+   float          null1_hmm_bias = scores->null1_hmm_bias;
+   float          null2_seq_bias = scores->null2_seq_bias;
+   float          pre_sc;
+   float          seq_sc;
+   float          pval;
+   float          eval;
+
+   /* add prior probability to bias correction */
+   null2_seq_bias = logsum(0.0f, null2_seq_bias + null_omega );
+
+   /* compute bitscore, pval, and eval from natscore */
+   STATS_Fwdback_Nats_to_Eval( nat_sc, &pre_sc, &seq_sc, &pval, &eval, 
+      t_prof->forward_dist, db_size, null1_hmm_bias, null2_seq_bias );
+
+   /* capture results */
+   finalsc->nat_sc            = nat_sc;
+   finalsc->null2_seq_bias    = null2_seq_bias;
+   finalsc->pre_sc            = pre_sc;
+   // finalsc->pval              = pval;
+   finalsc->eval              = eval;
 }
