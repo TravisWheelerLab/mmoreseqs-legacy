@@ -134,7 +134,7 @@ FILER_Open( FILER* filer )
    if ( filer->is_open || filer->fp == stdout ) {
       return STATUS_FAILURE;  /* need flag for double-open/double-close */
    }
-   filer->fp        = ERROR_fopen( filer->filename, "r" );
+   filer->fp        = ERROR_fopen( filer->filename, filer->mode );
    filer->is_open   = true;
    filer->is_eof    = false;
 
