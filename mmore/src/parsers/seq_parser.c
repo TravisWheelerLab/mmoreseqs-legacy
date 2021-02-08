@@ -56,9 +56,8 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
    while ( READER_NextLine( reader ), READER_Is_EndOfFile( reader ) == false )
    {
       line_count++;
-      bool is_eof   = READER_Is_EndOfFile( reader );
-      line     = READER_GetLine( reader );
-      if (line_count == 80) exit(0);
+      bool is_eof    = READER_Is_EndOfFile( reader );
+      line           = READER_GetLine( reader );
       
       /* check if line is a header */
       if (line[0] == '>')

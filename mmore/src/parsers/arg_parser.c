@@ -362,11 +362,11 @@ void   ARGS_Parse( ARGS*   args,
                exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--filter-off") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--run-filter") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->search_mode = atoi(argv[i]);
+               args->filter_on = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
