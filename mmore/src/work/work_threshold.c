@@ -73,7 +73,7 @@ WORK_viterbi_test_threshold( WORKER*  worker )
    
    /* check if passes */
    is_passed = ( vit_eval < vit_threshold );
-   printf("CLOUD THRESHOLD: score = %.4e vs threshold = %.4e => %s\n",
+   printf("VITERBI THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
       vit_eval, vit_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
@@ -132,7 +132,7 @@ WORK_cloud_test_threshold( WORKER* worker )
    float    cloud_eval       = finalsc->cloud_eval;
    
    is_passed = ( cloud_eval < cloud_threshold );
-   printf("CLOUD THRESHOLD: score = %.4e vs threshold = %.4e => %s\n",
+   printf("CLOUD THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
       cloud_eval, cloud_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
@@ -191,7 +191,7 @@ WORK_bound_fwdback_test_threshold( WORKER* worker )
    float    fwdback_eval       = finalsc->fwdback_eval;
    
    is_passed = ( fwdback_eval < fwdback_threshold );
-   printf("FWD THRESHOLD: score = %.4e vs threshold = %.4e => %s\n",
+   printf("FWD THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
       fwdback_eval, fwdback_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
