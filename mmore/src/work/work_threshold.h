@@ -10,6 +10,12 @@
 #ifndef _WORK_THRESHOLD
 #define _WORK_THRESHOLD
 
+/*! FUNCTION:  	WORK_thresholds_pval_to_eval()
+ *  SYNOPSIS:  	Converts threshold scores from P-values to E-values.
+ */
+void 
+WORK_thresholds_pval_to_eval(   WORKER*  worker );
+
 /*! FUNCTION:  	WORK_viterbi_natsc_to_eval()
  *  SYNOPSIS:  	Converts Viterbi natscore to e-value.
  */

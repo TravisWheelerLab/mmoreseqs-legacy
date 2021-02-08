@@ -32,6 +32,23 @@
 #include "_work.h"
 #include "work_threshold.h"
 
+/*! FUNCTION:  	WORK_thresholds_pval_to_eval()
+ *  SYNOPSIS:  	Converts threshold scores from P-values to E-values.
+ */
+void 
+WORK_thresholds_pval_to_eval(   WORKER*  worker )
+{
+   ARGS*          args     = worker->args;
+   STATS*         stats    = worker->stats;
+
+   float          db_size  = stats->n_query_db; 
+
+   args->threshold_vit        = STATS_Pval_to_Eval( args->threshold_vit, db_size );
+   args->threshold_cloud      = STATS_Pval_to_Eval( args->threshold_cloud, db_size );
+   args->threshold_bound_fwd  = STATS_Pval_to_Eval( args->threshold_bound_fwd, db_size );
+   args->threshold_fwd        = STATS_Pval_to_Eval( args->threshold_fwd, db_size );
+}
+
 /*! FUNCTION:  	WORK_viterbi_natsc_to_eval()
  *  SYNOPSIS:  	Converts Viterbi natscore to e-value.
  */
@@ -128,8 +145,8 @@ WORK_cloud_test_threshold( WORKER* worker )
    STATS*         stats    = worker->stats;
 
    bool     is_passed;
-   float    cloud_threshold  = args->threshold_cloud;
-   float    cloud_eval       = finalsc->cloud_eval;
+   float    cloud_threshold   = args->threshold_cloud;
+   float    cloud_eval        = finalsc->cloud_eval;
    
    is_passed = ( cloud_eval < cloud_threshold );
    printf("CLOUD THRESHOLD:\t score = %.4e vs threshold = %.4e => %s\n",
