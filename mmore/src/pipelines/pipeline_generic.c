@@ -75,7 +75,7 @@ generic_pipeline( WORKER* worker )
 	}
 
 	/* load or build, then sort target and query index files */
-	WORK_index( worker );
+	WORK_load_indexes( worker );
 
 	/* set and verify index ranges */
 	WORK_set_ranges( worker );

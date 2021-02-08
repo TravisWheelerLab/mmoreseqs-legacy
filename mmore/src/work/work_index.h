@@ -10,12 +10,12 @@
 #ifndef _WORK_INDEX
 #define _WORK_INDEX
 
-/*! FUNCTION:  	WORK_index()
+/*! FUNCTION:  	WORK_load_indexes()
  *  SYNOPSIS:  	Load or build target and query index files <t_index> for <q_index>.
  *                Stored in <worker>.
  */
 void 
-WORK_index( WORKER* worker );
+WORK_load_indexes( WORKER* worker );
 
 /*! FUNCTION:  	WORK_load_indexes_by_id()
  *  SYNOPSIS:  	Load or build target and query index files <t_index> for <q_index>.

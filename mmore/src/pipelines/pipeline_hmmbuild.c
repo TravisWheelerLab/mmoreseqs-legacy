@@ -53,7 +53,7 @@ hmmbuild_pipeline( WORKER* worker )
    TIMES*      times       = worker->times;
 
    /* load or build index */
-   WORK_index( worker );
+   WORK_load_indexes( worker );
 
    // if ( args->t_filetype == FILE_FASTA ) {
    // 	WORK_convert_target_to_hmm( WORKER* worker );

@@ -254,11 +254,7 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
    f_index->index_path = STR_Create( _filename_ );
 
    /* file open */
-   fp = fopen(_filename_, "r");
-   if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
-      exit(EXIT_FAILURE);
-   }
+   fp = ERROR_fopen(_filename_, "r");
 
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )

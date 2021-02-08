@@ -51,7 +51,7 @@ mmore_main_pipeline( WORKER* worker )
    mmore_main_SetDefault_Tasks( worker->tasks );
 
    /* load indexes  */
-   WORK_load_indexes_by_name( worker );
+   WORK_load_indexes( worker );
 
    /* update thresholds to e-values to reflect database size */
    WORK_thresholds_pval_to_eval( worker );

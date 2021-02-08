@@ -38,15 +38,21 @@
 void 
 WORK_thresholds_pval_to_eval(   WORKER*  worker )
 {
-   ARGS*          args     = worker->args;
-   STATS*         stats    = worker->stats;
+   ARGS*    args     = worker->args;
+   STATS*   stats    = worker->stats;
+   int      db_size  = stats->n_query_db; 
 
-   float          db_size  = stats->n_query_db; 
+   printf("DB_SIZE: %d\n", db_size );
+   printf("THRESHOLDS -> PVALS: %f => %f => %f\n", 
+      args->threshold_vit, args->threshold_cloud, args->threshold_fwd );
 
    args->threshold_vit        = STATS_Pval_to_Eval( args->threshold_vit, db_size );
    args->threshold_cloud      = STATS_Pval_to_Eval( args->threshold_cloud, db_size );
    args->threshold_bound_fwd  = STATS_Pval_to_Eval( args->threshold_bound_fwd, db_size );
    args->threshold_fwd        = STATS_Pval_to_Eval( args->threshold_fwd, db_size );
+
+   printf("THRESHOLDS -> EVALS: %f => %f => %f\n", 
+      args->threshold_vit, args->threshold_cloud, args->threshold_fwd );
 }
 
 /*! FUNCTION:  	WORK_viterbi_natsc_to_eval()

@@ -204,9 +204,6 @@ WORK_load_query(  WORKER*     worker )
    CLOCK_Stop( timer );
    times->load_query = CLOCK_Duration( timer );
 
-   /* pull database size from index */
-   stats->n_query_db = worker->q_index->N;
-
    /* report input */
    if ( args->verbose_level >= VERBOSE_HIGH ) 
    {

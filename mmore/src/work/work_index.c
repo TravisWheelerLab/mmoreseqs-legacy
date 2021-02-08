@@ -32,15 +32,21 @@
 #include "_work.h"
 #include "work_index.h"
 
-/*! FUNCTION:  	WORK_index()
+/*! FUNCTION:  	WORK_load_indexes()
  *  SYNOPSIS:  	Load or build target and query index files <t_index> for <q_index>.
  *                Stored in <worker>.
  */
 void 
-WORK_index( WORKER* worker )
+WORK_load_indexes( WORKER* worker )
 {
+   STATS* stats = worker->stats;
+
    /* load by id */
    WORK_load_indexes_by_name( worker );
+
+   /* pull database size from index */
+   stats->n_query_db = worker->q_index->N;
+   printf("INDEX SIZES = %d, %d\n", worker->q_index->N, worker->t_index->N );
 }
 
 /*! FUNCTION:  	WORK_load_indexes_by_id()
@@ -129,7 +135,7 @@ WORK_load_target_index( WORKER* worker )
    else if ( access( t_indexpath_tmp, F_OK ) == 0 ) {
       printf_vhi("# found index at database location: '%s'...\n", t_indexpath_tmp );
       args->t_indexpath = STR_Create( t_indexpath_tmp );
-      worker->t_index = F_INDEX_Load( worker->t_index, t_indexpath_tmp );
+      worker->t_index   = F_INDEX_Load( worker->t_index, t_indexpath_tmp );
    }
    /* else, build index on the fly */
    else {
