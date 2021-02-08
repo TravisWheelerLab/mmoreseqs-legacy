@@ -72,7 +72,7 @@ void REPORT_mythreshout_entry(   WORKER*  worker,
    const GEN fields[] = {
       GEN_Wrap( &t_prof->name,                    DATATYPE_STRING,  sizeof(char*) ),
       GEN_Wrap( &q_seq->name,                     DATATYPE_STRING,  sizeof(char*) ),
-      GEN_Wrap( &scores->threshold_vit,           DATATYPE_FLOAT,   sizeof(float) ),
+      GEN_Wrap( &final->viterbi_eval,             DATATYPE_FLOAT,   sizeof(float) ),
       GEN_Wrap( &scores->threshold_cloud_max,     DATATYPE_FLOAT,   sizeof(float) ),  
       GEN_Wrap( &scores->threshold_cloud_compo,   DATATYPE_FLOAT,   sizeof(float) ),
       GEN_Wrap( &scores->threshold_bound_max,     DATATYPE_FLOAT,   sizeof(float) ),

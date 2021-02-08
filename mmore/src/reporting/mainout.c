@@ -176,18 +176,20 @@ void REPORT_stdout_entry(  WORKER*  worker,
 
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {
-      ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      /*! TODO: fix mmseqs align tool */
+      // ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
    }
-   cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
-   cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
+   // cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
+   // cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
 
    if ( aln->is_hmmer_aln == false ) {
-      ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      /*! TODO: fix hmmer align tool */
+      // ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
    }
-   target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
-   query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
-   center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
-   state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
+   // target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
+   // query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
+   // center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
+   // state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
 
    /* Meta Data */
    REPORT_horizontal_rule( fp );
@@ -207,44 +209,52 @@ void REPORT_stdout_entry(  WORKER*  worker,
       0, "Alignment:");
    fprintf( fp, "==== %*s %d :: %s %3.2f | %s %-3.2e | %s %-3.2e\n",
       0, "Domain", 1,                                       /* domain number */
-      "Score (bits):", result->final_scores.seq_sc,         /* bit-score */
-      "Raw E-value:", result->final_scores.eval,            /* e-value (raw) */
+      "Score (bits):",  result->final_scores.seq_sc,        /* bit-score */
+      "Raw E-value:",   result->final_scores.eval,          /* e-value (raw) */
       "Cond. E-value:", result->final_scores.eval           /* e-value (conditional) */
    );
-   fprintf( fp, "%*s %s\n", 
-      0, "==== Cigar:", cigar_aln );
-
-   /* create alignment rows */
-   int offset = 0; 
-   for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+   /* MMSEQS-style Cigar Alignment */
+   if (false)
    {
-      /* if remaining alignment exceeds window size, constrain it */
-      aln_width = MIN( aln->end - aln->beg + 1, def_width );
+      fprintf( fp, "%*s %s\n", 
+         0, "==== Cigar:", cigar_aln );
+   }
 
-      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-         name_width, name_width,                         /* padding */
-         t_name,                                         /* name */
-         VEC_X( aln->traces, i ).t_0,                    /* starting index */
-         aln_width,                                      /* number of residues per line */
-         &VEC_X( aln->target_aln, offset ),              /* alignment residues */
-         VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
-      );
-      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-         name_width, name_width,                         /* padding */
-         c_name,                                         /* name */
-         i,                                              /* starting index */
-         aln_width,                                      /* number of residues per line */
-         &VEC_X( aln->center_aln, offset ),              /* alignment residues */
-         i + aln_width - 1                               /* ending index */
-      );
-      fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-         name_width, name_width,                         /* padding */
-         q_name,                                         /* name */
-         VEC_X( aln->traces, i ).q_0,                    /* starting index */
-         aln_width,                                      /* number of residues per line */
-         &VEC_X( aln->query_aln, offset ),               /* alignment residues */
-         VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
-      );
+   /* HMMER-style Alignment */
+   int offset = 0; 
+   if (false) 
+   {
+      /* create alignment rows */
+      for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+      {
+         /* if remaining alignment exceeds window size, constrain it */
+         aln_width = MIN( aln->end - aln->beg + 1, def_width );
+
+         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+            name_width, name_width,                         /* padding */
+            t_name,                                         /* name */
+            VEC_X( aln->traces, i ).t_0,                    /* starting index */
+            aln_width,                                      /* number of residues per line */
+            &VEC_X( aln->target_aln, offset ),              /* alignment residues */
+            VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
+         );
+         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+            name_width, name_width,                         /* padding */
+            c_name,                                         /* name */
+            i,                                              /* starting index */
+            aln_width,                                      /* number of residues per line */
+            &VEC_X( aln->center_aln, offset ),              /* alignment residues */
+            i + aln_width - 1                               /* ending index */
+         );
+         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+            name_width, name_width,                         /* padding */
+            q_name,                                         /* name */
+            VEC_X( aln->traces, i ).q_0,                    /* starting index */
+            aln_width,                                      /* number of residues per line */
+            &VEC_X( aln->query_aln, offset ),               /* alignment residues */
+            VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
+         );
+      }
    }
 
    REPORT_horizontal_rule( fp );
