@@ -181,6 +181,9 @@ typedef enum {
    FILE_NULL   = 0,
    FILE_HMM    = 1,
    FILE_FASTA  = 2,
+   FILE_MSA    = 3,
+   FILE_MM_MSA = 4,
+   FILE_HHM    = 5
 } FILE_TYPE;
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3

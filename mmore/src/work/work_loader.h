@@ -11,7 +11,7 @@
 #define _WORK_LOADER
 
 /*! FUNCTION:  	WORK_load_mmseqs_input()
- *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_res_filepath>.
+ *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_m8_filepath>.
  *                Verifies that search index range does not exceed bounds of list.
  */
 void 

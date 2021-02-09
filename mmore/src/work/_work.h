@@ -28,7 +28,7 @@
 #include "work_posterior.h"
 #include "work_posterior_bydom.h"
 #include "work_optacc.h"
-// #include "work_domains.h"
+#include "work_scoring.h"
 /* other */
 #include "work_etc.h"
 #include "work_sparse_mx.h"

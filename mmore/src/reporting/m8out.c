@@ -96,6 +96,9 @@ REPORT_m8out_entry(     WORKER*  worker,
 {
    HMM_PROFILE*   t_prof      = worker->t_prof;
    SEQUENCE*      q_seq       = worker->q_seq;
+   SCORES*        finalsc     = &result->final_scores;
+
+   /* TODO: Insert trace_post */
    ALIGNMENT*     aln         = worker->trace_vit;
    STR            cigar_aln   = NULL;
 
@@ -103,7 +106,7 @@ REPORT_m8out_entry(     WORKER*  worker,
    TRACE*         end         = &VEC_X( aln->traces, aln->end );
 
    if ( aln->is_cigar_aln == false ) {
-      ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      ALIGNMENT_Build_MMSEQS_Style( aln, worker->q_seq, worker->t_prof );
    }
    cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
    cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
@@ -119,8 +122,8 @@ REPORT_m8out_entry(     WORKER*  worker,
       end->t_0,                        /* query end */
       beg->q_0,                        /* target start */
       end->q_0,                        /* target end */
-      result->final_scores.eval,       /* evalue */
-      result->final_scores.nat_sc,     /* bits */
+      finalsc->eval,                   /* evalue */
+      finalsc->seq_sc,                 /* bitscore */
       cigar_aln                        /* MMSEQS-style, cigar alignment */
    );
 }

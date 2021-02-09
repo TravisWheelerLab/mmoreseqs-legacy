@@ -94,20 +94,27 @@ void   ARGS_Parse( ARGS*   args,
    /* number of args based on pipeline */
    if ( num_main_args == 2 )
    {
-      /* second arg is query */
-      ERROR_free( args->t_filepath );
-      args->t_filepath = STR_Create( argv[2] );
-      /* third arg is target */
-      ERROR_free( args->q_filepath );
-      args->q_filepath = STR_Create( argv[3] );
+      /* second arg is target */
+      args->t_filepath = STR_Set( args->t_filepath, argv[2] );
+      /* third arg is query */
+      args->q_filepath = STR_Set( args->q_filepath, argv[3] );
+   }
+   if ( num_main_args == 3 )
+   {
+      /* second arg is target */
+      args->t_filepath = STR_Set( args->t_filepath, argv[2] );
+      /* third arg is query */
+      args->q_filepath = STR_Set( args->q_filepath, argv[3] );
+      /* fourth arg is mmseqs target */
+      args->t_mmseqs_filepath = STR_Set( args->t_mmseqs_filepath, argv[4] );
    }
    else if ( num_main_args == 1 )
    {
-      /* second arg is query */
-      args->t_filepath = STR_Create( argv[2] );
+      /* second arg is target */
+      args->t_filepath = STR_Set( args->t_filepath, argv[2] );
    }
 
-   /* parse flags and options */
+   /* parse remaining flags and options */
    for (int i = 2 + num_main_args; i < argc; ++i)
    {
       /* if long flag */
@@ -165,25 +172,59 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->t_indexpath);
-               args->t_indexpath = STR_Create(argv[i]);
+               args->t_indexpath = STR_Set( args->t_indexpath, argv[i] );
                i++;
-               ERROR_free(args->q_indexpath);
-               args->q_indexpath = STR_Create(argv[i]);
+               args->q_indexpath = STR_Set( args->q_indexpath, argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--ftype") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--local-tools") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               args->is_use_local_tools = atoi(argv[i]); 
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--guess-type") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               args->is_guess_filetype = atoi(argv[i]); 
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
+            req_args = 3;
+            if (i+req_args <= argc) {
+               i++;
+               args->t_filetype = atoi(argv[i]); 
+               i++;
+               args->q_filetype = atoi(argv[i]);
+               i++;
+               args->t_mmseqs_filetype = atoi(argv[i]);
+               /* since filetype supplied, turn off guesser */
+               args->is_guess_filetype = false;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-main-ftype") ) == 0 ) {
             req_args = 2;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->t_indexpath);
                args->t_filetype = atoi(argv[i]); 
                i++;
-               ERROR_free(args->q_indexpath);
                args->q_filetype = atoi(argv[i]);
+               /* since filetype supplied, turn off guesser */
+               args->is_guess_filetype = false;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -193,8 +234,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->tmp_folderpath);
-               args->tmp_folderpath = STR_Create(argv[i]);
+               args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -204,8 +244,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->mmseqs_res_filepath);
-               args->mmseqs_res_filepath = STR_Create(argv[i]);
+               args->mmseqs_m8_filepath = STR_Set( args->mmseqs_m8_filepath, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -366,7 +405,7 @@ void   ARGS_Parse( ARGS*   args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->filter_on = atoi(argv[i]);
+               args->is_run_filter = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                exit(EXIT_FAILURE);
@@ -518,8 +557,11 @@ void   ARGS_Parse( ARGS*   args,
       }
    }
 
-   args->t_filetype  = ARGS_Find_FileType( args->t_filepath );
-   args->q_filetype  = ARGS_Find_FileType( args->q_filepath );
+   if ( args->is_guess_filetype == true ) {
+      args->t_filetype           = ARGS_Find_FileType( args->t_filepath );
+      args->q_filetype           = ARGS_Find_FileType( args->q_filepath );
+      args->t_mmseqs_filetype    = ARGS_Find_FileType( args->t_mmseqs_filepath );
+   }
 }
 
 /* SET DEFAULT ARGUMENTS (generic) */
@@ -532,7 +574,6 @@ void  ARGS_SetDefaults( ARGS* args )
    args->qt_search_space         = SELECT_ALL_V_ALL;
    args->tmp_folderpath          = NULL;
    args->tmp_remove              = false;
-   args->filter_on               = false;
 
    /* --- TASK OPTIONS --- */
    args->is_compo_bias           = true;
@@ -541,17 +582,26 @@ void  ARGS_SetDefaults( ARGS* args )
    args->is_run_domains          = true;
 
    /* --- DEBUG OPTIONS --- */
+   args->is_use_local_tools      = false;
    args->is_debug                = true;
    args->dbg_folderpath          = STR_Create("test_output/");
 
    /* --- INPUT --- */
-   args->t_filepath              = STR_Create("test-input/test1_2.hmm");
-   args->q_filepath              = STR_Create("test-input/test1_1.fa");
-   args->t_indexpath             = NULL;
-   args->q_indexpath             = NULL;
+   /* filepath */
+   args->t_filepath              = STR_Create("target.hmm");
+   args->q_filepath              = STR_Create("query.fasta");
+   args->t_mmseqs_filepath       = STR_Create("target_mmseqs.hhm");
+   /* filetype */
+   args->is_guess_filetype       = true;
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
-   args->mmseqs_res_filepath     = NULL;
+   args->t_mmseqs_filetype       = FILE_HHM;
+   /* indexes */
+   args->t_indexpath             = NULL;
+   args->q_indexpath             = NULL;
+
+   /* --- INTERRIM OUTPUT --- */
+   args->mmseqs_m8_filepath     = STR_Create("mmseqs.results.m8out");
 
    /* --- OUTPUT --- */
    args->is_redirect_stdout      = false;
@@ -589,6 +639,7 @@ void  ARGS_SetDefaults( ARGS* args )
    args->mmseqs_pvalue           = 1e-3f;
 
    /* --- VITERBI / FWDBACK THRESHOLDS --- */
+   args->is_run_filter           = false;
    args->threshold_vit           = 1e-3f;
    args->threshold_cloud         = 1e-5f;
    args->threshold_bound_fwd     = 1e-5f;
@@ -601,7 +652,7 @@ void  ARGS_SetDefaults( ARGS* args )
 void ARGS_Dump( ARGS*    args,
                 FILE*    fp )
 {
-   int      pad               = 20;
+   int      pad               = 30;
    bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
 
    fprintf( fp, "=== ARGS =====================\n");
@@ -616,9 +667,11 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILEPATH",  args->q_filepath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILEPATH",  args->t_mmseqs_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILETYPE",  FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "T_INDEX_PATH",    args->t_indexpath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_RESULTS",  args->mmseqs_res_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_RESULTS",  args->mmseqs_m8_filepath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TMP_FOLDERPATH",  args->tmp_folderpath ); 
    fprintf( fp, "\n" );
    /* --- MMSEQS --- */
@@ -635,7 +688,7 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "P_VALUE",         args->mmore_pvalue );
    fprintf( fp, "\n" );
    /* --- OUTPUT --- */
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
+                           fprintf( fp, "%*s:\t%s\n",          align * pad,  "OUTPUT_FILEPATH", args->output_filepath );
    if (args->is_tblout)    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TBLOUT_FILEPATH", args->tblout_filepath );
    if (args->is_m8out)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "M8OUT_FILEPATH", args->m8out_filepath );
    if (args->is_myout)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYOUT_FILEPATH", args->myout_filepath );
@@ -646,7 +699,8 @@ void ARGS_Dump( ARGS*    args,
 }
 
 /* examines target and query, and finds the type of the files */
-int ARGS_Find_FileType( char* filename )
+FILE_TYPE 
+ARGS_Find_FileType( char* filename )
 {
    for (int i = 0; i < NUM_FILE_EXTS; i++) {
       char* ext = FILE_TYPE_EXTS[i];
@@ -655,13 +709,14 @@ int ARGS_Find_FileType( char* filename )
       }
    }
 
-   fprintf(stderr, "ERROR: '%s' is not an acceptable file type.\n", filename);
-   exit(EXIT_FAILURE);
-   return -1;
+   fprintf(stderr, "WARNING: '%s' filetype could not be found. Set to TYPE_NULL.\n", filename);
+   
+   return FILE_NULL;
 }
 
 /* output help info */
-void ARGS_Help_Info()
+void 
+ARGS_Help_Info()
 {
    /* basic usage */
    printf("Usage: ./fb-pruner <command> <target_hmm_file> <query_fasta_file>\n\n");

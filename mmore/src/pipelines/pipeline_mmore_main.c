@@ -85,10 +85,10 @@ mmore_main_pipeline( WORKER* worker )
       /* get next mmseqs entry */
       WORK_load_mmseqs_by_id( worker, i_cnt );
 
-      /* check if mmseqs entry passes threshold */
+      /* evaluate mmseqs viterbi scoring filter */
       passed[0] = WORK_viterbi_test_threshold( worker );
 
-      /* check if mmseqs entry passes threshold */
+      /* check if mmseqs viterbi passes threshold */
       if ( passed[0] == true ) 
       {
          /* load target hmm profile from file */
@@ -106,11 +106,12 @@ mmore_main_pipeline( WORKER* worker )
          /* run cloud search */
          WORK_cloud_search_linear( worker );
 
-         /* cloud search scoring filter */
+         /* evaluate cloud search scoring filter */
          WORK_cloud_natsc_to_eval( worker );
          passed[1] = WORK_cloud_test_threshold( worker );
       }
 
+      /* check if cloud search composite score passes threshold */
       if ( passed[0] == true && passed[1] == true )
       {
          /* merge and reorient cloud */
@@ -124,6 +125,7 @@ mmore_main_pipeline( WORKER* worker )
          passed[2] = WORK_bound_fwdback_test_threshold( worker);
       } 
 
+      /* check if cloud search composite score passes threshold */
       if ( passed[0] == true && passed[1] == true && passed[2] == true )
       {
          /* compute posterior and bias, find domains, compute domain-specific posterior and bias */
@@ -131,6 +133,9 @@ mmore_main_pipeline( WORKER* worker )
 
          /* run posterior for each found domain */
          WORK_posterior_bydom( worker );
+
+         /* build final scores */
+         WORK_construct_scores( worker );
       }
 
       #if DEBUG

@@ -549,9 +549,7 @@ typedef struct {
    int      search_mode;            /* alignment search mode */
    int      verbose_level;          /* levels of verbosity */
    char*    tmp_folderpath;         /* location to build a temporary work folder */
-   bool     tmp_remove;             /* should temp folder be removed at the end? */
-   bool     filter_on;              /* filter thresholds enforced, or let all through? */
-   int      is_compo_bias;          /* should composition bias filter be applied? */
+   bool     tmp_remove;             /* should temp files/folders be removed at the end? */
 
    /* --- SEARCH/RANGE OPTIONS --- */
    /* type of searches */
@@ -562,29 +560,40 @@ typedef struct {
    RANGE    list_range;             /* start-end range of hitlist */
 
    /* --- DEBUG OPTIONS --- */
+   bool     is_use_local_tools;     /* whether to system installed tools or local project tools */
    bool     is_debug;               /* determines whether debug statements appear */
    char*    dbg_folderpath;         /* location for debugging */
    bool     enforce_warnings;       /* if error is caught, force close? */
-   bool     adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we 
+   bool     adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
 
    /* --- INPUT --- */
    /* file paths */
-   char*    t_filepath;             /* filepath to target (hmm or fasta) file */
+   char*    t_filepath;             /* filepath to target (hmm, msa, or fasta) file */
    char*    q_filepath;             /* filepath to query (fasta) file */
+   char*    t_mmseqs_filepath;      /* filepath to mmseqs target (hhm, msa, mm_msa or fasta) file */
+   /* target/query metadata */
+   bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
+   FILE_TYPE      t_filetype;             /* enumerated FILETYPE of target file */
+   FILE_TYPE      q_filetype;             /* enumerated FILETYPE of query file */
+   FILE_TYPE      t_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs target file */
    /* index paths */
    bool     is_indexpath;           /* is an index file supplied? */
    char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
    char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
-    /* target/query metadata */
-   int      t_filetype;             /* enumerated FILETYPE of target file */
-   int      q_filetype;             /* enumerated FILETYPE of query file */
-   /* mmseqs-plus search (input) */
-   char*    mmseqs_res_filepath;    /* filepath to mmseqs .m8 results file */
-   /* simple hitlist (input) */
-   char*    hitlist_filepath;       /* filepath to simple hitlist */
    /* database size */
    int      t_dbsize;               /* number of targets in database */
    int      q_dbsize;               /* number of queries in database */
+
+   /* --- INTERRIM OUTPUT --- */
+   /* mmseqs-plus search (input) */
+   char*    mmseqs_m8_filepath;    /* filepath to mmseqs .m8 results file */
+   /* simple hitlist (input) */
+   char*    hitlist_filepath;       /* filepath to simple hitlist */
+   /* optional output */
+   bool     is_mmseqs_p2sout;       /* output profile-to-sequence mmseqs results? */
+   char*    mmseqs_p2s_filepath;    /* filepath to output results; if NULL, doesn't output */
+   bool     is_mmseqs_s2sout;       /* output profile-to-sequence mmseqs results? */
+   char*    mmseqs_s2s_filepath;    /* filepath to output results; if NULL, doesn't output */
 
    /* --- OUTPUT --- */
    /* standard output path */
@@ -617,12 +626,14 @@ typedef struct {
    char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
    bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
   
-   /* --- TASKS --- */
+   /* --- TASK OPTIONS --- */
    bool     is_run_pruned;          /* run pruned forward backward */
    bool     is_run_full;            /* run full forward backward */
    bool     is_run_domains;         /* run domain search */
+   bool     is_compo_bias;          /* should composition bias filter be applied? */
 
    /* --- MMSEQS --- */
+   int      mmseqs_hits_per_search;    /* maximum number of alignments allowed to be reported per target/query search */ 
    int      mmseqs_kmer;               /* kmer length */
    int      mmseqs_split;              /* database split size */
    int      mmseqs_prefilter;          /* double-kmer prefilter kscore */
@@ -643,6 +654,7 @@ typedef struct {
    float    mmore_pvalue;           /* p-value mmore / fb-pruner */
 
    /* --- THRESHOLDS --- */
+   bool     is_run_filter;          /* filter thresholds on mmore enforced, or let all through? */
    float    threshold_pre;          /* threshold for prefilter score */
    float    threshold_vit;          /* threshold for viterbi score */
    float    threshold_fwd;          /* threshold for forward score */
@@ -653,6 +665,7 @@ typedef struct {
 
 /* scores */
 typedef struct {
+   /* --- alignment scores --- */
    /* nat-scores */
    float    prefilter_natsc;        /* mmseqs double-kmer prefilter natscore */
    float    viterbi_natsc;          /* viterbi natscore */
@@ -672,16 +685,24 @@ typedef struct {
    float    bound_fwdback_eval;     /* bound forward backward eval */
    float    fwdback_eval;           /* full forward backward eval */
 
-   /* bias correction */
-   float    null1_hmm_bias;         /* null1 hmm model bias */ 
-   float    null2_seq_bias;         /* null2 sequence bias */
-   float    filter_sc;              /* null1 filter score (current not used) */
+   /* --- bias correction scores --- */
+   /* nat-scores */
+   float    null_omega_natsc;       /* prior probability of no bias natscore */
+   float    null1_hmm_bias_natsc;   /* null1 hmm model bias natscore */ 
+   float    null2_seq_bias_natsc;   /* null2 sequence bias natscore */
+   float    filtersc_natsc;         /* null1 filter score (current not used) */
+   /* bit-scores */
+   float    null_omega_bitsc;       /* prior probability of no bias bitscore */
+   float    null1_hmm_bias_bitsc;   /* null1 hmm model bias bitscore */ 
+   float    null2_seq_bias_bitsc;   /* null2 sequence bias bitscore */
+   float    filtersc_bitsc;         /* null1 filter score (current not used) */
 
-   /* final nat-scores */
+   /* final scores */
    float    nat_sc;     /* final forward score w/o correction (in NATS) */
    float    pre_sc;     /* final forward w/ null1 bias correction (in BITS) */
    float    seq_sc;     /* final forward w/ null1 and null2 bias correction (in BITS) */
    float    sum_sc;     /* final forward constructed by summing over all domain seq_sc (in BITS) */
+   float    pval;       /* final forward pval (best of seq_sc and sum_sc) */
    float    eval;       /* final forward eval (best of seq_sc and sum_sc) */
 } SCORES;
 
@@ -1179,6 +1200,8 @@ typedef struct {
    /* script arguments */
    VECTOR_STR*       arg_flags;     /* script argument flag */
    VECTOR_STR*       arg_values;    /* script argument value */
+   /* command executor */
+   VECTOR_STR*       command;       /* stores final command to be passed to shell */
 } SCRIPTRUNNER;
 
 /* TODO: for multi-threading (stored in WORKER object) */
@@ -1363,13 +1386,18 @@ extern ARG_OPT       COMMAND_OPTS[];
 extern char*         DATATYPE_NAMES[];
 /* scoring matrix for converting sequences to hmm */
 extern SCORE_MATRIX* bld;
+
+/* root directory */
+extern char*         ROOT_DIR;
 /* script locations */
 extern char*         MMSEQS_PLUS_SCRIPT;
 extern char*         MMSEQS_PLUS_EASY_SCRIPT;
 extern char*         FASTA_TO_HMM_SCRIPT;
 /* other tool binary locations */
 extern char*         MMSEQS_BIN;
-extern char*         HMMBUILD_BIN;
+extern char*         HMMER_BIN;
+extern char*         MMORE_BIN;
+
 /* debugging data */
 extern DEBUG_KIT*    debugger;
 

@@ -1,11 +1,13 @@
 #!/usr/bin/bash
 ###########################################################################
-#	NAME: 		test_script.sh	
+#	NAME: 		test_workflow.sh	
 #	AUTHOR:		David Rich
-#	DESC: 		runs mmseqs, then pipes output to fb-pruner search
+#	DESC: 		Tests that script execution is working properly.
 ###########################################################################
 
 # SET VARIABLES
+HMMSEARCH=${HMMER_DIR}/hmmsearch 
+MMSEQS=${MMSEQS_DIR}/mmseqs
 
 # commandline variables (verify proper number of variables)
 NUM_ARGS=$#
@@ -24,3 +26,6 @@ echo "=== ARGS ==="
 echo "TARGET: $TARGET"
 echo "QUERY: $QUERY"
 
+MMSEQS
+
+HMMSEARCH

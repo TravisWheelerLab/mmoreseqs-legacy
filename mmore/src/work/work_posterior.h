@@ -45,10 +45,4 @@ WORK_decode_posterior( WORKER* worker );
 void 
 WORK_null2_seq_bias( WORKER* worker );
 
-/*! FUNCTION:  WORK_posterior_construct_scores()
- *  SYNOPSIS:  Construct final scores and evalues from results.
- */
-void 
-WORK_posterior_construct_scores( WORKER* worker );
-
 #endif /* _WORK_POSTERIOR_H */

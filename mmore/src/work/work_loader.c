@@ -53,7 +53,7 @@ WORK_load_args( WORKER* worker )
 }
 
 /*! FUNCTION:  	WORK_load_mmseqs_file()
- *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_res_filepath>.
+ *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_m8_filepath>.
  *                Verifies that search index range does not exceed bounds of list.
  */
 void 
@@ -70,7 +70,7 @@ WORK_load_mmseqs_file( WORKER* worker )
 
    /* load .m8 file from index range (list_range.beg, list_range.end) */
    RESULTS_M8_Parse( 
-      worker->mmseqs_data, args->mmseqs_res_filepath, args->list_range.beg, args->list_range.end );
+      worker->mmseqs_data, args->mmseqs_m8_filepath, args->list_range.beg, args->list_range.end );
    /* this is a fix because query and target are cross-labeled between MMSEQS and MMORE */
    M8_RESULTS_Swap_Target_and_Query( worker->mmseqs_data );
 

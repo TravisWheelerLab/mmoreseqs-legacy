@@ -102,7 +102,7 @@ const int num_pipelines = 7;
 PIPELINE PIPELINES[] = {
    { "null",         null_pipeline,          0 },
    { "generic",      generic_pipeline,       2 },
-   { "mmore",        mmore_pipeline,         2 },
+   { "mmore",        mmore_pipeline,         3 },
    { "mmore_main",   mmore_main_pipeline,    2 },
    { "index",        index_pipeline,         2 },
    { "hmmbuild",     hmmbuild_pipeline,      1 },
@@ -188,7 +188,10 @@ int ALPHABET_LENGTHS[] = {
 char* FILE_TYPE_EXTS[] = {
    ".hmm",     
    ".fasta",
-   ".fa"
+   ".fa",
+   ".msa",
+   ".hhm",
+   ".mm_msa"
 };
 
 /* maps FILE_TYPE_NAMES to enum FILE_TYPE */
@@ -203,6 +206,9 @@ char* FILE_TYPE_NAMES[] = {
    "NULL",
    "HMMER",
    "FASTA",
+   "MSA",
+   "MM_MSA",
+   "HHM"
 };
 
 /* command line flags and options */
@@ -247,19 +253,17 @@ SCORE_MATRIX* bld = NULL;
 
 
 /* --- EXTERNAL EXECUTABLE/SCRIPT LOCATIONS --- */
+char* ROOT_DIR                = MACRO_XSTR(PROJECT_LOC);
 /* mmore-seqs script location */
-char* MMSEQS_PLUS_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/mmseqs_plus.sh";
+char* MMSEQS_PLUS_SCRIPT      = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/mmseqs_plus.sh";
 /* mmore-seqs script location */
-char* MMSEQS_PLUS_EASY_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/mmseqs_plus_easy.sh";
+char* MMSEQS_PLUS_EASY_SCRIPT = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/mmseqs_plus_easy.sh";
 /* fasta-to-hmm converter script location */
-char* FASTA_TO_HMM_SCRIPT = MACRO_XSTR(PROJECT_LOCATION) "/scripts/workflows/convert_fasta_to_hmm.sh";
+char* FASTA_TO_HMM_SCRIPT     = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/convert_fasta_to_hmm.sh";
 /* mmseqs binary location */
-// char* MMSEQS_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/MMseqs2/build/mmseqs";
-char* MMSEQS_BIN = "mmseqs";
+char* MMSEQS_BIN              = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMSEQS_BIN_LOC);
 /* hmmer 'hmmbuild' binary location */
-// char* HMMBUILD_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/HMMER/build/";
-char* HMMBUILD_BIN = "hmmbuild";
-/* hmmer 'hmmbuild' binary location */
-// char* HMMSEARCH_BIN = MACRO_XSTR(PROJECT_LOCATION) "/lib/HMMER/build/";
-char* HMMSEARCH_BIN = "hmmsearch";
+char* HMMER_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(HMMER_BIN_LOC);
+/* hmmer 'mmore' binary location */
+char* MMORE_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
 

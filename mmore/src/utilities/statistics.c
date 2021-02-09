@@ -92,8 +92,8 @@ STATS_Viterbi_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score 
 										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
 										DIST_PARAM		gumbel_params, 	/* parameters for fitting gumbel model */
 										int 				db_size, 			/* number of query sequences in database */  	
-										float				null1_hmm_bias, 	/* null1 model bias (also called null_sc) */
-										float				null2_seq_bias ) 	/* null2 sequence bias (also called seq_bias) */
+										float				null1_hmm_bias, 	/* null1 model bias (also called null_sc) (in NATS) */
+										float				null2_seq_bias ) 	/* null2 sequence bias (also called seq_bias) (in NATS) */
 {
 	float presc, seqsc, ln_pval, pval, eval;
 	float mu, lambda;
@@ -132,8 +132,8 @@ STATS_Fwdback_Nats_to_Eval( 	float 			natsc, 				/* INPUT: Viterbi output score 
 										float* 			eval_p, 				/* OPT OUTPUT: E-value (expected number of matches in given <db_size> of random sequences) */
 										DIST_PARAM		exp_params, 		/* parameters for fitting exponential model */
 										int 				db_size, 			/* number of query sequences in database */  	
-										float				null1_hmm_bias, 	/* null1 model bias (also called null_sc) */
-										float				null2_seq_bias ) 	/* null2 sequence bias (also called seq_bias) */
+										float				null1_hmm_bias, 	/* null1 model bias (also called null_sc) (in NATS) */
+										float				null2_seq_bias ) 	/* null2 sequence bias (also called seq_bias) (in NATS) */
 {
 	float presc, seqsc, ln_pval, pval, eval;
 	float mu, lambda;

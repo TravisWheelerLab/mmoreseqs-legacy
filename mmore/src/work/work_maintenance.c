@@ -53,7 +53,7 @@ WORK_init( WORKER* worker )
    worker->t_prof_file        = FILER_Create( args->t_filepath, read_mode );
    worker->q_index_file       = FILER_Create( args->q_indexpath, read_mode );
    worker->t_index_file       = FILER_Create( args->t_indexpath, read_mode );
-   worker->mmseqs_file        = FILER_Create( args->mmseqs_res_filepath, read_mode );
+   worker->mmseqs_file        = FILER_Create( args->mmseqs_m8_filepath, read_mode );
    worker->hitlist_file       = FILER_Create( args->hitlist_filepath, read_mode );
    /* output files */
    worker->output_file        = FILER_Create( args->output_filepath, write_mode );

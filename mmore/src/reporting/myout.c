@@ -114,11 +114,11 @@ void REPORT_myout_entry(   WORKER*  worker,
       t_prof->name,                          /* target name */
       q_seq->name,                           /* query name */
       final->eval,                           /* evalue */
-      final->pre_sc,                         /* seq scores before correction */
-      final->null2_seq_bias,                 /* seq bias */
-      final->seq_sc,                         /* seq score after correction */
+      final->pre_sc,                         /* seq scores before bias correction (in bits) */
+      final->null2_seq_bias_bitsc,           /* seq bias (in bits) */
+      final->seq_sc,                         /* seq score after correction (in bits) */
       dom_def->dom_sumsc,                    /* sum of all domain scores; if domains were not computed, zero */
-      final->viterbi_eval,                   /* viterbi score (in mmore, this comes from mmseqs) */
+      final->viterbi_eval,                   /* viterbi eval (in mmore, this comes from mmseqs) */
       result->total_cells,                   /* total number of cells computed by full viterbi */
       result->cloud_cells,                   /* total number of cells computed by mmore */
       result->perc_cells,                    /* percent of total cells computed by mmore */

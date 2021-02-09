@@ -29,141 +29,123 @@
 /* header */
 #include "_pipelines.h"
 
-/* mmseqs pipeline */
+/*! FUNCTION:  mmore_pipeline()
+ *  SYNOPSIS:  Overarching MMORE pipeline. 
+ *             This pipeline runs the full 
+ */
 STATUS_FLAG 
 mmore_pipeline( WORKER* worker )
 {
    printf("=== MMORE PIPELINE ===\n");
    
-   /* command and options */
-   char* command[27];
-   for (int i = 0; i < 27; i++) {
-      command[i] = ERROR_malloc( sizeof(char) * MAX_PATH_LEN );
-      command[i][0] = '\0';
+   ARGS*          args     = worker->args;
+   TASKS*         tasks    = worker->tasks;
+   SCRIPTRUNNER*  runner   = worker->runner;
+
+   /* get location of tools */
+   STR project_path   = ROOT_DIR;
+   printf("# PROJECT_LOCATION: %s\n", project_path );
+   STR mmseqs_path    = MMSEQS_BIN;
+   printf("# MMSEQS_LOCATION: %s\n", mmseqs_path );
+   STR hmmer_path     = HMMER_BIN;
+   printf("# HMMER_LOCATION: %s\n", mmseqs_path );
+   STR mmore_path     = MMORE_BIN;
+   printf("# MMORE_LOCATION: %s\n", mmore_path );
+   STR script_relpath = "/scripts/workflows/mmore.sh";
+   STR script_path = STR_Concat( project_path, script_relpath );
+   printf("# SCRIPT_LOCATION: %s\n\n", script_path );
+
+   /* buffer for converting args to string */
+   STR   str = NULL;
+   char  buffer[256];
+
+   /* SCRIPT */
+   SCRIPTRUNNER_SetScript( runner, script_path );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_filepath );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_filepath );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_mmseqs_filepath );
+   /* TOOLS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "ROOT_DIR",          project_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DIR",         mmore_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",         hmmer_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",        mmseqs_path ); 
+   SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_To_String( args->is_use_local_tools, buffer ) ); 
+   /* MAIN ARGS */
+   /* pass main args with type appended */
+   str = STR_Set( str, "TARGET_");
+   str = STR_Append( str, FILE_TYPE_NAMES[args->t_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_filepath );
+   str = STR_Set( str, "QUERY_");
+   str = STR_Append( str, FILE_TYPE_NAMES[args->q_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_filepath );
+   str = STR_Set( str, "TARGET_MMSEQS_" );
+   str = STR_Append( str, FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_filepath );
+   /* pass main args without type appended */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET",               FILE_TYPE_NAMES[args->t_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY",                FILE_TYPE_NAMES[args->q_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS",        FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   /* MAIN ARG TYPES */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_TYPE",          FILE_TYPE_NAMES[args->t_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_TYPE",           FILE_TYPE_NAMES[args->q_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_TYPE",   FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   /* INTERRIM FILES */
+   if ( args->is_redirect_stdout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "OUTPUT_PATH",  args->output_filepath );
    }
-   command[26] = NULL;
-   /* NOTE: No filepath allowed exceed MAX_PATH_LEN */ 
-
-   /* Variable Order */
-   /* -- SCRIPTS --
-    * (0)  MMORE-SEQS Script Location (executable)
-    * -- MAIN ARGS --
-    * (1)  Target File 
-    * (2)  Query File
-    * (3)  Target File Type 
-    * (4)  Query File Type
-    * -- OPTIONS --
-    * (5)  Results Output File 
-    * (6)  Remove Temp? 
-    * (7)  Verbose Level
-    * -- MMseqs Args -- 
-    * (8)  Kmer Length
-    * (9)  Kmer Score (Prefilter Threshold)
-    * (10)  Minimum Ungapped Score (Ungapped Viterbi Threshold)
-    * (11)  P-Value Cutoff (Gapped Viteri / MMseqs Reporting Threshold)
-    * (12) E-Value Cutoff (Gapped Viterbi / MMseqs Reporting Threshold)
-    * -- MMORE-SEQS / FB-PRUNER Args --
-    * (13)  Alpha 
-    * (14)  Beta
-    * (15)  Gamma
-    * (16)  P-Value Reporting Threshold
-    * (17)  E-Value Reporting Threshold
-    * (18)  Composition Bias
-    * -- TOOL LOCATIONS --
-    * (19)  FASTA-TO-HMM Script Location (executable)
-    * (20)  MMSEQS Binary Location (executable)
-    * (21)  HMMBUILD Binary Location (executable)
-    * -- OUTPUTS --
-    * (22)  Std-Output
-    * (23)  Tbl-Output
-    * (23)  M8-Output
-    * (24)  MY-Output
-    * -- NULL TERMINATED --
-    * (25)  NULL
-    */ 
-
-   /* -- MAIN COMMAND LOCATION - */
-   snprintf(command[0], MAX_PATH_LEN, " %s ", MMSEQS_PLUS_EASY_SCRIPT);
-
-   /* --- MAIN ARGS --- */
-   /* Target File Path */
-   snprintf(command[1], MAX_PATH_LEN, " %s ", worker->args->q_filepath);
-   /* Query File Path */
-   snprintf(command[2], MAX_PATH_LEN, " %s ", worker->args->t_filepath);
-   /* Target File Type */
-   snprintf(command[3], MAX_PATH_LEN, " %d ", worker->args->q_filetype);
-   /* Query File Type */
-   snprintf(command[4], MAX_PATH_LEN, " %d ", worker->args->t_filetype);
-
-   /* --- OPTIONS --- */
-   /* Results File */
-   snprintf(command[5], MAX_PATH_LEN, " %s ", worker->args->output_filepath);
-   /* Remove Temporary Files */
-   snprintf(command[6], MAX_PATH_LEN, " %d ", worker->args->tmp_remove);
-   /* Verbosity Level */
-   snprintf(command[7], MAX_PATH_LEN, " %d ", worker->args->verbose_level);
-
-   /* --- MMSEQS ARGS --- */
-   /* Kmer Length (Pre-filter) */
-   snprintf(command[8], MAX_PATH_LEN, " %d ", worker->args->mmseqs_kmer);
-   /* K-Score (Pre-filter) */
-   snprintf(command[9], MAX_PATH_LEN, " %d ", worker->args->mmseqs_prefilter);
-   /* Ungapped Viterbi */
-   snprintf(command[10], MAX_PATH_LEN, " %d ", worker->args->mmseqs_ungapped_vit);
-   /* E-Value MMseqs Reporting Threshold (Gapped Viterbi) */
-   snprintf(command[11], MAX_PATH_LEN, " %f ", worker->args->mmseqs_evalue);
-   /* P-Value MMseqs Reporting Threshold (Gapped Viterbi) */
-   snprintf(command[12], MAX_PATH_LEN, " %f ", worker->args->mmseqs_pvalue);
-  
-
-   /* --- MMORE-SEQS / FB-PRUNER ARGS --- */
-   /* Cloud Search alpha */
-   snprintf(command[13], MAX_PATH_LEN, " %f ", worker->args->alpha);
-   /* Cloud Search beta */
-   snprintf(command[14], MAX_PATH_LEN, " %f ", worker->args->beta);
-   /* Cloud Search gamma */
-   snprintf(command[15], MAX_PATH_LEN, " %d ", worker->args->gamma);
-   /* E-Value FB-Pruner Reporting Threshold */
-   snprintf(command[16], MAX_PATH_LEN, " %f ", worker->args->mmseqs_evalue);
-   /* P-Value FB-Pruner Reporting Threshold */
-   snprintf(command[17], MAX_PATH_LEN, " %f ", worker->args->mmseqs_pvalue);  
-   /* P-Value FB-Pruner Reporting Threshold */
-   snprintf(command[18], MAX_PATH_LEN, " %d ", worker->args->is_compo_bias); 
-
-   /* --- OUTPUT PATHS --- */
-   /* standard output */
-   snprintf(command[19], MAX_PATH_LEN, " %s ", worker->args->output_filepath);
-   /* standard output */
-   snprintf(command[20], MAX_PATH_LEN, " %s ", (worker->args->is_tblout ? worker->args->tblout_filepath : "--") );
-   /* m8 output */
-   snprintf(command[21], MAX_PATH_LEN, " %s ", (worker->args->is_m8out ? worker->args->m8out_filepath : "--") );
-   /* my output */
-   snprintf(command[22], MAX_PATH_LEN, " %s ", (worker->args->is_myout ? worker->args->myout_filepath : "--") );
-
-   /* --- TOOL LOCATIONS --- */
-   /* fasta-to-hmm script */
-   snprintf(command[23], MAX_PATH_LEN, " %s ", FASTA_TO_HMM_SCRIPT);
-   /* mmseqs binary */
-   snprintf(command[24], MAX_PATH_LEN, " %s ", MMSEQS_BIN);
-   /* hmmbuild binary */
-   snprintf(command[25], MAX_PATH_LEN, " %s ", HMMBUILD_BIN);
-
-   /* -- NULL TERMINATOR --- */
-   command[26] = NULL;
-
-   for (int i = 0; i < 27; i++) {
-      printf("[%d] %s\n", i, command[i] );
+   /* OUTPUT FILES */
+   if ( args->is_redirect_stdout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "OUTPUT_PATH",  args->output_filepath );
    }
-   
-   /* execute script */
-   // int exit_code = execvp( command[0], command );
-   
-   // char* test_cmd[] = { command[0], command[1], command[2], NULL };
-   char* test_cmd[] = { MMSEQS_PLUS_EASY_SCRIPT, command[0] };
-   int exit_code = execvp( command[0], command );
+   if ( args->is_redirect_stderr ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "ERROR_PATH",  args->output_filepath );
+   }
+   if ( args->is_m8out ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "M8OUT_PATH",  args->m8out_filepath );
+   }
+   if ( args->is_myout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "MYOUT_PATH",  args->myout_filepath );
+   }
+   if ( args->is_mydomout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "MYDOMOUT_PATH",  args->mydomout_filepath );
+   }
+   if ( args->is_mytimeout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "MYTIMEOUT_PATH",  args->mytimeout_filepath );
+   }
+   if ( args->is_mythreshout ) {
+      SCRIPTRUNNER_Add_Env_Variable( runner, "MYTHRESHOUT_PATH",  args->mythreshout_filepath );
+   }
+   /* MMSEQS PARAMETERS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "HITS_PER_SEARCH",      INT_To_String( args->mmseqs_hits_per_search, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "KMER",                 INT_To_String( args->mmseqs_kmer, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "PREFILTER_THRESH",     INT_To_String( args->mmseqs_prefilter, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "UNGAPPEDVIT_THRESH",   INT_To_String( args->mmseqs_ungapped_vit, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "GAPPEDVIT_THRESH",     INT_To_String( args->mmseqs_evalue, buffer ) );
+   /* MMORE PARAMETERS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "ALPHA",                FLT_To_String( args->alpha, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "BETA",                 FLT_To_String( args->beta, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "GAMMA",                INT_To_String( args->gamma, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "VITERBI_THRESH",       FLT_To_String( args->threshold_vit, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "CLOUD_THRESH",         FLT_To_String( args->threshold_cloud, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "BOUNDFWD_THRESH",      FLT_To_String( args->threshold_bound_fwd, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "FWDBACK_THRESH",       FLT_To_String( args->threshold_fwd, buffer ) );
+   /* TASK OPTIONS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FILTER",   INT_To_String( args->is_run_filter, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_BIAS",     INT_To_String( args->is_compo_bias, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_DOMAIN",   INT_To_String( args->is_run_domains, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FULL",     INT_To_String( args->is_run_full, buffer ) );
+   /* OPTIONS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "VERBOSE",     INT_To_String( args->verbose_level, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "RM_TEMP",     INT_To_String( args->tmp_remove, buffer ) );
+
+   /* EXECUTE SCRIPT */
+   SCRIPTRUNNER_Execute( runner );
+
+   STR_Destroy(script_path);
+   STR_Destroy(str);
 
    /* code should not reach here */
-   printf("# EXIT CODE = %d.  COMMAND FAILED.\n", exit_code);
+   fprintf( stderr, "# MMORE PIPELINE FAILED.\n" );
    exit(EXIT_FAILURE);
 }
 

@@ -111,6 +111,9 @@ WORK_posterior_sparse_bydom( WORKER* worker )
       null1_hmm_bias          = dom_def->null1_hmm_bias;
       times->dom_start        = CLOCK_GetTime( timer );
 
+      /* TODO: fix null1 bias computation */
+      null1_hmm_bias = 0.0f;
+
       for (int i = 0; i < dom_def->n_domains; i++)
       {
          dom_def->idx = i;

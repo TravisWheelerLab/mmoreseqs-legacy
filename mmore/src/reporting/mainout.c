@@ -130,7 +130,7 @@ void REPORT_stdout_header(    WORKER*     worker,
 
    if ( args->pipeline_mode == PIPELINE_MMSEQS ) {
       fprintf( fp, "# %*s: %s\n", 
-         left_pad, "MMSEQS RESULT file", args->mmseqs_res_filepath );
+         left_pad, "MMSEQS RESULT file", args->mmseqs_m8_filepath );
    }
    if ( args->pipeline_mode == PIPELINE_MAIN ) {
 
@@ -151,6 +151,8 @@ void REPORT_stdout_entry(  WORKER*  worker,
    ALIGNMENT*     aln            = worker->trace_vit;
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
+   ALL_SCORES*    scores         = &result->scores;
+   SCORES*        finalsc        = &result->final_scores;
 
    /* short names for alignment */
    STR            t_name         = "=T=";      /* short target name for alignment */
@@ -194,24 +196,23 @@ void REPORT_stdout_entry(  WORKER*  worker,
    /* Meta Data */
    REPORT_horizontal_rule( fp );
    fprintf( fp, "%*s %s [L=%d]\n", 
-      field_width, "Query:", t_prof->name, t_prof->N );
+      -field_width, "Query:", t_prof->name, t_prof->N );
    fprintf( fp, "%*s %s [L=%d]\n", 
-      field_width, "Target:", q_seq->name, q_seq->N );
-   // fprintf( fp, "%*s %s\n", 
-   //    field_width, "Accession:", (t_prof->acc ? t_prof->acc : "--" ) );
-   // fprintf( fp, "%*s %s\n", 
-   //    field_width, "Description:", (t_prof->desc ? t_prof->desc : "--" ) );
+      -field_width, "Target:", q_seq->name, q_seq->N );
+   fprintf( fp, "%*s %s\n", 
+      -field_width, "Accession:", (t_prof->acc ? t_prof->acc : "--" ) );
+   fprintf( fp, "%*s %s\n", 
+      -field_width, "Description:", (t_prof->desc ? t_prof->desc : "--" ) );
    /* Scores Header */
    fprintf( fp, "== %*s\n", 
       0, "Scores for complete sequences:");
    /* Alignment Header */
    fprintf( fp, "== %*s\n", 
       0, "Alignment:");
-   fprintf( fp, "==== %*s %d :: %s %3.2f | %s %-3.2e | %s %-3.2e\n",
-      0, "Domain", 1,                                       /* domain number */
-      "Score (bits):",  result->final_scores.seq_sc,        /* bit-score */
-      "Raw E-value:",   result->final_scores.eval,          /* e-value (raw) */
-      "Cond. E-value:", result->final_scores.eval           /* e-value (conditional) */
+   fprintf( fp, "==== %*s %d :: %s %3.2f %s | %s %-3.2e %s\n",
+      0, "Domain", 0,                                    /* domain number */
+      "Score:",         finalsc->seq_sc,     "bits",     /* bit-score */
+      "E-value:",       finalsc->eval,       ""          /* e-value (raw) */
    );
    /* MMSEQS-style Cigar Alignment */
    if (false)
@@ -294,34 +295,34 @@ REPORT_stdout_footer_search_summary(   WORKER*  worker,
    /* statistics summary */
    fprintf( fp, "\nInternal pipeline statistics summary:\n" );
    fprintf( fp, "----------------------------------------\n" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Target models:", 
       center_pad, stats->n_target_db, "targets" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Query sequences:", 
       center_pad, stats->n_query_db, "queries" );
    /* TODO: Add breakdown of number of queries passing mmseqs prefilter */
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Total Number searches:", 
       center_pad, stats->n_searches, "searches" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Number Passed MMSEQS Prefilter:", 
       center_pad, stats->n_passed_prefilter, "searches" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Number Passed MMSEQS Viterbi Filter:", 
       center_pad, stats->n_passed_viterbi, "searches" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Number Passed MMORE Cloud Filter:", 
       center_pad, stats->n_passed_cloud, "searches" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Number Passed MMORE Fwdback Filter:", 
       center_pad, stats->n_passed_fwdback, "searches" );
-   fprintf( fp, "%*s %*d %s\n", 
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Initial search space (Z):", 
-      center_pad, stats->n_query_db, "" );
-   fprintf( fp, "%*s %*d %s\n", 
+      center_pad, stats->n_query_db, "[actual number of targets]" );
+   fprintf( fp, "%*s %*d   %s\n", 
       left_pad, "Domain search space (Z):", 
-      center_pad, stats->n_reported_domains, "" );
+      center_pad, stats->n_reported_domains, "[number of targets reported over threshold]" );
    fprintf( fp, "\n" );
 }
 

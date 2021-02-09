@@ -38,12 +38,27 @@ null_pipeline( WORKER* worker )
 {
    printf("=== NULL PIPELINE ===\n");
 
-   char* command[] = { MACRO_XSTR(PROJECT_LOCATION) "./scripts/workflows/mmseqs_plus_easy.sh", "target.hmm", "query.fasta", "", NULL };
+   SCRIPTRUNNER*  runner = worker->runner;
 
-   printf("# EXECUTING: %s\n", command[0] );
-   printf("# MMSEQS_PLUS_SCRIPT: %s\n", MMSEQS_PLUS_SCRIPT );
-   printf("# FASTA_TO_HMM_SCRIPT: %s\n", FASTA_TO_HMM_SCRIPT );
-   int exit_code = execvp( command[0], command );
+   STR project_path   = ROOT_DIR;
+   printf("# PROJECT_LOCATION: %s\n", project_path );
+   STR mmseqs_path    = MMSEQS_BIN;
+   printf("# MMSEQS_LOCATION: %s\n", mmseqs_path );
+   STR hmmer_path     = HMMER_BIN;
+   printf("# HMMER_LOCATION: %s\n", hmmer_path );
+   STR script_relpath = "/scripts/workflows/test_workflow.sh";
+   STR script_path = STR_Concat( project_path, script_relpath );
+   printf("# SCRIPT_LOCATION: %s\n\n", script_path );
+
+   SCRIPTRUNNER_SetScript( runner, script_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "PROJECT_DIR", project_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",   hmmer_path );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",  mmseqs_path );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, "target.hmm" );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, "query.fasta" );
+   SCRIPTRUNNER_Execute( runner );
+
+   STR_Destroy(script_path);
 
    return STATUS_SUCCESS;
 }

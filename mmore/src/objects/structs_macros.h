@@ -35,12 +35,26 @@
 #define BUILD_DESCRIPT     "Heuristic Pruned Forward-Backward for Faster Profile-to-Sequence Search"
 
 /* === INSTALL LOCATION === */
-#ifndef PROJECT_LOCATION
-#define PROJECT_LOCATION   ./
+/* root of project directory */
+#ifndef PROJECT_LOC
+#define PROJECT_LOC   		./project_loc/
 #endif
-
-#ifndef INSTALL_LOCATION 
-#define INSTALL_LOCATION	./
+/* location of binary */
+#ifndef INSTALL_LOC 
+#define INSTALL_LOC			./install_loc/
+#endif
+/* === TOOLS === */
+/* location of HMMER binary folder */
+#ifndef HMMER_BIN_LOC
+#define HMMER_BIN_LOC 		./hmmer_bin/
+#endif
+/* location of MMSEQS binary folder */
+#ifndef MMSEQS_BIN_LOC
+#define MMSEQS_BIN_LOC 		/mmseqs_bin/
+#endif
+/* location of MMSEQS binary folder */
+#ifndef MMORE_BIN_LOC
+#define MMORE_BIN_LOC 		/mmore_bin/
 #endif
 
 /* set default debug build */

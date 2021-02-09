@@ -100,7 +100,7 @@ WORK_viterbi_test_threshold( WORKER*  worker )
       vit_eval, vit_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
-   if ( args->filter_on == false ) {
+   if ( args->is_run_filter == false ) {
       result->is_passed_viterbi = true;
    } 
    /* otherwise passes if eval is better (smaller) */
@@ -162,7 +162,7 @@ WORK_cloud_test_threshold( WORKER* worker )
       cloud_eval, cloud_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
-   if ( args->filter_on == false ) {
+   if ( args->is_run_filter == false ) {
       result->is_passed_cloud = true;
    } 
    /* otherwise passes if eval is better (smaller) */
@@ -225,7 +225,7 @@ WORK_bound_fwdback_test_threshold( WORKER* worker )
       fwdback_eval, fwdback_threshold, (is_passed ? "PASS" : "FAIL" ) );
 
    /* if filter is off, immediately passes */
-   if ( args->filter_on == false ) {
+   if ( args->is_run_filter == false ) {
       result->is_passed_fwdback = true;
    } 
    /* otherwise passes if eval is better (smaller) */
