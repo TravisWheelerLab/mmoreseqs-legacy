@@ -95,7 +95,7 @@ DP_MATRIX_Save(   const int         Q,
                   const int         T, 
                   MATRIX_3D*        st_MX, 
                   MATRIX_2D*        sp_MX,
-                  const char*       _filename_ );
+                  const char*       filename );
 
 /*! FUNCTION:  DP_MATRIX_Dump()
  *  SYNOPSIS:  Output dynamic programming matrix to file.
@@ -155,7 +155,7 @@ DP_MATRIX_Trace_Save(   const int         Q,
                         MATRIX_3D*        st_MX, 
                         MATRIX_2D*        sp_MX,
                         ALIGNMENT*        tr,
-                        const char*       _filename_ );
+                        const char*       filename );
 
 /*! FUNCTION:  DP_MATRIX_Trace_Save()
  *  SYNOPSIS:  Output dynamic programming matrix with viterbi trace to file.

@@ -221,7 +221,7 @@ EDGEBOUNDS_Sub_Dump(    EDGEBOUNDS*    edg,
  */
 void 
 EDGEBOUNDS_Save(  EDGEBOUNDS*   edg,
-                  const char*   _filename_ );
+                  const char*   filename );
 
 /*! FUNCTION: EDGEBOUNDS_Compare()
  *  SYNOPSIS: Compare two EDGEBOUNDS objects.  Return 0 if equal.

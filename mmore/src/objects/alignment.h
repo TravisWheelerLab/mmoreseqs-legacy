@@ -117,11 +117,11 @@ ALIGNMENT_Dump(   ALIGNMENT*  aln,
                   FILE*       fp );
 
 /*! FUNCTION:  ALIGNMENT_Save()
- *  SYNOPSIS:  Save <aln> to file at location <_filename_>. 
+ *  SYNOPSIS:  Save <aln> to file at location <filename>. 
  *             Handles opening and closing of file.
  */
 void 
 ALIGNMENT_Save(   ALIGNMENT*  aln,
-                  char*       _filename_ );
+                  char*       filename );
 
 #endif /* _ALIGNMENT_H */

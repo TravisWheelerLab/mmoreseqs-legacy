@@ -166,13 +166,15 @@ WORK_times_init(  WORKER*    worker,
    times->sp_bound_fwd         = val;
    times->sp_bound_bck         = val;
    times->sp_posterior         = val;
+   times->sp_decodedom         = val;
+   times->sp_biascorr          = val;
    times->sp_optacc            = val;
    /* doms */
    times->dom_total            = val;
    times->dom_bound_fwd        = val;
    times->dom_bound_bck        = val;
    times->dom_posterior        = val;
-   times->sp_biascorr          = val;
+   times->dom_biascorr         = val;
    times->dom_optacc           = val;
 }
 
@@ -230,6 +232,7 @@ WORK_times_add( WORKER* worker )
    time_totals->sp_bound_fwd         += times->sp_bound_fwd;
    time_totals->sp_bound_bck         += times->sp_bound_bck;
    time_totals->sp_posterior         += times->sp_posterior;
+   time_totals->sp_decodedom         += times->sp_decodedom;
    time_totals->sp_biascorr          += times->sp_biascorr;
    time_totals->sp_optacc            += times->sp_optacc;
    /* doms */

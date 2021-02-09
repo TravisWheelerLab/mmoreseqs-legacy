@@ -533,14 +533,14 @@ ALIGNMENT_Dump(   ALIGNMENT*  aln,
 }
 
 /*! FUNCTION:  ALIGNMENT_Save()
- *  SYNOPSIS:  Save <aln> to file at location <_filename_>. 
+ *  SYNOPSIS:  Save <aln> to file at location <filename>. 
  *             Handles opening and closing of file.
  */
 void 
 ALIGNMENT_Save(   ALIGNMENT*  aln,
-                  char*       _filename_ )
+                  char*       filename )
 {
-   FILE* fp = fopen(_filename_, "w");
+   FILE* fp = fopen(filename, "w");
    ALIGNMENT_Dump(aln, fp);
    fclose(fp);
 }

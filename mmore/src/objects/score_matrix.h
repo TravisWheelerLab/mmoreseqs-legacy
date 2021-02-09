@@ -16,7 +16,7 @@ SCORE_MATRIX* SCORE_MATRIX_Create();
 void SCORE_MATRIX_Destroy( SCORE_MATRIX*   submat );
 
 /* Construct SCORE_MATRIX object by parsing .submat file */
-SCORE_MATRIX* SCORE_MATRIX_Load( char*    _filename_ );
+SCORE_MATRIX* SCORE_MATRIX_Load( char*    filename );
 
 /* Set alphabet and the initialize score matrix based on size */
 void SCORE_MATRIX_SetAlphabet( SCORE_MATRIX*   submat,

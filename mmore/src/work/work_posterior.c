@@ -158,6 +158,7 @@ WORK_decode_domains( WORKER* worker )
    stats->n_reported_domains += dom_def->dom_ranges->N;
    CLOCK_Stop( timer );
    times->sp_decodedom = CLOCK_Duration( timer );
+   printf("DECODE TIME: %f\n", times->sp_decodedom );
 
    if ( args->verbose_level >= VERBOSE_HIGH )
    {

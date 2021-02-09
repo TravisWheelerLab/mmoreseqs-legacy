@@ -688,12 +688,12 @@ EDGEBOUNDS_Sub_Dump(    EDGEBOUNDS*    edg,
  */
 void 
 EDGEBOUNDS_Save(  EDGEBOUNDS*   edg,
-                  const char*   _filename_ )
+                  const char*   filename )
 {
    FILE *fp;
-   fp = fopen(_filename_, "w");
+   fp = fopen(filename, "w");
    EDGEBOUNDS_Dump(edg, fp);
-   printf("Saved EDGEBOUNDS to: '%s'\n", _filename_);
+   printf("Saved EDGEBOUNDS to: '%s'\n", filename);
    fclose(fp);
 }
 

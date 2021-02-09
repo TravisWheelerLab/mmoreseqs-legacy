@@ -158,14 +158,14 @@ DP_MATRIX_Save(   const int         Q,
                   const int         T,
                   MATRIX_3D*        st_MX,
                   MATRIX_2D*        sp_MX,
-                  const char*       _filename_ )
+                  const char*       filename )
 {
    printf("Saving matrix...\n");
    FILE *fp;
-   fp = fopen(_filename_, "w");
+   fp = fopen(filename, "w");
    DP_MATRIX_Dump(Q, T, st_MX, sp_MX, fp);
    fclose(fp);
-   printf("Saved DP_MATRIX to: '%s'\n", _filename_);
+   printf("Saved DP_MATRIX to: '%s'\n", filename);
 }
 
 /*! FUNCTION:  DP_MATRIX_Dump()
@@ -518,13 +518,13 @@ DP_MATRIX_Trace_Save(   const int         Q,
                         MATRIX_3D*        st_MX,
                         MATRIX_2D*        sp_MX,
                         ALIGNMENT*        tr,
-                        const char*       _filename_ )
+                        const char*       filename )
 {
    FILE *fp;
-   fp = fopen(_filename_, "w");
+   fp = fopen(filename, "w");
    DP_MATRIX_Trace_Dump( Q, T, st_MX, sp_MX, tr, fp );
    fclose( fp );
-   printf("Saved DP_MATRIX with TRACE to: '%s'\n", _filename_);
+   printf("Saved DP_MATRIX with TRACE to: '%s'\n", filename);
 }
 
 

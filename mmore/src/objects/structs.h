@@ -642,13 +642,13 @@ typedef struct {
    float    mmore_evalue;           /* e-value mmore / fb-pruner */
    float    mmore_pvalue;           /* p-value mmore / fb-pruner */
 
-   /* --- VITERBI / FWDBACK --- */
+   /* --- THRESHOLDS --- */
    float    threshold_pre;          /* threshold for prefilter score */
    float    threshold_vit;          /* threshold for viterbi score */
    float    threshold_fwd;          /* threshold for forward score */
    float    threshold_cloud;        /* threshold for cloud search score */
    float    threshold_bound_fwd;    /* threshold for bound forward score */
-   float    threshold_mmore;        /* threshold for fb-pruner score */
+   float    threshold_mmore;        /* threshold for mmore score */
 } ARGS;
 
 /* scores */
@@ -659,6 +659,12 @@ typedef struct {
    float    cloud_natsc;            /* cloud search composite natscore */
    float    bound_fwdback_natsc;    /* bound forward backward natscore */
    float    fwdback_natsc;          /* full forward backward natscore */
+   /* bit-scores */
+   float    prefilter_bitsc;        /* mmseqs double-kmer prefilter bitscore */
+   float    viterbi_bitsc;          /* viterbi bitscore */
+   float    cloud_bitsc;            /* cloud search composite bitscore */
+   float    bound_fwdback_bitsc;    /* bound forward backward bitscore */
+   float    fwdback_bitsc;          /* full forward backward bitscore */
    /* e-values */ 
    float    prefilter_eval;         /* mmseqs double-kmer prefilter eval (current DNE) */
    float    viterbi_eval;           /* viterbi eval */
@@ -865,7 +871,7 @@ typedef struct {
    int            total;            /* total number of results processed */
    int            N_in_queue;       /* total number of results in queue */
    int            N_max_in_queue;   /* number of results allowed in queue before outputting */
-   GENERIC        fields;           /* field data */
+   DATA_FIELD*    fields;           /* field data */
 } FORMATTED_RESULT;
 
 /* m8 result data entry */

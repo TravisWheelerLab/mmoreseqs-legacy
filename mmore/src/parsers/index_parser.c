@@ -29,12 +29,12 @@
  *             [2]   if line is the header of a hmm model (line starts with "HMMER")
  *             [2a]  name of hmm and it offset location into a file added to index
  *
- *  ARGS:      <_filename_>   path to file to be indexed
+ *  ARGS:      <filename>   path to file to be indexed
  *
  *  RETURN:    F_INDEX object containing index of file
  */
 F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
-                              const char*    _filename_ )
+                              const char*    filename )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -61,13 +61,13 @@ F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
    }
 
    ERROR_free( f_index->source_path );
-   f_index->source_path = STR_Create( _filename_ );
+   f_index->source_path = STR_Create( filename );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
 
-   fp = fopen(_filename_, "r");
+   fp = fopen(filename, "r");
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File '%s'\n", _filename_);
+      fprintf(stderr, "ERROR: Unable to Open File '%s'\n", filename);
       exit(EXIT_FAILURE);
    }
 
@@ -121,12 +121,12 @@ F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
  *             [2]   if line is the header of a fasta sequence:
  *             [2a]  name of fasta and it offset location into a file added to index
  *
- *  ARGS:      <_filename_>   path to file to be indexed.
+ *  ARGS:      <filename>   path to file to be indexed.
  *
  *  RETURN:    F_INDEX object containing index of file  
  */
 F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
-                                 const char*    _filename_ )
+                                 const char*    filename )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -156,14 +156,14 @@ F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
 
    /* use filename as source path */
    ERROR_free( f_index->source_path );
-   f_index->source_path = STR_Create( _filename_ );
+   f_index->source_path = STR_Create( filename );
    /* index does not use mmseqs names by default */
    f_index->mmseqs_names = false;
 
    /* open file */
-   fp = fopen(_filename_, "r");
+   fp = fopen(filename, "r");
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
+      fprintf(stderr, "ERROR: Unable to Open File => %s\n", filename);
       exit(EXIT_FAILURE);
    }
 
@@ -220,12 +220,12 @@ F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
  *  METHOD:    [1]   scans .fasta file line-by-line
  *             [2]   line: {result_id} {offset} {}
  *
- *  ARGS:      <_filename_>   path to file to be indexed.
+ *  ARGS:      <filename>   path to file to be indexed.
  *
  *  RETURN:    F_INDEX object containing index of file  
  */
 F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
-                       const char*  _filename_ )
+                       const char*  filename )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -251,10 +251,10 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
       F_INDEX_Reuse( f_index );
    }
 
-   f_index->index_path = STR_Create( _filename_ );
+   f_index->index_path = STR_Create( filename );
 
    /* file open */
-   fp = ERROR_fopen(_filename_, "r");
+   fp = ERROR_fopen(filename, "r");
 
    /* read file line-by-line */
    while( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
@@ -358,7 +358,7 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
  *  SYNOPSIS:  Load F_INDEX object from .idx file.
  */
 F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
-                              const char*    _filename_ )
+                              const char*    filename )
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE   node;
@@ -384,12 +384,12 @@ F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
       F_INDEX_Reuse( f_index );
    }
 
-   f_index->index_path = STR_Create( _filename_ );
+   f_index->index_path = STR_Create( filename );
 
    /* file open */
-   fp = fopen(_filename_, "r");
+   fp = fopen(filename, "r");
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _filename_);
+      fprintf(stderr, "ERROR: Unable to Open File => %s\n", filename);
       exit(EXIT_FAILURE);
    }
 

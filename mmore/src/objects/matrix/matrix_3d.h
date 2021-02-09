@@ -154,7 +154,7 @@ MATRIX_3D_Dump(   MATRIX_3D*  mx,
  */
 void 
 MATRIX_3D_Save(   MATRIX_3D*  mx,
-                  char*       _filename_);
+                  char*       filename);
 
 
 /** FUNCTION:  MATRIX_3D_Compare()

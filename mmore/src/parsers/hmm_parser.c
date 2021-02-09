@@ -25,7 +25,7 @@
 
 /* Parse .hmm file and builds a HMM_PROFILE object */
 void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
-                        char*          _filename_,
+                        char*          filename,
                         long           offset )
 {
    /* parser vars */
@@ -51,12 +51,12 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    const float    star_real      = 0.f;      /* what to convert star(*) into in real space */
 
    /* open file */
-   fp = fopen(_filename_, "r");
+   fp = fopen(filename, "r");
    /* check for file read error */
    if (fp == NULL)
    {
       char*  str = NULL;
-      fprintf(stderr, "ERROR: Bad FILE POINTER for HMM PARSER => %s\n", _filename_ );
+      fprintf(stderr, "ERROR: Bad FILE POINTER for HMM PARSER => %s\n", filename );
       exit(EXIT_FAILURE);
    }
    /* jump to start of desired hmm model */

@@ -45,7 +45,8 @@ WORK_load_indexes( WORKER* worker )
    WORK_load_indexes_by_name( worker );
 
    /* pull database size from index */
-   stats->n_query_db = worker->q_index->N;
+   stats->n_query_db    = worker->q_index->N;
+   stats->n_target_db   = worker->t_index->N;
    printf("INDEX SIZES = %d, %d\n", worker->q_index->N, worker->t_index->N );
 }
 

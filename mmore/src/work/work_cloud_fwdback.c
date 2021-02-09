@@ -123,6 +123,7 @@ WORK_bound_fwdback_linear( WORKER* worker )
       float fwdsc = ( tasks->lin_bound_fwd == true ? scores->lin_bound_fwd : -INF );
       float bcksc = ( tasks->lin_bound_fwd == true ? scores->lin_bound_bck : -INF );
       float maxsc = MAX( fwdsc, bcksc );
+      finalsc->fwdback_natsc        = fwdsc;
       finalsc->bound_fwdback_natsc  = fwdsc;
       scores->threshold_bound_max   = maxsc;
       result->score_fwdback         = maxsc;
@@ -210,7 +211,7 @@ WORK_bound_fwdback_sparse( WORKER* worker )
    TIMES*               times          = worker->times;
    RESULT*              result         = worker->result;
    ALL_SCORES*          scores         = &result->scores;
-   SCORES*              final_scores   = &result->final_scores; 
+   SCORES*              finalsc        = &result->final_scores; 
    float                sc;
 
    /* sparse bounded forward */
@@ -224,7 +225,6 @@ WORK_bound_fwdback_sparse( WORKER* worker )
       CLOCK_Stop( timer );
       times->sp_bound_fwd        = CLOCK_Duration( timer );
       scores->sparse_bound_fwd   = sc;
-
       #if DEBUG
       {
          printf("# printing sparse bound forward...\n");
@@ -255,4 +255,6 @@ WORK_bound_fwdback_sparse( WORKER* worker )
       }
       #endif
    }
+
+   finalsc->fwdback_natsc = MAX( scores->sparse_bound_fwd, scores->sparse_bound_bck );
 }

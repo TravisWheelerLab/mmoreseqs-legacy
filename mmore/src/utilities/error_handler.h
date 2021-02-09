@@ -32,7 +32,7 @@ ERRORCHECK_handler(  const ERROR_FLAG     error_code,
  *             Handles the error messaging, with program location, and closes program.
  */
 FILE* 
-ERRORCHECK_fopen(    char*          filename,
+ERRORCHECK_fopen(    const char*    filename,
                      const char*    permission,
                      const char*    _file_,
                      const int      _line_,

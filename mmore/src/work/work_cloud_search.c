@@ -72,7 +72,7 @@ WORK_cloud_search_linear( WORKER*  worker )
    TIMES*            times          = worker->times;
    RESULT*           result         = worker->result;
    ALL_SCORES*       scores         = &result->scores;
-   SCORES*           final          = &result->final_scores;
+   SCORES*           finalsc        = &result->final_scores;
    float             inner_fwdsc, inner_bcksc, outer_fwdsc, outer_bcksc;
    float             max_fwdsc, max_bcksc, inner_maxsc, outer_maxsc;
    float             max_sc, compo_sc;
@@ -118,9 +118,11 @@ WORK_cloud_search_linear( WORKER*  worker )
       outer_fwdsc = max_fwdsc - inner_fwdsc;
       outer_bcksc = max_bcksc - inner_bcksc;
       compo_sc    = inner_maxsc + outer_fwdsc + outer_bcksc;
+      printf("CLOUD SCORE: %f %f\n", compo_sc, max_sc);
       /* save thresholds */
-      scores->threshold_cloud_max    = max_sc;
-      scores->threshold_cloud_compo  = compo_sc;
+      scores->threshold_cloud_max      = max_sc;
+      scores->threshold_cloud_compo    = compo_sc;
+      finalsc->cloud_natsc             = compo_sc;
    }
 }
 
@@ -153,7 +155,7 @@ WORK_cloud_search_quadratic( WORKER*  worker )
    TIMES*            times          = worker->times;
    RESULT*           result         = worker->result;
    ALL_SCORES*       scores         = &result->scores;
-   SCORES*           final          = &result->final_scores;
+   SCORES*           finalsc        = &result->final_scores;
    float             inner_fwdsc, inner_bcksc, outer_fwdsc, outer_bcksc;
    float             max_fwdsc, max_bcksc, inner_maxsc, outer_maxsc;
    float             max_sc, compo_sc;
@@ -183,8 +185,10 @@ WORK_cloud_search_quadratic( WORKER*  worker )
       outer_fwdsc = max_fwdsc - inner_fwdsc;
       outer_bcksc = max_bcksc - inner_bcksc;
       compo_sc    = inner_maxsc + outer_fwdsc + outer_bcksc;
+      printf("CLOUD SCORE: %f %f\n", compo_sc, max_sc);
       /* save thresholds */
-      scores->threshold_cloud_max    = max_sc;
-      scores->threshold_cloud_compo  = compo_sc;
+      scores->threshold_cloud_max      = max_sc;
+      scores->threshold_cloud_compo    = compo_sc;
+      finalsc->cloud_natsc             = compo_sc;
    }
 }

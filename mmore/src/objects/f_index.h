@@ -131,7 +131,7 @@ F_INDEX_Search_Id(   F_INDEX*    index,
  */
 void 
 F_INDEX_Save(  F_INDEX*   index,
-               char*      _filename_ );
+               char*      filename );
 
 /*!  FUNCTION:    F_INDEX_Dump()
  *   SYNOPSIS:    Send F_INDEX data to file.

@@ -380,9 +380,9 @@ MATRIX_3D_Dump(   MATRIX_3D*  mx,
  */
 void 
 MATRIX_3D_Save(   MATRIX_3D*  mx,
-                  char*       _filename_)
+                  char*       filename)
 {
-   FILE* fp = fopen(_filename_, "w");
+   FILE* fp = fopen(filename, "w");
    MATRIX_3D_Dump(mx, fp);
    fclose(fp);
 }

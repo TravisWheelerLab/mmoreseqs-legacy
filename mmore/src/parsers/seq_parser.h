@@ -11,7 +11,7 @@
 
 /* parse .fasta file and build SEQUENCE object */
 void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
-                           char*       _filename_, 
+                           char*       filename, 
                            long        offset );
 
 

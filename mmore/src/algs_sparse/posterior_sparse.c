@@ -136,6 +136,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       N_domains = dom_def->dom_ranges->N;
       CLOCK_Stop( timer );
       times->sp_decodedom = CLOCK_Duration( timer );
+      printf("DECODE_DOMAIN TIME: %f\n", times->sp_decodedom );
 
       fprintf(stdout, "# ==> Find Domains\n");
       fprintf(stdout, "DOMAINS FOUND: %ld\n", dom_def->dom_ranges->N);

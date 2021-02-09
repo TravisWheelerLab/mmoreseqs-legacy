@@ -132,8 +132,11 @@ WORK_cloud_natsc_to_eval(   WORKER*  worker )
    int            db_size        = worker->stats->n_query_db;
 
    STATS_Fwdback_Nats_to_Eval(   
-      finalsc->cloud_natsc, NULL, NULL, NULL, &finalsc->cloud_eval,
+      finalsc->cloud_natsc, &finalsc->cloud_bitsc, NULL, NULL, &finalsc->cloud_eval,
       t_prof->forward_dist, db_size, 0.0f, 0.0f );
+   
+   printf("CLOUD SCORES: %.3f %.3f %.3f\n", 
+      finalsc->cloud_natsc, finalsc->cloud_bitsc, finalsc->cloud_eval );
 } 
 
 /*! FUNCTION:  	WORK_cloud_test_threshold()
@@ -191,8 +194,12 @@ WORK_bound_fwdback_natsc_to_eval(   WORKER*  worker )
    int            db_size        = worker->stats->n_query_db;
 
    STATS_Fwdback_Nats_to_Eval(   
-      finalsc->fwdback_natsc, NULL, NULL, NULL, &finalsc->fwdback_eval,
+      finalsc->fwdback_natsc, &finalsc->fwdback_bitsc, NULL, NULL, &finalsc->fwdback_eval,
       t_prof->forward_dist, db_size, 0.0f, 0.0f );
+   
+   printf("FWBACK SCORES: %.3f %.3f %.3f\n",
+      finalsc->fwdback_natsc, finalsc->fwdback_bitsc, finalsc->fwdback_eval );
+
 } 
 
 /*! FUNCTION:  	WORK_bound_fwdback_test_threshold()

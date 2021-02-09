@@ -109,7 +109,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
       dom_def->dom_sumbias    = 0.0f;
       dom_def->n_residues     = 0;
       null1_hmm_bias          = dom_def->null1_hmm_bias;
-      times->dom_total        = CLOCK_GetTime( timer );
+      times->dom_start        = CLOCK_GetTime( timer );
 
       for (int i = 0; i < dom_def->n_domains; i++)
       {

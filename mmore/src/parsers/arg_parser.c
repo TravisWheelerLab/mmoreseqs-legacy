@@ -646,16 +646,16 @@ void ARGS_Dump( ARGS*    args,
 }
 
 /* examines target and query, and finds the type of the files */
-int ARGS_Find_FileType( char* _filename_ )
+int ARGS_Find_FileType( char* filename )
 {
    for (int i = 0; i < NUM_FILE_EXTS; i++) {
       char* ext = FILE_TYPE_EXTS[i];
-      if ( STRING_EndsWith( _filename_, ext, strlen(ext) ) == 0 ) {
+      if ( STRING_EndsWith( filename, ext, strlen(ext) ) == 0 ) {
          return FILE_TYPE_MAP[i];
       }
    }
 
-   fprintf(stderr, "ERROR: '%s' is not an acceptable file type.\n", _filename_);
+   fprintf(stderr, "ERROR: '%s' is not an acceptable file type.\n", filename);
    exit(EXIT_FAILURE);
    return -1;
 }

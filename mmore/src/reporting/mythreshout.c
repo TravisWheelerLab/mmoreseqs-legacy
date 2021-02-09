@@ -42,12 +42,12 @@ void REPORT_mythreshout_header(  WORKER*  worker,
    const char* headers[] = {
       "target-hmm",
       "query-seq",
-      "viterbi",
-      "cloud-max",
-      "cloud-compo",
-      "bound-max",
-      "dom-max",
-      "dom-compo"
+      "viterbi-eval",
+      "viterbi-passed?",
+      "cloud-eval",
+      "cloud-passed?",
+      "fwdback-eval",
+      "fwdback-passed?",
    };
 
    REPORT_header(fp, headers, num_fields);
@@ -77,7 +77,7 @@ void REPORT_mythreshout_entry(   WORKER*  worker,
       GEN_Wrap( &final->cloud_eval,               DATATYPE_FLOAT,   sizeof(float) ),  
       GEN_Wrap( &result->is_passed_cloud,         DATATYPE_BOOL,    sizeof(float) ),
       GEN_Wrap( &final->fwdback_eval,             DATATYPE_FLOAT,   sizeof(float) ),
-      GEN_Wrap( &result->is_passed_fwdback,       DATATYPE_FLOAT,   sizeof(float) )
+      GEN_Wrap( &result->is_passed_fwdback,       DATATYPE_BOOL,    sizeof(float) )
    };
 
    REPORT_entry( fp, fields, num_fields, sig_digits );

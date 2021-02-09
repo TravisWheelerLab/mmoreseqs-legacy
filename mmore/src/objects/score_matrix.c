@@ -53,11 +53,11 @@ void SCORE_MATRIX_Destroy(SCORE_MATRIX* submat)
 }
 
 /* Parse .submat file and build SCORE_MATRIX object */
-SCORE_MATRIX* SCORE_MATRIX_Load(char* _filename_)
+SCORE_MATRIX* SCORE_MATRIX_Load(char* filename)
 {
    SCORE_MATRIX *submat;
    submat = SCORE_MATRIX_Create();
-   submat->filename = STR_Create(_filename_);
+   submat->filename = STR_Create(filename);
 
    /* line reader objects */
    char*    line_buf       = NULL;
@@ -80,10 +80,10 @@ SCORE_MATRIX* SCORE_MATRIX_Load(char* _filename_)
 
    /* open file */
    FILE *fp;
-   fp = fopen(_filename_, "r");
+   fp = fopen(filename, "r");
 
    if (fp == NULL) {
-      fprintf(stderr, "Error while opening file: %s\n", _filename_);
+      fprintf(stderr, "Error while opening file: %s\n", filename);
       exit(EXIT_FAILURE);
    }
 

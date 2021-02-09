@@ -25,7 +25,7 @@
 
 /* parse .fasta file and build SEQUENCE object */
 void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
-                           char*       _filename_,
+                           char*       filename,
                            long        offset )
 {
    /* parser vars */
@@ -45,10 +45,10 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
 
    /* clear pre-existing data */
    SEQUENCE_Reuse( seq );
-   SEQUENCE_SetTextfield( &seq->filename, _filename_ );
+   SEQUENCE_SetTextfield( &seq->filename, filename );
 
    /* open file reader */
-   reader = READER_Create( _filename_ );
+   reader = READER_Create( filename );
    READER_Open( reader );
    READER_JumpTo( reader, offset );
 

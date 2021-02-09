@@ -13,7 +13,7 @@
 
 /* parse .hmm file and build HMM_PROFILE object */
 void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
-                        char*          _filename_,
+                        char*          filename,
                         long           offset );
 
 /* computes the expected value for the match state of current node */

@@ -384,11 +384,11 @@ F_INDEX_Search_Id(   F_INDEX*    index,
  */
 void 
 F_INDEX_Save(  F_INDEX*   index,
-               char*      _filename_ )
+               char*      filename )
 {
-   FILE* fp = fopen( _filename_, "w" );
+   FILE* fp = fopen( filename, "w" );
    F_INDEX_Dump( index, fp );
-   printf("F_INDEX saved to: '%s'\n", _filename_);
+   printf("F_INDEX saved to: '%s'\n", filename);
 }
 
 /*!  FUNCTION:    F_INDEX_Dump()

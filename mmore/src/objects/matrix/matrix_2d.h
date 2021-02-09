@@ -172,7 +172,7 @@ MATRIX_2D_Dump(   MATRIX_2D*  mx,
  */
 int 
 MATRIX_2D_Save(   MATRIX_2D*  mx,
-                  char*       _filename_ );
+                  char*       filename );
 
 /* Compare two MATRIX_2D */
 /*! FUNCTION:  

@@ -80,7 +80,7 @@ REPORT_header(    FILE*          fp,
                   const char*    headers[],
                   const int      num_fields )
 {
-   char  hr_buf[128];
+   char  hr_buf[256];
 
    /* headers */
    fprintf( fp, "#" );

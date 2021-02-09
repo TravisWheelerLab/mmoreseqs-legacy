@@ -362,11 +362,11 @@ MATRIX_2D_Dump(   MATRIX_2D*  mx,
  */
 int 
 MATRIX_2D_Save(   MATRIX_2D*  mx,
-                  char*       _filename_ )
+                  char*       filename )
 {
-   FILE* fp = fopen(_filename_, "w");
+   FILE* fp = fopen(filename, "w");
    MATRIX_2D_Dump(mx, fp);
-   printf("MATRIX_2D saved to '%s'\n", _filename_);
+   printf("MATRIX_2D saved to '%s'\n", filename);
    fclose(fp);
 }
 

@@ -21,7 +21,7 @@ void ARGS_Dump( ARGS*    args,
                 FILE*    fp );
 
 /* examines target and query, and finds the type of the files */
-int ARGS_Find_FileType( char* _filename_ );
+int ARGS_Find_FileType( char* filename );
 
 /* output help info */
 void ARGS_Help_Info();
