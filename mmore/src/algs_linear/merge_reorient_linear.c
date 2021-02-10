@@ -466,7 +466,6 @@ EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byDiag()
  *  SYNOPSIS: Reorient EDGEBOUNDS from by-diagonal to by-row.
  *            For each antidiag, look at each cell and integrates it into a growing <edg_rows>.
- * TODO: WIP!!!
  */
 STATUS_FLAG 
 EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query length */
