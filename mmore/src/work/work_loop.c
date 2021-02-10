@@ -63,15 +63,15 @@ WORK_preiter( WORKER* worker )
    ALL_SCORES*    scores         = &result->scores;
    SCORES*        final          = &result->final_scores;
 
-   /* start timer for iteration */
-   times->loop_start = CLOCK_GetTime( worker->timer );
-   /* update loop value */
-   worker->search_id += 1;
-
    /* reset timers */
    WORK_times_init( worker, times );
    /* reset scores */
    WORK_scores_init( worker, scores );
+
+   /* start timer for iteration */
+   times->loop_start = CLOCK_GetTime( worker->timer );
+   /* update loop value */
+   worker->search_id += 1;
 }
 
 /*! FUNCTION:  	WORK_postiter()

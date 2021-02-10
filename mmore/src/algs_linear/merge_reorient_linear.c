@@ -321,7 +321,7 @@ EDGEBOUNDS_Reorient_to_Row(   const int           Q,          /* query length */
       bnd_out  = (BOUND) { q_0, -1, -1 };
 
       /* constrain bounds to valid ranges */
-      if (false)
+      if ( true )
       {
          d_range.beg = 0 + q_0;
          y_beg.beg   = y_beg.end;
