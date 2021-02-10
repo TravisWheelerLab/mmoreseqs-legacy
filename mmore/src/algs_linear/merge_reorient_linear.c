@@ -497,6 +497,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    int         cell_count;                        /* counts number of times cell was touched */ 
    const int   gap_tolerance  = 0;                /* max distance between two row indexes to merge */
    const bool  outside_loop_method = true;        /* determines method to compute y_range */
+   const bool  abridged_method = true;            /* determines whether to allow gaps on row bounds */
 
    cell_count  = 0;
 
@@ -535,20 +536,32 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
          /* row-wise coords */
          int q_0 = k_0;
          int t_0 = d_0 - q_0;
+         cell_count++;
 
          /* get latest bound in requested row */
          bnd_rows = EDGEBOUND_ROWS_GetLast_byRow( edg_rows, q_0 );
 
-         /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
-         if ( bnd_rows != NULL && t_0 <= bnd_rows->rb + gap_tolerance ) 
+         /* determine whether to expand current row bounds or create new */
+         bool is_expand_row;
+
+         /* non-abrided method will create a new edgebound range for each continuous span on row */
+         if ( abridged_method == false ) {
+            /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
+            is_expand_row = ( (bnd_rows != NULL) && (t_0 <= bnd_rows->rb + gap_tolerance) );
+         }
+         /* abridged method spans the entire row from the minimum to maximum of cloud. Same as infinite gap tolerance */
+         if ( abridged_method == true ) {
+            /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
+            is_expand_row = ( bnd_rows != NULL );
+         }
+         
+         if ( is_expand_row == true ) 
          {
-            // fprintf(stderr, "Merging, %d is in range %d:<%d-%d>\n", j, row->id, row->lb, row->rb );
             bnd_rows->rb = t_0 + 1;
          }
          /* otherwise, create new bound and to row */
          else
          {
-            // fprintf(stderr, "Creating new, %d is outside range %d:<%d-%d>\n", j, row->id, row->lb, row->rb );
             bnd_new = (BOUND){ q_0, t_0, t_0+1};
             EDGEBOUND_ROWS_Pushback( edg_rows, q_0, &bnd_new );
          }
