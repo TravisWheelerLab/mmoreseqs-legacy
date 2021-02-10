@@ -60,7 +60,6 @@ EDGEBOUND_ROWS_Resize(  EDGEBOUND_ROWS*  edg,
 /*! FUNCTION: EDGEBOUND_ROWS_Get_RowSize()
  *  SYNOPSIS: Get the size of row <q_0>.
  */
-inline
 int 
 EDGEBOUND_ROWS_Get_RowSize(   EDGEBOUND_ROWS*   edg,
                               int               q_0 );
