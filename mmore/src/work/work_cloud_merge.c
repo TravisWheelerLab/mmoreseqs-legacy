@@ -53,6 +53,7 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
    EDGEBOUNDS*       edg_bck        = worker->edg_bck;
    EDGEBOUNDS*       edg_diag       = worker->edg_diag;
    EDGEBOUNDS*       edg_row        = worker->edg_row;
+   EDGEBOUND_ROWS*   edg_builder    = worker->edg_rows_tmp;
    /* output data */
    TIMES*            times          = worker->times;
    RESULT*           result         = worker->result;
@@ -74,13 +75,21 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
       }
       #endif
 
+      int pre_diag   = EDGEBOUNDS_Count( edg_diag );
+      int pre_row    = EDGEBOUNDS_Count( edg_row );
+
       /* reorient edgebounds */
       printf_vall("# ==> reorient...\n");
       CLOCK_Start(timer);
-      int precount  = EDGEBOUNDS_Count( edg_row );
-      EDGEBOUNDS_Reorient_to_Row( Q, T, edg_diag, edg_row );
+      EDGEBOUNDS_ReorientToRow( Q, T, edg_diag, edg_builder, edg_row );
       CLOCK_Stop(timer);
       times->lin_reorient = CLOCK_Duration(timer);
+
+      int post_diag   = EDGEBOUNDS_Count( edg_diag );
+      int post_row    = EDGEBOUNDS_Count( edg_row );
+
+      /* correctness check */
+      printf("CELL COUNTS: %d, %d => %d, %d\n", pre_diag, pre_row, post_diag, post_row );
 
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );

@@ -386,7 +386,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          #elif ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_Integrate_Antidiag_Fwd( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
@@ -1033,7 +1033,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_Integrate_Antidiag_Bck( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Bck( rows, &bnd_new );
 
             #if DEBUG
             {

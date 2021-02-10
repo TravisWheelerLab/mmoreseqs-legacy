@@ -84,7 +84,7 @@ SYSTEMIO_GetDirectory( STR old_str )
       new_str = STR_Create( cwd );
       return new_str;
    } else {
-      fprintf( stderr, "ERROR: Couldn't get current working directory.\n");
+      fprintf( stderr, "ERROR: Could not get current working directory.\n");
       return NULL;
    }
 }
@@ -114,4 +114,32 @@ SYSTEMIO_AddEnvironmentalVar(    const STR   name,
    env_command    = STR_Concat( name, "=" );
    env_command    = STR_Append( env_command, value );
    putenv( env_command );
+}
+
+/*! FUNCTION:  SYSTEMIO_Wait()
+ *  SYNOPSIS:  Hold for given number of <secs>.
+ */
+void 
+SYSTEMIO_Wait( const int milli_seconds ) 
+{ 
+    // Converting time into milli_seconds 
+    int nano_seconds =  1000 * milli_seconds; 
+  
+    // Storing start time 
+    clock_t start_time = clock(); 
+  
+    // looping till required time is not achieved 
+    while (clock() < start_time + nano_seconds) {}; 
+
+    return STATUS_SUCCESS;
+} 
+
+/*! FUNCTION:  SYSTEMIO_MakeDirectory()
+ *  SYNOPSIS:  Make directory.
+ *    RETURN:  Returns <STATUS_SUCCESS> on success.
+ */
+int 
+SYSTEMIO_MakeDirectory( const char* folderpath )
+{
+    return STATUS_SUCCESS;
 }

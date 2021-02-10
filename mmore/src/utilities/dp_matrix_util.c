@@ -3,6 +3,7 @@
  *  SYNOPSIS:  Dynamic Programming Matrix functions.
  *
  *  AUTHOR:    Dave Rich
+ *  TODO:      This should all be moved into the DP_MATRIX data type when it is finished.
  *******************************************************************************/
 
 /* imports */

@@ -225,10 +225,14 @@ REPORT_mytimeout_totals(   WORKER*  worker,
    };
 
    /* sum subroutines */
-   for (int i = 5; i < 25; i++) {
+   for (int i = 5; i < 20; i++) {
       data[3] += data[i];
       data[4] -= data[i];
    }
+   // for (int i = 21; i < 25; i++) {
+   //    data[3] += data[i];
+   //    data[4] -= data[i];
+   // }
 
    /* headers */
    fprintf(fp, "#%*s:     %*s    %*s\n", 

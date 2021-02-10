@@ -25,8 +25,7 @@
 /* header */
 #include "merge_reorient_quad.h"
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Merge_Reorient_Naive()
+/*! FUNCTION:  EDGEBOUNDS_Merge_Reorient_Naive()
  *  SYNOPSIS:  Merge two sets of EDGEBOUNDS.
  *             Reorient EDGEBOUNDS from diagonal-wise to row-wise.
  */
@@ -53,8 +52,7 @@ int EDGEBOUNDS_Merge_Reorient_Naive(const int         Q,
 }
 
 
-/*
- *  FUNCTION:  EDGEBOUNDS_Reorient_Naive()
+/*! FUNCTION:  EDGEBOUNDS_Reorient_Naive()
  *  SYNOPSIS:  Reorients EDGEBOUNDS from antidiagonal-wise to row-wise (or vice versa)
  */
 int EDGEBOUNDS_Reorient_Naive(const int         Q,
@@ -75,8 +73,7 @@ int EDGEBOUNDS_Reorient_Naive(const int         Q,
 }
 
 
-/*
- *  FUNCTION: EDGEBOUNDS_Build_From_Cloud()
+/*! FUNCTION: EDGEBOUNDS_Build_From_Cloud()
  *  SYNOPSIS: Create edgebounds from a Matrix Cloud.
  */
 void EDGEBOUNDS_Build_From_Cloud(const int      Q, 

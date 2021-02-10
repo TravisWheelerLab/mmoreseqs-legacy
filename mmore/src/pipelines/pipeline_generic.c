@@ -58,20 +58,20 @@ generic_pipeline( WORKER* worker )
 	{
 		/* linear algs */
 		tasks->linear 				= true;		/* if any other linear tasks are flagged, this must be too */
-		tasks->lin_fwd 			= false;	/* optional, but can't recover alignment */
-		tasks->lin_bck 			= false;	/* optional, but can't recover alignment */
-		tasks->lin_vit 			= false;	/* optional, but can't recover alignment */
-		tasks->lin_trace 			= false;	/* optional, but can't recover alignment */
+		tasks->lin_fwd 			= false;		/* optional, but can't recover alignment */
+		tasks->lin_bck 			= false;		/* optional, but can't recover alignment */
+		tasks->lin_vit 			= false;		/* optional, but can't recover alignment */
+		tasks->lin_trace 			= false;		/* optional, but can't recover alignment */
 		tasks->lin_bound_fwd 	= true;
 		tasks->lin_bound_bck 	= true;
 		/* quadratic algs */
 		tasks->quadratic 			= true;		/* if any other quadratic tasks are flagged, this must be too */
-		tasks->quad_fwd 			= false;	/* optional */
-		tasks->quad_bck 			= false;	/* optional */
+		tasks->quad_fwd 			= false;		/* optional */
+		tasks->quad_bck 			= false;		/* optional */
 		tasks->quad_vit 			= true;		/* viterbi required for cloud search */
 		tasks->quad_trace 		= true;		/* traceback required for cloud search  */
-		tasks->quad_bound_fwd 	= false;	/* required step of cloud search */
-		tasks->quad_bound_bck 	= false;	/* optional */
+		tasks->quad_bound_fwd 	= false;		/* required step of cloud search */
+		tasks->quad_bound_bck 	= false;		/* optional */
 	}
 
 	/* load or build, then sort target and query index files */

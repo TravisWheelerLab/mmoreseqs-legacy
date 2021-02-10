@@ -129,11 +129,11 @@ EDGEBOUNDS_Index( EDGEBOUNDS*  edg );
  *  SYNOPSIS:  Using iterators, gets the row index range <r_0> that are on <q_0> position.
  *             Skips over rows less than <q_0>.  Presumes that edgebounds is sorted.  
  */
-STATUS_FLAG 
-EDGEBOUNDS_NxtRow(   EDGEBOUNDS*          edg,     /* edgebounds */
-                     int*                 r_0b,    /* row range begin */
-                     int*                 r_0e,    /* row range end */
-                     int                  q_0 );   /* query sequence position */
+STATUS_FLAG
+EDGEBOUNDS_NxtRow(   EDGEBOUNDS* restrict       edg,     /* edgebounds */
+                     int* restrict              r_0b,    /* row range begin */
+                     int* restrict              r_0e,    /* row range end */
+                     int                        id_0 );  /* query sequence position */
 
 /*! FUNCTION:  EDGEBOUNDS_PrvRow()
  *  SYNOPSIS:  Using iterators, gets the row index range <r_0> that are on <q_0> position.

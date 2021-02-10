@@ -50,4 +50,17 @@ STATUS_FLAG
 SYSTEMIO_AddEnvironmentalVar(    const STR   name,
                                  const STR   value );
 
+/*! FUNCTION:  SYSTEMIO_Wait()
+ *  SYNOPSIS:  Hold for given number of <secs>.
+ */
+void 
+SYSTEMIO_Wait( int milli_seconds );
+
+/*! FUNCTION:  SYSTEMIO_MakeDirectory()
+ *  SYNOPSIS:  Make directory.
+ *    RETURN:  Returns <STATUS_SUCCESS> on success.
+ */
+int 
+SYSTEMIO_MakeDirectory( const char* folderpath );
+
 #endif /* _SYSTEMIO_H */

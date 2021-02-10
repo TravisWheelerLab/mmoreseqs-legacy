@@ -227,10 +227,6 @@ WORK_load_target_by_name(  WORKER*     worker,
    TIMES*         times          = worker->times;
    CLOCK*         timer          = worker->timer;
 
-   /* if current target is the same as previous target */
-   STR cur_name = worker->mmseqs_cur->target_name;
-   STR prv_name = worker->mmseqs_prv->target_name;
-
    /* find target id by searching target name in file index */
    int findex_id = F_INDEX_Search_Name( worker->t_index, name );
    if ( findex_id == -1 ) {

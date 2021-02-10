@@ -1,18 +1,24 @@
 /*******************************************************************************
  *  FILE:      structs_funcs.h
- *  PURPOSE:   Macros used by fb-pruner.  
+ *  PURPOSE:   Macros used by mmore.  
  *             Some may be set by Makefile flags.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
  *******************************************************************************/
 
 
 #ifndef _STRUCTS_BUILDOPTS_H
 #define _STRUCTS_BUILDOPTS_H
 
+/* BUILD OPTIONS */
+
+
 /* DEBUGGER OPTIONS */
 
+
 /* FUNCTION OPTIONS */
+
+
+/* OTHER OPTIONS */
 
 #endif /* _STRUCTS_BUILDOPTS_H */

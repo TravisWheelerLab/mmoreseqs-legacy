@@ -371,11 +371,12 @@ EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
  *  SYNOPSIS:  Iterating from front to back, gets the row index range <r_0> that are on <q_0> position, starting from <r_0e>.
  *             Skips over rows less than <q_0>.  Presumes that edgebounds is sorted and <r_e> precedes <q_0> row start.  
  */
+inline
 STATUS_FLAG 
-EDGEBOUNDS_NxtRow(   EDGEBOUNDS*          edg,     /* edgebounds */
-                     int*                 r_0b,    /* row range begin */
-                     int*                 r_0e,    /* row range end */
-                     int                  id_0 )    /* query sequence position */
+EDGEBOUNDS_NxtRow(   EDGEBOUNDS* restrict       edg,     /* edgebounds */
+                     int* restrict              r_0b,    /* row range begin */
+                     int* restrict              r_0e,    /* row range end */
+                     int                        id_0 )   /* query sequence position */
 {
    int r_0;
 

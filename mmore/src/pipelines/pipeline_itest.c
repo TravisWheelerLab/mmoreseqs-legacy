@@ -741,7 +741,7 @@ itest_pipeline( WORKER* worker )
    //   /* merge and reorient (naive) */
    //    printf("==> merge & reorient (naive)\n");
    //    EDGEBOUNDS_Merge_Together(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
-   //    EDGEBOUNDS_Reorient_to_Row(Q, T, edg_diag_lin, edg_row_lin);
+   //    EDGEBOUNDS_ReorientToRow(Q, T, edg_diag_lin, edg_row_lin);
    //    EDGEBOUNDS_Save(edg_diag_lin, "test_output/my.cloud.lin.diags.edg");
    //    EDGEBOUNDS_Save(edg_row_lin, "test_output/my.cloud.lin.rows.edg");
    //    cmp = ( EDGEBOUNDS_Compare_by_Cloud( edg_diag_lin, cloud_MX_lin, edg_row_lin, cloud_MX_diff ) == 0 );
