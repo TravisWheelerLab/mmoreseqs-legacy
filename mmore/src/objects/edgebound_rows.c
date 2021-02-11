@@ -389,7 +389,7 @@ EDGEBOUND_ROWS_Convert(    EDGEBOUND_ROWS*   edg_in,
       for ( int i_0 = 0; i_0 < row_size; i_0++ ) 
       {
          BOUND* bnd = EDGEBOUND_ROWS_Get_byRow( edg_in, q_0, i_0 );
-         BOUND_Validate( edg_in, bnd );
+         // BOUND_Validate( edg_in, bnd );
          EDGEBOUNDS_Pushback( edg_out, bnd );
       }
    }

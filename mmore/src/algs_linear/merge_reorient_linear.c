@@ -589,7 +589,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q*T, (float)cell_count/(float)(Q*T) );
    /* push all rows in a traditional edgebounds object */
    EDGEBOUND_ROWS_Convert( edg_rows, edg_out );
-   EDGEBOUND_ROWS_Stats( edg_rows );
+   // EDGEBOUND_ROWS_Stats( edg_rows );
    /* clean up temporary data */
    EDGEBOUND_ROWS_Clear( edg_rows );
 }
