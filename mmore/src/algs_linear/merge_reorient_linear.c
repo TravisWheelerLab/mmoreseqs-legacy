@@ -498,7 +498,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    int         cell_count;                        /* counts number of times cell was touched */ 
    const int   gap_tolerance  = 0;                /* max distance between two row indexes to merge */
    const bool  outside_loop_method = true;        /* determines method to compute y_range */
-   const bool  abridged_method = false;            /* determines whether to allow gaps on row bounds */
+   const bool  abridged_method = false;            /* determines whether to span all gaps on row bounds */
 
    cell_count  = 0;
 
@@ -587,7 +587,10 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    }
 
    printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q*T, (float)cell_count/(float)(Q*T) );
+   /* push all rows in a traditional edgebounds object */
    EDGEBOUND_ROWS_Convert( edg_rows, edg_out );
+   /* clean up temporary data */
+   EDGEBOUND_ROWS_Clear( edg_rows );
 }
 
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byDiff()

@@ -116,18 +116,15 @@ void EDGEBOUND_ROWS_GrowTo( EDGEBOUND_ROWS*  edg,
 }
 
 /*! FUNCTION: EDGEBOUND_ROWS_Resize()
- *  SYNOPSIS: Resizes EDGEBOUND_ROWS if new size exceeds old size
+ *  SYNOPSIS: Resizes EDGEBOUND_ROWS to <size>.
  */
 void 
 EDGEBOUND_ROWS_Resize(     EDGEBOUND_ROWS*  edg,
                            int              size )
 {
-   if ( size > edg->Nalloc ) 
-   {
-      edg->rows_N = ERROR_realloc( edg->rows_N, sizeof(int) * size );
-      edg->rows   = ERROR_realloc( edg->rows, sizeof(BOUND) * ( size * edg->row_max ) );
-      edg->Nalloc = size;
-   }
+   edg->rows_N = ERROR_realloc( edg->rows_N, sizeof(int) * size );
+   edg->rows   = ERROR_realloc( edg->rows, sizeof(BOUND) * ( size * edg->row_max ) );
+   edg->Nalloc = size;
    /* rows_N holds the number of rows */
    edg->N = size;
 }
@@ -365,6 +362,18 @@ EDGEBOUND_ROWS_IntegrateDiag_Bck(   EDGEBOUND_ROWS*   edg,
    }
 }
 
+/** TODO: WIP */
+/*! FUNCTION: EDGEBOUND_ROWS_Count()
+ *  SYNOPSIS: Count number of cells covered by <edg>.
+ */
+int 
+EDGEBOUND_ROWS_Count(    EDGEBOUND_ROWS*   edg )
+{
+   int count;
+
+   return count;
+}
+
 /*! FUNCTION: EDGEBOUND_ROWS_Convert()
  *  SYNOPSIS: Convert EDGEBOUND_ROWS <edg_in> to EDGEBOUNDS <edg_out>.
  */
@@ -372,9 +381,6 @@ void
 EDGEBOUND_ROWS_Convert(    EDGEBOUND_ROWS*   edg_in,
                            EDGEBOUNDS*       edg_out )
 {
-   EDGEBOUNDS_Reuse( edg_out, edg_in->Q, edg_in->T );
-   edg_out->edg_mode = EDG_ROW;
-
    /* for every row in <edg_in> */
    for ( int q_0 = edg_in->Q_range.beg; q_0 < edg_in->Q_range.end; q_0++ ) 
    {
