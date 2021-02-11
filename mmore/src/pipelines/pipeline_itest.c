@@ -111,7 +111,7 @@ itest_pipeline( WORKER* worker )
    // EDGEBOUNDS*       edg_diag_quad  = EDGEBOUNDS_Create();
 
    // /* temporary edgebound object for storing row-wise edgebounds during cloud search */
-   // EDGEROWS*   edg_row_tmp    = EDGEROWS_Create();
+   // EDGEBOUND_ROWS*   edg_row_tmp    = EDGEBOUND_ROWS_Create();
    // CLOUD_PARAMS*     cloud_params   = &(worker->cloud_params);
 
    // /* SCORES => stores result scores */
@@ -208,7 +208,7 @@ itest_pipeline( WORKER* worker )
    // EDGEBOUNDS_Reuse( edg_row_quad, Q, T );
    // EDGEBOUNDS_Reuse( edg_diag_quad, Q, T );
 
-   // EDGEROWS_Reuse( edg_row_tmp, Q, T );
+   // EDGEBOUND_ROWS_Reuse( edg_row_tmp, Q, T );
 
    // /* allocate memory for quadratic algs */
    // MATRIX_3D*           st_MX_naive       = MATRIX_3D_Create_Clean( NUM_NORMAL_STATES,  Q+1, T+1 );
@@ -927,7 +927,7 @@ itest_pipeline( WORKER* worker )
    // edg_row_quad      = EDGEBOUNDS_Destroy( edg_row_quad );
    // edg_diag_quad     = EDGEBOUNDS_Destroy( edg_diag_quad );
 
-   // edg_row_tmp       = EDGEROWS_Destroy( edg_row_tmp );
+   // edg_row_tmp       = EDGEBOUND_ROWS_Destroy( edg_row_tmp );
 
    // /* allocate memory for quadratic algs */
    // st_MX_naive       = MATRIX_3D_Destroy( st_MX_naive );

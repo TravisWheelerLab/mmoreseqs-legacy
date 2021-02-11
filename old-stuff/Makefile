@@ -70,11 +70,14 @@ CFLAGS 			:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_VARS)
 # standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
 CPPFLAGS 		?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_VARS)
+
 # flags for debugging and profiling
 # suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -g -pg -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS 		:= -g -pg -fsanitize=address -DDEBUG=1 
 # flags for alpha version
-ALPHAFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -fsanitize=address
+ALPHAFLAGS 		:= -g -pg -fsanitize=address
+# flags for alpha version
+VALFLAGS 		:= -g -pg
 # flags for release version
 RELEASEFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -O3
 
@@ -89,8 +92,15 @@ endif
 ifeq ($(BUILD), ALPHA)
 # 	$(info RELEASE FLAGGED)
 	CFLAGS+=$(ALPHAFLAGS)
-	CPPFLAGS+=$(RELEASEFLAGS)
+	CPPFLAGS+=$(ALPHAFLAGS)
 	TARGET_EXEC=mmore-ALPHA
+endif
+# special flags for ALPHA 
+ifeq ($(BUILD), VALGRIND)
+# 	$(info RELEASE FLAGGED)
+	CFLAGS+=$(VALFLAGS)
+	CPPFLAGS+=$(VALFLAGS)
+	TARGET_EXEC=mmore-VALGRIND
 endif
 # special flags for RELEASE 
 ifeq ($(BUILD), RELEASE)

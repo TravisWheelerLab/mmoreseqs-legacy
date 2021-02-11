@@ -29,7 +29,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
                            MATRIX_3D*           st_MX3,       /* normal state matrix */
                            MATRIX_2D*           sp_MX,        /* special state matrix */
                            const ALIGNMENT*     tr,           /* viterbi traceback */
-                           EDGEROWS*      rows,         /* temporary edgebounds by-row vector */
+                           EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row vector */
                            EDGEBOUNDS*          edg,          /* OUTPUT: edgebounds of cloud search space */
                            CLOUD_PARAMS*        params,       /* pruning parameters */
                            float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
@@ -55,7 +55,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
                               MATRIX_3D*           st_MX3,       /* normal state matrix */
                               MATRIX_2D*           sp_MX,        /* special state matrix */
                               const ALIGNMENT*     tr,           /* viterbi traceback */
-                              EDGEROWS*      rows,         /* temporary edgebounds by-row */
+                              EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row */
                               EDGEBOUNDS*          edg,          /* (OUTPUT) */
                               CLOUD_PARAMS*        params,       /* pruning parameters */
                               float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */

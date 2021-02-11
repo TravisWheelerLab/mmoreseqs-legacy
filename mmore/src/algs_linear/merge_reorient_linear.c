@@ -298,7 +298,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow(     const int           Q,              /* query length */
                               const int           T,              /* target length */
                               EDGEBOUNDS*         edg_in,         /* edgebounds (antidiag-wise, sorted ascending) */
-                              EDGEROWS*     edg_builder,    /* temporary working space */
+                              EDGEBOUND_ROWS*     edg_builder,    /* temporary working space */
                               EDGEBOUNDS*         edg_out )       /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    STATUS_FLAG status;
@@ -316,7 +316,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query length */
                                     const int           T,              /* target length */
                                     EDGEBOUNDS*         edg_in,         /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEROWS*     edg_rows,       /* temporary working space */
+                                    EDGEBOUND_ROWS*     edg_rows,       /* temporary working space */
                                     EDGEBOUNDS*         edg_out )       /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    int         x, y;                              /* indexes into edgebounds */
@@ -471,7 +471,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query length */
                                     const int           T,          /* target length */
                                     EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEROWS*     edg_rows,   /* temporary working space */
+                                    EDGEBOUND_ROWS*     edg_rows,   /* temporary working space */
                                     EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    int         x, y;                              /* indexes into edgebounds */
@@ -534,7 +534,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
 
    /* set edgebound builder only to cover the rows that cloud touches */
    printf("Q,T=(%d,%d), Q_range=(%d,%d)\n", Q, T, q_range.beg, q_range.end );
-   EDGEROWS_Reuse( edg_rows, Q, T, q_range );
+   EDGEBOUND_ROWS_Reuse( edg_rows, Q, T, q_range );
 
    /* reuse edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
@@ -557,7 +557,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
          cell_count++;
 
          /* get latest bound in requested row */
-         bnd_rows = EDGEROWS_GetLast_byRow( edg_rows, q_0 );
+         bnd_rows = EDGEBOUND_ROWS_GetLast_byRow( edg_rows, q_0 );
 
          /* determine whether to expand current row bounds or create new */
          bool is_expand_row;
@@ -581,13 +581,13 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
          else
          {
             bnd_new = (BOUND){ q_0, t_0, t_0+1};
-            EDGEROWS_Pushback( edg_rows, q_0, &bnd_new );
+            EDGEBOUND_ROWS_Pushback( edg_rows, q_0, &bnd_new );
          }
       }
    }
 
    printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q*T, (float)cell_count/(float)(Q*T) );
-   EDGEROWS_Convert( edg_rows, edg_out );
+   EDGEBOUND_ROWS_Convert( edg_rows, edg_out );
 }
 
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byDiff()
@@ -600,7 +600,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byDiff(    const int           Q,          /* query length */
                                     const int           T,          /* target length */
                                     EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEROWS*     edg_rows,   /* temporary working space */
+                                    EDGEBOUND_ROWS*     edg_rows,   /* temporary working space */
                                     EDGEBOUNDS*         edg_out )   /* OUPUT: edgebounds (row-wise, sorted ascending) */
 {
    

@@ -67,7 +67,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
                            MATRIX_3D*           st_MX3,       /* normal state matrix */
                            MATRIX_2D*           sp_MX,        /* special state matrix */
                            const ALIGNMENT*     tr,           /* viterbi traceback */
-                           EDGEROWS*      rows,         /* temporary edgebounds by-row vector */
+                           EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row vector */
                            EDGEBOUNDS*          edg,          /* OUTPUT: edgebounds of cloud search space */
                            CLOUD_PARAMS*        params,       /* pruning parameters */
                            float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
@@ -226,7 +226,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
+      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -386,7 +386,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          #elif ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEROWS_IntegrateDiag_Fwd( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
@@ -601,7 +601,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    #if ( CLOUD_METHOD == CLOUD_ROWS ) 
    {
       /* output rows to edgebounds */
-      EDGEROWS_Convert( rows, edg );
+      EDGEBOUND_ROWS_Convert( rows, edg );
 
       #if DEBUG
       {
@@ -712,7 +712,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
                               MATRIX_3D*           st_MX3,       /* normal state matrix */
                               MATRIX_2D*           sp_MX,        /* special state matrix */
                               const ALIGNMENT*     tr,           /* viterbi traceback */
-                              EDGEROWS*      rows,         /* temporary edgebounds by-row */
+                              EDGEBOUND_ROWS*      rows,         /* temporary edgebounds by-row */
                               EDGEBOUNDS*          edg,          /* (OUTPUT) */
                               CLOUD_PARAMS*        params,       /* pruning parameters */
                               float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
@@ -871,7 +871,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
+      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -1033,7 +1033,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEROWS_IntegrateDiag_Bck( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Bck( rows, &bnd_new );
 
             #if DEBUG
             {
@@ -1272,7 +1272,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    #if ( CLOUD_METHOD == CLOUD_ROWS ) 
    {
       /* output rows to edgebounds */
-      EDGEROWS_Convert( rows, edg );
+      EDGEBOUND_ROWS_Convert( rows, edg );
 
       #if DEBUG
       {

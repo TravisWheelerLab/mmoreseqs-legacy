@@ -297,7 +297,7 @@ typedef struct {
    int            T;          /* size of target */
    /* data */
    BOUND*         rows;       /* array of bounds, each for a specific row */
-} EDGEROWS;
+} EDGEBOUND_ROWS;
 
 /* alignment for viterbi traceback */
 typedef struct {
@@ -1279,7 +1279,7 @@ typedef struct {
    EDGEBOUNDS*          edg_bck;       /* edgebounds for backward cloud search */
    EDGEBOUNDS*          edg_diag;      /* merged cloud search by antidiagonal */
    EDGEBOUNDS*          edg_row;       /* merged cloud search by row */
-   EDGEROWS*      edg_rows_tmp;  /* temporary edgebound row object; helper for reorientating */
+   EDGEBOUND_ROWS*      edg_rows_tmp;  /* temporary edgebound row object; helper for reorientating */
    /* int vector for cloud search */
    VECTOR_INT*          lb_vec[3];     /* left bounds for building cloud edgebounds */
    VECTOR_INT*          rb_vec[3];     /* right bounds for building cloud edgebounds */

@@ -62,7 +62,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
                               MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
-                              EDGEROWS*      rows,          /* temporary edgebounds by-row vector */
+                              EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
                               VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
                               VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
@@ -203,7 +203,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
+      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -343,7 +343,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEROWS_IntegrateDiag_Fwd( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
@@ -462,7 +462,7 @@ int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query seque
                               MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
-                              EDGEROWS*      rows,          /* temporary edgebounds by-row vector */
+                              EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
                               VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
                               VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
@@ -603,7 +603,7 @@ int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query seque
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
+      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -733,7 +733,7 @@ int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query seque
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEROWS_IntegrateDiag_Fwd( rows, &bnd_new );
+            EDGEBOUND_ROWS_IntegrateDiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
