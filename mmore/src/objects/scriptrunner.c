@@ -183,10 +183,10 @@ SCRIPTRUNNER_Execute(    SCRIPTRUNNER*     runner )
    /* extract array from vector */
    STR* command_array   = VECTOR_STR_GetArray( runner->command );
    printf("# EXECUTING: %s\n", command_array[0] );
-   int exit_code        = execvp( command_array[0], command_array );
+   int ERRORCHECK_exit_code        = execvp( command_array[0], command_array );
 
    /* program should not get here */
-   fprintf( stderr, "ERROR: SCRIPTRUNNER failed with code (%d).\n", exit_code );
+   fprintf( stderr, "ERROR: SCRIPTRUNNER failed with code (%d).\n", ERRORCHECK_exit_code );
 
    return STATUS_SUCCESS;
 }

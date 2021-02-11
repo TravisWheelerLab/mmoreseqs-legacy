@@ -30,37 +30,39 @@
 ALIGNMENT* 
 ALIGNMENT_Create()
 {
-   ALIGNMENT *aln       = NULL;
-   const int min_size   = 256;
+   ALIGNMENT *aln          = NULL;
+   const size_t min_size   = 256;
 
    aln = ERROR_malloc( sizeof(ALIGNMENT) );
 
-   aln->seq_beg      = VECTOR_INT_Create();
-   aln->seq_end      = VECTOR_INT_Create();
-   aln->sequence     = VECTOR_CHAR_Create();
-
-   aln->tr_beg       = VECTOR_INT_Create();
-   aln->tr_end       = VECTOR_INT_Create();
-   aln->traces       = VECTOR_TRACE_Create();
-
    aln->Q            = -1;
    aln->T            = -1;
-   aln->aln_len      = 0;
 
+   aln->full_len     = 0;
+   aln->traces       = VECTOR_TRACE_Create_by_Size(min_size);
+   aln->scores       = VECTOR_FLT_Create();
+
+   aln->num_alns     = 0;
+   aln->tr_beg       = VECTOR_INT_Create();
+   aln->tr_end       = VECTOR_INT_Create();
+   aln->tr_score     = VECTOR_FLT_Create();
+
+   aln->best_idx     = -1;
+   aln->aln_len      = 0;
+   aln->beg          = -1;
+   aln->end          = -1;
    aln->perc_id      = 0.0;
    aln->num_matches  = 0;
    aln->num_gaps     = 0;
    aln->num_misses   = 0;
 
-   aln->cigar_aln    = VECTOR_CHAR_Create();
    aln->is_cigar_aln = false;
+   aln->cigar_aln    = VECTOR_CHAR_Create();
+   aln->is_hmmer_aln = false;
    aln->target_aln   = VECTOR_CHAR_Create();
    aln->center_aln   = VECTOR_CHAR_Create();
    aln->query_aln    = VECTOR_CHAR_Create();
    aln->state_aln    = VECTOR_CHAR_Create();
-   aln->is_hmmer_aln = false;
-
-   ALIGNMENT_Resize(aln, min_size);
 
    return aln;
 }
@@ -72,14 +74,13 @@ ALIGNMENT*
 ALIGNMENT_Destroy(   ALIGNMENT* aln )
 {
    if (aln == NULL) return aln;
-   
-   aln->seq_beg      = VECTOR_INT_Destroy( aln->seq_beg );
-   aln->seq_end      = VECTOR_INT_Destroy( aln->seq_end );
-   aln->sequence     = VECTOR_CHAR_Destroy( aln->sequence );
+
+   aln->traces       = VECTOR_TRACE_Destroy( aln->traces );
+   aln->scores       = VECTOR_FLT_Destroy( aln->scores );
 
    aln->tr_beg       = VECTOR_INT_Destroy( aln->tr_beg );
    aln->tr_end       = VECTOR_INT_Destroy( aln->tr_end );
-   aln->traces       = VECTOR_TRACE_Destroy( aln->traces );
+   aln->tr_score     = VECTOR_FLT_Destroy( aln->tr_score );
 
    aln->cigar_aln    = VECTOR_CHAR_Destroy( aln->cigar_aln );
    aln->target_aln   = VECTOR_CHAR_Destroy( aln->target_aln );
@@ -88,7 +89,6 @@ ALIGNMENT_Destroy(   ALIGNMENT* aln )
    aln->state_aln    = VECTOR_CHAR_Destroy( aln->state_aln );
 
    aln = ERROR_free( aln );
-
    return aln;
 }
 
@@ -100,13 +100,21 @@ ALIGNMENT_Reuse(  ALIGNMENT*  aln,
                   int         Q,
                   int         T )
 {
-   VECTOR_INT_Reuse( aln->seq_beg );
-   VECTOR_INT_Reuse( aln->seq_end );
-   VECTOR_CHAR_Reuse( aln->sequence );
+   VECTOR_TRACE_Reuse( aln->traces );
+   VECTOR_FLT_Reuse( aln->scores );
 
    VECTOR_INT_Reuse( aln->tr_beg );
    VECTOR_INT_Reuse( aln->tr_end );
-   VECTOR_TRACE_Reuse( aln->traces );
+   VECTOR_FLT_Reuse( aln->tr_score );
+
+   aln->best_idx     = -1;
+   aln->aln_len      = 0;
+   aln->beg          = -1;
+   aln->end          = -1;
+   aln->perc_id      = 0.0;
+   aln->num_matches  = 0;
+   aln->num_gaps     = 0;
+   aln->num_misses   = 0;
 
    VECTOR_CHAR_Reuse( aln->cigar_aln );
    aln->is_cigar_aln = false;
@@ -135,6 +143,30 @@ ALIGNMENT_Pushback(     ALIGNMENT*  aln,
    VECTOR_TRACE_Pushback( aln->traces, *tr );
 }
 
+/*! FUNCTION:  ALIGNMENT_GetSize()
+ *  SYNOPSIS:  Return size of <aln>
+ */
+size_t
+ALIGNMENT_GetSize(    ALIGNMENT*   aln )
+{
+   size_t size;
+   size = VECTOR_TRACE_GetSize( aln->traces );
+   return size;
+}
+
+/*! FUNCTION:  ALIGNMENT_GetTrace()
+ *  SYNOPSIS:  Get <i>th trace in <aln>
+ */
+inline
+TRACE 
+ALIGNMENT_GetTrace(  ALIGNMENT*     aln,
+                     int            i )
+{
+   TRACE tr;
+   tr = VECTOR_TRACE_Get(aln->traces, i);
+   return tr;
+}
+
 /*! FUNCTION:  ALIGNMENT_Resize()
  *  SYNOPSIS:  Resize <aln>'s trace array to <size>.
  */
@@ -155,7 +187,7 @@ ALIGNMENT_GrowTo(    ALIGNMENT*   aln,
    VECTOR_TRACE_GrowTo( aln->traces, size );
 }
 
-/*! FUNCTION:  ALIGNMENT_Resize()
+/*! FUNCTION:  ALIGNMENT_Compare()
  *  SYNOPSIS:  Compare alignments <a> and <b>.
  *  RETURN:    Zero if equal.
  */
@@ -221,7 +253,7 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
             fprintf( stderr, "[%d]:%s, ", i, STATE_NAMES[i] );
          }
          fprintf(stderr, "\n" );
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    tr.st = st;
@@ -257,6 +289,20 @@ ALIGNMENT_Find_Length(  ALIGNMENT*  aln )
       aln->end       = aln->tr_end->data[0];
       aln->aln_len   = aln->end - aln->beg + 1;
    }
+}
+
+/*! FUNCTION:  ALIGNMENT_PushbackSubaln()
+ *  SYNOPSIS:  Adds a distinct, discrete alignment region to list with <beg> and <end> points and <score> for region.
+ */
+void 
+ALIGNMENT_Pushback_Subaln(    ALIGNMENT*  aln,
+                              int         beg,
+                              int         end,
+                              float       score )
+{
+   VECTOR_INT_Pushback( aln->tr_beg, beg );
+   VECTOR_INT_Pushback( aln->tr_end, end );
+   VECTOR_FLT_Pushback( aln->tr_score, score );
 }
 
 /*! FUNCTION:  ALIGNMENT_SetEndpoints()
@@ -331,6 +377,7 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
    int            i_beg       = aln->beg;
    int            i_end       = aln->end;
    int            aln_len     = i_end - i_beg + 1;
+   int            pos;
    char           t_ch;
    char           q_ch;
    char           c_ch;
@@ -363,8 +410,8 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
    }
 
    /* capture alignment (until END state) */
-   int offset = 0;
-   for (i = i_beg; i <= i_end; i++, offset++)
+   pos = 0;
+   for (i = i_beg; i <= i_end; i++, pos++)
    {
       /* get emitted residue at position in the alignment */
       tr       = &VEC_X( traceback, i );
@@ -376,23 +423,23 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
       if ( tr->st == M_ST ) 
       { 
          match_streak++;
-         VECTOR_CHAR_Set( aln->state_aln,    offset, 'M' );
-         VECTOR_CHAR_Set( aln->target_aln,   offset, t_ch );
-         VECTOR_CHAR_Set( aln->query_aln,    offset, q_ch );
+         VECTOR_CHAR_Set( aln->state_aln,    pos, 'M' );
+         VECTOR_CHAR_Set( aln->target_aln,   pos, t_ch );
+         VECTOR_CHAR_Set( aln->query_aln,    pos, q_ch );
 
          /* center alignment depends on match score between target and query: */
          /* if target and query match (same case) */
          if ( t_ch == q_ch ) {
             aln->num_matches++;
-            VECTOR_CHAR_Set( aln->center_aln, offset, t_ch );
+            VECTOR_CHAR_Set( aln->center_aln, pos, t_ch );
          } 
          /* else, if target and query match (any case) */
          else {
-            t_ch = tolower( t_ch );
-            q_ch = tolower( q_ch );
+            t_ch = toupper( t_ch );
+            q_ch = toupper( q_ch );
             if ( t_ch == q_ch ) {
                aln->num_matches++;
-               VECTOR_CHAR_Set( aln->center_aln, offset, t_ch );
+               VECTOR_CHAR_Set( aln->center_aln, pos, tolower(t_ch) );
             }
             /* else, if score is positive or negative */
             else {
@@ -400,11 +447,11 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
                msc = MSC( tr->t_0, AA_REV[q_ch] );
                /* if match score is positive */
                if ( msc > 0 ) {
-                  VECTOR_CHAR_Set( aln->center_aln, offset, '+' );
+                  VECTOR_CHAR_Set( aln->center_aln, pos, '+' );
                } 
                /* if match score is negative */
                else {
-                  VECTOR_CHAR_Set( aln->center_aln, offset, '-' );
+                  VECTOR_CHAR_Set( aln->center_aln, pos, '-' );
                } 
             }
          }
@@ -418,10 +465,10 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
          match_streak = 0;
          aln->num_misses++;
          /* insert corresponds to gap in target profile */
-         VECTOR_CHAR_Set( aln->state_aln,    offset, 'I' );
-         VECTOR_CHAR_Set( aln->center_aln,   offset, ' ' );
-         VECTOR_CHAR_Set( aln->target_aln,   offset, '-' );
-         VECTOR_CHAR_Set( aln->query_aln,    offset, q_ch );
+         VECTOR_CHAR_Set( aln->state_aln,    pos, 'I' );
+         VECTOR_CHAR_Set( aln->center_aln,   pos, ' ' );
+         VECTOR_CHAR_Set( aln->target_aln,   pos, '-' );
+         VECTOR_CHAR_Set( aln->query_aln,    pos, q_ch );
       }
       elif ( tr->st == D_ST ) 
       {
@@ -432,17 +479,21 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
          match_streak = 0;
          aln->num_misses++;
          /* delete corresponds to gap in query sequence */
-         VECTOR_CHAR_Set( aln->state_aln,    offset, 'D' );
-         VECTOR_CHAR_Set( aln->center_aln,   offset, ' ' );
-         VECTOR_CHAR_Set( aln->target_aln,   offset, t_ch );
-         VECTOR_CHAR_Set( aln->query_aln,    offset, '-' );
+         VECTOR_CHAR_Set( aln->state_aln,    pos, 'D' );
+         VECTOR_CHAR_Set( aln->center_aln,   pos, ' ' );
+         VECTOR_CHAR_Set( aln->target_aln,   pos, t_ch );
+         VECTOR_CHAR_Set( aln->query_aln,    pos, '-' );
+      }
+      /* if not a core model emit state */
+      else {
+
       }
    }
    /* terminate strings with null termination character */
-   VECTOR_CHAR_Set( aln->state_aln,    offset, NULL_CHAR );
-   VECTOR_CHAR_Set( aln->center_aln,   offset, NULL_CHAR );
-   VECTOR_CHAR_Set( aln->target_aln,   offset, NULL_CHAR );
-   VECTOR_CHAR_Set( aln->query_aln,    offset, NULL_CHAR );
+   VECTOR_CHAR_Set( aln->state_aln,    pos, NULL_CHAR );
+   VECTOR_CHAR_Set( aln->center_aln,   pos, NULL_CHAR );
+   VECTOR_CHAR_Set( aln->target_aln,   pos, NULL_CHAR );
+   VECTOR_CHAR_Set( aln->query_aln,    pos, NULL_CHAR );
 
    /* percent identity is percentage of alignment that is a direct match */
    aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
@@ -467,7 +518,7 @@ ALIGNMENT_Build_MMSEQS_Style(    ALIGNMENT*     aln,
 
    /* place to cast run length and state to string */
    char     cigar_buffer[64];    /* buffer for building string */
-   int      offset      = 0;     /* offset into cigar string */
+   int      pos      = 0;     /* pos into cigar string */
    int      run_len     = 0;     /* tracks number of consequetive states */
 
    TRACE*   tr          = NULL;  /* current trace */
@@ -521,7 +572,7 @@ ALIGNMENT_Dump(   ALIGNMENT*  aln,
    if (fp == NULL) {
       const char* obj_name = "ALIGNMENT";
       fprintf(stderr, "ERROR: Bad FILE pointer for printing %s: <%p>.\n", obj_name, aln);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       return;
    }
    

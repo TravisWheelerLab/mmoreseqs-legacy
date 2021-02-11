@@ -200,7 +200,7 @@ typedef enum {
    B_ST = 7,   /* BEGIN ALIGNMENT STATE */
    S_ST = 8,   /* START STATE */
    T_ST = 9,   /* TERMINAL STATE */
-   X_ST = 10,  /* UNKNOWN STATE */
+   X_ST = 10,  /* UNKNOWN/BOGUS STATE */
 } ALL_STATES;
 #define NUM_ALL_STATES 11
 

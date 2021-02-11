@@ -30,15 +30,19 @@
  *
  *    RETURN:  Return <STATUS_SUCCESS> if no errors.
  */
-int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query sequence */
-                                    const HMM_PROFILE*   target,     /* HMM model */
-                                    const int            Q,          /* query/seq length */
-                                    const int            T,          /* target/model length */
-                                    MATRIX_3D_SPARSE*    st_SMX,     /* Normal State (Match, Insert, Delete) Matrix */
-                                    MATRIX_2D*           sp_MX,      /* Special State (J,N,B,C,E) Matrix */
-                                    EDGEBOUNDS*          edg,        /* edgebounds of sparse matrix */
-                                    ALIGNMENT*           aln )       /* OUTPUT: Traceback Alignment */
+int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,         /* query sequence */
+                                    const HMM_PROFILE*   target,        /* HMM model */
+                                    const int            Q,             /* query/seq length */
+                                    const int            T,             /* target/model length */
+                                    MATRIX_3D_SPARSE*    st_SMX_vit,    /* Normal State (Match, Insert, Delete) Matrix */
+                                    MATRIX_2D*           sp_MX_vit,     /* Special State (J,N,B,C,E) Matrix */
+                                    EDGEBOUNDS*          edg,           /* edgebounds of sparse matrix */
+                                    ALIGNMENT*           aln )          /* OUTPUT: Traceback Alignment */
 {
+   /* generic dp matrix pointers for macros */
+   MATRIX_3D_SPARSE*    st_SMX   = st_SMX_vit;
+   MATRIX_2D*           sp_MX    = sp_MX_vit;
+
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
@@ -81,27 +85,23 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
    int            q_prv, t_prv;              /* previous  */
    TRACE*         tr;                        /* trace object for appending */
    const float    tol = 1e-5;                /* acceptable tolerance range for "equality tests" */
+   bool           is_found;                  /* determines whether cell is found */
+   int            aln_len;                   /* length of alignment */
 
    /* --------------------------------------------------------------------------- */
 
    /* get sequence and trace */
-   seq   = query->seq; 
-   tr    = aln->traces->data; 
-
-   /* intial cell */
-   q_0 = q_prv = Q;
-   t_0 = t_prv = 0;
-
-   /* add every edgebound from current row */
-   r_0b = edg->N - 1;
-   r_0 = r_0e = r_0b;
-   while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
-      r_0--;
-   }
-   r_0e = r_0;
-
+   seq      = query->seq; 
    /* local or global? */
    is_local = target->isLocal;
+
+   /* intial indexes */
+   q_0   = q_prv = Q;
+   t_0   = t_prv = 0;
+   r_0b  = edg->N - 1;
+   r_0e  = edg->N - 1;
+   /* get edgebound range */
+   EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
 
    /* clear memory for trace */
    ALIGNMENT_Reuse( aln, Q, T );
@@ -122,34 +122,44 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
 
       /* if q_0 has been decremented, then get edgebound range of next row  */
       if ( q_prv != q_0 ) {
-         r_0b = r_0 = r_0e;
-         while ( r_0 >= 0 && EDG_X(edg, r_0).id >= q_0 ) {
-            r_0--;
-         }
-         r_0e = r_0;
-         /* reset r_0 to beginning of row */
-         r_0 = r_0b;
+         /* get edgebound range */
+         EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
       }
 
-      /* TODO: can be optimized by only updating during certain cases */
-      /* if either t_0 or q_0 have been decremented, then lookup index offset */
-      if ( t_prv != t_0 || q_prv != q_0 ) {
-         /* search through bounds in row for bound containing index */
-         for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) {
-            /* find bound that contains current index */
-            bnd = &EDG_X(edg, r_0);
-            if ( t_0 >= bnd->lb && t_0 < bnd->rb ) {
-               /* fetch data mapping bound start location to data block in sparse matrix */
-               qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-               qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
-
-               tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
-               tx1 = tx0 - 1;
-
-               break;
+      /*! TODO: (?) can be optimized by only updating during certain cases */
+      is_found = false;
+      /* if in the core model, find location */
+      if ( st_prv == M_ST || st_prv == I_ST || st_prv == D_ST )
+      {
+         /* if either t_0 or q_0 have been decremented, then lookup index offset */
+         if ( t_prv != t_0 || q_prv != q_0 ) 
+         {
+            /* search through bounds in row for bound containing index */
+            for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) 
+            {
+               /* find bound that contains current index */
+               bnd = &EDG_X(edg, r_0);
+               /* if t_0 is inside range of current bound */
+               if ( t_0 >= bnd->lb && t_0 < bnd->rb ) {
+                  /* fetch data mapping bound start location to data block in sparse matrix */
+                  qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, 0) location offset */
+                  qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, 0) location offset */
+                  /* total_offset = offset_location - starting_location */
+                  tx0 = t_0 - bnd->lb;    
+                  tx1 = tx0 - 1;
+                  /* found location, so break from loop */
+                  is_found = true;
+                  break;
+               }
             }
          }
-      }
+         /* if not found, throw error */
+         if ( is_found == false ) {
+            fprintf( stderr, "ERROR: Impossible position in model reached at {%s,%d,%d}\n", 
+               STATE_NAMES[st_prv], q_0, t_0);
+            ERRORCHECK_exit(EXIT_FAILURE);
+         }
+      } 
 
       /* update previous */
       q_prv = q_0;
@@ -173,8 +183,9 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             cur   = XMX(SP_C, q_0);
 
             if ( cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               fprintf( stderr, "ERROR: Impossible C_ST reached at {%s,%d,%d}\n", 
+                  STATE_NAMES[st_prv], q_0, t_0);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             
             /* possible previous states */
@@ -188,8 +199,8 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
                st_cur = E_ST;
             }
             else {
-               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               fprintf( stderr, "ERROR: Failed to trace from C_ST at (%d,%d)\n", q_0, t_0);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -203,7 +214,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( is_local )  /* local mode: ends in M */
@@ -249,7 +260,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
                /* if no entry point into M found */
                if ( found == -1 ) {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
             else  /*! TODO: (?) glocal mode: we either come from D_M or M_M */
@@ -268,7 +279,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -293,7 +304,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
                fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -311,7 +322,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -327,7 +338,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -343,7 +354,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -359,7 +370,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -375,7 +386,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* if at beginning of query sequence, then alignment completes at S state, else N state */
@@ -406,7 +417,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -418,7 +429,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -434,14 +445,14 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
          default:
          {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
 
@@ -456,11 +467,12 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,      /* query se
       st_prv = st_cur;
    }
 
-   /* reverse order of alnaceback */
+   /* reverse order of traceback */
    ALIGNMENT_Reverse( aln );
-
+   
    /* find end and begin alignment points (first and last match state) */
-   int N  = aln->traces->N;
+   int N    = aln->traces->N;
+   tr       = aln->traces->data; 
    for (int i = 0; i < N; ++i) {
       if ( tr[i].st == B_ST ) {
          VECTOR_INT_Pushback( aln->tr_beg, i + 1 );

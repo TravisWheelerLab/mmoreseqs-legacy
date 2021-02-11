@@ -122,6 +122,7 @@ void
 EDGEBOUND_ROWS_Resize(     EDGEBOUND_ROWS*  edg,
                            int              size )
 {
+   /* allocate enough space for (SIZE * ROW_MAX) bounds */
    edg->rows_N = ERROR_realloc( edg->rows_N, sizeof(int) * size );
    edg->rows   = ERROR_realloc( edg->rows, sizeof(BOUND) * ( size * edg->row_max ) );
    edg->Nalloc = size;
@@ -152,11 +153,14 @@ EDGEBOUND_ROWS_Get(  EDGEBOUND_ROWS*   edg,
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
-      if ( i >= edg->N || i < 0 ) {
+   {
+      int N = edg->N * edg->row_max;
+      if ( i >= N || i < 0 ) {
          fprintf(stderr, "ERROR: EDGEBOUND_ROWS Access Out-of-Bounds\n");
-         fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
-         exit(EXIT_FAILURE);
+         fprintf(stderr, "dim: (%d), access: (%d)\n", N, i);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
+   }
    #endif
 
    return &(edg->rows[i]);
@@ -187,7 +191,6 @@ EDGEBOUND_ROWS_Get_byRow(  EDGEBOUND_ROWS*      edg,
 
    /* find map of index in full Q -> index in Q_range */
    qx0   = q_0 - edg->Q_range.beg;
-
    /* convert to flat index to access proper row */
    idx   = (qx0 * edg->row_max) + i_0;
    /* get row at flat index */
@@ -252,7 +255,7 @@ EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
       #endif
       
       /* Optionally, we could force user to recompile with larger edgebound lists */
-      // exit(EXIT_FAILURE);
+      // ERRORCHECK_exit(EXIT_FAILURE);
       /* Otherwise, we could just bridge the last two spans together, by updating right bound */
       last_idx -= edg->row_max - 1;
       edg_bnd  = EDGEBOUND_ROWS_Get_byRow( edg, q_0, last_idx );
@@ -406,7 +409,7 @@ EDGEBOUND_ROWS_Dump(    EDGEBOUND_ROWS*   edg,
    if (fp == NULL) {
       const char* obj_name = "EDGEBOUND_ROWS";
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       return;
    }
 

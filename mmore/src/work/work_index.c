@@ -149,7 +149,7 @@ WORK_load_target_index( WORKER* worker )
       }
       else {
          fprintf(stderr, "ERROR: target filetype is not supported.\n" );
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
       /* identify the query file being indexed */
       worker->t_index->source_path  = STR_Create( args->t_filepath );
@@ -209,7 +209,7 @@ WORK_load_query_index( WORKER* worker )
       }
       else {
          fprintf(stderr, "ERROR: query filetype is not supported.\n" );
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
       /* identify the query file being indexed */
       worker->q_index->source_path  = STR_Create(args->q_filepath);
@@ -248,7 +248,7 @@ WORK_build_target_index( WORKER* worker )
    }
    else {
       fprintf(stderr, "ERROR: target filetype is not supported.\n" );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    /* identify the query file being indexed */
    worker->t_index->source_path = STR_Create(args->t_filepath);
@@ -285,7 +285,7 @@ WORK_build_query_index( WORKER* worker )
    }
    else {
       fprintf(stderr, "ERROR: query filetype is not supported.\n" );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    /* identify the query file being indexed */
    worker->q_index->source_path = STR_Create(args->q_filepath);

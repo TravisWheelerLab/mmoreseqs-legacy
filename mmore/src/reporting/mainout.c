@@ -4,6 +4,8 @@
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       - 
+ *  NOTES:
+ *    - Need to buffer output!
  *******************************************************************************/
 
 /* imports */
@@ -148,7 +150,8 @@ void REPORT_stdout_entry(  WORKER*  worker,
                            RESULT*  result,
                            FILE*    fp )
 {
-   ALIGNMENT*     aln            = worker->trace_vit;
+   // ALIGNMENT*     aln            = worker->trace_vit;
+   ALIGNMENT*     aln            = worker->trace_post;
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
    ALL_SCORES*    scores         = &result->scores;
@@ -178,20 +181,19 @@ void REPORT_stdout_entry(  WORKER*  worker,
 
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {
-      /*! TODO: fix mmseqs align tool */
-      // ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
    }
-   // cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
-   // cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
+   cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
+   cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
 
    if ( aln->is_hmmer_aln == false ) {
       /*! TODO: fix hmmer align tool */
-      // ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
    }
-   // target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
-   // query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
-   // center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
-   // state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
+   target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
+   query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
+   center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
+   state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
 
    /* Meta Data */
    REPORT_horizontal_rule( fp );
@@ -215,16 +217,18 @@ void REPORT_stdout_entry(  WORKER*  worker,
       "E-value:",       finalsc->eval,       ""          /* e-value (raw) */
    );
    /* MMSEQS-style Cigar Alignment */
-   if (false)
+   if (true)
    {
-      fprintf( fp, "%*s %s\n", 
-         0, "==== Cigar:", cigar_aln );
+      fprintf( fp, "%*s %s\n\n", 
+         0, "==== MMSEQS Cigar Alignment:", cigar_aln );
    }
 
    /* HMMER-style Alignment */
    int offset = 0; 
-   if (false) 
+   if (true) 
    {
+      fprintf( fp, "%*s %s\n", 
+         0, "==== HMMER Pairwise Alignment ===:\n", "" );
       /* create alignment rows */
       for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
       {
@@ -255,6 +259,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
             &VEC_X( aln->query_aln, offset ),               /* alignment residues */
             VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
          );
+         fprintf( fp, "\n" );
       }
    }
 

@@ -88,5 +88,5 @@ main ( int argc, char *argv[] )
 
    printf("# Program_Runtime: %f\n", program_runtime );
    printf("# Completed Successfully.\n");
-   exit(EXIT_SUCCESS);
+   ERRORCHECK_exit(EXIT_SUCCESS);
 }

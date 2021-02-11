@@ -68,7 +68,7 @@ F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
    fp = fopen(filename, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File '%s'\n", filename);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* read file line-by-line */
@@ -164,7 +164,7 @@ F_INDEX* F_INDEX_Fasta_Build(    F_INDEX*       f_index,
    fp = fopen(filename, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", filename);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* read file line-by-line */
@@ -325,7 +325,7 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
    fp = fopen( _lookup_filepath_, "r" );
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", _lookup_filepath_ );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* parse header details */
@@ -390,7 +390,7 @@ F_INDEX* F_INDEX_Plus_Load(   F_INDEX*       f_index,
    fp = fopen(filename, "r");
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to Open File => %s\n", filename);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* read file line-by-line */

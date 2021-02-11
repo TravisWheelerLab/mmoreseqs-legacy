@@ -5,7 +5,19 @@
  *
  *    AUTHOR:     Dave Rich
  *    BUGS:       
- *       - None known.
+ *       - Intermittant Bug
+==1889360==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60c000003fe0 at pc 0x56500ca90ba9 bp 0x7fff9d366fd0 sp 0x7fff9d366fc0
+WRITE of size 4 at 0x60c000003fe0 thread T0
+    #0 0x56500ca90ba8 in run_Cloud_Forward_Linear src/algs_linear/cloud_search_linear.c:373
+    #1 0x56500c9d13a6 in WORK_cloud_search_linear src/work/work_cloud_search.c:86
+    #2 0x56500ca497ae in mmore_main_pipeline src/pipelines/pipeline_mmore_main.c:107
+    #3 0x56500c9e43d4 in main src/application.c:74
+    #4 0x7fa683d950b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
+    #5 0x56500c97a08d in _start (/home/devreckas/Google-Drive/Wheeler-Labs/personal-work/fbpruner-project/mmore/build/mmore-DEBUG+0x2208d)
+
+Address 0x60c000003fe0 is a wild pointer.
+SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_linear.c:373 in run_Cloud_Forward_Linear
+
  *    TODO:       
  *       - lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine. 
  *******************************************************************************/
@@ -30,14 +42,14 @@
 #include "_algs_linear.h"
 #include "cloud_search_linear.h"
 
-/*
+/**
  *      NOTE: HOW TO CONVERT row-coords to diag-coords
  *       MMX3(q_1, t_1) => MMX3(d_2, k_1)
  *       MMX3(q_0, t_1) => MMX3(d_1, k_0)
  *       MMX3(q_1, t_0) => MMX3(d_1, k_1)
  */
 
-/* 
+/**
  *       NOTE: CONVERSION - row-coords => diag-coords
  *       MX_M(i-1, j-1) => MX3_M(d_2, k-1)
  *       MX_M(i  , j-1) => MX3_M(d_1, k  ) 
@@ -665,7 +677,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       total_max += presc;
       inner_max += presc;
 
-      /* since total and inner exit core model at different points, we compute their post-core corrections separately */
+      /* since total and inner ERRORCHECK_exit core model at different points, we compute their post-core corrections separately */
       /* post-core model: M)->E->C->...->C->T */
       postsc = 0.0f;
       postsc += XSC(SP_E, SP_MOVE);

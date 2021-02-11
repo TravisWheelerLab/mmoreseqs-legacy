@@ -3,7 +3,14 @@
  *  PURPOSE:   The Maximum Posterior Probability and Optimal Alignment.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
+ *  NOTES:
+ *    - There are a few suboptimal arrangements I have to clarify the posterior process.
+ *    - Currently, posterior_decoding converts from log to normal space in a separate middle step.
+ *      This could be integrated into the first pass through the matrix and reduce passes.
+ *      The third step also takes two passes: once to get the total per row, and again 
+ *      to divide by the total denom.  This summing process could also be done during the 
+ *      first pass if it were in normal space
  *******************************************************************************/
 
 /* imports */
@@ -60,7 +67,6 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
    ALL_SCORES*    scores   = &result->scores;
    RANGE*         Q_range  = &result->query_range;
    RANGE*         T_range  = &result->target_range;
-
    /* working space needed for computing optimal alignment. Can recycle <...fwd> */
    EDGEBOUNDS*    edg_dom;
    int            Q_size, T_size, D_size;
@@ -177,12 +183,30 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       
       fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", null2_seq_bias, null2_seq_bias/CONST_LOG2);
 
+      CLOCK_Start( timer );
+      run_Posterior_Optimal_Accuracy_Sparse( 
+         q_seq, t_prof, Q, T, edg, NULL,
+         st_SMX_post, sp_MX_post, st_SMX_opt, sp_MX_opt, &opt_sc );
+      CLOCK_Stop( timer );
+      times->sp_optacc = CLOCK_Duration( timer );
 
-      // /* Optimal Alignment Traceback */
+      fprintf(stdout, "# ==> Optimal Accuracy (full cloud): %11.4f\n", opt_sc);
+      #if DEBUG 
+      {
+         fp = fopen("test_output/my.sparse_opt.mx", "w+");
+         MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_opt, debugger->test_MX);
+         MATRIX_2D_Log(sp_MX_opt);
+         DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_opt, fp);
+         MATRIX_2D_Exp(sp_MX_post);
+         fclose(fp);
+      }
+      #endif
+
+      /* Optimal Alignment Traceback */
       // CLOCK_Start( timer );
       // run_Posterior_Optimal_Traceback_Sparse( 
       //    q_seq, t_prof, Q, T, edg, NULL, 
-      //    st_SMX_post, sp_MX_post, dom_def->align );
+      //    st_SMX_post, sp_MX_post,  );
       // ALIGNMENT_Build_MMSEQS_Style( dom_def->align, q_seq, t_prof );
       // ALIGNMENT_Build_HMMER_Style( dom_def->align, q_seq, t_prof );
       // CLOCK_Stop( timer );
@@ -338,6 +362,8 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
 /*! FUNCTION:  run_Decode_Normal_Posterior_Sparse()
  *  SYNOPSIS:  Using <...fwd> and <...bck> dp matrices to create special state posterior into <...post>.
  *             Can store output <...post> matrix in input <...bck> matrix.
+ *             Input <...fwd> and <...bck> matrices must be in log space.
+ *             Output <...post> matrices are in normal space.
  *             NOTE: Modeled after <p7_Decoding()> and <p7_DomainDecoding()>
  *
  *  RETURN:    Return <STATUS_SUCCESS> if no errors.
@@ -394,7 +420,9 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
 
    overall_sc  =  XMX_X( sp_MX_fwd, SP_C, Q ) + 
                   XSC_X(t_prof, SP_C, SP_MOVE);
-   // printf("overall_sc: %f %f ==> %f\n", XMX_X( sp_MX_fwd, SP_C, Q ), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
+   
+   printf("overall_sc: %f %f ==> %f\n", 
+      XMX_X( sp_MX_fwd, SP_C, Q ), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
    
    /* domain range (query sequence) */
    if (dom_range == NULL) {
@@ -556,12 +584,21 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
       }
    }
 
+   #if DEBUG
+   {
+      fp = fopen("test_output/my.raw_post.exp.mx", "w+");
+      MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
+      DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
+      fclose(fp); 
+   }
+   #endif
+
    /* CONVERT TO NORMAL SPACE */
    if ( true )
    {
       MATRIX_3D_SPARSE_Exp( st_SMX_post );
       MATRIX_2D_Exp( sp_MX_post );
-   }
+   } 
 
    /* NORMALIZE MATRIX */
    if ( true )
@@ -824,7 +861,7 @@ run_Decode_Domains(     SEQUENCE*               q_seq,            /* query seque
    dom_def->n_regions   = 0;
    dom_def->n_domains   = 0;
    
-   /* find domain ranges (HMMER method) */
+   /* find all domain ranges (HMMER method) */
    if (true)
    {
       VECTOR_RANGE_Reuse( dom_def->dom_ranges );

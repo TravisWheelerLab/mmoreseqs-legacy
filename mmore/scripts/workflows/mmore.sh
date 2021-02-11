@@ -38,58 +38,7 @@ ARG_TARGET_MMSEQS=$3
 
 echo_v 1 "MMORE SCRIPT: $ARG_TARGET $ARG_QUERY $ARG_TARGET_MMSEQS"
 
-# if system tools allowed, then try to using system installs
-USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
-if (( USE_LOCAL_TOOLS == 0 ))
-then
-	echo_v 3 "SEARCHING FOR SYSTEM TOOLS..."
-	# which mmseqs
-	MMSEQS_DEFAULT=$(which mmseqs)
-	# which hmmbuild
-	HMMER_DEFAULT=$(which hmmbuild)
-	# which mmore
-	MMORE_DEFAULT=$(which mmore)
-fi
-
-# if not install on system, add local install to path (paths passed as environmental vars in main)
-if [ -z "$MMSEQS_DEFAULT" ]
-then
-	echo_v 3 "USING LOCAL MMSEQS: ${MMSEQS_DIR}"
-	export PATH="${MMSEQS_DIR}:$PATH"
-fi
-if [ -z "$HMMER_DEFAULT" ]
-then
-	echo_v 3 "USING LOCAL HMMER: ${HMMER_DIR}"
-	export PATH="${HMMER_DIR}:$PATH"
-fi
-if [ -z "$MMORE_DEFAULT" ]
-then
-	echo_v 3 "USING LOCAL MMORE: ${MMORE_DIR}"
-	export PATH="${MMORE_DIR}:$PATH"
-fi
-
-# if program still can't be found, throw error.
-# which mmseqs
-MMSEQS=$(which mmseqs)
-if [ -z "$MMSEQS" ]
-then
-	echo "ERROR: hmmer is not installed on system or locally."
-	exit 1
-fi
-# which hmmbuild
-HMMBUILD=$(which hmmbuild)
-if [ -z "$HMMBUILD" ]
-then
-	echo "ERROR: hmmer is not installed on system or locally."
-	exit 1
-fi
-# which mmore
-MMORE=$(which mmore)
-if [ -z "$MMORE" ]
-then
-	echo "ERROR: mmore is not installed on system or locally."
-	exit 1
-fi
+source "${BENCH_DIR}/mmore-get-tools.sh"
 
 # if args not supplied, falls back on these defaults
 # main args:

@@ -4,9 +4,16 @@
  *
  *  AUTHOR:    Dave Rich
  *  BUG:
+ *    - Stack tracing could use some work.
+ *  NOTES:
+ *    -  All exits should come through the error handler, hopefully with useful
+ *       decriptions if something went wrong.
+ *    -  For now, debugging is easier with stacktrace created by -fsanitize=address.
+ *       So exits with error codes are sent to stderr and 
+ *       program allowed to continue if in -BUILD=DEBUG.
  *******************************************************************************/
 
-/* === imports === */
+/* imports */
 #include <stdio.h>
 #include <stdlib.h>
 #include <execinfo.h>
@@ -17,18 +24,14 @@
 #include <ctype.h>
 #include <time.h>
 
-/* === local imports === */
+/* local imports */
 #include "../objects/structs.h"
 #include "../objects/_objects.h"
 
-/* === package header === */
+/* header */
 #include "_utilities.h"
-
-/* === private functions === */
-/* NONE */
-
-/* === public functions === */
 #include "error_handler.h"
+
 
 void 
 ERRORCHECK_handler(  const ERROR_FLAG      error_code,
@@ -69,7 +72,7 @@ ERRORCHECK_handler(  const ERROR_FLAG      error_code,
    }
    /* terminate program */
    fprintf(stderr, "# Program terminated.\n");
-   // exit(EXIT_FAILURE);
+   ERRORCHECK_exit(EXIT_FAILURE);
 }
 
 
@@ -247,8 +250,15 @@ ERRORCHECK_stacktrace()
 void 
 ERRORCHECK_exit( int exit_flag )
 {
-   ERRORCHECK_stacktrace();
-   exit( exit_flag );
+   if ( exit_flag == EXIT_SUCCESS) {
+      fprintf( stderr, "# PROGRAM terminated successfully.\n");
+      exit(exit_flag);
+   }
+   else {
+      // ERRORCHECK_stacktrace();
+      fprintf( stderr, "ERROR: EXIT REACHED with code: %d\n", exit_flag );
+      // exit(exit_flag);
+   }
 }
 
 

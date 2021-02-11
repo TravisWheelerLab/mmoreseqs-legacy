@@ -154,7 +154,7 @@ EDGEBOUNDS_Get(   EDGEBOUNDS*   edg,
    //    if ( i >= N || i < 0 ) {
    //       fprintf(stderr, "ERROR: EDGEBOUNDS Access Out-of-Bounds\n");
    //       fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
-   //       exit(EXIT_FAILURE);
+   //       ERRORCHECK_exit(EXIT_FAILURE);
    //    }
    // #endif
 
@@ -638,7 +638,7 @@ EDGEBOUNDS_Dump(  EDGEBOUNDS*    edg,
    if (fp == NULL) {
       const char* obj_name = "EDGEBOUNDS";
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       return;
    }
 
@@ -671,7 +671,7 @@ EDGEBOUNDS_Sub_Dump(    EDGEBOUNDS*    edg,
    if (fp == NULL) {
       const char* obj_name = "EDGEBOUNDS";
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       return;
    }
 
@@ -823,7 +823,7 @@ EDGEBOUNDS_Validate( EDGEBOUNDS*  edg )
    if ( valid == false ) {
       fprintf(stderr, "ERROR: Edgebounds are invalid for given matrix.\n");
       fprintf(stderr, "matrix dim: (%d,%d), bounds: %d,(%d,%d)\n", edg->Q, edg->T, bnd->id, bnd->lb, bnd->rb);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 }
 

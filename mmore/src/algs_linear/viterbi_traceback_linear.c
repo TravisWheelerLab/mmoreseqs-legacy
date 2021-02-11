@@ -161,7 +161,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             
             /* possible previous states */
@@ -177,7 +177,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -189,7 +189,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( is_local )  /* local mode: ends in M */
@@ -211,7 +211,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
                /* if no entry point into M found */
                if ( t_0 == 0 ) {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
             else     /* glocal mode: we either come from D_M or M_M */
@@ -234,7 +234,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
                }
                else {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
          } break;
@@ -248,7 +248,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -273,7 +273,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
                fprintf( stderr, "TOL: %f vs %f\n", MMX3(q_0, t_0), MMX3(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -289,7 +289,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -305,7 +305,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -321,7 +321,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -337,7 +337,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             q_0--;
          } break;
@@ -351,7 +351,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* if at beginning of query sequence, then alignment completes at S state, else N state */
@@ -382,7 +382,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -394,7 +394,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -410,14 +410,14 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
          default:
          {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
 

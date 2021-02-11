@@ -231,7 +231,7 @@ WORK_load_target_by_name(  WORKER*     worker,
    int findex_id = F_INDEX_Search_Name( worker->t_index, name );
    if ( findex_id == -1 ) {
       fprintf(stderr, "ERROR: Target name '%s' not found in F_INDEX.\n", name );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    /* use target id to load target */
    WORK_load_target_by_findex_id( worker, findex_id );
@@ -255,7 +255,7 @@ WORK_load_query_by_name(   WORKER*     worker,
    int findex_id = F_INDEX_Search_Name( worker->q_index, name );
    if ( findex_id == -1 ) {
       fprintf(stderr, "ERROR: Query name '%s' not found in F_INDEX.\n", name );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    WORK_load_query_by_findex_id( worker, findex_id);
 }
@@ -290,11 +290,11 @@ WORK_load_target_by_findex_id(   WORKER*     worker,
          SEQUENCE_Fasta_Parse( worker->t_seq, args->t_filepath, my_idx->offset );
          SEQUENCE_to_HMM_PROFILE( worker->t_seq, worker->t_prof );
          HMM_PROFILE_Dump( worker->t_prof, stdout );
-         exit(EXIT_SUCCESS);
+         ERRORCHECK_exit(EXIT_SUCCESS);
       } break;
       default: {
          fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for targets.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
 }
@@ -329,7 +329,7 @@ WORK_load_query_by_findex_id(    WORKER*     worker,
       } 
       default: {
          fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
 
@@ -339,7 +339,7 @@ WORK_load_query_by_findex_id(    WORKER*     worker,
       HMM_PROFILE_ReconfigLength( worker->t_prof, worker->q_seq->N );
    } else {
       fprintf(stderr, "ERROR: Target profile must be loaded before Query Sequence. Currently NULL.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 }
 

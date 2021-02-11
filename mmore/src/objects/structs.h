@@ -107,7 +107,7 @@ typedef struct {
 /* === VECTORS === */
 
 /* default size of vectors when created */
-#define VECTOR_INIT_SIZE 32
+#define VECTOR_INIT_SIZE 128
 
 /* vector of template data */
 typedef struct {
@@ -301,36 +301,42 @@ typedef struct {
 
 /* alignment for viterbi traceback */
 typedef struct {
-   /* consensus data (for alignment output) */
-   VECTOR_INT*    seq_beg;       /* index of beginnings of each alignment in sequence */
-   VECTOR_INT*    seq_end;       /* index of endings of each alignment in sequence */
-   VECTOR_CHAR*   sequence;      /* character sequence showing alignment between two sequences */
-   /* data */
-   VECTOR_INT*    tr_beg;        /* index of every alignment begin (B state) in traceback */
-   VECTOR_INT*    tr_end;        /* index of every alignment end (E state) in traceback */
-   VECTOR_TRACE*  traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
-   /* mmseqs' cigar-style alignments */
-   VECTOR_CHAR*   cigar_aln;     /* ex: 379M173M2D41M2D65M6I21 (see MMseqs userguide pg.35) */
-   bool           is_cigar_aln;  /* has cigar-style alignment been constructed? */
-   /* hmmer-style alignments */
-   VECTOR_CHAR*   target_aln;    /* |qdrfLePqcrilDlevWdqCYfRWlPvLeikgGGqpq| */
-   VECTOR_CHAR*   center_aln;    /* |++  L    ++  l+vW qCYfRW+P  e+ +G    | */
-   VECTOR_CHAR*   query_aln;     /* |DEDLLSMDATVKALSVWTQCYFRWVPKAEVVNGDPGT| */
-   VECTOR_CHAR*   state_aln;     /* |MMMMIIIDIDMM...                      | */
-   bool           is_hmmer_aln;  /* has hmmer-style alignment been constructed? */
-   /* trace endpoints */
-   int            beg;           /* current beginning index in traces */
-   int            end;           /* current end index in traces */
    /* dimensions of embedded matrix */
    int            Q;             /* length of query sequence */
    int            T;             /* length of target hmm profile */
+
+   /* full model traceback from T->S */
+   int            full_len;      /* length of complete T->S alignment */
+   VECTOR_TRACE*  traces;        /* list of all (state,i,j) TRACES in ALIGNMENT */
+   VECTOR_FLT*    scores;        /* list of scores at each position in the traceback */
+   /* discrete core model alignments (separated by jumps) */
+   int            num_alns;      /* number of distinct alignment */
+   VECTOR_INT*    tr_beg;        /* index of every alignment begin (B state) in traceback */
+   VECTOR_INT*    tr_end;        /* index of every alignment end (E state) in traceback */
+   VECTOR_FLT*    tr_score;      /* cumulative score for every corresponding <tr_beg,tr_end> alignment in traceback */
+
+   /* best alignment */
+   int            best_idx;      /* index of best alignment */
+   size_t         aln_len;       /* alignment length */
+   /* trace endpoints */
+   int            beg;           /* current beginning index in traces */
+   int            end;           /* current end index in traces */
    /* counts of hits, mismatches, and gaps */
    int            num_gaps;      /* number of gaps in alignment */
    int            num_misses;    /* number of misses in alignment */
    int            num_matches;   /* number of matches */
    float          perc_id;       /* percent identity */
-   /* meta data */
-   size_t         aln_len;       /* alignment length */
+
+   /* string representations of alignment */
+   /* mmseqs' cigar-style alignments */
+   bool           is_cigar_aln;  /* has cigar-style alignment been constructed? */
+   VECTOR_CHAR*   cigar_aln;     /* ex: 379M173M2D41M2D65M6I21 (see MMseqs userguide pg.35) */
+   /* hmmer-style alignments */
+   bool           is_hmmer_aln;  /* has hmmer-style alignment been constructed? */
+   VECTOR_CHAR*   target_aln;    /* |qdrfLePqcrilDlevWdqCYfRWlPvLeikgGGqpq| */
+   VECTOR_CHAR*   center_aln;    /* |++  L    ++  l+vW qCYfRW+P  e+ +G    | */
+   VECTOR_CHAR*   query_aln;     /* |DEDLLSMDATVKALSVWTQCYFRWVPKAEVVNGDPGT| */
+   VECTOR_CHAR*   state_aln;     /* |MMMMIIIDIDMM...                      | */
 } ALIGNMENT;
 
 /* clock for timing events (wrapper for squid stopwatch above) */
@@ -562,6 +568,7 @@ typedef struct {
 
    /* --- DEBUG OPTIONS --- */
    bool     is_use_local_tools;     /* whether to system installed tools or local project tools */
+   bool     is_recycle_mx;          /* whether to recycle <fwd> and <bck> matrices for computing <post> and <optacc> */
    bool     is_debug;               /* determines whether debug statements appear */
    char*    dbg_folderpath;         /* location for debugging */
    bool     enforce_warnings;       /* if error is caught, force close? */

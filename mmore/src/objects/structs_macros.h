@@ -194,22 +194,23 @@
 /* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_3D_SPARSE via function call */
-	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
+	#define SMX_X(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_3D_SPARSE via direct data access */
-	#define SMX(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
+	#define SMX_X(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
 #endif
 
 /* match, insert, delete for st_SMX matrix (sparse matrix) */
+/** TODO: define SMX() for pre-selected mx */
 /* NOTE: qx0 = bound mapped position, tx0 = t_0 - leftbound starting position */
-#define MSMX(qx0, tx0) 			SMX( st_SMX, MAT_ST, (qx0), (tx0) )
-#define ISMX(qx0, tx0) 			SMX( st_SMX, INS_ST, (qx0), (tx0) )
-#define DSMX(qx0, tx0) 			SMX( st_SMX, DEL_ST, (qx0), (tx0) )
+#define MSMX(qx0, tx0) 			SMX_X( st_SMX, MAT_ST, (qx0), (tx0) )
+#define ISMX(qx0, tx0) 			SMX_X( st_SMX, INS_ST, (qx0), (tx0) )
+#define DSMX(qx0, tx0) 			SMX_X( st_SMX, DEL_ST, (qx0), (tx0) )
 /* match, insert, delete for st_SMX matrix (sparse matrix) */
-#define MSMX_X(mx, qx0, tx0) 	SMX( mx, MAT_ST, (qx0), (tx0) )
-#define ISMX_X(mx, qx0, tx0) 	SMX( mx, INS_ST, (qx0), (tx0) )
-#define DSMX_X(mx, qx0, tx0) 	SMX( mx, DEL_ST, (qx0), (tx0) )
+#define MSMX_X(mx, qx0, tx0) 	SMX_X( mx, MAT_ST, (qx0), (tx0) )
+#define ISMX_X(mx, qx0, tx0) 	SMX_X( mx, INS_ST, (qx0), (tx0) )
+#define DSMX_X(mx, qx0, tx0) 	SMX_X( mx, DEL_ST, (qx0), (tx0) )
 
 /* whether to access MATRIX_2D via function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
@@ -260,7 +261,7 @@
 #define MAX(x,y)     (((x) > (y)) ? (x) : (y))
 #define MIN(x,y)     (((x) < (y)) ? (x) : (y))
 #define ABS(i)       (( (i) > (0) ? (i) : (-i) ))
-/* check if value is within (beg, end) range */
+/* check if value <x> is within (x_beg, x_end) range (inclusive, inclusive) */
 #define IS_IN_RANGE(x_beg, x_end, x) 	( (x) >= (x_beg) && (x) <= (x_end) )
 /* check if two value are equal within tolerance */
 #define CMP_TOL(i,j) (( fabs( (i) - (j) ) < tol ? 1 : 0 )) 

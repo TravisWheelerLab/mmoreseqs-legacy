@@ -49,15 +49,15 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
                                  const HMM_PROFILE*   target,        /* target HMM model */
                                  const int            Q,             /* query length */
                                  const int            T,             /* target length */
-                                 MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
-                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 MATRIX_3D_SPARSE*    st_SMX_fwd,    /* normal state matrix */
+                                 MATRIX_2D*           sp_MX_fwd,     /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  RANGE*               dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final )     /* (OUTPUT) final score */
 {
-   /* vars for matrix access */
-   MATRIX_3D_SPARSE*    n_mx;                /* normal state matrix */
-   MATRIX_2D*           s_mx;                /* special state matrix */
+   /* vars for matrix access for macros */
+   MATRIX_3D_SPARSE*    st_SMX   = st_SMX_fwd;    /* normal state matrix */
+   MATRIX_2D*           sp_MX    = sp_MX_fwd;     /* special state matrix */
 
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -85,7 +85,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
 
    /* vars for indexing into edgebound lists */
    BOUND*   bnd;                             /* current bound */
-   int      id;                              /* id in edgebound list (row/diag) */
+   int      id_0;                            /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
    int      r_1;                             /* current index for previous row */
@@ -202,7 +202,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
          {
             /* get bound data */
             bnd   = &EDG_X(edg, r_0);
-            id    = bnd->id;
+            id_0  = bnd->id;
             lb_T  = bnd->lb <= 0;
             lb_0  = MAX(bnd->lb, T_range.beg);    /* can't overflow the left edge */
             rb_T  = bnd->rb >= T;
@@ -259,7 +259,7 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*      query,         /* query se
          {
             /* get bound data */
             bnd   = &EDG_X(edg, r_0);
-            id    = bnd->id;
+            id_0  = bnd->id;
             lb_T  = bnd->lb <= 0;
             lb_0  = MAX(bnd->lb, T_range.beg);   /* can't overflow left edge */
             rb_T  = bnd->rb >= T;
@@ -453,15 +453,15 @@ int run_Bound_Backward_Sparse (  const SEQUENCE*      query,         /* query se
                                  const HMM_PROFILE*   target,        /* target HMM model */
                                  const int            Q,             /* query length */
                                  const int            T,             /* target length */
-                                 MATRIX_3D_SPARSE*    st_SMX,        /* normal state matrix */
-                                 MATRIX_2D*           sp_MX,         /* special state matrix */
+                                 MATRIX_3D_SPARSE*    st_SMX_bck,    /* normal state matrix */
+                                 MATRIX_2D*           sp_MX_bck,     /* special state matrix */
                                  EDGEBOUNDS*          edg,           /* edgebounds */
                                  RANGE*               dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
                                  float*               sc_final )     /* (OUTPUT) final score */
 {
-   /* vars for matrix access */
-   MATRIX_3D_SPARSE*    n_mx;                /* normal state matrix */
-   MATRIX_2D*           s_mx;                /* special state matrix */
+   /* vars for matrix access for macros */
+   MATRIX_3D_SPARSE*    st_SMX   = st_SMX_bck;        /* normal state matrix */
+   MATRIX_2D*           sp_MX    = sp_MX_bck;         /* special state matrix */
 
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */

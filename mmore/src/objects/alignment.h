@@ -36,6 +36,19 @@ void
 ALIGNMENT_Pushback(     ALIGNMENT*  aln,
                         TRACE*      tr );
 
+/*! FUNCTION:  ALIGNMENT_GetSize()
+ *  SYNOPSIS:  Return size of <aln>
+ */
+size_t
+ALIGNMENT_GetSize(    ALIGNMENT*   aln );
+
+/*! FUNCTION:  ALIGNMENT_GetTrace()
+ *  SYNOPSIS:  Get <i>th trace in <aln>
+ */
+TRACE 
+ALIGNMENT_GetTrace(  ALIGNMENT*     aln,
+                     int            i );
+
 /*! FUNCTION:  ALIGNMENT_Resize()
  *  SYNOPSIS:  Resize <aln>'s trace array to <size>.
  */
@@ -72,6 +85,15 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
  */
 void 
 ALIGNMENT_Find_Length(  ALIGNMENT*  aln );
+
+/*! FUNCTION:  ALIGNMENT_PushbackSubaln()
+ *  SYNOPSIS:  Adds a distinct, discrete alignment region to list with <beg> and <end> points and <score> for region.
+ */
+void 
+ALIGNMENT_Pushback_Subaln(    ALIGNMENT*  aln,
+                              int         beg,
+                              int         end,
+                              float       score );
 
 /*! FUNCTION:  ALIGNMENT_SetEndpoints()
  *  SYNOPSIS:  Sets <beg> and <end> endpoint indexes of the <aln> alignment.

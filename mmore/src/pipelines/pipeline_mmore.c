@@ -139,6 +139,6 @@ mmore_pipeline( WORKER* worker )
 
    /* code should not reach here */
    fprintf( stderr, "# MMORE PIPELINE FAILED.\n" );
-   exit(EXIT_FAILURE);
+   ERRORCHECK_exit(EXIT_FAILURE);
 }
 

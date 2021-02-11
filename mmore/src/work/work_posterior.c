@@ -57,16 +57,16 @@ WORK_posterior_sparse( WORKER* worker )
    WORK_build_sparse_matrix( worker );
    /* compute fwdback */
    WORK_bound_fwdback_sparse( worker );
-   /* decode domains */
+   /* find domains */
    WORK_decode_domains( worker );
    /* compute posterior */
    WORK_decode_posterior( worker );
    /* compute sequence bias */
    WORK_null2_seq_bias( worker );
    /* compute optimal accuracy from posterior */
-   // WORK_optimal_accuracy( worker );
+   WORK_optimal_accuracy( worker );
    /* backtrace optimal accuracy for posterior alignment */
-   // WORK_optacc_traceback( worker );
+   WORK_optacc_traceback( worker );
 }
 
 /*! FUNCTION:  WORK_null1_hmm_bias()
@@ -156,7 +156,6 @@ WORK_decode_domains( WORKER* worker )
    stats->n_reported_domains += dom_def->dom_ranges->N;
    CLOCK_Stop( timer );
    times->sp_decodedom = CLOCK_Duration( timer );
-   printf("DECODE TIME: %f\n", times->sp_decodedom );
 
    if ( args->verbose_level >= VERBOSE_HIGH )
    {
@@ -212,11 +211,16 @@ WORK_decode_posterior( WORKER* worker )
    fprintf(stdout, "# ==> Posterior (full cloud)\n");
    #if DEBUG 
    {
-      fp = fopen("test_output/my.sparse_post.mx", "w+");
+      fp = fopen("test_output/my.posterior.sp.log.mx", "w+");
       MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
       MATRIX_2D_Log(sp_MX_post);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
       MATRIX_2D_Exp(sp_MX_post);
+      fclose(fp);
+
+      fp = fopen("test_output/my.posterior.sp.exp.mx", "w+");
+      MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
+      DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
       fclose(fp);
    }
    #endif

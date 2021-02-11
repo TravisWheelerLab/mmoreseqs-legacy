@@ -128,7 +128,7 @@ M8_RESULTS_Dump(  M8_RESULTS*    results,
 {
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    int max_len = 0;

@@ -248,7 +248,7 @@ VECTOR_BOUND_Set(   VECTOR_BOUND*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_BOUND access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -272,7 +272,7 @@ VECTOR_BOUND_Get(   VECTOR_BOUND*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_BOUND access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -294,7 +294,7 @@ VECTOR_BOUND_GetX( VECTOR_BOUND*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_BOUND access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 

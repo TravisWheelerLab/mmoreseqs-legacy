@@ -96,8 +96,8 @@ SYSTEMIO_GetDirectory( STR old_str )
 bool
 SYSTEMIO_IsToolInstalled( const STR tool )
 {
-   int exit_code = system( tool );
-   if ( exit_code != 0 ) {
+   int ERRORCHECK_exit_code = system( tool );
+   if ( ERRORCHECK_exit_code != 0 ) {
       return false;
    }
    return true;

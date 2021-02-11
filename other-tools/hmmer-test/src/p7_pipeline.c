@@ -1093,7 +1093,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       fwdsc, nullsc, seqbias);
 
    printf("=== GENERIC POSTERIOR ===\n");
-   if (FALSE)
+   if (TRUE)
    {
       p7_GDomainDecoding( gm, gmx_fwd, gmx_bck, pli->ddef);
       printf("=== FIND DOMAINS ===\n");
@@ -1162,7 +1162,7 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
       }
 
       p7_GDecoding(gm, gmx_fwd, gmx_bck, gmx_pp);
-      fp = fopen("test_output/hmmer.posterior.gen.mx", "w+");
+      fp = fopen("test_output/hmmer.posterior.exp.gen.mx", "w+");
       DP_MATRIX_Dump(gm->L, gm->M, sq->dsq, gm, gmx_pp, fp);
       fclose(fp);
       fp = fopen("test_output/hmmer.posterior.log.gen.mx", "w+");
@@ -1208,6 +1208,8 @@ p7_Pipeline_TEST(P7_PIPELINE *pli, P7_OPROFILE *om, P7_BG *bg, const ESL_SQ *sq,
 
       exit(0);
    }
+
+
 
    /* OPTIMIZED FUNCTIONS */
    printf("=== OPTIMIZED POSTERIOR HEURISTICS ===\n");

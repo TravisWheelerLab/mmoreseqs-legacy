@@ -117,7 +117,7 @@ READER_JumpTo(    READER*     reader,
    {
       if (reader->is_open == false) {
          fprintf(stderr, "ERROR: Trying to JumpTo() before opening file.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
    #endif

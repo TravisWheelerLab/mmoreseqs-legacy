@@ -149,6 +149,6 @@ void ERRORCHECK_stacktrace();
 /*! FUNCTION:  ERRORCHECK_exit()
  *  SYNOPSIS:  Exit program and print stacktrace.
  */
-void ERRORCHECK_exit( int exit_flag );
+void ERRORCHECK_exit( int ERRORCHECK_exit_flag );
 
 #endif /* _ERROR_HANDLER_H */

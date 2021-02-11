@@ -70,7 +70,7 @@ RESULTS_M8_Parse(    M8_RESULTS* 	results,
    if (fp == NULL)
    {
       fprintf(stderr, "ERROR: Bad FILE POINTER for .M8 PARSER => %s\n", filename );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* initialize temporary vars */

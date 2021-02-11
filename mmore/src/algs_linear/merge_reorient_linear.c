@@ -114,7 +114,7 @@ EDGEBOUNDS_Union_byRow(    const int           Q,             /* query length */
    if ( edg_in[0]->edg_mode != edg_in[1]->edg_mode ) 
    {
       fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    edg_out->edg_mode = edg_in_1->edg_mode;
 
@@ -248,7 +248,7 @@ EDGEBOUNDS_Union_Abridged(  const int           Q,             /* query length *
    if ( edg_in[0]->edg_mode != edg_in[1]->edg_mode ) 
    {
       fprintf( stderr, "ERROR: Not all edgebounds being merged have same orientation!");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    edg_out->edg_mode = edg_in_1->edg_mode;
 

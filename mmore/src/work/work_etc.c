@@ -51,7 +51,7 @@ WORK_set_ranges( WORKER*    worker )
            args->t_range.beg > worker->t_index->N || 
            args->t_range.end > worker->t_index->N ) {
       fprintf(stderr, "ERROR: Invalid target id range (%d,%d).\n", args->t_range.beg, args->t_range.end );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* verify range of queries to search */
@@ -64,7 +64,7 @@ WORK_set_ranges( WORKER*    worker )
            args->q_range.beg > worker->q_index->N || 
            args->q_range.end > worker->q_index->N ) {
       fprintf(stderr, "ERROR: Invalid target id range (%d,%d).\n", args->q_range.beg, args->q_range.end );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 }
 

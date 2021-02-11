@@ -19,14 +19,12 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_quad.h"
-
 /* header */
-#include "traceback_quad.h"
+#include "_algs_quad.h"
+#include "viterbi_traceback_quad.h"
 
 
-/*
- *  FUNCTION:  run_Traceback_Quad()
+/** FUNCTION:  run_Traceback_Quad()
  *  SYNOPSIS:  Selects the default method of run_Traceback_Quad() from the available methods.
  *             Requires that <st_MX> and <sp_MX> are still completely filled.
  *
@@ -44,8 +42,7 @@ int run_Traceback_Quad(    const SEQUENCE*     query,       /* query sequence */
       query, target, Q, T, st_MX, sp_MX, aln );
 }
 
-/*
- *  FUNCTION:  run_Traceback_Quad()
+/** FUNCTION:  run_Traceback_Quad()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment. 
  *             Version 1: based on HMMER version. Verifies that Alignment agrees with Matrix data.
  *
@@ -124,7 +121,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case C_ST:  /* C(i) comes from C(i-1) or E(i) */
             if (XMX(SP_C, q_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( XMX(SP_C, q_0), XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP) ) )
@@ -133,7 +130,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                st_cur = E_ST;
             else {
                fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             break;
 
@@ -141,7 +138,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case E_ST:  /* E connects from any M state. k set here */
             if (XMX(SP_E, q_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( is_local )  /* local mode: ends in M */
@@ -154,7 +151,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                }
                if (t_0 == 0) {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
             else     /* glocal mode: we either come from D_M or M_M */
@@ -169,7 +166,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                }
                else {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
             break;
@@ -178,7 +175,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case M_ST:  /* M connects from i-1,k-1, or B */
             if (MMX(q_0, t_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( MMX(q_0, t_0), XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A) ) )
@@ -192,7 +189,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
                fprintf( stderr, "TOL: %f vs %f\n", MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             t_0--; q_0--;
             break;
@@ -201,7 +198,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case D_ST:  /* D connects from M,D at i,k-1 */
             if (DMX(q_0, t_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             t_1 = t_0-1;
@@ -211,7 +208,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                st_cur = D_ST;
             else {
                fprintf( stderr, "ERROR: Failed to alnace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             t_0--;
             break;
@@ -220,7 +217,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case I_ST:  /* I connects from M,I at i-1,k */
             if (IMX(q_0, t_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( IMX(q_0, t_0), MMX(q_1, t_0) + TSC(t_0, M2I) + ISC(t_0, A) ) )
@@ -229,7 +226,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                st_cur = I_ST;
             else {
                fprintf( stderr, "ERROR: Failed to alnace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             q_0--;
             break;
@@ -238,7 +235,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case N_ST:  /* N connects from S, N */
             if (XMX(SP_N, q_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             st_cur = ( (q_0 <= 0) ? S_ST : N_ST );
@@ -252,7 +249,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                st_cur = J_ST;
             else {
                fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             break;
 
@@ -260,7 +257,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
          case J_ST:  /* J connects from E(i) or J(i-1) */
             if (XMX(SP_J, q_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( CMP_TOL( XMX(SP_J, q_0), XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP) ) )
@@ -269,13 +266,13 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
                st_cur = E_ST;
             else {
                fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             break;
 
          default:
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
       }
 
       ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
@@ -320,8 +317,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
    return STATUS_SUCCESS;
 }
 
-/*
- *  FUNCTION:  run_Traceback_Quad_via_cmp()
+/** FUNCTION:  run_Traceback_Quad_via_cmp()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
  *             Version 2: My implementation. Takes maximum next step by finding the state that fulfills equation ( <previous state> + <transition> + <score> == <current state> ).
  *             Verifies that Alignment agrees with Matrix data.
@@ -424,7 +420,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             
             /* possible previous states */
@@ -439,7 +435,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -451,7 +447,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( is_local )  /* local mode: ends in M */
@@ -473,7 +469,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
                /* if no entry point into M found */
                if ( t_0 == 0 ) {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
             else     /* glocal mode: we either come from D_M or M_M */
@@ -493,7 +489,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
                }
                else {
                   fprintf( stderr, "ERROR: Failed to trace from E_ST at (%d,%d)\n", q_0, t_0);
-                  exit(EXIT_FAILURE);
+                  ERRORCHECK_exit(EXIT_FAILURE);
                }
             }
          } break;
@@ -507,7 +503,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -532,7 +528,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
                fprintf( stderr, "TOL: %f vs %f\n", MMX(q_0, t_0), MMX(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -548,7 +544,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -564,7 +560,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from D_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -580,7 +576,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -596,7 +592,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from I_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
             q_0--;
          } break;
@@ -610,7 +606,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* if at beginning of query sequence, then alignment completes at S state, else N state */
@@ -641,7 +637,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to alnace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
@@ -653,7 +649,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -669,14 +665,14 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to alnace from J_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          } break;
 
          default:
          {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
       
@@ -716,8 +712,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
 
 
 /* TODO: Finish implementataion */
-/*
- *  FUNCTION:  run_Traceback_Quad_via_max()
+/** FUNCTION:  run_Traceback_Quad_via_max()
  *  SYNOPSIS:  Run Viterbi Traceback to recover Optimal Alignment.
  *             Version 3: My implementation.  Takes maximum next step from current state to previous state.  
  *             Warning: No verification step.  
@@ -852,7 +847,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             if ( is_local ) /* local mode: ends in M */
@@ -909,7 +904,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -952,7 +947,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -985,7 +980,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if (IMX(q_0, t_0) == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -1018,7 +1013,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
             /* No valid alignment goes to -INF */
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* if at beginning of query sequence, then alignment completes at S state, else N state */
@@ -1062,7 +1057,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
 
             if ( cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
@@ -1086,7 +1081,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
          default:
          {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
 

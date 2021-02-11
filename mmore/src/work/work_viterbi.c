@@ -92,7 +92,7 @@ WORK_viterbi_and_traceback( WORKER*  worker )
    /* Traceback */
    if ( tasks->lin_trace ) {
       fprintf(stderr, "ERROR: Operation not supported.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       // TODO: linear traceback goes here
       // printf_vall("# ==> traceback (lin)...\n");
       // CLOCK_Start(timer);

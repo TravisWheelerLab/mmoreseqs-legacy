@@ -33,7 +33,7 @@ ARGS_Create()
    args = (ARGS*) calloc( 1, sizeof(ARGS) );
    if (args == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc ARGS.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    args->cmdline                 = NULL;

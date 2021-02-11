@@ -39,7 +39,7 @@ MATRIX_2D_Create( int  R,
 
    if ( R <= 0 || C <= 0 ) {
       fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    mx = (MATRIX_2D*) ERROR_malloc( sizeof(MATRIX_2D) );
@@ -199,7 +199,7 @@ float* MATRIX_2D_Get(   MATRIX_2D*  mx,
          fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
          fprintf(stderr, "2D => dim: (%d,%d), access: (%d,%d)\n", mx->R, mx->C, i, j);
          fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    #endif
 
@@ -224,7 +224,7 @@ MATRIX_2D_Get1D( MATRIX_2D*  mx,
    //    if ( n < 0|| n >= used ) {
    //       fprintf(stderr, "ERROR: MATRIX_2D Access Out-of-Bounds\n");
    //       fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-   //       exit(EXIT_FAILURE);
+   //       ERRORCHECK_exit(EXIT_FAILURE);
    //    }
    // #endif
 
@@ -342,7 +342,7 @@ MATRIX_2D_Dump(   MATRIX_2D*  mx,
    /* check for bad pointer */
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing SEQUENCE.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    fprintf(fp, "=== MATRIX_2D { R, C } = { %d, %d }===\n", mx->R, mx->C);

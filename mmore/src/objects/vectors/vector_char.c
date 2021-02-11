@@ -248,7 +248,7 @@ VECTOR_CHAR_Set(   VECTOR_CHAR*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_CHAR access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -272,7 +272,7 @@ VECTOR_CHAR_Get(   VECTOR_CHAR*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_CHAR access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -294,7 +294,7 @@ VECTOR_CHAR_GetX( VECTOR_CHAR*   vec,
    if ( idx >= vec->N || idx < 0 ) {
       fprintf(stderr, "ERROR: VECTOR_CHAR access out-of-bounds.\n");
       fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 

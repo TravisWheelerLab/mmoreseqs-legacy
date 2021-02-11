@@ -293,7 +293,7 @@ F_INDEX_Search_Name(    F_INDEX*    index,
       if ( index->sort_type != SORT_NAME )
       {
          printf("ERROR: Binary Search of F_INDEX by Name while not sorted by Name.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
    #endif
@@ -355,7 +355,7 @@ F_INDEX_Search_Id(   F_INDEX*    index,
       if ( index->sort_type != SORT_ID )
       {
          printf("ERROR: Binary Search of F_INDEX by ID while not sorted by ID.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
    #endif
@@ -404,7 +404,7 @@ F_INDEX_Dump(  F_INDEX*   index,
 
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n" );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* print header (TODO: make option?) */
@@ -450,7 +450,7 @@ F_INDEX_Node_Dump(   F_INDEX*    index,
 
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Unable to open file.\n" );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    
    node = F_INDEX_Get( index, id );

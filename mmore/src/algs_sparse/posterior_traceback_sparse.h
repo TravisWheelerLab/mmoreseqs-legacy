@@ -1,5 +1,5 @@
 /*******************************************************************************
- *     FILE:   posterior_sparse.h
+ *     FILE:   posterior_traceback_sparse.h
  *  PURPOSE:   The Posterior Probability and Optimal Alignment.
  *
  *   AUTHOR:   Dave Rich
@@ -22,7 +22,9 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                                             const int               Q,                /* query length */
                                             const int               T,                /* target length */
                                             EDGEBOUNDS*             edg,              /* edgebounds */
-                                            RANGE*                  in_dom_range,     /* query span of bounds */
+                                            RANGE*                  dom_range,        /* query span of bounds */
+                                            MATRIX_3D_SPARSE*       st_SMX_post,      /* posterior normal matrix */
+                                            MATRIX_2D*              sp_MX_post,       /* posterior special matrix */
                                             MATRIX_3D_SPARSE*       st_SMX_opt,       /* optimal accuracy normal matrix */
                                             MATRIX_2D*              sp_MX_opt,        /* optimal accuracy special matrix */
                                             ALIGNMENT*              aln );            /* OUTPUT: optimal alignment */

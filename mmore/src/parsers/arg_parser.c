@@ -45,7 +45,7 @@ void   ARGS_Parse( ARGS*   args,
          printf("Using DEFAULT arguments...\n\n");
          return;
       #else
-         exit(EXIT_SUCCESS);
+         ERRORCHECK_exit(EXIT_SUCCESS);
       #endif
    }
 
@@ -75,7 +75,7 @@ void   ARGS_Parse( ARGS*   args,
       for (int i = 0; i < NUM_PIPELINE_MODES; i++) 
          fprintf(stderr, "%s, ", PIPELINES[i].name);
       fprintf(stderr, "]\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* set number of main arguments based on given pipeline */
@@ -87,7 +87,7 @@ void   ARGS_Parse( ARGS*   args,
          printf("Using DEFAULT arguments...\n\n");
          return;
       #else 
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       #endif
    }
 
@@ -136,7 +136,7 @@ void   ARGS_Parse( ARGS*   args,
                } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--enforce-warnings") ) == 0 ) {
@@ -150,7 +150,7 @@ void   ARGS_Parse( ARGS*   args,
                }
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--adjust-mmseqs-aln") ) == 0 ) {
@@ -164,7 +164,7 @@ void   ARGS_Parse( ARGS*   args,
                }
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === INPUT FILES === */
@@ -177,7 +177,7 @@ void   ARGS_Parse( ARGS*   args,
                args->q_indexpath = STR_Set( args->q_indexpath, argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--local-tools") ) == 0 ) {
@@ -187,7 +187,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_use_local_tools = atoi(argv[i]); 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--guess-type") ) == 0 ) {
@@ -197,7 +197,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_guess_filetype = atoi(argv[i]); 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
@@ -213,7 +213,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_guess_filetype = false;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-main-ftype") ) == 0 ) {
@@ -227,7 +227,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_guess_filetype = false;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--tmp") ) == 0 ) {
@@ -237,7 +237,7 @@ void   ARGS_Parse( ARGS*   args,
                args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
@@ -247,7 +247,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_m8_filepath = STR_Set( args->mmseqs_m8_filepath, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === MMORE PARAMETERS === */
@@ -258,7 +258,7 @@ void   ARGS_Parse( ARGS*   args,
                args->alpha = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--beta") ) == 0 ) {
@@ -268,7 +268,7 @@ void   ARGS_Parse( ARGS*   args,
                args->beta = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--gamma") ) == 0 ) {
@@ -278,7 +278,7 @@ void   ARGS_Parse( ARGS*   args,
                args->gamma = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--eval") ) == 0 ) {
@@ -288,7 +288,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_evalue = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--run-bias") ) == 0 ) {
@@ -298,7 +298,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_compo_bias = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--run-full") ) == 0 ) {
@@ -308,7 +308,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_run_full = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--run-domains") ) == 0 ) {
@@ -318,7 +318,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_run_domains = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === MMSEQS PARAMETERS === */
@@ -329,7 +329,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_split = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-kmer") ) == 0 ) {
@@ -339,7 +339,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_kmer = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-ungapped-vit") ) == 0 ) {
@@ -349,7 +349,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_ungapped_vit = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-eval") ) == 0 ) {
@@ -359,7 +359,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_evalue = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-pval") ) == 0 ) {
@@ -369,7 +369,7 @@ void   ARGS_Parse( ARGS*   args,
                args->mmseqs_pvalue = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === SEARCH/RANGE OPTIONS === */
@@ -382,7 +382,7 @@ void   ARGS_Parse( ARGS*   args,
                args->list_range.end = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: '%s' flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--search-mode") ) == 0 ) {
@@ -398,7 +398,7 @@ void   ARGS_Parse( ARGS*   args,
                } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--run-filter") ) == 0 ) {
@@ -408,7 +408,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_run_filter = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === OUTPUT === */
@@ -422,7 +422,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_redirect_stderr = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--stdout") ) == 0 ) {
@@ -434,7 +434,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_redirect_stdout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--domtblout") ) == 0 ) {
@@ -446,7 +446,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_tblout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--m8out") ) == 0 ) {
@@ -458,7 +458,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_m8out = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--myout") ) == 0 ) {
@@ -470,7 +470,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_myout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mydomout") ) == 0 ) {
@@ -482,7 +482,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_mydomout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mytimeout") ) == 0 ) {
@@ -494,7 +494,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_mytimeout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mythreshout") ) == 0 ) {
@@ -506,7 +506,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_mythreshout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--output") ) == 0 ) {
@@ -517,7 +517,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_redirect_stdout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--debugout") ) == 0 ) {
@@ -529,7 +529,7 @@ void   ARGS_Parse( ARGS*   args,
                args->is_debug = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--customout") ) == 0 ) {
@@ -541,19 +541,19 @@ void   ARGS_Parse( ARGS*   args,
                args->is_tblout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          /* === NOT PROPER FLAG === */
          else {
             fprintf(stderr, "ERROR: '%s' is not a recognized flag.\n", argv[i]);
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
       else
       {
          fprintf(stderr, "ERROR: '%s' is not associated with an argument or flag\n", argv[i]);
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
 
@@ -583,6 +583,7 @@ void  ARGS_SetDefaults( ARGS* args )
 
    /* --- DEBUG OPTIONS --- */
    args->is_use_local_tools      = false;
+   args->is_recycle_mx           = false;
    args->is_debug                = true;
    args->dbg_folderpath          = STR_Create("test_output/");
 
@@ -748,7 +749,7 @@ ARGS_Help_Info()
          COMMAND_OPTS[i].desc );
    }
    printf("\n");
-   exit(EXIT_SUCCESS);
+   ERRORCHECK_exit(EXIT_SUCCESS);
 }
 
 /* output version info */

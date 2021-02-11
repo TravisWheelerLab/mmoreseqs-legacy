@@ -44,6 +44,8 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                                             const int               T,                /* target length */
                                             EDGEBOUNDS*             edg,              /* edgebounds */
                                             RANGE*                  dom_range,        /* query span of bounds */
+                                            MATRIX_3D_SPARSE*       st_SMX_post,      /* posterior normal matrix */
+                                            MATRIX_2D*              sp_MX_post,       /* posterior special matrix */
                                             MATRIX_3D_SPARSE*       st_SMX_opt,       /* optimal accuracy normal matrix */
                                             MATRIX_2D*              sp_MX_opt,        /* optimal accuracy special matrix */
                                             ALIGNMENT*              aln )             /* OUTPUT: optimal alignment */
@@ -51,9 +53,9 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    printf("=== run_Posterior_Traceback_Sparse() [BEGIN] ===\n");
    FILE*                fp;
 
-   /* generic dp matrix pointers */
-   MATRIX_3D_SPARSE*    st_SMX;
-   MATRIX_2D*           sp_MX;
+   /* generic dp matrix pointers for macros */
+   MATRIX_3D_SPARSE*    st_SMX   = st_SMX_opt;
+   MATRIX_2D*           sp_MX    = sp_MX_opt;
 
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -88,7 +90,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
    float    prv_loop, prv_move;              /* previous loop and move for special states */
-   float    prv_sum, prv_best;               /* temp subtotaling vars */
+   float    prv_max, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -103,18 +105,8 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
 
    /* --------------------------------------------------------------------------- */
 
-   /* open test file */
-   #if DEBUG
-   {
-      fp = fopen("test_output/my.optimal_traceback.tsv", "w+");
-   }
-   #endif
-
    /* get sequence and trace */
-   st_SMX   = st_SMX_opt;
-   sp_MX    = sp_MX_opt;
-   seq      = query->seq; 
-   tr       = aln->traces->data; 
+   seq      = query->seq;
    /* local or global? */
    is_local = target->isLocal;
 
@@ -155,13 +147,16 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
       if ( st_prv == M_ST || st_prv == I_ST || st_prv == D_ST )
       {
          /* if either t_0 or q_0 have been decremented, then lookup index offset */
-         if ( t_prv != t_0 || q_prv != q_0 ) {
+         if ( t_prv != t_0 || q_prv != q_0 ) 
+         {
             /* search through bounds in row for bound containing index */
-            for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) {
+            for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) 
+            {
                /* find bound that contains current index */
                bnd = &EDG_X(edg, r_0);
                /* if t_0 is inside range of current bound */
-               if ( t_0 >= bnd->lb && t_0 < bnd->rb ) {
+               if ( t_0 >= bnd->lb && t_0 < bnd->rb ) 
+               {
                   /* fetch data mapping bound start location to data block in sparse matrix */
                   qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, 0) location offset */
                   qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, 0) location offset */
@@ -178,11 +173,12 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          if ( is_found == false ) {
             fprintf( stderr, "ERROR: Impossible position in model reached at {%s,%d,%d}\n", 
                STATE_NAMES[st_prv], q_0, t_0);
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       } 
 
-      /* for finding next maximal state, init max to -inf */
+      /* for finding next maximal state, init max to -inf and init state to BOGUS STATE */
+      st_cur = X_ST;
       sc_max = -INF;
 
       /* update previous */
@@ -205,15 +201,12 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          {
             /* current state */
             sc_cur = XMX(SP_C, q_0);
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible C_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
             
             /* possible previous states */
-            prv_C = XMX(SP_C, q_1);
-            prv_E = XMX(SP_E, q_0);
+            prv_C    =  XSC_DELTA( SP_C, SP_LOOP ) *
+                        XMX(SP_C, q_1);
+            prv_E    =  XSC_DELTA( SP_E, SP_MOVE ) *
+                        XMX(SP_E, q_0);
 
             if ( sc_max < prv_C ) {
                st_cur = C_ST;
@@ -223,29 +216,18 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                st_cur = E_ST;
                sc_max = prv_E;
             }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
          } break;
 
          /* E STATE to {M, D} */
          case E_ST:  /* E connects from any M state. t_0 is set here. */
          {
             /* current state */
-            sc_cur = XMX(SP_E, q_0);
-            /* check for error state */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible E_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
+            sc_cur   = XMX(SP_E, q_0);
+            t_max    = -1;
 
             if ( is_local )  /* local mode: ends in M */
             {
-               /* can't come from D, in a *local* Viterbi alignment. */
-               st_cur = M_ST;
-
-               /* possible previous states (any M state) */
+               /* best possible previous M or D state */
                /* FOR every BOUND in current ROW */
                for ( r_0 = r_0b; r_0 > r_0e; r_0-- )
                {
@@ -271,12 +253,19 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
 
                      /* possible previous state */
                      prv_M = MSMX(qx0, tx0);
+                     // prv_D = DSMX(qx0, tx0);
 
                      /* check if the maximal scoring state found */
                      if ( sc_max < prv_M ) {
-                        sc_max = prv_M;
-                        t_max = t_0;
+                        st_cur   = M_ST;
+                        sc_max   = prv_M;
+                        t_max    = t_0;
                      }
+                     // if ( sc_max < prv_D ) {
+                     //    st_cur   = D_ST;
+                     //    sc_max   = prv_D;
+                     //    t_max    = t_0;
+                     // }
                   }
                }
                t_0 = t_max;
@@ -293,17 +282,16 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          {
             /* current score */
             sc_cur = MSMX(qx0, tx0);
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible M_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
 
             /* possible previous states */
-            prv_B = XMX(SP_B, q_1);
-            prv_M = MSMX(qx1, tx1);
-            prv_I = ISMX(qx1, tx1);
-            prv_D = DSMX(qx1, tx1);
+            prv_M =  TSC_DELTA(t_1, M2M) * 
+                     MSMX(qx1, tx1);
+            prv_I =  TSC_DELTA(t_1, I2M) *
+                     ISMX(qx1, tx1);
+            prv_D =  TSC_DELTA(t_1, D2M) *
+                     DSMX(qx1, tx1);
+            prv_B =  TSC_DELTA(t_1, B2M) *
+                     XMX(SP_B, q_1);
 
             /* find maximum next state score */
             if ( sc_max < prv_B ) {
@@ -322,10 +310,6 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                st_cur = D_ST;
                sc_max = prv_D;
             }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               exit(EXIT_FAILURE);
-            }
 
             /* update index to previous state */
             t_0--; q_0--;
@@ -337,15 +321,12 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             /* current state */
             sc_cur = DSMX(qx0, tx0);
             t_1 = t_0 - 1;
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible D_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
 
             /* possible previous states */
-            prv_M = MSMX(qx0, tx1);
-            prv_D = DSMX(qx0, tx1);
+            prv_M =  TSC_DELTA(t_1, M2D) *
+                     MSMX(qx0, tx1);
+            prv_D =  TSC_DELTA(t_1, D2D) * 
+                     DSMX(qx0, tx1);
 
             /* find maximum next state score */            
             if ( sc_max < prv_M ) {
@@ -355,10 +336,6 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             if ( sc_max < prv_D ) {
                st_cur = D_ST;
                sc_max = prv_D;
-            }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from D_ST at (%d,%d)\n", t_0, q_0);
-               exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -373,12 +350,14 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             /* No valid alignment goes to -INF */
             if ( sc_cur == -INF ) {
                fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
+               ERRORCHECK_exit(EXIT_FAILURE);
             }
 
             /* possible previous states */
-            prv_M = MSMX(qx1, tx0);
-            prv_I = ISMX(qx1, tx0);
+            prv_M =  TSC_DELTA(t_0, M2I) * 
+                     MSMX(qx1, tx0);
+            prv_I =  TSC_DELTA(t_0, I2I) * 
+                     ISMX(qx1, tx0);
 
             /* find maximum next state score */
             if ( sc_max < prv_M ) {
@@ -388,10 +367,6 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             if ( sc_max < prv_I ) {
                st_cur = I_ST;
                sc_max = prv_I;
-            }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from I_ST at (%d,%d)\n", t_0, q_0);
-               exit(EXIT_FAILURE);
             }
 
             /* update index to previous state */
@@ -403,13 +378,8 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          {
             /* current state */
             sc_cur = XMX(SP_N, q_0);
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible N_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
 
-            /* if at beginning of query sequence, then alignment completes at S state, else N state */
+            /* if at beginning of query sequence, then alignment completes at S state, else loops on N state */
             if ( q_0 <= 0 ) {
                st_cur = S_ST;
             } 
@@ -425,8 +395,10 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             sc_cur = XMX(SP_B, q_0);
 
             /* possible previous states */
-            prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);
-            prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);
+            prv_N =  XSC_DELTA(SP_N, SP_MOVE) * 
+                     XMX(SP_N, q_0);
+            prv_J =  XSC_DELTA(SP_J, SP_MOVE) *
+                     XMX(SP_J, q_0);
 
             /* find maximum next state score */            
             if ( sc_max < prv_N ) {
@@ -437,10 +409,6 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                st_cur = J_ST;
                sc_max = prv_J;
             }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
          } break;
 
          /* J STATE to {J,E} */
@@ -448,15 +416,12 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          {
             /* current state */
             sc_cur = XMX(SP_J, q_0);
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible J_ST reached at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
 
             /* possible previous states */
-            prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);
-            prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);
+            prv_J =  XSC_DELTA(SP_J, SP_LOOP) * 
+                     XMX(SP_J, q_1);
+            prv_E =  XSC_DELTA(SP_E, SP_LOOP) *
+                     XMX(SP_E, q_0);
 
             /* find maximum next state score */            
             if ( sc_max < prv_J ) {
@@ -467,22 +432,55 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                st_cur = E_ST;
                sc_max = prv_E;
             }
-            if ( sc_max == -INF ) {
-               fprintf( stderr, "ERROR: Failed to trace from B_ST at (%d,%d)\n", q_0, t_0);
-               exit(EXIT_FAILURE);
-            }
          } break;
 
          default:
          {
             fprintf( stderr, "ERROR: Hit Bogus State!!!\n");
-            exit(EXIT_FAILURE);
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
+      /* error check: if no state was selected for next in trace. */
+      if ( st_cur == X_ST ) {
+         fprintf( stderr, "ERROR: Traceback failed from state %s:(%d,%d).\n",
+            STATE_NAMES[st_prv], q_0, t_0 );
+         exit(1);
+      }
 
-      fprintf(fp, "[%ld] { %s, (%d, %d) }: %11.4f %11.4f\n", 
-         aln->traces->N, STATE_NAMES[st_cur], q_0, t_0, sc_cur, log(sc_cur) );
+      /* push new trace onto the alignment */
+      // fprintf( stdout, "[%ld] { %s, (%d, %d) }: %11.4f\n", 
+      //    aln->traces->N, STATE_NAMES[st_cur], q_0, t_0, sc_cur );
       ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
+      /** TODO: Add posterior scores to alignment */
+      {
+         /* temporary fix: using the optimal score, but should use the posterior score */
+         VECTOR_FLT_Pushback( aln->scores, sc_max );
+         // switch ( st_cur )
+         // {
+         //    case M_ST:
+         //    case I_ST:
+         //       /* search through bounds in row for bound containing index */
+         //       for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) 
+         //       {
+         //          /* find bound that contains current index */
+         //          bnd = &EDG_X(edg, r_0);
+         //          /* if t_0 is inside range of current bound */
+         //          if ( IS_IN_RANGE( bnd->lb, bnd->rb - 1, t_0 ) ) 
+         //          {
+         //             /* fetch data mapping bound start location to data block in sparse matrix */
+         //             qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, 0) location offset */
+         //             /* total_offset = offset_location - starting_location */
+         //             tx0 = t_0 - bnd->lb;    
+         //             tx1 = tx0 - 1;
+         //             /* found location, so break from loop */
+         //             SMX_X(st_SMX_post, st_cur, qx0, tx0);
+         //             break;
+         //          }
+         //       }
+         //    default:
+         //       post_sc = 0.0f;
+         // }
+      }
 
       /* For {N,C,J}, we deferred q_0 decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
@@ -496,18 +494,51 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    /* reverse order of traceback */
    ALIGNMENT_Reverse( aln );
 
-   /* find end and begin alignment points (first and last match state) */
-   int N  = aln->traces->N;
+   /* find end and begin alignment points, and best scoring alignment */
+   int   N           = ALIGNMENT_GetSize( aln );
+   int   num_alns    = 0;
+   int   best_aln    = -1;
+   int   long_aln    = -1;
+   float best_sc     = -INF;
+   float sc          = -INF;
+   float b_sc        = -INF;
+   float e_sc        = -INF;
+   int   b_i         = -1;
+   int   e_i         = -1;
    for (int i = 0; i < N; i++) {
-      if ( tr[i].st == B_ST ) {
+      TRACE tr = ALIGNMENT_GetTrace( aln, i );
+      if ( tr.st == B_ST ) {
+         b_i   = i;
          VECTOR_INT_Pushback( aln->tr_beg, i + 1 );
+         /* TODO: need first match state score */
+         b_sc  = VECTOR_FLT_Get( aln->scores, i + 1 );
       }
-      if ( tr[i].st == E_ST ) {
+      if ( tr.st == E_ST ) {
+         e_i   = i;
          VECTOR_INT_Pushback( aln->tr_end, i - 1 );
+         /* TODO: need first match state score */
+         e_sc  = VECTOR_FLT_Get( aln->scores, i - 1 );
+         sc    = log(expf(e_sc) - expf(b_sc));
+         VECTOR_FLT_Pushback( aln->tr_score, sc );
+         // if ( sc >= best_sc ) {
+         //    best_sc  = sc;
+         //    best_aln = num_alns;
+         // }
+         if ( long_aln < e_i - b_i ) {
+            long_aln = e_i - b_i;
+            best_aln = num_alns;
+         }
+         num_alns++;
       }
    }
-   aln->beg = VEC_X( aln->tr_beg, 0 );
-   aln->end = VEC_X( aln->tr_end, 0 );
+   printf("num_alns: %d, best_aln: %d\n", num_alns, best_aln );
+   VECTOR_FLT_Dump( aln->tr_score, stdout );
+   VECTOR_INT_Dump( aln->tr_beg, stdout );
+   VECTOR_INT_Dump( aln->tr_end, stdout );
+
+   aln->best_idx = best_aln;
+   aln->beg = VEC_X( aln->tr_beg, best_aln );
+   aln->end = VEC_X( aln->tr_end, best_aln );
 
    #if DEBUG
    {
@@ -515,15 +546,27 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
       MATRIX_2D_Reuse( cloud_MX, Q+1, T+1 );
       MATRIX_2D_Fill( cloud_MX, 0 );
       for ( int i = 0; i < N; i++ ) {
-         if ( tr[i].st == M_ST || tr[i].st == I_ST || tr[i].st == D_ST )
-            MX_2D( cloud_MX, tr[i].q_0, tr[i].t_0 ) = -1.0;
+         TRACE tr = ALIGNMENT_GetTrace( aln, i );
+         if ( tr.st == M_ST || tr.st == I_ST || tr.st == D_ST )
+            MX_2D( cloud_MX, tr.q_0, tr.t_0 ) = -1.0;
       }
    }
    #endif
 
-   fclose(fp);
-
    return STATUS_SUCCESS;
+}
+
+
+/*! FUNCTION:  traceback_error()
+ *  SYNOPSIS:  Information about traceback.
+ */
+int 
+traceback_error(  ALIGNMENT*  aln, 
+                  int         prv_st, 
+                  int         cur_st,
+                  float       max_sc )
+{
+
 }
 
 /*! FUNCTION:  run_Optimal_Accuracy_Sparse()
@@ -546,9 +589,9 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                                           MATRIX_2D*           sp_MX_opt,     /* OUTPUT: optimal special state matrix */        
                                           float*               sc_final )     /* OUTPUT: final score */
 {
-   /* vars for matrix access */
-   MATRIX_3D_SPARSE*    st_SMX;              /* normal state matrix */
-   MATRIX_2D*           sp_MX;               /* special state matrix */
+   /* vars for matrix access for macros */
+   MATRIX_3D_SPARSE*    st_SMX   = st_SMX_opt;     /* normal state matrix */
+   MATRIX_2D*           sp_MX    = sp_MX_opt;      /* special state matrix */
 
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
@@ -576,7 +619,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
 
    /* vars for indexing into edgebound lists */
    BOUND*   bnd;                             /* current bound */
-   int      id;                              /* id in edgebound list (row/diag) */
+   int      id_0;                            /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
    int      r_1;                             /* current index for previous row */
@@ -592,7 +635,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
    float    prv_loop, prv_move;              /* previous loop and move for special states */
-   float    prv_sum, prv_best;               /* temp subtotaling vars */
+   float    prv_max, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
@@ -618,9 +661,6 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
    /* initialize debugging matrix */
    #if DEBUG
    {
-      st_SMX      = st_SMX_opt;
-      sp_MX       = sp_MX_opt;
-      
       cloud_MX    = debugger->cloud_MX;
       cloud_MX3   = debugger->cloud_MX3;
       test_MX     = debugger->test_MX;
@@ -679,13 +719,13 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
       EDGEBOUNDS_NxtRow( edg, &r_0b, &r_0e, q_0 );
 
       /* initialize special states */
-      XMX(SP_E, q_0) = -INF; 
-      XMX(SP_J, q_0) = -INF; 
-      XMX(SP_C, q_0) = -INF; 
+      XMX_X(sp_MX_opt, SP_E, q_0) = -INF; 
+      XMX_X(sp_MX_opt, SP_J, q_0) = -INF; 
+      XMX_X(sp_MX_opt, SP_C, q_0) = -INF; 
       /* S->N, p=1 */
-      XMX(SP_N, q_0) = 0.0f; 
+      XMX_X(sp_MX_opt, SP_N, q_0) = 0.0f; 
       /* S->N->B, no N-tail */
-      XMX(SP_B, q_0) = 0.0f; 
+      XMX_X(sp_MX_opt, SP_B, q_0) = 0.0f; 
 
       /* only compute if in domain range */
       if ( is_q_0_in_dom_range == true )
@@ -695,9 +735,11 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
          {
             /* get bound data */
             bnd   = &EDG_X(edg, r_0);
-            id    = bnd->id;
-            lb_0  = (bnd->lb, 1);           /* can't overflow the left edge */
-            rb_0  = (bnd->rb, T);           /* can't overflow the right edge */
+            id_0  = bnd->id;
+            lb_T  = bnd->lb <= 0;
+            lb_0  = MAX(bnd->lb, T_range.beg);    /* can't overflow the left edge */
+            rb_T  = bnd->rb >= T;
+            rb_0  = MIN(bnd->rb, T_range.end);    /* can't overflow the right edge */
 
             /* fetch data mapping bound start location to data block in sparse matrix */
             qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
@@ -712,9 +754,9 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
             {
                tx0 = t_0 - bnd->lb;
                /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
-               MSMX(qx0, tx0) = -INF;
-               ISMX(qx0, tx0) = -INF;
-               DSMX(qx0, tx0) = -INF; 
+               MSMX_X(st_SMX_opt, qx0, tx0) = -INF;
+               ISMX_X(st_SMX_opt, qx0, tx0) = -INF;
+               DSMX_X(st_SMX_opt, qx0, tx0) = -INF; 
             }
          }
 
@@ -749,7 +791,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
          {
             /* get bound data */
             bnd   = &EDG_X(edg, r_0);
-            id    = bnd->id;
+            id_0  = bnd->id;
             lb_T  = bnd->lb <= 0;
             lb_0  = MAX(bnd->lb, T_range.beg);   /* can't overflow left edge */
             rb_T  = bnd->rb >= T;
@@ -764,15 +806,28 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
             tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
             tx1 = tx0 - 1;
 
+            /* unrolled first loop: special case for left edge of range */
+            if ( true )
+            {
+               t_0 = lb_0;
+               tx0 = t_0 - bnd->lb;
+
+               /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
+               MSMX_X(st_SMX_opt, qx0, tx0) = -INF;
+               ISMX_X(st_SMX_opt, qx0, tx0) = -INF;
+               DSMX_X(st_SMX_opt, qx0, tx0) = -INF; 
+            }
+
             /* MAIN RECURSION */
             /* FOR every position in TARGET profile */
-            for (t_0 = lb_0; t_0 < rb_0 - 1; t_0++)
+            for (t_0 = lb_0 + 1; t_0 < rb_0 - 1; t_0++)
             {
                t_1 = t_0 - 1; 
                tx0 = t_0 - bnd->lb;
                tx1 = tx0 - 1;
+               // printf("q_0,t_0=(%d,%d)\n", q_0, t_0);
 
-               /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+               /* FIND MAX OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
                /* best previous state transition (match takes the diag element of each prev state) */
                prv_M =  TSC_DELTA(t_1, M2M) * 
                         (MSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
@@ -781,38 +836,52 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                prv_D =  TSC_DELTA(t_1, D2M) * 
                         (DSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_B =  TSC_DELTA(t_1, B2M) * 
-                        ( XMX_X(sp_MX_opt,  B2M, q_1) + MSMX_X(st_SMX_post, qx0, tx0));
+                        (XMX_X(sp_MX_opt, B2M, q_1) + MSMX_X(st_SMX_post, qx0, tx0));
                /* best-to-match */
-               prv_sum = MAX( MAX( prv_M, prv_I ),
+               prv_max = MAX( MAX( prv_M, prv_I ),
                               MAX( prv_B, prv_D ) );
-               MSMX_X(st_SMX_opt, qx0, tx0) = prv_sum;
+               MSMX_X(st_SMX_opt, qx0, tx0) = prv_max;
 
-               /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
+               // if (q_0 < 10 && t_0 < 10) {
+               //    printf("(%d,%d)TSC:: M= %.3f, I= %.3f, D= %.3f, B= %.3f => M= %.3f\n",
+               //       q_0, t_0, TSC_DELTA(t_1, M2M), TSC_DELTA(t_1, I2M), TSC_DELTA(t_1, D2M), TSC_DELTA(t_1, B2M), prv_max );
+               //    printf("(%d,%d)SC:: M= %.3f %.3f, I= %.3f %.3f, D= %.3f %.3f, B= %.3f %.3f => M= %.3f\n",
+               //       q_0, t_0, 
+               //       MSMX_X(st_SMX_opt, qx1, tx1), MSMX_X(st_SMX_post, qx0, tx0), 
+               //       ISMX_X(st_SMX_opt, qx1, tx1), MSMX_X(st_SMX_post, qx0, tx0), 
+               //       DSMX_X(st_SMX_opt, qx1, tx1), MSMX_X(st_SMX_post, qx0, tx0), 
+               //       XMX_X(sp_MX_opt,  B2M, q_1), MSMX_X(st_SMX_post, qx0, tx0), 
+               //       prv_max );
+               //    printf("(%d,%d)SC:: M= %.3f, I= %.3f, D= %.3f, B= %.3f => M= %.3f\n",
+               //       q_0, t_0, prv_M, prv_I, prv_D, prv_B, prv_max );
+               // }
+
+               /* FIND MAX OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
                /* previous states (match takes the previous row (upper) of each state) */
                prv_M =  TSC_DELTA(t_0, M2I) * 
                         (MSMX_X(st_SMX_opt, qx1, tx0) + ISMX_X(st_SMX_post, qx0, tx0));
                prv_I =  TSC_DELTA(t_0, I2I) * 
                         (ISMX_X(st_SMX_opt, qx1, tx0) + ISMX_X(st_SMX_post, qx0, tx0));
                /* best-to-insert */
-               prv_sum = MAX( prv_M, prv_I );
-               ISMX_X(st_SMX_opt, qx0, tx0) = prv_sum;
+               prv_max = MAX( prv_M, prv_I );
+               ISMX_X(st_SMX_opt, qx0, tx0) = prv_max;
 
-               /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
+               /* FIND MAX OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
                /* previous states (match takes the previous column (left) of each state) */
                prv_M =  TSC_DELTA(t_0, M2D) * 
                         (MSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
                prv_D =  TSC_DELTA(t_0, D2D) * 
                         (DSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
                /* best-to-delete */
-               prv_sum = MAX( prv_M, prv_D );
-               DSMX_X(st_SMX_opt, qx0, tx0) = prv_sum;
+               prv_max = MAX( prv_M, prv_D );
+               DSMX_X(st_SMX_opt, qx0, tx0) = prv_max;
 
                /* UPDATE E STATE */
                prv_M = MSMX(qx0, tx0) + sc_E;
                prv_E = XMX_X(sp_MX_post, SP_E, q_0);
                /* best-to-end */
-               prv_sum = MAX( prv_E, prv_M );
-               XMX_X(sp_MX_opt, SP_E, q_0) = prv_sum;
+               prv_max = MAX( prv_E, prv_M );
+               XMX_X(sp_MX_opt, SP_E, q_0) = prv_max;
 
                /* embed linear row into quadratic test matrix */
                #if DEBUG
@@ -826,6 +895,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
             }
 
             /* UNROLLED FINAL LOOP ITERATION */
+            if ( true && rb_0 > 1 ) 
             {
                t_0 = rb_0 - 1;
                t_1 = t_0 - 1; 
@@ -844,9 +914,9 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                         ( XMX_X(sp_MX_opt,  B2M, q_1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
                /* best-to-match */
-               prv_sum = MAX( MAX( prv_M, prv_I ),
+               prv_max = MAX( MAX( prv_M, prv_I ),
                               MAX( prv_B, prv_D ) );
-               MSMX_X(st_SMX_opt, qx0, tx0) = prv_sum;
+               MSMX_X(st_SMX_opt, qx0, tx0) = prv_max;
 
                /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
                ISMX(qx0, tx0) = -INF;
@@ -858,17 +928,17 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                prv_M =  TSC_DELTA(t_0, D2D) * 
                         (DSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
                /* best-to-delete */
-               prv_sum = MAX( prv_M, prv_D );
-               DSMX_X(st_SMX_opt, qx0, tx0) = prv_sum;
+               prv_max = MAX( prv_M, prv_D );
+               DSMX_X(st_SMX_opt, qx0, tx0) = prv_max;
 
                /* UPDATE E STATE (unrolled) */
                prv_M = MSMX_X(st_SMX_opt, qx0, tx0);
                prv_D = DSMX_X(st_SMX_opt, qx0, tx0);
                prv_E = XMX_X(sp_MX_opt, SP_E, q_0);
                /* best-to-end */
-               prv_sum = MAX( MAX(  prv_D, prv_M ),
+               prv_max = MAX( MAX(  prv_D, prv_M ),
                                     prv_E ); 
-               XMX_X(sp_MX_opt, SP_E, q_0) = prv_sum;
+               XMX_X(sp_MX_opt, SP_E, q_0) = prv_max;
 
                /* embed linear row into quadratic test matrix */
                #if DEBUG
@@ -889,16 +959,16 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                (XMX_X(sp_MX_opt, SP_J, q_1) + XMX_X(sp_MX_post, SP_J, q_0));
       prv_E =  XSC_DELTA(SP_E,SP_LOOP) * 
                (XMX_X(sp_MX_opt, SP_E, q_0));
-      prv_sum = MAX( prv_J, prv_E );
-      XMX_X(sp_MX_opt, SP_J, q_0) = prv_sum;   
+      prv_max = MAX( prv_J, prv_E );
+      XMX_X(sp_MX_opt, SP_J, q_0) = prv_max;   
 
       /* C state ( C->C or E->C ) */
       prv_C =  XSC_DELTA(SP_C, SP_LOOP) *
                (XMX_X(sp_MX_opt, SP_C, q_1) + XMX_X(sp_MX_post, SP_C, q_0));
       prv_E =  XSC_DELTA(SP_E,SP_MOVE) *
                (XMX_X(sp_MX_opt, SP_E, q_0));
-      prv_sum = MAX( prv_C, prv_E );
-      XMX(SP_C, q_0) = prv_sum;
+      prv_max = MAX( prv_C, prv_E );
+      XMX(SP_C, q_0) = prv_max;
 
       /* N state ( N->N (tail) ) */
       prv_N =  XSC_DELTA(SP_N, SP_LOOP) *
@@ -910,8 +980,8 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                (XMX_X(sp_MX_opt, SP_N, q_0));
       prv_J =  XSC_DELTA(SP_N, SP_MOVE) *
                (XMX_X(sp_MX_opt, SP_J, q_0));
-      prv_sum = MAX( prv_N, prv_J ); 
-      XMX(SP_B, q_0) = prv_sum;   
+      prv_max = MAX( prv_N, prv_J ); 
+      XMX(SP_B, q_0) = prv_max;   
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       r_1b = r_0b;

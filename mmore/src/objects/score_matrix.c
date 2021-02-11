@@ -28,11 +28,7 @@ SCORE_MATRIX* SCORE_MATRIX_Create()
 {
    SCORE_MATRIX*  submat;
    
-   submat = (SCORE_MATRIX*) malloc( sizeof(SCORE_MATRIX) );
-   if (submat == NULL) {
-      perror("Error while malloc'ing SCORE_MATRIX.\n");
-      exit(EXIT_FAILURE);
-   }
+   submat = ERROR_malloc( sizeof(SCORE_MATRIX) );
 
    submat->filename  = NULL;
    submat->alph      = NULL;
@@ -84,7 +80,7 @@ SCORE_MATRIX* SCORE_MATRIX_Load(char* filename)
 
    if (fp == NULL) {
       fprintf(stderr, "Error while opening file: %s\n", filename);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* read a line */
@@ -171,7 +167,7 @@ void SCORE_MATRIX_SetAlphabet( SCORE_MATRIX*   submat,
    submat->scores = (float*) realloc( submat->scores, sizeof(float) * alph_len * alph_len );
    if (submat == NULL) {
       perror("Error while malloc'ing SCORES in SCORE_MATRIX.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 }
 

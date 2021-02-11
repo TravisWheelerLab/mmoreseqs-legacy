@@ -101,10 +101,16 @@ WORK_init( WORKER* worker )
    /* quadratic */
    worker->st_MX_fwd       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
    worker->st_MX_bck       = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
-   // worker->st_MX_post      = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
-   // worker->st_MX_optacc    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
-   worker->st_MX_post      = worker->st_MX_bck;
-   worker->st_MX_optacc    = worker->st_MX_fwd;
+   if ( args->is_recycle_mx == false ) 
+   {
+      worker->st_MX_post      = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+      worker->st_MX_optacc    = MATRIX_3D_Create( NUM_NORMAL_STATES, 1, 1 );
+   } 
+   else 
+   {
+      worker->st_MX_post      = worker->st_MX_bck;
+      worker->st_MX_optacc    = worker->st_MX_fwd;
+   }
    worker->st_MX           = worker->st_MX_bck;
    /* linear */
    worker->st_MX3_fwd      = MATRIX_3D_Create( NUM_NORMAL_STATES,  1, 1 );
@@ -113,19 +119,30 @@ WORK_init( WORKER* worker )
    /* sparse */
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Create();
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Create();
-   /* posterior and optacc matrices can be recycled */
-   // worker->st_SMX_post     = MATRIX_3D_SPARSE_Create();
-   // worker->st_SMX_optacc   = MATRIX_3D_SPARSE_Create();
-   worker->st_SMX_post     = worker->st_SMX_bck;
-   worker->st_SMX_optacc   = worker->st_SMX_fwd;
+   if ( args->is_recycle_mx == false ) 
+   {
+      worker->st_SMX_post     = MATRIX_3D_SPARSE_Create();
+      worker->st_SMX_optacc   = MATRIX_3D_SPARSE_Create();
+   }
+   else 
+   {
+      worker->st_SMX_post     = worker->st_SMX_bck;
+      worker->st_SMX_optacc   = worker->st_SMX_fwd;
+   }
    worker->st_SMX          = worker->st_SMX_fwd;
    /* special state */
    worker->sp_MX_fwd       = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
    worker->sp_MX_bck       = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
-   // worker->sp_MX_post      = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
-   // worker->sp_MX_optacc    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
-   worker->sp_MX_post      = worker->sp_MX_bck;
-   worker->sp_MX_optacc    = worker->sp_MX_fwd;
+   if ( args->is_recycle_mx == false ) 
+   {
+      worker->sp_MX_post      = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+      worker->sp_MX_optacc    = MATRIX_2D_Create( NUM_SPECIAL_STATES, 1 );
+   }
+   else 
+   {
+      worker->sp_MX_post      = worker->sp_MX_bck;
+      worker->sp_MX_optacc    = worker->sp_MX_fwd;
+   }
    worker->sp_MX           = worker->sp_MX_fwd;
    /* domain definition */
    worker->dom_def         = DOMAIN_DEF_Create();
@@ -140,6 +157,7 @@ WORK_init( WORKER* worker )
 void 
 WORK_reuse( WORKER* worker )
 {
+   ARGS*    args     = worker->args;
    TASKS*   tasks    = worker->tasks; 
    int      T        = worker->t_prof->N;
    int      Q        = worker->q_seq->N;
@@ -161,8 +179,10 @@ WORK_reuse( WORKER* worker )
    if ( tasks->quadratic ) {
       MATRIX_3D_Reuse_Clean( worker->st_MX_fwd,    NUM_NORMAL_STATES,  Q+1, T+1 );
       MATRIX_3D_Reuse_Clean( worker->st_MX_bck,    NUM_NORMAL_STATES,  Q+1, T+1 );
-      // MATRIX_3D_Reuse_Clean( worker->st_MX_post,   NUM_NORMAL_STATES,  Q+1, T+1 );
-      // MATRIX_3D_Reuse_Clean( worker->st_MX_optacc, NUM_NORMAL_STATES,  Q+1, T+1 );
+      if ( args->is_recycle_mx == false ) {
+         MATRIX_3D_Reuse_Clean( worker->st_MX_post,   NUM_NORMAL_STATES,  Q+1, T+1 );
+         MATRIX_3D_Reuse_Clean( worker->st_MX_optacc, NUM_NORMAL_STATES,  Q+1, T+1 );
+      }
    }
    /* matrix for linear algs */
    if ( tasks->linear ) {
@@ -170,30 +190,32 @@ WORK_reuse( WORKER* worker )
       MATRIX_3D_Reuse_Clean( worker->st_MX3_bck, NUM_NORMAL_STATES,  3, (Q+1)+(T+1) );
       worker->st_MX3 = worker->st_MX3_fwd;
    }
-   /* matrices for special states */
+   /* matrix for special states */
    if ( tasks->quadratic || tasks->linear ) {
       MATRIX_2D_Reuse_Clean( worker->sp_MX_fwd,    NUM_SPECIAL_STATES, Q+1);
       MATRIX_2D_Reuse_Clean( worker->sp_MX_bck,    NUM_SPECIAL_STATES, Q+1);
-      // MATRIX_2D_Reuse_Clean( worker->sp_MX_post,   NUM_SPECIAL_STATES, Q+1);
-      // MATRIX_2D_Reuse_Clean( worker->sp_MX_optacc, NUM_SPECIAL_STATES, Q+1);
+      if ( args->is_recycle_mx == false ) {
+         MATRIX_2D_Reuse_Clean( worker->sp_MX_post,   NUM_SPECIAL_STATES, Q+1);
+         MATRIX_2D_Reuse_Clean( worker->sp_MX_optacc, NUM_SPECIAL_STATES, Q+1);
+      }
       worker->sp_MX = worker->sp_MX_fwd;
    }
-   /* sparse matrices */
-   MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
-   MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
-   // MATRIX_3D_SPARSE_Reuse( worker->st_SMX_post )
-   // MATRIX_3D_SPARSE_Reuse( worker->st_SMX_optacc );
-   worker->st_SMX = worker->st_SMX_fwd;
+   /* matrix for sparse algs */
+   if ( tasks->sparse ) {
+      MATRIX_3D_SPARSE_Reuse( worker->st_SMX_fwd );
+      MATRIX_3D_SPARSE_Reuse( worker->st_SMX_bck );
+      if ( args->is_recycle_mx == false ) {
+         MATRIX_3D_SPARSE_Reuse( worker->st_SMX_post );
+         MATRIX_3D_SPARSE_Reuse( worker->st_SMX_optacc );
+      }
+      worker->st_SMX = worker->st_SMX_fwd;
+   }
 
    #if DEBUG 
    {
       DEBUGGER_Reuse( debugger, Q, T );
    }
    #endif
-
-   /* TODO: remove this? */
-   // MATRIX_3D_Clean( worker->st_MX );
-   // MATRIX_3D_Clean( worker->st_MX3 );
 }
 
 /*! FUNCTION:  	WORK_cleanup()
@@ -250,26 +272,29 @@ WORK_cleanup( WORKER* worker )
    }
    /* necessary dp matrices */
    /* quadratic space */
-   // worker->st_MX           = MATRIX_3D_Destroy( worker->st_MX );
    worker->st_MX_fwd       = MATRIX_3D_Destroy( worker->st_MX_fwd );
    worker->st_MX_bck       = MATRIX_3D_Destroy( worker->st_MX_bck );
-   // worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
-   // worker->st_MX_optacc    = MATRIX_3D_Destroy( worker->st_MX_optacc );
+   if ( args->is_recycle_mx == false ) {
+      worker->st_MX_post      = MATRIX_3D_Destroy( worker->st_MX_post );
+      worker->st_MX_optacc    = MATRIX_3D_Destroy( worker->st_MX_optacc );
+   }
    /* linear space */
-   // worker->st_MX3          = MATRIX_3D_Destroy( worker->st_MX3 );
    worker->st_MX3_fwd      = MATRIX_3D_Destroy( worker->st_MX3_fwd );
    worker->st_MX3_bck      = MATRIX_3D_Destroy( worker->st_MX3_bck );
    /* sparse */
-   // worker->st_SMX          = MATRIX_3D_SPARSE_Destroy( worker->st_SMX );
    worker->st_SMX_fwd      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_fwd );
    worker->st_SMX_bck      = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_bck );
-   // worker->st_SMX_post     = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_post );
-   // worker->st_SMX_optacc   = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_optacc );
+   if ( args->is_recycle_mx == false ) {
+      worker->st_SMX_post     = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_post );
+      worker->st_SMX_optacc   = MATRIX_3D_SPARSE_Destroy( worker->st_SMX_optacc );
+   }
    /* special states */
    worker->sp_MX_fwd       = MATRIX_2D_Destroy( worker->sp_MX_fwd );
    worker->sp_MX_bck       = MATRIX_2D_Destroy( worker->sp_MX_bck );
-   // worker->sp_MX_post      = MATRIX_2D_Destroy( worker->sp_MX_post );
-   // worker->sp_MX_optacc    = MATRIX_2D_Destroy( worker->sp_MX_optacc );
+   if ( args->is_recycle_mx == false ) {
+      worker->sp_MX_post      = MATRIX_2D_Destroy( worker->sp_MX_post );
+      worker->sp_MX_optacc    = MATRIX_2D_Destroy( worker->sp_MX_optacc );
+   }
    /* domain definition */
    worker->dom_def         = DOMAIN_DEF_Destroy( worker->dom_def );
 }

@@ -51,7 +51,7 @@ STRING_Concat( const char*   str1,
 
    if ( str == NULL ) {
       fprintf(stderr, "ERROR: malloc failed in STRING_Concat.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    strcpy(str, str1);

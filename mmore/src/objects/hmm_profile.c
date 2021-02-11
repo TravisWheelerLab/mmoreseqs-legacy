@@ -171,7 +171,7 @@ HMM_PROFILE_SetAlphabet(   HMM_PROFILE*  prof,
    }
    else {
       fprintf(stderr, "ERROR: Invalid alphabet type: %s\n", alph_name );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 }
 
@@ -260,7 +260,7 @@ HMM_PROFILE_SetDistribution_Params(   HMM_PROFILE*   prof,
    }
    else {
       fprintf( stderr, "Invalid distribution type: %s\n", dist_name );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    parPtr1 = &param1;
@@ -278,7 +278,7 @@ HMM_PROFILE_SetSubmodel( HMM_PROFILE* prof, int t_beg, int t_end )
    int T = prof->N;
    if (t_beg < 0 && t_end < 0 && t_beg > T && t_end > T) {
       printf("Subset range (%d,%d) is outside range (%d,%d).\n", t_beg, t_end, 0, T);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* save full model temporarily */
@@ -320,7 +320,7 @@ HMM_PROFILE_Dump( HMM_PROFILE* prof,
    if (fp == NULL) {
       const char* obj_name = "HMM_PROFILE";
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
       return;
    }
 

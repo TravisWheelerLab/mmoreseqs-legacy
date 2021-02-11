@@ -57,7 +57,7 @@ void HMM_PROFILE_Parse( HMM_PROFILE*   prof,
    {
       char*  str = NULL;
       fprintf(stderr, "ERROR: Bad FILE POINTER for HMM PARSER => %s\n", filename );
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    /* jump to start of desired hmm model */
    fseek(fp, offset, SEEK_SET);
@@ -415,7 +415,7 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
    mocc = malloc( sizeof(float) * (prof->N + 1) );
    if (mocc == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc for OCCUPANCY for PROFILE CONFIGURATION.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* if profile is not already in real space, do so now */

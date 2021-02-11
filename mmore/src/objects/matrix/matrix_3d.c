@@ -32,7 +32,7 @@ MATRIX_3D_Create( const int  R,
 {
    if ( R <= 0 || C <= 0 ) {
       fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    MATRIX_3D* mx;
@@ -58,7 +58,7 @@ MATRIX_3D_Create_NoData(   const int  R,
 {
    if ( R <= 0 || C <= 0 ) {
       fprintf(stderr, "ERROR: MATRIX_2D Rows and Columns must be a positive size.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    MATRIX_3D* mx;
@@ -112,7 +112,7 @@ MATRIX_3D_Copy(   MATRIX_3D*           dest,
    {
       if ( dest->R != src->R || dest->C != src->C || dest->N != src->N ) {
          printf("ERROR: src and dest do not have the same dimensions.\n");
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
    #endif
@@ -201,7 +201,7 @@ float* MATRIX_3D_Get(   MATRIX_3D*  mx,
          fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
          fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
          fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-         exit(EXIT_FAILURE);
+         ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
    #endif
@@ -228,7 +228,7 @@ MATRIX_3D_GetX(  MATRIX_3D*  mx,
       fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
       fprintf(stderr, "3D => dim: (%d,%d,%d), access: (%d,%d,%d)\n", mx->R, mx->C, mx->N, i, j, k);
       fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -250,7 +250,7 @@ MATRIX_3D_Get1D( MATRIX_3D*  mx,
    if ( n < 0 || n >= used ) {
       fprintf(stderr, "ERROR: MATRIX_3D Access Out-of-Bounds\n");
       fprintf(stderr, "1D => dim: (%d/%d), access: (%d)\n", used, mx->Nalloc, n);
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
    #endif
 
@@ -359,7 +359,7 @@ MATRIX_3D_Dump(   MATRIX_3D*  mx,
    /* check for bad pointer */
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing SEQUENCE.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    fprintf(fp, "=== MATRIX_3D { R, C, N } { %d, %d, %d } ===\n", mx->R, mx->C, mx->N);

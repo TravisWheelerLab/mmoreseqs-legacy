@@ -34,7 +34,7 @@ MATRIX_3D_SPARSE_Create()
 {
 	MATRIX_3D_SPARSE* smx = NULL;
 
-	smx = (MATRIX_3D_SPARSE*) ERROR_malloc( sizeof(MATRIX_3D_SPARSE) );
+	smx = ERROR_malloc( sizeof(MATRIX_3D_SPARSE) );
 
    smx->D1           = 0;
    smx->D2           = 0;
@@ -152,12 +152,13 @@ MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
    }
 
    /* metadata */
-   mx_dest->N = mx_src->N;
-   mx_dest->Nalloc = mx_src->Nalloc;
-   mx_dest->D1 = mx_src->D1;
-   mx_dest->D2 = mx_src->D2;
-   mx_dest->D3 = mx_src->D3;
-   mx_dest->clean = mx_src->clean;
+   mx_dest->N        = mx_src->N;
+   mx_dest->Nalloc   = mx_src->Nalloc;
+   mx_dest->D1       = mx_src->D1;
+   mx_dest->D2       = mx_src->D2;
+   mx_dest->D3       = mx_src->D3;
+   mx_dest->clean    = mx_src->clean;
+   
    /* edgebounds */
    EDGEBOUNDS_Copy( mx_dest->edg_inner, mx_src->edg_inner );
    EDGEBOUNDS_Copy( mx_dest->edg_outer, mx_src->edg_outer );
@@ -172,7 +173,6 @@ MATRIX_3D_SPARSE_Copy(  MATRIX_3D_SPARSE*          mx_dest,
 
    return mx_dest;
 }
-
 
 /** FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Matrix()
  *  SYNOPSIS:  Shapes <src> like <dest>, but does not copy data.
@@ -191,10 +191,11 @@ MATRIX_3D_SPARSE_Shape_Like_Matrix(  MATRIX_3D_SPARSE*          mx_dest,
    }
 
    /* metadata */
-   mx_dest->D1 = mx_src->D1;
-   mx_dest->D2 = mx_src->D2;
-   mx_dest->D3 = mx_src->D3;
-   mx_dest->clean = mx_src->clean;
+   mx_dest->N        = mx_src->N;
+   mx_dest->Nalloc   = mx_src->Nalloc;
+   mx_dest->D1       = mx_src->D1;
+   mx_dest->D2       = mx_src->D2;
+   mx_dest->D3       = mx_src->D3;
    /* edgebounds */
    EDGEBOUNDS_Copy( mx_dest->edg_inner, mx_src->edg_inner );
    EDGEBOUNDS_Copy( mx_dest->edg_outer, mx_src->edg_outer );
@@ -205,9 +206,9 @@ MATRIX_3D_SPARSE_Shape_Like_Matrix(  MATRIX_3D_SPARSE*          mx_dest,
    /* outer map */
    VECTOR_INT_Copy( mx_dest->omap_cur, mx_src->omap_cur );
    /* data (no copying, just ensure that they are the proper size to store data) */
-   VECTOR_FLT_GrowTo( mx_dest->data, mx_src->data->N );   
-   mx_dest->N = mx_dest->data->N;
-   mx_dest->Nalloc = mx_dest->data->Nalloc;
+   VECTOR_FLT_GrowTo( mx_dest->data, mx_src->data->N );
+   mx_dest->N      = mx_dest->N;
+   mx_dest->Nalloc = mx_dest->Nalloc;
 
    return mx_dest;
 }
@@ -244,11 +245,19 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
    /* map edgebounds to matrix data */
    MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
    MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
+   
    /* create matrix data */
+   int old_N = smx->data->N;
    VECTOR_FLT_GrowTo( smx->data, smx->N );
    smx->data->N = smx->N;
-   /* clear data to all -INF */
+
+   /* if current data is clean, only clean new data */
    VECTOR_FLT_Fill( smx->data, -INF );
+   if ( smx->clean = false ) {
+
+   } else {
+
+   }
    
    smx->edg_inner->edg_mode = EDG_ROW;
    smx->edg_outer->edg_mode = EDG_ROW;
@@ -781,15 +790,16 @@ MATRIX_3D* MATRIX_3D_SPARSE_Embed(  int                  Q,
          tx0 = t_0 - bnd->lb;
 
          /* embed linear row into quadratic test matrix */
-         MX_3D(mx, MAT_ST, q_0, t_0) = SMX(smx, MAT_ST, qx0, tx0);
-         MX_3D(mx, INS_ST, q_0, t_0) = SMX(smx, INS_ST, qx0, tx0);
-         MX_3D(mx, DEL_ST, q_0, t_0) = SMX(smx, DEL_ST, qx0, tx0);
+         MX_3D(mx, MAT_ST, q_0, t_0) = SMX_X(smx, MAT_ST, qx0, tx0);
+         MX_3D(mx, INS_ST, q_0, t_0) = SMX_X(smx, INS_ST, qx0, tx0);
+         MX_3D(mx, DEL_ST, q_0, t_0) = SMX_X(smx, DEL_ST, qx0, tx0);
       }
    }
 }
 
 /*! FUNCTION:  MATRIX_3D_SPARSE_Log_Embed()
- *  SYNOPSIS:  Embed sparse matrix <smx> into matrix <mx>. 
+ *  SYNOPSIS:  Embed sparse matrix <smx> into matrix <mx> in log scale.
+ *             Does not effect sparse matrix. 
  *
  *  RETURN:    Pointer to <mx> if success.
  *             Returns NULL if fails.
@@ -830,9 +840,9 @@ MATRIX_3D* MATRIX_3D_SPARSE_Log_Embed(    int                  Q,
          tx0 = t_0 - bnd->lb;
 
          /* embed linear row into quadratic test matrix */
-         MX_3D(mx, MAT_ST, q_0, t_0) = logf( SMX(smx, MAT_ST, qx0, tx0));
-         MX_3D(mx, INS_ST, q_0, t_0) = logf( SMX(smx, INS_ST, qx0, tx0));
-         MX_3D(mx, DEL_ST, q_0, t_0) = logf( SMX(smx, DEL_ST, qx0, tx0));
+         MX_3D(mx, MAT_ST, q_0, t_0) = logf( SMX_X(smx, MAT_ST, qx0, tx0));
+         MX_3D(mx, INS_ST, q_0, t_0) = logf( SMX_X(smx, INS_ST, qx0, tx0));
+         MX_3D(mx, DEL_ST, q_0, t_0) = logf( SMX_X(smx, DEL_ST, qx0, tx0));
       }
    }
 }

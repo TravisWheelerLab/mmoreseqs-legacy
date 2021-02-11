@@ -53,7 +53,7 @@ itest_pipeline( WORKER* worker )
    // #else
    // {
    //    fprintf(stdout, "Test pipeline only supported in DEBUG build, not PRODUCTION build.  Recompile with BUILD=DEBUG.\n" );
-   //    exit(EXIT_FAILURE);
+   //    ERRORCHECK_exit(EXIT_FAILURE);
    // }
    // #endif 
 
@@ -159,7 +159,7 @@ itest_pipeline( WORKER* worker )
    // else 
    // {
    //    fprintf(stderr, "ERROR: Only FASTA filetypes are supported for queries.\n");
-   //    exit(EXIT_FAILURE);
+   //    ERRORCHECK_exit(EXIT_FAILURE);
    // }
    // SEQUENCE_Dump( q_seq, stdout );
 
@@ -181,7 +181,7 @@ itest_pipeline( WORKER* worker )
    // else
    // {
    //    fprintf(stderr, "ERROR: Only HMM and FASTA filetypes are supported for t_profs.\n");
-   //    exit(EXIT_FAILURE);
+   //    ERRORCHECK_exit(EXIT_FAILURE);
    // }
    // HMM_PROFILE_Dump( t_prof, stdout );
 

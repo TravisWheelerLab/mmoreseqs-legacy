@@ -224,7 +224,7 @@ SEQUENCE_Dump( SEQUENCE* seq,
    /* check for bad pointer */
    if (fp == NULL) {
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing SEQUENCE.\n");
-      exit(EXIT_FAILURE);
+      ERRORCHECK_exit(EXIT_FAILURE);
    }
 
    /* space padding */
