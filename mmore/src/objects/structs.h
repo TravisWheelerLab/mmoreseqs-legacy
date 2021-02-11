@@ -292,11 +292,12 @@ typedef struct {
    int*           rows_N;     /* current number of bounds in row */
    int            row_max;    /* maximum number of bounds in row */
    /* dimension of embedding matrix */
-   int            Q;
-   int            T;
+   RANGE          Q_range;    /* subrange of query that rows should be allocated for */
+   int            Q;          /* size of query */
+   int            T;          /* size of target */
    /* data */
    BOUND*         rows;       /* array of bounds, each for a specific row */
-} EDGEBOUND_ROWS;
+} EDGEROWS;
 
 /* alignment for viterbi traceback */
 typedef struct {
@@ -1278,7 +1279,7 @@ typedef struct {
    EDGEBOUNDS*          edg_bck;       /* edgebounds for backward cloud search */
    EDGEBOUNDS*          edg_diag;      /* merged cloud search by antidiagonal */
    EDGEBOUNDS*          edg_row;       /* merged cloud search by row */
-   EDGEBOUND_ROWS*      edg_rows_tmp;  /* temporary edgebound row object; helper for reorientating */
+   EDGEROWS*      edg_rows_tmp;  /* temporary edgebound row object; helper for reorientating */
    /* int vector for cloud search */
    VECTOR_INT*          lb_vec[3];     /* left bounds for building cloud edgebounds */
    VECTOR_INT*          rb_vec[3];     /* right bounds for building cloud edgebounds */

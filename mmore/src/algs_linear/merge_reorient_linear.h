@@ -65,7 +65,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow(  const int            Q,             /* query length */
                            const int            T,             /* target length */
                            EDGEBOUNDS*          edg_in,        /* edgebounds (antidiag-wise, sorted ascending) */
-                           EDGEBOUND_ROWS*      edg_builder,   /* edgebound working space */
+                           EDGEROWS*      edg_builder,   /* edgebound working space */
                            EDGEBOUNDS*          edg_out );     /* OUPUT: edgebounds (row-wise, sorted ascending) */
 
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byRow()
@@ -78,7 +78,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query length */
                                     const int           T,              /* target length */
                                     EDGEBOUNDS*         edg_in,         /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEBOUND_ROWS*     edg_rows,       /* temporary working space */
+                                    EDGEROWS*     edg_rows,       /* temporary working space */
                                     EDGEBOUNDS*         edg_out );      /* OUPUT: edgebounds (row-wise, sorted ascending) */
 
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byDiag()
@@ -89,7 +89,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query length */
                                     const int           T,          /* target length */
                                     EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEBOUND_ROWS*     edg_rows,   /* temporary working space */
+                                    EDGEROWS*     edg_rows,   /* temporary working space */
                                     EDGEBOUNDS*         edg_out );  /* OUPUT: edgebounds (row-wise, sorted ascending) */
 
 /*! FUNCTION: EDGEBOUNDS_ReorientToRow_byDiff()
@@ -101,7 +101,7 @@ STATUS_FLAG
 EDGEBOUNDS_ReorientToRow_byDiff(    const int           Q,          /* query length */
                                     const int           T,          /* target length */
                                     EDGEBOUNDS*         edg_in,     /* edgebounds (antidiag-wise, sorted ascending) */
-                                    EDGEBOUND_ROWS*     edg_rows,   /* edgebound working space */
+                                    EDGEROWS*     edg_rows,   /* edgebound working space */
                                     EDGEBOUNDS*         edg_out );  /* OUPUT: edgebounds (row-wise, sorted ascending) */
 
 

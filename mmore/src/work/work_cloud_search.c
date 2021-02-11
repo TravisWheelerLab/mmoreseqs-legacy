@@ -65,7 +65,7 @@ WORK_cloud_search_linear( WORKER*  worker )
    /* working data */
    MATRIX_3D*        st_MX3         = worker->st_MX3;
    MATRIX_2D*        sp_MX          = worker->sp_MX;
-   EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
+   EDGEROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
    EDGEBOUNDS*       edg_fwd        = worker->edg_fwd;
    EDGEBOUNDS*       edg_bck        = worker->edg_bck;
    /* output data */
@@ -146,7 +146,7 @@ WORK_cloud_search_quadratic( WORKER*  worker )
    /* working data */
    MATRIX_3D*        st_MX          = worker->st_MX;
    MATRIX_2D*        sp_MX          = worker->sp_MX;
-   EDGEBOUND_ROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
+   EDGEROWS*   edg_rows_tmp   = worker->edg_rows_tmp;
    EDGEBOUNDS*       edg_fwd        = worker->edg_fwd;
    EDGEBOUNDS*       edg_bck        = worker->edg_bck;
    VECTOR_INT**      lb_vec         = worker->lb_vec;

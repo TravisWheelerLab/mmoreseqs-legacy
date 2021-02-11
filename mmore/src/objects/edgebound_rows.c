@@ -1,6 +1,6 @@
 /*******************************************************************************
  *  FILE:      edgebound_rows.c
- *  PURPOSE:   EDGEBOUND_ROWS Object.
+ *  PURPOSE:   EDGEROWS Object.
  *             For building EDGEBOUNDS on the fly.
  *
  *  AUTHOR:    Dave Rich
@@ -18,34 +18,36 @@
 /* local imports */
 #include "structs.h"
 #include "../utilities/_utilities.h"
-#include "_objects.h"
 
 /* header */
+#include "_objects.h"
 #include "edgebound_rows.h"
 
-/*! FUNCTION:  EDGEBOUND_ROWS_Create()
- *  SYNOPSIS:  Create new EDGEBOUND_ROWS object and returns pointer.
+/*! FUNCTION:  EDGEROWS_Create()
+ *  SYNOPSIS:  Create new EDGEROWS object and returns pointer.
  */
-EDGEBOUND_ROWS* 
-EDGEBOUND_ROWS_Create()
+EDGEROWS* 
+EDGEROWS_Create()
 {
-   EDGEBOUND_ROWS* edg = EDGEBOUND_ROWS_Create_by_Size( 1, 1 );
+   EDGEROWS* edg = EDGEROWS_Create_by_Size( 1, 1 );
    return edg;
 }
 
 /*! FUNCTION:  EDGEBOUNDS_Create_by_Size()
  *  SYNOPSIS:  Create new EDGEBOUNDS object with chosen size and returns pointer.
+ *             Caller must call EDGEROWS_Reuse() before use.
  */
-EDGEBOUND_ROWS* 
-EDGEBOUND_ROWS_Create_by_Size(   int   Q, 
-                                 int   T )
+EDGEROWS* 
+EDGEROWS_Create_by_Size(   int      Q,
+                                 int      T )
 {
-   EDGEBOUND_ROWS*   edg      = NULL;
+   EDGEROWS*   edg      = NULL;
 
-   edg = ERROR_malloc( sizeof(EDGEBOUND_ROWS) );
+   edg = ERROR_malloc( sizeof(EDGEROWS) );
 
    edg->Q         = Q;
    edg->T         = T;
+   edg->Q_range   = (RANGE){0,0};
 
    edg->N         = 0;
    edg->Nalloc    = 0;
@@ -53,15 +55,15 @@ EDGEBOUND_ROWS_Create_by_Size(   int   Q,
    edg->rows      = NULL;
    edg->row_max   = MAX_BOUNDS_PER_ROW;
 
-   EDGEBOUND_ROWS_Resize( edg, Q+1 );
+   EDGEROWS_Resize( edg, Q+1 );
    return edg;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Destroy()
- *  SYNOPSIS: Frees all memory from EDGEBOUND_ROWS object.
+/*! FUNCTION: EDGEROWS_Destroy()
+ *  SYNOPSIS: Frees all memory from EDGEROWS object.
  */
-EDGEBOUND_ROWS* 
-EDGEBOUND_ROWS_Destroy( EDGEBOUND_ROWS*  edg )
+EDGEROWS* 
+EDGEROWS_Destroy( EDGEROWS*  edg )
 {
    if ( edg == NULL ) return edg;
 
@@ -73,48 +75,51 @@ EDGEBOUND_ROWS_Destroy( EDGEBOUND_ROWS*  edg )
    return edg;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Reuse()
- *  SYNOPSIS: Reuses EDGEBOUND_ROWS by resizing if too a"clearing" edgebound list (does not downsize).
+/*! FUNCTION: EDGEROWS_Reuse()
+ *  SYNOPSIS: Reuses EDGEROWS by resizing if too a"clearing" edgebound list (does not downsize).
  */
 void 
-EDGEBOUND_ROWS_Reuse(   EDGEBOUND_ROWS*   edg,
+EDGEROWS_Reuse(   EDGEROWS*   edg,
                         int               Q,
-                        int               T )
+                        int               T,
+                        RANGE             Q_range )
 {
-   edg->Q = Q;
-   edg->T = T;
+   edg->Q         = Q;
+   edg->T         = T;
+   edg->Q_range   = Q_range;
+   int Q_size     = Q_range.end - Q_range.beg + 1;
 
-   EDGEBOUND_ROWS_Resize( edg, Q+1 );
-   EDGEBOUND_ROWS_Clear( edg );
+   EDGEROWS_GrowTo( edg, Q_size );
+   EDGEROWS_Clear( edg );
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Clear()
- *  SYNOPSIS: Reuses EDGEBOUND_ROWS by "clearing" edgebound list (does not downsize).
+/*! FUNCTION: EDGEROWS_Clear()
+ *  SYNOPSIS: Reuses EDGEROWS by "clearing" edgebound list (does not downsize).
  */
-void EDGEBOUND_ROWS_Clear( EDGEBOUND_ROWS*   edg )
+void EDGEROWS_Clear( EDGEROWS*   edg )
 {
    for ( int i = 0; i < edg->N; i++ ) {
       edg->rows_N[i] = 0;
    }
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_GrowTo()
- *  SYNOPSIS: Resizes EDGEBOUND_ROWS if new size exceeds old size
+/*! FUNCTION: EDGEROWS_GrowTo()
+ *  SYNOPSIS: Resizes EDGEROWS if new size exceeds old size
  */
-void EDGEBOUND_ROWS_GrowTo( EDGEBOUND_ROWS*  edg,
+void EDGEROWS_GrowTo( EDGEROWS*  edg,
                             int              size )
 {
    if ( size > edg->Nalloc ) {
-      EDGEBOUND_ROWS_Resize( edg, size );
+      EDGEROWS_Resize( edg, size );
    }
    edg->N = size;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Resize()
- *  SYNOPSIS: Resizes EDGEBOUND_ROWS if new size exceeds old size
+/*! FUNCTION: EDGEROWS_Resize()
+ *  SYNOPSIS: Resizes EDGEROWS if new size exceeds old size
  */
 void 
-EDGEBOUND_ROWS_Resize(     EDGEBOUND_ROWS*  edg,
+EDGEROWS_Resize(     EDGEROWS*  edg,
                            int              size )
 {
    if ( size > edg->Nalloc ) 
@@ -127,29 +132,31 @@ EDGEBOUND_ROWS_Resize(     EDGEBOUND_ROWS*  edg,
    edg->N = size;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Get_RowSize()
+/*! FUNCTION: EDGEROWS_Get_RowSize()
  *  SYNOPSIS: Get the size of row <q_0>.
  */
 inline
 int 
-EDGEBOUND_ROWS_Get_RowSize(   EDGEBOUND_ROWS*   edg,
+EDGEROWS_Get_RowSize(   EDGEROWS*   edg,
                               int               q_0 )
 {
-   return edg->rows_N[q_0];
+   int qx0 = q_0 - edg->Q_range.beg;
+   return edg->rows_N[qx0];
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Get()
+/*! FUNCTION: EDGEROWS_Get()
  *  SYNOPSIS: Return pointer to EDGEBOUND for absolute index <i>.
+ *            Should not be called directly.
  */
 inline
 BOUND* 
-EDGEBOUND_ROWS_Get(  EDGEBOUND_ROWS*   edg,
+EDGEROWS_Get(  EDGEROWS*   edg,
                      int               i )
 {
    /* if debugging, do edgebound checks */
    #if DEBUG
       if ( i >= edg->N || i < 0 ) {
-         fprintf(stderr, "ERROR: EDGEBOUND_ROWS Access Out-of-Bounds\n");
+         fprintf(stderr, "ERROR: EDGEROWS Access Out-of-Bounds\n");
          fprintf(stderr, "dim: (%d/%d), access: (%d)\n", edg->N, edg->Nalloc, i);
          exit(EXIT_FAILURE);
       }
@@ -158,52 +165,79 @@ EDGEBOUND_ROWS_Get(  EDGEBOUND_ROWS*   edg,
    return &(edg->rows[i]);
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Get_byRow()
+/*! FUNCTION: EDGEROWS_Get_byRow()
  *  SYNOPSIS: Get pointer to <i_0>th bound on <q_0>th row.
  */
 inline
 BOUND* 
-EDGEBOUND_ROWS_Get_byRow(  EDGEBOUND_ROWS*      edg,
+EDGEROWS_Get_byRow(  EDGEROWS*      edg,
                            int                  q_0,
                            int                  i_0 )
 {
+   BOUND*   bnd;
+   int      idx;
+   int      qx0;
+
+   /* if boundchecking, make sure q_0 is a valid request */
+   #if SAFE
+   {
+      if ( IS_IN_RANGE( edg->Q_range.beg, edg->Q_range.end, q_0 ) == false ) {
+         fprintf( stderr, "ERROR: EDGEBOUND requested row %d, when range is: (%d,%d)\n", 
+            q_0, edg->Q_range.beg, edg->Q_range.end );
+      }
+   }
+   #endif 
+
+   /* find map of index in full Q -> index in Q_range */
+   qx0   = q_0 - edg->Q_range.beg;
+
    /* convert to flat index to access proper row */
-   int idx     = (q_0 * edg->row_max) + i_0;
-   BOUND* bnd  = EDGEBOUND_ROWS_Get( edg, idx );
+   idx   = (qx0 * edg->row_max) + i_0;
+   /* get row at flat index */
+   bnd   = EDGEROWS_Get( edg, idx );
    return bnd;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_GetLast_byRow()
+/*! FUNCTION: EDGEROWS_GetLast_byRow()
  *  SYNOPSIS: Gets pointer to the last bound on <q_0>th row.
  */
 inline
 BOUND* 
-EDGEBOUND_ROWS_GetLast_byRow(    EDGEBOUND_ROWS*      edg,
+EDGEROWS_GetLast_byRow(    EDGEROWS*      edg,
                                  int                  q_0 )
 {
    BOUND*   bnd;
    int      size;
 
-   size  = EDGEBOUND_ROWS_Get_RowSize( edg, q_0 );
+   size  = EDGEROWS_Get_RowSize( edg, q_0 );
    if ( size == 0 ) {
       return NULL;
    }
-   bnd   = EDGEBOUND_ROWS_Get_byRow( edg, q_0, size - 1 );
+   bnd   = EDGEROWS_Get_byRow( edg, q_0, size - 1 );
    return bnd;
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Pushback()
- *  SYNOPSIS: Add BOUND <bnd> to EDGEBOUND_ROWS list at row index <row_id>.
+/*! FUNCTION: EDGEROWS_Pushback()
+ *  SYNOPSIS: Add BOUND <bnd> to EDGEROWS list at row index <row_id>.
  */
 void 
-EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
-                           int               row_id,
+EDGEROWS_Pushback(   EDGEROWS*   edg,
+                           int               q_0,
                            BOUND*            bnd )
 {
+   BOUND*   edg_bnd;
+   int      qx0;
+   int      last_idx;
+   
+   /* find map of index in full Q -> index in Q_range */
+   qx0      = q_0 - edg->Q_range.beg;
+   /* last index points to the next free bound in list */
+   last_idx = EDGEROWS_Get_RowSize(edg, q_0);
+
    /* if bound exceeds limit for bounds per row, throw flag */
-   if ( edg->rows_N[row_id] >= edg->row_max - 1 ) 
+   if ( last_idx >= edg->row_max ) 
    { 
-      fprintf(stderr, "ERROR: Number of edgebounds for given row (%d) has been exceeded to (%d).\n", row_id, edg->rows_N[row_id] );
+      fprintf(stderr, "ERROR: Number of edgebounds for given row (%d) has been exceeded to (%d).\n", q_0, edg->row_max );
       fprintf(stderr, "HELP: To increase the allowed number of edgebounds in row, increase value of compiler flag '%s'.\n", "MAX_BOUNDS_PER_ROW_SUPPORTED" );
 
       #if DEBUG
@@ -212,7 +246,7 @@ EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
          fprintf(stderr, "BOUND ATTEMPTING TO INSERT:\n");
          fprintf(stderr, "%s\n", BOUND_To_String( *bnd, s ) );
          fprintf(stderr, "BOUND LIST AT ROW_ID:\n");
-         for ( int i = 0; i < edg->rows_N[row_id]; i++ ) 
+         for ( int i = 0; i < edg->rows_N[qx0]; i++ ) 
          {
             fprintf(stderr, "{%d}:\t", i );
             fprintf(stderr, "%s,\n", BOUND_To_String( edg->rows[i], s ) );
@@ -220,20 +254,26 @@ EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
       }
       #endif
       
-      exit(EXIT_FAILURE);
+      /* Optionally, we could force user to recompile with larger edgebound lists */
+      // exit(EXIT_FAILURE);
+      /* Otherwise, we could just bridge the last two spans together, by updating right bound */
+      last_idx -= edg->row_max - 1;
+      edg_bnd  = EDGEROWS_Get_byRow( edg, q_0, last_idx );
+      edg_bnd->lb = MIN( edg_bnd->lb, bnd->lb );
+      edg_bnd->rb = MAX( edg_bnd->rb, bnd->rb );
    }
-
-   BOUND*   edg_bnd;
-   edg_bnd  = EDGEBOUND_ROWS_Get_byRow( edg, row_id, edg->rows_N[row_id] );
-   *edg_bnd = *bnd;
-   edg->rows_N[row_id]++;
-
-   // printf("Added index: %d to row_id: %d\n", edg->rows_N[row_id], row_id);
-   // BOUND_Dump( edg_bnd, stdout );
-   // BOUND_Dump( bnd, stdout );
+   else {
+       /* get reference to bound on row at last index and update it with new info */
+      edg_bnd  = EDGEROWS_Get_byRow( edg, q_0, last_idx );
+      edg_bnd->id = bnd->id;
+      edg_bnd->rb = bnd->rb;
+      edg_bnd->lb = bnd->lb;
+      /* increment the number of bounds in row */
+      edg->rows_N[qx0]++;
+   }
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_IntegrateDiag_Fwd()
+/*! FUNCTION: EDGEROWS_IntegrateDiag_Fwd()
  *  SYNOPSIS: Add antidiagonal bound into row-wise bounds, for the Forward Cloud Search.
  *            Looks at each cell individually in the antidiagonal.
  *            If it is right-side adjacent to the current open bound (within a tolerance value), it extends it.
@@ -242,7 +282,7 @@ EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
  *            If size is exceeded, program terminates with error.
  */
 void 
-EDGEBOUND_ROWS_IntegrateDiag_Fwd(   EDGEBOUND_ROWS*   edg,
+EDGEROWS_IntegrateDiag_Fwd(   EDGEROWS*   edg,
                                     BOUND*            bnd )
 {
    BOUND*   last_bnd;
@@ -261,7 +301,7 @@ EDGEBOUND_ROWS_IntegrateDiag_Fwd(   EDGEBOUND_ROWS*   edg,
       int t_0 = d_0 - q_0;
 
       /* get latest bound in requested row */
-      last_bnd = EDGEBOUND_ROWS_GetLast_byRow( edg, q_0 );
+      last_bnd = EDGEROWS_GetLast_byRow( edg, q_0 );
 
       /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
       if ( last_bnd != NULL && t_0 <= last_bnd->rb + tol ) 
@@ -274,12 +314,12 @@ EDGEBOUND_ROWS_IntegrateDiag_Fwd(   EDGEBOUND_ROWS*   edg,
       {
          // fprintf(stderr, "Creating new, %d is outside range %d:<%d-%d>\n", j, row->id, row->lb, row->rb );
          new_bnd = (BOUND){ q_0, t_0, t_0+1};
-         EDGEBOUND_ROWS_Pushback( edg, q_0, &new_bnd );
+         EDGEROWS_Pushback( edg, q_0, &new_bnd );
       }
    }
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_IntegrateDiag_Bck()
+/*! FUNCTION: EDGEROWS_IntegrateDiag_Bck()
  *  SYNOPSIS: Add antidiagonal bound into row-wise bounds, for the Forward Cloud Search.
  *            Looks at each cell individually in the antidiagonal.
  *            If it is left-side adjacent to the current open bound (within a tolerance value), it extends it.
@@ -288,7 +328,7 @@ EDGEBOUND_ROWS_IntegrateDiag_Fwd(   EDGEBOUND_ROWS*   edg,
  *            If size is exceeded, program terminates with error.
  */
 void 
-EDGEBOUND_ROWS_IntegrateDiag_Bck(   EDGEBOUND_ROWS*   edg,
+EDGEROWS_IntegrateDiag_Bck(   EDGEROWS*   edg,
                                     BOUND*            bnd )
 {
    BOUND*   last_bnd;
@@ -307,7 +347,7 @@ EDGEBOUND_ROWS_IntegrateDiag_Bck(   EDGEBOUND_ROWS*   edg,
       int t_0 = d_0 - q_0;
 
       /* get latest bound in requested row */
-      last_bnd = EDGEBOUND_ROWS_GetLast_byRow( edg, q_0 );
+      last_bnd = EDGEROWS_GetLast_byRow( edg, q_0 );
 
       /* if row is not empty AND row bounds is adjacent (within tolerance) to new cell, merge them */
       if ( ( last_bnd != NULL ) && ( t_0 >= last_bnd->lb - tol - 1 ) ) 
@@ -320,41 +360,44 @@ EDGEBOUND_ROWS_IntegrateDiag_Bck(   EDGEBOUND_ROWS*   edg,
       {
          // fprintf(stderr, "Creating new, %d is outside range %d:<%d-%d>\n", j, row->id, row->lb, row->rb );
          new_bnd = (BOUND){ q_0, t_0, t_0+1};
-         EDGEBOUND_ROWS_Pushback( edg, q_0, &new_bnd );
+         EDGEROWS_Pushback( edg, q_0, &new_bnd );
       }
    }
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Convert()
- *  SYNOPSIS: Convert EDGEBOUNDS_ROWS <edg_in> to EDGEBOUND <edg_out>.
+/*! FUNCTION: EDGEROWS_Convert()
+ *  SYNOPSIS: Convert EDGEROWS <edg_in> to EDGEBOUNDS <edg_out>.
  */
 void 
-EDGEBOUND_ROWS_Convert(    EDGEBOUND_ROWS*   edg_in,
+EDGEROWS_Convert(    EDGEROWS*   edg_in,
                            EDGEBOUNDS*       edg_out )
 {
    EDGEBOUNDS_Reuse( edg_out, edg_in->Q, edg_in->T );
    edg_out->edg_mode = EDG_ROW;
 
-   for ( int i = 0; i < edg_in->N; i++ ) 
+   /* for every row in <edg_in> */
+   for ( int q_0 = edg_in->Q_range.beg; q_0 < edg_in->Q_range.end; q_0++ ) 
    {
-      for ( int j = 0; j < edg_in->rows_N[i]; j++ ) 
+      int row_size = EDGEROWS_Get_RowSize( edg_in, q_0 );
+      /* for every bound in row */
+      for ( int i_0 = 0; i_0 < row_size; i_0++ ) 
       {
-         BOUND* bnd = EDGEBOUND_ROWS_Get_byRow( edg_in, i, j );
+         BOUND* bnd = EDGEROWS_Get_byRow( edg_in, q_0, i_0 );
          EDGEBOUNDS_Pushback( edg_out, bnd );
       }
    }
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Dump()
+/*! FUNCTION: EDGEROWS_Dump()
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
 void 
-EDGEBOUND_ROWS_Dump(    EDGEBOUND_ROWS*   edg,
+EDGEROWS_Dump(    EDGEROWS*   edg,
                         FILE*             fp )
 {
    /* test for bad file pointer */
    if (fp == NULL) {
-      const char* obj_name = "EDGEBOUND_ROWS";
+      const char* obj_name = "EDGEROWS";
       fprintf(stderr, "ERROR: Bad FILE POINTER for printing %s.\n", obj_name);
       exit(EXIT_FAILURE);
       return;
@@ -366,7 +409,7 @@ EDGEBOUND_ROWS_Dump(    EDGEBOUND_ROWS*   edg,
    {
       for ( int j = 0; j < edg->rows_N[i]; j++ ) 
       {
-         BOUND* bnd = EDGEBOUND_ROWS_Get_byRow( edg, i, j );
+         BOUND* bnd = EDGEROWS_Get_byRow( edg, i, j );
          fprintf(fp, "[%d] ", i);
          fprintf(fp, "{ id: %d, lb: %d, rb: %d }\n", bnd->id, bnd->lb, bnd->rb);
       }
@@ -374,12 +417,12 @@ EDGEBOUND_ROWS_Dump(    EDGEBOUND_ROWS*   edg,
    fprintf(fp, "\n");
 }
 
-/*! FUNCTION: EDGEBOUND_ROWS_Compare()
- *  SYNOPSIS: Compare two EDGEBOUND_ROWS objects.  Return 0 if equal.
+/*! FUNCTION: EDGEROWS_Compare()
+ *  SYNOPSIS: Compare two EDGEROWS objects.  Return 0 if equal.
  */
 int 
-EDGEBOUND_ROWS_Compare(    EDGEBOUND_ROWS*    edg_a,
-                           EDGEBOUND_ROWS*    edg_b )
+EDGEROWS_Compare(    EDGEROWS*    edg_a,
+                           EDGEROWS*    edg_b )
 {
    if ( edg_a->N != edg_b->N ) return -1;
 
@@ -387,8 +430,8 @@ EDGEBOUND_ROWS_Compare(    EDGEBOUND_ROWS*    edg_a,
    {
       for ( int j = 0; j < edg_a->rows_N[i]; j++ )
       {
-         BOUND* bnd_a = EDGEBOUND_ROWS_Get_byRow( edg_a, i, j );
-         BOUND* bnd_b = EDGEBOUND_ROWS_Get_byRow( edg_b, i, j );
+         BOUND* bnd_a = EDGEROWS_Get_byRow( edg_a, i, j );
+         BOUND* bnd_b = EDGEROWS_Get_byRow( edg_b, i, j );
          int cmp = BOUND_Compare( *bnd_a, *bnd_b );
          if ( cmp != 0 ) {
             return cmp;

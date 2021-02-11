@@ -23,7 +23,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
                               MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
-                              EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                              EDGEROWS*      rows,          /* temporary edgebounds by-row vector */
                               VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
                               VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */
@@ -44,7 +44,7 @@ int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query seque
                               MATRIX_3D*           st_MX,         /* normal state matrix, dim: ( NUM_NORMAL_STATES, Q+1, T+1 ) */
                               MATRIX_2D*           sp_MX,         /* special state matrix, dim: ( NUM_SPECIAL_STATES, Q+1 ) */
                               const ALIGNMENT*     tr,            /* viterbi traceback */ 
-                              EDGEBOUND_ROWS*      rows,          /* temporary edgebounds by-row vector */
+                              EDGEROWS*      rows,          /* temporary edgebounds by-row vector */
                               VECTOR_INT*          lb_vec[3],     /* temporary left-bound vectors for pruning */
                               VECTOR_INT*          rb_vec[3],     /* temporary right-bound vectors for pruning */
                               EDGEBOUNDS*          edg,           /* OUTPUT: edgebounds of cloud search space */

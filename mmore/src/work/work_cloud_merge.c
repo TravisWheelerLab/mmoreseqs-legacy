@@ -53,7 +53,7 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
    EDGEBOUNDS*       edg_bck        = worker->edg_bck;
    EDGEBOUNDS*       edg_diag       = worker->edg_diag;
    EDGEBOUNDS*       edg_row        = worker->edg_row;
-   EDGEBOUND_ROWS*   edg_builder    = worker->edg_rows_tmp;
+   EDGEROWS*   edg_builder    = worker->edg_rows_tmp;
    /* output data */
    TIMES*            times          = worker->times;
    RESULT*           result         = worker->result;

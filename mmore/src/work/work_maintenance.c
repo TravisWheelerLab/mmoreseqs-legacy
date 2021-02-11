@@ -88,7 +88,7 @@ WORK_init( WORKER* worker )
    worker->edg_diag        = EDGEBOUNDS_Create();
    worker->edg_row         = EDGEBOUNDS_Create();
    /* row-wise edgebounds */
-   worker->edg_rows_tmp    = EDGEBOUND_ROWS_Create();
+   worker->edg_rows_tmp    = EDGEROWS_Create();
    for ( int i=0; i<3; i++ ) {
       worker->lb_vec[i]    = VECTOR_INT_Create();
       worker->rb_vec[i]    = VECTOR_INT_Create();
@@ -153,7 +153,7 @@ WORK_reuse( WORKER* worker )
    EDGEBOUNDS_Reuse( worker->edg_diag, Q, T );
    EDGEBOUNDS_Reuse( worker->edg_row, Q, T );
    /* clear row-wise edgebounds and resize */
-   EDGEBOUND_ROWS_Reuse( worker->edg_rows_tmp, Q, T );
+   EDGEROWS_Reuse( worker->edg_rows_tmp, Q, T, (RANGE){0,0} );
    /* domain definitions */
    DOMAIN_DEF_Reuse( worker->dom_def );
 
@@ -243,7 +243,7 @@ WORK_cleanup( WORKER* worker )
    worker->edg_diag     = EDGEBOUNDS_Destroy( worker->edg_diag );
    worker->edg_row      = EDGEBOUNDS_Destroy( worker->edg_row );
    /* row-wise edgebounds */
-   worker->edg_rows_tmp  = EDGEBOUND_ROWS_Destroy( worker->edg_rows_tmp );
+   worker->edg_rows_tmp  = EDGEROWS_Destroy( worker->edg_rows_tmp );
    for ( int i=0; i<3; i++ ) {
       worker->lb_vec[i]    = VECTOR_INT_Destroy( worker->lb_vec[i] );
       worker->rb_vec[i]    = VECTOR_INT_Destroy( worker->rb_vec[i] );
