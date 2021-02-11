@@ -389,6 +389,7 @@ EDGEBOUND_ROWS_Convert(    EDGEBOUND_ROWS*   edg_in,
       for ( int i_0 = 0; i_0 < row_size; i_0++ ) 
       {
          BOUND* bnd = EDGEBOUND_ROWS_Get_byRow( edg_in, q_0, i_0 );
+         BOUND_Validate( edg_in, bnd );
          EDGEBOUNDS_Pushback( edg_out, bnd );
       }
    }
@@ -444,4 +445,36 @@ EDGEBOUND_ROWS_Compare(    EDGEBOUND_ROWS*    edg_a,
          }
       }
    }
+
+   return 0;
+}
+
+/*! FUNCTION: BOUND_Validate()
+ *  SYNOPSIS: Verifies that <bnd> is a valid entry in <edg>.
+ */
+int
+BOUND_Validate(   EDGEBOUND_ROWS*      edg,
+                  BOUND*               bnd )
+{
+   bool id_check, q_check, lb_check, rb_check, b_check, passed;
+
+   id_check = IS_IN_RANGE( 0, edg->Q, bnd->id );
+   q_check  = IS_IN_RANGE( edg->Q_range.beg, edg->Q_range.end, bnd->id );
+   lb_check = IS_IN_RANGE( 0, edg->T + 1, bnd->lb );
+   rb_check = IS_IN_RANGE( 0, edg->T + 1, bnd->rb );
+   b_check  = bnd->lb <= bnd->rb;
+   passed   = ( id_check && q_check && lb_check && rb_check && b_check );
+
+   if (!passed) {
+      fprintf( stderr, "FAILED: bnd failed test(%d|%d|%d|%d|%d) :: bnd(%d,%d,%d) in edg(%d,%d)=>Q(%d,%d).\n", 
+      id_check, q_check, lb_check, rb_check, b_check,
+      bnd->id, bnd->lb, bnd->rb, edg->Q, edg->T, edg->Q_range.beg, edg->Q_range.end );
+   }
+   else {
+      // fprintf( stderr, "PASSED: bnd passed test(%d|%d|%d|%d|%d) -> bnd(%d,%d,%d) in edg(%d,%d)=>Q(%d,%d).\n", 
+      // id_check, q_check, lb_check, rb_check, b_check,
+      // bnd->id, bnd->lb, bnd->rb, edg->Q, edg->T, edg->Q_range.beg, edg->Q_range.end );
+   }
+
+   return passed;
 }

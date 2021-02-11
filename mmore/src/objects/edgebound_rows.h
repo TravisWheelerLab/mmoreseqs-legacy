@@ -154,4 +154,11 @@ int
 EDGEBOUND_ROWS_Compare(    EDGEBOUND_ROWS*    edg_a,
                            EDGEBOUND_ROWS*    edg_b );
 
+/*! FUNCTION: BOUND_Validate()
+ *  SYNOPSIS: Verifies that <bnd> is a valid entry in <edg>.
+ */
+int
+BOUND_Validate(   EDGEBOUND_ROWS*      edg,
+                  BOUND*               bnd );
+
 #endif /* _EDGEBOUND_ROWS_H */
