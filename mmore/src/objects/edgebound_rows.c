@@ -478,3 +478,50 @@ BOUND_Validate(   EDGEBOUND_ROWS*      edg,
 
    return passed;
 }
+
+/*! FUNCTION: EDGEBOUND_ROWS_Stats()
+ *  SYNOPSIS: Examine the number of bounds in each row, number of cells, and aggregate.
+ */
+int 
+EDGEBOUND_ROWS_Stats(  EDGEBOUND_ROWS*    edg )
+{
+   /* total bounds */
+   int bnd_total  = 0;
+   int test_total = 0;
+   /* total cells */
+   int cell_total = 0; 
+   /* occupancy of each row */
+   int occ[MAX_BOUNDS_PER_ROW + 2];
+
+   for (int i = 0; i < MAX_BOUNDS_PER_ROW; i++) {
+      occ[i] = 0;
+   }
+
+   /* for every row in <edg_in> */
+   for ( int q_0 = edg->Q_range.beg; q_0 < edg->Q_range.end; q_0++ ) 
+   {
+      int row_size = EDGEBOUND_ROWS_Get_RowSize( edg, q_0 );
+      if (row_size > MAX_BOUNDS_PER_ROW) {
+         occ[row_size+1] += 1;
+      }
+      else {
+         occ[row_size] += 1;
+      }
+      
+      bnd_total += row_size;
+      
+      for (int i_0 = 0; i_0 < row_size; i_0++) {
+         BOUND* bnd = EDGEBOUND_ROWS_Get_byRow( edg, q_0, i_0 );
+         cell_total += (bnd->rb - bnd->lb);
+      }
+   }
+
+   /* output stats */
+   printf("EDGEBOUND_ROWS => bnd_total: %d, cell_total: %d\n", bnd_total, cell_total);
+   for (int i = 0; i < MAX_BOUNDS_PER_ROW; i++) {
+      test_total += (occ[i] * i);
+      printf("OCC[%d]: %d\n", i, occ[i]);
+   }
+   printf("OCC[OVER]: %d\n", occ[MAX_BOUNDS_PER_ROW+1]);
+   if (test_total != bnd_total) printf("ERROR: sum_total != total\n");
+}

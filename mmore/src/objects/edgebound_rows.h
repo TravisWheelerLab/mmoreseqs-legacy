@@ -161,4 +161,10 @@ int
 BOUND_Validate(   EDGEBOUND_ROWS*      edg,
                   BOUND*               bnd );
 
+/*! FUNCTION: EDGEBOUND_ROWS_Stats()
+ *  SYNOPSIS: Examine the number of bounds in each row, number of cells, and aggregate.
+ */
+int 
+EDGEBOUND_ROWS_Stats(  EDGEBOUND_ROWS*    edg );
+
 #endif /* _EDGEBOUND_ROWS_H */
