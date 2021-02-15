@@ -14,7 +14,7 @@
 #include "dp_matrix_util.h"
 #include "error_handler.h"
 #include "testing.h"
-#include "logmath.h"
+#include "mymath.h"
 #include "rng.h"
 
 #endif /* _UTILITIES_H */

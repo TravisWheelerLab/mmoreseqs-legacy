@@ -41,4 +41,14 @@ int
 CHAR_Compare( 	const CHAR   a, 
 					const CHAR   b );
 
+/*! FUNCTION:  CHAR_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+CHAR_CompareTo(    const void*   a, 
+                  const void*   b );
+
 #endif /* _CHAR_H */

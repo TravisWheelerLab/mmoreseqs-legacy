@@ -81,3 +81,20 @@ STR_Compare(  const STR   a,
 {
    return strcmp( a, b );
 }
+
+/*! FUNCTION:  STR_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+STR_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   STR* x = (STR*)a;
+   STR* y = (STR*)b;
+
+   return STR_Compare( *x, *y );
+}

@@ -41,4 +41,14 @@ int
 RANGE_Compare(    const RANGE  a, 
                   const RANGE  b );
 
+/*! FUNCTION:  RANGE_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+RANGE_CompareTo(    const void*   a, 
+                  const void*   b );
+
 #endif /* _RANGE_H */

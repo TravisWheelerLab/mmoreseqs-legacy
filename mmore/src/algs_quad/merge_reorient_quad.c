@@ -142,7 +142,8 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
                {
                   in_cloud = false;
                   y2 = k;
-                  EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
+                  BOUND bnd = (BOUND){x,y1,y2};
+                  EDGEBOUNDS_Pushback(edg, bnd );
                }
             }
             else
@@ -161,7 +162,8 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
          {
             in_cloud = false;
             y2 = re;
-            EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
+            BOUND bnd = (BOUND){x,y1,y2};
+            EDGEBOUNDS_Pushback(edg, bnd );
          }
       }
    }
@@ -184,7 +186,8 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
                   in_cloud = false;
                   y2 = j;
 
-                  EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
+                  BOUND bnd = (BOUND){x,y1,y2};
+                  EDGEBOUNDS_Pushback(edg, bnd );
                }
             }
             else
@@ -194,7 +197,7 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
                   in_cloud = true;
                   x = i;
                   y1 = j;
-                  // printf("Starting [%d]:%d,(%d,?)...\n", edg->N, x, y1);
+                  // printf("Starting [%d]:%d,(%d,?)...\n", EDGEBOUNDS_GetSize( edg ), x, y1);
                }
             }
          }
@@ -204,8 +207,8 @@ void EDGEBOUNDS_Build_From_Cloud(const int      Q,
          {
             in_cloud = false;
             y2 = T+1;
-
-            EDGEBOUNDS_Pushback(edg, &( (BOUND){x,y1,y2} ) );
+            BOUND bnd = (BOUND){x,y1,y2};
+            EDGEBOUNDS_Pushback(edg, bnd );
          }
       }
    }

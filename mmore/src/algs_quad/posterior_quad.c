@@ -70,16 +70,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
    T_range.end = 0;
 
    /* create bounding box */
-   for (int i = 0; i < edg->N; i++) {
-      if ( T_range.beg > edg->bounds[i].lb ) {
-         T_range.beg = edg->bounds[i].lb;
-      }
-      if ( T_range.end < edg->bounds[i].rb ) {
-         T_range.end = edg->bounds[i].rb;
-      }
-   }
-   Q_range.beg = edg->bounds[0].id;
-   Q_range.end = edg->bounds[edg->N - 1].id;
+   EDGEBOUNDS_Find_BoundingBox( edg, &Q_range, &T_range );
    /* edge checks */
    T_range.beg = MAX(T_range.beg, 0);
    T_range.end = MIN(T_range.end, T);
@@ -540,12 +531,12 @@ run_Decode_Special_Posterior_Quad(  SEQUENCE*         q_seq,            /* query
 
       /* update special states */
       XMX_X(sp_MX_post, SP_E, q_0) = -INF;
-      XMX_X(sp_MX_post, SP_N, q_0) = logsum( XMX_X(sp_MX_fwd, SP_N, q_0), 
+      XMX_X(sp_MX_post, SP_N, q_0) = MATH_Sum( XMX_X(sp_MX_fwd, SP_N, q_0), 
                                              XMX_X(sp_MX_bck, SP_N, q_0) );
-      XMX_X(sp_MX_post, SP_J, q_0) = logsum( XMX_X(sp_MX_fwd, SP_J, q_0), 
+      XMX_X(sp_MX_post, SP_J, q_0) = MATH_Sum( XMX_X(sp_MX_fwd, SP_J, q_0), 
                                              XMX_X(sp_MX_bck, SP_J, q_0) );
       XMX_X(sp_MX_post, SP_B, q_0) = -INF;
-      XMX_X(sp_MX_post, SP_C, q_0) = logsum( XMX_X(sp_MX_fwd, SP_C, q_0), 
+      XMX_X(sp_MX_post, SP_C, q_0) = MATH_Sum( XMX_X(sp_MX_fwd, SP_C, q_0), 
                                              XMX_X(sp_MX_bck, SP_C, q_0) );
    }
 
@@ -718,9 +709,9 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
 
    /* x-factor: */
    x_factor = VEC_X( dom_def->sp_freq, SP_N);
-   x_factor = logsum( x_factor,
+   x_factor = MATH_Sum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_C) );
-   x_factor = logsum( x_factor,
+   x_factor = MATH_Sum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_J) );
    
   #if DEBUG
@@ -749,15 +740,15 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
          mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
          imx = MX_2D( dom_def->st_freq, t_0, INS_ST) + ISC_X(target, t_0, k_0);
 
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx );
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), imx );
+         VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), mmx );
+         VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), imx );
       }
       t_0 = T_end - 1;
       tx0 = t_0 - T_beg;
       mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
       
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx);
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), x_factor );                            
+      VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), mmx);
+      VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), x_factor );                            
    }
 
    #if DEBUG

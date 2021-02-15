@@ -18,25 +18,27 @@
 
 /* objects */
 #include "../objects/structs.h"
-#include "../objects/structs.h"
-#include "../objects/edgebound.h"
+#include "../objects/_objects.h"
 
 /* header */
 #include "_utilities.h"
-#include "logmath.h"
+#include "mymath.h"
 
-/* GLOBAL STATIC VARIABLES */
+/* macros */
+#define LOGSUM_SCALE    1000.0f
+#define LOGSUM_TBL      16000
+
 /* table of logsum values */
 static float LOGSUM_LOOKUP[LOGSUM_TBL];
 bool LOGSUM_INITIALIZED = false;
 
-/*! FUNCTION:  calc_Max()
- *  SYNOPSIS:  Returns maximum value of two floats.
+/*! FUNCTION:  MATH_Max()
+ *  SYNOPSIS:  Returns maximum value of two floats <x> and <y>.
  */
 inline
 float 
-calc_Max(   float   x,
-            float   y )
+MATH_Max(   const float   x,
+            const float   y )
 {
    if (x > y) {
       return x;
@@ -44,13 +46,13 @@ calc_Max(   float   x,
    return y;
 }
 
-/*! FUNCTION:  calc_Min()
- *  SYNOPSIS:  Returns mimumum value of two floats.
+/*! FUNCTION:  MATH_Min()
+ *  SYNOPSIS:  Returns mimumum value of two floats <x> and <y>.
  */
 inline
 float 
-calc_Min(   float   x,
-            float   y )
+MATH_Min(   const float   x,
+            const float   y )
 {
    if (x < y) {
       return x;
@@ -58,13 +60,92 @@ calc_Min(   float   x,
    return y;
 }
 
-/*! FUNCTION:  logsum_Init()
+/*! FUNCTION:  MATH_Identity()
+ *  SYNOPSIS:  Identity function.  Simple passthrough function that returns the value of <x>.
+ */
+inline
+float 
+MATH_Identity(   const float   x )
+{
+   return x;
+}
+
+/*! FUNCTION:  MATH_Log()
+ *  SYNOPSIS:  Computes the natural logrithm of <x>.
+ */
+inline
+float 
+MATH_Log(   const float   x )
+{
+   return logf(x);
+}
+
+/*! FUNCTION:  MATH_Exp()
+ *  SYNOPSIS:  Computes the exponential of <x>.
+ */
+inline
+float 
+MATH_Exp(   const float   x )
+{
+   return expf(x);
+}
+
+/*! FUNCTION:  MATH_One()
+ *  SYNOPSIS:  Method Selector for computing zero.
+ */
+float 
+MATH_One()
+{
+   return MATH_LogOne();
+}
+
+/*! FUNCTION:  MATH_LogOne()
+ *  SYNOPSIS:  Reteurn the log(0) = -INF.
+ */
+inline
+float 
+MATH_LogOne()
+{
+   return 0.0f;
+}
+
+/*! FUNCTION:  MATH_Zero()
+ *  SYNOPSIS:  Method Selector for computing zero.
+ */
+float 
+MATH_Zero()
+{
+   return MATH_LogZero();
+}
+
+/*! FUNCTION:  MATH_LogZero()
+ *  SYNOPSIS:  Reteurn the log(0) = -INF.
+ */
+inline
+float 
+MATH_LogZero()
+{
+   return -INF;
+}
+
+/*! FUNCTION:  MATH_Sum()
+ *  SYNOPSIS:  Method Selector.
+ */
+inline
+float 
+MATH_Sum(   const float     x,
+            const float     y )
+{
+   return MATH_LogSum( x, y );
+}
+
+/*! FUNCTION:  MATH_Logsum_Init()
  *  SYNOPSIS:  Initializes values for the Logsum lookup table, LOGSUM_LOOKUP.
  *             Computes the natural logarithm for real numbers, scaled down by constant LOGSUM_SCALE (to prevent underflow of real numbers).
- *             Must be initialized before calling logsum();
+ *             Must be initialized before calling MATH_Sum();
  */
 void 
-logsum_Init()
+MATH_Logsum_Init()
 {
    if (LOGSUM_INITIALIZED == false)
    {
@@ -77,7 +158,7 @@ logsum_Init()
    }
 }
 
-/*! FUNCTION:  logsum()
+/*! FUNCTION:  MATH_LogSum()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (approximation).
  *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
  *             LOGSUM_LOOKUP must have been initialized before use.
@@ -85,8 +166,8 @@ logsum_Init()
  */
 inline
 float 
-logsum(  float     x,
-         float     y )
+MATH_LogSum(   const float     x,
+               const float     y )
 {
    float max, min;
 
@@ -103,60 +184,45 @@ logsum(  float     x,
           max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
 }
 
-/*! FUNCTION:  logsum_post()
- *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (approximation).
- *             Speedup using LOGSUM_LOOKUP table means no exp() or log() operations are performed.
- *             LOGSUM_LOOKUP must have been initialized before use.
- *             Note: If one of the vals x,y = -inf, then other value overrides it.
- */
-inline
-float 
-logsum_post(   float     x,
-               float     y )
-{
-   float max, min;
-
-   if (x > y) {
-      max = x;
-      min = y;
-   }
-   else {
-      max = y;
-      min = x;
-   }
-
-   return (min == -INF || (max - min) >= 15.7f) ?
-          max : max + LOGSUM_LOOKUP[ (int)((max - min) * LOGSUM_SCALE) ];
-}
-
-/*! FUNCTION:  logsum_exact()
+/*! FUNCTION:  MATH_Logsum_exact()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (exact).
- *             Slower than logsum().
+ *             Slower than MATH_Sum().
  */
 inline
 float 
-logsum_exact(  float  x,
-               float  y )
+MATH_Logsum_exact(   const float  x,
+                     const float  y )
 {
    return log( exp(x) + exp(y) );
 }
 
-/*! FUNCTION:  logprod()
- *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.
- *             This correctly handles -INF and INF.
+/*! FUNCTION:  MATH_Prod()
+ *  SYNOPSIS:  Takes the product of two numbers.
  */
 inline
 float 
-logprod( float  x,
-         float  y )
+MATH_Prod(  const float  x,
+            const float  y )
+{
+   return MATH_LogProd( x, y );
+}
+
+/*! FUNCTION:  MATH_LogProd()
+ *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.
+ */
+inline
+float 
+MATH_LogProd(  const float  x,
+               const float  y )
 {
    return x + y;
 }
 
-/*! FUNCTION:  logsum_Dump()
+/*! FUNCTION:  MATH_Logsum_Dump()
  *  SYNOPSIS:  Output LOGSUM_LOOKUP table to file.
  */
-void logsum_Dump( FILE *fp )
+void 
+MATH_Logsum_Dump( FILE*  fp )
 {
    fprintf(fp, "=== LOGSUM TABLE ===\n");
    for (int i = 0; i < 16000; i += 160)
@@ -166,34 +232,34 @@ void logsum_Dump( FILE *fp )
    fprintf(fp, "\n\n");
 }
 
-/*! FUNCTION:  negln2real()
+/*! FUNCTION:  MATH_NegLn2Real()
  *  SYNOPSIS:  Convert negative natural logarithm probability to real probability.
  */
 float 
-negln2real( float negln_prob )
+MATH_NegLn2Real( const float  negln_prob )
 {
    float real_prob = 1.0f / ( exp( negln_prob ) );
    return real_prob;
 }
 
-/*! FUNCTION:  real2negln()
+/*! FUNCTION:  MATH_Real2NegLn()
  *  SYNOPSIS:  Convert real probabilities to negative natural logarithm probability.
  */
 float 
-real2negln(float real_prob)
+MATH_Real2NegLn( const float  real_prob )
 {
    float negln_prob = -1.0f * log(real_prob);
    return negln_prob;
 }
 
-/*! FUNCTION:  cmp_tol()
+/*! FUNCTION:  MATH_CmpTol()
  *  SYNOPSIS:  Checks whether two floats <a> and <b> are within static tolerance <tol> of eachother.
  *    RETURN:  Returns true if numbers absolute difference is less than tolerance <tol>.
  */
 inline
 bool 
-cmp_tol( const float  a,
-         const float  b)
+MATH_CmpTol(   const float    a,
+               const float    b )
 {
    /* acceptable tolerance range for "equality tests" */
    const float tol = 1e-5;
@@ -201,15 +267,15 @@ cmp_tol( const float  a,
    return is_diff_within_tol;
 }
 
-/*! FUNCTION:  cmp_tol_cust()
+/*! FUNCTION:  MATH_CmpTol_byTol()
  *  SYNOPSIS:  Checks whether two floats <a> and <b> are within custom tolerance <tol> of eachother.
  *    RETURN:  Returns true if numbers absolute difference is less than tolerance <tol>.
  */
 inline
 bool 
-cmp_tol_cust(  const float    a,
-               const float    b,
-               const float    tol )
+MATH_CmpTol_byTol(   const float    a,
+                     const float    b,
+                     const float    tol )
 {
    /* acceptable tolerance range for "equality tests" */
    bool is_diff_within_tol = (fabs( a - b ) < tol);

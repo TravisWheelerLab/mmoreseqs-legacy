@@ -46,13 +46,27 @@
 /* datatype for matrices */
 #define DATA         float
 
-/* tool for describing data */
+/* tool for describing and interfacing with data */
 typedef struct {
+   /* meta data */
    DATATYPE    type;
    STR         name;
    STR         desc;
    size_t      size;
+
+   /* functions */
+   void*       (*Create)(void* data);
+   void*       (*Destroy)(void* data);
+   void*       (*Set)(void* data);
+   size_t      (*SizeOf)();
+   int         (*Compare)(void* a, void* b);
+   void        (*Swap)(void* a, void* b);
+   char*       (*ToString)(void* data, char* buffer);
 } DATA_DESC;
+
+typedef struct {
+
+} VEC;
 
 /* generic datatype that can hold most basic datatypes */
 typedef union {
@@ -269,26 +283,29 @@ typedef struct {
 
 /* set of bounds for cloud search space */
 typedef struct {
-   /* size of edgebounds */
-   int            N;             /* current size of bounds array */
-   int            Nalloc;        /* allocated size of bounds array */
    /* dimensions of embedding matrix */
-   int            Q;          
-   int            T;
+   int            Q;             /* query length */
+   int            T;             /* target length */
+   /* ranges */
+   RANGE          Q_range;       /* query range in bounds */
+   RANGE          T_range;       /* target range in bounds */
    /* whether edges are stored by-row or by-diag */
-   int            edg_mode;   
-   /* row/antidiagonal indexes */
-   VECTOR_INT*    ids;           /* identity of each row/diag */
-   VECTOR_INT*    ids_idx;       /* array of indexes the heads of each row/diag */
+   EDG_MODE       edg_mode;      
+   /* row/antidiagonal index */
+   VECTOR_INT*    id_index;      /* array of indexes the heads of each row/diag */
+   bool           is_indexed;    /* has edgebounds been indexed yet? */   
    /* data */
-   BOUND*         bounds;        /* array of bounded ranges along a row/diag */
+   VECTOR_BOUND*  bounds;        /* vector of bounded range along row/antidiag */
+   bool           is_sorted;     /* have edgebounds been sorted yet? */
+   bool           is_merged;     /* have edgebounds been merged yet? */
 } EDGEBOUNDS;
 
 /* a vector of each set of bounds for cloud search space which account a specific row */
 typedef struct {
-   /* size */
+   /* flat size total */
    int            N;          /* current size of array */
    int            Nalloc;     /* allocated size of array */
+   /* per row size */
    int*           rows_N;     /* current number of bounds in row */
    int            row_max;    /* maximum number of bounds in row */
    /* dimension of embedding matrix */
@@ -501,24 +518,37 @@ typedef struct {
 /** 3-dimensional sparse float matrix */
 typedef struct {
    /* dimensions */
-   int            D1;            /* number of rows = length of query */
-   int            D2;            /* number of columns = length of target  */
-   int            D3;            /* number of 3rd dim = number of normal states */
-   /* flat dimension and allocated size */
+   union {
+      int   Q;
+      int   R;
+   };
+   int            D1;            /* number of rows    = length of query */
+   int            D2;            /* number of cols    = length of target  */
+   int            D3;            /* number of states  = number of normal states */
+   /* min/max range of sparse matrix */
+   RANGE          Q_range;       /* minimum and maximum range */
+   RANGE          T_range;       /* minimum and maximum range */
+   /* domain constraint */
+   bool           is_domain;     /* using domain constraint? */
+   RANGE          D_range;       /* domain constraint on Q_range */
+   /* cell data and flat dimensions */
    int            N;             /* number of cells in sparse matrix */
    int            Nalloc;        /* number of total cells alloc'd */
+   VECTOR_FLT*    data;          /* matrix cells */
+   bool           clean;         /* whether data has stray values / all cells set to -INF */
    /* definitions of inner and outer edge boundaries */
-   EDGEBOUNDS*    edg_inner;     /* edgebounds which describe of active cells of sparse matrix */
-   EDGEBOUNDS*    edg_outer;     /* edgebounds which describe the shape of sparse matrix */
+   EDGEBOUNDS*    edg_inner;     /* edgebounds which describe the active inner shape of matrix */
+   EDGEBOUNDS*    edg_outer;     /* edgebounds which describe the padded outer shape of matrix */
+   /* id-wise index */
+   VECTOR_INT*    id_inner;      /* indexes the start of each distinct row/diag in <imap> */
+   VECTOR_INT*    id_outer;      /* indexes the start of each distinct row/diag in <omap> */
    /* offset to starts of each inner edgebound ranges (plus upper and lower rows) */
    VECTOR_INT*    imap_prv;      /* maps edg_inner to offsets into data, at previous row */
    VECTOR_INT*    imap_cur;      /* maps edg_inner to offsets into data, at current row */
    VECTOR_INT*    imap_nxt;      /* maps edg_inner to offsets into data, at next row */
    /* offset to starts of each outer edgebound ranges */
    VECTOR_INT*    omap_cur;      /* maps edg_outer to offsets into data */
-   /* cell data */
-   VECTOR_FLT*    data;          /* matrix cells */
-   bool           clean;         /* whether data has been cleared / all cells set to -INF */
+   
    /* iterators for traversing matrix */
    int            q_0;           /* current query position iterator */
    int            t_0;           /* current target position iterator */
@@ -1130,7 +1160,7 @@ typedef struct {
    /* final scores */
    float          env_sc;           /* forward score of domain envelope */
    float          dom_corr;         /* domain correction -> null2 score when calculating per-domain score (in NATS) */ 
-   float          dom_bias;         /* domain bias -> logsum(0, log(bg->omega) + dom_corr ) */ 
+   float          dom_bias;         /* domain bias -> MATH_Sum(0, log(bg->omega) + dom_corr ) */ 
    float          optacc_sc;        /* optimal accuraccy score: (units: expected # residues correctly aligned) */
    float          bit_sc;           /* overall score in bits */
    double         lnP;              /* log(p-value) of the bitscore */

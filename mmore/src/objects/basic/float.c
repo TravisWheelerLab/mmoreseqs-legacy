@@ -71,3 +71,20 @@ FLT_Compare(   const FLT   a,
 {
    return (a - b);
 }
+
+/*! FUNCTION:  FLT_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+FLT_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   FLT* x = (FLT*)a;
+   FLT* y = (FLT*)b;
+
+   return FLT_Compare( *x, *y );
+}

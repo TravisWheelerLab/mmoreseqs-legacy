@@ -39,6 +39,15 @@ int
 INT_Compare(   const INT   a, 
                const INT   b );
 
+/*! FUNCTION:  INT_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+INT_CompareTo(    const void*   a, 
+                  const void*   b );
 
 /*! FUNCTION:  INT_Swap()
  *  SYNOPSIS:  Swap values of <a> and <b>

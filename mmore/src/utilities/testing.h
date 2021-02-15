@@ -93,6 +93,19 @@ MATRIX_2D_Cloud_Compare(   MATRIX_2D*     cloud_MX_a,
 int 
 MATRIX_2D_Cloud_Count(  MATRIX_2D*  cloud_MX );
 
+/*! FUNCTION:  MATRIX_2D_Cloud_Count()
+ *  SYNOPSIS:  Count number of cells in MATRIX_2D with val. 
+ */
+int 
+MATRIX_2D_CountVal(  MATRIX_2D*  cloud_MX,
+                     float       val );
+
+/*! FUNCTION:  MATRIX_2D_Total()
+ *  SYNOPSIS:  Sum all cell values in matrix. 
+ */
+float 
+MATRIX_2D_Total(  MATRIX_2D*  cloud_MX );
+
 /*! FUNCTION: EDGEBOUNDS_Compare_by_Cloud()
  *  SYNOPSIS: Compare two EDGEBOUNDS by filling cloud matrices.
  */

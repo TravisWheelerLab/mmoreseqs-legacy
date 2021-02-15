@@ -98,8 +98,8 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,         /* query
    /* intial indexes */
    q_0   = q_prv = Q;
    t_0   = t_prv = 0;
-   r_0b  = edg->N - 1;
-   r_0e  = edg->N - 1;
+   r_0b  = EDGEBOUNDS_GetSize( edg ) - 1;
+   r_0e  = EDGEBOUNDS_GetSize( edg ) - 1;
    /* get edgebound range */
    EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
 
@@ -286,7 +286,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,         /* query
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A);
             prv_M = MSMX(qx1, tx1) + TSC(t_1, M2M) + MSC(t_0, A);
             prv_I = ISMX(qx1, tx1) + TSC(t_1, I2M) + MSC(t_0, A);
-            prv_D = DSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A);
+            prv_D = DSMX(qx1, tx1) + TSC(t_1, TM) + MSC(t_0, A);
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( cur, prv_B ) ) {
@@ -303,7 +303,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,         /* query
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A) );
+               fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, TM) + MSC(t_0, A) );
                ERRORCHECK_exit(EXIT_FAILURE);
             }
 
@@ -327,7 +327,7 @@ int run_Viterbi_Traceback_Sparse(   const SEQUENCE*      query,         /* query
 
             /* possible previous states */
             prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, TD);
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( cur, prv_M ) ) {

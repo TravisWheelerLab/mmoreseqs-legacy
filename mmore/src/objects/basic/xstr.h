@@ -1,8 +1,7 @@
 /*******************************************************************************
  *  FILE:      xstr.h
  *  PURPOSE:   XSTR object.
- *             String object which tracks its size and supports more safe string functions.
- *             Not optimal for string building.
+ *             String builder class. Better for manipulating strings than STR.
  *
  *  AUTHOR:    Dave Rich
  *  NOTES:

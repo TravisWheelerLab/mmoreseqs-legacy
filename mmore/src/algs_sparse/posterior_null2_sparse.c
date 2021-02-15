@@ -265,9 +265,9 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
 
    /* x-factor: */
    x_factor = VEC_X( dom_def->sp_freq, SP_N);
-   x_factor = logsum( x_factor,
+   x_factor = MATH_Sum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_C) );
-   x_factor = logsum( x_factor,
+   x_factor = MATH_Sum( x_factor,
                       VEC_X(dom_def->sp_freq, SP_J) );
    
   #if DEBUG
@@ -296,15 +296,15 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
          mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
          imx = MX_2D( dom_def->st_freq, t_0, INS_ST) + ISC_X(target, t_0, k_0);
 
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx );
-         VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), imx );
+         VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), mmx );
+         VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), imx );
       }
       t_0 = T_range.end - 1;
       tx0 = t_0 - T_range.beg;
       mmx = MX_2D( dom_def->st_freq, t_0, MAT_ST) + MSC_X(target, t_0, k_0);
       
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), mmx);
-      VEC_X( dom_def->null2_sc, k_0 ) = logsum( VEC_X( dom_def->null2_sc, k_0 ), x_factor );                            
+      VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), mmx);
+      VEC_X( dom_def->null2_sc, k_0 ) = MATH_Sum( VEC_X( dom_def->null2_sc, k_0 ), x_factor );                            
    }
 
    #if DEBUG

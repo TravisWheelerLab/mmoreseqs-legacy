@@ -189,7 +189,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    /* --------------------------------------------------------------------------------- */
 
    /* initialize logsum lookup table if it has not already been */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    /* check if data is cleaned */
    #if DEBUG
@@ -392,7 +392,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
             /* add new bounds to edgebounds as antidiag-wise */
-            EDGEBOUNDS_Pushback( edg, &bnd_new );
+            EDGEBOUNDS_Pushback( edg, bnd_new );
          }
          /* antidiag is still WIP */
          #elif ( CLOUD_METHOD == CLOUD_ROWS )
@@ -403,7 +403,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
             {
-               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
+               EDGEBOUNDS_Pushback( test_edg, bnd_new );
             }
             #endif
          }
@@ -441,13 +441,13 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
             /* NOTE: Convert (q-1,t-1) <=> (d-2,k-1) */ 
             prv_M = MMX3(dx2, k_1)  + TSC(t_1, M2M);
             prv_I = IMX3(dx2, k_1)  + TSC(t_1, I2M);
-            prv_D = DMX3(dx2, k_1)  + TSC(t_1, D2M);
+            prv_D = DMX3(dx2, k_1)  + TSC(t_1, TM);
             /* Free to begin match state (new alignment) */
             /* NOTE: only allow begin transition at start of viterbi alignment */
             // prv_B only assigned once at start */
             /* best-to-match */
-            prv_sum = logsum( logsum( prv_M, prv_I ),
-                              logsum( prv_D, prv_B ) );
+            prv_sum = MATH_Sum( MATH_Sum( prv_M, prv_I ),
+                              MATH_Sum( prv_D, prv_B ) );
             MMX3(dx0, k_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -456,16 +456,16 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
             prv_M = MMX3(dx1, k_1) + TSC(t_0, M2I);
             prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I);
             /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
+            prv_sum = MATH_Sum( prv_M, prv_I );
             IMX3(dx0, k_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             /* NOTE: Convert (q,t-1) <=> (d-1, k) */
             prv_M = MMX3(dx1, k_0) + TSC(t_1, M2D);
-            prv_D = DMX3(dx1, k_0) + TSC(t_1, D2D);
+            prv_D = DMX3(dx1, k_0) + TSC(t_1, TD);
             /* best-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = MATH_Sum( prv_M, prv_D );
             DMX3(dx0, k_0) = prv_sum;
 
             /* embed cell data in quadratic matrix */
@@ -837,7 +837,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    /* --------------------------------------------------------------------------------- */
 
    /* initialize logsum lookup table if it has not already been */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    /* check if data is cleaned */
    #if DEBUG
@@ -1038,7 +1038,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
          #if ( CLOUD_METHOD == CLOUD_DIAGS )
          {
             /* add new bounds to edgebounds as antidiag-wise */
-            EDGEBOUNDS_Pushback( edg, &bnd_new );
+            EDGEBOUNDS_Pushback( edg, bnd_new );
          }
          #endif
 
@@ -1050,7 +1050,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
             #if DEBUG
             {
                /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
-               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
+               EDGEBOUNDS_Pushback( test_edg, bnd_new );
             }
             #endif
          }
@@ -1105,24 +1105,24 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
             // prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             // prv_E = sc_E;
             /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_D, prv_E ) );
+            prv_sum = MATH_Sum( 
+                           MATH_Sum( prv_M, prv_I ),
+                           MATH_Sum( prv_D, prv_E ) );
             MMX3(dx0, k_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             prv_M = MMX3(dx2, k_1) + TSC(t_0, I2M) + sc_M;
             prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I) + sc_I;
             /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
+            prv_sum = MATH_Sum( prv_M, prv_I );
             IMX3(dx0, k_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prv_M = MMX3(dx2, k_1) + TSC(t_0, D2M) + sc_M;
-            prv_D = DMX3(dx1, k_0) + TSC(t_0, D2D);
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, TM) + sc_M;
+            prv_D = DMX3(dx1, k_0) + TSC(t_0, TD);
             /* best-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
-            prv_sum = logsum( prv_sum, prv_E );
+            prv_sum = MATH_Sum( prv_M, prv_D );
+            prv_sum = MATH_Sum( prv_sum, prv_E );
             DMX3(dx0, k_0) = prv_sum;
 
             /* embed cell data in quadratic matrix */

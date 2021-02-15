@@ -43,7 +43,7 @@ WORK_init( WORKER* worker )
    ARGS*    args  = worker->args;
 
    /* initialize logrithmic sum table */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    STR read_mode     = "r";
    STR write_mode    = "w";

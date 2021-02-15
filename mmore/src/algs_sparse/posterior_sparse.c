@@ -239,10 +239,10 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
          
          /* TODO: Should be able to eliminate this */
          /* clear previous data */
-         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_fwd, -INF );
-         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_bck, -INF );
+         MATRIX_3D_SPARSE_Fill( st_SMX_fwd, -INF );
+         MATRIX_3D_SPARSE_Fill( st_SMX_bck, -INF );
          if (st_SMX_bck != st_SMX_post) {
-            MATRIX_3D_SPARSE_Fill_Outer( st_SMX_post, -INF );
+            MATRIX_3D_SPARSE_Fill( st_SMX_post, -INF );
          }
 
          /* compute Forward/Backward for the domain range */
@@ -341,7 +341,7 @@ run_Posterior_Sparse(   SEQUENCE*               q_seq,            /* query seque
       if (N_domains > 0)
       {
          /* constructed score over all domains */
-         dom_def->dom_sumbias = logsum(0.0f, log(hmm_bg->omega) + dom_def->dom_sumbias);
+         dom_def->dom_sumbias = MATH_Sum(0.0f, log(hmm_bg->omega) + dom_def->dom_sumbias);
          dom_def->dom_sumsc  += (Q - D_total) * log((float) Q / (float) (Q + 3));
          dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;
       }
@@ -416,7 +416,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
    /* --------------------------------------------------------------------------- */
 
    /* initialize logsum lookup table if it has not already been */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    overall_sc  =  XMX_X( sp_MX_fwd, SP_C, Q ) + 
                   XSC_X(t_prof, SP_C, SP_MOVE);

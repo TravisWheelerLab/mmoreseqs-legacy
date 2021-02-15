@@ -65,22 +65,22 @@ WORK_build_sparse_matrix(  WORKER* worker )
 
    /* build first matrix using <edg_row> as template */
    MATRIX_3D_SPARSE_Shape_Like_Edgebounds( worker->st_SMX_fwd, edg );
-   // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_fwd, -INF );
+   // MATRIX_3D_SPARSE_Fill( worker->st_SMX_fwd, -INF );
 
    /* for other sparse matrices, simply copy first sparse matrix */
    MATRIX_3D_SPARSE_Copy( worker->st_SMX_bck, worker->st_SMX_fwd );
    // MATRIX_3D_SPARSE_Shape_Like_Matrix( worker->st_SMX_bck, worker->st_SMX_fwd );
-   // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_bck, -INF );
+   // MATRIX_3D_SPARSE_Fill( worker->st_SMX_bck, -INF );
    
    if ( args->is_recycle_mx == false ) 
    {
       MATRIX_3D_SPARSE_Copy( worker->st_SMX_post, worker->st_SMX_fwd );
       // MATRIX_3D_SPARSE_Shape_Like_Matrix( worker->st_SMX_post, worker->st_SMX_fwd );
-      // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_post, -INF );
+      // MATRIX_3D_SPARSE_Fill( worker->st_SMX_post, -INF );
 
       MATRIX_3D_SPARSE_Copy( worker->st_SMX_optacc, worker->st_SMX_fwd );
       // MATRIX_3D_SPARSE_Shape_Like_Matrix( worker->st_SMX_optacc, worker->st_SMX_fwd );
-      // MATRIX_3D_SPARSE_Fill_Outer( worker->st_SMX_optacc, -INF );
+      // MATRIX_3D_SPARSE_Fill( worker->st_SMX_optacc, -INF );
    }
 
    CLOCK_Stop( worker->timer );

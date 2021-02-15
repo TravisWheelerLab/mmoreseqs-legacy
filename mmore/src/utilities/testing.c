@@ -713,7 +713,7 @@ TEST_bck_cycle3(  const int   Q,
 } 
 
 /*! FUNCTION:  MATRIX_2D_Cloud_Fill()
- *  SYNOPSIS:  Increment MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
+ *  SYNOPSIS:  Set MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
  */
 int 
 MATRIX_2D_Cloud_Fill(   MATRIX_2D*     cloud_MX,
@@ -723,7 +723,7 @@ MATRIX_2D_Cloud_Fill(   MATRIX_2D*     cloud_MX,
    int x, d, i, j, k;
    int rb, lb;
    int num_cells = 0;
-   int N = edg->N;
+   int N = EDGEBOUNDS_GetSize( edg );
    int mode = edg->edg_mode;
 
    if (mode == EDG_DIAG)
@@ -731,9 +731,68 @@ MATRIX_2D_Cloud_Fill(   MATRIX_2D*     cloud_MX,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         d  = edg->bounds[x].id;
-         lb = edg->bounds[x].lb;
-         rb = edg->bounds[x].rb;
+         d  = EDGEBOUNDS_Get( edg, x ).id;
+         lb = EDGEBOUNDS_Get( edg, x ).lb;
+         rb = EDGEBOUNDS_Get( edg, x ).rb;
+
+         /* insert value across diag in range */
+         for (k = lb; k < rb; k++)
+         {
+            i = k;
+            j = d - i;
+
+            MX_2D( cloud_MX, i, j ) = val;
+            num_cells++;
+         }
+      }
+   }
+   else if (mode == EDG_ROW)
+   {
+      /* iterate over all bounds in edgebound list */
+      for (x = 0; x < N; x++)
+      {
+         i  = EDGEBOUNDS_Get( edg, x ).id;
+         /* verify column in range */
+         lb = MAX( EDGEBOUNDS_Get( edg, x ).lb, 0 );
+         rb = MIN( EDGEBOUNDS_Get( edg, x ).rb, cloud_MX->C );
+         /* verify row in range */
+         if ( i < 0 || i >= cloud_MX->R ) {
+            continue;
+         }
+
+         /* insert value across row in range */
+         for (j = lb; j < rb; j++)
+         {
+            MX_2D( cloud_MX, i, j ) = val;
+            num_cells++;
+         }
+      }
+   }
+   return num_cells;
+}
+
+/*! FUNCTION:  MATRIX_2D_Cloud_Fill()
+ *  SYNOPSIS:  Increment MATRIX_2D with value according to EDGEBOUNDS, returns number of cells covered by EDGEBOUNDS 
+ */
+int 
+MATRIX_2D_Cloud_Add(    MATRIX_2D*     cloud_MX,
+                        EDGEBOUNDS*    edg,
+                        float          val )
+{
+   int x, d, i, j, k;
+   int rb, lb;
+   int num_cells = 0;
+   int N = EDGEBOUNDS_GetSize( edg );
+   int mode = edg->edg_mode;
+
+   if (mode == EDG_DIAG)
+   {
+      /* iterate over all bounds in edgebound list */
+      for (x = 0; x < N; x++)
+      {
+         d  = EDGEBOUNDS_Get( edg, x ).id;
+         lb = EDGEBOUNDS_Get( edg, x ).lb;
+         rb = EDGEBOUNDS_Get( edg, x ).rb;
 
          /* insert value across diag in range */
          for (k = lb; k < rb; k++)
@@ -751,10 +810,10 @@ MATRIX_2D_Cloud_Fill(   MATRIX_2D*     cloud_MX,
       /* iterate over all bounds in edgebound list */
       for (x = 0; x < N; x++)
       {
-         i  = edg->bounds[x].id;
+         i  = EDGEBOUNDS_Get( edg, x ).id;
          /* verify column in range */
-         lb = MAX( edg->bounds[x].lb, 0 );
-         rb = MIN( edg->bounds[x].rb, cloud_MX->C );
+         lb = MAX( EDGEBOUNDS_Get( edg, x ).lb, 0 );
+         rb = MIN( EDGEBOUNDS_Get( edg, x ).rb, cloud_MX->C );
          /* verify row in range */
          if ( i < 0 || i >= cloud_MX->R ) {
             continue;
@@ -837,6 +896,45 @@ MATRIX_2D_Cloud_Count(  MATRIX_2D*  cloud_MX )
       }
    }
    return num_cells;
+}
+
+/*! FUNCTION:  MATRIX_2D_Cloud_Count()
+ *  SYNOPSIS:  Count number of cells in MATRIX_2D with val. 
+ */
+int 
+MATRIX_2D_CountVal(  MATRIX_2D*  cloud_MX,
+                     float       val )
+{
+   int i, j, num_cells;
+   num_cells = 0;
+
+   for (i = 0; i < cloud_MX->R; i++) {
+      for (j = 0; j < cloud_MX->C; j++) {
+         if ( MX_2D(cloud_MX, i, j) == val ) {
+            num_cells++;
+         }
+      }
+   }
+   return num_cells;
+}
+
+/*! FUNCTION:  MATRIX_2D_Total()
+ *  SYNOPSIS:  Sum all cell values in matrix. 
+ */
+float
+MATRIX_2D_Total(  MATRIX_2D*  cloud_MX )
+{
+   int i, j, num_cells;
+   float total = 0.0;
+
+   for (i = 0; i < cloud_MX->R; i++) {
+      for (j = 0; j < cloud_MX->C; j++) {
+         if ( MX_2D(cloud_MX, i, j) > 0 ) {
+            total += MX_2D( cloud_MX, i, j );
+         }
+      }
+   }
+   return total;
 }
 
 /*! FUNCTION: EDGEBOUNDS_Compare_by_Cloud()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      merge_reorient_linear.c
+ *  FILE:      edgebound_merge_reorient.c
  *  PURPOSE:   Functions for merging multiple EDGEBOUND objects and 
  *             reorienting from diagonal-wise to row-wise.
  *
@@ -8,8 +8,8 @@
  *******************************************************************************/
 
 
-#ifndef _MERGE_REORIENT_LINEAR_H
-#define _MERGE_REORIENT_LINEAR_H
+#ifndef _EDGEBOUND_MERGE_REORIENT_H
+#define _EDGEBOUND_MERGE_REORIENT_H
 
 /*! FUNCTION:  EDGEBOUNDS_Reflect()
  *  SYNOPSIS:  Reflect antidiagonal bounds.

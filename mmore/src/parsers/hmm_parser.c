@@ -321,7 +321,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
          prof->bg_model->compo[j] = star_real;
       }
       else {
-         prof->bg_model->compo[j] = negln2real( value );
+         prof->bg_model->compo[j] = MATH_NegLn2Real( value );
       }
       /* emission */
       value = prof->bg_model->insert[j];
@@ -329,7 +329,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
          prof->bg_model->insert[j] = star_real;
       }
       else {
-         prof->bg_model->insert[j] = negln2real( value );
+         prof->bg_model->insert[j] = MATH_NegLn2Real( value );
       }
    }
    for ( int j = 0; j < NUM_TRANS_STATES - 1; j++ )
@@ -340,7 +340,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
          prof->bg_model->trans[j] = star_real;
       }
       else {
-         prof->bg_model->trans[j] = negln2real( value );
+         prof->bg_model->trans[j] = MATH_NegLn2Real( value );
       }
    }
 
@@ -356,7 +356,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
             curr_node->match[j] = star_real;
          }
          else {
-            curr_node->match[j] = negln2real( value );
+            curr_node->match[j] = MATH_NegLn2Real( value );
          }
       }
 
@@ -368,7 +368,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
             curr_node->insert[j] = star_real;
          }
          else {
-            curr_node->insert[j] = negln2real( value );
+            curr_node->insert[j] = MATH_NegLn2Real( value );
          }
       }
       /* transition state */
@@ -379,7 +379,7 @@ void HMM_PROFILE_Convert_NegLog_To_Real( HMM_PROFILE* prof )
             curr_node->trans[j] = star_real;
          }
          else {
-            curr_node->trans[j] = negln2real( value );
+            curr_node->trans[j] = MATH_NegLn2Real( value );
          }
       }
    }
@@ -463,8 +463,8 @@ void HMM_PROFILE_Config( HMM_PROFILE* prof,
 
       for (k = 1; k < prof->N; k++)
       {
-         prof->hmm_model[k].trans[B2M] = log( 1.0 - prof->hmm_model[k].trans[D2M] );
-         Z += log(prof->hmm_model[k].trans[D2D]);
+         prof->hmm_model[k].trans[B2M] = log( 1.0 - prof->hmm_model[k].trans[TM] );
+         Z += log(prof->hmm_model[k].trans[TD]);
          // printf("%.3f\t", prof->hmm_model[0].trans[B2M]);
       }
    }
@@ -549,7 +549,7 @@ void HMM_PROFILE_CalcOccupancy(  HMM_PROFILE*  prof,
       mocc[1] = prof->hmm_model[0].trans[M2I] + prof->hmm_model[0].trans[M2M];
       for (k = 2; k <= prof->N; k++) {
          mocc[k] = ( mocc[k - 1] * (prof->hmm_model[k - 1].trans[M2I] + prof->hmm_model[k - 1].trans[M2M]) ) +
-                   ( (1.0 - mocc[k - 1]) * prof->hmm_model[k - 1].trans[D2M] );
+                   ( (1.0 - mocc[k - 1]) * prof->hmm_model[k - 1].trans[TM] );
       }
    }
 

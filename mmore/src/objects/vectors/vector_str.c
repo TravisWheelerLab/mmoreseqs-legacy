@@ -1,12 +1,14 @@
 /*******************************************************************************
  *  FILE:      vector_str.c
  *  PURPOSE:   VECTOR_STR Object Functions.
- *             Template for building vector classes.
+ *             Provides template for building vector classes.
  *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
  *             Requires data primitive to have STR_Compare().
+ * 
+ *  DESC:      
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:    
  *******************************************************************************/
 
 /* imports */
@@ -14,7 +16,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
 /* local imports */
 #include "../../objects/structs.h"
@@ -65,9 +66,9 @@ VECTOR_STR_Destroy( VECTOR_STR*   vec )
     *       Hopefully, this can be safely used in template, as this loop should be 
     *       inlined and optimized out by non-dynamic data types(?)
     */
-   for (int i = 0; i < vec->N; i++) {
-      VEC_X( vec, i ) = STR_Destroy( VEC_X( vec, i ) );
-   }
+   // for (int i = 0; i < vec->N; i++) {
+   //    VEC_X( vec, i ) = STR_Destroy( VEC_X( vec, i ) );
+   // }
 
    vec->data   = ERROR_free(vec->data);
    vec         = ERROR_free(vec);
@@ -85,11 +86,58 @@ VECTOR_STR_Reuse( VECTOR_STR*   vec )
     *       Hopefully, this can be safely used in template, as this loop should be 
     *       inlined and optimized out by non-dynamic data types(?)
     */
-   for (int i = 0; i < vec->N; i++) {
-      VEC_X( vec, i ) = STR_Destroy( VEC_X( vec, i ) );
-   }
+   // for (int i = 0; i < vec->N; i++) {
+   //    VEC_X( vec, i ) = STR_Destroy( VEC_X( vec, i ) );
+   // }
 
    vec->N = 0;
+}
+
+/* TODO: Can I do this without dynamic allocation? */
+/*! FUNCTION:  VECTOR_STR_WrapArray().
+ *  SYNOPSIS:  Wraps <array> in a <vector> struct, allocates structures and returns pointer. 
+ *             <length> is the entire array size, <occupied> is the amount of data in use 
+ *             WARNING: Limited operation support. Do not use:
+ *                      _SetSize()     *Unless size is less than total array size
+ *                      _Pushback()    *Use _Push()
+ *                      _Popback()     *Use _Pop()
+ */
+VECTOR_STR* 
+VECTOR_STR_WrapArray(   STR*     array,
+                        size_t   length,
+                        size_t   occupied )
+{
+   VECTOR_STR* vec;
+   vec = ERROR_malloc( sizeof(VECTOR_STR) );
+
+   vec->data   = array;
+   vec->N      = occupied;
+   vec->Nalloc = length;
+
+   return vec;
+}
+
+/*! FUNCTION:  VECTOR_STR_UnwrapArray()
+ *  SYNOPSIS:  Unwraps <array> from <vector> and return it.  Frees all <vector> related data. 
+ */
+STR* 
+VECTOR_STR_UnwrapArray(    VECTOR_STR*    vec,
+                           size_t         size )
+{
+   STR* array = vec->data;
+   vec = ERROR_malloc( sizeof(VECTOR_STR) );
+
+   return array;
+}
+
+/*! FUNCTION:  VECTOR_STR_GetArray()
+ *  SYNOPSIS:  Get <data> array from <vec>.
+ */
+inline
+STR* 
+VECTOR_STR_GetArray(   VECTOR_STR*   vec )
+{
+   return vec->data;
 }
 
 /*! FUNCTION:  VECTOR_STR_Fill()
@@ -120,7 +168,7 @@ VECTOR_STR_Copy(  VECTOR_STR*   dest,
    VECTOR_STR_Resize( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
-      VEC_X( dest, i ) = STR_Create( VEC_X( src, i ) );
+      *VECTOR_STR_GetX( dest, i ) = STR_Create( VEC_X( src, i ) );
    }
    /* copy base data */
    dest->N = src->N;
@@ -135,7 +183,7 @@ STATUS_FLAG
 VECTOR_STR_Resize(   VECTOR_STR*   vec, 
                      size_t        size )
 {
-   vec->data = ERROR_realloc( vec->data, sizeof(STR) * size );
+   vec->data   = ERROR_realloc( vec->data, sizeof(STR) * size );
    vec->Nalloc = size;
 }
 
@@ -152,19 +200,125 @@ VECTOR_STR_GrowTo(   VECTOR_STR*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_STR_GetArray()
- *  SYNOPSIS:  Get <data> array from <vec>.
+/*! FUNCTION:  VECTOR_STR_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
+ *  RETURN:    Return data at <idx>.
+ */
+inline
+STR 
+VECTOR_STR_Get(   VECTOR_STR*   vec, 
+                  int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return (vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_STR_GetX()
+ *  SYNOPSIS:  Get reference to data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG and SAFE.
+ *  RETURN:    Pointer to location to <vec> idx.
  */
 inline
 STR* 
-VECTOR_STR_GetArray(   VECTOR_STR*   vec )
+VECTOR_STR_GetX( VECTOR_STR*   vec, 
+                  int           idx )
 {
-   return vec->data;
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_STR_Set()
+ *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+STATUS_FLAG 
+VECTOR_STR_Set(   VECTOR_STR*   vec, 
+                  int           idx, 
+                  STR           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = STR_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = STR_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_STR_Insert()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_STR_Insert(   VECTOR_STR*   vec, 
+                     int           idx, 
+                     STR           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = STR_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = STR_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_STR_Delete()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_STR_Delete(   VECTOR_STR*   vec, 
+                     int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   int N    = VECTOR_STR_GetSize( vec );
+   VEC_X( vec, idx )     = STR_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx )     = VEC_X( vec, N - 1 );
+   // VEC_X( vec, N - 1 )   = STR_Empty(); 
+   vec->N   -= 1;
+ 
+   return STATUS_SUCCESS;
 }
 
 /*! FUNCTION:  VECTOR_STR_Push()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
- *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().
+ *             WARNING: Does not handle resizing or check for out-of-bounds. 
+ *                      For that, use Pushback().
  */
 inline
 STATUS_FLAG 
@@ -172,13 +326,13 @@ VECTOR_STR_Push(  VECTOR_STR*   vec,
                   STR           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = STR_Create( val );
+   VECTOR_STR_Set( vec, vec->N, val );
    vec->N++;
 }
 
 /*! FUNCTION:  VECTOR_STR_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
- *             and resize array if array is full.
+ *             Resize array if array is full.
  */
 inline
 STATUS_FLAG 
@@ -194,14 +348,27 @@ VECTOR_STR_Pushback(    VECTOR_STR*   vec,
 }
 
 /*! FUNCTION:  VECTOR_STR_Pop()
- *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
+ *  SYNOPSIS:  Pop data from the end of <vec> data array, remove data, and return data. 
  */
 inline
 STR 
 VECTOR_STR_Pop( VECTOR_STR*   vec )
 {
-   STR data = VEC_X( vec, vec->N - 1 );
+   STR data = VECTOR_STR_Get( vec, vec->N - 1 );
    vec->N -= 1;
+
+   return data;
+}
+
+/*! FUNCTION:  VECTOR_STR_Popback()
+ *  SYNOPSIS:  Pop data from the end of <vec> data array and return data.
+ *             Resize if array is less than half full.
+ */
+inline
+STR 
+VECTOR_STR_Popback( VECTOR_STR*   vec )
+{
+   STR data = VECTOR_STR_Pop( vec );
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
@@ -234,73 +401,6 @@ VECTOR_STR_Append(   VECTOR_STR*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_STR_Set()
- *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-STATUS_FLAG 
-VECTOR_STR_Set(   VECTOR_STR*   vec, 
-                  int           idx, 
-                  STR           val )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   VEC_X( vec, idx ) = STR_Destroy( VEC_X( vec, idx ) );
-   VEC_X( vec, idx ) = STR_Create( val );
-
-   return STATUS_SUCCESS;
-}
-
-/*! FUNCTION:  VECTOR_STR_Get()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
- *  RETURN:    Return data at <idx>.
- */
-inline
-STR 
-VECTOR_STR_Get(   VECTOR_STR*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return (vec->data[idx]);
-}
-
-/*! FUNCTION:  VECTOR_STR_GetX()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- *  RETURN:    Pointer to location to <vec> idx.
- */
-inline
-STR* 
-VECTOR_STR_GetX( VECTOR_STR*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_STR access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return &(vec->data[idx]);
-}
-
 /*! FUNCTION:  VECTOR_STR_GetSize()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
@@ -324,6 +424,15 @@ VECTOR_STR_SetSize(     VECTOR_STR*   vec,
    vec->N = size;
 }
 
+/*! FUNCTION:  VECTOR_STR_GetSizeAlloc()
+ *  SYNOPSIS:  Get allocated length of <vec>.
+ */
+inline
+int 
+VECTOR_STR_GetSizeAlloc(   VECTOR_STR*   vec )
+{
+   return vec->Nalloc;
+}
 
 /*! FUNCTION:  VECTOR_STR_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
@@ -449,7 +558,9 @@ STATUS_FLAG
 VECTOR_STR_Sort( VECTOR_STR*    vec )
 {
    int N = VECTOR_STR_GetSize( vec );
-   VECTOR_STR_Sort_Sub( vec, 0, N );
+   qsort( vec->data, N, sizeof(STR), STR_CompareTo );
+
+   // VECTOR_STR_Sort_Sub( vec, 0, N );
 
    #if DEBUG 
    {
@@ -463,6 +574,7 @@ VECTOR_STR_Sort( VECTOR_STR*    vec )
          if ( (cmp <= 0) == false ) {
             fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
                cmp, i, i+1, STR_To_String(cur, s_cur), STR_To_String(nxt, s_nxt) );
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
    }
@@ -478,7 +590,7 @@ VECTOR_STR_Sort_Sub(    VECTOR_STR*    vec,
                         int            beg,
                         int            end )
 {
-   const int begin_select_sort = 4;
+   const int begin_select_sort = INT_MAX;
    int N = VECTOR_STR_GetSize(vec);
    if (N <= 1) {
       return STATUS_SUCCESS;
@@ -567,6 +679,63 @@ VECTOR_STR_Sort_Sub_Quicksort(   VECTOR_STR*    vec,
    VECTOR_STR_Sort_Sub( vec, r_idx+1, end );
 }
 
+/*! FUNCTION:  VECTOR_STR_Op()
+ *  SYNOPSIS:  Perform element-wise unary operation <op> to each cell in <vec_in> and puts it in <vec_out>.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_STR* 
+VECTOR_STR_Op(    VECTOR_STR*    vec_out,             /* input vector */
+                  VECTOR_STR*    vec_in,              /* output vector (can be input vector) */
+                  STR            (*op)(STR data) )    /* unary operation */
+{
+   int N = VECTOR_STR_GetSize( vec_in );
+   if ( vec_out == NULL ) {
+      VECTOR_STR_Create_by_Size( N );
+   }
+   VECTOR_STR_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_STR_GetX( vec_out, i ) = op( *VECTOR_STR_GetX( vec_in, i ) );
+   }
+
+   return vec_out;
+}
+
+/*! FUNCTION:  VECTOR_STR_Op()
+ *  SYNOPSIS:  Perform element-wise binary operation <op>(STR data_1, STR data_2) to each cell in <vec_in_1, vec_in_2> and puts it in <vec_out>.
+ *             <vec_in_1> and <vec_in_2> must be the same size.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_STR* 
+VECTOR_STR_BinOp(    VECTOR_STR*    vec_out,                         /* output vector */ 
+                     VECTOR_STR*    vec_in_1,                        /* first input vector */
+                     VECTOR_STR*    vec_in_2,                        /* second input vector */
+                     STR            (*op)(STR data_1, STR data_2) )  /* binary operation */
+{
+   int N    = VECTOR_STR_GetSize( vec_in_1 );
+   int N_2  = VECTOR_STR_GetSize( vec_in_2 );
+   if ( N != N_2 ) {
+      fprintf( stderr, "ERROR: <vec_in_1> and <vec_in_2> are not the same dimensions.\n");
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   if ( vec_out == NULL ) {
+      VECTOR_STR_Create_by_Size( N );
+   }
+   VECTOR_STR_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_STR_GetX( vec_out, i ) = op( *VECTOR_STR_GetX( vec_in_1, i ), *VECTOR_STR_GetX( vec_in_2, i ) );
+   }
+
+   return vec_out;
+}
+
 /*! FUNCTION:  VECTOR_STR_Swap()
  *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
  *             Warning: Only checks for Out-of-Bounds when in DEBUG.
@@ -577,7 +746,7 @@ VECTOR_STR_Swap(  VECTOR_STR*    vec,
                   int            i,
                   int            j )
 {
-   STR swap = vec->data[i];
+   STR swap = VECTOR_STR_Get( vec, i );
    vec->data[i] = vec->data[j];
    vec->data[j] = swap;
 }
@@ -595,19 +764,6 @@ STATUS_FLAG VECTOR_STR_Reverse(   VECTOR_STR*    vec )
    }
 }
 
-/*! FUNCTION:  VECTOR_STR_LoadTSV()
- *  SYNOPSIS:  Load tsv from <filename> and store in <vec>.
- */
-STATUS_FLAG 
-VECTOR_STR_LoadTSV(  VECTOR_STR*    vec,
-                     char*          filename )
-{
-   FILE* fp  = fopen(filename, "r+");
-   char buf[1024]; 
-
-   fclose(fp);
-}
-
 /*! FUNCTION:  VECTOR_STR_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
@@ -615,23 +771,36 @@ STATUS_FLAG
 VECTOR_STR_Dump(  VECTOR_STR*    vec,
                   FILE*          fp )
 {
+   VECTOR_STR_Dump_byOpt( vec, "\n", "VECTOR BOUND", fp );
+}
+
+/*! FUNCTION:  VECTOR_STR_Dump_byOpt()
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. 
+ */
+STATUS_FLAG 
+VECTOR_STR_Dump_byOpt(  VECTOR_STR*    vec,
+                        STR            delim,
+                        STR            header,
+                        FILE*          fp )
+{
    /* stringification of template object */
    char s[50];
+   const char* pad = " ";
 
-   fprintf(fp, "%s: ", "VECTOR_STR");
+   fprintf(fp, "%s: ", header);
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%s, ", STR_To_String(vec->data[i], s) );
+      fprintf(fp, "%s%s%s", STR_To_String(vec->data[i], s), delim, pad );
    }
    fprintf(fp, "]\n" );
 }
 
 
-/*! FUNCTION:  VECTOR_STR_Unit_Test()
+/*! FUNCTION:  VECTOR_STR_UnitTest()
  *  SYNOPSIS:  Perform unit test for VECTOR_STR.
  */
 STATUS_FLAG 
-VECTOR_STR_Unit_Test()
+VECTOR_STR_UnitTest()
 {
    VECTOR_STR* vec = VECTOR_STR_Create();
 

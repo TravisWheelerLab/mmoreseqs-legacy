@@ -239,20 +239,22 @@
 #define ISC_X(prof, t_0, A)    	( prof->hmm_model[t_0].insert[A] )
 
 /* edgebounds access */
-#define EDG_X(edg, i) 	 	( *EDGEBOUNDS_Get( edg, i ) )
+#define EDG_X(edg, i) 	 	( *EDGEBOUNDS_GetX( edg, i ) )
+/* pointer reference to array */
+#define EDG_XX(edg, i) 	 	( EDGEBOUNDS_GetX( edg, i ) )
 
 /* array access (array, index) */
-#define ARR_X(arr, i) 		( arr[i] )
+#define ARR_X(arr, i) 		( arr[(i)] )
 /* pointer to array (array, index) */
 #define ARR_XX(arr, i) 		( &(arr[i]) )
 
 /* vector access (vector, index) */
-#define VEC_X(vec, i) 		( vec->data[i] )
+#define VEC_X(vec, i) 		( vec->data[(i)] )
 /* pointer into vector (vector, index) */
 #define VEC_XX(vec, i)		( &(vec->data[i]) )
 
 /* logarithmic sum */
-#define LOGSUM(a, b) 		( logsum( a, b ) )
+#define LOGSUM(a, b) 		( MATH_Sum( a, b ) )
 
 /* DEBUG MACRO FOR RETREIVING VARIABLE NAME */
 #define getName(var) #var
@@ -287,7 +289,7 @@
 #define FLOATS_PER_VEC 		VECTOR_WIDTH / FLOAT_BITS
 
 /* number of float vectors per sequence (striped implementation requires at least two vectors) */
-#define NUM_VEC_FOR_SEQ(seq_length, data_per_vec)  calc_Max( 2, (seq_length / data_per_vec) + 1 )
+#define NUM_VEC_FOR_SEQ(seq_length, data_per_vec)  MATH_Max( 2, (seq_length / data_per_vec) + 1 )
 
 /* matrix access functions */
 #define MX_3D_VEC(mx,st,i,j)	

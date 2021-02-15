@@ -110,12 +110,12 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MMX(i-1,j-1)  + TSC(j-1,M2M);
             prv_I = IMX(i-1,j-1)  + TSC(j-1,I2M);
-            prv_D = DMX(i-1,j-1)  + TSC(j-1,D2M);
+            prv_D = DMX(i-1,j-1)  + TSC(j-1,TM);
             prv_B = XMX(SP_B,i-1) + TSC(j-1,B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_B, prv_D ) );
+            prv_sum = MATH_Sum( 
+                           MATH_Sum( prv_M, prv_I ),
+                           MATH_Sum( prv_B, prv_D ) );
             MMX(i,j) = prv_sum + MSC(j,A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -123,22 +123,22 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
             prv_M = MMX(i-1,j) + TSC(j,M2I);
             prv_I = IMX(i-1,j) + TSC(j,I2I);
             /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
+            prv_sum = MATH_Sum( prv_M, prv_I );
             IMX(i,j) = prv_sum + ISC(j,A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(i,j-1) + TSC(j-1,M2D);
-            prv_D = DMX(i,j-1) + TSC(j-1,D2D);
+            prv_D = DMX(i,j-1) + TSC(j-1,TD);
             /* best-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = MATH_Sum( prv_M, prv_D );
             DMX(i,j) = prv_sum;
 
             /* UPDATE E STATE */
             prv_M = MMX(i,j) + sc_E;
             prv_D = DMX(i,j) + sc_E;
-            XMX(SP_E,i) = logsum( 
-                              logsum( prv_M, prv_D ),
+            XMX(SP_E,i) = MATH_Sum( 
+                              MATH_Sum( prv_M, prv_D ),
                               XMX(SP_E,i) );
 
             x_0 = r_0 = i;
@@ -156,12 +156,12 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX(i-1,j-1)  + TSC(j-1,M2M);
          prv_I = IMX(i-1,j-1)  + TSC(j-1,I2M);
-         prv_D = DMX(i-1,j-1)  + TSC(j-1,D2M);
+         prv_D = DMX(i-1,j-1)  + TSC(j-1,TM);
          prv_B = XMX(SP_B,i-1) + TSC(j-1,B2M);    /* from begin match state (new alignment) */
          /* sum-to-match */
-         prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_D, prv_B )
+         prv_sum = MATH_Sum( 
+                           MATH_Sum( prv_M, prv_I ),
+                           MATH_Sum( prv_D, prv_B )
                         );
          MMX(i,j) = prv_sum + MSC(j,A);
 
@@ -171,15 +171,15 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX(i,j-1) + TSC(j-1,M2D);
-         prv_D = DMX(i,j-1) + TSC(j-1,D2D);
+         prv_D = DMX(i,j-1) + TSC(j-1,TD);
          /* sum-to-delete */
-         prv_sum = logsum( prv_M, prv_D );
+         prv_sum = MATH_Sum( prv_M, prv_D );
          DMX(i,j) = prv_sum;
 
          /* UPDATE E STATE (unrolled) */
          /* best-to-begin */
-         XMX(SP_E,i) = logsum( 
-                           logsum( DMX(i,j), MMX(i,j) ),
+         XMX(SP_E,i) = MATH_Sum( 
+                           MATH_Sum( DMX(i,j), MMX(i,j) ),
                            XMX(SP_E,i) );
       }
       
@@ -187,12 +187,12 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
       /* J state */
       sc1 = XMX(SP_J,i-1) + XSC(SP_J,SP_LOOP);       /* J->J */
       sc2 = XMX(SP_E,i)   + XSC(SP_E,SP_LOOP);       /* E->J is E's "loop" */
-      XMX(SP_J,i) = logsum( sc1, sc2 );         
+      XMX(SP_J,i) = MATH_Sum( sc1, sc2 );         
 
       /* C state */
       sc1 = XMX(SP_C,i-1) + XSC(SP_C,SP_LOOP);
       sc2 = XMX(SP_E,i)   + XSC(SP_E,SP_MOVE);
-      XMX(SP_C,i) = logsum( sc1, sc2 );
+      XMX(SP_C,i) = MATH_Sum( sc1, sc2 );
 
       /* N state */
       XMX(SP_N,i) = XMX(SP_N,i-1) + XSC(SP_N,SP_LOOP);
@@ -200,7 +200,7 @@ float run_Bound_Forward_Naive(const SEQUENCE*    query,
       /* B state */
       sc1 = XMX(SP_N,i) + XSC(SP_N,SP_MOVE);         /* N->B is N's move */
       sc2 = XMX(SP_J,i) + XSC(SP_J,SP_MOVE);         /* J->B is J's move */
-      XMX(SP_B,i) = logsum( sc1, sc2 );      
+      XMX(SP_B,i) = MATH_Sum( sc1, sc2 );      
    }
 
    /* T state */
@@ -283,10 +283,10 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
       sc_cloud = *MATRIX_2D_Get( st_MX_cloud, Q, j );
       if ( sc_cloud > 0 )
       {
-         MMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E, 
+         MMX(Q,j) = MATH_Sum( XMX(SP_E,Q) + sc_E, 
                            DMX(Q,j+1)  + TSC(j,M2D) );
-         DMX(Q,j) = logsum( XMX(SP_E,Q) + sc_E,
-                              DMX(Q,j+1)  + TSC(j,D2D) );
+         DMX(Q,j) = MATH_Sum( XMX(SP_E,Q) + sc_E,
+                              DMX(Q,j+1)  + TSC(j,TD) );
          IMX(Q,j) = -INF;
       }
    }
@@ -308,20 +308,20 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
          sc_cloud = *MATRIX_2D_Get( st_MX_cloud, i+1, j );
          if ( sc_cloud > 0 )
          {
-            XMX(SP_B,i) = logsum( XMX(SP_B,i),
+            XMX(SP_B,i) = MATH_Sum( XMX(SP_B,i),
                                     MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
          }
       }
 
-      XMX(SP_J,i) = logsum( XMX(SP_J,i+1) + XSC(SP_J,SP_LOOP),
+      XMX(SP_J,i) = MATH_Sum( XMX(SP_J,i+1) + XSC(SP_J,SP_LOOP),
                                  XMX(SP_B,  i) + XSC(SP_J,SP_MOVE) );
 
       XMX(SP_C,i) = XMX(SP_C,i+1) + XSC(SP_C,SP_LOOP);
 
-      XMX(SP_E,i) = logsum( XMX(SP_J,i) + XSC(SP_E,SP_LOOP),
+      XMX(SP_E,i) = MATH_Sum( XMX(SP_J,i) + XSC(SP_E,SP_LOOP),
                                  XMX(SP_C,i) + XSC(SP_E,SP_MOVE) );
 
-      XMX(SP_N,i) = logsum( XMX(SP_N,i+1) + XSC(SP_N,SP_LOOP),
+      XMX(SP_N,i) = MATH_Sum( XMX(SP_N,i+1) + XSC(SP_N,SP_LOOP),
                                  XMX(SP_B,  i) + XSC(SP_N,SP_MOVE) );
 
       /* if matrix cell is in the cloud, then compute cell */
@@ -348,9 +348,9 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
             sc3 = prv_D = DMX(i,j+1)   + TSC(j,M2D);
             sc4 = prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             /* best-to-match */
-            prv_sum = logsum( 
-                              logsum( prv_M, prv_I ),
-                              logsum( prv_E, prv_D )
+            prv_sum = MATH_Sum( 
+                              MATH_Sum( prv_M, prv_I ),
+                              MATH_Sum( prv_E, prv_D )
                         );
             MMX(i,j) = prv_sum;
 
@@ -358,17 +358,17 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
             sc1 = prv_M = MMX(i+1,j+1) + TSC(j,I2M) + sc_M;
             sc2 = prv_I = IMX(i+1,j)   + TSC(j,I2I) + sc_I;
             /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
+            prv_sum = MATH_Sum( prv_M, prv_I );
             IMX(i,j) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            sc1 = prv_M = MMX(i+1,j+1) + TSC(j,D2M) + sc_M;
-            sc2 = prv_D = DMX(i,j+1)   + TSC(j,D2D);
+            sc1 = prv_M = MMX(i+1,j+1) + TSC(j,TM) + sc_M;
+            sc2 = prv_D = DMX(i,j+1)   + TSC(j,TD);
             sc3 = prv_E = XMX(SP_E,i)  + sc_E;
             /* best-to-delete */
-            prv_sum = logsum( 
+            prv_sum = MATH_Sum( 
                               prv_M, 
-                              logsum( prv_D, prv_E ) );
+                              MATH_Sum( prv_D, prv_E ) );
             DMX(i,j) = prv_sum;
          }
       }
@@ -383,7 +383,7 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
    j = 1;
    XMX(SP_B,0) = MMX(1,j) + TSC(j-1,B2M) + MSC(j,A);
    for (j = 2; j >= T; j++) {
-      XMX(SP_B,0) = logsum( XMX(SP_B,0),
+      XMX(SP_B,0) = MATH_Sum( XMX(SP_B,0),
                                  MMX(1,j) + TSC(j-1,B2M) + MSC(j,A) );
    }
 
@@ -393,7 +393,7 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
    // {
    //    sc_cloud = ST_MX( st_MX_cloud, I_ST, i, j);
    //    if ( sc_cloud > 0 ) {
-   //       XMX(SP_B,i) = logsum( XMX(SP_B,i),
+   //       XMX(SP_B,i) = MATH_Sum( XMX(SP_B,i),
    //                                  MMX(i+1,j) + TSC(j-1,B2M) + MSC(j,A) );
    //    }
    // }
@@ -402,7 +402,7 @@ float run_Bound_Backward_Naive(const SEQUENCE*      query,
    XMX(SP_C,i) = -INF;
    XMX(SP_E,i) = -INF;
 
-   XMX(SP_N,i) = logsum( XMX(SP_N,1) + XSC(SP_N,SP_LOOP),
+   XMX(SP_N,i) = MATH_Sum( XMX(SP_N,1) + XSC(SP_N,SP_LOOP),
                               XMX(SP_B,0) + XSC(SP_N,SP_MOVE) );
 
    for (j = T; j >= 1; j--) {

@@ -258,6 +258,10 @@ ERRORCHECK_exit( int exit_flag )
       // ERRORCHECK_stacktrace();
       fprintf( stderr, "ERROR: EXIT REACHED with code: %d\n", exit_flag );
       // exit(exit_flag);
+      
+      /* force address sanitizer to do stacktrace */
+      int test_arr[1];
+      test_arr[2] = 42;
    }
 }
 

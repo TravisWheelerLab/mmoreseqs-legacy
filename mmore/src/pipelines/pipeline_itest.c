@@ -190,7 +190,7 @@ itest_pipeline( WORKER* worker )
    // printf("=== BUILD HMM_PROFILE / QUERY -> END ===\n\n");
 
    // /* initialize logsum table */
-   // logsum_Init();
+   // MATH_Logsum_Init();
 
    // /* get dimensions */
    // Q = q_seq->N;
@@ -835,8 +835,8 @@ itest_pipeline( WORKER* worker )
    // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_fwd.lin.mx");
    // /* bounded forward (comparison) */
    // printf("==> bound forward comparison: naive vs. quad vs. lin\n");
-   // cmp = ( cmp_tol_cust( scores->naive_bound_fwd, scores->quad_bound_fwd, 1e-3 ) && 
-   //          cmp_tol_cust( scores->naive_bound_fwd, scores->lin_bound_fwd, 1e-3 ) );
+   // cmp = ( MATH_CmpTol_byTol( scores->naive_bound_fwd, scores->quad_bound_fwd, 1e-3 ) && 
+   //          MATH_CmpTol_byTol( scores->naive_bound_fwd, scores->lin_bound_fwd, 1e-3 ) );
    // printf("Bound Forward:\tSCORES?\t\t%s\n", cmp ? "PASS" : "FAIL" );
    // dp_cmp  = ( DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin ) == 0 );
    // printf("Bound Forward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );
@@ -879,8 +879,8 @@ itest_pipeline( WORKER* worker )
    // printf("==> bound backward comparison: naive vs. quad vs. lin\n");
    // #if DEBUG
    // {
-   //    int sc_cmp = ( cmp_tol_cust( scores->naive_bound_bck, scores->quad_bound_bck, 1e-3 ) && 
-   //                   cmp_tol_cust( scores->naive_bound_bck, scores->lin_bound_bck, 1e-3 ) );
+   //    int sc_cmp = ( MATH_CmpTol_byTol( scores->naive_bound_bck, scores->quad_bound_bck, 1e-3 ) && 
+   //                   MATH_CmpTol_byTol( scores->naive_bound_bck, scores->lin_bound_bck, 1e-3 ) );
    //    printf("Bound Backward:\tSCORES?\t\t%s\n", sc_cmp ? "PASS" : "FAIL" );
    //    int dp_cmp  = ( DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin ) == 0 );
    //    printf("Bound Backward:\tVALUES?\t\t%s\n", dp_cmp ? "PASS" : "FAIL" );

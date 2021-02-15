@@ -130,10 +130,10 @@ WORK_posterior_sparse_bydom( WORKER* worker )
          
          /* TODO: Should be able to eliminate this */
          /* clear previous data */
-         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_fwd, -INF );
-         MATRIX_3D_SPARSE_Fill_Outer( st_SMX_bck, -INF );
+         MATRIX_3D_SPARSE_Fill( st_SMX_fwd, -INF );
+         MATRIX_3D_SPARSE_Fill( st_SMX_bck, -INF );
          if (st_SMX_bck != st_SMX_post) {
-            MATRIX_3D_SPARSE_Fill_Outer( st_SMX_post, -INF );
+            MATRIX_3D_SPARSE_Fill( st_SMX_post, -INF );
          }
 
          /* compute Forward/Backward for the domain range */
@@ -245,7 +245,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
       if ( dom_def->n_domains > 0 )
       {
          /* constructed score over all domains */
-         dom_def->dom_sumbias = logsum(0.0f, log(dom_def->null_omega) + dom_def->dom_sumbias);
+         dom_def->dom_sumbias = MATH_Sum(0.0f, log(dom_def->null_omega) + dom_def->dom_sumbias);
          dom_def->dom_sumsc  += (Q - dom_def->n_residues) * log((float) Q / (float) (Q + 3));
          dom_def->dom_sumsc   = (dom_def->dom_sumsc - (dom_def->nullsc + dom_def->dom_sumbias)) / CONST_LOG2;
       }

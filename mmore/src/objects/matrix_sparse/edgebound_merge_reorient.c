@@ -5,8 +5,9 @@
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       
- *  TODO:      -  reorient_via_diff implementation: Finds the disjunctive union between antidiag(i) and antidiag(i-1).  
- *                Updates only cells on those rows. Can simplify via "bridging" aka, if each row only has one span, and only need to track the first and last index.
+ *  TODO:      
+ *    -  reorient_via_diff implementation: Finds the disjunctive union between antidiag(i) and antidiag(i-1).  
+*        Updates only cells on those rows. Can simplify via "bridging" aka, if each row only has one span, and only need to track the first and last index.
  *******************************************************************************/
 
 /* imports */
@@ -21,10 +22,10 @@
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "_algs_linear.h"
 
 /* header */
-#include "merge_reorient_linear.h"
+#include "_matrix_sparse.h"
+#include "edgebound_merge_reorient.h"
 
 /*! FUNCTION:  EDGEBOUNDS_Reflect()
  *  SYNOPSIS:  Reflect antidiagonal bounds.
@@ -36,14 +37,12 @@ EDGEBOUNDS_Reflect( EDGEBOUNDS*   edg )
 {
    int d_0, lb, rb, rb_new, lb_new;
 
-   for (int i = 0; i < edg->N; i++) {
-      d_0   = edg->bounds[i].id;
-      lb    = edg->bounds[i].lb;
-      rb    = edg->bounds[i].rb;
+   for (int i = 0; i < EDGEBOUNDS_GetSize( edg ); i++) {
+      BOUND bnd = EDGEBOUNDS_Get( edg, i );
 
-      rb = d_0 - lb + 1;
-      lb = d_0 - rb;
-      edg->bounds[i] = (BOUND){d_0, lb, rb};
+      bnd.rb = bnd.id - bnd.lb + 1;
+      bnd.lb = bnd.id - bnd.rb;
+      EDGEBOUNDS_Set( edg, i, bnd );
    }
 
    return STATUS_SUCCESS;
@@ -82,30 +81,34 @@ EDGEBOUNDS_Union_byRow(    const int           Q,             /* query length */
                            EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
 {
    EDGEBOUNDS*    edg_in[2];              /* list of input edgebounds */
+   size_t         edg_in_N[2];            /* size of input edgebounds */
    int            edg_head[2];            /* head pointers for current edgebound ranges */
    int            edg_minmax[2];          /* min/max antidiag for edg_1 and edg_2 */
    EDGEBOUNDS*    edg;                    /* tmp pointer for edgebounds */
    EDGEBOUNDS*    edg_cur;                /* working space */
+   size_t         edg_cur_N;              /* size of working space */
    int            i, j;                   /* indexes */
    RANGE          d_range;                /* antidiag range of full matrix */
    int            r_0, r_0b, r_0e;        /* antidiag range of edgebounds */
    int            id_0, lb, rb;           /* edgebound data */
    /* constants */
-   const int      tol         = 0;        /* if clouds are within tolerance range, clouds are merged */
-   const int      num_input   = 2;        /* number of input edgebounds (current locked to two) */
+   const int      tol            = 0;     /* if clouds are within tolerance range, clouds are merged */
+   const int      num_input      = 2;     /* number of input edgebounds (current locked to two) */
 
    /* list of edgebound sets */
-   edg_head[0] = 0;
-   edg_in[0]   = edg_in_1; 
-   edg_head[1] = 0;
-   edg_in[1]   = edg_in_2;
+   edg_head[0]    = 0;
+   edg_in[0]      = edg_in_1;
+   edg_in_N[0]    = EDGEBOUNDS_GetSize( edg_in[0] );
+   edg_head[1]    = 0;
+   edg_in[1]      = edg_in_2;
+   edg_in_N[1]    = EDGEBOUNDS_GetSize( edg_in[1] );
    /* find ranges */
-   edg_minmax[0] = EDG_X( edg_in[0], 0 ).id;
-   edg_minmax[1] = EDG_X( edg_in[1], 0 ).id;
-   d_range.beg = MIN( edg_minmax[0], edg_minmax[1] );
-   edg_minmax[0] = EDG_X( edg_in[0], edg_in[0]->N - 1 ).id;
-   edg_minmax[1] = EDG_X( edg_in[1], edg_in[1]->N - 1 ).id;
-   d_range.end = MAX( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0]  = EDG_X( edg_in[0], 0 ).id;
+   edg_minmax[1]  = EDG_X( edg_in[1], 0 ).id;
+   d_range.beg    = MIN( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0]  = EDG_X( edg_in[0], edg_in_N[0] - 1 ).id;
+   edg_minmax[1]  = EDG_X( edg_in[1], edg_in_N[1] - 1 ).id;
+   d_range.end    = MAX( edg_minmax[0], edg_minmax[1] );
 
    /* reset output edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
@@ -140,56 +143,57 @@ EDGEBOUNDS_Union_byRow(    const int           Q,             /* query length */
 
          /* add all edgebounds to merge list */
          for (r_0 = r_0b; r_0 < r_0e; r_0++) {
-            BOUND* bnd = &EDG_X( edg, r_0 );
+            BOUND bnd = EDGEBOUNDS_Get( edg, r_0 );
             EDGEBOUNDS_Pushback( edg_cur, bnd );
          }
          /* update next starting location to the end location of the last row */
          edg_head[i] = r_0e;
       }
 
-      /* sort output edgebounds, since inter-row ordering could be lost */
-      EDGEBOUNDS_Sort( edg_cur );
-
       /* merge down current list as much as possible (loop until no merges occur) */
-      bool has_merged = true;
+      bool  has_merged  = true;
       while ( has_merged == true )
       {
          has_merged = false;
          BOUND bnd_1, bnd_2;
+
          /* check if merge possible for all pairs (n^2 for number of bounds in antidiag) */
-         for (int i = 0; i < edg_cur->N; i++) 
+         for (int i = 0; i < EDGEBOUNDS_GetSize( edg_cur ); i++) 
          {
             bnd_1 = EDG_X( edg_cur, i );
             
-            for (int j = i+1; j < edg_cur->N; j++) 
+            for (int j = i+1; j < EDGEBOUNDS_GetSize( edg_cur ); j++) 
             {
                bnd_2 = EDG_X( edg_cur, j );
 
-               /* if bounds overlap, then merge them (NOTE: logic can probably be optimized) */
-               bool overlap = IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.lb) ||
-                              IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.rb);
+               /* if bounds overlap, then merge them (NOTE: logic can be optimized) */
+               bool overlap   =  IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.lb) ||    /* 1 overlaps 2's left edge */
+                                 IS_IN_RANGE(bnd_1.lb, bnd_1.rb, bnd_2.rb) ||    /* 1 overlaps 2's right edge */
+                                 IS_IN_RANGE(bnd_2.lb, bnd_2.rb, bnd_1.rb);      /* 2 completely covers 1 */
                if ( overlap == true ) 
                {
                   /* take mins and maxes to build new range */
                   lb = MIN(bnd_1.lb, bnd_2.lb);
                   rb = MAX(bnd_1.rb, bnd_2.rb);
-                  BOUND bnd = (BOUND){ id_0, lb, rb };
+                  BOUND bnd = (BOUND){ bnd_1.id, lb, rb };
                   
                   /* replace the edgebound at first index */
-                  EDGEBOUNDS_Insert(edg_cur, i, &bnd );
+                  EDGEBOUNDS_Set(edg_cur, i, bnd );
                   /* delete the edgebound at the second index (backfills from end of list) */
                   EDGEBOUNDS_Delete(edg_cur, j);
                   
                   /* flag that a merge has occurred */
                   has_merged = true;
+                  continue;
                }
             }
          }
       }
 
       /* insert all in current list into the output list */
-      for (int i = 0; i < edg_cur->N; i++) {
-         BOUND* bnd = &(edg_cur->bounds[i]);
+      for (int i = 0; i < EDGEBOUNDS_GetSize( edg_cur ); i++) 
+      {
+         BOUND bnd = EDGEBOUNDS_Get( edg_cur, i );
          EDGEBOUNDS_Pushback( edg_out, bnd );
       }
 
@@ -215,6 +219,7 @@ EDGEBOUNDS_Union_Abridged(  const int           Q,             /* query length *
                            EDGEBOUNDS*         edg_out )      /* OUTPUT: merged edgebounds (sorted ascending) */
 {
    EDGEBOUNDS*    edg_in[2];              /* list of input edgebounds */
+   size_t         edg_in_N[2];            /* size of input edgebounds */
    int            edg_head[2];            /* head pointers for current edgebound ranges */
    int            edg_minmax[2];          /* min/max antidiag for edg_1 and edg_2 */
    EDGEBOUNDS*    edg;                    /* tmp pointer for edgebounds */
@@ -229,17 +234,19 @@ EDGEBOUNDS_Union_Abridged(  const int           Q,             /* query length *
    const int      num_input   = 2;        /* number of input edgebounds (current locked to two) */
 
    /* list of edgebound sets */
-   edg_head[0] = 0;
-   edg_in[0]   = edg_in_1; 
-   edg_head[1] = 0;
-   edg_in[1]   = edg_in_2;
+   edg_head[0]    = 0;
+   edg_in[0]      = edg_in_1;
+   edg_in_N[0]    = EDGEBOUNDS_GetSize( edg_in[0] );
+   edg_head[1]    = 0;
+   edg_in[1]      = edg_in_2;
+   edg_in_N[1]    = EDGEBOUNDS_GetSize( edg_in[1] );
    /* find ranges */
-   edg_minmax[0] = EDG_X( edg_in[0], 0 ).id;
-   edg_minmax[1] = EDG_X( edg_in[1], 0 ).id;
-   d_range.beg = MIN( edg_minmax[0], edg_minmax[1] );
-   edg_minmax[0] = EDG_X( edg_in[0], edg_in[0]->N - 1 ).id;
-   edg_minmax[1] = EDG_X( edg_in[1], edg_in[1]->N - 1 ).id;
-   d_range.end = MAX( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0]  = EDG_X( edg_in[0], 0 ).id;
+   edg_minmax[1]  = EDG_X( edg_in[1], 0 ).id;
+   d_range.beg    = MIN( edg_minmax[0], edg_minmax[1] );
+   edg_minmax[0]  = EDG_X( edg_in[0], edg_in_N[0] - 1 ).id;
+   edg_minmax[1]  = EDG_X( edg_in[1], edg_in_N[1] - 1 ).id;
+   d_range.end    = MAX( edg_minmax[0], edg_minmax[1] );
 
    /* reset output edgebounds */
    EDGEBOUNDS_Reuse( edg_out, Q, T );
@@ -284,7 +291,7 @@ EDGEBOUNDS_Union_Abridged(  const int           Q,             /* query length *
       }
 
       /* add bound to new list */
-      EDGEBOUNDS_Pushback( edg_out, &bnd_abridged );
+      EDGEBOUNDS_Pushback( edg_out, bnd_abridged );
    }
 
    return STATUS_SUCCESS;
@@ -357,11 +364,11 @@ EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query
    q_range.end = Q+1;
    /* range in edgebound list covering <q_range> */
    y_min       = 0;
-   y_max       = edg_in->N;
+   y_max       = EDGEBOUNDS_GetSize( edg_in );
    y_beg       = (RANGE){0, 0};
    y_end       = (RANGE){0, 0};
    y_beg_alt   = 0;
-   y_end_alt   = edg_in->N;
+   y_end_alt   = EDGEBOUNDS_GetSize( edg_in );
 
    /* for each row in matrix (position in query) */
    for (q_0 = q_range.beg; q_0 < q_range.end; q_0++)
@@ -446,7 +453,7 @@ EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query
             }
             /* if this is not the first bound on row, close current bound */ 
             else {
-               EDGEBOUNDS_Pushback(edg_out, &bnd_out);
+               EDGEBOUNDS_Pushback(edg_out, bnd_out);
                bnd_out.lb = t_0;
                bnd_out.rb = t_0 + 1;
             }
@@ -455,7 +462,7 @@ EDGEBOUNDS_ReorientToRow_byRow(     const int           Q,              /* query
       /* if any bound has been found on row, it will need to be closed at the end. */
       if ( is_first_row = (bnd_out.lb < 0), is_first_row == false ) 
       {
-         EDGEBOUNDS_Pushback(edg_out, &bnd_out);
+         EDGEBOUNDS_Pushback(edg_out, bnd_out);
       }
    }
 
@@ -496,9 +503,10 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    bool        is_first_row;                      /* whether a edgebound cloud has been found on row yet */
    int         gap_count;                         /* number of gaps between ranges in antidiags */
    int         cell_count;                        /* counts number of times cell was touched */ 
-   const int   gap_tolerance  = 0;                /* max distance between two row indexes to merge */
-   const bool  outside_loop_method = true;        /* determines method to compute y_range */
-   const bool  abridged_method = false;            /* determines whether to span all gaps on row bounds */
+   
+   const int   gap_tolerance        = 0;          /* max distance between two row indexes to merge */
+   const bool  outside_loop_method  = true;       /* determines method to compute y_range */
+   const bool  abridged_method      = false;      /* determines whether to span all gaps on row bounds */
 
    cell_count  = 0;
 
@@ -511,14 +519,14 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
 
    /* range of <edg_in> edgebound list */
    y_min = 0;
-   y_max = edg_in->N;
+   y_max = EDGEBOUNDS_GetSize( edg_in );
 
    /* find the minimum and maximum rows reached by edgebounds */
    q_range.beg = Q+1;
    q_range.end = 0;
    for (y = y_min; y < y_max; y++) 
    {
-      bnd_in   = EDGEBOUNDS_Get( edg_in, y );
+      bnd_in   = EDGEBOUNDS_GetX( edg_in, y );
       d_0      = bnd_in->id;
       k_min    = bnd_in->lb;
       k_max    = bnd_in->rb - 1;
@@ -533,7 +541,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    }
 
    /* set edgebound builder only to cover the rows that cloud touches */
-   printf("Q,T=(%d,%d), Q_range=(%d,%d)\n", Q, T, q_range.beg, q_range.end );
+   printf("Q,T=(%d,%d), Q_range=(%d,%d)=>(%d)\n", Q, T, q_range.beg, q_range.end, q_range.end - q_range.beg );
    EDGEBOUND_ROWS_Reuse( edg_rows, Q, T, q_range );
 
    /* reuse edgebounds */
@@ -543,7 +551,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    /* for every bound in edgebounds list */
    for (y = y_min; y < y_max; y++)
    {
-      bnd_in   = EDGEBOUNDS_Get( edg_in, y );
+      bnd_in   = EDGEBOUNDS_GetX( edg_in, y );
       d_0      = bnd_in->id;
       lb_0     = bnd_in->lb;
       rb_0     = bnd_in->rb;
@@ -557,7 +565,8 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
          cell_count++;
 
          /* get latest bound in requested row */
-         bnd_rows = EDGEBOUND_ROWS_GetLast_byRow( edg_rows, q_0 );
+         int row_size = EDGEBOUND_ROWS_GetRowSize( edg_rows, q_0 );
+         bnd_rows = EDGEBOUND_ROWS_GetXLast_byRow( edg_rows, q_0 );
 
          /* determine whether to expand current row bounds or create new */
          bool is_expand_row;
@@ -581,7 +590,7 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
          else
          {
             bnd_new = (BOUND){ q_0, t_0, t_0+1};
-            EDGEBOUND_ROWS_Pushback( edg_rows, q_0, &bnd_new );
+            EDGEBOUND_ROWS_Pushback( edg_rows, q_0, bnd_new );
          }
       }
    }
@@ -589,7 +598,6 @@ EDGEBOUNDS_ReorientToRow_byDiag(    const int           Q,          /* query len
    printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q*T, (float)cell_count/(float)(Q*T) );
    /* push all rows in a traditional edgebounds object */
    EDGEBOUND_ROWS_Convert( edg_rows, edg_out );
-   // EDGEBOUND_ROWS_Stats( edg_rows );
    /* clean up temporary data */
    EDGEBOUND_ROWS_Clear( edg_rows );
 }

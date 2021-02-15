@@ -72,3 +72,20 @@ BOOL_Compare(   const BOOL   a,
 {
    return (a - b);
 }
+
+/*! FUNCTION:  BOOL_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+BOOL_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   BOOL* x = (BOOL*)a;
+   BOOL* y = (BOOL*)b;
+
+   return BOOL_Compare( *x, *y );
+}

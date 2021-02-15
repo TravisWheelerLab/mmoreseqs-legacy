@@ -821,3 +821,20 @@ DP_MATRIX_MAT_Dump(     int         Q,
    }
    fprintf(fp, "//\n\n");
 }
+
+/*! FUNCTION: EDGEBOUNDS_BruteCount()
+ *  SYNOPSIS: For testing purposes to get the true count of edgebounds. 
+ *            Fills 2D_MATRIX will zeros, then fills with edgebounds with ones.
+ *            Sums over matrix.
+ */
+int
+EDGEBOUNDS_BruteCount( EDGEBOUNDS* edg )
+{
+   MATRIX_2D* mx = MATRIX_2D_Create( edg->Q + 1, edg->T + 1 );
+   
+   MATRIX_2D_Fill( mx, 0.0f );
+   MATRIX_2D_Cloud_Fill( mx, edg, 1.0f );
+   float total = MATRIX_2D_Total( mx );
+   MATRIX_2D_Destroy( mx );
+   return (int)total;
+}

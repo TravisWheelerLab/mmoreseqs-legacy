@@ -79,3 +79,20 @@ TRACE_Compare(    const TRACE     a,
 
    return (a.st - b.st);
 }
+
+/*! FUNCTION:  TRACE_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+TRACE_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   TRACE* x = (TRACE*)a;
+   TRACE* y = (TRACE*)b;
+
+   return TRACE_Compare( *x, *y );
+}

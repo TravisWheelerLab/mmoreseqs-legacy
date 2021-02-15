@@ -150,8 +150,8 @@ void REPORT_stdout_entry(  WORKER*  worker,
                            RESULT*  result,
                            FILE*    fp )
 {
-   // ALIGNMENT*     aln            = worker->trace_vit;
-   ALIGNMENT*     aln            = worker->trace_post;
+   ALIGNMENT*     aln            = worker->trace_vit;
+   // ALIGNMENT*     aln            = worker->trace_post;
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
    ALL_SCORES*    scores         = &result->scores;
@@ -176,8 +176,8 @@ void REPORT_stdout_entry(  WORKER*  worker,
    int            name_width     = 10;       /* number of characters allowed in name field */
    /* number of residues per window in alignment window */
    int            def_width      = 100;      /* default window size */
-   int            aln_width      = 100;      /* current window size */
-   
+   int            aln_width      = 100;      /* current window size (can change to fit alignment) */
+
 
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {

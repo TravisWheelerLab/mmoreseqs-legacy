@@ -169,12 +169,12 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX3(qx1, t_1) + TSC(t_1, M2M);
          prv_I = IMX3(qx1, t_1) + TSC(t_1, I2M);
-         prv_D = DMX3(qx1, t_1) + TSC(t_1, D2M);
+         prv_D = DMX3(qx1, t_1) + TSC(t_1, TM);
          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
-         prv_best = calc_Max( 
-                        calc_Max( prv_M, prv_I ), 
-                        calc_Max( prv_D, prv_B ) );
+         prv_best = MATH_Max( 
+                        MATH_Max( prv_M, prv_I ), 
+                        MATH_Max( prv_D, prv_B ) );
          MMX3(qx0, t_0)  = prv_best + MSC(t_0, A);
 
          /* FIND BEST PATH TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -182,22 +182,22 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
          prv_M = MMX3(qx1, t_0) + TSC(t_0, M2I);
          prv_I = IMX3(qx1, t_0) + TSC(t_0, I2I);
          /* best-to-insert */
-         prv_best = calc_Max(prv_M, prv_I);
+         prv_best = MATH_Max(prv_M, prv_I);
          IMX3(qx0, t_0) = prv_best + ISC(t_0, A);
 
          /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
+         prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
          /* best-to-delete */
-         prv_best = calc_Max(prv_M, prv_D);
+         prv_best = MATH_Max(prv_M, prv_D);
          DMX3(qx0, t_0) = prv_best;
 
          /* UPDATE E STATE */
          prv_E = XMX(SP_E, q_0);
          prv_M = MMX3(qx0, t_0) + sc_E;
          /* best-to-e-state */
-         XMX(SP_E, q_0) = calc_Max( prv_E, prv_M );
+         XMX(SP_E, q_0) = MATH_Max( prv_E, prv_M );
 
          /* embed linear row into quadratic test matrix */
          #if DEBUG
@@ -218,39 +218,39 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
       /* best previous state transition (match takes the diag element of each prev state) */
       prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
       prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-      prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
+      prv_D = DMX3(qx1, t_1)  + TSC(t_1, TM);
       prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
       /* best-to-match */
-      prv_best = calc_Max(
-                     calc_Max( prv_M, prv_I ),
-                     calc_Max( prv_D, prv_B ) );
+      prv_best = MATH_Max(
+                     MATH_Max( prv_M, prv_I ),
+                     MATH_Max( prv_D, prv_B ) );
       MMX3(qx0, t_0) = prv_best + MSC(t_0, A);
 
       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
       /* previous states (match takes the left element of each state) */
       prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-      prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
+      prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
       /* best-to-delete */
-      prv_best = calc_Max( prv_M, prv_D );
+      prv_best = MATH_Max( prv_M, prv_D );
       DMX3(qx0, t_0) = prv_best;
 
       /* UPDATE E STATE */
       prv_E = XMX(SP_E, q_0);
       prv_M = MMX3(qx0, t_0);
       prv_D = DMX3(qx0, t_0);
-      XMX(SP_E, q_0) = calc_Max( prv_E, 
-                           calc_Max( prv_M, prv_D ) );
+      XMX(SP_E, q_0) = MATH_Max( prv_E, 
+                           MATH_Max( prv_M, prv_D ) );
 
       /* SPECIAL STATES */
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);     /* J->J */
       prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);     /* E->J is E's "loop" */
-      XMX(SP_J, q_0) = calc_Max( prv_J, prv_E );
+      XMX(SP_J, q_0) = MATH_Max( prv_J, prv_E );
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
       prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
-      XMX(SP_C, q_0) = calc_Max( prv_C, prv_E );
+      XMX(SP_C, q_0) = MATH_Max( prv_C, prv_E );
 
       /* N state */
       prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
@@ -259,7 +259,7 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
       /* B state */
       prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);     /* N->B is N's move */
       prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);     /* J->B is J's move */
-      XMX(SP_B, q_0) = calc_Max( prv_N, prv_J );
+      XMX(SP_B, q_0) = MATH_Max( prv_N, prv_J );
 
       /* embed linear row into quadratic test matrix */
       #if DEBUG

@@ -121,11 +121,11 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
    /* --------------------------------------------------------------------------------- */
 
    /* initialize logsum lookup table if it has not already been */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    /* query sequence */
    seq         = query->seq;
-   N           = edg->N;
+   N           = EDGEBOUNDS_GetSize( edg );
    /* local or global alignments? */
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
@@ -147,7 +147,7 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
    /* pass over top-row (i=0) edgebounds from list */
    r_0  = 0;            /* current index in edgebounds */
    r_0b = 0;            /* beginning index for current row in list */
-   while ( r_0 < N && EDG_X(edg, r_0).id == q_0 ) {
+   while ( r_0 < N && EDG_XX(edg, r_0)->id == q_0 ) {
       r_0++;
    }
    r_0e = r_0;            /* ending index for current row in list */
@@ -185,7 +185,7 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
       for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, r_0);
+         bnd   = EDGEBOUNDS_GetX(edg, r_0);
          id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
          lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
          rb_0  = bnd->rb;
@@ -202,12 +202,12 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
             prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-            prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+            prv_D = DMX(qx1, t_1)  + TSC(t_1, TM);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_B, prv_D ) );
+            prv_sum = MATH_Sum( 
+                           MATH_Sum( prv_M, prv_I ),
+                           MATH_Sum( prv_B, prv_D ) );
             MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -215,15 +215,15 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
             prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prv_sum = logsum( prv_M, prv_I );
+            prv_sum = MATH_Sum( prv_M, prv_I );
             IMX(qx0, t_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
             prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+            prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
             /* best-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = MATH_Sum( prv_M, prv_D );
             DMX(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE */
@@ -231,8 +231,8 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             prv_D = DMX(qx0, t_0) + sc_E;
             /* best-to-e-state */
             prv_E = XMX(SP_E, q_0);
-            XMX(SP_E, q_0) = logsum( 
-                                 logsum( prv_M, prv_D ),
+            XMX(SP_E, q_0) = MATH_Sum( 
+                                 MATH_Sum( prv_M, prv_D ),
                                  prv_E );
 
             /* embed linear row into quadratic test matrix */
@@ -257,12 +257,12 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
             prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-            prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+            prv_D = DMX(qx1, t_1)  + TSC(t_1, TM);
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
-            prv_sum = logsum( 
-                           logsum( prv_M, prv_I ),
-                           logsum( prv_D, prv_B ) );
+            prv_sum = MATH_Sum( 
+                           MATH_Sum( prv_M, prv_I ),
+                           MATH_Sum( prv_D, prv_B ) );
             MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
@@ -271,9 +271,9 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+            prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
             /* sum-to-delete */
-            prv_sum = logsum( prv_M, prv_D );
+            prv_sum = MATH_Sum( prv_M, prv_D );
             DMX(qx0, t_0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
@@ -281,8 +281,8 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
             prv_M = MMX(qx0, t_0);
             prv_D = DMX(qx0, t_0);
             /* best-to-begin */
-            XMX(SP_E, q_0) = logsum( 
-                                 logsum( prv_D, prv_M ),
+            XMX(SP_E, q_0) = MATH_Sum( 
+                                 MATH_Sum( prv_D, prv_M ),
                                  prv_E ); 
 
             /* embed linear row into quadratic test matrix */
@@ -301,12 +301,12 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
       prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
-      XMX(SP_J, q_0) = logsum( prv_J, prv_E );         
+      XMX(SP_J, q_0) = MATH_Sum( prv_J, prv_E );         
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
       prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
-      XMX(SP_C, q_0) = logsum( prv_C, prv_E );
+      XMX(SP_C, q_0) = MATH_Sum( prv_C, prv_E );
 
       /* N state */
       prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
@@ -315,7 +315,7 @@ int run_Bound_Viterbi_Quad(      const SEQUENCE*      query,         /* query se
       /* B state */
       prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
       prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
-      XMX(SP_B, q_0) = logsum( prv_N, prv_J );    
+      XMX(SP_B, q_0) = MATH_Sum( prv_N, prv_J );    
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       r_1b = r_0b;

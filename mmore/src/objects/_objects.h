@@ -22,12 +22,11 @@
 /* vector types (only dependent on basic types) */
 #include "vectors/_vectors.h"
 
-/* matrix dependencies */
-#include "edgebound.h"
-#include "edgebound_rows.h"
-
-/* matrix types (sparse is dependent on edgebounds) */
+/* normal matrix types */
 #include "matrix/_matrix.h"
+
+/* sparse matrix */
+#include "matrix_sparse/_matrix_sparse.h"
 
 /* complex objects (can be dependent on basics, vectors, and matrices) */
 #include "alignment.h"

@@ -149,12 +149,12 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
    /* --------------------------------------------------------------------------------- */
 
    /* initialize logsum lookup table if it has not already been */
-   logsum_Init();
+   MATH_Logsum_Init();
 
    /* query sequence */
    mx          = st_SMX;
    seq         = query->seq;
-   N           = edg->N;
+   N           = EDGEBOUNDS_GetSize( edg );
    /* local or global alignments? */
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
@@ -228,12 +228,12 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MSMX(qx1, tx1)  + TSC(t_1, M2M);
             prv_I = ISMX(qx1, tx1)  + TSC(t_1, I2M);
-            prv_D = DSMX(qx1, tx1)  + TSC(t_1, D2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(t_1, TM);
             prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
             /* best-to-match */
-            prv_sum = calc_Max( 
-                           calc_Max( prv_M, prv_I ),
-                           calc_Max( prv_B, prv_D ) );
+            prv_sum = MATH_Max( 
+                           MATH_Max( prv_M, prv_I ),
+                           MATH_Max( prv_B, prv_D ) );
             MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -241,15 +241,15 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             prv_M = MSMX(qx1, tx0) + TSC(t_0, M2I);
             prv_I = ISMX(qx1, tx0) + TSC(t_0, I2I);
             /* best-to-insert */
-            prv_sum = calc_Max( prv_M, prv_I );
+            prv_sum = MATH_Max( prv_M, prv_I );
             ISMX(qx0, tx0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
             prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, TD);
             /* best-to-delete */
-            prv_sum = calc_Max( prv_M, prv_D );
+            prv_sum = MATH_Max( prv_M, prv_D );
             DSMX(qx0, tx0) = prv_sum;
 
 
@@ -258,8 +258,8 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             prv_D = DSMX(qx0, tx0) + sc_E;
             /* best-to-e-state */
             prv_E = XMX(SP_E, q_0);
-            XMX(SP_E, q_0) = calc_Max( 
-                                 calc_Max( prv_M, prv_D ),
+            XMX(SP_E, q_0) = MATH_Max( 
+                                 MATH_Max( prv_M, prv_D ),
                                  prv_E );
 
             /* embed linear row into quadratic test matrix */
@@ -286,12 +286,12 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MSMX(qx1, tx1)  + TSC(t_1, M2M);
             prv_I = ISMX(qx1, tx1)  + TSC(t_1, I2M);
-            prv_D = DSMX(qx1, tx1)  + TSC(t_1, D2M);
+            prv_D = DSMX(qx1, tx1)  + TSC(t_1, TM);
             prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
             /* sum-to-match */
-            prv_sum = calc_Max( 
-                           calc_Max( prv_M, prv_I ),
-                           calc_Max( prv_D, prv_B ) );
+            prv_sum = MATH_Max( 
+                           MATH_Max( prv_M, prv_I ),
+                           MATH_Max( prv_D, prv_B ) );
             MSMX(qx0, tx0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
@@ -300,9 +300,9 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
             /* previous states (match takes the left element of each state) */
             prv_M = MSMX(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DSMX(qx0, tx1) + TSC(t_1, D2D);
+            prv_D = DSMX(qx0, tx1) + TSC(t_1, TD);
             /* sum-to-delete */
-            prv_sum = calc_Max( prv_M, prv_D );
+            prv_sum = MATH_Max( prv_M, prv_D );
             DSMX(qx0, tx0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
@@ -310,8 +310,8 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
             prv_M = MSMX(qx0, tx0);
             prv_D = DSMX(qx0, tx0);
             /* best-to-begin */
-            XMX(SP_E, q_0) = calc_Max( 
-                                 calc_Max( prv_D, prv_M ),
+            XMX(SP_E, q_0) = MATH_Max( 
+                                 MATH_Max( prv_D, prv_M ),
                                  prv_E ); 
 
             /* embed linear row into quadratic test matrix */
@@ -330,12 +330,12 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
       /* J state */
       prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
       prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
-      XMX(SP_J, q_0) = calc_Max( prv_J, prv_E );         
+      XMX(SP_J, q_0) = MATH_Max( prv_J, prv_E );         
 
       /* C state */
       prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
       prv_E = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
-      XMX(SP_C, q_0) = calc_Max( prv_C, prv_E );
+      XMX(SP_C, q_0) = MATH_Max( prv_C, prv_E );
 
       /* N state */
       prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
@@ -344,7 +344,7 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*      query,         /* query sequence
       /* B state */
       prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
       prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
-      XMX(SP_B, q_0) = calc_Max( prv_N, prv_J );    
+      XMX(SP_B, q_0) = MATH_Max( prv_N, prv_J );    
 
       /* SET CURRENT ROW TO PREVIOUS ROW */
       r_1b = r_0b;

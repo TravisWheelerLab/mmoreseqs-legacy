@@ -45,4 +45,14 @@ int
 BOUND_Compare(    const BOUND   a, 
                   const BOUND   b );
 
+/*! FUNCTION:  BOUND_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+BOUND_CompareTo(    const void*   a, 
+                  const void*   b );
+
 #endif /* _BOUND_H */

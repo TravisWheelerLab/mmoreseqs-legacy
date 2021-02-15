@@ -76,3 +76,20 @@ RANGE_Compare( const RANGE     a,
 
    return (a.end - b.end);
 }
+
+/*! FUNCTION:  RANGE_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+RANGE_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   RANGE* x = (RANGE*)a;
+   RANGE* y = (RANGE*)b;
+
+   return RANGE_Compare( *x, *y );
+}

@@ -80,3 +80,19 @@ BOUND_Compare(    const BOUND   a,
 
    return (a.rb - b.rb);
 }
+
+/*! FUNCTION:  BOUND_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+BOUND_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   BOUND* x = (BOUND*)a;
+   BOUND* y = (BOUND*)b;
+
+   return BOUND_Compare( *x, *y );
+}

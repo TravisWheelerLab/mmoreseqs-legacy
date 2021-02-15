@@ -33,6 +33,12 @@ void EDGEBOUNDS_Reuse( EDGEBOUNDS*   edg,
                        int           Q,
                        int           T );
 
+/*! FUNCTION: EDGEBOUNDS_Clear()
+ *  SYNOPSIS: Reuses EDGEBOUNDS by "clearing" edgebound list (does not realloc).
+ */
+void 
+EDGEBOUNDS_Clear(    EDGEBOUNDS*   edg );
+
 /*! FUNCTION: EDGEBOUNDS_Copy()
  *  SYNOPSIS: Create a deep copy of <edg_src> and store it in <edg_dest>.
  */
@@ -40,25 +46,96 @@ EDGEBOUNDS*
 EDGEBOUNDS_Copy(    EDGEBOUNDS*          edg_dest,
                     const EDGEBOUNDS*    edg_src );
 
-/*! FUNCTION: EDGEBOUNDS_Get()
+/*! FUNCTION: EDGEBOUNDS_Set()
+ *  SYNOPSIS: Gets BOUND at index <i>.
+ */
+STATUS_FLAG
+EDGEBOUNDS_Set(   EDGEBOUNDS*    edg,
+                  int            i,
+                  BOUND          val );
+
+/*! FUNCTION: EDGEBOUNDS_GetX()
  *  SYNOPSIS: Return pointer to BOUND at index <i>.
  */
 BOUND* 
-EDGEBOUNDS_Get(   EDGEBOUNDS*   edg,
-                  int           i );
+EDGEBOUNDS_GetX(  const EDGEBOUNDS*    edg,
+                  int                  i );
+
+/*! FUNCTION: EDGEBOUNDS_Get()
+ *  SYNOPSIS: Gets BOUND at index <i>.
+ */
+BOUND
+EDGEBOUNDS_Get(   const EDGEBOUNDS*    edg,
+                  int                  i );
+
+/*! FUNCTION:  EDGEBOUNDS_GetNumberBounds_byRow()
+ *  SYNOPSIS:  Gets the number of <bounds> that are on row <id_0>.
+ *             Caller must have already run _Index().
+ */
+int
+EDGEBOUNDS_GetNumberBounds_byRow(   const EDGEBOUNDS*   edg,
+                                    const int           id_0 );
+
+/*! FUNCTION:  EDGEBOUNDS_GetIndex_byRow()
+ *  SYNOPSIS:  Gets the index into <bounds> at the start of row <id_0>.
+ */
+int
+EDGEBOUNDS_GetIndex_byRow(    const EDGEBOUNDS*   edg,
+                              const int           id_0 );
+
+/*! FUNCTION:  EDGEBOUNDS_GetIndex_byRow_Fwd()
+ *  SYNOPSIS:  Gets the index into <bounds> at the start of row <id_0>.
+ *             Edgechecks specific to forward direction.
+ *             Caller must have already run _Index().
+ *             Returns -1 if row not in <edg> range.
+ */
+int
+EDGEBOUNDS_GetIndex_byRow_Fwd(   const EDGEBOUNDS*   edg,
+                                 const int           id_0 );
+
+/*! FUNCTION:  EDGEBOUNDS_GetIndex_byRow_Bck()
+ *  SYNOPSIS:  Gets the index into <bounds> at the start of row <id_0>.
+ *             Edgechecks specific to backward direction.
+ *             Caller must have already run _Index().
+ *             Returns -1 if row not in <edg> range.
+ */
+int
+EDGEBOUNDS_GetIndex_byRow_Bck(   const EDGEBOUNDS*   edg,
+                                 const int           id_0 );
+
+
+/*! FUNCTION:  EDGEBOUNDS_GetBoundRange_byRow()
+ *  SYNOPSIS:  Gets the number of <bounds> and beginning <index> of row <id_0>.
+ *             Returns pointer to head of row in <bounds>.
+ *             Caller must have already run _Index().
+ */
+BOUND*
+EDGEBOUNDS_GetBoundRange_byRow(  EDGEBOUNDS*    edg,
+                                 int            id_0,
+                                 int*           index_p,
+                                 int*           num_bounds_p );
+
+/*! FUNCTION:  EDGEBOUNDS_GetRow()
+ *  SYNOPSIS:  Gets <i_0>th bound of row <id_0>.
+ *             Caller must have already run _Index().
+ */
+BOUND
+EDGEBOUNDS_GetRow(   EDGEBOUNDS*    edg,
+                     int            id_0,
+                     int            i_0 );
 
 /*! FUNCTION: EDGEBOUNDS_GetSize()
  *  SYNOPSIS: Get length of <edg>.
  */
-int 
-EDGEBOUNDS_GetSize(  EDGEBOUNDS*   edg );
+size_t 
+EDGEBOUNDS_GetSize(  const EDGEBOUNDS*   edg );
 
 /*! FUNCTION: EDGEBOUNDS_SetSize()
- *  SYNOPSIS: Set length of <edg> to <size>.
+ *  SYNOPSIS: Set length of <edg> to <size>. Will allocate more space if necessary.
  */
 STATUS_FLAG 
-EDGEBOUNDS_SetSize(    EDGEBOUNDS*    edg,
-                        int            size );
+EDGEBOUNDS_SetSize(  EDGEBOUNDS*    edg,
+                     size_t         size );
 
 /*! FUNCTION:  EDGEBOUNDS_Search()
  *  SYNOPSIS:  Binary search edgebounds for bound containing cell (q_0, t_0).
@@ -75,18 +152,11 @@ EDGEBOUNDS_Search(   EDGEBOUNDS*    edg,     /* edgebounds  */
  */
 STATUS_FLAG 
 EDGEBOUNDS_Pushback(    EDGEBOUNDS*  edg,
-                        BOUND*       bnd );
+                        BOUND        bnd );
 
-/*! FUNCTION: EDGEBOUNDS_Insert()
- *  SYNOPSIS: Insert/Overwrite bound into <i> index of Edgebound list.
- */
-STATUS_FLAG 
-EDGEBOUNDS_Insert(   EDGEBOUNDS*    edg,
-                     int            i,
-                     BOUND*         bnd );
-
-/*! FUNCTION: EDGEBOUNDS_Delete()
- *  SYNOPSIS: Delete BOUND at <i> index and fill from end of list <N-1>, then decrement list size.
+/*! FUNCTION:  EDGEBOUNDS_Delete()
+ *  SYNOPSIS:  Delete BOUND at <i> index and fill from end of list <N-1>, then decrement list size.
+ *             WARNING: This breaks sorted list.
  */
 STATUS_FLAG 
 EDGEBOUNDS_Delete(   EDGEBOUNDS*    edg,
@@ -97,20 +167,14 @@ EDGEBOUNDS_Delete(   EDGEBOUNDS*    edg,
  */
 STATUS_FLAG 
 EDGEBOUNDS_GrowTo(   EDGEBOUNDS*    edg,
-                     int            size );
-
-/*! FUNCTION: EDGEBOUNDS_Clear()
- *  SYNOPSIS: Remove all BOUNDS from EDGEBOUND list.
- */
-void 
-EDGEBOUNDS_Clear( EDGEBOUNDS*  edg );
+                     size_t         size );
 
 /*! FUNCTION: EDGEBOUNDS_Resize()
  *  SYNOPSIS: Resize number of BOUNDS in EDGEBOUND object.
  */
 void 
 EDGEBOUNDS_Resize(   EDGEBOUNDS*     edg,
-                     int             size );
+                     size_t          size );
 
 /*! FUNCTION:  EDGEBOUNDS_Reverse()
  *  SYNOPSIS:  Reverse order of edgebound list.

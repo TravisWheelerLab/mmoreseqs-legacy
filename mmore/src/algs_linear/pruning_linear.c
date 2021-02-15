@@ -73,9 +73,9 @@ PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 			
-			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX3(dx1, k_0) ),
-			               calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+			diag_max = MATH_Max(
+			               MATH_Max( diag_max, MMX3(dx1, k_0) ),
+			               MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -109,8 +109,8 @@ PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(dx1, k_0),
-				            calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+				cell_max = 	MATH_Max( MMX3(dx1, k_0),
+				            MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
@@ -131,8 +131,8 @@ PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( 	MMX3(dx1, k_0),
-				            calc_Max(   IMX3(dx1, k_0), DMX3(dx1, k_0 ) ) );
+				cell_max = 	MATH_Max( 	MMX3(dx1, k_0),
+				            MATH_Max(   IMX3(dx1, k_0), DMX3(dx1, k_0 ) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
@@ -197,8 +197,8 @@ PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matri
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 			
-			diag_max = calc_Max( calc_Max( diag_max,     MMX3(dx1, k) ),
-			                     calc_Max( IMX3(dx1, k), DMX3(dx1, k) ) );
+			diag_max = MATH_Max( MATH_Max( diag_max,     MMX3(dx1, k) ),
+			                     MATH_Max( IMX3(dx1, k), DMX3(dx1, k) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -232,8 +232,8 @@ PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matri
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(dx1, k_0),
-				            calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+				cell_max = 	MATH_Max( MMX3(dx1, k_0),
+				            MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
@@ -254,8 +254,8 @@ PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matri
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(dx1, k_0),
-				            calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+				cell_max = 	MATH_Max( MMX3(dx1, k_0),
+				            MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
@@ -331,9 +331,9 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 			// /* NOTE: Can we presume the only max we care about is in the MATCH state? */
-			diag_max = calc_Max( calc_Max( diag_max,        MMX3(dx1, k_0) ),
-			                     calc_Max( IMX3(dx1, k_0),  DMX3(dx1, k_0) ) );
-			// diag_max = calc_Max( diag_max, MMX3(dx1, k_0) );
+			diag_max = MATH_Max( MATH_Max( diag_max,        MMX3(dx1, k_0) ),
+			                     MATH_Max( IMX3(dx1, k_0),  DMX3(dx1, k_0) ) );
+			// diag_max = MATH_Max( diag_max, MMX3(dx1, k_0) );
 			
 			/* if maximum has increased, then update cell (we really only care about q_0) */
 			if ( diag_max > prv_max ) {
@@ -395,8 +395,8 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(dx1, k_0),
-				            calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+				cell_max = 	MATH_Max( MMX3(dx1, k_0),
+				            MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= diag_limit )
@@ -419,8 +419,8 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX3(dx1, k_0),
-				            calc_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
+				cell_max = 	MATH_Max( MMX3(dx1, k_0),
+				            MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= diag_limit )

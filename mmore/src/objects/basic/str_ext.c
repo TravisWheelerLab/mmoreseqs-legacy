@@ -183,9 +183,12 @@ inline
 size_t
 STR_GetLength(   const STR   str )
 {
+   // if ( str == NULL ) {
+   //    return 0;
+   // }
+
    size_t   L;
    L = strlen( str );
-
    return L;
 }
 

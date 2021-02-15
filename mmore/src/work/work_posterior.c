@@ -63,10 +63,10 @@ WORK_posterior_sparse( WORKER* worker )
    WORK_decode_posterior( worker );
    /* compute sequence bias */
    WORK_null2_seq_bias( worker );
-   /* compute optimal accuracy from posterior */
-   WORK_optimal_accuracy( worker );
-   /* backtrace optimal accuracy for posterior alignment */
-   WORK_optacc_traceback( worker );
+   // /* compute optimal accuracy from posterior */
+   // WORK_optimal_accuracy( worker );
+   // /* backtrace optimal accuracy for posterior alignment */
+   // WORK_optacc_traceback( worker );
 }
 
 /*! FUNCTION:  WORK_null1_hmm_bias()

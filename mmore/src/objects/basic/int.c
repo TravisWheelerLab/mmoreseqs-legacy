@@ -72,6 +72,23 @@ INT_Compare(   const INT   a,
    return (a - b);
 }
 
+/*! FUNCTION:  INT_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+INT_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   INT* x = (INT*)a;
+   INT* y = (INT*)b;
+
+   return INT_Compare( *x, *y );
+}
+
 /*! FUNCTION:  INT_Swap()
  *  SYNOPSIS:  Swap values of <a> and <b>.
  */

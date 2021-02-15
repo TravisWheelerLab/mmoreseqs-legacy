@@ -214,4 +214,12 @@ DP_MATRIX_MAT_Dump(  int         Q,
                      MATRIX_3D*  st_MX,
                      FILE*       fp );
 
+/*! FUNCTION: EDGEBOUNDS_BruteCount()
+ *  SYNOPSIS: For testing purposes to get the true count of edgebounds. 
+ *            Fills 2D_MATRIX will zeros, then fills with edgebounds with ones.
+ *            Sums over matrix.
+ */
+int
+EDGEBOUNDS_BruteCount( EDGEBOUNDS* edg );
+
 #endif /* _DP_MATRIX_UTIL_H */

@@ -72,24 +72,22 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
       #if DEBUG
       {
          EDGEBOUNDS_Save( edg_diag, "test_output/my.cloud.diags.edg");
+         int pre_diag      = EDGEBOUNDS_Count( edg_diag );
+         int pre_row       = EDGEBOUNDS_Count( edg_row );
+         int pre_diag_brt  = EDGEBOUNDS_BruteCount( edg_diag );
+         int pre_row_brt   = EDGEBOUNDS_BruteCount( edg_row );
+         /* correctness check */
+         printf("PRE-REORIENT CELL_COUNTS: %d, %d => %d, %d\n", pre_diag, pre_row, pre_diag_brt, pre_row_brt );
       }
       #endif
-
-      int pre_diag   = EDGEBOUNDS_Count( edg_diag );
-      int pre_row    = EDGEBOUNDS_Count( edg_row );
 
       /* reorient edgebounds */
       printf_vall("# ==> reorient...\n");
       CLOCK_Start(timer);
       EDGEBOUNDS_ReorientToRow( Q, T, edg_diag, edg_builder, edg_row );
+      EDGEBOUNDS_Index( edg_row );
       CLOCK_Stop(timer);
       times->lin_reorient = CLOCK_Duration(timer);
-
-      int post_diag   = EDGEBOUNDS_Count( edg_diag );
-      int post_row    = EDGEBOUNDS_Count( edg_row );
-
-      /* correctness check */
-      printf("CELL COUNTS: %d, %d => %d, %d\n", pre_diag, pre_row, post_diag, post_row );
 
       /* compute the number of cells in matrix computed */
       result->cloud_cells  = EDGEBOUNDS_Count( edg_row );
@@ -98,12 +96,12 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
 
       #if DEBUG
       {
-         // MATRIX_2D_Fill( debugger->cloud_MX, 0 );
-         // MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_fwd, 1 );
-         // MATRIX_2D_Cloud_Fill( debugger->cloud_MX, edg_bck, 2 );
-         // DP_MATRIX_VIZ_Trace( debugger->cloud_MX, tr );
-         // DP_MATRIX_VIZ_Color_Dump( debugger->cloud_MX, stdout );
-         // DP_MATRIX_VIZ_Dump( debugger->cloud_MX, stdout );
+         int post_diag        = EDGEBOUNDS_Count( edg_diag );
+         int post_row         = EDGEBOUNDS_Count( edg_row );
+         int post_diag_brt    = EDGEBOUNDS_BruteCount( edg_diag );
+         int post_row_brt     = EDGEBOUNDS_BruteCount( edg_row );
+         /* correctness check */
+         printf("POST-REORIENT CELL_COUNTS: %d, %d => %d, %d\n", post_diag, post_row, post_diag_brt, post_row_brt );
          EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
       }
       #endif

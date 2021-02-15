@@ -119,3 +119,20 @@ GEN_Compare(   const GEN   a,
 {
    return 0;
 }
+
+/*! FUNCTION:  GEN_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+GEN_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   GEN* x = (GEN*)a;
+   GEN* y = (GEN*)b;
+
+   return GEN_Compare( *x, *y );
+}

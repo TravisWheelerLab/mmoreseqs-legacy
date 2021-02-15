@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  FILE:      results.c
+ *  FILE:      m8_results.c
  *  PURPOSE:   M8_RESULTS object.
  *             Stores results in .m8 format.
  *
@@ -110,7 +110,7 @@ M8_RESULTS_Swap_Target_and_Query(   M8_RESULTS* 	results )
    STR         tmp_str;
 
    for (int i = 0; i < results->N; i++) {
-      result = &VEC_X( results, i );
+      result = M8_RESULTS_GetX( results, i );
       /* swap all fields */
       INT_Swap( &result->query_id, &result->target_id );
       STR_Swap( &result->query_name, &result->target_name );

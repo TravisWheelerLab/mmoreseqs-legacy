@@ -69,6 +69,47 @@ STATUS_FLAG
 VECTOR_XXX_GrowTo(   VECTOR_XXX*    vec, 
                      size_t         size );
 
+/*! FUNCTION:  VECTOR_XXX_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+XXX 
+VECTOR_XXX_Get(   VECTOR_XXX*   vec, 
+                  int           idx );
+
+/*! FUNCTION:  VECTOR_XXX_GetX()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ *  RETURN:    Pointer to location to <vec> idx.
+ */
+XXX* 
+VECTOR_XXX_GetX(     VECTOR_XXX*   vec, 
+                     int           idx );
+
+/*! FUNCTION:  VECTOR_XXX_Set()
+ *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+STATUS_FLAG 
+VECTOR_XXX_Set(   VECTOR_XXX*       vec, 
+                  int               idx, 
+                  XXX               val );
+
+/*! FUNCTION:  VECTOR_XXX_Insert()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_XXX_Insert(   VECTOR_XXX*   vec, 
+                     int           idx, 
+                     XXX           val );
+
+/*! FUNCTION:  VECTOR_XXX_Delete()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_XXX_Delete(   VECTOR_XXX*   vec, 
+                     int           idx );
+
 /*! FUNCTION:  VECTOR_XXX_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
  *             and resize array if array is full.
@@ -91,6 +132,13 @@ VECTOR_XXX_Pushback(    VECTOR_XXX*   vec,
 XXX 
 VECTOR_XXX_Pop( VECTOR_XXX*   vec );
 
+/*! FUNCTION:  VECTOR_XXX_Popback()
+ *  SYNOPSIS:  Pop data from the end of <vec> data array and return data.
+ *             Resize if array is less than half full.
+ */
+XXX 
+VECTOR_XXX_Popback( VECTOR_XXX*   vec );
+
 /*! FUNCTION:  VECTOR_XXX_Append()
  *  SYNOPSIS:  Push <append> data array of length <L> onto the end of <vec> data array. 
  */
@@ -98,32 +146,6 @@ STATUS_FLAG
 VECTOR_XXX_Append(   VECTOR_XXX*   vec, 
                      XXX*          append,
                      size_t        L );
-
-/*! FUNCTION:  VECTOR_XXX_Set()
- *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-STATUS_FLAG 
-VECTOR_XXX_Set(   VECTOR_XXX*       vec, 
-                  int               idx, 
-                  XXX               val );
-
-/*! FUNCTION:  VECTOR_XXX_Get()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-XXX 
-VECTOR_XXX_Get(   VECTOR_XXX*   vec, 
-                  int           idx );
-
-/*! FUNCTION:  VECTOR_XXX_GetX()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- *  RETURN:    Pointer to location to <vec> idx.
- */
-XXX* 
-VECTOR_XXX_GetX(    VECTOR_XXX*   vec, 
-                     int           idx );
 
 /*! FUNCTION:  VECTOR_XXX_GetSize()
  *  SYNOPSIS:  Get utilized length of <vec>.
@@ -138,6 +160,12 @@ VECTOR_XXX_GetSize(   VECTOR_XXX*   vec );
 STATUS_FLAG 
 VECTOR_XXX_SetSize( VECTOR_XXX*   vec, 
                      size_t        size );
+
+/*! FUNCTION:  VECTOR_XXX_GetSizeAlloc()
+ *  SYNOPSIS:  Get allocated length of <vec>.
+ */
+int 
+VECTOR_XXX_GetSizeAlloc(   VECTOR_XXX*   vec );
 
 /*! FUNCTION:  VECTOR_XXX_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
@@ -213,9 +241,32 @@ VECTOR_XXX_Sort_Sub_Quicksort(   VECTOR_XXX*    vec,
                                  int            beg,
                                  int            end );
 
+/*! FUNCTION:  VECTOR_XXX_Op()
+ *  SYNOPSIS:  Perform element-wise unary operation <op>(XXX data) to each cell in <vec_in> and puts it in <vec_out>.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+VECTOR_XXX* 
+VECTOR_XXX_Op(    VECTOR_XXX*    vec_out,             /* input vector */
+                  VECTOR_XXX*    vec_in,              /* output vector (can be input vector) */
+                  XXX            (*op)(XXX data) );   /* unary operation function */
+
+/*! FUNCTION:  VECTOR_XXX_Op()
+ *  SYNOPSIS:  Perform element-wise binary operation <op>(XXX data_1, XXX data_2) to each cell in <vec_in_1, vec_in_2> and puts it in <vec_out>.
+ *             <vec_in_1> and <vec_in_2> must be the same size.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+VECTOR_XXX* 
+VECTOR_XXX_BinOp(    VECTOR_XXX*    vec_out,                         /* output vector */ 
+                     VECTOR_XXX*    vec_in_1,                        /* first input vector */
+                     VECTOR_XXX*    vec_in_2,                        /* second input vector */
+                     XXX            (*op)(XXX data_1, XXX data_2) ); /* binary operation function */
+
 /*! FUNCTION:  VECTOR_XXX_Swap()
  *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
- *             Warning: Only checks for Out-of-Bounds when in DEBUG.
  */
 STATUS_FLAG 
 VECTOR_XXX_Swap(  VECTOR_XXX*    vec,
@@ -234,6 +285,15 @@ VECTOR_XXX_Reverse(   VECTOR_XXX*    vec );
 STATUS_FLAG 
 VECTOR_XXX_Dump(  VECTOR_XXX*    vec,
                   FILE*          fp );
+
+/*! FUNCTION:  VECTOR_XXX_Dump_byOpt()
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
+ */
+STATUS_FLAG 
+VECTOR_XXX_Dump_byOpt(     VECTOR_XXX*    vec,
+                           STR            delim,
+                           STR            header,
+                           FILE*          fp );
 
 /*! FUNCTION:  VECTOR_XXX_Unit_Test()
  *  SYNOPSIS:  Perform unit test for VECTOR_XXX.

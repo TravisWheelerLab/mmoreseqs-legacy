@@ -130,8 +130,6 @@ SYSTEMIO_Wait( const int milli_seconds )
   
     // looping till required time is not achieved 
     while (clock() < start_time + nano_seconds) {}; 
-
-    return STATUS_SUCCESS;
 } 
 
 /*! FUNCTION:  SYSTEMIO_MakeDirectory()

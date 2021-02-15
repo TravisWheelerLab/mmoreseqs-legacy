@@ -46,4 +46,14 @@ int
 GEN_Compare(   const GEN   a, 
                const GEN   b );
 
+/*! FUNCTION:  GEN_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+GEN_CompareTo(    const void*   a, 
+                  const void*   b );
+
 #endif /* _GEN_H */

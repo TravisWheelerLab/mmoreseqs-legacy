@@ -224,14 +224,14 @@ typedef enum {
 
 /* Normal State Transitions */
 typedef enum {
-   M2M = 0,
-   M2I = 1,
-   M2D = 2,
-   I2M = 3,
-   I2I = 4,
-   D2M = 5,
-   D2D = 6,
-   B2M = 7
+   M2M = 0,       /* Match to Match */
+   M2I = 1,       /* Match to Insert */
+   M2D = 2,       /* Match to Delete */
+   I2M = 3,       /* Insert to Match */
+   I2I = 4,       /* Insert to Insert */
+   TM = 5,        /* to Match */
+   TD = 6,        /* to Delete */
+   B2M = 7        /* Begin to Match */
 } TRANS_STATES;
 #define NUM_TRANS_STATES 8
 

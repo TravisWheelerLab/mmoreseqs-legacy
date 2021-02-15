@@ -1,12 +1,14 @@
 /*******************************************************************************
  *  FILE:      vector_range.c
  *  PURPOSE:   VECTOR_RANGE Object Functions.
- *             Template for building vector classes.
+ *             Provides template for building vector classes.
  *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
  *             Requires data primitive to have RANGE_Compare().
+ * 
+ *  DESC:      
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:    
  *******************************************************************************/
 
 /* imports */
@@ -14,7 +16,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
 /* local imports */
 #include "../../objects/structs.h"
@@ -92,6 +93,53 @@ VECTOR_RANGE_Reuse( VECTOR_RANGE*   vec )
    vec->N = 0;
 }
 
+/* TODO: Can I do this without dynamic allocation? */
+/*! FUNCTION:  VECTOR_RANGE_WrapArray().
+ *  SYNOPSIS:  Wraps <array> in a <vector> struct, allocates structures and returns pointer. 
+ *             <length> is the entire array size, <occupied> is the amount of data in use 
+ *             WARNING: Limited operation support. Do not use:
+ *                      _SetSize()     *Unless size is less than total array size
+ *                      _Pushback()    *Use _Push()
+ *                      _Popback()     *Use _Pop()
+ */
+VECTOR_RANGE* 
+VECTOR_RANGE_WrapArray(   RANGE*     array,
+                        size_t   length,
+                        size_t   occupied )
+{
+   VECTOR_RANGE* vec;
+   vec = ERROR_malloc( sizeof(VECTOR_RANGE) );
+
+   vec->data   = array;
+   vec->N      = occupied;
+   vec->Nalloc = length;
+
+   return vec;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_UnwrapArray()
+ *  SYNOPSIS:  Unwraps <array> from <vector> and return it.  Frees all <vector> related data. 
+ */
+RANGE* 
+VECTOR_RANGE_UnwrapArray(    VECTOR_RANGE*    vec,
+                           size_t         size )
+{
+   RANGE* array = vec->data;
+   vec = ERROR_malloc( sizeof(VECTOR_RANGE) );
+
+   return array;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_GetArray()
+ *  SYNOPSIS:  Get <data> array from <vec>.
+ */
+inline
+RANGE* 
+VECTOR_RANGE_GetArray(   VECTOR_RANGE*   vec )
+{
+   return vec->data;
+}
+
 /*! FUNCTION:  VECTOR_RANGE_Fill()
  *  SYNOPSIS:  Fill VECTOR_RANGE object with val.
  */
@@ -120,7 +168,7 @@ VECTOR_RANGE_Copy(  VECTOR_RANGE*   dest,
    VECTOR_RANGE_Resize( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
-      VEC_X( dest, i ) = RANGE_Create( VEC_X( src, i ) );
+      *VECTOR_RANGE_GetX( dest, i ) = RANGE_Create( VEC_X( src, i ) );
    }
    /* copy base data */
    dest->N = src->N;
@@ -135,7 +183,7 @@ STATUS_FLAG
 VECTOR_RANGE_Resize(   VECTOR_RANGE*   vec, 
                      size_t        size )
 {
-   vec->data = ERROR_realloc( vec->data, sizeof(RANGE) * size );
+   vec->data   = ERROR_realloc( vec->data, sizeof(RANGE) * size );
    vec->Nalloc = size;
 }
 
@@ -152,19 +200,125 @@ VECTOR_RANGE_GrowTo(   VECTOR_RANGE*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_RANGE_GetArray()
- *  SYNOPSIS:  Get <data> array from <vec>.
+/*! FUNCTION:  VECTOR_RANGE_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
+ *  RETURN:    Return data at <idx>.
+ */
+inline
+RANGE 
+VECTOR_RANGE_Get(   VECTOR_RANGE*   vec, 
+                  int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return (vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_RANGE_GetX()
+ *  SYNOPSIS:  Get reference to data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG and SAFE.
+ *  RETURN:    Pointer to location to <vec> idx.
  */
 inline
 RANGE* 
-VECTOR_RANGE_GetArray(   VECTOR_RANGE*   vec )
+VECTOR_RANGE_GetX( VECTOR_RANGE*   vec, 
+                  int           idx )
 {
-   return vec->data;
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Set()
+ *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+STATUS_FLAG 
+VECTOR_RANGE_Set(   VECTOR_RANGE*   vec, 
+                  int           idx, 
+                  RANGE           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = RANGE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = RANGE_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Insert()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_RANGE_Insert(   VECTOR_RANGE*   vec, 
+                     int           idx, 
+                     RANGE           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = RANGE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = RANGE_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Delete()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_RANGE_Delete(   VECTOR_RANGE*   vec, 
+                     int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   int N    = VECTOR_RANGE_GetSize( vec );
+   VEC_X( vec, idx )     = RANGE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx )     = VEC_X( vec, N - 1 );
+   // VEC_X( vec, N - 1 )   = RANGE_Empty(); 
+   vec->N   -= 1;
+ 
+   return STATUS_SUCCESS;
 }
 
 /*! FUNCTION:  VECTOR_RANGE_Push()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
- *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().
+ *             WARNING: Does not handle resizing or check for out-of-bounds. 
+ *                      For that, use Pushback().
  */
 inline
 STATUS_FLAG 
@@ -172,13 +326,13 @@ VECTOR_RANGE_Push(  VECTOR_RANGE*   vec,
                   RANGE           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = RANGE_Create( val );
+   VECTOR_RANGE_Set( vec, vec->N, val );
    vec->N++;
 }
 
 /*! FUNCTION:  VECTOR_RANGE_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
- *             and resize array if array is full.
+ *             Resize array if array is full.
  */
 inline
 STATUS_FLAG 
@@ -194,14 +348,27 @@ VECTOR_RANGE_Pushback(    VECTOR_RANGE*   vec,
 }
 
 /*! FUNCTION:  VECTOR_RANGE_Pop()
- *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
+ *  SYNOPSIS:  Pop data from the end of <vec> data array, remove data, and return data. 
  */
 inline
 RANGE 
 VECTOR_RANGE_Pop( VECTOR_RANGE*   vec )
 {
-   RANGE data = VEC_X( vec, vec->N - 1 );
+   RANGE data = VECTOR_RANGE_Get( vec, vec->N - 1 );
    vec->N -= 1;
+
+   return data;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Popback()
+ *  SYNOPSIS:  Pop data from the end of <vec> data array and return data.
+ *             Resize if array is less than half full.
+ */
+inline
+RANGE 
+VECTOR_RANGE_Popback( VECTOR_RANGE*   vec )
+{
+   RANGE data = VECTOR_RANGE_Pop( vec );
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
@@ -234,73 +401,6 @@ VECTOR_RANGE_Append(   VECTOR_RANGE*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_RANGE_Set()
- *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-STATUS_FLAG 
-VECTOR_RANGE_Set(   VECTOR_RANGE*   vec, 
-                  int           idx, 
-                  RANGE           val )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   VEC_X( vec, idx ) = RANGE_Destroy( VEC_X( vec, idx ) );
-   VEC_X( vec, idx ) = RANGE_Create( val );
-
-   return STATUS_SUCCESS;
-}
-
-/*! FUNCTION:  VECTOR_RANGE_Get()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
- *  RETURN:    Return data at <idx>.
- */
-inline
-RANGE 
-VECTOR_RANGE_Get(   VECTOR_RANGE*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return (vec->data[idx]);
-}
-
-/*! FUNCTION:  VECTOR_RANGE_GetX()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- *  RETURN:    Pointer to location to <vec> idx.
- */
-inline
-RANGE* 
-VECTOR_RANGE_GetX( VECTOR_RANGE*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_RANGE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return &(vec->data[idx]);
-}
-
 /*! FUNCTION:  VECTOR_RANGE_GetSize()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
@@ -324,6 +424,15 @@ VECTOR_RANGE_SetSize(     VECTOR_RANGE*   vec,
    vec->N = size;
 }
 
+/*! FUNCTION:  VECTOR_RANGE_GetSizeAlloc()
+ *  SYNOPSIS:  Get allocated length of <vec>.
+ */
+inline
+int 
+VECTOR_RANGE_GetSizeAlloc(   VECTOR_RANGE*   vec )
+{
+   return vec->Nalloc;
+}
 
 /*! FUNCTION:  VECTOR_RANGE_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
@@ -449,7 +558,9 @@ STATUS_FLAG
 VECTOR_RANGE_Sort( VECTOR_RANGE*    vec )
 {
    int N = VECTOR_RANGE_GetSize( vec );
-   VECTOR_RANGE_Sort_Sub( vec, 0, N );
+   qsort( vec->data, N, sizeof(RANGE), RANGE_CompareTo );
+
+   // VECTOR_RANGE_Sort_Sub( vec, 0, N );
 
    #if DEBUG 
    {
@@ -463,6 +574,7 @@ VECTOR_RANGE_Sort( VECTOR_RANGE*    vec )
          if ( (cmp <= 0) == false ) {
             fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
                cmp, i, i+1, RANGE_To_String(cur, s_cur), RANGE_To_String(nxt, s_nxt) );
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
    }
@@ -478,7 +590,7 @@ VECTOR_RANGE_Sort_Sub(    VECTOR_RANGE*    vec,
                         int            beg,
                         int            end )
 {
-   const int begin_select_sort = 4;
+   const int begin_select_sort = INT_MAX;
    int N = VECTOR_RANGE_GetSize(vec);
    if (N <= 1) {
       return STATUS_SUCCESS;
@@ -567,6 +679,63 @@ VECTOR_RANGE_Sort_Sub_Quicksort(   VECTOR_RANGE*    vec,
    VECTOR_RANGE_Sort_Sub( vec, r_idx+1, end );
 }
 
+/*! FUNCTION:  VECTOR_RANGE_Op()
+ *  SYNOPSIS:  Perform element-wise unary operation <op> to each cell in <vec_in> and puts it in <vec_out>.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_RANGE* 
+VECTOR_RANGE_Op(    VECTOR_RANGE*    vec_out,             /* input vector */
+                  VECTOR_RANGE*    vec_in,              /* output vector (can be input vector) */
+                  RANGE            (*op)(RANGE data) )    /* unary operation */
+{
+   int N = VECTOR_RANGE_GetSize( vec_in );
+   if ( vec_out == NULL ) {
+      VECTOR_RANGE_Create_by_Size( N );
+   }
+   VECTOR_RANGE_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_RANGE_GetX( vec_out, i ) = op( *VECTOR_RANGE_GetX( vec_in, i ) );
+   }
+
+   return vec_out;
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Op()
+ *  SYNOPSIS:  Perform element-wise binary operation <op>(RANGE data_1, RANGE data_2) to each cell in <vec_in_1, vec_in_2> and puts it in <vec_out>.
+ *             <vec_in_1> and <vec_in_2> must be the same size.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_RANGE* 
+VECTOR_RANGE_BinOp(    VECTOR_RANGE*    vec_out,                         /* output vector */ 
+                     VECTOR_RANGE*    vec_in_1,                        /* first input vector */
+                     VECTOR_RANGE*    vec_in_2,                        /* second input vector */
+                     RANGE            (*op)(RANGE data_1, RANGE data_2) )  /* binary operation */
+{
+   int N    = VECTOR_RANGE_GetSize( vec_in_1 );
+   int N_2  = VECTOR_RANGE_GetSize( vec_in_2 );
+   if ( N != N_2 ) {
+      fprintf( stderr, "ERROR: <vec_in_1> and <vec_in_2> are not the same dimensions.\n");
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   if ( vec_out == NULL ) {
+      VECTOR_RANGE_Create_by_Size( N );
+   }
+   VECTOR_RANGE_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_RANGE_GetX( vec_out, i ) = op( *VECTOR_RANGE_GetX( vec_in_1, i ), *VECTOR_RANGE_GetX( vec_in_2, i ) );
+   }
+
+   return vec_out;
+}
+
 /*! FUNCTION:  VECTOR_RANGE_Swap()
  *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
  *             Warning: Only checks for Out-of-Bounds when in DEBUG.
@@ -577,7 +746,7 @@ VECTOR_RANGE_Swap(  VECTOR_RANGE*    vec,
                   int            i,
                   int            j )
 {
-   RANGE swap = vec->data[i];
+   RANGE swap = VECTOR_RANGE_Get( vec, i );
    vec->data[i] = vec->data[j];
    vec->data[j] = swap;
 }
@@ -595,19 +764,6 @@ STATUS_FLAG VECTOR_RANGE_Reverse(   VECTOR_RANGE*    vec )
    }
 }
 
-/*! FUNCTION:  VECTOR_RANGE_LoadTSV()
- *  SYNOPSIS:  Load tsv from <filename> and store in <vec>.
- */
-STATUS_FLAG 
-VECTOR_RANGE_LoadTSV(  VECTOR_RANGE*    vec,
-                     char*          filename )
-{
-   FILE* fp  = fopen(filename, "r+");
-   char buf[1024]; 
-
-   fclose(fp);
-}
-
 /*! FUNCTION:  VECTOR_RANGE_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
@@ -615,23 +771,36 @@ STATUS_FLAG
 VECTOR_RANGE_Dump(  VECTOR_RANGE*    vec,
                   FILE*          fp )
 {
+   VECTOR_RANGE_Dump_byOpt( vec, "\n", "VECTOR BOUND", fp );
+}
+
+/*! FUNCTION:  VECTOR_RANGE_Dump_byOpt()
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. 
+ */
+STATUS_FLAG 
+VECTOR_RANGE_Dump_byOpt(  VECTOR_RANGE*    vec,
+                        STR            delim,
+                        STR            header,
+                        FILE*          fp )
+{
    /* stringification of template object */
    char s[50];
+   const char* pad = " ";
 
-   fprintf(fp, "%s: ", "VECTOR_RANGE");
+   fprintf(fp, "%s: ", header);
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%s, ", RANGE_To_String(vec->data[i], s) );
+      fprintf(fp, "%s%s%s", RANGE_To_String(vec->data[i], s), delim, pad );
    }
    fprintf(fp, "]\n" );
 }
 
 
-/*! FUNCTION:  VECTOR_RANGE_Unit_Test()
+/*! FUNCTION:  VECTOR_RANGE_UnitTest()
  *  SYNOPSIS:  Perform unit test for VECTOR_RANGE.
  */
 STATUS_FLAG 
-VECTOR_RANGE_Unit_Test()
+VECTOR_RANGE_UnitTest()
 {
    VECTOR_RANGE* vec = VECTOR_RANGE_Create();
 

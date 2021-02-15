@@ -51,6 +51,16 @@ int
 XXX_Compare(   const XXX   a, 
                const XXX   b );
 
+/*! FUNCTION:  XXX_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+int 
+XXX_CompareTo(    const void*   a, 
+                  const void*   b );
+
 /*! FUNCTION:  XXX_Swap()
  *  SYNOPSIS:  Swap values of <a> and <b>
  */

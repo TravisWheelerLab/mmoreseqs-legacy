@@ -125,12 +125,12 @@ ALIGNMENT_Reuse(  ALIGNMENT*  aln,
    aln->is_hmmer_aln = false;
 }
 
-/*! FUNCTION:  RESULTS_Reuse()
+/*! FUNCTION:  ALIGNMENT_Pushback()
  *  SYNOPSIS:  Push trace onto end of alignment.
  */
 void 
 ALIGNMENT_Pushback(     ALIGNMENT*  aln,
-                        TRACE*      tr )
+                        TRACE       tr )
 {
    /* if debugging, do edgechecks */
    #if DEBUG
@@ -140,7 +140,7 @@ ALIGNMENT_Pushback(     ALIGNMENT*  aln,
    }
    #endif
 
-   VECTOR_TRACE_Pushback( aln->traces, *tr );
+   VECTOR_TRACE_Pushback( aln->traces, tr );
 }
 
 /*! FUNCTION:  ALIGNMENT_GetSize()
@@ -217,7 +217,7 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
       case N_ST:
       case C_ST:
       case J_ST:
-         prv_tr = VEC_X( aln->traces, aln->traces->N - 1 );
+         prv_tr = VECTOR_TRACE_Get( aln->traces, aln->traces->N - 1 );
          tr.q_0 = ( ( tr.st == prv_tr.st ) ? q_0 : 0 );
          tr.t_0 = 0;
          break;
@@ -257,7 +257,7 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
    }
 
    tr.st = st;
-   ALIGNMENT_Pushback( aln, &tr );
+   ALIGNMENT_Pushback( aln, tr );
 
    return STATUS_SUCCESS;
 }
@@ -414,7 +414,7 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
    for (i = i_beg; i <= i_end; i++, pos++)
    {
       /* get emitted residue at position in the alignment */
-      tr       = &VEC_X( traceback, i );
+      tr       = VECTOR_TRACE_GetX( traceback, i );
       t_ch     = STR_GetChar( tseq, tr->t_0 );
       q_ch     = STR_GetChar( qseq, tr->q_0 );
       c_ch     = ' ';
@@ -521,18 +521,18 @@ ALIGNMENT_Build_MMSEQS_Style(    ALIGNMENT*     aln,
    int      pos      = 0;     /* pos into cigar string */
    int      run_len     = 0;     /* tracks number of consequetive states */
 
-   TRACE*   tr          = NULL;  /* current trace */
+   TRACE*    tr          = NULL;  /* current trace */
    int      prv_st      = -1;    /* previous state */
    int      cur_st      = -1;    /* current state */
 
    /* unrolled first iteration */
-   tr       = &VEC_X( traceback, 0 );
+   tr       = VECTOR_TRACE_GetX( traceback, 0 );
    prv_st   = tr->st;
    run_len  = 1;
 
    for (int i = 1; i < traceback->N; i++)
    {
-      tr       = &VEC_X( traceback, i );
+      tr       = VECTOR_TRACE_GetX( traceback, i );
       cur_st   = tr->st;
 
       /* if cuurent state is the same as previous, continue run */

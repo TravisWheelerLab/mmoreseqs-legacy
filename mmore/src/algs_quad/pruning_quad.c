@@ -74,9 +74,9 @@ void prune_via_xdrop_edgetrim_Quad( MATRIX_3D* 		st_MX,			/* normal state matrix
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 
-			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX(q_0, t_0) ),
-			               calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+			diag_max = MATH_Max(
+			               MATH_Max( diag_max, MMX(q_0, t_0) ),
+			               MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -110,8 +110,8 @@ void prune_via_xdrop_edgetrim_Quad( MATRIX_3D* 		st_MX,			/* normal state matrix
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
@@ -132,8 +132,8 @@ void prune_via_xdrop_edgetrim_Quad( MATRIX_3D* 		st_MX,			/* normal state matrix
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
@@ -200,9 +200,9 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 
-			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX(q_0, t_0) ),
-			               calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+			diag_max = MATH_Max(
+			               MATH_Max( diag_max, MMX(q_0, t_0) ),
+			               MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -236,8 +236,8 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= total_limit )
@@ -258,8 +258,8 @@ void prune_via_xdrop_bifurcate_Quad( 	MATRIX_3D* 		st_MX,			/* normal state matr
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= total_limit )
@@ -329,9 +329,9 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 			q_0 = k_0;
 			t_0 = d_1 - k_0;    /* looking back one diag */
 
-			diag_max = calc_Max(
-			               calc_Max( diag_max, MMX(q_0, t_0) ),
-			               calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+			diag_max = MATH_Max(
+			               MATH_Max( diag_max, MMX(q_0, t_0) ),
+			               MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 		}
 
 		/* Total max records largest cell score seen so far */
@@ -372,8 +372,8 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0), DMX(q_0, t_0) ) );
 
 				/* prune in left edgebound */
 				if ( cell_max >= diag_limit )
@@ -394,8 +394,8 @@ void prune_diag_by_xdrop_edgetrim_or_die_Quad( 	MATRIX_3D* 		st_MX,			/* normal 
 				q_0 = k_0;
 				t_0 = d_1 - k_0; 	/* looking back one diag */
 
-				cell_max = 	calc_Max( MMX(q_0, t_0),
-				                      calc_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
+				cell_max = 	MATH_Max( MMX(q_0, t_0),
+				                      MATH_Max( IMX(q_0, t_0),   DMX(q_0, t_0) ) );
 
 				/* prune in right edgebound */
 				if ( cell_max >= diag_limit )

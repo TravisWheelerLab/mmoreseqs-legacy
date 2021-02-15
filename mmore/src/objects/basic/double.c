@@ -72,3 +72,20 @@ DBL_Compare(   const DBL   a,
 {
    return (a - b);
 }
+
+/*! FUNCTION:  DBL_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POS if (a > b), 
+ *             0 if equal, 
+ *             NEG if (a < b)
+ */
+inline
+int 
+DBL_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   DBL* x = (DBL*)a;
+   DBL* y = (DBL*)b;
+
+   return DBL_Compare( *x, *y );
+}

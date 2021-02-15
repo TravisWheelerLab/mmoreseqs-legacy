@@ -59,33 +59,49 @@ void
 EDGEBOUND_ROWS_Resize(  EDGEBOUND_ROWS*  edg,
                         int              size );
 
-/*! FUNCTION: EDGEBOUND_ROWS_Get_RowSize()
+/*! FUNCTION: EDGEBOUND_ROWS_GetRowSize()
  *  SYNOPSIS: Get the size of row <q_0>.
  */
 int 
-EDGEBOUND_ROWS_Get_RowSize(   EDGEBOUND_ROWS*   edg,
+EDGEBOUND_ROWS_GetRowSize(   EDGEBOUND_ROWS*   edg,
                               int               q_0 );
 
 /*! FUNCTION: EDGEBOUND_ROWS_Get()
  *  SYNOPSIS: Return pointer to EDGEBOUND for absolute index <i>.
  */
-BOUND* 
+BOUND 
 EDGEBOUND_ROWS_Get(  EDGEBOUND_ROWS*   edg,
                      int               i );
 
-/*! FUNCTION: EDGEBOUND_ROWS_Get_byRow()
- *  SYNOPSIS: Get pointer to <i_0>th bound on <q_0>th row.
+/*! FUNCTION: EDGEBOUND_ROWS_Get()
+ *  SYNOPSIS: Return pointer to EDGEBOUND for absolute index <i>.
+ *            Should not be called directly.
  */
-BOUND* 
+BOUND*
+EDGEBOUND_ROWS_GetX(    EDGEBOUND_ROWS*   edg,
+                        int               i );
+
+/*! FUNCTION: EDGEBOUND_ROWS_Get_byRow()
+ *  SYNOPSIS: Get <i_0>th bound on <q_0>th row.
+ */
+BOUND 
 EDGEBOUND_ROWS_Get_byRow(  EDGEBOUND_ROWS*      edg,
                            int                  q_0,
                            int                  i_0 );
 
-/*! FUNCTION: EDGEBOUND_ROWS_GetLast_byRow()
+/*! FUNCTION: EDGEBOUND_ROWS_Get_byRow()
+ *  SYNOPSIS: Get pointer to <i_0>th bound on <q_0>th row.
+ */
+BOUND*
+EDGEBOUND_ROWS_GetX_byRow(    EDGEBOUND_ROWS*      edg,
+                              int                  q_0,
+                              int                  i_0 );
+
+/*! FUNCTION: EDGEBOUND_ROWS_GetXLast_byRow()
  *  SYNOPSIS: Gets pointer to the last bound on <q_0>th row.
  */
-BOUND* 
-EDGEBOUND_ROWS_GetLast_byRow(    EDGEBOUND_ROWS*      edg,
+BOUND*
+EDGEBOUND_ROWS_GetXLast_byRow(   EDGEBOUND_ROWS*      edg,
                                  int                  q_0 );
 
 /*! FUNCTION: EDGEBOUND_ROWS_Pushback()
@@ -94,7 +110,7 @@ EDGEBOUND_ROWS_GetLast_byRow(    EDGEBOUND_ROWS*      edg,
 void 
 EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
                            int               row_id,
-                           BOUND*            bnd );
+                           BOUND             bnd );
 
 /*! FUNCTION: EDGEBOUND_ROWS_Copy()
  *  SYNOPSIS: Create a deep copy of <edg_src> and store it in <edg_dest>.

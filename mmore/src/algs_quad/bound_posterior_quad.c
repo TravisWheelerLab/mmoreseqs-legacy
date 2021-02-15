@@ -123,7 +123,7 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    // /* --------------------------------------------------------------------------------- */
 
    // /* initialize logsum lookup table if it has not already been */
-   // logsum_Init();
+   // MATH_Logsum_Init();
 
    // /* Initialize special states (?) */
    // XMX(SP_N, q_0) = 0;                                         /* S->N, p=1             */
@@ -193,12 +193,12 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          /* best previous state transition (match takes the diag element of each prev state) */
    //          prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
    //          prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-   //          prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+   //          prv_D = DMX(qx1, t_1)  + TSC(t_1, TM);
    //          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
    //          /* best-to-match */
-   //          prv_sum = logsum( 
-   //                         logsum( prv_M, prv_I ),
-   //                         logsum( prv_B, prv_D ) );
+   //          prv_sum = MATH_Sum( 
+   //                         MATH_Sum( prv_M, prv_I ),
+   //                         MATH_Sum( prv_B, prv_D ) );
    //          MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
    //          /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
@@ -206,15 +206,15 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          prv_M = MMX(qx1, t_0) + TSC(t_0, M2I);
    //          prv_I = IMX(qx1, t_0) + TSC(t_0, I2I);
    //          /* best-to-insert */
-   //          prv_sum = logsum( prv_M, prv_I );
+   //          prv_sum = MATH_Sum( prv_M, prv_I );
    //          IMX(qx0, t_0) = prv_sum + ISC(t_0, A);
 
    //          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
    //          /* previous states (match takes the previous column (left) of each state) */
    //          prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-   //          prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+   //          prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
    //          /* best-to-delete */
-   //          prv_sum = logsum( prv_M, prv_D );
+   //          prv_sum = MATH_Sum( prv_M, prv_D );
    //          DMX(qx0, t_0) = prv_sum;
 
    //          /* UPDATE E STATE */
@@ -222,8 +222,8 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          prv_D = DMX(qx0, t_0) + sc_E;
    //          /* best-to-e-state */
    //          prv_E = XMX(SP_E, q_0);
-   //          XMX(SP_E, q_0) = logsum( 
-   //                               logsum( prv_M, prv_D ),
+   //          XMX(SP_E, q_0) = MATH_Sum( 
+   //                               MATH_Sum( prv_M, prv_D ),
    //                               prv_E );
 
    //          /* embed linear row into quadratic test matrix */
@@ -248,12 +248,12 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          /* best previous state transition (match takes the diag element of each prev state) */
    //          prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
    //          prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-   //          prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
+   //          prv_D = DMX(qx1, t_1)  + TSC(t_1, TM);
    //          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
    //          /* sum-to-match */
-   //          prv_sum = logsum( 
-   //                         logsum( prv_M, prv_I ),
-   //                         logsum( prv_D, prv_B ) );
+   //          prv_sum = MATH_Sum( 
+   //                         MATH_Sum( prv_M, prv_I ),
+   //                         MATH_Sum( prv_D, prv_B ) );
    //          MMX(qx0, t_0) = prv_sum + MSC(t_0, A);
 
    //          /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
@@ -262,9 +262,9 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
    //          /* previous states (match takes the left element of each state) */
    //          prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-   //          prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
+   //          prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
    //          /* sum-to-delete */
-   //          prv_sum = logsum( prv_M, prv_D );
+   //          prv_sum = MATH_Sum( prv_M, prv_D );
    //          DMX(qx0, t_0) = prv_sum;
 
    //          /* UPDATE E STATE (unrolled) */
@@ -272,8 +272,8 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //          prv_M = MMX(qx0, t_0);
    //          prv_D = DMX(qx0, t_0);
    //          /* best-to-begin */
-   //          XMX(SP_E, q_0) = logsum( 
-   //                               logsum( prv_D, prv_M ),
+   //          XMX(SP_E, q_0) = MATH_Sum( 
+   //                               MATH_Sum( prv_D, prv_M ),
    //                               prv_E ); 
 
    //          /* embed linear row into quadratic test matrix */
@@ -292,12 +292,12 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //    /* J state */
    //    prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
    //    prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
-   //    XMX(SP_J, q_0) = logsum( prv_J, prv_E );         
+   //    XMX(SP_J, q_0) = MATH_Sum( prv_J, prv_E );         
 
    //    /* C state */
    //    prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
    //    prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
-   //    XMX(SP_C, q_0) = logsum( prv_C, prv_E );
+   //    XMX(SP_C, q_0) = MATH_Sum( prv_C, prv_E );
 
    //    /* N state */
    //    prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
@@ -306,7 +306,7 @@ run_Bound_Posterior_Quad(  const SEQUENCE*      query,         /* query sequence
    //    /* B state */
    //    prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
    //    prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
-   //    XMX(SP_B, q_0) = logsum( prv_N, prv_J );    
+   //    XMX(SP_B, q_0) = MATH_Sum( prv_N, prv_J );    
 
    //    /* SET CURRENT ROW TO PREVIOUS ROW */
    //    r_1b = r_0b;

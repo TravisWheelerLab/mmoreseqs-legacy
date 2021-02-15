@@ -30,11 +30,11 @@ ALIGNMENT_Reuse(     ALIGNMENT*  aln,
                      int         T );
 
 /*! FUNCTION:  ALIGNMENT_Pushback()
- *  SYNOPSIS:  Appends <tr> to end of <aln>, resizes memory if necessary.
+ *  SYNOPSIS:  Push trace onto end of alignment.
  */
 void 
 ALIGNMENT_Pushback(     ALIGNMENT*  aln,
-                        TRACE*      tr );
+                        TRACE       tr );
 
 /*! FUNCTION:  ALIGNMENT_GetSize()
  *  SYNOPSIS:  Return size of <aln>

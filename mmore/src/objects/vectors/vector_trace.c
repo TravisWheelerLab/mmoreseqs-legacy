@@ -1,12 +1,14 @@
 /*******************************************************************************
  *  FILE:      vector_trace.c
  *  PURPOSE:   VECTOR_TRACE Object Functions.
- *             Template for building vector classes.
+ *             Provides template for building vector classes.
  *             Run "scripts/builder-helper/build_vector_classes_from_template" to update.
  *             Requires data primitive to have TRACE_Compare().
+ * 
+ *  DESC:      
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:    
  *******************************************************************************/
 
 /* imports */
@@ -14,7 +16,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 
 /* local imports */
 #include "../../objects/structs.h"
@@ -92,6 +93,53 @@ VECTOR_TRACE_Reuse( VECTOR_TRACE*   vec )
    vec->N = 0;
 }
 
+/* TODO: Can I do this without dynamic allocation? */
+/*! FUNCTION:  VECTOR_TRACE_WrapArray().
+ *  SYNOPSIS:  Wraps <array> in a <vector> struct, allocates structures and returns pointer. 
+ *             <length> is the entire array size, <occupied> is the amount of data in use 
+ *             WARNING: Limited operation support. Do not use:
+ *                      _SetSize()     *Unless size is less than total array size
+ *                      _Pushback()    *Use _Push()
+ *                      _Popback()     *Use _Pop()
+ */
+VECTOR_TRACE* 
+VECTOR_TRACE_WrapArray(   TRACE*     array,
+                        size_t   length,
+                        size_t   occupied )
+{
+   VECTOR_TRACE* vec;
+   vec = ERROR_malloc( sizeof(VECTOR_TRACE) );
+
+   vec->data   = array;
+   vec->N      = occupied;
+   vec->Nalloc = length;
+
+   return vec;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_UnwrapArray()
+ *  SYNOPSIS:  Unwraps <array> from <vector> and return it.  Frees all <vector> related data. 
+ */
+TRACE* 
+VECTOR_TRACE_UnwrapArray(    VECTOR_TRACE*    vec,
+                           size_t         size )
+{
+   TRACE* array = vec->data;
+   vec = ERROR_malloc( sizeof(VECTOR_TRACE) );
+
+   return array;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_GetArray()
+ *  SYNOPSIS:  Get <data> array from <vec>.
+ */
+inline
+TRACE* 
+VECTOR_TRACE_GetArray(   VECTOR_TRACE*   vec )
+{
+   return vec->data;
+}
+
 /*! FUNCTION:  VECTOR_TRACE_Fill()
  *  SYNOPSIS:  Fill VECTOR_TRACE object with val.
  */
@@ -120,7 +168,7 @@ VECTOR_TRACE_Copy(  VECTOR_TRACE*   dest,
    VECTOR_TRACE_Resize( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
-      VEC_X( dest, i ) = TRACE_Create( VEC_X( src, i ) );
+      *VECTOR_TRACE_GetX( dest, i ) = TRACE_Create( VEC_X( src, i ) );
    }
    /* copy base data */
    dest->N = src->N;
@@ -135,7 +183,7 @@ STATUS_FLAG
 VECTOR_TRACE_Resize(   VECTOR_TRACE*   vec, 
                      size_t        size )
 {
-   vec->data = ERROR_realloc( vec->data, sizeof(TRACE) * size );
+   vec->data   = ERROR_realloc( vec->data, sizeof(TRACE) * size );
    vec->Nalloc = size;
 }
 
@@ -152,19 +200,125 @@ VECTOR_TRACE_GrowTo(   VECTOR_TRACE*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_TRACE_GetArray()
- *  SYNOPSIS:  Get <data> array from <vec>.
+/*! FUNCTION:  VECTOR_TRACE_Get()
+ *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
+ *  RETURN:    Return data at <idx>.
+ */
+inline
+TRACE 
+VECTOR_TRACE_Get(   VECTOR_TRACE*   vec, 
+                  int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return (vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_TRACE_GetX()
+ *  SYNOPSIS:  Get reference to data from <vec> at the <idx> position in array, and return pointer to data.
+ *             Warning: Out-of-Bounds only checked in DEBUG and SAFE.
+ *  RETURN:    Pointer to location to <vec> idx.
  */
 inline
 TRACE* 
-VECTOR_TRACE_GetArray(   VECTOR_TRACE*   vec )
+VECTOR_TRACE_GetX( VECTOR_TRACE*   vec, 
+                  int           idx )
 {
-   return vec->data;
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   return &(vec->data[idx]);
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Set()
+ *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
+ *             Warning: Out-of-Bounds only checked in DEBUG.
+ */
+STATUS_FLAG 
+VECTOR_TRACE_Set(   VECTOR_TRACE*   vec, 
+                  int           idx, 
+                  TRACE           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = TRACE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = TRACE_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Insert()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_TRACE_Insert(   VECTOR_TRACE*   vec, 
+                     int           idx, 
+                     TRACE           val )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   VEC_X( vec, idx ) = TRACE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx ) = TRACE_Create( val );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Delete()
+ *  SYNOPSIS:  Overwrite data from <vec> at the <idx> position in array to <val>. Deletes present value.
+ */
+STATUS_FLAG 
+VECTOR_TRACE_Delete(   VECTOR_TRACE*   vec, 
+                     int           idx )
+{
+   /* if debugging, do edgebound checks */
+   #if SAFE 
+   if ( idx >= vec->N || idx < 0 ) {
+      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
+      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   #endif
+
+   int N    = VECTOR_TRACE_GetSize( vec );
+   VEC_X( vec, idx )     = TRACE_Destroy( VEC_X( vec, idx ) );
+   VEC_X( vec, idx )     = VEC_X( vec, N - 1 );
+   // VEC_X( vec, N - 1 )   = TRACE_Empty(); 
+   vec->N   -= 1;
+ 
+   return STATUS_SUCCESS;
 }
 
 /*! FUNCTION:  VECTOR_TRACE_Push()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array. 
- *             Warning: Does not handle resizing or check for out-of-bounds. For that, use Pushback().
+ *             WARNING: Does not handle resizing or check for out-of-bounds. 
+ *                      For that, use Pushback().
  */
 inline
 STATUS_FLAG 
@@ -172,13 +326,13 @@ VECTOR_TRACE_Push(  VECTOR_TRACE*   vec,
                   TRACE           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = TRACE_Create( val );
+   VECTOR_TRACE_Set( vec, vec->N, val );
    vec->N++;
 }
 
 /*! FUNCTION:  VECTOR_TRACE_Pushback()
  *  SYNOPSIS:  Push <val> onto the end of <vec> data array,
- *             and resize array if array is full.
+ *             Resize array if array is full.
  */
 inline
 STATUS_FLAG 
@@ -194,14 +348,27 @@ VECTOR_TRACE_Pushback(    VECTOR_TRACE*   vec,
 }
 
 /*! FUNCTION:  VECTOR_TRACE_Pop()
- *  SYNOPSIS:  Pop data from the end of <vec> data array, and return data. 
+ *  SYNOPSIS:  Pop data from the end of <vec> data array, remove data, and return data. 
  */
 inline
 TRACE 
 VECTOR_TRACE_Pop( VECTOR_TRACE*   vec )
 {
-   TRACE data = VEC_X( vec, vec->N - 1 );
+   TRACE data = VECTOR_TRACE_Get( vec, vec->N - 1 );
    vec->N -= 1;
+
+   return data;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Popback()
+ *  SYNOPSIS:  Pop data from the end of <vec> data array and return data.
+ *             Resize if array is less than half full.
+ */
+inline
+TRACE 
+VECTOR_TRACE_Popback( VECTOR_TRACE*   vec )
+{
+   TRACE data = VECTOR_TRACE_Pop( vec );
 
    /* if array is less than half used, resize */
    if (vec->N < vec->Nalloc / 2) {
@@ -234,73 +401,6 @@ VECTOR_TRACE_Append(   VECTOR_TRACE*   vec,
    }
 }
 
-/*! FUNCTION:  VECTOR_TRACE_Set()
- *  SYNOPSIS:  Set data from <vec> at the <idx> position in array to <val>.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- */
-STATUS_FLAG 
-VECTOR_TRACE_Set(   VECTOR_TRACE*   vec, 
-                  int           idx, 
-                  TRACE           val )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   VEC_X( vec, idx ) = TRACE_Destroy( VEC_X( vec, idx ) );
-   VEC_X( vec, idx ) = TRACE_Create( val );
-
-   return STATUS_SUCCESS;
-}
-
-/*! FUNCTION:  VECTOR_TRACE_Get()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return value of data.
- *  RETURN:    Return data at <idx>.
- */
-inline
-TRACE 
-VECTOR_TRACE_Get(   VECTOR_TRACE*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return (vec->data[idx]);
-}
-
-/*! FUNCTION:  VECTOR_TRACE_GetX()
- *  SYNOPSIS:  Get data from <vec> at the <idx> position in array, and return pointer to data.
- *             Warning: Out-of-Bounds only checked in DEBUG.
- *  RETURN:    Pointer to location to <vec> idx.
- */
-inline
-TRACE* 
-VECTOR_TRACE_GetX( VECTOR_TRACE*   vec, 
-                  int           idx )
-{
-   /* if debugging, do edgebound checks */
-   #if SAFE 
-   if ( idx >= vec->N || idx < 0 ) {
-      fprintf(stderr, "ERROR: VECTOR_TRACE access out-of-bounds.\n");
-      fprintf(stderr, "dim: (%ld/%ld), access: %d\n", vec->N, vec->Nalloc, idx);
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
-   #endif
-
-   return &(vec->data[idx]);
-}
-
 /*! FUNCTION:  VECTOR_TRACE_GetSize()
  *  SYNOPSIS:  Get utilized length of <vec>.
  */
@@ -324,6 +424,15 @@ VECTOR_TRACE_SetSize(     VECTOR_TRACE*   vec,
    vec->N = size;
 }
 
+/*! FUNCTION:  VECTOR_TRACE_GetSizeAlloc()
+ *  SYNOPSIS:  Get allocated length of <vec>.
+ */
+inline
+int 
+VECTOR_TRACE_GetSizeAlloc(   VECTOR_TRACE*   vec )
+{
+   return vec->Nalloc;
+}
 
 /*! FUNCTION:  VECTOR_TRACE_Search_First()
  *  SYNOPSIS:  Binary search of <vec> to find <val> in data array. 
@@ -449,7 +558,9 @@ STATUS_FLAG
 VECTOR_TRACE_Sort( VECTOR_TRACE*    vec )
 {
    int N = VECTOR_TRACE_GetSize( vec );
-   VECTOR_TRACE_Sort_Sub( vec, 0, N );
+   qsort( vec->data, N, sizeof(TRACE), TRACE_CompareTo );
+
+   // VECTOR_TRACE_Sort_Sub( vec, 0, N );
 
    #if DEBUG 
    {
@@ -463,6 +574,7 @@ VECTOR_TRACE_Sort( VECTOR_TRACE*    vec )
          if ( (cmp <= 0) == false ) {
             fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
                cmp, i, i+1, TRACE_To_String(cur, s_cur), TRACE_To_String(nxt, s_nxt) );
+            ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
    }
@@ -478,7 +590,7 @@ VECTOR_TRACE_Sort_Sub(    VECTOR_TRACE*    vec,
                         int            beg,
                         int            end )
 {
-   const int begin_select_sort = 4;
+   const int begin_select_sort = INT_MAX;
    int N = VECTOR_TRACE_GetSize(vec);
    if (N <= 1) {
       return STATUS_SUCCESS;
@@ -567,6 +679,63 @@ VECTOR_TRACE_Sort_Sub_Quicksort(   VECTOR_TRACE*    vec,
    VECTOR_TRACE_Sort_Sub( vec, r_idx+1, end );
 }
 
+/*! FUNCTION:  VECTOR_TRACE_Op()
+ *  SYNOPSIS:  Perform element-wise unary operation <op> to each cell in <vec_in> and puts it in <vec_out>.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_TRACE* 
+VECTOR_TRACE_Op(    VECTOR_TRACE*    vec_out,             /* input vector */
+                  VECTOR_TRACE*    vec_in,              /* output vector (can be input vector) */
+                  TRACE            (*op)(TRACE data) )    /* unary operation */
+{
+   int N = VECTOR_TRACE_GetSize( vec_in );
+   if ( vec_out == NULL ) {
+      VECTOR_TRACE_Create_by_Size( N );
+   }
+   VECTOR_TRACE_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_TRACE_GetX( vec_out, i ) = op( *VECTOR_TRACE_GetX( vec_in, i ) );
+   }
+
+   return vec_out;
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Op()
+ *  SYNOPSIS:  Perform element-wise binary operation <op>(TRACE data_1, TRACE data_2) to each cell in <vec_in_1, vec_in_2> and puts it in <vec_out>.
+ *             <vec_in_1> and <vec_in_2> must be the same size.
+ *             Returns a pointer to <vec_out>.
+ *             <vec_out> will be resized to size of <vec_in>.
+ *             <vec_in> and <vec_out> can be the same vector. If <vec_out> is NULL, new vector will be created.
+ */
+inline
+VECTOR_TRACE* 
+VECTOR_TRACE_BinOp(    VECTOR_TRACE*    vec_out,                         /* output vector */ 
+                     VECTOR_TRACE*    vec_in_1,                        /* first input vector */
+                     VECTOR_TRACE*    vec_in_2,                        /* second input vector */
+                     TRACE            (*op)(TRACE data_1, TRACE data_2) )  /* binary operation */
+{
+   int N    = VECTOR_TRACE_GetSize( vec_in_1 );
+   int N_2  = VECTOR_TRACE_GetSize( vec_in_2 );
+   if ( N != N_2 ) {
+      fprintf( stderr, "ERROR: <vec_in_1> and <vec_in_2> are not the same dimensions.\n");
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   if ( vec_out == NULL ) {
+      VECTOR_TRACE_Create_by_Size( N );
+   }
+   VECTOR_TRACE_SetSize( vec_out, N );
+   
+   for (int i = 0; i < N; i++ ) {
+      *VECTOR_TRACE_GetX( vec_out, i ) = op( *VECTOR_TRACE_GetX( vec_in_1, i ), *VECTOR_TRACE_GetX( vec_in_2, i ) );
+   }
+
+   return vec_out;
+}
+
 /*! FUNCTION:  VECTOR_TRACE_Swap()
  *  SYNOPSIS:  Swaps the values of <vec> at indexes <i> and <j>.
  *             Warning: Only checks for Out-of-Bounds when in DEBUG.
@@ -577,7 +746,7 @@ VECTOR_TRACE_Swap(  VECTOR_TRACE*    vec,
                   int            i,
                   int            j )
 {
-   TRACE swap = vec->data[i];
+   TRACE swap = VECTOR_TRACE_Get( vec, i );
    vec->data[i] = vec->data[j];
    vec->data[j] = swap;
 }
@@ -595,19 +764,6 @@ STATUS_FLAG VECTOR_TRACE_Reverse(   VECTOR_TRACE*    vec )
    }
 }
 
-/*! FUNCTION:  VECTOR_TRACE_LoadTSV()
- *  SYNOPSIS:  Load tsv from <filename> and store in <vec>.
- */
-STATUS_FLAG 
-VECTOR_TRACE_LoadTSV(  VECTOR_TRACE*    vec,
-                     char*          filename )
-{
-   FILE* fp  = fopen(filename, "r+");
-   char buf[1024]; 
-
-   fclose(fp);
-}
-
 /*! FUNCTION:  VECTOR_TRACE_Dump()
  *  SYNOPSIS:  Output <vec> to <fp> file pointer. Non-optimized.
  */
@@ -615,23 +771,36 @@ STATUS_FLAG
 VECTOR_TRACE_Dump(  VECTOR_TRACE*    vec,
                   FILE*          fp )
 {
+   VECTOR_TRACE_Dump_byOpt( vec, "\n", "VECTOR BOUND", fp );
+}
+
+/*! FUNCTION:  VECTOR_TRACE_Dump_byOpt()
+ *  SYNOPSIS:  Output <vec> to <fp> file pointer. 
+ */
+STATUS_FLAG 
+VECTOR_TRACE_Dump_byOpt(  VECTOR_TRACE*    vec,
+                        STR            delim,
+                        STR            header,
+                        FILE*          fp )
+{
    /* stringification of template object */
    char s[50];
+   const char* pad = " ";
 
-   fprintf(fp, "%s: ", "VECTOR_TRACE");
+   fprintf(fp, "%s: ", header);
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%s, ", TRACE_To_String(vec->data[i], s) );
+      fprintf(fp, "%s%s%s", TRACE_To_String(vec->data[i], s), delim, pad );
    }
    fprintf(fp, "]\n" );
 }
 
 
-/*! FUNCTION:  VECTOR_TRACE_Unit_Test()
+/*! FUNCTION:  VECTOR_TRACE_UnitTest()
  *  SYNOPSIS:  Perform unit test for VECTOR_TRACE.
  */
 STATUS_FLAG 
-VECTOR_TRACE_Unit_Test()
+VECTOR_TRACE_UnitTest()
 {
    VECTOR_TRACE* vec = VECTOR_TRACE_Create();
 

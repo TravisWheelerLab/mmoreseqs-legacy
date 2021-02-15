@@ -133,11 +133,11 @@ WORK_load_mmseqs_alignment( WORKER*  worker )
    aln_beg.t_0 = worker->mmseqs_cur->t_beg;
    aln_beg.q_0 = worker->mmseqs_cur->q_beg;
    aln_beg.st  = M_ST;
-   ALIGNMENT_Pushback( worker->trace_vit, &aln_beg );
+   ALIGNMENT_Pushback( worker->trace_vit, aln_beg );
    aln_end.t_0 = worker->mmseqs_cur->t_end;
    aln_end.q_0 = worker->mmseqs_cur->q_end;
    aln_end.st  = M_ST;
-   ALIGNMENT_Pushback( worker->trace_vit, &aln_end );
+   ALIGNMENT_Pushback( worker->trace_vit, aln_end );
    /* since only start and end point of alignment is known, set endpoints by default */
    ALIGNMENT_SetEndpoints( worker->trace_vit, 0, 1 );
 }

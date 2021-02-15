@@ -70,7 +70,7 @@ WORK_construct_scores( WORKER* worker )
    null1_hmm_bias = 0.0f;
 
    /* add prior probability to bias correction */
-   null2_seq_bias = logsum(0.0f, null2_seq_bias + null_omega );
+   null2_seq_bias = MATH_Sum(0.0f, null2_seq_bias + null_omega );
 
    /* compute bitscore, pval, and eval from natscore */
    STATS_Fwdback_Nats_to_Eval( natsc, &presc, &seqsc, &pval, &eval, 
