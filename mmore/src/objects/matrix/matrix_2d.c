@@ -187,9 +187,10 @@ MATRIX_2D_Check_Clean( MATRIX_2D*   mx)
  *  RETURN:    
  */
 inline
-float* MATRIX_2D_Get(   MATRIX_2D*  mx,
-                        int         i,
-                        int         j)
+float* 
+MATRIX_2D_Get(    MATRIX_2D*  mx,
+                  int         i,
+                  int         j)
 {
    /* if debugging, do edgechecks */
    #if DEBUG

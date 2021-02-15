@@ -22,15 +22,16 @@
  *
  *    RETURN:  Returns the final score of the Forward Algorithm.
  */
-int run_Bound_Forward_Sparse(    const SEQUENCE*               query,         /* query sequence */
-                                 const HMM_PROFILE*            target,        /* target HMM model */
-                                 const int                     Q,             /* query length */
-                                 const int                     T,             /* target length */
-                                 MATRIX_3D_SPARSE* restrict    st_SMX_fwd,    /* normal state matrix */
-                                 MATRIX_2D* restrict           sp_MX_fwd,     /* special state matrix */
-                                 const EDGEBOUNDS*             edg,           /* edgebounds */
-                                 const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
-                                 float*                        sc_final );    /* (OUTPUT) final score */
+STATUS_FLAG 
+run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query sequence */
+                           const HMM_PROFILE*            target,        /* target HMM model */
+                           const int                     Q,             /* query length */
+                           const int                     T,             /* target length */
+                           MATRIX_3D_SPARSE* restrict    st_SMX_fwd,    /* normal state matrix */
+                           MATRIX_2D* restrict           sp_MX_fwd,     /* special state matrix */
+                           const EDGEBOUNDS*             edg,           /* edgebounds */
+                           const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                           float*                        sc_final );    /* (OUTPUT) final score */
 
 /** FUNCTION:  run_Bound_Backward_Sparse()
  *  SYNOPSIS:  Perform Edge-Bounded Backward step of Cloud Search Algorithm.
@@ -45,14 +46,15 @@ int run_Bound_Forward_Sparse(    const SEQUENCE*               query,         /*
  *
  *    RETURN:  Returns the final score of the Backward Algorithm.
  */
-int run_Bound_Backward_Sparse (  const SEQUENCE*            query,         /* query sequence */
-                                 const HMM_PROFILE*         target,        /* target HMM model */
-                                 const int                  Q,             /* query length */
-                                 const int                  T,             /* target length */
-                                 MATRIX_3D_SPARSE*          st_SMX_bck,    /* normal state matrix */
-                                 MATRIX_2D*                 sp_MX_bck,     /* special state matrix */
-                                 const EDGEBOUNDS*          edg,           /* edgebounds */
-                                 const RANGE*               dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
-                                 float*                     sc_final );    /* (OUTPUT) final score */
+STATUS_FLAG 
+run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* query sequence */
+                              const HMM_PROFILE*            target,        /* target HMM model */
+                              const int                     Q,             /* query length */
+                              const int                     T,             /* target length */
+                              MATRIX_3D_SPARSE* restrict    st_SMX_bck,    /* normal state matrix */
+                              MATRIX_2D* restrict           sp_MX_bck,     /* special state matrix */
+                              const EDGEBOUNDS*             edg,           /* edgebounds */
+                              const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                              float*                        sc_final );    /* (OUTPUT) final score */
 
 #endif /* _BOUND_FWDBCK_LINEAR_H */

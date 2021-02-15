@@ -34,6 +34,23 @@
  *       MMX3(i,  j  ) => MMX3(, d_1)
  */
 
+/* private functions */
+static inline 
+float 
+MY_Sum( const float x, const float y );
+
+static inline 
+float 
+MY_Prod( const float x, const float y );
+
+static inline 
+float 
+MY_Zero();
+
+static inline 
+float 
+MY_One();
+
 /*! FUNCTION: run_Bound_Forward_Sparse()
  *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
  *            Runs traditional Forward-Backward Algorithm, but only performs

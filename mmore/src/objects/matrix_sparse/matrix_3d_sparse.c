@@ -25,6 +25,8 @@
 #include "_matrix_sparse.h"
 #include "matrix_3d_sparse.h"
 
+static int D3 = NUM_NORMAL_STATES;
+
 /** FUNCTION: 	 MATRIX_3D_SPARSE_Create()
  *  SYNOPSIS: 	 Creates sparse matrix <smx>.
  *
@@ -217,30 +219,68 @@ MATRIX_3D_SPARSE_Shape_Like_Matrix(  MATRIX_3D_SPARSE*          mx_dest,
    return mx_dest;
 }
 
-/*! FUNCTION:  MATRIX_3D_SPARSE_Add()
- *  SYNOPSIS:  Returns <smx_A> as the sum of <smx_A> and <smx_B>
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetX_by1D()
+ *  SYNOPSIS:  Gets reference to cell in <data> from matrix <smx> at flat index <i_0>.  
+ *             Not designed for public function. This is generally computed by _GetX_byOffset(). 
  *
- *  RETURN:    Returns reference to <smx_A>
+ *  RETURN:    Reference to <smx> data array location if success.
+ *             Returns NULL if out-of-bounds of sparse matrix.
  */
-int 
-MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN: addent matrix */
-                        MATRIX_3D_SPARSE*    smx_B,      /* IN: addend matrix */
-                        MATRIX_3D_SPARSE*    smx_res )   /* OUT: sum matrix (can be an input) */
+FLT* 
+MATRIX_3D_SPARSE_GetX_by1D(   const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPARSE object */
+                              const int                  i_0 )    /* flat index */
 {
-   /* if 
+   return VECTOR_FLT_GetX( smx->data, i_0 );
+}
 
-   /* sum contents of matrix */
-   for ( int i = 0; i < smx_A->data->N; i++ ) 
-   {
-      if ( smx_A->data->data[i] == -INF || smx_B->data->data[i] == -INF )  {
-         smx_res->data->data[i] = -INF;
-      }
-      else {
-         smx_res->data->data[i] = smx_A->data->data[i] + smx_B->data->data[i];
-      }
-      
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetX_byOffset()
+ *  SYNOPSIS:  Gets reference to cell in <data> from matrix <smx> by offsets <qx0,tx0> at state <st_0>.
+ *
+ *  RETURN:    Reference to <smx> data array location if success.
+ *             Returns NULL if out-of-bounds of sparse matrix.
+ */
+FLT* 
+MATRIX_3D_SPARSE_GetX_byOffset(  const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPARSE object */
+                                 const int                  qx0,     /* offset to start of data block */
+                                 const int                  tx0,     /* offset into data block */
+                                 const int                  st_0 )   /* state of data (3rd dimension) */
+{
+   int flat_idx = qx0 + ( tx0 * NUM_NORMAL_STATES ) + ( st_0 );
+   return MATRIX_3D_SPARSE_GetX_by1D( smx, flat_idx );
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetX()
+ *  SYNOPSIS:  Get reference to cell in corresponding to given (q_0,t_0) coordinates in complete, embedding matrix.
+ *             Search is linear in the number of discrete data blocks (bounds) per row. Not the fastest for matrix traversal, but good for spot lookups.
+ *             Caller must call _Index() before calling this.
+ *
+ *  RETURN:    Reference to <smx> data array location if success.
+ *             Returns NULL if out-of-bounds of sparse matrix.
+ */
+float* 
+MATRIX_3D_SPARSE_GetX(     const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPARSE object */
+                           const int                  q_0,     /* query/row index */
+                           const int                  t_0,     /* target/column index */
+                           const int                  st_0 )   /* state index */
+{
+   /* get start of row from index */
+   int idx_beg = EDGEBOUNDS_GetIndex_byRow( smx->edg_inner, q_0 );
+   int idx_end = EDGEBOUNDS_GetIndex_byRow( smx->edg_inner, q_0 + 1 );
+   /* linear search of column */
+   for (int i_0 = idx_beg; i_0 < idx_end; i_0++ ) {
+      BOUND bnd      = MATRIX_3D_SPARSE_GetBound_byIndex( smx, i_0 );
+      /* find if bound in data block */
+      bool in_range  = IS_IN_RANGE( bnd.lb, bnd.rb - 1, t_0 );
+      if ( in_range == true ) {
+         /* build flat index */
+         int qx0 = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( smx, i_0 );
+         int tx0 = t_0 - bnd.lb;
+         return MATRIX_3D_SPARSE_GetX_byOffset( smx, qx0, tx0, st_0 );
+      } 
    }
-   return STATUS_SUCCESS;
+
+   /* if it reaches the end of the bound list, then (q_0,t_0) is not in matrix. */
+   return NULL;
 }
 
 /*! FUNCTION:  EDGEBOUNDS_GetNumberBounds()
@@ -266,78 +306,20 @@ MATRIX_3D_SPARSE_GetNumberBounds_byRow(   const MATRIX_3D_SPARSE*    smx,
    return num_bounds;
 }
 
-/*! FUNCTION:  MATRIX_3D_SPARSE_GetBound()
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetBound_ByIndex_Fwd()
  *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on entire matrix.
  *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds() to get maximum <r_0> first.
  *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number in matrix.
  */
 inline
-STATUS_FLAG 
-MATRIX_3D_SPARSE_GetBound(    const MATRIX_3D_SPARSE*    smx,             
-                              const int                  r_0,              /* IN: bound index in matrix <smx> */
-                              BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
-                              int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
-                              int*                       qx0_cur_out,      /* OUT: offset to position in current row */
-                              int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
+BOUND 
+MATRIX_3D_SPARSE_GetBound_byIndex(  const MATRIX_3D_SPARSE*    smx,             
+                                    const int                  r_0 )             /* IN: bound index in matrix <smx> */
 {
    /* get bound */
-   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, r_0 );
-   /* get offsets */
-   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
-
-   return STATUS_SUCCESS;
-}
-
-/*! FUNCTION:  MATRIX_3D_SPARSE_GetBound_byRow_Fwd()
- *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on <q_0>th row.
- *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds_byRow to get maximum <r_0> first.
- *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number on row.
- */
-inline
-STATUS_FLAG 
-MATRIX_3D_SPARSE_GetBound_byRow_Fwd(   const MATRIX_3D_SPARSE*    smx,          
-                                       const int                  q_0,              /* IN: row/diag id in matrix <smx> */
-                                       const int                  r_0,              /* IN: bound index of row <q_0> in matrix <smx> */
-                                       BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
-                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
-                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
-                                       int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
-{
-   int      index;
-   /* look up edgebound index for start of row */
-   index    = EDGEBOUNDS_GetIndex_byRow_Fwd( smx->edg_inner, q_0 );
-   /* get bound */
-   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, index + r_0 );
-   /* get offsets */
-   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, index + r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
-
-   return STATUS_SUCCESS;
-}
-
-/*! FUNCTION:  MATRIX_3D_SPARSE_GetBound_byRow_Bck()
- *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on <q_0>th row.
- *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds_byRow to get maximum <r_0> first.
- *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number on row.
- */
-inline
-STATUS_FLAG 
-MATRIX_3D_SPARSE_GetBound_byRow_Bck(   const MATRIX_3D_SPARSE*    smx,        
-                                       const int                  q_0,              /* IN: row/diag id in matrix <smx> */
-                                       const int                  r_0,              /* IN: bound index of row <q_0> in matrix <smx> */
-                                       BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
-                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
-                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
-                                       int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
-{
-   int      index;
-   /* look up edgebound index for start of row */
-   index    = EDGEBOUNDS_GetIndex_byRow_Bck( smx->edg_inner, q_0 );
-   /* get bound */
-   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, index + r_0 );
-   /* get offsets */
-   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, index + r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
-
-   return STATUS_SUCCESS;
+   BOUND bnd;
+   bnd = *EDGEBOUNDS_GetX( smx->edg_inner, r_0 );
+   return bnd;
 }
 
 /*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
@@ -363,6 +345,163 @@ MATRIX_3D_SPARSE_GetOffset_ByIndex(    const MATRIX_3D_SPARSE*    smx,
    *qx0_prv_out = qx0_prv;
    *qx0_cur_out = qx0_cur;
    *qx0_nxt_out = qx0_nxt;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ */
+inline
+int 
+MATRIX_3D_SPARSE_GetOffset_ByIndex_Prv(   const MATRIX_3D_SPARSE*    smx,        
+                                          const int                  r_0 )             /* index for given bound */
+{
+   int qx0_prv;
+   qx0_prv  = VEC_X( smx->imap_prv, r_0 );
+   return qx0_prv;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ */
+inline
+int 
+MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur(   const MATRIX_3D_SPARSE*    smx,        
+                                          const int                  r_0 )             /* index for given bound */
+{
+   int qx0_cur;
+   qx0_cur  = VEC_X( smx->imap_cur, r_0 );
+   return qx0_cur;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ */
+inline
+int 
+MATRIX_3D_SPARSE_GetOffset_ByIndex_Nxt(   const MATRIX_3D_SPARSE*    smx,        
+                                          const int                  r_0 )             /* index for given bound */
+{
+   int qx0_nxt;
+   qx0_nxt  = VEC_X( smx->imap_nxt, r_0 );
+   return qx0_nxt;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ *             Gets the offsets for the current cell <qx0_prv_out>, 
+ *             the cell immediately above it on the previous row <qx0_cur_out>, 
+ *             and the cell immediately below it on the next row <qx0_nxt_out>.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetOffset_ByIndex_Fwd(   const MATRIX_3D_SPARSE*    smx,        
+                                          const int                  r_0,              /* index for given bound */
+                                          int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                          int*                       qx0_prv_out )     /* OUT: offset to position in previous row */
+{
+   /* get the offset to each row */
+   int qx0_prv  = VEC_X( smx->imap_prv, r_0 );
+   int qx0_cur  = VEC_X( smx->imap_cur, r_0 );
+
+   /* update values */
+   *qx0_cur_out = qx0_cur;
+   *qx0_prv_out = qx0_prv;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ *             Gets the offsets for the current cell <qx0_prv_out>, 
+ *             the cell immediately above it on the previous row <qx0_cur_out>, 
+ *             and the cell immediately below it on the next row <qx0_nxt_out>.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetOffset_ByIndex_Bck(   const MATRIX_3D_SPARSE*    smx,        
+                                          const int                  r_0,              /* index for given bound */
+                                          int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                          int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
+{
+   /* get the offset to each row */
+   int qx0_cur  = VEC_X( smx->imap_cur, r_0 );
+   int qx0_nxt  = VEC_X( smx->imap_nxt, r_0 );
+
+   /* update values */
+   *qx0_cur_out = qx0_cur;
+   *qx0_nxt_out = qx0_nxt;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_GeData_byIndex()
+ *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on entire matrix.
+ *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds() to get maximum <r_0> first.
+ *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number in matrix.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetData_byIndex(  const MATRIX_3D_SPARSE*     smx,             
+                                    const int                  r_0,              /* IN: bound index in matrix <smx> */
+                                    BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
+                                    int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
+                                    int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                    int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
+{
+   /* get bound */
+   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, r_0 );
+   /* get offsets */
+   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetData_byRow_Fwd()
+ *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on <q_0>th row.
+ *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds_byRow to get maximum <r_0> first.
+ *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number on row.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetData_byRow_Fwd(    const MATRIX_3D_SPARSE*    smx,          
+                                       const int                  q_0,              /* IN: row/diag id in matrix <smx> */
+                                       const int                  r_0,              /* IN: bound index of row <q_0> in matrix <smx> */
+                                       BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
+                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
+                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                       int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
+{
+   int index;
+   /* look up edgebound index for start of row */
+   index    = EDGEBOUNDS_GetIndex_byRow_Fwd( smx->edg_inner, q_0 );
+   /* get bound */
+   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, index + r_0 );
+   /* get offsets */
+   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, index + r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetData_byRow_Bck()
+ *  SYNOPSIS:  Gets the offsets for the <r_0>th bound on <q_0>th row.
+ *             WARNING: Doesn't do safety checks, so make sure to run _GetNumberBounds_byRow to get maximum <r_0> first.
+ *             Undefined behavior when requesting bound index <r_0> is greater than or equal to number on row.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetData_byRow_Bck(    const MATRIX_3D_SPARSE*    smx,        
+                                       const int                  q_0,              /* IN: row/diag id in matrix <smx> */
+                                       const int                  r_0,              /* IN: bound index of row <q_0> in matrix <smx> */
+                                       BOUND*                     bnd_out,          /* OUT: pointer to bound in array */
+                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
+                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                       int*                       qx0_nxt_out )     /* OUT: offset to position in next row */
+{
+   int      index;
+   /* look up edgebound index for start of row */
+   index    = EDGEBOUNDS_GetIndex_byRow_Bck( smx->edg_inner, q_0 );
+   /* get bound */
+   bnd_out  = EDGEBOUNDS_GetX( smx->edg_inner, index + r_0 );
+   /* get offsets */
+   MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, index + r_0, qx0_prv_out, qx0_cur_out, qx0_nxt_out );
+
+   return STATUS_SUCCESS;
 }
 
 /*! FUNCTION:  MATRIX_3D_SPARSE_Embed()
@@ -663,6 +802,34 @@ MATRIX_3D_SPARSE_Iter_Reset(  MATRIX_3D_SPARSE*    smx )     /* sparse matrix */
    smx->q_0 = 0;
    smx->t_0 = 0;
 }
+
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_Add()
+ *  SYNOPSIS:  Returns <smx_A> as the sum of <smx_A> and <smx_B>
+ *
+ *  RETURN:    Returns reference to <smx_A>
+ */
+int 
+MATRIX_3D_SPARSE_Add(   MATRIX_3D_SPARSE*    smx_A,      /* IN: addent matrix */
+                        MATRIX_3D_SPARSE*    smx_B,      /* IN: addend matrix */
+                        MATRIX_3D_SPARSE*    smx_res )   /* OUT: sum matrix (can be an input) */
+{
+   /* if 
+
+   /* sum contents of matrix */
+   for ( int i = 0; i < smx_A->data->N; i++ ) 
+   {
+      if ( smx_A->data->data[i] == -INF || smx_B->data->data[i] == -INF )  {
+         smx_res->data->data[i] = -INF;
+      }
+      else {
+         smx_res->data->data[i] = smx_A->data->data[i] + smx_B->data->data[i];
+      }
+      
+   }
+   return STATUS_SUCCESS;
+}
+
 
 /*! FUNCTION:  MATRIX_3D_SPARSE_Test()
  *  SYNOPSIS:  Unit Test for MATRIX_3D_SPARSE:

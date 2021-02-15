@@ -61,14 +61,15 @@ MY_One();
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* query sequence */
-                                 const HMM_PROFILE*         target,        /* target HMM model */
-                                 const int                  Q,             /* query length */
-                                 const int                  T,             /* target length */
-                                 MATRIX_3D* restrict        st_MX3,        /* normal state matrix */
-                                 MATRIX_2D* restrict        sp_MX,         /* special state matrix */
-                                 EDGEBOUNDS*                edg,           /* edgebounds */
-                                 float*                     sc_final )     /* (OUTPUT) final score */
+int 
+run_Bound_Forward_Linear(     const SEQUENCE*            query,         /* query sequence */
+                              const HMM_PROFILE*         target,        /* target HMM model */
+                              const int                  Q,             /* query length */
+                              const int                  T,             /* target length */
+                              MATRIX_3D* restrict        st_MX3,        /* normal state matrix */
+                              MATRIX_2D* restrict        sp_MX,         /* special state matrix */
+                              EDGEBOUNDS*                edg,           /* edgebounds */
+                              float*                     sc_final )     /* (OUTPUT) final score */
 {
    // /* Local Method for computing sum */
    // float (*MY_Sum)(const float x, const float y) = MATH_LogSum;
@@ -104,7 +105,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
    int      num_cells;                       /* number of cells in current diagonal */
 
    /* vars for indexing into edgebound lists */
-   BOUND*   bnd;                             /* current bound */
+   BOUND    bnd;                             /* current bound */
    int      id;                              /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
@@ -120,10 +121,17 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
    float    prv_M, prv_I, prv_D;             /* previous (M) match, (I) insert, (D) delete states */
    float    prv_B, prv_E;                    /* previous (B) begin and (E) end states */
    float    prv_J, prv_N, prv_C;             /* previous (J) jump, (N) initial, and (C) terminal states */
-   float    prv_loop, prv_move;            /* previous loop and move for special states */
-   float    prv_sum, prv_best;             /* temp subtotaling vars */
+   float    prv_loop, prv_move;              /* previous loop and move for special states */
+   float    prv_sum, prv_best;               /* temp subtotaling vars */
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
+
+   /* for domain ranges */
+   RANGE*               dom_range;           /* domain range */          
+   RANGE                T_range;             /* target range */
+   RANGE                Q_range;             /* query range */
+   bool                 is_q_0_in_dom_range; /* checks if current query position is inside the domain range */
+   bool                 is_q_1_in_dom_range; /* checks if previous query position is inside the domain range */
 
    /* debugger tools */
    FILE*       dbfp;
@@ -180,25 +188,42 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
    /* local or global alignments? */
    is_local    = target->isLocal;
    sc_E        = (is_local) ? 0 : -INF;
+   if ( is_local == true ) {
+      sc_E = MY_One();
+   } else {
+      sc_E = MY_Zero();
+   }
+
+   /* domain range (query sequence) */
+   Q_range.beg = 0;
+   Q_range.end = Q + 1;
+   /* target range */
+   T_range.beg = 0;
+   T_range.end = T + 1;
 
    /* UNROLLED INTIAL ROW */
-   q_0 = 0;
+   q_0 = Q_range.beg;
    {
-      qx0 = 0 % 2;
-
-      /* Initialize special states (?) */
-      XMX(SP_N, q_0) = 0;                                         /* S->N, p=1             */
-      XMX(SP_B, q_0) = XSC(SP_N,SP_MOVE);                         /* S->N->B, no N-tail    */
-      XMX(SP_E, q_0) = XMX(SP_C, q_0) = XMX(SP_J, q_0) = -INF;    /* need seq to get here (?)  */
-
-      // /* initialize 0 row (top-edge) */
-      // for (t_0 = 0; t_0 < T; t_0++) { 
-      //    MMX3(qx0, t_0) = IMX3(qx0, t_0) = DMX3(qx0, t_0) = -INF;
-      // }
+      qx0 = q_0 % 2;
 
       /* get edgebound range */
       r_0b  = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, q_0 );
       r_0e  = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, q_0 + 1 );
+
+      /* initialize 0 row (top-edge) */
+      for (t_0 = 0; t_0 < T; t_0++) 
+      { 
+         MMX3(qx0, t_0) = MY_Zero();
+         IMX3(qx0, t_0) = MY_Zero();
+         DMX3(qx0, t_0) = MY_Zero();
+      }
+
+      /* Initialize special states (?) */
+      XMX(SP_N, q_0) = MY_One();                /* S->N, p=1             */
+      XMX(SP_B, q_0) = XSC(SP_N,SP_MOVE);       /* S->N->B, no N-tail    */
+      XMX(SP_E, q_0) = MY_Zero();
+      XMX(SP_C, q_0) = MY_Zero();
+      XMX(SP_J, q_0) = MY_Zero();               /* need seq to get here (?)  */
 
       /* init lookback 1 row */
       r_1b = r_0b;
@@ -207,7 +232,7 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
 
    /* MAIN RECURSION */
    /* FOR every position in QUERY sequence (row in matrix) */
-   for (q_0 = 1; q_0 <= Q; q_0++)
+   for (q_0 = Q_range.beg + 1; q_0 < Q_range.end; q_0++)
    {
       q_1 = q_0 - 1;
       qx0 = q_0 % 2;
@@ -224,28 +249,44 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
       a = seq[q_1];  /* off-by-one */
       A = AA_REV[a];
 
-      /* Initialize zero column (left-edge) */
-      MMX3(qx0, tx0) = IMX3(qx0, tx0) = DMX3(qx0, tx0) = -INF;
-      XMX(SP_E, q_0) = -INF;
+      /* Initialize E state for row */
+      XMX(SP_E, q_0) = MY_Zero();
 
       /* FOR every EDGEBOUND in current ROW */
       for (r_0 = r_0b; r_0 < r_0e; r_0++)
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, r_0);
-         id    = bnd->id;                       /* NOTE: this is always the same as cur_row, q_0 */
-         lb_0  = MAX(1, bnd->lb);               /* can't overflow the left edge */
-         rb_0  = bnd->rb;
-         rb_T  = (rb_0 > T);                     /* check if cloud touches right edge */
-         rb_0  = MIN(rb_0, T);                   /* can't overflow the right edge */
+         bnd   = EDGEBOUNDS_Get(edg, r_0);
+         id    = bnd.id;                           /* NOTE: this is always the same as cur_row, q_0 */
+         lb_0  = MAX(bnd.lb - 1, T_range.beg);     /* can't overflow the left edge */
+         rb_0  = MIN(bnd.rb, T_range.end);         /* can't overflow the right edge */
 
-         /* initial location for data and target */
+         /* FOR every position in TARGET profile */
          t_0 = lb_0;
-         tx0 = lb_0;
+         {
+            t_1 = t_0 - 1;
+            tx0 = t_0;
+            tx1 = tx0 - 1;
+
+            /* Initialize zero column (left-edge) */
+            MMX3(qx0, tx0) = MY_Zero();
+            IMX3(qx0, tx0) = MY_Zero();
+            DMX3(qx0, tx0) = MY_Zero();
+
+            /* embed linear row into quadratic test matrix */
+            #if DEBUG
+            {
+               MX_2D(cloud_MX, q_0, t_0) = 1.0;
+               MX_3D(test_MX, MAT_ST, q_0, t_0) = MMX3(qx0, t_0);
+               MX_3D(test_MX, INS_ST, q_0, t_0) = IMX3(qx0, t_0);
+               MX_3D(test_MX, DEL_ST, q_0, t_0) = DMX3(qx0, t_0);
+            }
+            #endif
+         }
 
          /* MAIN RECURSION */
          /* FOR every position in TARGET profile */
-         for (t_0 = lb_0; t_0 < rb_0; t_0++)
+         for (t_0 = lb_0 + 1; t_0 < rb_0 - 1; t_0++)
          {
             t_1 = t_0 - 1;
             tx0 = t_0;
@@ -253,34 +294,34 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
-            prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-            prv_D = DMX3(qx1, t_1)  + TSC(t_1, TM);
-            prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
+            prv_M = MY_Prod( MMX3(qx1, tx1), TSC(t_1, M2M) );
+            prv_I = MY_Prod( IMX3(qx1, tx1), TSC(t_1, I2M) );
+            prv_D = MY_Prod( DMX3(qx1, tx1), TSC(t_1, TM) );
+            prv_B = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) ); /* from begin match state (new alignment) */
             /* best-to-match */
             prv_sum = MY_Sum( MY_Sum( prv_M, prv_I ),
                               MY_Sum( prv_B, prv_D ) );
-            MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
+            MMX3(qx0, tx0) = MY_Prod( prv_sum, MSC(t_0, A) );
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the previous row (upper) of each state) */
-            prv_M = MMX3(qx1, t_0) + TSC(t_0, M2I);
-            prv_I = IMX3(qx1, t_0) + TSC(t_0, I2I);
+            prv_M = MY_Prod( MMX3(qx1, tx0), TSC(t_0, M2I) );
+            prv_I = MY_Prod( IMX3(qx1, tx0), TSC(t_0, I2I) );
             /* best-to-insert */
             prv_sum = MY_Sum( prv_M, prv_I );
-            IMX3(qx0, t_0) = prv_sum + ISC(t_0, A);
+            IMX3(qx0, tx0) = MY_Prod( prv_sum, ISC(t_0, A) );
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
             /* previous states (match takes the previous column (left) of each state) */
-            prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+            prv_M = MY_Prod( MMX3(qx0, tx1), TSC(t_1, M2D) );
+            prv_D = MY_Prod( DMX3(qx0, tx1), TSC(t_1, TD) );
             /* best-to-delete */
             prv_sum = MY_Sum( prv_M, prv_D );
-            DMX3(qx0, t_0) = prv_sum;
+            DMX3(qx0, tx0) = prv_sum;
 
             /* UPDATE E STATE */
-            prv_M = MMX3(qx0, t_0) + sc_E;
-            prv_D = DMX3(qx0, t_0) + sc_E;
+            prv_M = MY_Prod( MMX3(qx0, tx0), sc_E );
+            prv_D = MY_Prod( DMX3(qx0, tx0), sc_E );
             /* best-to-e-state */
             prv_E = XMX(SP_E, q_0);
             XMX(SP_E, q_0) = MY_Sum( MY_Sum( prv_M, prv_D ),
@@ -298,33 +339,34 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
          }
 
          /* UNROLLED FINAL LOOP ITERATION */
-         if ( rb_T ) 
+         t_0 = rb_0;
          {
-            /* UNROLLED FINAL LOOP ITERATION */
-            t_0 = T;
-            t_1 = t_0 - 1;
+            t_0   = T;
+            t_1   = t_0 - 1;
+            tx0   = t_0;
+            tx0   = tx0 - 1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
-            prv_M = MMX3(qx1, t_1) + TSC(t_1, M2M);
-            prv_I = IMX3(qx1, t_1) + TSC(t_1, I2M);
-            prv_D = DMX3(qx1, t_1) + TSC(t_1, TM);
-            prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M);    /* from begin match state (new alignment) */
+            prv_M = MY_Prod( MMX3(qx1, tx1), TSC(t_1, M2M) );
+            prv_I = MY_Prod( IMX3(qx1, tx1), TSC(t_1, I2M) );
+            prv_D = MY_Prod( DMX3(qx1, tx1), TSC(t_1, TM) );
+            prv_B = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) );    /* from begin match state (new alignment) */
             /* sum-to-match */
             prv_sum = MY_Sum( MY_Sum( prv_M, prv_I ),
                               MY_Sum( prv_D, prv_B ) );
-            MMX3(qx0, t_0) = prv_sum + MSC(t_0, A);
+            MMX3(qx0, tx0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (unrolled) */
-            IMX3(qx0, t_0) = -INF;
+            IMX3(qx0, tx0) = MY_Zero();
 
             /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
             /* previous states (match takes the left element of each state) */
-            prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+            prv_M = MY_Prod( MMX3(qx0, tx1), TSC(t_1, M2D) );
+            prv_D = MY_Prod( DMX3(qx0, tx1), TSC(t_1, TD) );
             /* sum-to-delete */
             prv_sum = MY_Sum( prv_M, prv_D );
-            DMX3(qx0, t_0) = prv_sum;
+            DMX3(qx0, tx0) = prv_sum;
 
             /* UPDATE E STATE (unrolled) */
             prv_E = XMX(SP_E, q_0);
@@ -348,34 +390,36 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
 
       /* SPECIAL STATES */
       /* J state */
-      prv_J = XMX(SP_J, q_1) + XSC(SP_J, SP_LOOP);       /* J->J */
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_LOOP);       /* E->J is E's "loop" */
+      prv_J = MY_Prod( XMX(SP_J, q_1), XSC(SP_J, SP_LOOP) );       /* J->J */
+      prv_E = MY_Prod( XMX(SP_E, q_0), XSC(SP_E, SP_LOOP) );       /* E->J is E's "loop" */
       XMX(SP_J, q_0) = MY_Sum( prv_J, prv_E );         
 
       /* C state */
-      prv_C = XMX(SP_C, q_1) + XSC(SP_C, SP_LOOP);
-      prv_E  = XMX(SP_E, q_0) + XSC(SP_E, SP_MOVE);
+      prv_C = MY_Prod( XMX(SP_C, q_1), XSC(SP_C, SP_LOOP) );
+      prv_E = MY_Prod( XMX(SP_E, q_0), XSC(SP_E, SP_MOVE) );
       XMX(SP_C, q_0) = MY_Sum( prv_C, prv_E );
 
       /* N state */
-      prv_N = XMX(SP_N, q_1) + XSC(SP_N, SP_LOOP);
+      prv_N = MY_Prod( XMX(SP_N, q_1), XSC(SP_N, SP_LOOP) );
       XMX(SP_N, q_0) = prv_N;
 
       /* B state */
-      prv_N = XMX(SP_N, q_0) + XSC(SP_N, SP_MOVE);         /* N->B is N's move */
-      prv_J = XMX(SP_J, q_0) + XSC(SP_J, SP_MOVE);         /* J->B is J's move */
+      prv_N = MY_Prod( XMX(SP_N, q_0), XSC(SP_N, SP_MOVE) );         /* N->B is N's move */
+      prv_J = MY_Prod( XMX(SP_J, q_0), XSC(SP_J, SP_MOVE) );         /* J->B is J's move */
       XMX(SP_B, q_0) = MY_Sum( prv_N, prv_J );    
 
       /* SCRUB PREVIOUS ROW */
       for (r_1 = r_1b; r_1 < r_1e; r_1++) 
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, r_1);     /* NOTE: this is always the same as cur_row, q_0 */
-         lb_1  = bnd->lb;              /* can't overflow the left edge */
-         rb_1  = bnd->rb;
+         bnd   = EDGEBOUNDS_Get(edg, r_1);      /* NOTE: this is always the same as cur_row, q_0 */
+         lb_1  = MAX(bnd.lb - 1, T_range.beg);     /* can't overflow the left edge */
+         rb_1  = MIN(bnd.rb, T_range.end);         /* can't overflow the right edge */
 
          for (t_0 = lb_1; t_0 < rb_1; t_0++) {
-            MMX3(qx1, t_0) = IMX3(qx1, t_0) = DMX3(qx1, t_0) = -INF;
+            MMX3(qx1, t_0) = MY_Zero();
+            IMX3(qx1, t_0) = MY_Zero();
+            DMX3(qx1, t_0) = MY_Zero();
          }
       }
 
@@ -395,18 +439,20 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
       for (r_1 = r_1b; r_1 < r_1e; r_1++) 
       {
          /* in this context, "id" represents the "row" */
-         bnd   = &EDG_X(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
-         lb_1  = bnd->lb;               /* can't overflow the left edge */
-         rb_1  = bnd->rb;
+         bnd   = EDGEBOUNDS_Get(edg, r_1);        /* NOTE: this is always the same as cur_row, q_0 */
+         lb_1  = MAX(bnd.lb - 1, T_range.beg);     /* can't overflow the left edge */
+         rb_1  = MIN(bnd.rb, T_range.end);         /* can't overflow the right edge */
 
          for (t_0 = lb_1; t_0 < rb_1; t_0++) {
-            MMX3(qx1, t_0) = IMX3(qx1, t_0) = DMX3(qx1, t_0) = -INF;
+            MMX3(qx1, t_0) = MY_Zero();
+            IMX3(qx1, t_0) = MY_Zero();
+            DMX3(qx1, t_0) = MY_Zero();
          }
       }
    }
    
    /* T state */
-   sc_best     = XMX(SP_C, Q) + XSC(SP_C, SP_MOVE);
+   sc_best     = MY_Prod( XMX(SP_C, Q), XSC(SP_C, SP_MOVE) );
    *sc_final   = sc_best;
 
    /* flag matrices that they contain dirty values (not -INF) */
@@ -417,9 +463,9 @@ int run_Bound_Forward_Linear(    const SEQUENCE*            query,         /* qu
    {
       int dirty_vals = MATRIX_3D_Check_Clean( st_MX3 );
       printf("POST-CLEAN CHECK -> BOUND FWD LIN:\t%d\n", dirty_vals);
-      if (dirty_vals > 0) {
-         MATRIX_3D_Dump( st_MX3, stdout );
-      }
+      // if (dirty_vals > 0) {
+      //    MATRIX_3D_Dump( st_MX3, stdout );
+      // }
    }
    #endif
 
