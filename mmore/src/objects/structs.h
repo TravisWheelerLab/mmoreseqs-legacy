@@ -476,20 +476,22 @@ typedef struct {
 
 /* Sequence */
 typedef struct {
-   int            N;          /* length of sequence (can be the length of a subsequence) */
-   int            Nalloc;     /* allocated memory length */
-   int            full_N;     /* length of entire sequence */
-   char*          full_seq;   /* entire sequence */
-   char*          seq;        /* genomic sequence (can point to the start of a subsequence) */
-   int*           dseq;       /* digitized genomic sequence */
+   int               N;             /* length of sequence (can be the length of a subsequence) */
+   int               Nalloc;        /* allocated memory length */
+   int               full_N;        /* length of entire sequence */
+   char*             full_seq;      /* entire sequence */
+   char*             seq;           /* genomic sequence (can point to the start of a subsequence) */
+   VECTOR_CHAR*      vecseq;        /* genomic character sequence ( will eventually replace seq ) */
+   bool              is_digitized;  /* has genomic sequence been digitized yet? */
+   VECTOR_INT*       dseq;          /* genomic digitized genomic sequence */
    /* imported from easel */
-   ESL_SQ*        esl_dsq;    /* easel's digitized sequence */
+   ESL_SQ*           esl_dsq;       /* easel's digitized sequence */
    /* meta data */
-   char*          filename;   /* filename of sequence */
-   char*          header;     /* full descriptor line */
-   char*          name;       /* name of sequence */
-   char*          acc;        /* accession of sequence */
-   char*          alph;       /* alphabet (currently only supports AMINO) */
+   char*             filename;      /* filename of sequence */
+   char*             header;        /* full descriptor line */
+   char*             name;          /* name of sequence */
+   char*             acc;           /* accession of sequence */
+   char*             alph;          /* alphabet (currently only supports AMINO) */
 } SEQUENCE;
 
 /* 2-dimensional float matrix */

@@ -93,7 +93,7 @@ void SEQUENCE_Fasta_Parse( SEQUENCE*   seq,
          /* capitalize all characters (model doesn't account for sequence uncertainty) */
          line = STR_ToUpper( line );
          /* append to growing sequence */
-         SEQUENCE_Append_Seq( seq, line );
+         SEQUENCE_AppendSeq( seq, line );
       }
    }
 

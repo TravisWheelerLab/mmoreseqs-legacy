@@ -194,12 +194,13 @@
 /* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_3D_SPARSE via function call */
-	#define SMX_X(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
+	#define SMX_X(mx, st, qx0, tx0) 		( *MATRIX_3D_SPARSE_GetX_byOffset( (mx), (qx0), (tx0), (st) );)
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_3D_SPARSE via direct data access */
 	#define SMX_X(mx, st, qx0, tx0) 		( mx->data->data[ (qx0) + ( (tx0) * NUM_NORMAL_STATES ) + (st) ] )
 #endif
+
 
 /* match, insert, delete for st_SMX matrix (sparse matrix) */
 /** TODO: define SMX() for pre-selected mx */
@@ -215,7 +216,7 @@
 /* whether to access MATRIX_2D via function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_2D via function call */
-	#define MX_2D(mx, st, q_0)  	( *MATRIX_2D_Get( mx, st, q_0 ) )
+	#define MX_2D(mx, st, q_0)  	( *MATRIX_2D_Get( (mx), (st), (q_0) ) )
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_2D via direct data access */

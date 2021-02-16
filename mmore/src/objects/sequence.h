@@ -26,6 +26,12 @@ SEQUENCE_Destroy( SEQUENCE*  seq );
 STATUS_FLAG
 SEQUENCE_Reuse( SEQUENCE* seq );
 
+/*! FUNCTION:  SEQUENCE_GetSize()
+ *  SYNOPSIS:  Gets the length of the sequence <seq>.
+ */
+size_t
+SEQUENCE_GetSize( SEQUENCE* seq );
+
 /** FUNCTION:  SEQUENCE_GetSeq()
  *  SYNOPSIS:  Get Sequence String <seq>.
  */
@@ -34,36 +40,77 @@ SEQUENCE_GetSeq(  SEQUENCE*   seq );
 
 /* Set Sequence String to SEQUENCE and update length */
 void 
-SEQUENCE_SetSeq( SEQUENCE*  seq,
+SEQUENCE_SetSeq(  SEQUENCE*  seq,
                   char*      seq_text );
 
 /* Append Sequence String onto current SEQUENCE and update length */
 void 
-SEQUENCE_Append_Seq( SEQUENCE*  seq,
+SEQUENCE_AppendSeq( SEQUENCE*  seq,
                      char*      seq_text);
 
 /* Reallocate space for SEQUENCE */
 void 
-SEQUENCE_Resize_Seq( SEQUENCE*    seq,
-                     int          size );
+SEQUENCE_Resize(  SEQUENCE*    seq,
+                  int          size );
 
-/* Set Textfield to SEQUENCE field */
+/** FUNCTION:  SEQUENCE_GetCharAt()
+ *  SYNOPSIS:  Get character <c> from sequence <seq> at <i>th position.
+ */
+char 
+SEQUENCE_GetCharAt(  const SEQUENCE*   seq,
+                     const int         i );
+
+/** FUNCTION:  SEQUENCE_GetDigitAt()
+ *  SYNOPSIS:  Get int <val> from digitized sequence at <i>th position.
+ *             Caller must call _Digitize() before this.
+ */
+int 
+SEQUENCE_GetDigitAt(    const SEQUENCE*   seq,
+                        const int         i );
+
+/** FUNCTION:  SEQUENCE_Resize()
+ *  SYNOPSIS:  Set Textfield <test> to SEQUENCE field <seq_field> (overwrites).
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
 void 
-SEQUENCE_SetTextfield( STR*     seq_field,
-                        STR      text);
+SEQUENCE_SetTextfield(  STR*  seq_field,
+                        STR   text );
 
-/* Set sequence to a subsequence */
+/** FUNCTION:  SEQUENCE_Digitize()
+ *  SYNOPSIS:  Digitize text <seq> to create digital sequence <dseq>. 
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
 void 
-SEQUENCE_SetDomain( SEQUENCE*   seq, 
-                     RANGE       Q_range );
+SEQUENCE_Digitize( SEQUENCE* seq );
 
-/* Unset sequence to domain */
+/** FUNCTION:  SEQUENCE_SetDomain()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
+ *             Subsequence covers domain range <q_beg, q_end>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
+void 
+SEQUENCE_SetDomain(  SEQUENCE*  seq, 
+                     RANGE      Q_range );
+
+/** FUNCTION:  SEQUENCE_UnsetSubseq()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to cover a subsequence <seq> to sequence <full_seq>.
+ *             Subsequence covers range <q_beg, q_end>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
 void 
 SEQUENCE_UnsetDomain( SEQUENCE*  seq );
 
-/* Output SEQUENCE out to FILE POINTER */
+/** FUNCTION:  SEQUENCE_Dump()
+ *  SYNOPSIS:  Set SEQUENCE <seq> to file pointer <fp>.
+ *
+ *  RETURN:    Returns <STATUS_SUCCESS> if no errors. 
+ */
 void 
-SEQUENCE_Dump( SEQUENCE*  seq,
-               FILE*      fp);
+SEQUENCE_Dump( SEQUENCE* seq,
+               FILE*     fp );
 
 #endif /* _SEQUENCE_H */

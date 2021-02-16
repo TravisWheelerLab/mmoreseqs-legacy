@@ -16,4 +16,6 @@
 #include "posterior_optacc_sparse.h"
 #include "posterior_traceback_sparse.h"
 
+#include "bound_fwdbck_sparse_test.h"
+
 #endif /* _ALGS_SPARSE_H */

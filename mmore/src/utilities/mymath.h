@@ -52,11 +52,23 @@ MATH_Log(   const float   x );
 float 
 MATH_Zero();
 
+/*! FUNCTION:  MATH_NormalZero()
+ *  SYNOPSIS:  Return normal space zero = 0.
+ */
+float 
+MATH_NormalZero();
+
 /*! FUNCTION:  MATH_LogZero()
  *  SYNOPSIS:  Reteurn the log(0) = -INF.
  */
 float 
 MATH_LogZero();
+
+/*! FUNCTION:  MATH_NormalOne()
+ *  SYNOPSIS:  Return normal space one = 1.
+ */
+float 
+MATH_NormalOne();
 
 /*! FUNCTION:  MATH_Zero()
  *  SYNOPSIS:  Method Selector for computing zero.
@@ -85,6 +97,13 @@ MATH_Sum(   const float     x,
 void 
 MATH_Logsum_Init();
 
+/*! FUNCTION:  MATH_NormalSum()
+ *  SYNOPSIS:  Method Selector.
+ */
+float 
+MATH_NormalSum(   const float     x,
+                  const float     y );
+
 /*! FUNCTION:  MATH_Logsum_exact()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real sum (exact).
  *             Slower than MATH_Sum().
@@ -107,6 +126,13 @@ MATH_Logsum_exact(   const float  x,
 float 
 MATH_Prod(  const float  x,
             const float  y );
+
+/*! FUNCTION:  MATH_NormalProd()
+ *  SYNOPSIS:  Takes the product of two numbers.
+ */
+float 
+MATH_NormalProd(  const float  x,
+                  const float  y );
 
 /*! FUNCTION:  MATH_LogProd()
  *  SYNOPSIS:  Takes two log-scaled numbers and returns the log-scale of their real product.

@@ -1,7 +1,7 @@
 /*******************************************************************************
- *     FILE:  bound_fwdbck_sparse.c
+ *     FILE:  bounded_fwdbck_linear.c
  *  PURPOSE:  Bounded Forward/Backward Algorithm 
- *            (Sparse Space Implementation)
+ *            (Linear Space Alg)
  *
  *   AUTHOR:  Dave Rich
  *     BUGS:       
@@ -64,15 +64,15 @@ MY_One();
  *    RETURN:  Returns the final score of the Forward Algorithm.
  */
 STATUS_FLAG 
-run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query sequence */
-                           const HMM_PROFILE*            target,        /* target HMM model */
-                           const int                     Q,             /* query length */
-                           const int                     T,             /* target length */
-                           MATRIX_3D_SPARSE* restrict    st_SMX_fwd,    /* normal state matrix */
-                           MATRIX_2D* restrict           sp_MX_fwd,     /* special state matrix */
-                           const EDGEBOUNDS*             edg,           /* edgebounds */
-                           const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
-                           float*                        sc_final )     /* (OUTPUT) final score */
+run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /* query sequence */
+                                 const HMM_PROFILE*            target,        /* target HMM model */
+                                 const int                     Q,             /* query length */
+                                 const int                     T,             /* target length */
+                                 MATRIX_3D_SPARSE* restrict    st_SMX_fwd,    /* normal state matrix */
+                                 MATRIX_2D* restrict           sp_MX_fwd,     /* special state matrix */
+                                 const EDGEBOUNDS*             edg,           /* edgebounds */
+                                 const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                                 float*                        sc_final )     /* (OUTPUT) final score */
 {
    /* vars for matrix access for macros */
    MATRIX_3D_SPARSE*    st_SMX   = st_SMX_fwd;    /* normal state matrix */
@@ -186,6 +186,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
 
    /* initialize logsum lookup table if it has not already been */
    MATH_Logsum_Init();
+   // SEQUENCE_Digitize( query );
 
    /* query sequence */
    mx          = st_SMX;
@@ -292,6 +293,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
       /* Get next sequence character */
       a = seq[q_1];  /* off-by-one */
       A = AA_REV[a];
+      // SEQUENCE_GetDigitAt( query, q_1 );
 
       /* Init E state for current row */
       XMX(SP_E, q_0) = MY_Zero();
@@ -305,7 +307,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
             /* get bound data */
             bnd   = MATRIX_3D_SPARSE_GetBound_byIndex( st_SMX, r_0 );
             id_0  = bnd.id;
-            lb_0  = MAX(bnd.lb - 1, T_range.beg);    /* can't overflow left edge. the leftmost cell will be set to zero, so (-1) adds left padding cell.  */
+            lb_0  = MAX(bnd.lb - 1, T_range.beg);    /* can't overflow left edge. the leftmost cell will be set to -INF, so (-1) adds left padding cell.  */
             rb_0  = MIN(bnd.rb, T_range.end);        /* can't overflow right edge */
 
             /* fetch data mapping bound start location to data block in sparse matrix */
@@ -526,15 +528,15 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
  *    RETURN:  Returns the final score of the Forward Algorithm.
  */
 STATUS_FLAG 
-run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* query sequence */
-                              const HMM_PROFILE*            target,        /* target HMM model */
-                              const int                     Q,             /* query length */
-                              const int                     T,             /* target length */
-                              MATRIX_3D_SPARSE* restrict    st_SMX_bck,    /* normal state matrix */
-                              MATRIX_2D* restrict           sp_MX_bck,     /* special state matrix */
-                              const EDGEBOUNDS*             edg,           /* edgebounds */
-                              const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
-                              float*                        sc_final )     /* (OUTPUT) final score */
+run_Bound_Backward_Sparse_TEST(  const SEQUENCE*               query,         /* query sequence */
+                                 const HMM_PROFILE*            target,        /* target HMM model */
+                                 const int                     Q,             /* query length */
+                                 const int                     T,             /* target length */
+                                 MATRIX_3D_SPARSE* restrict    st_SMX_bck,    /* normal state matrix */
+                                 MATRIX_2D* restrict           sp_MX_bck,     /* special state matrix */
+                                 const EDGEBOUNDS*             edg,           /* edgebounds */
+                                 const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                                 float*                        sc_final )     /* (OUTPUT) final score */
 {
    /* vars for matrix access for macros */
    MATRIX_3D_SPARSE*    st_SMX   = st_SMX_bck;        /* normal state matrix */
@@ -641,6 +643,7 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
 
    /* initialize logsum lookup table if it has not already been */
    MATH_Logsum_Init();
+   // SEQUENCE_Digitize( query );
 
    /* query sequence */
    mx          = st_SMX;
@@ -684,7 +687,7 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
       XMX(SP_E, q_0) = MY_Prod( XMX(SP_C, q_0), XSC(SP_E, SP_MOVE) );
 
       /* if sequence position is in domain range */ 
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          bnd   = MATRIX_3D_SPARSE_GetBound_byIndex( st_SMX, r_0b );
 
@@ -776,11 +779,12 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
       /* Get next sequence character */
       a = seq[q_0];
       A = AA_REV[a];
+      // SEQUENCE_GetDigitAt( query, q_0 );
 
       /* UPDATE B STATE */
       XMX(SP_B, q_0) = MY_Zero();
       /* if previous q is in domain range, update B state */
-      if ( is_q_1_in_dom_range == true )
+      // if ( is_q_1_in_dom_range == true )
       {
          for (r_1 = r_1b; r_1 > r_1e; r_1--) 
          {
@@ -827,7 +831,7 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
       prv_B = MY_Prod( XMX(SP_B, q_0), XSC(SP_N, SP_MOVE) );
       XMX(SP_N, q_0) = MY_Sum( prv_N, prv_B );
 
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          /* FOR every SPAN in current ROW */
          for (r_0 = r_0b; r_0 > r_0e; r_0--)
@@ -934,14 +938,15 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
       r_0b  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 + 1 );
       r_0e  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 );
 
-      /* get sequence */
+      /* FINAL i = 0 row */
       a = seq[q_0];
       A = AA_REV[a];
+      // SEQUENCE_GetDigitAt( query, q_0 );
 
       /* UPDATE B STATE */
       XMX(SP_B, q_0) = MY_Zero();
       /* if previous q is in domain, update B state */
-      if ( is_q_1_in_dom_range == true )
+      // if ( is_q_1_in_dom_range == true )
       {
          for (r_1 = r_1b; r_1 > r_1e; r_1--) 
          {
@@ -995,7 +1000,7 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
    return STATUS_SUCCESS;
 }
 
-/* MATH RULES: These determine how probilities are summed, multiplied, and certain identities */
+/* MATH RULES: These determine how probilities are summed and certain identities */
 
 static 
 inline 
@@ -1003,7 +1008,7 @@ float
 MY_Sum(  const float    x,
          const float    y )
 {
-   return MATH_Sum( x, y );
+   return MATH_NormalSum( x, y );
 }
 
 static 
@@ -1012,7 +1017,7 @@ float
 MY_Prod( const float    x,
          const float    y )
 {
-   return MATH_Prod( x, y );
+   return MATH_NormalProd( x, y );
 }
 
 static 
@@ -1020,7 +1025,7 @@ inline
 float
 MY_Zero()
 {
-   return MATH_Zero();
+   return MATH_NormalZero();
 }
 
 static 
@@ -1028,5 +1033,5 @@ inline
 float 
 MY_One()
 {
-   return MATH_One();
+   return MATH_NormalOne();
 }

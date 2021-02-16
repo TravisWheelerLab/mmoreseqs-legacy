@@ -99,8 +99,17 @@ MATH_One()
    return MATH_LogOne();
 }
 
+/*! FUNCTION:  MATH_NormalOne()
+ *  SYNOPSIS:  Return normal space one = 1.
+ */
+float 
+MATH_NormalOne()
+{
+   return 1.0f;
+}
+
 /*! FUNCTION:  MATH_LogOne()
- *  SYNOPSIS:  Reteurn the log(0) = -INF.
+ *  SYNOPSIS:  Return the log(0) = -INF.
  */
 inline
 float 
@@ -116,6 +125,15 @@ float
 MATH_Zero()
 {
    return MATH_LogZero();
+}
+
+/*! FUNCTION:  MATH_NormalZero()
+ *  SYNOPSIS:  Return normal space zero = 0.
+ */
+float 
+MATH_NormalZero()
+{
+   return 0.0f;
 }
 
 /*! FUNCTION:  MATH_LogZero()
@@ -137,6 +155,17 @@ MATH_Sum(   const float     x,
             const float     y )
 {
    return MATH_LogSum( x, y );
+}
+
+/*! FUNCTION:  MATH_NormalSum()
+ *  SYNOPSIS:  Method Selector.
+ */
+inline
+float 
+MATH_NormalSum(   const float     x,
+                  const float     y )
+{
+   return x + y;
 }
 
 /*! FUNCTION:  MATH_Logsum_Init()
@@ -205,6 +234,17 @@ MATH_Prod(  const float  x,
             const float  y )
 {
    return MATH_LogProd( x, y );
+}
+
+/*! FUNCTION:  MATH_NormalProd()
+ *  SYNOPSIS:  Takes the product of two numbers.
+ */
+inline
+float 
+MATH_NormalProd(  const float  x,
+                  const float  y )
+{
+   return x * y;
 }
 
 /*! FUNCTION:  MATH_LogProd()
