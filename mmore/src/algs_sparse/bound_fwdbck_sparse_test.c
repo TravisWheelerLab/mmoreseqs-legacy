@@ -1100,7 +1100,7 @@ float
 MY_Sum(  const float    x,
          const float    y )
 {
-   return MATH_NormalSum( x, y );
+   return MATH_LogSum( x, y );
 }
 
 static 
@@ -1109,7 +1109,7 @@ float
 MY_Prod( const float    x,
          const float    y )
 {
-   return MATH_NormalProd( x, y );
+   return MATH_LogProd( x, y );
 }
 
 static 
@@ -1117,7 +1117,7 @@ inline
 float
 MY_Zero()
 {
-   return MATH_NormalZero();
+   return MATH_LogZero();
 }
 
 static 
@@ -1125,5 +1125,5 @@ inline
 float 
 MY_One()
 {
-   return MATH_NormalOne();
+   return MATH_LogOne();
 }
