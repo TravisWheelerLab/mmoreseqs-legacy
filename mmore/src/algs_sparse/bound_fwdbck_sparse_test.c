@@ -249,14 +249,24 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
             t_0   = lb_0;
             tx0   = t_0 - bnd.lb;    /* total_offset = offset_location - starting_location */
 
+            float* restrict MTX_[NUM_NORMAL_STATES][1][1];
+            MTX_[MAT_ST][0][0] = MATRIX_3D_SPARSE_GetX_byOffset( mx, qx0, tx0, MAT_ST );
+            MTX_[INS_ST][0][0] = MATRIX_3D_SPARSE_GetX_byOffset( mx, qx0, tx0, INS_ST );
+            MTX_[DEL_ST][0][0] = MATRIX_3D_SPARSE_GetX_byOffset( mx, qx0, tx0, DEL_ST );
+
             /* FOR every position in TARGET profile */
             for (t_0 = lb_0; t_0 < rb_0; t_0++, tx0++)
             {
-               tx0 = t_0 - bnd.lb;
+               tx0   = t_0 - bnd.lb;
+
+               *MTX_[M_ST][0][0]  = MY_Zero();
+               *MTX_[I_ST][0][0]  = MY_Zero();
+               *MTX_[D_ST][0][0]  = MY_Zero();
+
                /* zero column is -inf in logspace.  We can skip this step and convert to normal space now. */
-               MSMX(qx0, tx0) = MY_Zero();
-               ISMX(qx0, tx0) = MY_Zero();
-               DSMX(qx0, tx0) = MY_Zero(); 
+               // MSMX(qx0, tx0) = MY_Zero();
+               // ISMX(qx0, tx0) = MY_Zero();
+               // DSMX(qx0, tx0) = MY_Zero(); 
 
                /* embed linear row into quadratic test matrix */
                #if DEBUG
@@ -267,6 +277,10 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
                   MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
                }
                #endif
+
+               MTX_[M_ST][0][0]   += NUM_NORMAL_STATES;
+               MTX_[I_ST][0][0]   += NUM_NORMAL_STATES;
+               MTX_[D_ST][0][0]   += NUM_NORMAL_STATES;
             }
          }
       }
@@ -318,14 +332,34 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
             tx0 = t_0 - bnd.lb;    /* total_offset = offset_location - starting_location */
             tx1 = tx0 - 1;
 
+            float* restrict MTX_[NUM_NORMAL_STATES][2][2];
+            int st_[] = { MAT_ST, INS_ST, DEL_ST };
+            int qx_[] = { qx0, qx1 };
+            int tx_[] = { tx0, tx1 };
+            for (int i = 0; i < 2; i++) {
+               for (int j = 0; j < 2; j++) {
+                  for (int k = 0; k < NUM_NORMAL_STATES; k++) {
+                     MTX_[k][i][j] = MATRIX_3D_SPARSE_GetX_byOffset( mx, qx_[i], tx_[j], st_[k] );
+                  }
+               }
+            }
+
             /* UNROLLED INITIAL TARGET LOOP: special case for left edge of range */
             t_0 = lb_0;
             {
                tx0 = t_0 - bnd.lb;
 
-               MSMX(qx0, tx0) = MY_Zero();
-               ISMX(qx0, tx0) = MY_Zero();
-               DSMX(qx0, tx0) = MY_Zero();
+               *MTX_[M_ST][0][0]    += MY_Zero();
+               *MTX_[I_ST][0][0]    += MY_Zero();
+               *MTX_[D_ST][0][0]    += MY_Zero();
+
+               #if FALSE
+               {
+                  MSMX(qx0, tx0) = MY_Zero();
+                  ISMX(qx0, tx0) = MY_Zero();
+                  DSMX(qx0, tx0) = MY_Zero();
+               }
+               #endif
 
                /* embed linear row into quadratic test matrix */
                #if DEBUG
@@ -336,7 +370,17 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
                   MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
                }
                #endif
+
+               for (int i = 0; i < 2; i++) {
+                  for (int j = 0; j < 2; j++) {
+                     for (int k = 0; k < NUM_NORMAL_STATES; k++) {
+                        MTX_[k][i][j] += NUM_NORMAL_STATES;
+                     }
+                  }
+               }
             }
+
+            
 
             /* MAIN TARGET LOOP */
             /* FOR every position in TARGET profile */
@@ -348,39 +392,79 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
 
                /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
                /* best previous state transition (match takes the diag element of each prev state) */
-               prv_M    = MY_Prod( MSMX(qx1, tx1), TSC(t_1, M2M) );
-               prv_I    = MY_Prod( ISMX(qx1, tx1), TSC(t_1, I2M) );
-               prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, TM) );
+               prv_M    = MY_Prod( *MTX_[M_ST][1][1], TSC(t_1, M2M) );
+               prv_I    = MY_Prod( *MTX_[I_ST][1][1], TSC(t_1, I2M) );
+               prv_D    = MY_Prod( *MTX_[D_ST][1][1], TSC(t_1, TM) );
                prv_B    = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) ); /* from begin match state (new alignment) */
                /* best-to-match */
                prv_sum  = MY_Sum( MY_Sum( prv_M, prv_I ),
                                   MY_Sum( prv_B, prv_D ) );
-               MSMX(qx0, tx0) = MY_Prod( prv_sum, MSC(t_0, A) );
+               *MTX_[M_ST][0][0] = MY_Prod( prv_sum, MSC(t_0, A) );
 
                /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
                /* previous states (match takes the previous row (upper) of each state) */
-               prv_M    = MY_Prod( MSMX(qx1, tx0), TSC(t_0, M2I) );
-               prv_I    = MY_Prod( ISMX(qx1, tx0), TSC(t_0, I2I) );
+               prv_M    = MY_Prod( *MTX_[M_ST][1][0], TSC(t_0, M2I) );
+               prv_I    = MY_Prod( *MTX_[I_ST][1][0], TSC(t_0, I2I) );
                /* best-to-insert */
                prv_sum  = MY_Sum( prv_M, prv_I );
-               ISMX(qx0, tx0) = MY_Prod( prv_sum, ISC(t_0, A) );
+               *MTX_[I_ST][0][0] = MY_Prod( prv_sum, ISC(t_0, A) );
 
                /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
                /* previous states (match takes the previous column (left) of each state) */
-               prv_M    = MY_Prod( MSMX(qx0, tx1), TSC(t_1, M2D) );
-               prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, TD) );
+               prv_M    = MY_Prod( *MTX_[M_ST][0][1], TSC(t_1, M2D) );
+               prv_D    = MY_Prod( *MTX_[D_ST][0][1], TSC(t_1, TD) );
                /* best-to-delete */
                prv_sum  = MY_Sum( prv_M, prv_D );
-               DSMX(qx0, tx0) = prv_sum;
+               *MTX_[D_ST][0][0] = prv_sum;
 
                /* UPDATE E STATE */
-               prv_M    = MY_Prod( MSMX(qx0, tx0), sc_E );
-               prv_D    = MY_Prod( DSMX(qx0, tx0), sc_E );
+               prv_M    = MY_Prod( *MTX_[M_ST][0][0], sc_E );
+               prv_D    = MY_Prod( *MTX_[D_ST][0][0], sc_E );
                prv_E    = XMX(SP_E, q_0);
                /* best-to-e-state */
                prv_sum  = MY_Sum( MY_Sum( prv_M, prv_D ),
                                                  prv_E );
                XMX(SP_E, q_0) = prv_sum;
+
+               #if FALSE
+               {
+                  /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
+                  /* best previous state transition (match takes the diag element of each prev state) */
+                  prv_M    = MY_Prod( MSMX(qx1, tx1), TSC(t_1, M2M) );
+                  prv_I    = MY_Prod( ISMX(qx1, tx1), TSC(t_1, I2M) );
+                  prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, TM) );
+                  prv_B    = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) ); /* from begin match state (new alignment) */
+                  /* best-to-match */
+                  prv_sum  = MY_Sum( MY_Sum( prv_M, prv_I ),
+                                    MY_Sum( prv_B, prv_D ) );
+                  MSMX(qx0, tx0) = MY_Prod( prv_sum, MSC(t_0, A) );
+
+                  /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
+                  /* previous states (match takes the previous row (upper) of each state) */
+                  prv_M    = MY_Prod( MSMX(qx1, tx0), TSC(t_0, M2I) );
+                  prv_I    = MY_Prod( ISMX(qx1, tx0), TSC(t_0, I2I) );
+                  /* best-to-insert */
+                  prv_sum  = MY_Sum( prv_M, prv_I );
+                  ISMX(qx0, tx0) = MY_Prod( prv_sum, ISC(t_0, A) );
+
+                  /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
+                  /* previous states (match takes the previous column (left) of each state) */
+                  prv_M    = MY_Prod( MSMX(qx0, tx1), TSC(t_1, M2D) );
+                  prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, TD) );
+                  /* best-to-delete */
+                  prv_sum  = MY_Sum( prv_M, prv_D );
+                  DSMX(qx0, tx0) = prv_sum;
+
+                  /* UPDATE E STATE */
+                  prv_M    = MY_Prod( MSMX(qx0, tx0), sc_E );
+                  prv_D    = MY_Prod( DSMX(qx0, tx0), sc_E );
+                  prv_E    = XMX(SP_E, q_0);
+                  /* best-to-e-state */
+                  prv_sum  = MY_Sum( MY_Sum( prv_M, prv_D ),
+                                                   prv_E );
+                  XMX(SP_E, q_0) = prv_sum;
+               }
+               #endif
 
                /* embed linear row into quadratic test matrix */
                #if DEBUG
@@ -391,6 +475,14 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
                   MX_3D(test_MX, DEL_ST, q_0, t_0) = DSMX(qx0, tx0);
                }
                #endif
+
+               for (int i = 0; i < 2; i++) {
+                  for (int j = 0; j < 2; j++) {
+                     for (int k = 0; k < NUM_NORMAL_STATES; k++) {
+                        MTX_[k][i][j] += NUM_NORMAL_STATES;
+                     }
+                  }
+               }
             }
 
             /* UNROLLED FINAL TARGET LOOP: special case for right edge of range (only when range is greater than one cell) */
