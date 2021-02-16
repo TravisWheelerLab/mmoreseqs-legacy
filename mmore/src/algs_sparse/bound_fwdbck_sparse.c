@@ -193,11 +193,10 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
    N           = EDGEBOUNDS_GetSize( edg );
    /* local or global alignments? */
    is_local    = target->isLocal;
-   sc_E        = (is_local) ? 0 : -INF;
+   sc_E        = (is_local) ? MY_One() : MY_Zero();
    if ( is_local == true ) {
       MY_One();
-   }
-   else {
+   } else {
       MY_Zero();
    }
 
@@ -216,7 +215,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
    q_0 = Q_range.beg;
    {   
       /* check if query position is in domain */
-      is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
+      // is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
       /* get edgebound range */
       r_0b  = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, q_0 );
       r_0e  = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, q_0 + 1 );
@@ -231,7 +230,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
       XMX(SP_B, q_0) = XSC(SP_N,SP_MOVE); 
 
       /* only compute if in domain range */
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          /* FOR every BOUND in zero row */
          for (r_0 = r_0b; r_0 < r_0e; r_0++)
@@ -297,7 +296,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
       XMX(SP_E, q_0) = MY_Zero();
 
       /* only compute if in domain range */
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          /* FOR every BOUND in current ROW */
          for (r_0 = r_0b; r_0 < r_0e; r_0++)
@@ -648,11 +647,10 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
    N           = EDGEBOUNDS_GetSize( edg );
    /* local or global alignments? */
    is_local    = target->isLocal;
-   sc_E        = (is_local) ? 0 : -INF;
+   sc_E        = (is_local) ? MY_One() : MY_Zero();
    if ( is_local == true ) {
       MY_One();
-   }
-   else {
+   } else {
       MY_Zero();
    }
 
@@ -671,7 +669,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
    q_0 = Q_range.end;
    {
       /* if inside domain */
-      is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
+      // is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
       /* get edgebound range */
       r_0b  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 + 1 );
       r_0e  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 );
@@ -684,7 +682,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
       XMX(SP_E, q_0) = MY_Prod( XMX(SP_C, q_0), XSC(SP_E, SP_MOVE) );
 
       /* if sequence position is in domain range */ 
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          bnd   = MATRIX_3D_SPARSE_GetBound_byIndex( st_SMX, r_0b );
 
@@ -724,7 +722,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
             // bnd   = EDG_X(edg, r_0);            /* bounds for current bound */
             bnd   = MATRIX_3D_SPARSE_GetBound_byIndex( st_SMX, r_0 );
             lb_0  = MAX(bnd.lb, T_range.beg);      /* can't overflow left edge */
-            rb_0  = MIN(bnd.rb, T_range.end);  /* can't overflow right edge */
+            rb_0  = MIN(bnd.rb, T_range.end);      /* can't overflow right edge */
 
             /* fetch data mapping bound start location to data block in sparse matrix */
             qx0   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( st_SMX, r_0 );
@@ -796,8 +794,8 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
       q_1 = q_0 + 1;
 
       /* if inside domain */
-      is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
-      is_q_1_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_1 );
+      // is_q_0_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_0 );
+      // is_q_1_in_dom_range = IS_IN_RANGE( Q_range.beg, Q_range.end, q_1 );
       /* get edgebound range */
       r_0b  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 + 1 );
       r_0e  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 );
@@ -809,7 +807,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
       /* UPDATE B STATE */
       XMX(SP_B, q_0) = MY_Zero();
       /* if previous q is in domain range, update B state */
-      if ( is_q_1_in_dom_range == true )
+      // if ( is_q_1_in_dom_range == true )
       {
          for (r_1 = r_1b; r_1 > r_1e; r_1--) 
          {
@@ -856,7 +854,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
       prv_B = MY_Prod( XMX(SP_B, q_0), XSC(SP_N, SP_MOVE) );
       XMX(SP_N, q_0) = MY_Sum( prv_N, prv_B );
 
-      if ( is_q_0_in_dom_range == true )
+      // if ( is_q_0_in_dom_range == true )
       {
          // /* if there is a bound on row and the right-most bound spans T (right edge of matrix) */
          // if ( (r_0b - r_0e > 0) && (EDG_X(edg, r_0b).rb > T) )
@@ -900,10 +898,10 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
             rb_0  = MIN(bnd.rb, T_range.end);     /* can't overflow right edge */
             
             /* fetch data location to bound start location (in offset) */
-            qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-            qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_0, t_0) location offset */
-            // qx0   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( st_SMX, r_0 );
-            // qx1   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Prv( st_SMX, r_0 );
+            // qx0   = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
+            // qx1   = VECTOR_INT_Get( st_SMX->imap_nxt, r_0 );    /* (q_0, t_0) location offset */
+            qx0   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( st_SMX, r_0 );
+            qx1   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Prv( st_SMX, r_0 );
             /* location for square matrix and mapping to sparse matrix */
             t_0 = T;
             tx0 = t_0 - bnd.lb;    /* total_offset = offset_location - starting_location */
@@ -1002,7 +1000,7 @@ run_Bound_Backward_Sparse (   const SEQUENCE*               query,         /* qu
       /* UPDATE B STATE */
       XMX(SP_B, q_0) = MY_Zero();
       /* if previous q is in domain, update B state */
-      if ( is_q_1_in_dom_range == true )
+      // if ( is_q_1_in_dom_range == true )
       {
          for (r_1 = r_1b; r_1 > r_1e; r_1--) 
          {
