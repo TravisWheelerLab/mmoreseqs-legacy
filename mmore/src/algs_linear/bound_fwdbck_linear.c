@@ -702,7 +702,6 @@ int run_Bound_Backward_Linear(   const SEQUENCE*         query,         /* query
       r_1e = r_0e;
    }
 
-
    /* MAIN RECURSION */
    /* FOR every bound in EDGEBOUND */
    for (q_0 = Q_range.end - 1; q_0 > Q_range.beg; q_0--)
