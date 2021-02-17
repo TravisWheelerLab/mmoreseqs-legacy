@@ -26,27 +26,28 @@
 
 /* header */
 #include "_parsers.h"
+#include "arg_parser.h"
 
 /* Parses Arguments from the command line */
 void   ARGS_Parse( ARGS*   args,
                    int     argc, 
                    char*   argv[] )
 {
-   int   num_main_args  = 2; 
-   char* flag           = NULL;
-   int   req_args       = 0;
+   int   num_main_args     = 2; 
+   char* flag              = NULL;
+   /* required arguments */
+   int   req_args    = 0;
+   /* remaining arguments counter */
+   int   args_rem    = argc - 1;
+   /* current argument index */
+   int   arg_cur     = 1;
 
    ARGS_SetDefaults(args);
 
    /* if no <command> argument given, run test case if in debug mode */
-   if (argc < 2) {
+   if (argc <= 1) {
       printf("Usage: mmore <command> <target_hmm_file> <query_fasta_file>\n");
-      #if DEBUG 
-         printf("Using DEFAULT arguments...\n\n");
-         return;
-      #else
-         ERRORCHECK_exit(EXIT_SUCCESS);
-      #endif
+      printf("Hint: For more information, use '-h'");
    }
 
    /* check for help flag */
@@ -77,12 +78,15 @@ void   ARGS_Parse( ARGS*   args,
       fprintf(stderr, "]\n");
       ERRORCHECK_exit(EXIT_FAILURE);
    }
+   args_rem    -= 1;
+   arg_cur     += 1;
 
    /* set number of main arguments based on given pipeline */
    num_main_args = PIPELINES[args->pipeline_mode].num_main_args;
+   printf("NUM_MAIN_ARGS: %d\n", num_main_args);
    /* check proper number of main args remain */
-   if ( argc < 2 + num_main_args ) {
-      fprintf(stderr, "ERROR: Improper number of main args. [required: %d]\n", num_main_args);
+   if ( args_rem < num_main_args ) {
+      fprintf(stderr, "ERROR: Improper number of main args. [required: %d/%d]\n", args_rem, num_main_args);
       #if DEBUG 
          printf("Using DEFAULT arguments...\n\n");
          return;
@@ -99,7 +103,7 @@ void   ARGS_Parse( ARGS*   args,
       /* third arg is query */
       args->q_filepath = STR_Set( args->q_filepath, argv[3] );
    }
-   if ( num_main_args == 3 )
+   if ( num_main_args == 4 )
    {
       /* second arg is target */
       args->t_filepath = STR_Set( args->t_filepath, argv[2] );
@@ -107,6 +111,8 @@ void   ARGS_Parse( ARGS*   args,
       args->q_filepath = STR_Set( args->q_filepath, argv[3] );
       /* fourth arg is mmseqs target */
       args->t_mmseqs_filepath = STR_Set( args->t_mmseqs_filepath, argv[4] );
+      /* fourth arg is mmseqs target */
+      args->q_mmseqs_filepath = STR_Set( args->q_mmseqs_filepath, argv[5] );
    }
    else if ( num_main_args == 1 )
    {
@@ -201,7 +207,7 @@ void   ARGS_Parse( ARGS*   args,
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
-            req_args = 3;
+            req_args = 4;
             if (i+req_args <= argc) {
                i++;
                args->t_filetype = atoi(argv[i]); 
@@ -209,6 +215,8 @@ void   ARGS_Parse( ARGS*   args,
                args->q_filetype = atoi(argv[i]);
                i++;
                args->t_mmseqs_filetype = atoi(argv[i]);
+               i++;
+               args->q_mmseqs_filetype = atoi(argv[i]);
                /* since filetype supplied, turn off guesser */
                args->is_guess_filetype = false;
             } else {
@@ -561,6 +569,7 @@ void   ARGS_Parse( ARGS*   args,
       args->t_filetype           = ARGS_Find_FileType( args->t_filepath );
       args->q_filetype           = ARGS_Find_FileType( args->q_filepath );
       args->t_mmseqs_filetype    = ARGS_Find_FileType( args->t_mmseqs_filepath );
+      args->q_mmseqs_filetype    = ARGS_Find_FileType( args->q_mmseqs_filepath );
    }
 }
 
@@ -592,6 +601,7 @@ void  ARGS_SetDefaults( ARGS* args )
    args->t_filepath              = STR_Create("target.hmm");
    args->q_filepath              = STR_Create("query.fasta");
    args->t_mmseqs_filepath       = STR_Create("target_mmseqs.hhm");
+   args->q_mmseqs_filepath       = STR_Create("query_mmseqs.fasta");
    /* filetype */
    args->is_guess_filetype       = true;
    args->t_filetype              = FILE_HMM;

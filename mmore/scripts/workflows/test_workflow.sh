@@ -25,7 +25,3 @@ echo "This is a test_script.sh"
 echo "=== ARGS ==="
 echo "TARGET: $TARGET"
 echo "QUERY: $QUERY"
-
-MMSEQS
-
-HMMSEARCH

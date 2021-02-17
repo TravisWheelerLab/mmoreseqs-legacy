@@ -219,15 +219,6 @@ WORK_bound_fwdback_sparse( WORKER* worker )
    {
       printf_vall("# ==> bound forward (sparse)...\n");
       CLOCK_Start( timer );
-      run_Bound_Forward_Sparse_TEST( 
-         q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, NULL, &sc );
-      scores->sparse_bound_fwd = sc;
-      CLOCK_Stop( timer );
-      float time_test = CLOCK_Duration( timer );
-      printf("# test sparse bound forward: %f\n", scores->sparse_bound_fwd );
-
-      printf_vall("# ==> bound forward (sparse)...\n");
-      CLOCK_Start( timer );
       run_Bound_Forward_Sparse( 
          q_seq, t_prof, Q, T, st_SMX_fwd, sp_MX_fwd, edg_row, NULL, &sc );
       scores->sparse_bound_fwd = sc;
@@ -243,10 +234,6 @@ WORK_bound_fwdback_sparse( WORKER* worker )
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
       }
       #endif
-
-
-      printf("FORWARD TIME TEST: (log)=%f, (normal)=%f\n", times->sp_bound_fwd, time_test );
-      
    }
    /* sparse bounded backward */
    if ( tasks->sparse_bound_bck ) 

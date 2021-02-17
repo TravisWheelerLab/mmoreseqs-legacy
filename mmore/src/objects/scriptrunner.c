@@ -97,10 +97,32 @@ SCRIPTRUNNER_Add_Env_Variable(   SCRIPTRUNNER*     runner,
                                  STR               env_name,
                                  STR               env_value )
 {
-   if ( env_value == NULL ) return;
+   /* if value is NULL, does not create a variable. */
+   if ( env_value == NULL ) return STATUS_FAILURE;
    
    VECTOR_STR_Pushback( runner->env_names, env_name );
    VECTOR_STR_Pushback( runner->env_values, env_value );
+
+   return STATUS_SUCCESS;
+}
+
+/*! FUNCTION:  SCRIPTRUNNER_If_Add_Env_Variable()
+ *  SYNOPSIS:  Adds environmental variable to <runner> if condition is true.
+ */
+STATUS_FLAG 
+SCRIPTRUNNER_If_Add_Env_Variable(   SCRIPTRUNNER*     runner,
+                                    STR               env_name,
+                                    STR               env_value,
+                                    bool              condition )
+{
+   /* if value is NULL, does not create a variable. */
+   if ( env_value == NULL ) return STATUS_FAILURE;
+   
+   if ( condition == true )
+   {
+      VECTOR_STR_Pushback( runner->env_names, env_name );
+      VECTOR_STR_Pushback( runner->env_values, env_value );
+   }
 
    return STATUS_SUCCESS;
 }

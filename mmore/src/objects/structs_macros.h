@@ -194,7 +194,7 @@
 /* whether to use MATRIX_3D_SPARSE function calls or direct data accesses */
 #if ( MATRIX_FUNCTIONS == TRUE )
 	/* generic access for MATRIX_3D_SPARSE via function call */
-	#define SMX_X(mx, st, qx0, tx0) 		( *MATRIX_3D_SPARSE_GetX_byOffset( (mx), (qx0), (tx0), (st) );)
+	#define SMX_X(mx, st, qx0, tx0) 		( *MATRIX_3D_SPARSE_GetX_byOffset( (mx), (qx0), (tx0), (st) ) )
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_3D_SPARSE via direct data access */

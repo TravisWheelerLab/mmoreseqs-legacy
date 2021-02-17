@@ -325,8 +325,10 @@ STATUS_FLAG
 VECTOR_STR_Push(  VECTOR_STR*   vec, 
                   STR           val )
 {
-   /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VECTOR_STR_Set( vec, vec->N, val );
+   int N = VECTOR_STR_GetSize( vec );
+
+   // VEC_X( vec, N ) = STR_Destroy( VEC_X( vec, N ) );
+   VEC_X( vec, N ) = STR_Create( val );
    vec->N++;
 }
 

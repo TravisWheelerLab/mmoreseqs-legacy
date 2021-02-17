@@ -43,6 +43,7 @@
 #define CHAR         char 
 #define DBL          double
 #define STR          char*
+#define PTR          void*
 /* datatype for matrices */
 #define DATA         float
 
@@ -192,6 +193,13 @@ typedef struct {
    size_t   N;        /* current length of array in use */
    size_t   Nalloc;   /* current length of array allocated */
 }  VECTOR_DATA;
+
+/* vector of pointers */
+typedef struct {
+   PTR*     data;
+   size_t   N;
+   size_t   Nalloc;
+}  VECTOR_PTR;
 
 /* === MAP === */
 
@@ -608,30 +616,47 @@ typedef struct {
 
    /* --- INPUT --- */
    /* file paths */
-   char*    t_filepath;             /* filepath to target (hmm, msa, or fasta) file */
-   char*    q_filepath;             /* filepath to query (fasta) file */
-   char*    t_mmseqs_filepath;      /* filepath to mmseqs target (hhm, msa, mm_msa or fasta) file */
+   char*          t_filepath;             /* filepath to target (fasta, hmm, or msa) file */
+   char*          q_filepath;             /* filepath to query (fasta, hmm, or msa) file */
+   char*          t_mmseqs_filepath;      /* filepath to mmseqs target (hhm, msa, mm_msa, mm_db, or fasta) file */
+   char*          q_mmseqs_filepath;      /* filepath to mmseqs query (hhm, msa, mm_msa, mm_db, or fasta) file */
    /* target/query metadata */
    bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
    FILE_TYPE      t_filetype;             /* enumerated FILETYPE of target file */
    FILE_TYPE      q_filetype;             /* enumerated FILETYPE of query file */
    FILE_TYPE      t_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs target file */
+   FILE_TYPE      q_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs query file */
    /* index paths */
-   bool     is_indexpath;           /* is an index file supplied? */
-   char*    t_indexpath;            /* index filepath for quick access of target (hmm) file */
-   char*    q_indexpath;            /* index filepath for quick access of query (fasta) file */
+   bool           is_indexpath;           /* is an index file supplied? */
+   char*          t_indexpath;            /* index filepath for quick access of target (hmm) file */
+   char*          q_indexpath;            /* index filepath for quick access of query (fasta) file */
    /* database size */
-   int      t_dbsize;               /* number of targets in database */
-   int      q_dbsize;               /* number of queries in database */
+   int            t_dbsize;               /* number of targets in database */
+   int            q_dbsize;               /* number of queries in database */
 
-   /* --- INTERRIM OUTPUT --- */
-   /* mmseqs-plus search (input) */
-   char*    mmseqs_m8_filepath;    /* filepath to mmseqs .m8 results file */
+   /* --- OPTIONAL OUTPUT --- */
    /* simple hitlist (input) */
    char*    hitlist_filepath;       /* filepath to simple hitlist */
+
+   /* --- PREP INTERRIM OUTPUT --- */
+   /* hmm file (if fasta file is given as input, a single sequence hmm file) */
+   bool     is_hmmout;              /* output .hmm file? */
+   char*    hmmout_filepath;        /* filepath to output .hmm file to */
+   /* mm_msa file (mmseqs-style msa) */
+   bool     is_mm_msaout;           /* output .mm_msa file? */
+   char*    mm_msa_filepath;        /* filepath to output .mm_msa file to */
+   /* hhm file (mmseqs-style hmm) */
+   bool     is_hhmout;              /* output .hhm file? */
+   char*    hhmout_filepath;        /* filepath to output .hhm file to */
+
+   /* --- PIPELINE INTERRIM OUTPUT --- */
+   /* mmseqs-plus search */
+   bool     is_mmseqs_m8out;        /* output .m8out results file? */    
+   char*    mmseqs_m8_filepath;     /* filepath to mmseqs .m8 results file */
    /* optional output */
    bool     is_mmseqs_p2sout;       /* output profile-to-sequence mmseqs results? */
    char*    mmseqs_p2s_filepath;    /* filepath to output results; if NULL, doesn't output */
+
    bool     is_mmseqs_s2sout;       /* output profile-to-sequence mmseqs results? */
    char*    mmseqs_s2s_filepath;    /* filepath to output results; if NULL, doesn't output */
 
@@ -1397,7 +1422,19 @@ typedef struct {
    int            num_main_args;          /* number of main args  */
    // STATUS_FLAG    (*set_args)(WORKER*);   /* pointer to set default args function */
    // STATUS_FLAG    (*set_tasks)(WORKER*);  /* pointer to set default tasks function */
+   // char**         main_args[];            /* array of pointers to string arguments in args */
 } PIPELINE;
+
+/* pipeline options */
+typedef struct {
+   char*          name;             /* name of option */
+   char*          desc;             /* short description of option/argument */
+   char*          short_flag;       /* short commandline flag */
+   char*          long_flag;        /* long commandline flag */
+   DATATYPE       type;             /* data type of arg */
+   int            num_args;         /* number of arguments for option */
+   PTR*           args;             /* array of pointers to the argument destination */
+} PIPELINE_OPTS;
 
 /* === GLOBAL VARIABLES === */
 /* pipeline */

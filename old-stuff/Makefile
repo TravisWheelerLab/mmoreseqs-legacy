@@ -72,12 +72,14 @@ CFLAGS 			:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_VARS)
 CPPFLAGS 		?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_VARS)
 
 # flags for debugging and profiling
-# suggested flags: -g -pg -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS 		:= -g -pg -fsanitize=address -DDEBUG=1 
+# -g (DEBUGGING INFO FOR VALGRIND)
+# -pg (PROFILING INFO FOR GPROF)
+# suggested flags: -g (valgrind) -pg (gprof) -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS 		:= -pg -fsanitize=address -DDEBUG=1 
 # flags for alpha version
-ALPHAFLAGS 		:= -g -pg -fsanitize=address
+ALPHAFLAGS 		:= -pg -g -O3 -fsanitize=address
 # flags for alpha version
-VALFLAGS 		:= -g -pg
+VALFLAGS 		:= -g -O0
 # flags for release version
 RELEASEFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -O3
 

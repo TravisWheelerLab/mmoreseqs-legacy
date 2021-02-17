@@ -43,6 +43,15 @@ SCRIPTRUNNER_Add_Env_Variable(   SCRIPTRUNNER*     runner,
                                  STR               env_name,
                                  STR               env_value );
 
+/*! FUNCTION:  SCRIPTRUNNER_If_Add_Env_Variable()
+ *  SYNOPSIS:  Adds environmental variable to <runner> if condition is true.
+ */
+STATUS_FLAG 
+SCRIPTRUNNER_If_Add_Env_Variable(   SCRIPTRUNNER*     runner,
+                                    STR               env_name,
+                                    STR               env_value,
+                                    bool              condition );
+
 /*! FUNCTION:  SCRIPTRUNNER_Add_Script_Argument()
  *  SYNOPSIS:  Adds script argument to <runner>.
  */

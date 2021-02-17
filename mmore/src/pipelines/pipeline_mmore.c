@@ -57,13 +57,15 @@ mmore_pipeline( WORKER* worker )
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_filepath );
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_filepath );
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_mmseqs_filepath );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_mmseqs_filepath );
    /* TOOLS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "ROOT_DIR",          project_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DIR",         mmore_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",         hmmer_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",        mmseqs_path ); 
    SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_To_String( args->is_use_local_tools, buffer ) ); 
-   /* MAIN ARGS */
+   
+   /* MAIN COMMANDLINE ARGS */
    /* pass main args with type appended */
    str = STR_Set( str, "TARGET_");
    str = STR_Append( str, FILE_TYPE_NAMES[args->t_filetype] );
@@ -74,62 +76,53 @@ mmore_pipeline( WORKER* worker )
    str = STR_Set( str, "TARGET_MMSEQS_" );
    str = STR_Append( str, FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_filepath );
+   str = STR_Set( str, "QUERY_MMSEQS_" );
+   str = STR_Append( str, FILE_TYPE_NAMES[args->q_mmseqs_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_mmseqs_filepath );
+
+   /* ENVIRONMENTAL ARGS */
    /* pass main args without type appended */
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET",               FILE_TYPE_NAMES[args->t_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY",                FILE_TYPE_NAMES[args->q_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS",        FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS",         FILE_TYPE_NAMES[args->q_mmseqs_filetype] );
    /* MAIN ARG TYPES */
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_TYPE",          FILE_TYPE_NAMES[args->t_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_TYPE",           FILE_TYPE_NAMES[args->q_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_TYPE",   FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS_TYPE",    FILE_TYPE_NAMES[args->q_mmseqs_filetype] );
    /* INTERRIM FILES */
-   if ( args->is_redirect_stdout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "OUTPUT_PATH",  args->output_filepath );
-   }
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "OUTPUT_PATH",       args->output_filepath,        args->is_redirect_stdout );
    /* OUTPUT FILES */
-   if ( args->is_redirect_stdout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "OUTPUT_PATH",  args->output_filepath );
-   }
-   if ( args->is_redirect_stderr ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "ERROR_PATH",  args->output_filepath );
-   }
-   if ( args->is_m8out ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "M8OUT_PATH",  args->m8out_filepath );
-   }
-   if ( args->is_myout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "MYOUT_PATH",  args->myout_filepath );
-   }
-   if ( args->is_mydomout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "MYDOMOUT_PATH",  args->mydomout_filepath );
-   }
-   if ( args->is_mytimeout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "MYTIMEOUT_PATH",  args->mytimeout_filepath );
-   }
-   if ( args->is_mythreshout ) {
-      SCRIPTRUNNER_Add_Env_Variable( runner, "MYTHRESHOUT_PATH",  args->mythreshout_filepath );
-   }
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "OUTPUT_PATH",       args->output_filepath,        args->is_redirect_stdout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "ERROR_PATH",        args->output_filepath,        args->is_redirect_stderr );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "M8OUT_PATH",        args->m8out_filepath,         args->is_m8out );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MYOUT_PATH",        args->myout_filepath,         args->is_myout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MYDOMOUT_PATH",     args->mydomout_filepath,      args->is_mydomout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MYTIMEOUT_PATH",    args->mytimeout_filepath,     args->is_mytimeout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MYTHRESHOUT_PATH",  args->mythreshout_filepath,   args->is_mythreshout );
    /* MMSEQS PARAMETERS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "HITS_PER_SEARCH",      INT_To_String( args->mmseqs_hits_per_search, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "KMER",                 INT_To_String( args->mmseqs_kmer, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "PREFILTER_THRESH",     INT_To_String( args->mmseqs_prefilter, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "UNGAPPEDVIT_THRESH",   INT_To_String( args->mmseqs_ungapped_vit, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "GAPPEDVIT_THRESH",     INT_To_String( args->mmseqs_evalue, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "KMER",                 INT_To_String( args->mmseqs_kmer,            buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "PREFILTER_THRESH",     INT_To_String( args->mmseqs_prefilter,       buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "UNGAPPEDVIT_THRESH",   INT_To_String( args->mmseqs_ungapped_vit,    buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "GAPPEDVIT_THRESH",     INT_To_String( args->mmseqs_evalue,          buffer ) );
    /* MMORE PARAMETERS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "ALPHA",                FLT_To_String( args->alpha, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "BETA",                 FLT_To_String( args->beta, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "GAMMA",                INT_To_String( args->gamma, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "VITERBI_THRESH",       FLT_To_String( args->threshold_vit, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "CLOUD_THRESH",         FLT_To_String( args->threshold_cloud, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "ALPHA",                FLT_To_String( args->alpha,               buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "BETA",                 FLT_To_String( args->beta,                buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "GAMMA",                INT_To_String( args->gamma,               buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "VITERBI_THRESH",       FLT_To_String( args->threshold_vit,       buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "CLOUD_THRESH",         FLT_To_String( args->threshold_cloud,     buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "BOUNDFWD_THRESH",      FLT_To_String( args->threshold_bound_fwd, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "FWDBACK_THRESH",       FLT_To_String( args->threshold_fwd, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "FWDBACK_THRESH",       FLT_To_String( args->threshold_fwd,       buffer ) );
    /* TASK OPTIONS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FILTER",   INT_To_String( args->is_run_filter, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_BIAS",     INT_To_String( args->is_compo_bias, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_DOMAIN",   INT_To_String( args->is_run_domains, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FULL",     INT_To_String( args->is_run_full, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FILTER",   INT_To_String( args->is_run_filter,    buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_BIAS",     INT_To_String( args->is_compo_bias,    buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_DOMAIN",   INT_To_String( args->is_run_domains,   buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_FULL",     INT_To_String( args->is_run_full,      buffer ) );
    /* OPTIONS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "VERBOSE",     INT_To_String( args->verbose_level, buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "RM_TEMP",     INT_To_String( args->tmp_remove, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "VERBOSE",     INT_To_String( args->verbose_level,    buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "RM_TEMP",     INT_To_String( args->tmp_remove,       buffer ) );
 
    /* EXECUTE SCRIPT */
    SCRIPTRUNNER_Execute( runner );
