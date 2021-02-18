@@ -102,7 +102,7 @@ const int num_pipelines = 7;
 PIPELINE PIPELINES[] = {
    { "null",         null_pipeline,          0 },
    { "generic",      generic_pipeline,       2 },
-   { "mmore",        mmore_pipeline,         4 },
+   { "mmore",        mmore_pipeline,         5 },
    { "mmore_main",   mmore_main_pipeline,    2 },
    { "index",        index_pipeline,         2 },
    { "hmmbuild",     hmmbuild_pipeline,      1 },

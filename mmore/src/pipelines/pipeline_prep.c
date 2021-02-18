@@ -1,6 +1,7 @@
 /*******************************************************************************
- *  FILE:      pipeline_mmore.c
+ *  FILE:      pipeline_prep.c
  *  PURPOSE:   Cloud Search Pipeline for MMORE pipeline.
+ *             Preparation pipeline, converts files to formats to be used by 
  *             Set arguments and issues command to bash script.
  *
  *  AUTHOR:    Dave Rich
@@ -22,14 +23,14 @@
 /* header */
 #include "_pipelines.h"
 
-/*! FUNCTION:  mmore_pipeline()
- *  SYNOPSIS:  Overarching MMORE pipeline. 
- *             This pipeline runs the full 
+/*! FUNCTION:  prep_pipeline()
+ *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
+ *             Prepares files for use in the MMORE-SEQS Pipeline
  */
 STATUS_FLAG 
-mmore_pipeline( WORKER* worker )
+prep_pipeline( WORKER* worker )
 {
-   printf("=== MMORE PIPELINE ===\n");
+   printf("=== MMORE PREP PIPELINE ===\n");
    
    ARGS*          args     = worker->args;
    TASKS*         tasks    = worker->tasks;
@@ -44,7 +45,7 @@ mmore_pipeline( WORKER* worker )
    // printf("# HMMER_LOCATION: %s\n", mmseqs_path );
    STR mmore_path       = MMORE_BIN;
    // printf("# MMORE_LOCATION: %s\n", mmore_path );
-   STR script_relpath   = "/scripts/workflows/mmore.sh";
+   STR script_relpath   = "/scripts/workflows/mmore-prep.sh";
    STR script_path      = STR_Concat( project_path, script_relpath );
    // printf("# SCRIPT_LOCATION: %s\n\n", script_path );
 
@@ -67,10 +68,10 @@ mmore_pipeline( WORKER* worker )
    
    /* MAIN COMMANDLINE ARGS */
    /* pass main args with type appended */
-   str = STR_Set( str, "TARGET_MMORE_");
+   str = STR_Set( str, "TARGET_");
    str = STR_Append( str, FILE_TYPE_NAMES[args->t_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_filepath );
-   str = STR_Set( str, "QUERY_MMORE_");
+   str = STR_Set( str, "QUERY_");
    str = STR_Append( str, FILE_TYPE_NAMES[args->q_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_filepath );
    str = STR_Set( str, "TARGET_MMSEQS_P_" );
@@ -97,7 +98,7 @@ mmore_pipeline( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_S_TYPE", FILE_TYPE_NAMES[args->t_mmseqs_s_filetype] );
    SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS_TYPE",    FILE_TYPE_NAMES[args->q_mmseqs_filetype] );
    /* INTERRIM FILES (FILE CREATED DURING PROCESS) */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "TEMP_DIR",             args->tmp_folderpath );
+   // SCRIPTRUNNER_If_Add_Env_Variable( runner, "OUTPUT_PATH",       args->output_filepath,        args->is_redirect_stdout );
    /* OUTPUT FILES */
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "OUTPUT_PATH",       args->output_filepath,        args->is_redirect_stdout );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "ERROR_PATH",        args->output_filepath,        args->is_redirect_stderr );

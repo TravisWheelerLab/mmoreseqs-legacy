@@ -1,12 +1,13 @@
 #!/bin/usr/python
 #####################################################################
-#  FILE:  convert_result_ids
-#  DESC:  Convert result ids from profile results to query results.
+#  FILE:  make_dummydb_align.py
+#  DESC:  Creates simple dummy MMseqs prefilter database. 
+# 			 Used in converting result ids from profile results to query results.
 #####################################################################
 
-import os,sys
-import numpy as np
-
+# import os
+import sys
+# import numpy as np
 
 #####################################################################
 ##  MAIN  ###########################################################
@@ -30,7 +31,7 @@ total_offset = 0
 entry_size = 0
 
 for i in range(my_args["db_size"]):
-	line = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n\x00".format(i, i, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+	line = "{}\t{}\t{}\n\x00".format(i, i, 0)
 	entry_size = len(line)
 	fp_0.write(line)
 

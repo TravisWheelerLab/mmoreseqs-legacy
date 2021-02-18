@@ -297,7 +297,7 @@ LOAD_SOURCE "${SCRIPT_DIR}/mmore_get-tools.sh"
 
 		# If query is a hmm file, then convert to consensus fasta file
 		# WARNING: this may not be intended
-		if [[ "$QUERY_TYPE" = "HMM" ]]
+		if [ "$QUERY_TYPE" == "HMM" ]
 		then
 			QUERY_HMM=$QUERY
 			echo_v 1 	"WARNING: QUERY is an HMM file. Profile-to-Profile is not supported, \
@@ -308,7 +308,7 @@ LOAD_SOURCE "${SCRIPT_DIR}/mmore_get-tools.sh"
 		fi
 
 		# if target mmseqs file is a hhm, then we are ready.
-		if [[ "$QUERY_TYPE" = "FASTA" ]]
+		if [ "$QUERY_TYPE" == "FASTA" ]
 		then
 			QUERY_FASTA=$QUERY
 			echo_v 1 ""
@@ -339,6 +339,8 @@ LOAD_SOURCE "${SCRIPT_DIR}/mmore_get-tools.sh"
 		if [[ "$TARGET_TYPE" != "HMM" ]]
 		then
 			TARGET_HMM=$TARGET
+
+			TARGET_H
 		fi
 
 		# If target is a fasta file, then we need to 
@@ -388,8 +390,6 @@ LOAD_SOURCE "${SCRIPT_DIR}/mmore_get-tools.sh"
 			exit 1
 		fi
 	}
-
-
 
 }
 

@@ -44,7 +44,7 @@ ARGS_Create()
 
    args->t_filepath              = NULL;
    args->q_filepath              = NULL; 
-   args->t_mmseqs_filepath       = NULL;
+   args->t_mmseqs_p_filepath       = NULL;
 
    args->t_indexpath             = NULL;  
    args->q_indexpath             = NULL;
@@ -81,7 +81,7 @@ ARGS_Destroy( ARGS* args )
 
    STR_Destroy( args->t_filepath );
    STR_Destroy( args->q_filepath );
-   STR_Destroy( args->t_mmseqs_filepath );
+   STR_Destroy( args->t_mmseqs_p_filepath );
 
    STR_Destroy( args->t_indexpath );
    STR_Destroy( args->q_indexpath );

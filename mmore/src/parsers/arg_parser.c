@@ -42,12 +42,15 @@ void   ARGS_Parse( ARGS*   args,
    /* current argument index */
    int   arg_cur     = 1;
 
+   printf("NUM_ARGS: %d\n", argc);
+
    ARGS_SetDefaults(args);
 
    /* if no <command> argument given, run test case if in debug mode */
    if (argc <= 1) {
       printf("Usage: mmore <command> <target_hmm_file> <query_fasta_file>\n");
       printf("Hint: For more information, use '-h'");
+      ERRORCHECK_exit(1);
    }
 
    /* check for help flag */
@@ -103,25 +106,29 @@ void   ARGS_Parse( ARGS*   args,
       /* third arg is query */
       args->q_filepath = STR_Set( args->q_filepath, argv[3] );
    }
-   if ( num_main_args == 4 )
+   if ( num_main_args == 5 )
    {
       /* second arg is target */
       args->t_filepath = STR_Set( args->t_filepath, argv[2] );
       /* third arg is query */
       args->q_filepath = STR_Set( args->q_filepath, argv[3] );
-      /* fourth arg is mmseqs target */
-      args->t_mmseqs_filepath = STR_Set( args->t_mmseqs_filepath, argv[4] );
-      /* fourth arg is mmseqs target */
-      args->q_mmseqs_filepath = STR_Set( args->q_mmseqs_filepath, argv[5] );
+      /* fourth arg is mmseqs target (profile) */
+      args->t_mmseqs_p_filepath = STR_Set( args->t_mmseqs_p_filepath, argv[4] );
+      /* fourth arg is mmseqs target (sequence) */
+      args->t_mmseqs_s_filepath = STR_Set( args->t_mmseqs_s_filepath, argv[5] );
+      /* fourth arg is mmseqs query */
+      args->q_mmseqs_filepath = STR_Set( args->q_mmseqs_filepath, argv[6] );
    }
    else if ( num_main_args == 1 )
    {
       /* second arg is target */
       args->t_filepath = STR_Set( args->t_filepath, argv[2] );
    }
+   args_rem    -= num_main_args;
+   arg_cur     += num_main_args;
 
    /* parse remaining flags and options */
-   for (int i = 2 + num_main_args; i < argc; ++i)
+   for (int i = arg_cur; i < argc; ++i)
    {
       /* if long flag */
       if ( STR_Compare_Prefix(argv[i], "--", 2) == 0 ) 
@@ -207,14 +214,16 @@ void   ARGS_Parse( ARGS*   args,
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
-            req_args = 4;
+            req_args = 5;
             if (i+req_args <= argc) {
                i++;
                args->t_filetype = atoi(argv[i]); 
                i++;
                args->q_filetype = atoi(argv[i]);
                i++;
-               args->t_mmseqs_filetype = atoi(argv[i]);
+               args->t_mmseqs_p_filetype = atoi(argv[i]);
+                i++;
+               args->t_mmseqs_s_filetype = atoi(argv[i]);
                i++;
                args->q_mmseqs_filetype = atoi(argv[i]);
                /* since filetype supplied, turn off guesser */
@@ -565,12 +574,12 @@ void   ARGS_Parse( ARGS*   args,
       }
    }
 
-   if ( args->is_guess_filetype == true ) {
-      args->t_filetype           = ARGS_Find_FileType( args->t_filepath );
-      args->q_filetype           = ARGS_Find_FileType( args->q_filepath );
-      args->t_mmseqs_filetype    = ARGS_Find_FileType( args->t_mmseqs_filepath );
-      args->q_mmseqs_filetype    = ARGS_Find_FileType( args->q_mmseqs_filepath );
-   }
+   // if ( args->is_guess_filetype == true ) {
+   //    args->t_filetype           = ARGS_Find_FileType( args->t_filepath );
+   //    args->q_filetype           = ARGS_Find_FileType( args->q_filepath );
+   //    args->t_mmseqs_p_filetype    = ARGS_Find_FileType( args->t_mmseqs_p_filepath );
+   //    args->q_mmseqs_filetype    = ARGS_Find_FileType( args->q_mmseqs_filepath );
+   // }
 }
 
 /* SET DEFAULT ARGUMENTS (generic) */
@@ -598,15 +607,18 @@ void  ARGS_SetDefaults( ARGS* args )
 
    /* --- INPUT --- */
    /* filepath */
-   args->t_filepath              = STR_Create("target.hmm");
-   args->q_filepath              = STR_Create("query.fasta");
-   args->t_mmseqs_filepath       = STR_Create("target_mmseqs.hhm");
-   args->q_mmseqs_filepath       = STR_Create("query_mmseqs.fasta");
+   args->t_filepath              = NULL;
+   args->q_filepath              = NULL;
+   args->t_mmseqs_p_filepath     = NULL;
+   args->t_mmseqs_p_filepath     = NULL;
+   args->q_mmseqs_filepath       = NULL;
    /* filetype */
    args->is_guess_filetype       = true;
    args->t_filetype              = FILE_HMM;
    args->q_filetype              = FILE_FASTA;
-   args->t_mmseqs_filetype       = FILE_HHM;
+   args->t_mmseqs_p_filetype     = FILE_HHM;
+   args->t_mmseqs_p_filetype     = FILE_HHM;
+   args->t_mmseqs_p_filetype     = FILE_HHM;
    /* indexes */
    args->t_indexpath             = NULL;
    args->q_indexpath             = NULL;
@@ -678,8 +690,8 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILETYPE", FILE_TYPE_NAMES[args->t_filetype] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILEPATH",  args->q_filepath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "QUERY_FILETYPE",  FILE_TYPE_NAMES[args->q_filetype] );
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILEPATH",  args->t_mmseqs_filepath );
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILETYPE",  FILE_TYPE_NAMES[args->t_mmseqs_filetype] );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILEPATH",  args->t_mmseqs_p_filepath );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_MMSEQS_FILETYPE",  FILE_TYPE_NAMES[args->t_mmseqs_p_filetype] );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "T_INDEX_PATH",    args->t_indexpath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",    args->q_indexpath );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "MMSEQS_RESULTS",  args->mmseqs_m8_filepath );

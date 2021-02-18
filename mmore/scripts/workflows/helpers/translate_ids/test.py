@@ -1,7 +1,7 @@
 #!/bin/usr/python
 #####################################################################
-#  FILE:  convert_result_ids
-#  DESC:  Convert result ids from profile results to query results.
+#  FILE:  test.py
+#  DESC:  For testing use only.
 #####################################################################
 
 import os,sys

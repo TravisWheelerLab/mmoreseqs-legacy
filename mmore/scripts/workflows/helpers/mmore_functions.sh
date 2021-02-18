@@ -99,20 +99,24 @@ function INFER_FILETYPE
 {
 	local FULLFILE=$1
 	local TYPE=""
-	local EXT=$(GET_FILE_FROM_EXT $FULLFILE)
+	local EXT=$(GET_FILE_EXTENSION $FULLFILE)
 	EXT=${EXT^^}
-	if [ $EXT == "HMM" ]; then 
+	if [[ $EXT == "HMM" ]]; then 
 		TYPE="HMM"
-	elif [ $EXT == "FASTA" || $EXT == "FA" ]; then 
+	elif [[ $EXT == "FASTA" || $EXT == "FA" ]]; then 
 		TYPE="FASTA"
-	elif [ $EXT == "HHM" ]; then 
+	elif [[ $EXT == "HHM" ]]; then 
 		TYPE="HHM"
-	elif [ $EXT == "MSA" ]; then 
+	elif [[ $EXT == "MSA" ]]; then 
 		TYPE="MSA"
-	elif [ $EXT == "MM_MSA" ]; then 
+	elif [[ $EXT == "MM_MSA" ]]; then 
 		TYPE="MM_MSA"
-	elif [ $EXT == "MM_DB" ]; then 
-		TYPE="MM_DB"
+	elif [[ $EXT == "MMDB" ]]; then 
+		TYPE="MMDB"
+	elif [[ $EXT == "MMDB_S" ]]; then 
+		TYPE="MMDB_S"
+	elif [[ $EXT == "MMDB_P" ]]; then 
+		TYPE="MMDB_P"
 	fi
 
 	echo $TYPE

@@ -616,15 +616,17 @@ typedef struct {
 
    /* --- INPUT --- */
    /* file paths */
-   char*          t_filepath;             /* filepath to target (fasta, hmm, or msa) file */
-   char*          q_filepath;             /* filepath to query (fasta, hmm, or msa) file */
-   char*          t_mmseqs_filepath;      /* filepath to mmseqs target (hhm, msa, mm_msa, mm_db, or fasta) file */
+   char*          t_filepath;             /* target (fasta, hmm, or msa) file */
+   char*          q_filepath;             /* query (fasta, hmm, or msa) file */
+   char*          t_mmseqs_p_filepath;    /* target for mmseqs profile (hhm, msa, mm_msa, mm_db, or fasta) file */
+   char*          t_mmseqs_s_filepath;    /* target for mmseqs sequence */
    char*          q_mmseqs_filepath;      /* filepath to mmseqs query (hhm, msa, mm_msa, mm_db, or fasta) file */
    /* target/query metadata */
    bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
    FILE_TYPE      t_filetype;             /* enumerated FILETYPE of target file */
    FILE_TYPE      q_filetype;             /* enumerated FILETYPE of query file */
-   FILE_TYPE      t_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs target file */
+   FILE_TYPE      t_mmseqs_p_filetype;    /* enumerated FILETYPE of mmseqs target file */
+   FILE_TYPE      t_mmseqs_s_filetype;    /* enumerated FILETYPE of mmseqs target file */
    FILE_TYPE      q_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs query file */
    /* index paths */
    bool           is_indexpath;           /* is an index file supplied? */

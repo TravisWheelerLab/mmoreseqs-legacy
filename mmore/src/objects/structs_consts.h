@@ -183,7 +183,8 @@ typedef enum {
    FILE_FASTA  = 2,
    FILE_MSA    = 3,
    FILE_MM_MSA = 4,
-   FILE_HHM    = 5
+   FILE_HHM    = 5,
+   FILE_MMDB_S = 6,
 } FILE_TYPE;
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3
