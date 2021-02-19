@@ -127,7 +127,7 @@ FILER_Open( FILER* filer )
 {
    /* if filename or mode is NULL, opening with throw error */
    if ( filer->filename == NULL || filer->mode == NULL ) {
-      fprintf( stderr, "ERROR: Attempting to open file in mode: ( %s, %s )\n", filer->filename, filer->mode );
+      fprintf( stderr, "ERROR: Failed to open file: ( Filename: %s, Mode: %s )\n", filer->filename, filer->mode );
       ERRORCHECK_exit(STATUS_FAILURE);
    }
    /* check if file is already open or if it is stdout (in which case it is always left open) */

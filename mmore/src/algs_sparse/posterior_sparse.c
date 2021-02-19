@@ -657,6 +657,10 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
                /* unrolled final loop: special case for right edge of range */
                if ( true && (rb_0 > 1) )  
                {
+                  t_1 = t_0 - 1; 
+                  tx0 = t_0 - bnd->lb;
+                  tx1 = tx0 - 1;
+                  
                   denom += MSMX_X(st_SMX_post, qx0, tx0);
                }
             }

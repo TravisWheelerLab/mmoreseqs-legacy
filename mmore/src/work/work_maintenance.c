@@ -60,12 +60,24 @@ WORK_init( WORKER* worker )
    if ( args->is_redirect_stdout == false ) {
       worker->output_file->fp = stdout;
    }
-   worker->tblout_file        = FILER_Create( args->tblout_filepath, write_mode );
-   worker->m8out_file         = FILER_Create( args->m8out_filepath, write_mode );
-   worker->myout_file         = FILER_Create( args->myout_filepath, write_mode );
-   worker->mydomout_file      = FILER_Create( args->mydomout_filepath, write_mode );
-   worker->mytimeout_file     = FILER_Create( args->mytimeout_filepath, write_mode );
-   worker->mythreshout_file   = FILER_Create( args->mythreshout_filepath, write_mode );
+   if ( args->tblout_filepath != NULL ) {
+      worker->tblout_file        = FILER_Create( args->tblout_filepath, write_mode );
+   }
+   if ( args->m8out_filepath != NULL ) {
+      worker->m8out_file         = FILER_Create( args->m8out_filepath, write_mode );
+   }
+   if ( args->myout_filepath != NULL ) {
+      worker->myout_file         = FILER_Create( args->myout_filepath, write_mode );
+   }
+   if ( args->mydomout_filepath != NULL ) {
+      worker->mydomout_file         = FILER_Create( args->mydomout_filepath, write_mode );
+   }
+   if ( args->mytimeout_filepath != NULL ) {
+      worker->mytimeout_file         = FILER_Create( args->mytimeout_filepath, write_mode );
+   }
+   if ( args->mythreshout_filepath != NULL ) {
+      worker->mythreshout_file         = FILER_Create( args->mythreshout_filepath, write_mode );
+   }
 
    /* target and profile structures */
    worker->q_seq           = SEQUENCE_Create();
@@ -224,7 +236,7 @@ WORK_reuse( WORKER* worker )
 void 
 WORK_cleanup( WORKER* worker )
 {
-   ARGS* args; 
+   ARGS* args = worker->args; 
 
    /* input files */
    worker->q_seq_file         = FILER_Destroy( worker->q_seq_file );

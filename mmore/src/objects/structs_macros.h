@@ -170,6 +170,7 @@
 #endif
 #if ( MATRIX_FUNCTIONS == FALSE )
 	/* generic access for MATRIX_3D via direct data access */
+	/* NOTE: current access pattern ( st, q_0, t_0 ) */
 	#define MX_3D(mx, st, q_0, t_0)  	( mx->data[ ((st) * (mx->C * mx->N)) + ( (q_0) * (mx->N)) + (t_0) ] )
 #endif
 

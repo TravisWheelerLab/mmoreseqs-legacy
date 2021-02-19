@@ -44,22 +44,22 @@ WORK_open( WORKER* worker )
    if ( args->is_redirect_stdout ) {
       FILER_Open( worker->output_file );
    }
-   if ( args->is_tblout ) {
+   if ( worker->tblout_file != NULL && args->is_tblout ) {
       FILER_Open( worker->tblout_file );
    }
-   if ( args->is_m8out ) {
+   if ( worker->m8out_file != NULL && args->is_m8out ) {
       FILER_Open( worker->m8out_file );
    }
-   if ( args->is_myout ) {
+   if ( worker->myout_file != NULL && args->is_myout ) {
       FILER_Open( worker->myout_file );
    }
-   if ( args->is_mydomout ) {
+   if ( worker->mydomout_file != NULL && args->is_mydomout ) {
       FILER_Open( worker->mydomout_file );
    }
-   if ( args->is_mytimeout ) {
+   if ( worker->mytimeout_file != NULL && args->is_mytimeout ) {
       FILER_Open( worker->mytimeout_file );
    }
-   if ( args->is_mythreshout ) {
+   if ( worker->mythreshout_file != NULL && args->is_mythreshout ) {
       FILER_Open( worker->mythreshout_file );
    }
 }

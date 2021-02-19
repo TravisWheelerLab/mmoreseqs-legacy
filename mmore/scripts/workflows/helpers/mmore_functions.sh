@@ -133,4 +133,24 @@ function CHECK_FILE_EXISTS
 	echo $IF_FILE
 }
 
+# append argument with flag if not null
+function ADD_OPT
+{
+	ARGOPTS=$1
+	local OPT=$1
+	local ARG=$2
+
+	# if ARG is not null, append it 
+	if [ -z $ARG ]
+	then 
+	ARGOPTS+=" $OPT $ARG "
+	fi
+}
+
+# set default parameters for uninitialized environmental variables
+function SET_ENV_ARG_DEFAULTS
+{
+
+}
+
 echo_v 3 "# mmore-functions.sh Loaded."

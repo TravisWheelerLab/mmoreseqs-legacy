@@ -106,6 +106,15 @@ void   ARGS_Parse( ARGS*   args,
       /* third arg is query */
       args->q_filepath = STR_Set( args->q_filepath, argv[3] );
    }
+   if ( num_main_args == 3 )
+   {
+      /* second arg is target */
+      args->target_prep = STR_Set( args->target_prep, argv[2] );
+      /* third arg is query */
+      args->query_prep = STR_Set( args->query_prep, argv[3] );
+      
+      args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[4] );
+   }
    if ( num_main_args == 5 )
    {
       /* second arg is target */
@@ -183,7 +192,7 @@ void   ARGS_Parse( ARGS*   args,
          /* === INPUT FILES === */
          else if ( STR_Compare( argv[i], (flag = "--index") ) == 0 ) {
             req_args = 2;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->t_indexpath = STR_Set( args->t_indexpath, argv[i] );
                i++;
@@ -195,7 +204,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--local-tools") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->is_use_local_tools = atoi(argv[i]); 
             } else {
@@ -205,7 +214,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--guess-type") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->is_guess_filetype = atoi(argv[i]); 
             } else {
@@ -215,7 +224,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
             req_args = 5;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->t_filetype = atoi(argv[i]); 
                i++;
@@ -229,13 +238,13 @@ void   ARGS_Parse( ARGS*   args,
                /* since filetype supplied, turn off guesser */
                args->is_guess_filetype = false;
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmore-main-ftype") ) == 0 ) {
             req_args = 2;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->t_filetype = atoi(argv[i]); 
                i++;
@@ -243,23 +252,44 @@ void   ARGS_Parse( ARGS*   args,
                /* since filetype supplied, turn off guesser */
                args->is_guess_filetype = false;
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--tmp") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
             } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--prep") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->tmp_folderpath = STR_Set( args->prep_folder, argv[i] );
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--run-prep") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
+
                i++;
                args->mmseqs_m8_filepath = STR_Set( args->mmseqs_m8_filepath, argv[i] );
             } else {
@@ -300,7 +330,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--eval") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->mmseqs_evalue = atof(argv[i]);
             } else {
@@ -310,9 +340,9 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--run-bias") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
-               args->is_compo_bias = atof(argv[i]);
+               args->is_run_bias = atof(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -320,7 +350,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--run-full") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->is_run_full = atof(argv[i]);
             } else {
@@ -330,7 +360,7 @@ void   ARGS_Parse( ARGS*   args,
          }
          else if ( STR_Compare( argv[i], (flag = "--run-domains") ) == 0 ) {
             req_args = 1;
-            if (i+req_args <= argc) {
+            if (i+req_args < argc) {
                i++;
                args->is_run_domains = atof(argv[i]);
             } else {
@@ -594,7 +624,7 @@ void  ARGS_SetDefaults( ARGS* args )
    args->tmp_remove              = false;
 
    /* --- TASK OPTIONS --- */
-   args->is_compo_bias           = true;
+   args->is_run_bias           = true;
    args->is_run_pruned           = true;
    args->is_run_full             = false;
    args->is_run_domains          = true;
@@ -622,6 +652,13 @@ void  ARGS_SetDefaults( ARGS* args )
    /* indexes */
    args->t_indexpath             = NULL;
    args->q_indexpath             = NULL;
+
+   /* --- PREP --- */
+   args->prep_folder             = NULL;
+   args->query_prep              = NULL;
+   args->target_prep             = NULL;
+   args->query_prep_type         = FILE_FASTA;
+   args->target_prep_type        = FILE_MSA;
 
    /* --- INTERRIM OUTPUT --- */
    args->mmseqs_m8_filepath     = STR_Create("mmseqs.results.m8out");
@@ -683,7 +720,7 @@ void ARGS_Dump( ARGS*    args,
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "PIPELINE",        PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
    fprintf( fp, "%*s:\t%s == %d\n",    align * pad,  "VERBOSITY_MODE",  VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "SEARCH_MODE",     MODE_NAMES[args->search_mode] );
-   fprintf( fp, "%*s:\t%s\n",          align * pad,  "COMPO_BIAS",      ( args->is_compo_bias ? "True" : "False" ) );
+   fprintf( fp, "%*s:\t%s\n",          align * pad,  "COMPO_BIAS",      ( args->is_run_bias ? "True" : "False" ) );
    fprintf( fp, "\n" );
    /* --- INPUT --- */
    fprintf( fp, "%*s:\t%s\n",          align * pad,  "TARGET_FILEPATH", args->t_filepath );

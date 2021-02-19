@@ -222,6 +222,7 @@ typedef struct {
 /* file manager for opening/closing files */
 typedef struct {
    FILE*             fp;            /* pointer to file to be open/closed */
+   STR               name;          /* name describing file */
    STR               filename;      /* path to file */
    STR               mode;          /* which mode is file to be opened in? (e.g. "a", "r", "w", "b", "r+") */
    bool              is_open;       /* is file currently opened? */
@@ -638,9 +639,20 @@ typedef struct {
 
    /* --- OPTIONAL OUTPUT --- */
    /* simple hitlist (input) */
-   char*    hitlist_filepath;       /* filepath to simple hitlist */
+   char*          hitlist_filepath;       /* filepath to simple hitlist */
 
-   /* --- PREP INTERRIM OUTPUT --- */
+   /* --- PREPARATION OUTPUT --- */
+   /* root prep folder */
+   bool           is_run_prep;            /* Should run prep before main pipeline? */
+   bool           is_prep_copy;           /* Should prep folder make copies or soft link input files? */
+   char*          prep_folder;            /* location to find prep folder */
+   /* prep-able files */
+   char*          target_prep;            /* target file to be prepped (either FASTA or MSA) */
+   char*          query_prep;             /* query file to be prepped (either FASTA or MSA) */
+   FILE_TYPE      target_prep_type;       /* filetype of target prep file */
+   FILE_TYPE      query_prep_type;        /* filetype of target prep file */
+
+   /* --- INTERRIM OUTPUT --- */
    /* hmm file (if fasta file is given as input, a single sequence hmm file) */
    bool     is_hmmout;              /* output .hmm file? */
    char*    hmmout_filepath;        /* filepath to output .hmm file to */
@@ -694,10 +706,10 @@ typedef struct {
    bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
   
    /* --- TASK OPTIONS --- */
-   bool     is_run_pruned;          /* run pruned forward backward */
-   bool     is_run_full;            /* run full forward backward */
-   bool     is_run_domains;         /* run domain search */
-   bool     is_compo_bias;          /* should composition bias filter be applied? */
+   bool     is_run_pruned;          /* should run pruned forward backward? */
+   bool     is_run_full;            /* should run full forward backward? */
+   bool     is_run_domains;         /* should run domain search? */
+   bool     is_run_bias;            /* should composition bias filter be applied? */
 
    /* --- MMSEQS --- */
    int      mmseqs_hits_per_search;    /* maximum number of alignments allowed to be reported per target/query search */ 
@@ -1419,12 +1431,13 @@ typedef struct {
 
 /* pipeline descriptors */
 typedef struct {
-   char*          name;                   /* name of function  */
-   STATUS_FLAG    (*func)(WORKER*);       /* pointer to main pipeline function */
-   int            num_main_args;          /* number of main args  */
-   // STATUS_FLAG    (*set_args)(WORKER*);   /* pointer to set default args function */
-   // STATUS_FLAG    (*set_tasks)(WORKER*);  /* pointer to set default tasks function */
-   // char**         main_args[];            /* array of pointers to string arguments in args */
+   char*          name;                                              /* name of function  */
+   STATUS_FLAG    (*func)(WORKER* worker);                           /* pointer to main pipeline function */
+   int            num_main_args;                                     /* number of main args  */
+   // STATUS_FLAG    (*set_args)(WORKER*);                           /* pointer to set default args function */
+   // STATUS_FLAG    (*set_tasks)(WORKER*);                          /* pointer to set default tasks function */
+   // PTR*           main_args[];                                    /* array of pointers to string arguments in args */
+   // STATUS_FLAG    (*arg_parser)(ARGS* args, char* argv[], int argc); /* pointer to main argument parser function */   
 } PIPELINE;
 
 /* pipeline options */

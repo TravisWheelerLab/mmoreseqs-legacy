@@ -340,11 +340,12 @@ run_Bound_Forward_Linear(     const SEQUENCE*            query,         /* query
 
          /* UNROLLED FINAL LOOP ITERATION */
          t_0 = rb_0;
+         if ( rb_0 - lb_0 > 1 )
          {
             t_0   = T;
             t_1   = t_0 - 1;
             tx0   = t_0;
-            tx0   = tx0 - 1;
+            tx1   = tx0 - 1;
 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */

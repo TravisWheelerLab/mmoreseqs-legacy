@@ -29,6 +29,8 @@
 #include "work_posterior_bydom.h"
 #include "work_optacc.h"
 #include "work_scoring.h"
+/* scripting */
+#include "work_scripting.h"
 /* other */
 #include "work_etc.h"
 #include "work_sparse_mx.h"

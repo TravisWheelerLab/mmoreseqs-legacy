@@ -12,6 +12,8 @@
 #include "filer.h"
 /* buffer for storing file data */
 #include "buffer.h"
+#include "buffer_read.h"
+#include "buffer_write.h"
 
 /* reader and writer (depend on buffer) */
 #include "reader.h"

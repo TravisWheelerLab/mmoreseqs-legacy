@@ -154,9 +154,12 @@ fi
 			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
 			# options :
 			ROOT_DIR="${ROOT_DIR:-'/'}"
-			TEMP_DIR="${TEMP_DIR:-$(mktemp -d tmp-mmore-XXXX)}"
+			PREP_DIR="${PREP_DIR:-""}"
+			SCRIPT_DIR="${SCRIPT_DIR:-""}"
+			TEMP_DIR="${TEMP_DIR:-""}"
+			# pipeline options:
 			RM_TEMP="${RM_TEMP:-0}" 
-			DO_PREP="${DO_PREP:-}"
+			DO_PREP="${DO_PREP:-0}"
 			DO_OVERWRITE="${DO_OVERWRITE:-1}"
 			DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
 			NUM_THREADS="${NUM_THREADS:-1}"
@@ -258,21 +261,30 @@ fi
 
 		# build temporary folders
 		{
+			TEMP_DIR="${TEMP_DIR:-$(mktemp -d tmp-mmore-XXXX)}"
 			# top-level temporary directory
-			TMP_ROOT=${TEMP_DIR}/
-			TMP=${TMP_ROOT}/
-			# temporary subdirectories for mmseqs and mmore
-			TMP_MMSEQS=${TMP}/mmseqs/
+			TMP=${TEMP_DIR}/
+			TMP_QUERY=${TMP}/query/
+			TMP_TARGET=${TMP}/target/
+			# temporary subdirectory for mmore
 			TMP_MMORE=${TMP}/mmore/
+			TMP_MMORE_DB=${TMP_MMORE}/db/
+			TMP_MMORE_OUT=${TMP_MMORE}/out/
+			# temporary subdirectory for mmseqs
+			TMP_MMSEQS=${TMP}/mmseqs/
 			TMP_MMSEQS_DB=${TMP_MMSEQS}/db/
 			TMP_MMSEQS_WORKING=${TMP_MMSEQS}/working/
+			TMP_MMSEQS_OUT=${TMP_MMSEQS}/out/
 
 			# make tmp directories
 			MAKE_DIR $TMP_ROOT
 			MAKE_DIR $TMP_MMORE
+			MAKE_DIR $TMP_MMORE_DB
+			MAKE_DIR $TMP_MMORE_OUT
 			MAKE_DIR $TMP_MMSEQS
 			MAKE_DIR $TMP_MMSEQS_DB
 			MAKE_DIR $TMP_MMSEQS_WORKING
+			MAKE_DIR $TMP_MMSEQS_OUT
 
 			# list of temp folders 
 			TEMP_FOLDERS=""
@@ -614,7 +626,7 @@ fi
 
 		# Report results to m8 file
 		{
-			MMSEQS_M8="${TMP_MMSEQS}/mmseqs_results.m8"
+			MMSEQS_M8="${TMP_MMSEQS_OUT}/mmseqs.results.m8"
 			echo "mmseqs_results: $MMSEQS_M8"
 
 			$MMSEQS convertalis 								\
@@ -667,30 +679,31 @@ fi
 
 			# check if output are set
 			if [ ! -z "$STDOUT" ]; then
-				STDOUT=""
-			else
-				STDOUT="--stdout $STDOUT"
+				MMORE_OPTS="--stdout $STDOUT"
 			fi
-			if [ ! -z "$M8_OUT" ]; then
+			if [ ! -z "$MMORE_M8OUT" ]; then
 				M8_OUT=""
 			else
-				$STDOUT="--m8-out $STDOUT"
-			fi
-			if [ ! -z "$STDOUT" ]; then
-				$STDOUT=""
-			else
-				$STDOUT="--stdout $STDOUT"
+				STDOUT="--m8-out $STDOUT"
 			fi
 		}
 
 		# Run Search
 		{
-			time $MMORE mmore_main 										\
+			echo "$MMORE mmore_main $TARGET $QUERY"
+			MMORE_M8="${TMP_MMORE_OUT}/mmore.results.m8out"
+			MMORE_MYTIME="${TMP_MMORE_OUT}/mmore.results.mytimeout"
+
+			$MMORE mmore_main 											\
 			$TARGET $QUERY 												\
 			--mmseqs-m8 		$MMSEQS_M8	 							\
 			--alpha 				$ALPHA 									\
 			--beta 				$BETA 									\
 			--gamma 				$GAMMA 									\
+																				\
+			--m8out 				$MMORE_M8 								\
+			--mytimeout 		$MMORE_MYTIME 							\
+
 
 		}
 

@@ -57,6 +57,13 @@ index_pipeline( WORKER* worker );
 STATUS_FLAG 
 hmmbuild_pipeline( WORKER* worker );
 
+/*! FUNCTION:  prep_pipeline()
+ *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
+ *             Prepares files for use in the MMORE-SEQS Pipeline
+ */
+STATUS_FLAG 
+prep_pipeline( WORKER* worker );
+
 /* === DEBUGGING PIPELINES === */
 
 /*! FUNCTION:     itest_pipeline()

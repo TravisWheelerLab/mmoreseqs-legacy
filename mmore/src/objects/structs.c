@@ -106,7 +106,8 @@ PIPELINE PIPELINES[] = {
    { "mmore_main",   mmore_main_pipeline,    2 },
    { "index",        index_pipeline,         2 },
    { "hmmbuild",     hmmbuild_pipeline,      1 },
-   { "interactive",  interactive_pipeline,   0 }
+   { "interactive",  interactive_pipeline,   0 },
+   { "prep",         prep_pipeline,          3 }
 };
 
 /* full names of the all states */
@@ -208,7 +209,10 @@ char* FILE_TYPE_NAMES[] = {
    "FASTA",
    "MSA",
    "MM_MSA",
-   "HHM"
+   "HHM",
+   "MMDB",
+   "MMDB_S",
+   "MMDB_P",
 };
 
 /* command line flags and options */

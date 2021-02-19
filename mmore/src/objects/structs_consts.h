@@ -184,7 +184,9 @@ typedef enum {
    FILE_MSA    = 3,
    FILE_MM_MSA = 4,
    FILE_HHM    = 5,
-   FILE_MMDB_S = 6,
+   FILE_MMDB   = 6,
+   FILE_MMDB_S = 7,
+   FILE_MMDB_P = 8,
 } FILE_TYPE;
 #define NUM_FILE_TYPES 3
 #define NUM_FILE_EXTS  3

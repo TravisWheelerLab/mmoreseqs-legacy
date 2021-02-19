@@ -13,6 +13,9 @@
 /* BUILD OPTIONS */
 
 
+/* FILE LOCATIONS */
+
+
 /* DEBUGGER OPTIONS */
 
 
@@ -20,5 +23,6 @@
 
 
 /* OTHER OPTIONS */
+
 
 #endif /* _STRUCTS_BUILDOPTS_H */
