@@ -76,3 +76,8 @@ depcomp
 fbpruner
 install-sh
 missing
+
+# Exceptions
+!my_make/Makefile
+!my_make/Makefile.am
+!my_make/Makefile.in
