@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_TRACE Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_TRACE_H

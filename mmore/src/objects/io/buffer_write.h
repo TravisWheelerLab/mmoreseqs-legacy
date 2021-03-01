@@ -15,13 +15,15 @@
  *              Return true if buffer is full.
  */
 bool
-BUFFER_Write(   BUFFER*     buffer );
+BUFFER_Write(  BUFFER*     buffer,
+               STR         str );
 
 /*!  FUNCTION:  BUFFER_WriteLine()
  *   SYNOPSIS:  Write STRING <str> to BUFFER <buffer>, with a newline character at the end.
  *              Return true if buffer is full.
  */
 bool
-BUFFER_WriteLine(   BUFFER*     buffer );
+BUFFER_WriteLine(    BUFFER*     buffer,
+                     STR         str );
 
 #endif /* _BUFFER_WRITE_H */

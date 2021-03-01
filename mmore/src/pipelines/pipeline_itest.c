@@ -29,7 +29,6 @@
 #include "../algs_linear/_algs_linear.h"
 #include "../algs_quad/_algs_quad.h"
 #include "../algs_naive/_algs_naive.h"
-#include "../algs_sparse/_algs_sparse.h"
 #include "../work/_work.h"
 
 /* header */

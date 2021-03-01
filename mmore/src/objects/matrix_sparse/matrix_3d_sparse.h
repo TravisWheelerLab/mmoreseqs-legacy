@@ -132,6 +132,22 @@ int
 MATRIX_3D_SPARSE_GetOffset_ByIndex_Nxt(   const MATRIX_3D_SPARSE*    smx,        
                                           const int                  r_0 );   /* index for given bound */
 
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetOffset_byCoords()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ *             Gets the offsets for the current cell <qx0_prv_out>, 
+ *             the cell immediately above it on the previous row <qx0_cur_out>, 
+ *             and the cell immediately below it on the next row <qx0_nxt_out>.
+ */
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetOffset_ByCoords(   const MATRIX_3D_SPARSE*    smx,        
+                                       const int                  q_0,              /* IN: q_0 position in matrix */
+                                       const int                  t_0,              /* IN: t_0 position in matrix */
+                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
+                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                       int*                       qx0_nxt_out,      /* OUT: offset to position in next row */
+                                       int*                       tx0_out );        /* OUT: offset to position in data block */
+
+
 /*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
  *  SYNOPSIS:  Gets the offset ind <data> to start of datablock corresponding to <r_0>th bound in <edg_inner>.
  *             Gets the offsets for the current cell <qx0_prv_out>, 

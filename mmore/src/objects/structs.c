@@ -100,14 +100,14 @@ double BG_MODEL_log[] = {
 /* descriptors of all pipelines */
 const int num_pipelines = 7;
 PIPELINE PIPELINES[] = {
-   { "null",         null_pipeline,          0 },
-   { "generic",      generic_pipeline,       2 },
-   { "mmore",        mmore_pipeline,         5 },
-   { "mmore_main",   mmore_main_pipeline,    2 },
-   { "index",        index_pipeline,         2 },
-   { "hmmbuild",     hmmbuild_pipeline,      1 },
-   { "interactive",  interactive_pipeline,   0 },
-   { "prep",         prep_pipeline,          3 }
+   { "null",         null_pipeline,          0,    NULL },
+   { "generic",      generic_pipeline,       2,    NULL },
+   { "mmore",        mmore_pipeline,         5,    NULL },
+   { "mmore_main",   mmore_main_pipeline,    2,    NULL },
+   { "index",        index_pipeline,         2,    NULL },
+   { "hmmbuild",     hmmbuild_pipeline,      1,    NULL },
+   { "interactive",  interactive_pipeline,   0,    NULL },
+   { "prep",         prep_pipeline,          3,    NULL }
 };
 
 /* full names of the all states */
@@ -139,6 +139,21 @@ char* STATE_CHARS[] = {
    "S",
    "T",
    "X", 
+};
+
+/* Abbreviations of all states (for trace outputs) */
+char STATE_CHAR[] = {
+   'M',
+   'I',
+   'D',
+   'E',
+   'N',
+   'J',
+   'C',
+   'B',
+   'S',
+   'T',
+   'X', 
 };
 
 /* Abbreviations of all states (for trace outputs) */
@@ -216,27 +231,27 @@ char* FILE_TYPE_NAMES[] = {
 };
 
 /* command line flags and options */
-int   num_flag_cmds = 11;
-ARG_OPT COMMAND_OPTS[] = {
-   /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
-   /* output formats */
-   {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
-   {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
-   /* general options */
-   {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
-   /* mmseqs options */
-   {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
-   {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
-   {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
-   /* mmore main options */
-   {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
-   {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
-   {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
+// int   num_flag_cmds = 11;
+// ARG_OPT COMMAND_OPTS[] = {
+//    /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
+//    /* output formats */
+//    {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
+//    {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
+//    /* general options */
+//    {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
+//    /* mmseqs options */
+//    {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
+//    {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
+//    {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
+//    /* mmore main options */
+//    {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
+//    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
+//    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
    
-   {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
-   {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
-   {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
-};
+//    {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
+//    {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
+//    {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
+// };
 
 /* debugging data structures */
 DEBUG_KIT*  debugger;
@@ -254,7 +269,6 @@ char* DATATYPE_NAMES[] = {
 /* SingleBuilder probability matrix (created by HMMER using p7_SingleBuilder, dependent on only bg frequencies) */
 /* TODO: Needs to be freed */ 
 SCORE_MATRIX* bld = NULL;
-
 
 /* --- EXTERNAL EXECUTABLE/SCRIPT LOCATIONS --- */
 char* ROOT_DIR                = MACRO_XSTR(PROJECT_LOC);

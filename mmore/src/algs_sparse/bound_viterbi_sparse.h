@@ -1,18 +1,17 @@
 /*******************************************************************************
- *  FILE:      bounded_viterbi_linear.c
+ *  FILE:      bounded_viterbi_sparse.c
  *  PURPOSE:   Bounded Viterbi Algorithm 
  *             (Sparse Matrix Alg)
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
  *******************************************************************************/
 
 #ifndef _BOUND_VITERBI_SPARSE_H
 #define _BOUND_VITERBI_SPARSE_H
 
 /*! FUNCTION: run_Bound_Viterbi_Sparse()
- *  SYNOPSIS: Perform Edge-Bounded Forward step of Cloud Search Algorithm.
- *            Runs traditional Forward-Backward Algorithm, but only performs
+ *  SYNOPSIS: Perform Edge-Bounded Viterbi.
+ *            Runs traditional Viterbi Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
  *             the <edg> EDGEBOUNDS object, which stores a series of 
  *             (left-bound, right-bound) pairs sorted by row.  
@@ -23,14 +22,15 @@
  *
  *  RETURN:   Returns the final score of the Forward Algorithm.
  */
-STATUS_FLAG 
-run_Bound_Viterbi_Sparse(   const SEQUENCE*      query,         /* query sequence */
-                            const HMM_PROFILE*   target,        /* target HMM model */
-                            const int            Q,             /* query length */
-                            const int            T,             /* target length */
-                            EDGEBOUNDS*          edg,           /* edgebounds */
-                            MATRIX_3D_SPARSE*    st_SMX,         /* normal state matrix */
-                            MATRIX_2D*           sp_MX,         /* special state matrix */
-                            float*               sc_final );    /* (OUTPUT) final score */
+STATUS_FLAG
+run_Bound_Viterbi_Sparse(  const SEQUENCE*               query,         /* query sequence */
+                           const HMM_PROFILE*            target,        /* target HMM model */
+                           const int                     Q,             /* query length */
+                           const int                     T,             /* target length */
+                           const EDGEBOUNDS*             edg,           /* edgebounds */
+                           const RANGE*                  dom_range,     /* (OPTIONAL) domain range for computing fwd/bck on specific domain. If NULL, computes complete fwd/bck. */
+                           MATRIX_3D_SPARSE* restrict    st_SMX_vit,    /* normal state matrix */
+                           MATRIX_2D* restrict           sp_MX_vit,     /* special state matrix */
+                           float*                        sc_final );    /* (OUTPUT) final score */
 
 #endif /* _BOUND_VITERBI_SPARSE_H */

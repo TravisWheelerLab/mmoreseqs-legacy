@@ -39,7 +39,9 @@ WORKER_Create()
    /* --- pipeline --- */
    // worker->pipeline        = NULL;
    /* pipeline settings */
+   worker->cmd             = NULL;
    worker->args            = NULL;
+   worker->arg_opts        = NULL;
    worker->tasks           = NULL;
    /* pipeline tools */
    worker->timer           = CLOCK_Create();
@@ -177,9 +179,9 @@ WORKER*
 WORKER_Init( WORKER* worker )
 {
    /* malloc all basic data structures */
-   if ( worker->args == NULL) {
-      worker->args         = ERROR_malloc( sizeof(ARGS) );
-   }
+   worker->cmd             = COMMANDLINE_Create();
+   worker->args            = ERROR_malloc( sizeof(ARGS) );
+   worker->arg_opts        = ARG_OPTS_Create();
    worker->stats           = ERROR_malloc( sizeof(STATS) );
    worker->tasks           = ERROR_malloc( sizeof(TASKS) );
    worker->times           = ERROR_malloc( sizeof(TIMES) );

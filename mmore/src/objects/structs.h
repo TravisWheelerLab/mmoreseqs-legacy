@@ -237,6 +237,7 @@ typedef struct {
    VECTOR_CHAR*      line;          /* last line read to buffer */
    STR               buffer_ptr;    /* pointer into <line> buffer */
    int               line_len;      /* number of characters in current line; -1 if eof */
+   int               line_max;      /* maximum allowed length of line */
    /* split line buffer by words/fields */
    VECTOR_CHAR*      split_line;    /* copy of line for splitting */ 
    STR               field;         /* pointer to next field in <split_line> */
@@ -263,32 +264,23 @@ typedef struct {
    long int          pos_nxt;       /* position of start of next line */
 } READER;
 
-/* reader for parsing files */
+/* writer for parsing files */
 typedef struct {
    /* file data */
-   FILER*            file;          /* file to be written to */
+   FILE*             fp;            /* file to be read */
+   char*             filename;      /* string to file location */
+   long int          file_size;     /* size of file (in chars) */
+   bool              is_open;       /* whether file is open or not */
+   bool              is_eof;        /* is reader at end of file? */
+   size_t            line_count;    /* line number in file */
+   size_t            lines_written; /* number of lines written */
+   /* buffer data */
    BUFFER*           buffer;        /* buffer for data */
-   /* meta data */
-   size_t            num_writes;    /* number of writes to file */
+   /* position in file */
+   long int          pos_prv;       /* position of start of previous line */
+   long int          pos_cur;       /* position of start of current line */
+   long int          pos_nxt;       /* position of start of next line */
 } WRITER;
-
-/* single option */
-typedef struct {
-   char*             opt_long;   /* long option */
-   char*             opt_short;  /* short option */
-   int               arg_type;   /* datatype of arguments */
-   int               arg_num;    /* number of args allowed */
-   char*             help_info;  /* report help data */
-} OPT;
-
-/* all command line options */
-typedef struct {
-   /* option vector */
-   OPT*              data;
-   int               N;
-   int               Nalloc;
-   char*             help_info;
-} OPTS;
 
 /* set of bounds for cloud search space */
 typedef struct {
@@ -585,6 +577,16 @@ typedef struct {
    float                scaled;        /* if all cells are scaled by a common factor */                
 } DP_MATRIX;
 
+/* commandline parser */
+typedef struct {
+   int            cur_opt;             /* current option */
+   int            cur_arg;             /* current argument */
+   VECTOR_STR*    options;             /* commandline option flags */
+   VECTOR_STR*    arguments;           /* commandline arguments for options */
+   VECTOR_INT*    argument_opts;       /* associated option for argument */
+   VECTOR_INT*    argument_index;      /* index for head of option arguments */
+} COMMANDLINE;
+
 /* commandline arguments */
 typedef struct {
    /* --- FULL CMD LINE --- */
@@ -812,7 +814,7 @@ typedef struct {
    float    quad_fwd;            /* forward */
    float    quad_bck;            /* backward */
    float    quad_vit;            /* viterbi */
-   float    quad_trace;          /* viterbi traceback */
+   float    quad_vit_trace;      /* viterbi traceback */
    float    quad_cloud_fwd;      /* cloud search forward */
    float    quad_cloud_bck;      /* cloud search backward */
    float    quad_merge;          /* edgebounds merge/union */
@@ -820,12 +822,13 @@ typedef struct {
    float    quad_bound_fwd;      /* bound forward */
    float    quad_bound_bck;      /* bound backward */
    float    quad_posterior;      /* posterior computations */
-   float    quad_optacc;         /* optimal accuracy and traceback */
+   float    quad_optacc;         /* optimal accuracy */
+   float    quad_opt_trace;      /* optimal accuracy and traceback */
    /* linear algs */   
    float    lin_fwd;             /* forward */
    float    lin_bck;             /* backward */
    float    lin_vit;             /* viterbi */
-   float    lin_trace;           /* traceback of viterbi */
+   float    lin_trace;           /* viterbi traceback */
    float    lin_cloud_fwd;       /* cloud search forward */
    float    lin_cloud_bck;       /* cloud search backward */
    float    lin_merge;           /* edgebounds merge */
@@ -837,7 +840,7 @@ typedef struct {
    float    sp_fwd;              /* forward-backward */
    float    sp_bck;              /* backward */
    float    sp_vit;              /* viterbi */
-   float    sp_trace;            /* traceback of viterbi */
+   float    sp_vit_trace;        /* viterbi traceback */
    float    sp_cloud_fwd;        /* cloud search forward */
    float    sp_cloud_bck;        /* cloud search backward */
    float    sp_bound_fwd;        /* bound forward */
@@ -845,18 +848,22 @@ typedef struct {
    float    sp_posterior;        /* posterior computations */
    float    sp_decodedom;        /* decode domains */
    float    sp_biascorr;         /* null2 bias correction */
-   float    sp_optacc;           /* optimal accuracy and traceback */
+   float    sp_optacc;           /* optimal accuracy */
+   float    sp_opt_trace;        /* posterior / optimal accuracy traceback */
 
    /* --- domain loop --- */
    /* domain-specific (overall times for all domains for given search) */
    float    dom_start;           /* start dom time */
    float    dom_end;             /* end dom time */
    float    dom_total;           /* total dom runtime */
+   float    dom_vit;             /* viterbi */
+
    float    dom_bound_fwd;       /* bound forward */
    float    dom_bound_bck;       /* bound backward */
    float    dom_posterior;       /* domain posterior */
    float    dom_biascorr;        /* null2 bias correction */
    float    dom_optacc;          /* optimal accuracy and traceback */
+   float    dom_opt_trace;       /* posterior / optimal accuracy traceback */
 } TIMES;
 
 /* all scores for all types of algs */
@@ -935,43 +942,47 @@ typedef struct {
 
 /* descriptor for command line arguments */
 typedef struct {
-   /* output data for user */
-   char*    name;          /* name of flag */
-   /* program data */
-   int      num_args;      /* number of arguments */
-   int      data_type;     /* data type of arguments */
-   void*    arg_loc;       /* pointer to the location in ARGS to store option argument */
-   void*    arg_bool;      /* toggle boolean? */
-   /* input data for user */
-   char*    long_flag;     /* long "--" flag */
-   char*    short_flag;    /* single character "-" flag */
-   char*    desc;          /* description of flag (for --help) */
-} ARG_OPT;
+   int                  N_opts;        /* number of options */
+   int                  N_args;        /* number of arguments */
+   /* general data */
+   VECTOR_STR*          opt_names;     /* name of option */
+   VECTOR_STR*          opt_desc;      /* description of flag */
+   VECTOR_STR*          opt_help;      /* additional help options */
+   /* option data */
+   VECTOR_STR*          opt_long;      /* long "--" flag */
+   VECTOR_STR*          opt_short;     /* single character "-" flag */
+   VECTOR_INT*          num_args;      /* number of arguments for option */
+   VECTOR_INT*          arg_index;     /* indexes arguments for option */
+   /* argument data */
+   VECTOR_INT*          arg_type;      /* data type of arguments */
+   VECTOR_PTR*          arg_loc;       /* pointer to the location in ARGS to store option argument */
+   VECTOR_INT*          arg_id;        /* associates argument to option */
+} ARG_OPTS;
 
 /* TODO: formatted data */
 /* descriptor for data field */
 typedef struct {
-   STR         name;       /* name of field */
-   STR         desc;       /* description of field */
-   DATATYPE    type;       /* datatype of field */
-   void*       data_loc;   /* data location in worker to retrieve */
+   STR               name;          /* name of field */
+   STR               desc;          /* description of field */
+   DATATYPE          type;          /* datatype of field */
+   void*             data_loc;      /* data location in worker to retrieve */
 } DATA_FIELD;
 
 /* descriptor for data format */
 typedef struct {
-   STR         name;          /* name of data format */
-   STR         desc;          /* description of data format */
-   int         num_fields;    /* number of fields in data format */
-   DATA_FIELD* field_desc;    /* descriptor for all data fields */
+   STR               name;          /* name of data format */
+   STR               desc;          /* description of data format */
+   int               num_fields;    /* number of fields in data format */
+   DATA_FIELD*       field_desc;    /* descriptor for all data fields */
 } DATA_FORMAT;
 
 /* formatted results */
 typedef struct {
-   DATA_FORMAT*   format;           /* description of data format */
-   int            total;            /* total number of results processed */
-   int            N_in_queue;       /* total number of results in queue */
-   int            N_max_in_queue;   /* number of results allowed in queue before outputting */
-   DATA_FIELD*    fields;           /* field data */
+   DATA_FORMAT*      format;           /* description of data format */
+   int               total;            /* total number of results processed */
+   int               N_in_queue;       /* total number of results in queue */
+   int               N_max_in_queue;   /* number of results allowed in queue before outputting */
+   DATA_FIELD*       fields;           /* field data */
 } FORMATTED_RESULT;
 
 /* m8 result data entry */
@@ -1296,7 +1307,9 @@ typedef struct {
    /* --- pipeline --- */
    // PIPELINE*            pipeline;
    /* --- pipeline settings --- */
+   COMMANDLINE*         cmd;           /* parsed commandline */
    ARGS*                args;          /* arguments set by pipeline defaults and set by user */
+   ARG_OPTS*            arg_opts;      /* options for commandline parsing */
    TASKS*               tasks;         /* boolean list of pipeline tasks to be performed */
    /* --- pipeline tools --- */
    CLOCK*               timer;         /* stopwatch for timing events */
@@ -1431,25 +1444,17 @@ typedef struct {
 
 /* pipeline descriptors */
 typedef struct {
-   char*          name;                                              /* name of function  */
-   STATUS_FLAG    (*func)(WORKER* worker);                           /* pointer to main pipeline function */
-   int            num_main_args;                                     /* number of main args  */
-   // STATUS_FLAG    (*set_args)(WORKER*);                           /* pointer to set default args function */
-   // STATUS_FLAG    (*set_tasks)(WORKER*);                          /* pointer to set default tasks function */
-   // PTR*           main_args[];                                    /* array of pointers to string arguments in args */
-   // STATUS_FLAG    (*arg_parser)(ARGS* args, char* argv[], int argc); /* pointer to main argument parser function */   
+   char*          name;                                     /* name of pipeline */
+   STATUS_FLAG    (*pipeline_main)                               
+                  (WORKER* worker);                         /* pointer to main pipeline function */
+   int            num_main_args;                            /* number of main args  */
+   STATUS_FLAG    (*main_arg_parser)                        
+                  (ARGS* args, char* argv[], int argc);     /* pointer to main argument parser function */ 
+   // STATUS_FLAG    (*set_args)
+   //                (WORKER* worker);                         /* pointer to set default args function */
+   // STATUS_FLAG    (*set_tasks)
+   //                (WORKER* worker);                         /* pointer to set default tasks function */
 } PIPELINE;
-
-/* pipeline options */
-typedef struct {
-   char*          name;             /* name of option */
-   char*          desc;             /* short description of option/argument */
-   char*          short_flag;       /* short commandline flag */
-   char*          long_flag;        /* long commandline flag */
-   DATATYPE       type;             /* data type of arg */
-   int            num_args;         /* number of arguments for option */
-   PTR*           args;             /* array of pointers to the argument destination */
-} PIPELINE_OPTS;
 
 /* === GLOBAL VARIABLES === */
 /* pipeline */
@@ -1461,6 +1466,7 @@ extern int           ALPHABET_LENGTHS[];
 extern char*         STATE_NAMES[];
 extern char*         STATE_FULL_NAMES[];
 extern char*         STATE_CHARS[];
+extern char          STATE_CHAR[];
 /* input file types and extensions */
 extern char*         FILE_TYPE_EXTS[];
 extern char*         FILE_TYPE_NAMES[];
@@ -1473,8 +1479,6 @@ extern int           AA_REV[];
 extern double        BG_MODEL[];
 extern double        BG_MODEL_log[];
 /* commandline arg objects */
-extern int           num_flag_cmds;
-extern ARG_OPT       COMMAND_OPTS[];
 extern char*         DATATYPE_NAMES[];
 /* scoring matrix for converting sequences to hmm */
 extern SCORE_MATRIX* bld;

@@ -32,7 +32,7 @@
 /* === HEADER === */
 
 /* === MAIN ENTRY-POINT TO PROGRAM === */
-int 
+STATUS_FLAG 
 main ( int argc, char *argv[] )
 {
    /* full program runtimes */
@@ -51,11 +51,7 @@ main ( int argc, char *argv[] )
    #endif
 
    /* initialize worker and args object */
-   ARGS*    args;
-   WORKER*  worker;
-
-   args     = ARGS_Create();
-   worker   = WORKER_Create_with_Args( args );
+   WORKER* worker = WORKER_Create();
    WORKER_Init( worker );
 
    /* ideally, the clock would start before all, but this will work */
@@ -64,14 +60,18 @@ main ( int argc, char *argv[] )
    /* initialize random number generator */
    RNG_Init();
 
+   /* create commandline object */
+   COMMANDLINE_Load( worker->cmd, argc, argv );
+   // COMMANDLINE_Dump( worker->cmd, stdout );
+
    /* parse command line arguments */
-   ARGS_Parse( args, argc, argv );
+   ARGS_Parse( worker->args, argc, argv, worker->arg_opts );
 
    /* output arguments */
-   ARGS_Dump( args, stdout );
+   ARGS_Dump( worker->args, stdout );
    
    /* Run pipeline determined by args */
-   PIPELINES[ args->pipeline_mode ].func( worker );
+   PIPELINES[ worker->args->pipeline_mode ].pipeline_main( worker );
 
    /* free debugging toolkit */
    #if DEBUG 

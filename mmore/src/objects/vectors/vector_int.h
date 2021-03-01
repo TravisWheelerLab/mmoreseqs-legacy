@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_INT Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_INT_H

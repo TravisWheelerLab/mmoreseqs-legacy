@@ -25,7 +25,6 @@
 #include "_matrix_sparse.h"
 #include "matrix_3d_sparse_build.h"
 
-
 /** FUNCTION:  MATRIX_3D_SPARSE_Shape_Like_Edgebounds()
  *  SYNOPSIS:  Creates MATRIX_3D_SPARSE object that can contain the matrix needed for 
  *             computing Bounded Forward/Backward and Bounded Viterbi algorithms. 
@@ -37,9 +36,6 @@ int
 MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,              /* MATRIX_3D_SPARSE object */
                                           EDGEBOUNDS*          edg_inner )       /* EDGEBOUNDS of the inner (active) cells */
 {
-   printf("SMX_INPUT: N=%ld COUNT=%d\n", 
-      EDGEBOUNDS_GetSize( edg_inner ), EDGEBOUNDS_Count(edg_inner) );
-
    /* get full embedding matrix dimensions */ 
    smx->D1 = edg_inner->Q + 1;
    smx->D2 = edg_inner->T + 1;
@@ -50,23 +46,19 @@ MATRIX_3D_SPARSE_Shape_Like_Edgebounds(   MATRIX_3D_SPARSE*    smx,             
 	
    /* create outer edgebounds that includes all cells adjacent to inner edgebounds */
    smx->edg_outer = EDGEBOUNDS_Create_Padded_Edgebounds( smx->edg_inner, smx->edg_outer );
-   // printf("SMX->N: inner=%ld, outer=%ld\n", 
-   //    EDGEBOUNDS_GetSize( smx->edg_inner ), EDGEBOUNDS_GetSize( smx->edg_outer ) );
-   // int inner_cnt = EDGEBOUNDS_Count( smx->edg_inner );
-   // int outer_cnt = EDGEBOUNDS_Count( smx->edg_outer );
-   // int inner_brt = EDGEBOUNDS_BruteCount( smx->edg_inner );
-   // int outer_brt = EDGEBOUNDS_BruteCount( smx->edg_outer );
-   // printf("SMX->COUNTS: inner=%d, outer=%d\n", inner_cnt, outer_cnt );
-   // printf("SMX->BRUTECOUNTS: inner=%d, outer=%d\n", inner_brt, outer_brt );
+
+   /* map edgebounds to matrix data */
+   MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
+   MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
+
+   /* find minimum and maximum Q and T values */
+   // EDGEBOUNDS_Find_BoundingBox( smx->edg_inner, &smx->Q_range, &smx->T_range );
+   // EDGEBOUNDS_Find_BoundingBox( smx->edg_outer, NULL, NULL );
 
    /* edgebounds are self-indexing, they just need to be called */
    EDGEBOUNDS_Index( smx->edg_inner );
    EDGEBOUNDS_Index( smx->edg_outer );
 
-   /* map edgebounds to matrix data */
-   MATRIX_3D_SPARSE_Map_to_Outer_Edgebounds( smx, smx->edg_outer );
-   MATRIX_3D_SPARSE_Map_to_Inner_Edgebounds( smx, smx->edg_inner, smx->edg_outer );
-   
    /* create matrix data */
    int old_N = smx->data->N;
    VECTOR_FLT_GrowTo( smx->data, smx->N );

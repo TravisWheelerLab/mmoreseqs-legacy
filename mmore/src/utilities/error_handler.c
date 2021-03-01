@@ -32,7 +32,9 @@
 #include "_utilities.h"
 #include "error_handler.h"
 
-
+/*!  FUNCTION:  ERRORCHECK_handler()
+ *   SYNOPSIS:  Handles errors.
+ */
 void 
 ERRORCHECK_handler(  const ERROR_FLAG      error_code,
                      const char*          _file_,
@@ -75,7 +77,9 @@ ERRORCHECK_handler(  const ERROR_FLAG      error_code,
    ERRORCHECK_exit(EXIT_FAILURE);
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_fopen()
+ *   SYNOPSIS:  Opens file <fp> and handles potential errors.
+ */
 inline
 FILE* 
 ERRORCHECK_fopen( const char*    filename,
@@ -90,7 +94,9 @@ ERRORCHECK_fopen( const char*    filename,
    }
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_fclose()
+ *   SYNOPSIS:  Closes file <fp> and handles potential errors.
+ */
 inline
 FILE* 
 ERRORCHECK_fclose(   FILE*          fp,
@@ -110,7 +116,9 @@ ERRORCHECK_fclose(   FILE*          fp,
    return NULL;
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_alloc()
+ *   SYNOPSIS:  Reallocates memory <ptr> or size <size> and handles potential errors.
+ */
 inline
 void* 
 ERRORCHECK_alloc( void*          ptr,
@@ -129,7 +137,10 @@ ERRORCHECK_alloc( void*          ptr,
    return ptr;
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_alloc()
+ *   SYNOPSIS:  Allocates memory <ptr> or size <size> and handles potential errors.
+ *              Returns new pointer to allocated memory.
+ */
 inline
 void* 
 ERRORCHECK_malloc(   const size_t   size,
@@ -147,7 +158,10 @@ ERRORCHECK_malloc(   const size_t   size,
    return ptr;
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_alloc()
+ *   SYNOPSIS:  Reallocates memory <ptr> or size <size> and handles potential errors.
+ *              Returns new pointer to allocated memory.
+ */
 inline
 void* 
 ERRORCHECK_realloc(  void*          ptr,
@@ -165,7 +179,10 @@ ERRORCHECK_realloc(  void*          ptr,
    return ptr;
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_free()
+ *   SYNOPSIS:  Frees memory <ptr> and handles potential errors.
+ *              Returns NULL pointer.
+ */
 inline
 void* 
 ERRORCHECK_free(  void*          ptr,
@@ -180,7 +197,9 @@ ERRORCHECK_free(  void*          ptr,
    return NULL;
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_boundscheck()
+ *   SYNOPSIS:  Checks that <idx> access is with array size <max>.
+ */
 void* 
 ERRORCHECK_boundscheck( int            idx,
                         int            max,
@@ -194,7 +213,9 @@ ERRORCHECK_boundscheck( int            idx,
    }
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_print_location()
+ *   SYNOPSIS:  Prints location in source code.
+ */
 void 
 ERRORCHECK_print_location( FILE*          fp,
                            const char*    _file_,
@@ -205,7 +226,9 @@ ERRORCHECK_print_location( FILE*          fp,
       _file_, _line_, _func_ );
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_unsupported_op()
+ *   SYNOPSIS:  Handles error if operation is not supported.
+ */
 void 
 ERRORCHECK_unsupported_op(    const char*     _file_,
                               const int       _line_,
@@ -214,7 +237,9 @@ ERRORCHECK_unsupported_op(    const char*     _file_,
 
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_memcheck()
+ *   SYNOPSIS:  Checks if memory at position has proper value.
+ */
 void 
 ERRORCHECK_memcheck(    int      row, 
                         int      col, 
@@ -226,7 +251,9 @@ ERRORCHECK_memcheck(    int      row,
            row, col, mat, ins, del );
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_stacktrace()
+ *   SYNOPSIS:  Performs stack trace in source code.
+ */
 void 
 ERRORCHECK_stacktrace()
 {
@@ -246,7 +273,9 @@ ERRORCHECK_stacktrace()
    free (strings);
 }
 
-
+/*!  FUNCTION:  ERRORCHECK_exit()
+ *   SYNOPSIS:  Exits program is <exit_flag> and reports errors.
+ */
 void 
 ERRORCHECK_exit( int exit_flag )
 {

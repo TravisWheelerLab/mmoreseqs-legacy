@@ -1,0 +1,432 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.4.fa
+# target sequence database:        targets/targets.4.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|P0C6X1|R1AB_CVH22  [L=6758]
+Description: Replicase polyprotein 1ab OS=Human coronavirus 229E OX=11137 GN=rep PE=1 SV=1
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence             Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------             -----------
+          0 15888.8 185.2          0 15888.6 185.1    1.0  1  sp|P0C6X1|R1AB_CVH22  Replicase polyprotein 1ab OS=Human coro
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|P0C6X1|R1AB_CVH22  Replicase polyprotein 1ab OS=Human coronavirus 229E OX=11137 GN=rep PE=1 SV=1
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 15888.6 185.1         0         0       1    6758 []       1    6758 []       1    6758 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 15888.6 bits;  conditional E-value: 0
+  sp|P0C6X1|R1AB_CVH22    1 macnrvtlavasdseisangcstiaqavrryseaasngfracrfvsldlqdcivgiaddtyvmglhgnqtlfcnimkfsdrpfmlhg 87  
+                            macnrvtlavasdseisangcstiaqavrryseaasngfracrfvsldlqdcivgiaddtyvmglhgnqtlfcnimkfsdrpfmlhg
+  sp|P0C6X1|R1AB_CVH22    1 MACNRVTLAVASDSEISANGCSTIAQAVRRYSEAASNGFRACRFVSLDLQDCIVGIADDTYVMGLHGNQTLFCNIMKFSDRPFMLHG 87  
+                            89************************************************************************************* PP
+
+  sp|P0C6X1|R1AB_CVH22   88 wlvfsnsnylleefdvvfgkrgggnvtytdqylcgadgkpvmsedlwqfvdhfgeneeiiinghtyvcawltkrkpldykrqnnlai 174 
+                            wlvfsnsnylleefdvvfgkrgggnvtytdqylcgadgkpvmsedlwqfvdhfgeneeiiinghtyvcawltkrkpldykrqnnlai
+  sp|P0C6X1|R1AB_CVH22   88 WLVFSNSNYLLEEFDVVFGKRGGGNVTYTDQYLCGADGKPVMSEDLWQFVDHFGENEEIIINGHTYVCAWLTKRKPLDYKRQNNLAI 174 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  175 eeieyvhgdalhtlrngsvlemakevktsskvvlsdaldklykvfgspvmtngsnileaftkpvfisalvqctcgtkswsvgdwtgf 261 
+                            eeieyvhgdalhtlrngsvlemakevktsskvvlsdaldklykvfgspvmtngsnileaftkpvfisalvqctcgtkswsvgdwtgf
+  sp|P0C6X1|R1AB_CVH22  175 EEIEYVHGDALHTLRNGSVLEMAKEVKTSSKVVLSDALDKLYKVFGSPVMTNGSNILEAFTKPVFISALVQCTCGTKSWSVGDWTGF 261 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  262 kssccnvisnklcvvpgnvkpgdavittqqagagikyfcgmtlkfvaniegvsvwrvialqsvdcfvasstfveeehvnrmdtfcfn 348 
+                            kssccnvisnklcvvpgnvkpgdavittqqagagikyfcgmtlkfvaniegvsvwrvialqsvdcfvasstfveeehvnrmdtfcfn
+  sp|P0C6X1|R1AB_CVH22  262 KSSCCNVISNKLCVVPGNVKPGDAVITTQQAGAGIKYFCGMTLKFVANIEGVSVWRVIALQSVDCFVASSTFVEEEHVNRMDTFCFN 348 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  349 vrnsvtdecrlamlgaemtsnvrrqvasgvidistgwfdvyddifaeskpwfvrkaedifgpcwsalasalkqlkvttgelvrfvks 435 
+                            vrnsvtdecrlamlgaemtsnvrrqvasgvidistgwfdvyddifaeskpwfvrkaedifgpcwsalasalkqlkvttgelvrfvks
+  sp|P0C6X1|R1AB_CVH22  349 VRNSVTDECRLAMLGAEMTSNVRRQVASGVIDISTGWFDVYDDIFAESKPWFVRKAEDIFGPCWSALASALKQLKVTTGELVRFVKS 435 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  436 icnsavavvggtiqilasvpekflnafdvfvtaiqtvfdcavetctiagkafdkvfdyvlldnalvklvttklkgvrerglnkvkya 522 
+                            icnsavavvggtiqilasvpekflnafdvfvtaiqtvfdcavetctiagkafdkvfdyvlldnalvklvttklkgvrerglnkvkya
+  sp|P0C6X1|R1AB_CVH22  436 ICNSAVAVVGGTIQILASVPEKFLNAFDVFVTAIQTVFDCAVETCTIAGKAFDKVFDYVLLDNALVKLVTTKLKGVRERGLNKVKYA 522 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  523 tvvvgsteevkssrverstavltiannysklfdegytvvigdvayfvsdgyfrlmaspnsvlttavykplfafnvnvmgtrpekfpt 609 
+                            tvvvgsteevkssrverstavltiannysklfdegytvvigdvayfvsdgyfrlmaspnsvlttavykplfafnvnvmgtrpekfpt
+  sp|P0C6X1|R1AB_CVH22  523 TVVVGSTEEVKSSRVERSTAVLTIANNYSKLFDEGYTVVIGDVAYFVSDGYFRLMASPNSVLTTAVYKPLFAFNVNVMGTRPEKFPT 609 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  610 tvtcenlesavlfvndkitefqldysidvidneiivkpnislcvplyvrdyvdkwddfcrqysneswfeddyrafisvlditdaavk 696 
+                            tvtcenlesavlfvndkitefqldysidvidneiivkpnislcvplyvrdyvdkwddfcrqysneswfeddyrafisvlditdaavk
+  sp|P0C6X1|R1AB_CVH22  610 TVTCENLESAVLFVNDKITEFQLDYSIDVIDNEIIVKPNISLCVPLYVRDYVDKWDDFCRQYSNESWFEDDYRAFISVLDITDAAVK 696 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  697 aaeskafvdtivppcpsilkvidggkiwngviknvnsvrdwlkslklnltqqgllgtcakrfkrwlgilleaynafldtvvstvkig 783 
+                            aaeskafvdtivppcpsilkvidggkiwngviknvnsvrdwlkslklnltqqgllgtcakrfkrwlgilleaynafldtvvstvkig
+  sp|P0C6X1|R1AB_CVH22  697 AAESKAFVDTIVPPCPSILKVIDGGKIWNGVIKNVNSVRDWLKSLKLNLTQQGLLGTCAKRFKRWLGILLEAYNAFLDTVVSTVKIG 783 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  784 gltfktyafdkpyivirdivckvenkteaewielfphndriksfstfesaympiadpthfdieevelldaefvepgcggilavideh 870 
+                            gltfktyafdkpyivirdivckvenkteaewielfphndriksfstfesaympiadpthfdieevelldaefvepgcggilavideh
+  sp|P0C6X1|R1AB_CVH22  784 GLTFKTYAFDKPYIVIRDIVCKVENKTEAEWIELFPHNDRIKSFSTFESAYMPIADPTHFDIEEVELLDAEFVEPGCGGILAVIDEH 870 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  871 vfykkdgvyypsngtnilpvaftkaaggkvsfsddvevkdiepvyrvklcfefedeklvdvcekaigkkikhegdwdsfcktiqsal 957 
+                            vfykkdgvyypsngtnilpvaftkaaggkvsfsddvevkdiepvyrvklcfefedeklvdvcekaigkkikhegdwdsfcktiqsal
+  sp|P0C6X1|R1AB_CVH22  871 VFYKKDGVYYPSNGTNILPVAFTKAAGGKVSFSDDVEVKDIEPVYRVKLCFEFEDEKLVDVCEKAIGKKIKHEGDWDSFCKTIQSAL 957 
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22  958 svvscyvnlptyyiydeeggndlslpvmisewplsvqqaqqeatlpdiaedvvdqveevnsifdietvdvkhdvspfempfeelngl 1044
+                            svvscyvnlptyyiydeeggndlslpvmisewplsvqqaqqeatlpdiaedvvdqveevnsifdietvdvkhdvspfempfeelngl
+  sp|P0C6X1|R1AB_CVH22  958 SVVSCYVNLPTYYIYDEEGGNDLSLPVMISEWPLSVQQAQQEATLPDIAEDVVDQVEEVNSIFDIETVDVKHDVSPFEMPFEELNGL 1044
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1045 kilkqldnncwvnsvmlqiqltgildgdyamqffkmgrvakmiercytaeqcirgamgdvglcmyrllkdlhtgfmvmdykcsctsg 1131
+                            kilkqldnncwvnsvmlqiqltgildgdyamqffkmgrvakmiercytaeqcirgamgdvglcmyrllkdlhtgfmvmdykcsctsg
+  sp|P0C6X1|R1AB_CVH22 1045 KILKQLDNNCWVNSVMLQIQLTGILDGDYAMQFFKMGRVAKMIERCYTAEQCIRGAMGDVGLCMYRLLKDLHTGFMVMDYKCSCTSG 1131
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1132 rleesgavlfctptkkafpygtclncnaprmctirqlqgtiifvqqkpepvnpvsfvvkpvcssifrgavscghyqtniysqnlcvd 1218
+                            rleesgavlfctptkkafpygtclncnaprmctirqlqgtiifvqqkpepvnpvsfvvkpvcssifrgavscghyqtniysqnlcvd
+  sp|P0C6X1|R1AB_CVH22 1132 RLEESGAVLFCTPTKKAFPYGTCLNCNAPRMCTIRQLQGTIIFVQQKPEPVNPVSFVVKPVCSSIFRGAVSCGHYQTNIYSQNLCVD 1218
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1219 gfgvnkiqpwtndalnticikdadynakveisvtpikntvdttpkeefvvkeklnaflvhdnvafyqgdvdtvvngvdfdfivnaan 1305
+                            gfgvnkiqpwtndalnticikdadynakveisvtpikntvdttpkeefvvkeklnaflvhdnvafyqgdvdtvvngvdfdfivnaan
+  sp|P0C6X1|R1AB_CVH22 1219 GFGVNKIQPWTNDALNTICIKDADYNAKVEISVTPIKNTVDTTPKEEFVVKEKLNAFLVHDNVAFYQGDVDTVVNGVDFDFIVNAAN 1305
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1306 enlahggglakaldvytkgklqrlskehiglagkvkvgtgvmvecdslrifnvvgprkgkherdllikayntinneqgtpltpilsc 1392
+                            enlahggglakaldvytkgklqrlskehiglagkvkvgtgvmvecdslrifnvvgprkgkherdllikayntinneqgtpltpilsc
+  sp|P0C6X1|R1AB_CVH22 1306 ENLAHGGGLAKALDVYTKGKLQRLSKEHIGLAGKVKVGTGVMVECDSLRIFNVVGPRKGKHERDLLIKAYNTINNEQGTPLTPILSC 1392
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1393 gifgikletslevlldvcntkevkvfvytdtevckvkdfvsglvnvqkveqpkiepkpvsvikvapkpyrvdgkfsyftedllcvad 1479
+                            gifgikletslevlldvcntkevkvfvytdtevckvkdfvsglvnvqkveqpkiepkpvsvikvapkpyrvdgkfsyftedllcvad
+  sp|P0C6X1|R1AB_CVH22 1393 GIFGIKLETSLEVLLDVCNTKEVKVFVYTDTEVCKVKDFVSGLVNVQKVEQPKIEPKPVSVIKVAPKPYRVDGKFSYFTEDLLCVAD 1479
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1480 dkpivlftdsmltlddrglaldnalsgvlsaaikdcvdinkaipsgnlikfdigsvvvymcvvpsekdkhldnnvqrctrklnrlmc 1566
+                            dkpivlftdsmltlddrglaldnalsgvlsaaikdcvdinkaipsgnlikfdigsvvvymcvvpsekdkhldnnvqrctrklnrlmc
+  sp|P0C6X1|R1AB_CVH22 1480 DKPIVLFTDSMLTLDDRGLALDNALSGVLSAAIKDCVDINKAIPSGNLIKFDIGSVVVYMCVVPSEKDKHLDNNVQRCTRKLNRLMC 1566
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1567 divctipadyilplvlssltcnvsfvgelkaaeakvitikvtedgvnvhdvtvttdksfeqqvgviadkdkdlsgavpsdlntsell 1653
+                            divctipadyilplvlssltcnvsfvgelkaaeakvitikvtedgvnvhdvtvttdksfeqqvgviadkdkdlsgavpsdlntsell
+  sp|P0C6X1|R1AB_CVH22 1567 DIVCTIPADYILPLVLSSLTCNVSFVGELKAAEAKVITIKVTEDGVNVHDVTVTTDKSFEQQVGVIADKDKDLSGAVPSDLNTSELL 1653
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1654 tkaidvdwvefygfkdavtfatvdhsafayesavvngirvlktsdnncwvnavcialqyskphfisqgldaawnkfvlgdveifvaf 1740
+                            tkaidvdwvefygfkdavtfatvdhsafayesavvngirvlktsdnncwvnavcialqyskphfisqgldaawnkfvlgdveifvaf
+  sp|P0C6X1|R1AB_CVH22 1654 TKAIDVDWVEFYGFKDAVTFATVDHSAFAYESAVVNGIRVLKTSDNNCWVNAVCIALQYSKPHFISQGLDAAWNKFVLGDVEIFVAF 1740
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1741 vyyvarlmkgdkgdaedtltklskylaneaqvqlehysscvecdakfknsvasinsaivcasvkrdgvqvgycvhgikyysrvrsvr 1827
+                            vyyvarlmkgdkgdaedtltklskylaneaqvqlehysscvecdakfknsvasinsaivcasvkrdgvqvgycvhgikyysrvrsvr
+  sp|P0C6X1|R1AB_CVH22 1741 VYYVARLMKGDKGDAEDTLTKLSKYLANEAQVQLEHYSSCVECDAKFKNSVASINSAIVCASVKRDGVQVGYCVHGIKYYSRVRSVR 1827
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1828 graiivsveqlepcaqsrllsgvaytafsgpvdkghytvydtakksmydgdrfvkhdlsllsvtsvvmvggyvapvntvkpkpvinq 1914
+                            graiivsveqlepcaqsrllsgvaytafsgpvdkghytvydtakksmydgdrfvkhdlsllsvtsvvmvggyvapvntvkpkpvinq
+  sp|P0C6X1|R1AB_CVH22 1828 GRAIIVSVEQLEPCAQSRLLSGVAYTAFSGPVDKGHYTVYDTAKKSMYDGDRFVKHDLSLLSVTSVVMVGGYVAPVNTVKPKPVINQ 1914
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 1915 ldekaqkffdfgdflihnfvifftwllsmftlcktavttgdvkimakapqrtgvvlkrslkynlkasaavlkskwwllakftkllll 2001
+                            ldekaqkffdfgdflihnfvifftwllsmftlcktavttgdvkimakapqrtgvvlkrslkynlkasaavlkskwwllakftkllll
+  sp|P0C6X1|R1AB_CVH22 1915 LDEKAQKFFDFGDFLIHNFVIFFTWLLSMFTLCKTAVTTGDVKIMAKAPQRTGVVLKRSLKYNLKASAAVLKSKWWLLAKFTKLLLL 2001
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2002 iytlysvvllcvrfgpfnfcsetvngyaksnfvkddycdgslgckmclfgyqelsqfshldvvwkhitdplfsnmqpfivmvlllif 2088
+                            iytlysvvllcvrfgpfnfcsetvngyaksnfvkddycdgslgckmclfgyqelsqfshldvvwkhitdplfsnmqpfivmvlllif
+  sp|P0C6X1|R1AB_CVH22 2002 IYTLYSVVLLCVRFGPFNFCSETVNGYAKSNFVKDDYCDGSLGCKMCLFGYQELSQFSHLDVVWKHITDPLFSNMQPFIVMVLLLIF 2088
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2089 gdnylrcfllyfvaqmistvgvflgyketnwflhfipfdvicdellvtvivikvisfvrhvlfgcenpdciacsksarlkrfpvnti 2175
+                            gdnylrcfllyfvaqmistvgvflgyketnwflhfipfdvicdellvtvivikvisfvrhvlfgcenpdciacsksarlkrfpvnti
+  sp|P0C6X1|R1AB_CVH22 2089 GDNYLRCFLLYFVAQMISTVGVFLGYKETNWFLHFIPFDVICDELLVTVIVIKVISFVRHVLFGCENPDCIACSKSARLKRFPVNTI 2175
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2176 vngvqrsfyvnanggskfckkhrffcvdcdsygygstfitpevsrelgnitktnvqptgpayvmidkvefengfyrlyscetfwryn 2262
+                            vngvqrsfyvnanggskfckkhrffcvdcdsygygstfitpevsrelgnitktnvqptgpayvmidkvefengfyrlyscetfwryn
+  sp|P0C6X1|R1AB_CVH22 2176 VNGVQRSFYVNANGGSKFCKKHRFFCVDCDSYGYGSTFITPEVSRELGNITKTNVQPTGPAYVMIDKVEFENGFYRLYSCETFWRYN 2262
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2263 fditeskysckevfkncnvlddfivfnnngtnvtqvknasvyfsqllcrpiklvdsellstlsvdfngvlhkayidvlrnsfgkdln 2349
+                            fditeskysckevfkncnvlddfivfnnngtnvtqvknasvyfsqllcrpiklvdsellstlsvdfngvlhkayidvlrnsfgkdln
+  sp|P0C6X1|R1AB_CVH22 2263 FDITESKYSCKEVFKNCNVLDDFIVFNNNGTNVTQVKNASVYFSQLLCRPIKLVDSELLSTLSVDFNGVLHKAYIDVLRNSFGKDLN 2349
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2350 anmslaeckralglsisdheftsaisnahrcdvllsdlsfnnfvssyakpeeklsaydlaccmragakvvnanvltkdqtpivwhak 2436
+                            anmslaeckralglsisdheftsaisnahrcdvllsdlsfnnfvssyakpeeklsaydlaccmragakvvnanvltkdqtpivwhak
+  sp|P0C6X1|R1AB_CVH22 2350 ANMSLAECKRALGLSISDHEFTSAISNAHRCDVLLSDLSFNNFVSSYAKPEEKLSAYDLACCMRAGAKVVNANVLTKDQTPIVWHAK 2436
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2437 dfnslsaegrkyivktskakgltflltinenqavtqipatsivakqgagdaghsltwlwllcglvcliqfylcffmpyfmydivssf 2523
+                            dfnslsaegrkyivktskakgltflltinenqavtqipatsivakqgagdaghsltwlwllcglvcliqfylcffmpyfmydivssf
+  sp|P0C6X1|R1AB_CVH22 2437 DFNSLSAEGRKYIVKTSKAKGLTFLLTINENQAVTQIPATSIVAKQGAGDAGHSLTWLWLLCGLVCLIQFYLCFFMPYFMYDIVSSF 2523
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2524 egydfkyiengqlknfeaplkcvrnvfenfedwhyakfgftplnkqscpivvgvseivntvagipsnvylvgktliftlqaafgnag 2610
+                            egydfkyiengqlknfeaplkcvrnvfenfedwhyakfgftplnkqscpivvgvseivntvagipsnvylvgktliftlqaafgnag
+  sp|P0C6X1|R1AB_CVH22 2524 EGYDFKYIENGQLKNFEAPLKCVRNVFENFEDWHYAKFGFTPLNKQSCPIVVGVSEIVNTVAGIPSNVYLVGKTLIFTLQAAFGNAG 2610
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2611 vcydifgvttpekciftsactrleglggnnvycyntalmegslpyssiqanayykydngnfiklpeviaqgfgfrtvrtiatkycrv 2697
+                            vcydifgvttpekciftsactrleglggnnvycyntalmegslpyssiqanayykydngnfiklpeviaqgfgfrtvrtiatkycrv
+  sp|P0C6X1|R1AB_CVH22 2611 VCYDIFGVTTPEKCIFTSACTRLEGLGGNNVYCYNTALMEGSLPYSSIQANAYYKYDNGNFIKLPEVIAQGFGFRTVRTIATKYCRV 2697
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2698 gecvesnagvcfgfdkwfvndgrvangyvcgtglwnlvfnilsmfsssfsvaamsgqillncalgafaifccflvtkfrrmfgdlsv 2784
+                            gecvesnagvcfgfdkwfvndgrvangyvcgtglwnlvfnilsmfsssfsvaamsgqillncalgafaifccflvtkfrrmfgdlsv
+  sp|P0C6X1|R1AB_CVH22 2698 GECVESNAGVCFGFDKWFVNDGRVANGYVCGTGLWNLVFNILSMFSSSFSVAAMSGQILLNCALGAFAIFCCFLVTKFRRMFGDLSV 2784
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2785 gvctvvvavllnnvsyivtqnlvtmiayailyffatrslryawiwcaayliayisfapwwlcawyflamltgllpsllklkvstnlf 2871
+                            gvctvvvavllnnvsyivtqnlvtmiayailyffatrslryawiwcaayliayisfapwwlcawyflamltgllpsllklkvstnlf
+  sp|P0C6X1|R1AB_CVH22 2785 GVCTVVVAVLLNNVSYIVTQNLVTMIAYAILYFFATRSLRYAWIWCAAYLIAYISFAPWWLCAWYFLAMLTGLLPSLLKLKVSTNLF 2871
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2872 egdkfvgtfesaaagtfvidmrsyeklansispeklksyaasynrykyysgnaneadyrcacyaylakamldfsrdhndilytpptv 2958
+                            egdkfvgtfesaaagtfvidmrsyeklansispeklksyaasynrykyysgnaneadyrcacyaylakamldfsrdhndilytpptv
+  sp|P0C6X1|R1AB_CVH22 2872 EGDKFVGTFESAAAGTFVIDMRSYEKLANSISPEKLKSYAASYNRYKYYSGNANEADYRCACYAYLAKAMLDFSRDHNDILYTPPTV 2958
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 2959 sygstlqaglrkmaqpsgfvekcvvrvcygntvlnglwlgdivycprhviasnttsaidydheysimrlhnfsiisgtaflgvvgat 3045
+                            sygstlqaglrkmaqpsgfvekcvvrvcygntvlnglwlgdivycprhviasnttsaidydheysimrlhnfsiisgtaflgvvgat
+  sp|P0C6X1|R1AB_CVH22 2959 SYGSTLQAGLRKMAQPSGFVEKCVVRVCYGNTVLNGLWLGDIVYCPRHVIASNTTSAIDYDHEYSIMRLHNFSIISGTAFLGVVGAT 3045
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3046 mhgvtlkikvsqtnmhtprhsfrtlksgegfnilacydgcaqgvfgvnmrtnwtirgsfingacgspgynlkngevefvymhqielg 3132
+                            mhgvtlkikvsqtnmhtprhsfrtlksgegfnilacydgcaqgvfgvnmrtnwtirgsfingacgspgynlkngevefvymhqielg
+  sp|P0C6X1|R1AB_CVH22 3046 MHGVTLKIKVSQTNMHTPRHSFRTLKSGEGFNILACYDGCAQGVFGVNMRTNWTIRGSFINGACGSPGYNLKNGEVEFVYMHQIELG 3132
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3133 sgshvgssfdgvmyggfedqpnlqvesanqmltvnvvaflyaailngctwwlkgeklfvehynewaqangftamngedafsilaakt 3219
+                            sgshvgssfdgvmyggfedqpnlqvesanqmltvnvvaflyaailngctwwlkgeklfvehynewaqangftamngedafsilaakt
+  sp|P0C6X1|R1AB_CVH22 3133 SGSHVGSSFDGVMYGGFEDQPNLQVESANQMLTVNVVAFLYAAILNGCTWWLKGEKLFVEHYNEWAQANGFTAMNGEDAFSILAAKT 3219
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3220 gvcverllhaiqvlnngfggkqilgysslndefsinevvkqmfgvnlqsgkttsmfksislfagffvmfwaelfvytttiwvnpgfl 3306
+                            gvcverllhaiqvlnngfggkqilgysslndefsinevvkqmfgvnlqsgkttsmfksislfagffvmfwaelfvytttiwvnpgfl
+  sp|P0C6X1|R1AB_CVH22 3220 GVCVERLLHAIQVLNNGFGGKQILGYSSLNDEFSINEVVKQMFGVNLQSGKTTSMFKSISLFAGFFVMFWAELFVYTTTIWVNPGFL 3306
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3307 tpfmillvalslcltfvvkhkvlflqvfllpsiivaaiqncawdyhvtkvlaekfdynvsvmqmdiqgfvnificlfvallhtwrfa 3393
+                            tpfmillvalslcltfvvkhkvlflqvfllpsiivaaiqncawdyhvtkvlaekfdynvsvmqmdiqgfvnificlfvallhtwrfa
+  sp|P0C6X1|R1AB_CVH22 3307 TPFMILLVALSLCLTFVVKHKVLFLQVFLLPSIIVAAIQNCAWDYHVTKVLAEKFDYNVSVMQMDIQGFVNIFICLFVALLHTWRFA 3393
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3394 kercthwctylfsliavlytalysydyvsllvmllcaisnewyigaiifricrfgvaflpveyvsyfdgvktvllfymllgfvscmy 3480
+                            kercthwctylfsliavlytalysydyvsllvmllcaisnewyigaiifricrfgvaflpveyvsyfdgvktvllfymllgfvscmy
+  sp|P0C6X1|R1AB_CVH22 3394 KERCTHWCTYLFSLIAVLYTALYSYDYVSLLVMLLCAISNEWYIGAIIFRICRFGVAFLPVEYVSYFDGVKTVLLFYMLLGFVSCMY 3480
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3481 ygllywinrfckctlgvydfcvspaefkymvanglnapngpfdalflsfklmgiggprtikvstvqskltdlkctnvvlmgilsnmn 3567
+                            ygllywinrfckctlgvydfcvspaefkymvanglnapngpfdalflsfklmgiggprtikvstvqskltdlkctnvvlmgilsnmn
+  sp|P0C6X1|R1AB_CVH22 3481 YGLLYWINRFCKCTLGVYDFCVSPAEFKYMVANGLNAPNGPFDALFLSFKLMGIGGPRTIKVSTVQSKLTDLKCTNVVLMGILSNMN 3567
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3568 iasnskewaycvemhnkinlcddpetaqelllallafflskhsdfglgdlvdsyfendsilqsvassfvgmpsfvayetarqeyena 3654
+                            iasnskewaycvemhnkinlcddpetaqelllallafflskhsdfglgdlvdsyfendsilqsvassfvgmpsfvayetarqeyena
+  sp|P0C6X1|R1AB_CVH22 3568 IASNSKEWAYCVEMHNKINLCDDPETAQELLLALLAFFLSKHSDFGLGDLVDSYFENDSILQSVASSFVGMPSFVAYETARQEYENA 3654
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3655 vangsspqiikqlkkamnvakaefdressvqkkinrmaeqaaaamykearavnrkskvvsamhsllfgmlrrldmssvdtilnmarn 3741
+                            vangsspqiikqlkkamnvakaefdressvqkkinrmaeqaaaamykearavnrkskvvsamhsllfgmlrrldmssvdtilnmarn
+  sp|P0C6X1|R1AB_CVH22 3655 VANGSSPQIIKQLKKAMNVAKAEFDRESSVQKKINRMAEQAAAAMYKEARAVNRKSKVVSAMHSLLFGMLRRLDMSSVDTILNMARN 3741
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3742 gvvplsvipatsaarlvvvvpdhdsfvkmmvdgfvhyagvvwtlqevkdndgknvhlkdvtkenqeilvwpliltcervvklqnnei 3828
+                            gvvplsvipatsaarlvvvvpdhdsfvkmmvdgfvhyagvvwtlqevkdndgknvhlkdvtkenqeilvwpliltcervvklqnnei
+  sp|P0C6X1|R1AB_CVH22 3742 GVVPLSVIPATSAARLVVVVPDHDSFVKMMVDGFVHYAGVVWTLQEVKDNDGKNVHLKDVTKENQEILVWPLILTCERVVKLQNNEI 3828
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3829 mpgkmkvkatkgegdggitsegnalynneggrafmyayvttkpgmkyvkwehdsgvvtveleppcrfvidtptgpqikylyfvknln 3915
+                            mpgkmkvkatkgegdggitsegnalynneggrafmyayvttkpgmkyvkwehdsgvvtveleppcrfvidtptgpqikylyfvknln
+  sp|P0C6X1|R1AB_CVH22 3829 MPGKMKVKATKGEGDGGITSEGNALYNNEGGRAFMYAYVTTKPGMKYVKWEHDSGVVTVELEPPCRFVIDTPTGPQIKYLYFVKNLN 3915
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 3916 nlrrgavlgyigatvrlqagkqtefvsnshllthcsfavdpaaayldavkqgakpvgncvkmltngsgsgqaitctidsnttqdtyg 4002
+                            nlrrgavlgyigatvrlqagkqtefvsnshllthcsfavdpaaayldavkqgakpvgncvkmltngsgsgqaitctidsnttqdtyg
+  sp|P0C6X1|R1AB_CVH22 3916 NLRRGAVLGYIGATVRLQAGKQTEFVSNSHLLTHCSFAVDPAAAYLDAVKQGAKPVGNCVKMLTNGSGSGQAITCTIDSNTTQDTYG 4002
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4003 gasvciycrahvahptmdgfcqykgkwvqvpigtndpirfclentvckvcgcwlnhgctcdrtaiqsfdnsylnrvrgssaarlepc 4089
+                            gasvciycrahvahptmdgfcqykgkwvqvpigtndpirfclentvckvcgcwlnhgctcdrtaiqsfdnsylnrvrgssaarlepc
+  sp|P0C6X1|R1AB_CVH22 4003 GASVCIYCRAHVAHPTMDGFCQYKGKWVQVPIGTNDPIRFCLENTVCKVCGCWLNHGCTCDRTAIQSFDNSYLNRVRGSSAARLEPC 4089
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4090 ngtdidycvrafdvynkdasfigknlksncvrfknvdkddafyivkrciksvmdheqsmynllkgcnavakhdfftwhegrtiygnv 4176
+                            ngtdidycvrafdvynkdasfigknlksncvrfknvdkddafyivkrciksvmdheqsmynllkgcnavakhdfftwhegrtiygnv
+  sp|P0C6X1|R1AB_CVH22 4090 NGTDIDYCVRAFDVYNKDASFIGKNLKSNCVRFKNVDKDDAFYIVKRCIKSVMDHEQSMYNLLKGCNAVAKHDFFTWHEGRTIYGNV 4176
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4177 srqdltkytmmdlcfalrnfdekdcevfkeilvltgccstdyfemknwfdpienedihrvyaalgkvvanamlkcvafcdemvlkgv 4263
+                            srqdltkytmmdlcfalrnfdekdcevfkeilvltgccstdyfemknwfdpienedihrvyaalgkvvanamlkcvafcdemvlkgv
+  sp|P0C6X1|R1AB_CVH22 4177 SRQDLTKYTMMDLCFALRNFDEKDCEVFKEILVLTGCCSTDYFEMKNWFDPIENEDIHRVYAALGKVVANAMLKCVAFCDEMVLKGV 4263
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4264 vgvltldnqdlngnfydfgdfvlcppgmgipyctsyysymmpvmgmtnclasecfmksdifgqdfktfdllkydftehkevlfnkyf 4350
+                            vgvltldnqdlngnfydfgdfvlcppgmgipyctsyysymmpvmgmtnclasecfmksdifgqdfktfdllkydftehkevlfnkyf
+  sp|P0C6X1|R1AB_CVH22 4264 VGVLTLDNQDLNGNFYDFGDFVLCPPGMGIPYCTSYYSYMMPVMGMTNCLASECFMKSDIFGQDFKTFDLLKYDFTEHKEVLFNKYF 4350
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4351 kywgqdyhpdcvdchdemcilhcsnfntlfattipntafgplcrkvfidgvpvvatagyhfkqlglvwnkdvnthstrltitellqf 4437
+                            kywgqdyhpdcvdchdemcilhcsnfntlfattipntafgplcrkvfidgvpvvatagyhfkqlglvwnkdvnthstrltitellqf
+  sp|P0C6X1|R1AB_CVH22 4351 KYWGQDYHPDCVDCHDEMCILHCSNFNTLFATTIPNTAFGPLCRKVFIDGVPVVATAGYHFKQLGLVWNKDVNTHSTRLTITELLQF 4437
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4438 vtdptlivasspalvdkrtvcfsvaalstgltsqtvkpghfnkefydflrsqgffdegseltlkhffftqkgdaaikdfdyyrynrp 4524
+                            vtdptlivasspalvdkrtvcfsvaalstgltsqtvkpghfnkefydflrsqgffdegseltlkhffftqkgdaaikdfdyyrynrp
+  sp|P0C6X1|R1AB_CVH22 4438 VTDPTLIVASSPALVDKRTVCFSVAALSTGLTSQTVKPGHFNKEFYDFLRSQGFFDEGSELTLKHFFFTQKGDAAIKDFDYYRYNRP 4524
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4525 tmldigqarvayqvaaryfdcyeggcitsrevvvtnlnksagwplnkfgkaglyyesisyeeqdaifsltkrnilptmtqlnlkyai 4611
+                            tmldigqarvayqvaaryfdcyeggcitsrevvvtnlnksagwplnkfgkaglyyesisyeeqdaifsltkrnilptmtqlnlkyai
+  sp|P0C6X1|R1AB_CVH22 4525 TMLDIGQARVAYQVAARYFDCYEGGCITSREVVVTNLNKSAGWPLNKFGKAGLYYESISYEEQDAIFSLTKRNILPTMTQLNLKYAI 4611
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4612 sgkerartvggvsllatmttrqfhqkclksivatrnatvvigttkfyggwdnmlknlmadvddpklmgwdypkcdrampsmirmlsa 4698
+                            sgkerartvggvsllatmttrqfhqkclksivatrnatvvigttkfyggwdnmlknlmadvddpklmgwdypkcdrampsmirmlsa
+  sp|P0C6X1|R1AB_CVH22 4612 SGKERARTVGGVSLLATMTTRQFHQKCLKSIVATRNATVVIGTTKFYGGWDNMLKNLMADVDDPKLMGWDYPKCDRAMPSMIRMLSA 4698
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4699 milgskhvtcctasdkfyrlsnelaqvltevvysnggfyfkpggttsgdattayansvfnifqavssnincvlsvnssncnnfnvkk 4785
+                            milgskhvtcctasdkfyrlsnelaqvltevvysnggfyfkpggttsgdattayansvfnifqavssnincvlsvnssncnnfnvkk
+  sp|P0C6X1|R1AB_CVH22 4699 MILGSKHVTCCTASDKFYRLSNELAQVLTEVVYSNGGFYFKPGGTTSGDATTAYANSVFNIFQAVSSNINCVLSVNSSNCNNFNVKK 4785
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4786 lqrqlydncyrnsnvdesfvddfygylqkhfsmmilsddsvvcynktyaglgyiadisafkatlyyqngvfmstakcwteedlsigp 4872
+                            lqrqlydncyrnsnvdesfvddfygylqkhfsmmilsddsvvcynktyaglgyiadisafkatlyyqngvfmstakcwteedlsigp
+  sp|P0C6X1|R1AB_CVH22 4786 LQRQLYDNCYRNSNVDESFVDDFYGYLQKHFSMMILSDDSVVCYNKTYAGLGYIADISAFKATLYYQNGVFMSTAKCWTEEDLSIGP 4872
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4873 hefcsqhtmqivdengkyylpypdpsriisagvfvdditktdavilleryvslaidayplskhpkpeyrkvfyalldwvkhlnktln 4959
+                            hefcsqhtmqivdengkyylpypdpsriisagvfvdditktdavilleryvslaidayplskhpkpeyrkvfyalldwvkhlnktln
+  sp|P0C6X1|R1AB_CVH22 4873 HEFCSQHTMQIVDENGKYYLPYPDPSRIISAGVFVDDITKTDAVILLERYVSLAIDAYPLSKHPKPEYRKVFYALLDWVKHLNKTLN 4959
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 4960 egvlesfsvtlldeheskfwdesfyasmyekstvlqaaglcvvcgsqtvlrcgdclrrpmlctkcaydhvfgtdhkfilaitpyvcn 5046
+                            egvlesfsvtlldeheskfwdesfyasmyekstvlqaaglcvvcgsqtvlrcgdclrrpmlctkcaydhvfgtdhkfilaitpyvcn
+  sp|P0C6X1|R1AB_CVH22 4960 EGVLESFSVTLLDEHESKFWDESFYASMYEKSTVLQAAGLCVVCGSQTVLRCGDCLRRPMLCTKCAYDHVFGTDHKFILAITPYVCN 5046
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5047 tsgcnvndvtklylgglnyycvdhkphlsfplcsagnvfglykssalgsmdidvfnklstsdwsdirdyklandakeslrlfaaetv 5133
+                            tsgcnvndvtklylgglnyycvdhkphlsfplcsagnvfglykssalgsmdidvfnklstsdwsdirdyklandakeslrlfaaetv
+  sp|P0C6X1|R1AB_CVH22 5047 TSGCNVNDVTKLYLGGLNYYCVDHKPHLSFPLCSAGNVFGLYKSSALGSMDIDVFNKLSTSDWSDIRDYKLANDAKESLRLFAAETV 5133
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5134 kakeesvkssyayatlkeivgpkellllwesgkakpplnrnsvftcfqitkdskfqvgefvfekvdygsdtvtykstattklvpgml 5220
+                            kakeesvkssyayatlkeivgpkellllwesgkakpplnrnsvftcfqitkdskfqvgefvfekvdygsdtvtykstattklvpgml
+  sp|P0C6X1|R1AB_CVH22 5134 KAKEESVKSSYAYATLKEIVGPKELLLLWESGKAKPPLNRNSVFTCFQITKDSKFQVGEFVFEKVDYGSDTVTYKSTATTKLVPGML 5220
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5221 filtshnvaplraptmanqekystiyklhpsfnvsdayanlvpyyqligkqrittiqgppgsgkshcsigigvyypgarivftacsh 5307
+                            filtshnvaplraptmanqekystiyklhpsfnvsdayanlvpyyqligkqrittiqgppgsgkshcsigigvyypgarivftacsh
+  sp|P0C6X1|R1AB_CVH22 5221 FILTSHNVAPLRAPTMANQEKYSTIYKLHPSFNVSDAYANLVPYYQLIGKQRITTIQGPPGSGKSHCSIGIGVYYPGARIVFTACSH 5307
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5308 aavdslcakavtaysvdkctriipararvecysgfkpnnnsaqyvfstvnalpevnadivvvdevsmctnydlsvinqrisykhivy 5394
+                            aavdslcakavtaysvdkctriipararvecysgfkpnnnsaqyvfstvnalpevnadivvvdevsmctnydlsvinqrisykhivy
+  sp|P0C6X1|R1AB_CVH22 5308 AAVDSLCAKAVTAYSVDKCTRIIPARARVECYSGFKPNNNSAQYVFSTVNALPEVNADIVVVDEVSMCTNYDLSVINQRISYKHIVY 5394
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5395 vgdpqqlpaprvliskgvmepidynvvtqrmcaigpdvflhkcyrcpaeivntvselvyenkfvpvkeaskqcfkifergsvqvdng 5481
+                            vgdpqqlpaprvliskgvmepidynvvtqrmcaigpdvflhkcyrcpaeivntvselvyenkfvpvkeaskqcfkifergsvqvdng
+  sp|P0C6X1|R1AB_CVH22 5395 VGDPQQLPAPRVLISKGVMEPIDYNVVTQRMCAIGPDVFLHKCYRCPAEIVNTVSELVYENKFVPVKEASKQCFKIFERGSVQVDNG 5481
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5482 ssinrrqldvvkrfihknstwskavfispynsqnyvaarllglqtqtvdsaqgseydyvifaqtsdtahacnanrfnvaitrakkgi 5568
+                            ssinrrqldvvkrfihknstwskavfispynsqnyvaarllglqtqtvdsaqgseydyvifaqtsdtahacnanrfnvaitrakkgi
+  sp|P0C6X1|R1AB_CVH22 5482 SSINRRQLDVVKRFIHKNSTWSKAVFISPYNSQNYVAARLLGLQTQTVDSAQGSEYDYVIFAQTSDTAHACNANRFNVAITRAKKGI 5568
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5569 fcimsdrtlfdalkffeitmtdlqsesscglfkdcarnpidlppshattylslsdrfktsgdlavqignnnvctyehvisymgfrfd 5655
+                            fcimsdrtlfdalkffeitmtdlqsesscglfkdcarnpidlppshattylslsdrfktsgdlavqignnnvctyehvisymgfrfd
+  sp|P0C6X1|R1AB_CVH22 5569 FCIMSDRTLFDALKFFEITMTDLQSESSCGLFKDCARNPIDLPPSHATTYLSLSDRFKTSGDLAVQIGNNNVCTYEHVISYMGFRFD 5655
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5656 vsmpgshslfctrdfamrhvrgwlgmdvegahvtgdnvgtnvplqvgfsngvdfvaqpegcvltntgsvvkpvrarappgeqfthiv 5742
+                            vsmpgshslfctrdfamrhvrgwlgmdvegahvtgdnvgtnvplqvgfsngvdfvaqpegcvltntgsvvkpvrarappgeqfthiv
+  sp|P0C6X1|R1AB_CVH22 5656 VSMPGSHSLFCTRDFAMRHVRGWLGMDVEGAHVTGDNVGTNVPLQVGFSNGVDFVAQPEGCVLTNTGSVVKPVRARAPPGEQFTHIV 5742
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5743 pllrkgqpwsvlrkrivqmiadflagssdvlvfvlwagglelttmryfvkigavkhcqcgtvatcynsvsndyccfkhalgcdyvyn 5829
+                            pllrkgqpwsvlrkrivqmiadflagssdvlvfvlwagglelttmryfvkigavkhcqcgtvatcynsvsndyccfkhalgcdyvyn
+  sp|P0C6X1|R1AB_CVH22 5743 PLLRKGQPWSVLRKRIVQMIADFLAGSSDVLVFVLWAGGLELTTMRYFVKIGAVKHCQCGTVATCYNSVSNDYCCFKHALGCDYVYN 5829
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5830 pyvidiqqwgyvgslstnhhaicnvhrnehvasgdaimtrclavydcfvknvdwsitypmianenainkggrtvqshimraaiklyn 5916
+                            pyvidiqqwgyvgslstnhhaicnvhrnehvasgdaimtrclavydcfvknvdwsitypmianenainkggrtvqshimraaiklyn
+  sp|P0C6X1|R1AB_CVH22 5830 PYVIDIQQWGYVGSLSTNHHAICNVHRNEHVASGDAIMTRCLAVYDCFVKNVDWSITYPMIANENAINKGGRTVQSHIMRAAIKLYN 5916
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 5917 pkaihdignpkgircavtdakwycydknpinsnvktleydymthgqmdglclfwncnvdmypefsivcrfdtrtrstlnlegvnggs 6003
+                            pkaihdignpkgircavtdakwycydknpinsnvktleydymthgqmdglclfwncnvdmypefsivcrfdtrtrstlnlegvnggs
+  sp|P0C6X1|R1AB_CVH22 5917 PKAIHDIGNPKGIRCAVTDAKWYCYDKNPINSNVKTLEYDYMTHGQMDGLCLFWNCNVDMYPEFSIVCRFDTRTRSTLNLEGVNGGS 6003
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6004 lyvnnhafhtpaydkramaklkpapffyyddgscevvhdqvnyvplratncitkcniggavcskhanlyrayvesyniftqagfniw 6090
+                            lyvnnhafhtpaydkramaklkpapffyyddgscevvhdqvnyvplratncitkcniggavcskhanlyrayvesyniftqagfniw
+  sp|P0C6X1|R1AB_CVH22 6004 LYVNNHAFHTPAYDKRAMAKLKPAPFFYYDDGSCEVVHDQVNYVPLRATNCITKCNIGGAVCSKHANLYRAYVESYNIFTQAGFNIW 6090
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6091 vpttfdcynlwqtftevnlqgleniafnvvnkgsfvgadgelpvaisgdkvfvrdgntdnlvfvnktslptniafelfakrkvgltp 6177
+                            vpttfdcynlwqtftevnlqgleniafnvvnkgsfvgadgelpvaisgdkvfvrdgntdnlvfvnktslptniafelfakrkvgltp
+  sp|P0C6X1|R1AB_CVH22 6091 VPTTFDCYNLWQTFTEVNLQGLENIAFNVVNKGSFVGADGELPVAISGDKVFVRDGNTDNLVFVNKTSLPTNIAFELFAKRKVGLTP 6177
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6178 plsilknlgvvatykfvlwdyeaerpltsftksvcgytdfaedvctcydnsiqgsyerftlstnavlfsatavktggkslpaiklnf 6264
+                            plsilknlgvvatykfvlwdyeaerpltsftksvcgytdfaedvctcydnsiqgsyerftlstnavlfsatavktggkslpaiklnf
+  sp|P0C6X1|R1AB_CVH22 6178 PLSILKNLGVVATYKFVLWDYEAERPLTSFTKSVCGYTDFAEDVCTCYDNSIQGSYERFTLSTNAVLFSATAVKTGGKSLPAIKLNF 6264
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6265 gmlngnaiatvksedgnikninwfvyvrkdgkpvdhydgfytqgrnlqdflprstmeedflnmdigvfiqkygledfnfehvvygdv 6351
+                            gmlngnaiatvksedgnikninwfvyvrkdgkpvdhydgfytqgrnlqdflprstmeedflnmdigvfiqkygledfnfehvvygdv
+  sp|P0C6X1|R1AB_CVH22 6265 GMLNGNAIATVKSEDGNIKNINWFVYVRKDGKPVDHYDGFYTQGRNLQDFLPRSTMEEDFLNMDIGVFIQKYGLEDFNFEHVVYGDV 6351
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6352 skttlgglhllisqvrlskmgilkaeefvaasditlkcctvtylndpssktvctymdlllddfvsvlksldltvvskvheviidnkp 6438
+                            skttlgglhllisqvrlskmgilkaeefvaasditlkcctvtylndpssktvctymdlllddfvsvlksldltvvskvheviidnkp
+  sp|P0C6X1|R1AB_CVH22 6352 SKTTLGGLHLLISQVRLSKMGILKAEEFVAASDITLKCCTVTYLNDPSSKTVCTYMDLLLDDFVSVLKSLDLTVVSKVHEVIIDNKP 6438
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6439 wrwmlwckdnavatfypqlqsaewkcgysmpgiyktqrmclepcnlynygaglklpsgimfnvvkytqlcqyfnsttlcvphnmrvl 6525
+                            wrwmlwckdnavatfypqlqsaewkcgysmpgiyktqrmclepcnlynygaglklpsgimfnvvkytqlcqyfnsttlcvphnmrvl
+  sp|P0C6X1|R1AB_CVH22 6439 WRWMLWCKDNAVATFYPQLQSAEWKCGYSMPGIYKTQRMCLEPCNLYNYGAGLKLPSGIMFNVVKYTQLCQYFNSTTLCVPHNMRVL 6525
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6526 hlgagsdygvapgtavlkrwlphdaivvdndvvdyvsdadfsvtgdcatvyledkfdllisdmydgrtkaidgenvskegfftying 6612
+                            hlgagsdygvapgtavlkrwlphdaivvdndvvdyvsdadfsvtgdcatvyledkfdllisdmydgrtkaidgenvskegfftying
+  sp|P0C6X1|R1AB_CVH22 6526 HLGAGSDYGVAPGTAVLKRWLPHDAIVVDNDVVDYVSDADFSVTGDCATVYLEDKFDLLISDMYDGRTKAIDGENVSKEGFFTYING 6612
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6613 ficeklaiggsiaikvteyswnkklyelvqrfsfwtmfctsvntssseafvvginylgdfaqgpfidgniihanyvfwrnstvmsls 6699
+                            ficeklaiggsiaikvteyswnkklyelvqrfsfwtmfctsvntssseafvvginylgdfaqgpfidgniihanyvfwrnstvmsls
+  sp|P0C6X1|R1AB_CVH22 6613 FICEKLAIGGSIAIKVTEYSWNKKLYELVQRFSFWTMFCTSVNTSSSEAFVVGINYLGDFAQGPFIDGNIIHANYVFWRNSTVMSLS 6699
+                            *************************************************************************************** PP
+
+  sp|P0C6X1|R1AB_CVH22 6700 ynsvldlskfnckhkatvvvqlkdsdinemvlslvrsgkllvrgngkclsfsnhlvstk 6758
+                            ynsvldlskfnckhkatvvvqlkdsdinemvlslvrsgkllvrgngkclsfsnhlvstk
+  sp|P0C6X1|R1AB_CVH22 6700 YNSVLDLSKFNCKHKATVVVQLKDSDINEMVLSLVRSGKLLVRGNGKCLSFSNHLVSTK 6758
+                            *********************************************************98 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (6758 nodes)
+Target sequence(s):                        1  (6758 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 1.14u 0.20s 00:00:01.34 Elapsed: 00:00:01.34
+# Mc/sec: 33.97
+//
+[ok]

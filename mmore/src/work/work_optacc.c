@@ -66,6 +66,7 @@ WORK_optimal_accuracy( WORKER* worker )
    float                opt_sc;
 
    CLOCK_Start( timer );
+
    /* we need posterior in log space for computing the optimal accuraccy */
    MATRIX_3D_SPARSE_Log( st_SMX_post );
    MATRIX_2D_Log( sp_MX_post );
@@ -73,6 +74,7 @@ WORK_optimal_accuracy( WORKER* worker )
    run_Posterior_Optimal_Accuracy_Sparse( 
       q_seq, t_prof, Q, T, edg, NULL,
       st_SMX_post, sp_MX_post, st_SMX_opt, sp_MX_opt, &opt_sc );
+
    CLOCK_Stop( timer );
    times->sp_optacc = CLOCK_Duration( timer );
 
@@ -124,15 +126,17 @@ WORK_optacc_traceback( WORKER* worker )
 
    /* Optimal Alignment Traceback */
    CLOCK_Start( timer );
+
    run_Posterior_Optimal_Traceback_Sparse( 
       q_seq, t_prof, Q, T, edg, NULL, 
       st_SMX_post, sp_MX_post, st_SMX_opt, sp_MX_opt, aln );
    ALIGNMENT_Build_MMSEQS_Style( aln, q_seq, t_prof );
    ALIGNMENT_Build_HMMER_Style( aln, q_seq, t_prof );
+
    CLOCK_Stop( timer );
    times->sp_optacc += CLOCK_Duration( timer );
 
-   #if DEBUG || TRUE
+   #if DEBUG
    {
       fp = fopen("test_output/my.posterior_traceback.mx", "w+");
       ALIGNMENT_Dump( aln, fp );

@@ -28,10 +28,14 @@
 #include "_parsers.h"
 #include "arg_parser.h"
 
-/* Parses Arguments from the command line */
-void   ARGS_Parse( ARGS*   args,
-                   int     argc, 
-                   char*   argv[] )
+/*! FUNCTION:  ARGS_Parse()
+ *  SYNOPSIS:  Parses Arguments from the command line.
+ */
+void   
+ARGS_Parse(    ARGS*       args,
+               int         argc, 
+               char*       argv[],
+               ARG_OPTS*   arg_opts )
 {
    int   num_main_args     = 2; 
    char* flag              = NULL;
@@ -44,7 +48,8 @@ void   ARGS_Parse( ARGS*   args,
 
    printf("NUM_ARGS: %d\n", argc);
 
-   ARGS_SetDefaults(args);
+   ARGS_SetDefaults( args );
+   ARGS_SetOptions( args, arg_opts );
 
    /* if no <command> argument given, run test case if in debug mode */
    if (argc <= 1) {
@@ -419,6 +424,16 @@ void   ARGS_Parse( ARGS*   args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--mmseqs-hits-per-search") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_hits_per_search = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === SEARCH/RANGE OPTIONS === */
          else if ( STR_Compare( argv[i], (flag = "--range") ) == 0 ) {
             req_args = 2;
@@ -479,6 +494,18 @@ void   ARGS_Parse( ARGS*   args,
                free(args->output_filepath);
                args->output_filepath = STR_Create(argv[i]);
                args->is_redirect_stdout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--allout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->tblout_filepath);
+               args->tblout_filepath = STR_Create(argv[i]);
+               args->is_tblout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -612,8 +639,21 @@ void   ARGS_Parse( ARGS*   args,
    // }
 }
 
-/* SET DEFAULT ARGUMENTS (generic) */
-void  ARGS_SetDefaults( ARGS* args )
+/*! FUNCTION:  ARGS_SetDefaults()
+ *  SYNOPSIS:  Set default arguments.
+ */
+void
+ARGS_MainArg_Parser(    ARGS*          args,
+                        COMMANDLINE*   cmd )
+{
+
+}
+
+/*! FUNCTION:  ARGS_SetDefaults()
+ *  SYNOPSIS:  Set default arguments.
+ */
+void  
+ARGS_SetDefaults( ARGS*    args )
 {
    /* --- PIPELINE OPTIONS --- */
    args->pipeline_mode           = PIPELINE_TEST;
@@ -624,7 +664,7 @@ void  ARGS_SetDefaults( ARGS* args )
    args->tmp_remove              = false;
 
    /* --- TASK OPTIONS --- */
-   args->is_run_bias           = true;
+   args->is_run_bias             = true;
    args->is_run_pruned           = true;
    args->is_run_full             = false;
    args->is_run_domains          = true;
@@ -678,6 +718,8 @@ void  ARGS_SetDefaults( ARGS* args )
    args->mytimeout_filepath      = STR_Create("results.mytimeout");
    args->is_mythreshout          = false;
    args->mythreshout_filepath    = STR_Create("results.mythreshout");
+   // args->is_customout            = false;
+   // args->customout_filepath      = STR_Create("results.customout");
 
    /* --- RANGE OPTIONS --- */
    args->t_range                 = (RANGE) { -1, -1 };    
@@ -707,10 +749,12 @@ void  ARGS_SetDefaults( ARGS* args )
    args->threshold_mmore         = 1e-5f;
 }
 
-
-/* sends ARGS data to FILE POINTER */
-void ARGS_Dump( ARGS*    args,
-                FILE*    fp )
+/*! FUNCTION:  ARGS_SetDefaults()
+ *  SYNOPSIS:  Output arguments to <fp>.
+ */
+void 
+ARGS_Dump(     ARGS*    args,
+               FILE*    fp )
 {
    int      pad               = 30;
    bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
@@ -753,14 +797,16 @@ void ARGS_Dump( ARGS*    args,
    if (args->is_m8out)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "M8OUT_FILEPATH", args->m8out_filepath );
    if (args->is_myout)     fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYOUT_FILEPATH", args->myout_filepath );
    if (args->is_mydomout)  fprintf( fp, "%*s:\t%s\n",          align * pad,  "MYDOMOUT_FILEPATH", args->mydomout_filepath );
-   if (args->is_customout) fprintf( fp, "%*s:\t%s\n",          align * pad,  "CUSTOMOUT_FILEPATH", args->customout_filepath );
+   // if (args->is_customout) fprintf( fp, "%*s:\t%s\n",          align * pad,  "CUSTOMOUT_FILEPATH", args->customout_filepath );
    
    fprintf( fp, "=============================\n\n");
 }
 
-/* examines target and query, and finds the type of the files */
+/*! FUNCTION:  ARGS_Find_Filetype()
+ *  SYNOPSIS:  Examines target and query, and finds the type of the files (by extension).
+ */
 FILE_TYPE 
-ARGS_Find_FileType( char* filename )
+ARGS_Find_FileType( STR    filename )
 {
    for (int i = 0; i < NUM_FILE_EXTS; i++) {
       char* ext = FILE_TYPE_EXTS[i];
@@ -774,12 +820,14 @@ ARGS_Find_FileType( char* filename )
    return FILE_NULL;
 }
 
-/* output help info */
+/*! FUNCTION:  ARGS_Help_Info()
+ *  SYNOPSIS:  Output help info.
+ */
 void 
 ARGS_Help_Info()
 {
    /* basic usage */
-   printf("Usage: ./fb-pruner <command> <target_hmm_file> <query_fasta_file>\n\n");
+   // printf("Usage: ./fb-pruner <command> <target_hmm_file> <query_fasta_file>\n\n");
 
    /* command help */
    // printf("%-10s\t%-10s\t%s\n",
@@ -794,53 +842,71 @@ ARGS_Help_Info()
    //       COMMAND_OPTS[i].desc );
    // }
 
-   /* option help */
-   printf("%-10s\t%-10s\t%-10s\t%s\n",
-      "FLAG",
-      "NUM_ARGS",
-      "ARG_TYPE",
-      "DESCRIPTION");
-   for (int i = 0; i < num_flag_cmds; i++) {
-      printf("%-10s\t%-10d\t%-10s\t%s\n", 
-         COMMAND_OPTS[i].long_flag,
-         COMMAND_OPTS[i].num_args,
-         DATATYPE_NAMES[COMMAND_OPTS[i].data_type],
-         COMMAND_OPTS[i].desc );
-   }
-   printf("\n");
-   ERRORCHECK_exit(EXIT_SUCCESS);
+   // /* option help */
+   // printf("%-10s\t%-10s\t%-10s\t%s\n",
+   //    "FLAG",
+   //    "NUM_ARGS",
+   //    "ARG_TYPE",
+   //    "DESCRIPTION");
+   // for (int i = 0; i < num_flag_cmds; i++) {
+   //    printf("%-10s\t%-10d\t%-10s\t%s\n", 
+   //       COMMAND_OPTS[i].long_flag,
+   //       COMMAND_OPTS[i].num_args,
+   //       DATATYPE_NAMES[COMMAND_OPTS[i].data_type],
+   //       COMMAND_OPTS[i].desc );
+   // }
+   // printf("\n");
+   // ERRORCHECK_exit(EXIT_SUCCESS);
 }
 
-/* output version info */
-void ARGS_Version_Info()
+/*! FUNCTION:  ARGS_Version_Info()
+ *  SYNOPSIS:  Output version info.
+ */
+void 
+ARGS_Version_Info()
 {
    
 }
 
-/* initialize default arg options */
+/*! FUNCTION:  ARGS_OPTS_SetOptions()
+ *  SYNOPSIS:  Output Default Options.
+ */
 STATUS_FLAG
-ARG_OPTS_Default_Opts( ARGS* args )
+ARGS_SetOptions(  ARGS*       args,
+                  ARG_OPTS*   arg_opts )
 {
-   /* command line flags and options */
-   int   num_flag_cmds = 11;
-   // ARG_OPT COMMAND_OPTS[] = {
-   //    /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
-   //    /* output formats */
-   //    {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
-   //    {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
-   //    /* general options */
-   //    {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
-   //    /* mmseqs options */
-   //    {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
-   //    {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
-   //    {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
-   //    /* mmore main options */
-   //    {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
-   //    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
-   //    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
-      
-   //    {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
-   //    {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
-   //    {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
-   // };
+   /* add all commandline options */
+   PTR   arg_locs[]     = { &args->t_indexpath, &args->q_indexpath };
+   INT   arg_dtypes[]   = { DATATYPE_STRING,    DATATYPE_STRING };
+
+   {  ARG_OPTS_AddOption( arg_opts, "VERBOSE", 
+         "Level of Output.",
+         "Level of Output: [0] Minimal Output [1] Errors [2] Errors+Warnings [3] Maximal Output. ( Default: [1] )",
+         "--verbose", "-v",
+         1,
+         (PTR[]){ &args->verbose_level },
+         (INT[]){ DATATYPE_INT } ); 
+   }
+   {  ARG_OPTS_AddOption( arg_opts, "ENFORCE WARNINGS", 
+         "Should program terminate on warnings?",
+         "Should program terminate on warnings? [0] Bypass warnings [1] Terminate on warnings.  ( Default: [1] )",
+         "--enforce-warnings", "-w",
+         1,
+         (PTR[]){ &args->enforce_warnings },
+         (INT[]){ DATATYPE_BOOL } ); }
+   {  ARG_OPTS_AddOption( arg_opts, "INDEX FILE", 
+         "Index file location.",
+         "Index file location [query_index, target_index].  ( Default: NULL )",
+         "--index", NULL,
+         2,
+         (PTR[]){ &args->t_indexpath, &args->q_indexpath },
+         (INT[]){ DATATYPE_STRING, DATATYPE_STRING } ); }
+   {  ARG_OPTS_AddOption( arg_opts, "USE LOCAL TOOLS", 
+         "Should local or system tools be used?",
+         "Should local or system tools be used? [0] Use system tools [1] Use local tools.  ( Default: [1] )",
+         "--use-local-tools", NULL,
+         1,
+         (PTR[]){ &args->is_use_local_tools },
+         (INT[]){ DATATYPE_BOOL } ); }
 }
+

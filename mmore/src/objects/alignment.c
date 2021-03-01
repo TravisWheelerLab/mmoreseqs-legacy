@@ -96,9 +96,9 @@ ALIGNMENT_Destroy(   ALIGNMENT* aln )
  *  SYNOPSIS:  Wipes <aln>'s old data for reuse, sets dimensions <Q x T>.
  */
 void 
-ALIGNMENT_Reuse(  ALIGNMENT*  aln,
-                  int         Q,
-                  int         T )
+ALIGNMENT_Reuse(  ALIGNMENT*     aln,
+                  int            Q,
+                  int            T )
 {
    VECTOR_TRACE_Reuse( aln->traces );
    VECTOR_FLT_Reuse( aln->scores );
@@ -125,24 +125,6 @@ ALIGNMENT_Reuse(  ALIGNMENT*  aln,
    aln->is_hmmer_aln = false;
 }
 
-/*! FUNCTION:  ALIGNMENT_Pushback()
- *  SYNOPSIS:  Push trace onto end of alignment.
- */
-void 
-ALIGNMENT_Pushback(     ALIGNMENT*  aln,
-                        TRACE       tr )
-{
-   /* if debugging, do edgechecks */
-   #if DEBUG
-   {
-      /* if normal state, check bounds of normal dp matrix */
-      /* if special state, check bounds of special dp matrix */
-   }
-   #endif
-
-   VECTOR_TRACE_Pushback( aln->traces, tr );
-}
-
 /*! FUNCTION:  ALIGNMENT_GetSize()
  *  SYNOPSIS:  Return size of <aln>
  */
@@ -151,6 +133,18 @@ ALIGNMENT_GetSize(    ALIGNMENT*   aln )
 {
    size_t size;
    size = VECTOR_TRACE_GetSize( aln->traces );
+   return size;
+}
+
+/*! FUNCTION:  ALIGNMENT_GetNumRegions()
+ *  SYNOPSIS:  Return number of discontiguous (broken by jump state) traceback alignments in <aln>.
+ *             Use must have run _FindAligns() first.
+ */
+size_t
+ALIGNMENT_GetNumRegions(    ALIGNMENT*   aln )
+{
+   size_t size;
+   size = VECTOR_INT_GetSize( aln->tr_beg );
    return size;
 }
 
@@ -171,8 +165,8 @@ ALIGNMENT_GetTrace(  ALIGNMENT*     aln,
  *  SYNOPSIS:  Resize <aln>'s trace array to <size>.
  */
 void 
-ALIGNMENT_Resize(    ALIGNMENT*   aln,
-                     size_t       size )
+ALIGNMENT_Resize(    ALIGNMENT*     aln,
+                     size_t         size )
 {
    VECTOR_TRACE_Resize( aln->traces, size );
 }
@@ -181,8 +175,8 @@ ALIGNMENT_Resize(    ALIGNMENT*   aln,
  *  SYNOPSIS:  Resize <aln>'s trace array to <size> only if array is smaller than current size.
  */
 void 
-ALIGNMENT_GrowTo(    ALIGNMENT*   aln,
-                     size_t       size )
+ALIGNMENT_GrowTo(    ALIGNMENT*     aln,
+                     size_t         size )
 {
    VECTOR_TRACE_GrowTo( aln->traces, size );
 }
@@ -198,20 +192,38 @@ ALIGNMENT_Compare(   ALIGNMENT*     a,
    return VECTOR_TRACE_Compare( a->traces, b->traces );
 }
 
-/*! FUNCTION:  ALIGNMENT_Append()
- *  SYNOPSIS:  Append trace <st_cur, q_0, t_0> to <aln>.
+/*! FUNCTION:  ALIGNMENT_AddTrace()
+ *  SYNOPSIS:  Push trace onto end of alignment.
+ */
+void 
+ALIGNMENT_AddTrace(     ALIGNMENT*  aln,
+                        TRACE       tr )
+{
+   /* if debugging, do edgechecks */
+   #if DEBUG
+   {
+      /* if normal state, check bounds of normal dp matrix */
+      /* if special state, check bounds of special dp matrix */
+   }
+   #endif
+
+   VECTOR_TRACE_Pushback( aln->traces, tr );
+}
+
+/*! FUNCTION:  ALIGNMENT_AppendTrace()
+ *  SYNOPSIS:  Append single trace (position in HMM model) <st_cur, q_0, t_0> to full alignment <aln>.
  */
 inline
 int 
-ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
-                     const int    st,        /* HMM state */
-                     const int    q_0,       /* index in query/sequence */
-                     const int    t_0 )      /* index in target/model */
+ALIGNMENT_AppendTrace(  ALIGNMENT*     aln,       /* Traceback Alignment */
+                        const int      st_0,      /* HMM state */
+                        const int      q_0,       /* index in query/sequence */
+                        const int      t_0 )      /* index in target/model */
 {
    TRACE    tr, prv_tr;
 
    /* jump from current state to the prev state */
-   switch (st)
+   switch (st_0)
    {
       /* Emit-on-Transition States: */
       case N_ST:
@@ -247,7 +259,7 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
 
       default:
          fprintf( stderr, "ERROR: Traceback failed. Invalid State Code occurred at [%d](%d,%d).\n", 
-            st, q_0, t_0 );
+            st_0, q_0, t_0 );
          /* display valid states */
          for (int i = 0; i < NUM_ALL_STATES; i++) {
             fprintf( stderr, "[%d]:%s, ", i, STATE_NAMES[i] );
@@ -256,66 +268,130 @@ ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
          ERRORCHECK_exit(EXIT_FAILURE);
    }
 
-   tr.st = st;
-   ALIGNMENT_Pushback( aln, tr );
+   tr.st = st_0;
+   ALIGNMENT_AddTrace( aln, tr );
 
    return STATUS_SUCCESS;
 }
 
-/*! FUNCTION:  ALIGNMENT_Find_Length()
- *  SYNOPSIS:  Scan <aln> for beginning, end, and length of alignment from <B> to <E> states. 
- *             Stores <beg> and <end>.
+/*! FUNCTION:  ALIGNMENT_AppendScore()
+ *  SYNOPSIS:  Append trace <st_cur, q_0, t_0> to <aln>.
  */
-void 
-ALIGNMENT_Find_Length(  ALIGNMENT*  aln )
+inline
+int 
+ALIGNMENT_AppendScore(  ALIGNMENT*     aln,        /* Traceback Alignment */
+                        const float    score )     /* Score */
 {
+   VECTOR_FLT_Pushback( aln->scores, score );
+}
+
+/*! FUNCTION:  ALIGNMENT_FindRegions()
+ *  SYNOPSIS:  Scan full model alignment traceback for all alignement regions. 
+ *             These regions are those running through the core model, from a BEGIN to an END state.
+ *             Stores each <beg> and <end> positions in the full alignment are pushed to alignment vectors <tr_beg> amd <tr_end>.
+ *             Returns the number of alignment regions.
+ */
+int  
+ALIGNMENT_FindRegions(  ALIGNMENT*  aln )
+{ 
+   TRACE    tr;
+   int      N;
+   float    tr_sc, b_sc, e_sc;
+   
+   N = ALIGNMENT_GetSize( aln );
    /* scan traceback for all begin, end states */
-   TRACE*   tr = aln->traces->data;
-   int      N  = aln->traces->N;
-   for (int i = 0; i < N; ++i) 
+   for ( int i = 0; i < N; i++ ) 
    {
-      if ( tr[i].st == B_ST ) {
-         VECTOR_INT_Pushback( aln->tr_beg, i + 1 );
+      tr = ALIGNMENT_GetTrace( aln, i );
+      if ( tr.st == B_ST ) {
+         VECTOR_INT_Pushback( aln->tr_beg, i );
       }
-      if ( tr[i].st == E_ST ) {
-         VECTOR_INT_Pushback( aln->tr_end, i - 1 );
+      if ( tr.st == E_ST ) {
+         VECTOR_INT_Pushback( aln->tr_end, i );
       }
    }
 
    /* set beg, end vars to first found alignment (if at least one alignment) */
    if ( aln->tr_beg->N > 0 ) 
    {
-      aln->beg       = aln->tr_beg->data[0];
-      aln->end       = aln->tr_end->data[0];
+      aln->beg       = VECTOR_INT_Get( aln->tr_beg, 0 );
+      aln->end       = VECTOR_INT_Get( aln->tr_end, 0 );
       aln->aln_len   = aln->end - aln->beg + 1;
    }
 }
 
-/*! FUNCTION:  ALIGNMENT_PushbackSubaln()
+/*! FUNCTION:  ALIGNMENT_FindRegions()
+ *  SYNOPSIS:  Scan <aln> for all alignments running talot hrough the core model (running from BEGIN to END state).
+ *             Caller must run _AppendScore() for each trace.
+ */
+float 
+ALIGNMENT_ScoreRegions(  ALIGNMENT*  aln )
+{ 
+   TRACE    tr;
+   int      N, N_traces, N_scores;
+   int      b_idx, e_idx, max_idx;
+   float    tr_sc, b_sc, e_sc, max_sc;
+
+   N_traces = VECTOR_INT_GetSize( aln->tr_beg );
+   N_scores = VECTOR_FLT_GetSize( aln->tr_score );
+   if ( N_traces != N_scores ) {
+      fprintf(stderr, "ERROR: Not all scores have been appended. (TR = %d, SC = %d)\n", N_traces, N_scores );
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+
+   N        = N_traces;
+   max_sc   = -INF;
+   /* scan traceback for all begin, end states */
+   for ( int i = 0; i < N; i++ ) 
+   {
+      b_idx = VECTOR_INT_Get( aln->tr_beg, i );
+      b_sc  = VECTOR_FLT_Get( aln->scores, b_idx );
+      e_idx = VECTOR_INT_Get( aln->tr_end, i );
+      e_sc  = VECTOR_FLT_Get( aln->scores, e_idx );
+      /* compute score */
+      tr_sc = logf( expf(e_sc) - expf(b_sc) );
+      VECTOR_FLT_Pushback( aln->tr_score, tr_sc );
+
+      /* track largest scoring alignment */
+      if ( max_sc < tr_sc ) {
+         max_sc = tr_sc;
+         max_idx = i;
+      }
+   }
+
+   /* set best alignment to maximum scoring */
+   for ( int i = 0; i < N; i++ ) 
+   {
+      aln->beg       = VECTOR_INT_Get( aln->tr_beg, max_idx );
+      aln->end       = VECTOR_INT_Get( aln->tr_end, max_idx );
+      aln->aln_len   = aln->end - aln->beg + 1;
+   }
+}
+
+/*! FUNCTION:  ALIGNMENT_AddAlign()
  *  SYNOPSIS:  Adds a distinct, discrete alignment region to list with <beg> and <end> points and <score> for region.
  */
 void 
-ALIGNMENT_Pushback_Subaln(    ALIGNMENT*  aln,
-                              int         beg,
-                              int         end,
-                              float       score )
+ALIGNMENT_AddRegion(    ALIGNMENT*     aln,
+                        int            beg,
+                        int            end,
+                        float          score )
 {
    VECTOR_INT_Pushback( aln->tr_beg, beg );
    VECTOR_INT_Pushback( aln->tr_end, end );
    VECTOR_FLT_Pushback( aln->tr_score, score );
 }
 
-/*! FUNCTION:  ALIGNMENT_SetEndpoints()
+/*! FUNCTION:  ALIGNMENT_SetRegion()
  *  SYNOPSIS:  Sets <beg> and <end> endpoint indexes of the <aln> alignment.
  */
 void 
-ALIGNMENT_SetEndpoints(    ALIGNMENT*  aln,
-                           int         beg,
-                           int         end )
+ALIGNMENT_SetRegion(    ALIGNMENT*     aln,
+                        int            aln_idx )
 {
-   aln->beg       = beg;
-   aln->end       = end;
-   aln->aln_len   = end - beg;
+   aln->beg       = VECTOR_INT_Get( aln->tr_beg, aln_idx );
+   aln->end       = VECTOR_INT_Get( aln->tr_end, aln_idx );
+   aln->aln_len   = aln->end - aln->beg + 1;
 }
 
 /*! FUNCTION:  ALIGNMENT_Reverse()
@@ -378,14 +454,16 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
    int            i_end       = aln->end;
    int            aln_len     = i_end - i_beg + 1;
    int            pos;
-   char           t_ch;
-   char           q_ch;
-   char           c_ch;
+   char           t_ch, q_ch, c_ch, st_ch;
    float          msc;
-   /* special characters for alignment */
-   const char     pos_ch   = '+';
-   const char     neg_ch   = '-';
-   const char     gap_ch   = '-';
+   /* special characters for center alignment */
+   const char     pos_ch   = '+';      /* positive match score */
+   const char     neg_ch   = '-';      /* negative match score */
+   const char     ins_ch   = ' ';      /* insert */
+   const char     del_ch   = ' ';      /* delete */
+   const char     mis_ch   = ' ';      /* missing/gap */
+   /* special characters for query/target alignment */
+   const char     gap_ch   = '.';      /* insert/delete */
    
    /* counters */
    aln->num_matches  = 0;
@@ -395,18 +473,14 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
    int match_streak  = 0;
 
    /* allocate for entire string */
-   VECTOR_CHAR_Reuse( aln->target_aln );
-   VECTOR_CHAR_Reuse( aln->query_aln );
-   VECTOR_CHAR_Reuse( aln->center_aln );
-   VECTOR_CHAR_Reuse( aln->state_aln );
-   VECTOR_CHAR_GrowTo( aln->target_aln, aln_len + 1 );
-   VECTOR_CHAR_GrowTo( aln->query_aln, aln_len + 1 );
-   VECTOR_CHAR_GrowTo( aln->center_aln, aln_len + 1 );
-   VECTOR_CHAR_GrowTo( aln->state_aln, aln_len + 1 );
+   VECTOR_CHAR_SetSize( aln->target_aln,  aln_len + 1 );
+   VECTOR_CHAR_SetSize( aln->query_aln,   aln_len + 1 );
+   VECTOR_CHAR_SetSize( aln->center_aln,  aln_len + 1 );
+   VECTOR_CHAR_SetSize( aln->state_aln,   aln_len + 1 );
 
    /* find beginnings and ends of traces */
    if ( aln->aln_len == -1 ) {
-      ALIGNMENT_Find_Length( aln );
+      ALIGNMENT_FindRegions( aln );
    }
 
    /* capture alignment (until END state) */
@@ -417,13 +491,13 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
       tr       = VECTOR_TRACE_GetX( traceback, i );
       t_ch     = STR_GetChar( tseq, tr->t_0 );
       q_ch     = STR_GetChar( qseq, tr->q_0 );
-      c_ch     = ' ';
+      c_ch     = mis_ch;
+      st_ch    = STATE_CHAR[tr->st];
 
       /* center symbol depends upon state */
       if ( tr->st == M_ST ) 
       { 
          match_streak++;
-         VECTOR_CHAR_Set( aln->state_aln,    pos, 'M' );
          VECTOR_CHAR_Set( aln->target_aln,   pos, t_ch );
          VECTOR_CHAR_Set( aln->query_aln,    pos, q_ch );
 
@@ -447,11 +521,11 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
                msc = MSC( tr->t_0, AA_REV[q_ch] );
                /* if match score is positive */
                if ( msc > 0 ) {
-                  VECTOR_CHAR_Set( aln->center_aln, pos, '+' );
+                  VECTOR_CHAR_Set( aln->center_aln, pos, pos_ch );
                } 
                /* if match score is negative */
                else {
-                  VECTOR_CHAR_Set( aln->center_aln, pos, '-' );
+                  VECTOR_CHAR_Set( aln->center_aln, pos, neg_ch );
                } 
             }
          }
@@ -465,9 +539,8 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
          match_streak = 0;
          aln->num_misses++;
          /* insert corresponds to gap in target profile */
-         VECTOR_CHAR_Set( aln->state_aln,    pos, 'I' );
-         VECTOR_CHAR_Set( aln->center_aln,   pos, ' ' );
-         VECTOR_CHAR_Set( aln->target_aln,   pos, '-' );
+         VECTOR_CHAR_Set( aln->center_aln,   pos, ins_ch );
+         VECTOR_CHAR_Set( aln->target_aln,   pos, gap_ch );
          VECTOR_CHAR_Set( aln->query_aln,    pos, q_ch );
       }
       elif ( tr->st == D_ST ) 
@@ -479,10 +552,9 @@ ALIGNMENT_Build_HMMER_Style(  ALIGNMENT*     aln,
          match_streak = 0;
          aln->num_misses++;
          /* delete corresponds to gap in query sequence */
-         VECTOR_CHAR_Set( aln->state_aln,    pos, 'D' );
-         VECTOR_CHAR_Set( aln->center_aln,   pos, ' ' );
+         VECTOR_CHAR_Set( aln->center_aln,   pos, del_ch );
          VECTOR_CHAR_Set( aln->target_aln,   pos, t_ch );
-         VECTOR_CHAR_Set( aln->query_aln,    pos, '-' );
+         VECTOR_CHAR_Set( aln->query_aln,    pos, gap_ch );
       }
       /* if not a core model emit state */
       else {

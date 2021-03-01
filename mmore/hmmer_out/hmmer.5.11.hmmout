@@ -1,0 +1,372 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.5.fa
+# target sequence database:        targets/targets.11.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q96RW7|HMCN1_HUMAN  [L=5635]
+Description: Hemicentin-1 OS=Homo sapiens OX=9606 GN=HMCN1 PE=1 SV=2
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence              Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------              -----------
+          0 11724.9 115.4          0 11724.7 115.4    1.0  1  sp|D3YXG0|HMCN1_MOUSE  Hemicentin-1 OS=Mus musculus OX=10090 
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|D3YXG0|HMCN1_MOUSE  Hemicentin-1 OS=Mus musculus OX=10090 GN=Hmcn1 PE=1 SV=1
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 11724.7 115.4         0         0       1    5635 []       1    5634 []       1    5634 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 11724.7 bits;  conditional E-value: 0
+  sp|Q96RW7|HMCN1_HUMAN    1 miswevvhtvflfallysslaqdaspqseiraeeipegastlafvfdvtgsmyddlvqviegaskiletslkrpkrplfnfalvpf 86  
+                             mi+ evvhtvfl al+ ssla d +pqse raeeipegastlafvfdvtgsmyddlvqviegaskiletslkrpkrpl+nfalvpf
+  sp|D3YXG0|HMCN1_MOUSE    1 MIAQEVVHTVFLVALFRSSLAGDGTPQSESRAEEIPEGASTLAFVFDVTGSMYDDLVQVIEGASKILETSLKRPKRPLYNFALVPF 86  
+                             7899********************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN   87 hdpeigpvtittdpkkfqyelrelyvqgggdcpemsigaikialeislpgsfiyvftdarskdyrlthevlqliqqkqsqvvfvlt 172 
+                             hdpeigpvtittdpkkfqyelrelyvqgggdcpemsigaikialeislpgsfiyvftdarskdyrlthevlqliqqkqsqvvfvlt
+  sp|D3YXG0|HMCN1_MOUSE   87 HDPEIGPVTITTDPKKFQYELRELYVQGGGDCPEMSIGAIKIALEISLPGSFIYVFTDARSKDYRLTHEVLQLIQQKQSQVVFVLT 172 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  173 gdcddrthigykvyeeiastssgqvfhldkkqvnevlkwveeavqaskvhllstdhleqavntwripfdpslkevtvslsgpspmi 258 
+                             gdcddr higykvyeeiastssgqvfhldkkqvnevlkwveeavqaskvhllstdhle avntw+ipfdpslkevtvslsgpsp+i
+  sp|D3YXG0|HMCN1_MOUSE  173 GDCDDRNHIGYKVYEEIASTSSGQVFHLDKKQVNEVLKWVEEAVQASKVHLLSTDHLEHAVNTWKIPFDPSLKEVTVSLSGPSPVI 258 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  259 eirnplgklikkgfglhellnihnsakvvnvkepeagmwtvktsssgrhsvritglstidfragfsrkptldfkktvsrpvqgipt 344 
+                             eirnp+gklikkgfgl+ellnihnsakvvnvkepeagmwtvktsssgrhsvritglstidfragfsrkptldfkkt+srpvqgipt
+  sp|D3YXG0|HMCN1_MOUSE  259 EIRNPFGKLIKKGFGLNELLNIHNSAKVVNVKEPEAGMWTVKTSSSGRHSVRITGLSTIDFRAGFSRKPTLDFKKTMSRPVQGIPT 344 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  345 yvllntsgistparidllellsisgsslktipvkyyphrkpygiwnisdfvppneafflkvtgydkddylfqrvssvsfssivpda 430 
+                             yvllntsgis+par+d lellsisg slktipvk+yp rkpygiwnisdf+pp+eafflkvtgydkd ylfqrvssvsfssivpda
+  sp|D3YXG0|HMCN1_MOUSE  345 YVLLNTSGISSPARVDRLELLSISGGSLKTIPVKHYPDRKPYGIWNISDFIPPDEAFFLKVTGYDKDGYLFQRVSSVSFSSIVPDA 430 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  431 pkvtmpektpgyylqpgqipcsvdsllpftlsfvrngvtlgvdqylkesasvnldiakvtlsdegfyeciavssagtgraqtffdv 516 
+                             pkvtmp +t gyylqpgqi csv+s+lpftlsf+r+g+ lgvdqyl+esasvn d+ kvtlsdegfy+ciavssagtgraqtffdv
+  sp|D3YXG0|HMCN1_MOUSE  431 PKVTMPTRTLGYYLQPGQILCSVESFLPFTLSFMRDGIALGVDQYLRESASVNWDFTKVTLSDEGFYDCIAVSSAGTGRAQTFFDV 516 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  517 sepppviqvpnnvtvtpgeravltcliisavdynltwqrndrdvrlaeparirtlanlslelksvkfndageyhcmvsseggssaa 602 
+                             seppp+iq+pnnvtvtpgeravl cl+isavdynltwqr+ rd+rla+ arirtlanlslel+svk+ dagey+c+vsseggs+aa
+  sp|D3YXG0|HMCN1_MOUSE  517 SEPPPIIQLPNNVTVTPGERAVLACLVISAVDYNLTWQRSGRDIRLADSARIRTLANLSLELRSVKIGDAGEYRCVVSSEGGSAAA 602 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  603 svfltvqeppkvtvmpknqsftggsevsimcsatgypkpkiawtvndmfivgshryrmtsdgtlfiknaapkdagiygclasnsag 688 
+                             svfltvqe pkvtvmpknqsftggse+simcsatgypkpki wt+n+mfi+gshryrmts+gtlfikna pkdag y+clasn+ag
+  sp|D3YXG0|HMCN1_MOUSE  603 SVFLTVQEKPKVTVMPKNQSFTGGSEISIMCSATGYPKPKIVWTMNEMFIMGSHRYRMTSEGTLFIKNAVPKDAGTYACLASNAAG 688 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  689 tdkqnstlryieapklmvvqsellvalgditvmecktsgipppqvkwfkgdlelrpstfliidpllgllkiqetqdldagdytcva 774 
+                             tdkq stlryieapkl+v qsellvalgd tvmecktsgipppqvkwfkgdlelrpstfl idpl+gllkiqetqdldagdytcva
+  sp|D3YXG0|HMCN1_MOUSE  689 TDKQTSTLRYIEAPKLVVEQSELLVALGDTTVMECKTSGIPPPQVKWFKGDLELRPSTFLSIDPLVGLLKIQETQDLDAGDYTCVA 774 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  775 ineagratgkitldvgsppvfiqepadvsmeigsnvtlpcyvqgypeptikwrrldnmpifsrpfsvssisqlrtgalfilnlwas 860 
+                             ineagratg++tldvgsppvfiqep+dv++eigsnvtlpcyvqgypep ikwrrldnmp+fsrpfsvs isqlrtgalfi nlwas
+  sp|D3YXG0|HMCN1_MOUSE  775 INEAGRATGRLTLDVGSPPVFIQEPSDVAVEIGSNVTLPCYVQGYPEPKIKWRRLDNMPVFSRPFSVSFISQLRTGALFISNLWAS 860 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  861 dkgtyiceaenqfgkiqsettvtvtglvapligispsvanviegqqltlpctllagnpiperrwiknsamllqnpyitvrsdgslh 946 
+                             dkgtyiceaenqfgkiqs+ttvtvtglvapligisps+a+viegq ltlpctllagnpiperrw+knsaml+qnpyitvrsdgslh
+  sp|D3YXG0|HMCN1_MOUSE  861 DKGTYICEAENQFGKIQSQTTVTVTGLVAPLIGISPSMASVIEGQPLTLPCTLLAGNPIPERRWMKNSAMLVQNPYITVRSDGSLH 946 
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN  947 iervqlqdggeytcvasnvagtnnkttsvvvhvlptiqhgqqilstiegipvtlpckasgnpkpsviwskkgelistssakfsaga 1032
+                             ierv+lqdgg+ytcvasnvagtnnkttsv vhvlp+iqhgqqilstieg+pvtlpc+asg pkps+ wskkgelistssakfsaga
+  sp|D3YXG0|HMCN1_MOUSE  947 IERVRLQDGGKYTCVASNVAGTNNKTTSVAVHVLPSIQHGQQILSTIEGVPVTLPCRASGIPKPSITWSKKGELISTSSAKFSAGA 1032
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1033 dgslyvvspggeesgeyvctatntagyakrkvqltvyvrprvfgdqrglsqdkpveisvlageevtlpcevkslpppiitwaketq 1118
+                             dgslyvvspg+eesgey+ctatn agyakrkvqltvyvrprvfgdqrglsqdkpveisvlagee  lpce kslpppiitwak++q
+  sp|D3YXG0|HMCN1_MOUSE 1033 DGSLYVVSPGSEESGEYICTATNAAGYAKRKVQLTVYVRPRVFGDQRGLSQDKPVEISVLAGEEAILPCEAKSLPPPIITWAKDSQ 1118
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1119 lispfsprhtflpsgsmkitetrtsdsgmylcvatniagnvtqavklnvhvppkiqrgpkhlkvqvgqrvdipcnaqgtplpvitw 1204
+                             lispfsprhtflpsgsmkitetr sdsgmylcvatniagnvtq+vkl+vhvppkiq+g +h+kvqvgqrvdi cna g+p pvitw
+  sp|D3YXG0|HMCN1_MOUSE 1119 LISPFSPRHTFLPSGSMKITETRVSDSGMYLCVATNIAGNVTQSVKLSVHVPPKIQHGNRHIKVQVGQRVDILCNAHGSPPPVITW 1204
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1205 skggstmlvdgehhvsnpdgtlsidqatpsdagiytcvatniagtdeteitlhvqepptvedleppynttfqervanqriefpcpa 1290
+                              k+g  + +dg +h  +pdgtlsi+qa  sdag+ytc atniag+de e+tlhvqepp+vedl+pp+nt fqer+anqriefpcpa
+  sp|D3YXG0|HMCN1_MOUSE 1205 FKSGRPF-LDGAQHPGSPDGTLSIEQAVISDAGVYTCAATNIAGSDEAEVTLHVQEPPSVEDLQPPFNTPFQERLANQRIEFPCPA 1289
+                             ****876.69**************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1291 kgtpkptikwlhngreltgrepgisiledgtllviasvtpydngeyicvavneagtterkynlkvhvppvikdkeqvtnvsvllnq 1376
+                             kgtpkptikwlhngre+tg+epg+siledg llviasvtp++ngeyicvavneagtterkynlkvhvppvi+dke vtnvsvl +q
+  sp|D3YXG0|HMCN1_MOUSE 1290 KGTPKPTIKWLHNGREVTGQEPGVSILEDGALLVIASVTPHNNGEYICVAVNEAGTTERKYNLKVHVPPVIRDKEHVTNVSVLTSQ 1375
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1377 ltnlfcevegtpspiimwykdnvqvtesstiqtvnngkilklfratpedagrysckainiagtsqkyfnidvlvpptiigtnfpne 1462
+                             l +l+cevegtpsp+i wykd++qvtesst+q vnngkilklf+ + edagrysckainiagtsqk f+++vlvpp+i+g + p+e
+  sp|D3YXG0|HMCN1_MOUSE 1376 LASLYCEVEGTPSPVITWYKDDIQVTESSTVQIVNNGKILKLFKVSAEDAGRYSCKAINIAGTSQKDFSVNVLVPPSILGASSPSE 1461
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1463 vsvvlnrdvalecqvkgtpfpdihwfkdgkplflgdpnvelldrgqvlhlknarrndkgryqctvsnaagkqakdikltiyippsi 1548
+                             vsvvln++v l+c   g pfp ihwfkdgkplflgdpn+el drgq lhl+narr+dkgryqctvsnaagkqakdiklt+y+ppsi
+  sp|D3YXG0|HMCN1_MOUSE 1462 VSVVLNHNVTLQCPGTGVPFPAIHWFKDGKPLFLGDPNIELSDRGQSLHLRNARRSDKGRYQCTVSNAAGKQAKDIKLTVYVPPSI 1547
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1549 kggnvttdisvlinsliklecetrglpmpaitwykdgqpimsssqalyidkgqylhipraqvsdsatytchvanvagtaeksfhvd 1634
+                             kggn+tt+is l+ns++klecetrglp+paitwykdgq + sssqalyidkgq lhi raqvsdsatytch anvagtaeksfhvd
+  sp|D3YXG0|HMCN1_MOUSE 1548 KGGNITTEISALLNSIVKLECETRGLPVPAITWYKDGQVVTSSSQALYIDKGQLLHIQRAQVSDSATYTCHAANVAGTAEKSFHVD 1633
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1635 vyvppmiegnlatplnkqvviahsltleckaagnpspiltwlkdgvpvkandnirieaggkkleimsaqeidrgqyicvatsvage 1720
+                             +yvpp ieg+l  p nkqv+i +sl leckaagnp piltwlkdgvpvka+dni+ieaggkklei+sa e+drgqyicvatsvage
+  sp|D3YXG0|HMCN1_MOUSE 1634 IYVPPTIEGDLTAPSNKQVIIGQSLILECKAAGNPPPILTWLKDGVPVKASDNIHIEAGGKKLEILSALEVDRGQYICVATSVAGE 1719
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1721 keikyevdvlvppaieggdetsyfivmvnnlleldchvtgsppptimwlkdgqliderdgfkillngrklviaqaqvsntglyrcm 1806
+                             +eikyevdvlvppa+egg+etsyfiv+ nnlleldc+v+gsppptimwlk gqliderdgfkillngrklviaqaqvs+tgly+c+
+  sp|D3YXG0|HMCN1_MOUSE 1720 REIKYEVDVLVPPAVEGGEETSYFIVLANNLLELDCQVSGSPPPTIMWLKGGQLIDERDGFKILLNGRKLVIAQAQVSDTGLYQCV 1805
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1807 aantagdhkkefevtvhvpptikssglservvvkykpvalqciangipnpsitwlkddqpvntaqgnlkiqssgrvlqiaktlled 1892
+                             a n agdh+kefevtvhvpptikss l e+ vv+ykpv lqciangipnpsitwlkddqpvnta gnlkiqssgrvlqiak lled
+  sp|D3YXG0|HMCN1_MOUSE 1806 ATNIAGDHRKEFEVTVHVPPTIKSSDLPEKTVVRYKPVTLQCIANGIPNPSITWLKDDQPVNTAHGNLKIQSSGRVLQIAKALLED 1891
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1893 agrytcvatnaagetqqhiqlhvheppsledagkmlnetvlvsnpvqleckaagnpvpvitwykdnrllsgstsmtflnrgqiidi 1978
+                             agrytcvatnaage  qh qlhvheppsl+dagkm netv+v+np+qlecka g p+pvitwykd++ lsgs s  fl rgq+++i
+  sp|D3YXG0|HMCN1_MOUSE 1892 AGRYTCVATNAAGEAHQHTQLHVHEPPSLDDAGKMRNETVVVNNPIQLECKATGKPLPVITWYKDSHPLSGSASAAFLKRGQVLEI 1977
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 1979 esaqisdagiykcvainsagatelfyslqvhvapsisgsnnmvavvvnnpvrleceargipapsltwlkdgspvssfsnglqvlsg 2064
+                              saqisdagiykcvainsagatelfyslqvhv psisgs++mv vvvnn  rleceargipapsltwlkdgspvssfsng+q+lsg
+  sp|D3YXG0|HMCN1_MOUSE 1978 GSAQISDAGIYKCVAINSAGATELFYSLQVHVPPSISGSSSMVEVVVNNLARLECEARGIPAPSLTWLKDGSPVSSFSNGIQILSG 2063
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2065 grilaltsaqisdtgrytcvavnaagekqrdidlrvyvppnimgeeqnvsvlisqavellcqsdaippptltwlkdghpllkkpgl 2150
+                             grilaltsaq+sd grytcvavnaagekqrdidlrvy ppnimgeeqnvsvli qavel+cqsda+ppptl wlkdg+pllk+pgl
+  sp|D3YXG0|HMCN1_MOUSE 2064 GRILALTSAQMSDAGRYTCVAVNAAGEKQRDIDLRVYAPPNIMGEEQNVSVLIGQAVELFCQSDAVPPPTLMWLKDGRPLLKRPGL 2149
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2151 sisenrsvlkiedaqvqdtgrytceatnvagkteknynvniwvppniggsdeltqltviegnlisllcessgipppnliwkkkgsp 2236
+                             sisen svlkiedaq  dtgrytceatnvagkteknynvn+wvpp+i gsdel qlt iegnli+llcessgippp+l wkkkgs 
+  sp|D3YXG0|HMCN1_MOUSE 2150 SISENGSVLKIEDAQAGDTGRYTCEATNVAGKTEKNYNVNVWVPPSIYGSDELVQLTAIEGNLITLLCESSGIPPPDLTWKKKGSL 2235
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2237 vltdsmgrvrilsggrqlqisiaeksdaalyscvasnvagtakkeynlqvyirptitnsgshpteiivtrgksislecevqgippp 2322
+                             vl ds grv+ilsggr+lqisiaek+da ly+cvasnvag akkeynlqvyirp+itnsg h  ei v rgksislecevqgip p
+  sp|D3YXG0|HMCN1_MOUSE 2236 VLADSAGRVHILSGGRRLQISIAEKADAGLYTCVASNVAGVAKKEYNLQVYIRPSITNSGGHRPEITVIRGKSISLECEVQGIPQP 2321
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2323 tvtwmkdghplikakgveildeghilqlknihvsdtgryvcvavnvagmtdkkydlsvhappsiignhrspenisvveknsvsltc 2408
+                             tvtwmkdg+pl k kgveildeg+ilqlkn+hvsdtgryvcvavnvagmtdk+ydlsvhappsiignh  pen+svvek+svsltc
+  sp|D3YXG0|HMCN1_MOUSE 2322 TVTWMKDGRPLTKGKGVEILDEGRILQLKNVHVSDTGRYVCVAVNVAGMTDKRYDLSVHAPPSIIGNHGVPENVSVVEKSSVSLTC 2407
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2409 easgiplpsitwfkdgwpvslsnsvrilsggrmlrlmqttmedagqytcvvrnaageerkifglsvlvpphivgentledvkvkek 2494
+                             easgiplpsitw+kdgwpv+l +sv+ilsggrmlrlmqt  edagqytc+vrnaage+rk+fglsvlvpphivgentledvk+kek
+  sp|D3YXG0|HMCN1_MOUSE 2408 EASGIPLPSITWLKDGWPVNLGSSVKILSGGRMLRLMQTRPEDAGQYTCIVRNAAGEDRKMFGLSVLVPPHIVGENTLEDVKIKEK 2493
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2495 qsvtltcevtgnpvpeitwhkdgqplqedeahhiisggrflqitnvqvphtgrytclasspaghksrsfslnvfvsptiagvgsdg 2580
+                             qsvtltcev gnpvp+itwhkdgq lqedeahh++sggrflqitn qv htgrytclas+ ag ks+sf lnvfvsptiagv sdg
+  sp|D3YXG0|HMCN1_MOUSE 2494 QSVTLTCEVRGNPVPQITWHKDGQLLQEDEAHHMMSGGRFLQITNAQVSHTGRYTCLASNIAGDKSKSFRLNVFVSPTIAGVDSDG 2579
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2581 npedvtvilnsptslvceaysyppatitwfkdgtplesnrnirilpggrtlqilnaqednagryscvatneagemikhyevkvyip 2666
+                             +pedv vilnsptslvceaysyppatitwfkdgtplesnrnirilpggrtlqilnaqednagryscvatneage ikhyevkvyip
+  sp|D3YXG0|HMCN1_MOUSE 2580 SPEDVIVILNSPTSLVCEAYSYPPATITWFKDGTPLESNRNIRILPGGRTLQILNAQEDNAGRYSCVATNEAGEKIKHYEVKVYIP 2665
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2667 piinkgdlwgpglspkevkikvnntltleceayaipsaslswykdgqplksddhvniaanghtlqikeaqisdtgrytcvasniag 2752
+                             pii kgdl gpglspkevki+vn++ltleceayaipsasl wykdgqplksddhv iaa+ghtlqikeaqisdtgrytcvasn+ag
+  sp|D3YXG0|HMCN1_MOUSE 2666 PIIKKGDLLGPGLSPKEVKIRVNSSLTLECEAYAIPSASLRWYKDGQPLKSDDHVTIAASGHTLQIKEAQISDTGRYTCVASNLAG 2751
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2753 edeldfdvniqvppsfqklweignmldtgrngeakdviinnpislycetnaappptltwykdghpltssdkvlilpggrvlqipra 2838
+                             edeldfdvniqvppsfqklweignmldtgr+geakdviinnp+sl+cetnaappptltwykdg+pltssd+vlilpggrvlqipra
+  sp|D3YXG0|HMCN1_MOUSE 2752 EDELDFDVNIQVPPSFQKLWEIGNMLDTGRSGEAKDVIINNPLSLHCETNAAPPPTLTWYKDGRPLTSSDRVLILPGGRVLQIPRA 2837
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2839 kvedagrytcvavneagedslqydvrvlvppiikgansdlpeevtvlvnksalieclssgspaprnswqkdgqplleddhhkflsn 2924
+                             kvedagrytcvavneagedsl+ydv+vl+pp+ikgansdlpeevtvlvnks  +ec ssg+paprn wqkdgq lled+hhkf s+
+  sp|D3YXG0|HMCN1_MOUSE 2838 KVEDAGRYTCVAVNEAGEDSLRYDVHVLLPPVIKGANSDLPEEVTVLVNKSTQMECSSSGNPAPRNYWQKDGQILLEDEHHKFQSD 2923
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 2925 grilqilntqitdigryvcvaentagsakkyfnlnvhvppsvigpksenltvvvnnfisltcevsgfpppdlswlkneqpiklntn 3010
+                             gr lqiln qitd gryvcvaentagsakkyfnlnvhvppsvigp  e+l+vvvn+fisl cevsgfpppdlswlkne+pik ntn
+  sp|D3YXG0|HMCN1_MOUSE 2924 GRSLQILNAQITDTGRYVCVAENTAGSAKKYFNLNVHVPPSVIGPNHEHLSVVVNHFISLNCEVSGFPPPDLSWLKNEEPIKPNTN 3009
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3011 tlivpggrtlqiirakvsdggeytciainqageskkkfsltvyvppsikdhdseslsvvnvregtsvslecesnavpppvitwykn 3096
+                              l vpggrtlqiirak+sdgg+ytciainqageskkk sltv+vppsikdh s+sls+vnvregtsvslecesnavpppvitw kn
+  sp|D3YXG0|HMCN1_MOUSE 3010 VLTVPGGRTLQIIRAKISDGGDYTCIAINQAGESKKKVSLTVHVPPSIKDHGSQSLSIVNVREGTSVSLECESNAVPPPVITWSKN 3095
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3097 grmitesthveiladgqmlhikkaevsdtgqyvcrainvagrddknfhlnvyvppsiegperevivetisnpvtltcdatgipppt 3182
+                             grmi +st+veil  gq lhi++aevsdtgqyvcrainvagrddknfhlnvyvpp+iegpe evivetisnpvtltcdatgipppt
+  sp|D3YXG0|HMCN1_MOUSE 3096 GRMIPDSTNVEILTGGQTLHIRRAEVSDTGQYVCRAINVAGRDDKNFHLNVYVPPTIEGPETEVIVETISNPVTLTCDATGIPPPT 3181
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3183 iawlknhkriensdslevrilsggsklqiarsqhsdsgnytciasnmegkaqkyyflsiqvppsvagaeipsdvsvllgenvelvc 3268
+                             i wlknhk iensd lev+ilsggsklqiar q+s+sgnytc+asnmegkaqk ++l iqvppsvagae+ps+vsvllgenvelvc
+  sp|D3YXG0|HMCN1_MOUSE 3182 ITWLKNHKPIENSDPLEVHILSGGSKLQIARPQRSNSGNYTCVASNMEGKAQKNFILFIQVPPSVAGAEVPSEVSVLLGENVELVC 3267
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3269 nangiptpliqwlkdgkpiasgeterirvsangstlniygaltsdtgkytcvatnpageedrifnlnvyvtptirgnkdeaeklmt 3354
+                             na+giptp +qwl+dgkpi +geter+rv+ +gstlniy altsd gkytcvatnpageedrifnlnvyv p irgnk+eaeklm 
+  sp|D3YXG0|HMCN1_MOUSE 3268 NADGIPTPHLQWLRDGKPIVNGETERVRVTTDGSTLNIYRALTSDMGKYTCVATNPAGEEDRIFNLNVYVPPKIRGNKEEAEKLMA 3353
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3355 lvdtsiniecratgtpppqinwlknglplplsshirllaagqvirivraqvsdvavytcvasnragvdnkhynlqvfappnmdnsm 3440
+                             lvdtsiniec+atgtpppqinwlknglplp+sshirll+agqv+rivraqvsd+avytcvasnragvd+khy+lqvf ppnmdn+m
+  sp|D3YXG0|HMCN1_MOUSE 3354 LVDTSINIECKATGTPPPQINWLKNGLPLPISSHIRLLSAGQVVRIVRAQVSDIAVYTCVASNRAGVDSKHYSLQVFVPPNMDNAM 3439
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3441 gteeitvlkgsstsmacitdgtpapsmawlrdgqplgldahltvsthgmvlqllkaetedsgkytciasneagevskhfilkvlep 3526
+                             gteeit++kgsstsm c+tdgtpapsm+wlrdgqpl+ dahltvst+gmvlql+kaeted+gkytc+a+neagevskhf+lkvlep
+  sp|D3YXG0|HMCN1_MOUSE 3440 GTEEITIVKGSSTSMTCFTDGTPAPSMSWLRDGQPLAPDAHLTVSTQGMVLQLIKAETEDTGKYTCVATNEAGEVSKHFVLKVLEP 3525
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3527 phingseeheeisvivnnpleltciasgipapkmtwmkdgrplpqtdqvqtlgggevlristaqvedtgrytclasspagdddkey 3612
+                             phingse   e+svivnnplel+ciasgipapk++wmkdgrp+ qt+qvqtl gg +lr+s+aqvedtgrytclasspagdddkey
+  sp|D3YXG0|HMCN1_MOUSE 3526 PHINGSEGPGEVSVIVNNPLELSCIASGIPAPKISWMKDGRPFLQTEQVQTLEGGAILRVSSAQVEDTGRYTCLASSPAGDDDKEY 3611
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3613 lvrvhvppniagtdeprditvlrnrqvtlecksdavpppvitwlrngerlqatprvrilsggrylqinnadlgdtanytcvasnia 3698
+                             lvrvhvppniag de +d+tvlrnrqvtlecksdavpppvi wl+n e+lqatprvrilsggrylqinnadlgdtanytcvasnia
+  sp|D3YXG0|HMCN1_MOUSE 3612 LVRVHVPPNIAGMDEAQDFTVLRNRQVTLECKSDAVPPPVIMWLKNREQLQATPRVRILSGGRYLQINNADLGDTANYTCVASNIA 3697
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3699 gkttrefiltvnvppnikggpqslvillnkstvleciaegvptpritwrkdgavlagnharysilengflhiqsahvtdtgrylcm 3784
+                             gkttref ltvnvpp+i ggpqslv llnks  lec aegvp pritwrkdg vla +harysilengflhi+sahvtdtgrylcm
+  sp|D3YXG0|HMCN1_MOUSE 3698 GKTTREFNLTVNVPPSIGGGPQSLVTLLNKSIALECRAEGVPAPRITWRKDGVVLAESHARYSILENGFLHIESAHVTDTGRYLCM 3783
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3785 atnaagtdrrridlqvhvppsiapgptnmtvivnvqttlaceatgipkpsinwrknghllnvdqnqnsyrllssgslviispsvdd 3870
+                             atn agtdrrridlqvhvppsia gptn+tv vnvqttlaceatgipkps+ wrknghllnvdqnqnsyrllssgslviispsvdd
+  sp|D3YXG0|HMCN1_MOUSE 3784 ATNVAGTDRRRIDLQVHVPPSIAMGPTNVTVTVNVQTTLACEATGIPKPSVTWRKNGHLLNVDQNQNSYRLLSSGSLVIISPSVDD 3869
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3871 tatyectvtngagddkrtvdltvqvppsiadeptdflvtkhapavitctasgvpfpsihwtkngirllprgdgyrilssgaieila 3956
+                             ta+yectvt+ ag+dkr vdltvqvpp+iadep dflvt++apav+tc+asgvp psihwtkng+rllprgdgyrilssgaiei  
+  sp|D3YXG0|HMCN1_MOUSE 3870 TASYECTVTSDAGEDKRAVDLTVQVPPTIADEPMDFLVTRQAPAVMTCSASGVPVPSIHWTKNGLRLLPRGDGYRILSSGAIEIPT 3955
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 3957 tqlnhagrytcvarnaagsahrhvtlhvheppviqpqpselhvilnnpillpceatgtpspfitwqkeginvntsgrnhavlpsgg 4042
+                             tqlnhagrytcvarnaagsahrhvtl+v+eppviqpqpsel vilnnpillpceatg p+pfitwqkeginv tsg++ a+lpsg+
+  sp|D3YXG0|HMCN1_MOUSE 3956 TQLNHAGRYTCVARNAAGSAHRHVTLRVQEPPVIQPQPSELDVILNNPILLPCEATGIPTPFITWQKEGINVITSGKSLAILPSGS 4041
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4043 lqisravredagtymcvaqnpagtalgkiklnvqvppvisphlkeyviavdkpitlsceadglpppditwhkdgraivesirqrvl 4128
+                             lqisravr dagtymcvaqnpagtalgk+klnvqvppvis h keyv+ +dkp++l ce +g pppditwhkdg+a+ esirqr+l
+  sp|D3YXG0|HMCN1_MOUSE 4042 LQISRAVRGDAGTYMCVAQNPAGTALGKVKLNVQVPPVISSHQKEYVVTMDKPVSLLCETEGSPPPDITWHKDGHALTESIRQRIL 4127
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4129 ssgslqiafvqpgdaghytcmaanvagssststkltvhvpprirsteghytvnensqailpcvadgiptpainwkkdnvllanllg 4214
+                             +sg+lqiaf qp dag+ytcmaan+agsss s+ ltvhvppri+ste h+tvnensqa+lpcvadgiptpai+w+kd vl+anllg
+  sp|D3YXG0|HMCN1_MOUSE 4128 NSGALQIAFAQPDDAGQYTCMAANMAGSSSVSSTLTVHVPPRIQSTEVHFTVNENSQAVLPCVADGIPTPAIHWEKDGVLIANLLG 4213
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4215 kytaepygelilenvvledsgfytcvannaagedthtvsltvhvlptftelpgdvslnkgeqlrlsckatgiplpkltwtfnnnii 4300
+                             kyta+pygelilenvvledsg ytcvannaagedt+ v+l vh lptftelpgd+slnkgeqlrlscka giplpkltwtfnnnii
+  sp|D3YXG0|HMCN1_MOUSE 4214 KYTAQPYGELILENVVLEDSGTYTCVANNAAGEDTRIVTLAVHTLPTFTELPGDLSLNKGEQLRLSCKAVGIPLPKLTWTFNNNII 4299
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4301 pahfdsvnghselviervskedsgtyvctaensvgfvkaigfvyvkeppvfkgdypsnwieplggnailncevkgdptptiqwnrk 4386
+                             pahfds+nghselvie+vskedsgtyvctaensvgfvkaigfvyvkeppvfkgdypsnwieplggnailncevkgdp ptiqw+rk
+  sp|D3YXG0|HMCN1_MOUSE 4300 PAHFDSINGHSELVIEKVSKEDSGTYVCTAENSVGFVKAIGFVYVKEPPVFKGDYPSNWIEPLGGNAILNCEVKGDPAPTIQWSRK 4385
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4387 gvdieishrirqlgngslaiygtvnedagdytcvatneagvversmsltlqsppiitlepvetvinaggkiilncqatgepqptit 4472
+                             g dieishrirqlgngslaiygtvnedagdytcva neag+versmsltlqs piitlepvetv++agg++il+cqa gepqptit
+  sp|D3YXG0|HMCN1_MOUSE 4386 GADIEISHRIRQLGNGSLAIYGTVNEDAGDYTCVAANEAGMVERSMSLTLQSSPIITLEPVETVVDAGGRVILDCQAAGEPQPTIT 4471
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4473 wsrqghsiswddrvnvlsnnslyiadaqkedtsefecvarnlmgsvlvrvpvivqvhggfsqwsawracsvtcgkgiqkrsrlcnq 4558
+                             wsrqg+ iswd+r+++l n+slyia a+kedtse+ecvarnlmgsvlvrvpvivqvhggfs wsawr csvtcgkgiqkrsrlc+ 
+  sp|D3YXG0|HMCN1_MOUSE 4472 WSRQGQPISWDNRLSMLPNSSLYIAAARKEDTSEYECVARNLMGSVLVRVPVIVQVHGGFSLWSAWRPCSVTCGKGIQKRSRLCDN 4557
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4559 plpanggkpcqgsdlemrncqnkpcpvdgswsewslweectrscgrgnqtrtrtcnnpsvqhggrpcegnaveiimcnirpcpvhg 4644
+                             p pangg+pcqg+d e r+c nk cpvdg wsews+we+c+rscg+gnqtrtrtc+np  qhggrpceg+ave imcnirpcpvhg
+  sp|D3YXG0|HMCN1_MOUSE 4558 PPPANGGRPCQGADSEARHCHNKLCPVDGHWSEWSFWEDCSRSCGHGNQTRTRTCSNPPAQHGGRPCEGHAVETIMCNIRPCPVHG 4643
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4645 awsawqpwgtcsescgkgtqtrarlcnnpppafggsycdgaetqmqvcnerncpihgkwatwaswsacsvscgggarqrtrgcsdp 4730
+                              w+awqpw+ cs+scgkg+qtr rlcnnppp+fgg++c gaetqmqvcner+cp+ g+watw+swsac+vscgggar+rtr csdp
+  sp|D3YXG0|HMCN1_MOUSE 4644 VWNAWQPWSACSKSCGKGSQTRMRLCNNPPPSFGGAHCSGAETQMQVCNERHCPVDGRWATWSSWSACTVSCGGGARKRTRDCSDP 4729
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4731 vpqyggrkcegsdvqsdfcnsdpcpthgnwspwsgwgtcsrtcnggqmrryrtcdnpppsnggracggpdsqiqrcntdmcpvdgs 4816
+                             vpqygg+kceg+ vqsdfcnsdpcpthgnwspwsgwgtcsrtcnggqmrryrtcdnp psnggracggpd+qiqrcntdmcpvdgs
+  sp|D3YXG0|HMCN1_MOUSE 4730 VPQYGGNKCEGTGVQSDFCNSDPCPTHGNWSPWSGWGTCSRTCNGGQMRRYRTCDNPRPSNGGRACGGPDTQIQRCNTDMCPVDGS 4815
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4817 wgswhswsqcsascgggektrkrlcdhpvpvkggrpcpgdttqvtrcnvqacpggpqrargsvignindvefgiaflnatitdspn 4902
+                             wg+whsws cs scggge+trkrlcd+pvp kggr cpgd tqv+rcn+qacpggpqrargsvignind+efgiaflnatitdspn
+  sp|D3YXG0|HMCN1_MOUSE 4816 WGTWHSWSHCSVSCGGGERTRKRLCDNPVPTKGGRSCPGDATQVSRCNMQACPGGPQRARGSVIGNINDIEFGIAFLNATITDSPN 4901
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4903 sdtriirakitnvprslgsamrkivsilnpiywttakeigeavngftltnavfkretqvefatgeilqmshiargldsdgsllldi 4988
+                             +dtr+i+akitnvprslg amrki+silnpiywttakeigeavngftltnavfkretqvefatge+l+m+h+argldsdg+llld+
+  sp|D3YXG0|HMCN1_MOUSE 4902 TDTRVIQAKITNVPRSLGPAMRKIISILNPIYWTTAKEIGEAVNGFTLTNAVFKRETQVEFATGEVLRMTHVARGLDSDGALLLDV 4987
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 4989 vvsgyvlqlqspaevtvkdytedyiqtgpgqlyaystrlftidgisipytwnhtvfydqaqgrmpflvetlhassvesdynqieet 5074
+                             +vsg vlql spaev vkdytedyiqtgpgqlyaystrlftidgisipytwnht+fydqa g+mpflvetlhass+esdynq+eet
+  sp|D3YXG0|HMCN1_MOUSE 4988 IVSGQVLQLHSPAEVGVKDYTEDYIQTGPGQLYAYSTRLFTIDGISIPYTWNHTIFYDQAWGKMPFLVETLHASSIESDYNQLEET 5073
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5075 lgfkihasiskgdrsnqcpsgftldsvgpfcadedecaagnpcshschnamgtyycscpkgltiaadgrtcqdidecalgrhtcha 5160
+                             lgfkihasiskgdrsnqcpsgf ldsvgpfcadedec agnpcsh+chna+g yycscpkgltiaadgrtcqdidecalg htc+a
+  sp|D3YXG0|HMCN1_MOUSE 5074 LGFKIHASISKGDRSNQCPSGFILDSVGPFCADEDECTAGNPCSHTCHNAIGAYYCSCPKGLTIAADGRTCQDIDECALGGHTCRA 5159
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5161 gqdcdntigsyrcvvrcgsgfrrtsdglscqdinecqesspchqrcfnaigsfhcgcepgyqlkgrkcmdvnecrqnvcrpdqhck 5246
+                             gqdcdntigsyrcvv+cg+gfrrtsdglscqdinecqesspchqrcfn igsfhcgce gyqlkgrkc+dvnecrqnvcrpdqhck
+  sp|D3YXG0|HMCN1_MOUSE 5160 GQDCDNTIGSYRCVVHCGTGFRRTSDGLSCQDINECQESSPCHQRCFNVIGSFHCGCEAGYQLKGRKCIDVNECRQNVCRPDQHCK 5245
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5247 ntrggykcidlcpngmtkaengtcidideckdgthqcrynqicentrgsyrcvcprgyrsqgvgrpcmdineceqvpkpcahqcsn 5332
+                             ntrggykcidlcp+gmtkaengtcidideckdgthqcrynqicentrgsyrc cprgyrsqgvgrpc+dineceqvpkpcahqcsn
+  sp|D3YXG0|HMCN1_MOUSE 5246 NTRGGYKCIDLCPSGMTKAENGTCIDIDECKDGTHQCRYNQICENTRGSYRCACPRGYRSQGVGRPCIDINECEQVPKPCAHQCSN 5331
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5333 tpgsfkcicppgqhllgdgkscaglerlpnygtqyssynlarfspvrnnyqpqqhyrqyshlyssyseyrnsrtslsrtrrtirkt 5418
+                             +pgsfkcic pgq+llgdgkscaglerl nygtqyssy l rfspvr++yqp qhyrqys+lyssyseyrnsr s+sr rrtirkt
+  sp|D3YXG0|HMCN1_MOUSE 5332 SPGSFKCICLPGQQLLGDGKSCAGLERLSNYGTQYSSYTLERFSPVRSDYQPSQHYRQYSQLYSSYSEYRNSRASFSRNRRTIRKT 5417
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5419 cpegseashdtcvdidecentdacqheckntfgsyqcicppgyqlthngktcqdidecleqnvhcgpnrmcfnmrgsyqcidtpcp 5504
+                             cpegsea+h+tcvdidec+n d cqhecknt+gsyqc+cppgy+l  ngktcqd+decleqnv+cgpnrmcfnmrgsyqcidtpcp
+  sp|D3YXG0|HMCN1_MOUSE 5418 CPEGSEANHETCVDIDECQNRDTCQHECKNTIGSYQCVCPPGYRLMLNGKTCQDVDECLEQNVRCGPNRMCFNMRGSYQCIDTPCP 5503
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5505 pnyqrdpvsgfclkncppndlecalspyaleyklvslpfgiatnqdlirlvaytqdgvmhprttflmvdeeqtvpfalrdenlkgv 5590
+                             pnyqrdpv gfclkncppndlec lspyaleyklvslpfgia nqdlirlvaytqdgvmhprttflm+dee  vpfalrdenlkgv
+  sp|D3YXG0|HMCN1_MOUSE 5504 PNYQRDPVLGFCLKNCPPNDLECTLSPYALEYKLVSLPFGIAANQDLIRLVAYTQDGVMHPRTTFLMIDEEPAVPFALRDENLKGV 5589
+                             ************************************************************************************** PP
+
+  sp|Q96RW7|HMCN1_HUMAN 5591 vyttrplreaetyrmrvrassysangtieyqttfivyiavsaypy 5635
+                             vyttrplreaetyrm+v a sysangtieyqttfivyiavsaypy
+  sp|D3YXG0|HMCN1_MOUSE 5590 VYTTRPLREAETYRMKVGALSYSANGTIEYQTTFIVYIAVSAYPY 5634
+                             ********************************************9 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (5635 nodes)
+Target sequence(s):                        1  (5634 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.86u 0.14s 00:00:01.00 Elapsed: 00:00:00.99
+# Mc/sec: 31.75
+//
+[ok]

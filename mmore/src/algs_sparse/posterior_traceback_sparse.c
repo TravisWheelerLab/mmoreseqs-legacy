@@ -3,7 +3,8 @@
  *  PURPOSE:   The Maximum Posterior Probability and Optimal Alignment.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
+ *    - 
  *******************************************************************************/
 
 /* imports */
@@ -51,7 +52,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                                             ALIGNMENT*              aln )             /* OUTPUT: optimal alignment */
 {
    printf("=== run_Posterior_Traceback_Sparse() [BEGIN] ===\n");
-   FILE*                fp;
+   FILE* fp;
 
    /* generic dp matrix pointers for macros */
    MATRIX_3D_SPARSE*    st_SMX   = st_SMX_opt;
@@ -72,7 +73,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    int      t_range;                         /* range of targets on current row */
 
    /* vars for indexing into edgebound lists */
-   BOUND*   bnd;                             /* current bound */
+   BOUND    bnd;                             /* current bound */
    int      id_0;                            /* id in edgebound list (row/diag) */
    int      r_0;                             /* current index for current row */
    int      r_0b, r_0e;                      /* begin and end indices for current row in edgebound list */
@@ -94,8 +95,19 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    float    sc_best;                         /* final best scores */
    float    sc_M, sc_I, sc_D, sc_E;          /* match, insert, delete, end scores */
 
+   /* vars for sparse matrix */
+   MATRIX_3D_SPARSE*    mx;                     
+   EDGEBOUNDS*          edg_inner;           /* edgebounds for search space of backward/forward */
+   EDGEBOUNDS*          edg_outer;           /* edgebounds for sparse matrix shape */
+   RANGE                T_range;             /* target range */
+   RANGE                Q_range;             /* query range */
+   bool                 is_q_0_in_dom_range; /* checks if current query position is inside the domain range */
+   bool                 is_q_1_in_dom_range; /* checks if previous query position is inside the domain range */
+
    /* vars for alignment traceback */
+   float*         ref;                       /* reference cell */
    float          sc_cur, sc_max;            /* current and maximum score */
+   float          sc_post;                   /* posterior score */
    int            st_cur, st_prv, st_max;    /* current, previous state in traceback */
    int            q_prv, t_prv, t_max;       /* previous and maximum query and target positions */
    TRACE*         tr;                        /* trace object for appending */
@@ -110,69 +122,72 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    /* local or global? */
    is_local = target->isLocal;
 
+   /* domain range (query sequence) */
+   if (dom_range == NULL) {
+      Q_range.beg = 0;
+      Q_range.end = Q;
+   } else {
+      Q_range = *dom_range;
+   }
+   /* target range */
+   T_range.beg = 0;
+   T_range.end = T + 1;
+
    /* intial indexes */
-   q_0   = q_prv = Q;
+   q_0   = q_prv = Q_range.end;
    t_0   = t_prv = 0;
-   r_0b  = EDGEBOUNDS_GetSize( edg ) - 1;
-   r_0e  = EDGEBOUNDS_GetSize( edg ) - 1;
+
    /* get edgebound range */
-   EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
+   r_0b  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 + 1 );
+   r_0e  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 );
 
    /* clear memory for trace */
    ALIGNMENT_Reuse( aln, Q, T );
 
-   /* Backtracing, so C is end state */
-   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
+   /* Backtracing, so begins at T, the model exit state */
+   ALIGNMENT_AppendTrace( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_AppendScore( aln, -INF );
+
+   /* Immediate after, it transitions to C, the post main model / post END state */
+   ALIGNMENT_AppendTrace( aln, C_ST, q_0, t_0 );
+   ALIGNMENT_AppendScore( aln, -INF );
    st_prv = C_ST;
 
-   /* End of trace is S state */
+   /* End of trace is S, the model entry state */
    while (st_prv != S_ST)
    {
       /* if we have reached the end of the query sequence */
-      if (q_0 == 0) {
-         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
+      if (q_0 == Q_range.beg) {
+         ALIGNMENT_AppendTrace( aln, S_ST, q_0, t_0 );
+         ALIGNMENT_AppendScore( aln, -INF );
          break;
       } 
 
       /* if q_0 has been decremented, then get edgebound range of next row  */
-      if ( q_prv != q_0 ) {
-         /* get edgebound range */
-         EDGEBOUNDS_PrvRow( edg, &r_0b, &r_0e, q_0 );
-      }
+      r_0b  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 + 1 );
+      r_0e  = EDGEBOUNDS_GetIndex_byRow_Bck( edg, q_0 );
 
-      /*! TODO: (?) can be optimized by only updating during certain cases */
-      is_found = false;
-      /* if in the core model, find location */
+      /* if in the core model */
       if ( st_prv == M_ST || st_prv == I_ST || st_prv == D_ST )
       {
+         is_found = STATUS_SUCCESS;
+         fprintf(stderr, "Seeking: {%s,(%d,%d)}, r_0:(%d,%d)\n", STATE_NAMES[st_prv], q_0, t_0, r_0b, r_0e);
          /* if either t_0 or q_0 have been decremented, then lookup index offset */
-         if ( t_prv != t_0 || q_prv != q_0 ) 
-         {
-            /* search through bounds in row for bound containing index */
-            for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) 
-            {
-               /* find bound that contains current index */
-               bnd = &EDG_X(edg, r_0);
-               /* if t_0 is inside range of current bound */
-               if ( t_0 >= bnd->lb && t_0 < bnd->rb ) 
-               {
-                  /* fetch data mapping bound start location to data block in sparse matrix */
-                  qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, 0) location offset */
-                  qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, 0) location offset */
-                  /* total_offset = offset_location - starting_location */
-                  tx0 = t_0 - bnd->lb;    
-                  tx1 = tx0 - 1;
-                  /* found location, so break from loop */
-                  is_found = true;
-                  break;
-               }
-            }
+         if ( t_prv != t_0 || q_prv != q_0 ) {
+            is_found = MATRIX_3D_SPARSE_GetOffset_ByCoords( st_SMX_post, q_0, t_0, &qx1, &qx0, NULL, &tx0 );
          }
          /* if not found, throw error */
-         if ( is_found == false ) {
-            fprintf( stderr, "ERROR: Impossible position in model reached at {%s,%d,%d}\n", 
+         if ( is_found == STATUS_FAILURE ) 
+         {
+            fprintf( stderr, "ERROR: Impossible position reached in posterior backtrace at { %s, (%d, %d) }\n", 
                STATE_NAMES[st_prv], q_0, t_0);
+            fprintf( stderr, "BOUNDS: (%d,%d)\n", r_0b, r_0e );
+            for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) {
+               /* find bound that contains current index */
+               bnd = MATRIX_3D_SPARSE_GetBound_byIndex(st_SMX, r_0);
+               fprintf( stderr, "BOUND[%d]:{%d,(%d,%d)} ", r_0, bnd.id, bnd.lb, bnd.rb );
+            }
+            fprintf( stderr, "\n");
             ERRORCHECK_exit(EXIT_FAILURE);
          }
       } 
@@ -188,6 +203,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
       /* previous target and query sequence */
       q_1 = q_0 - 1;
       t_1 = t_0 - 1;
+      tx1 = tx0 - 1;
       
       /* get next sequence character */
       a = seq[q_1];
@@ -232,23 +248,23 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                for ( r_0 = r_0b; r_0 > r_0e; r_0-- )
                {
                   /* get bound data */
-                  bnd   = &EDG_X(edg, r_0);
-                  id_0  = bnd->id;
-                  lb_0  = bnd->lb;
-                  rb_0  = bnd->rb;
+                  bnd   = MATRIX_3D_SPARSE_GetBound_byIndex(st_SMX, r_0);
+                  id_0  = bnd.id;
+                  lb_0  = bnd.lb;
+                  rb_0  = bnd.rb;
 
                   /* fetch data mapping bound start location to data block in sparse matrix */
-                  qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, t_0) location offset */
-                  qx1 = VECTOR_INT_Get( st_SMX->imap_prv, r_0 );    /* (q_1, t_0) location offset */
+                  qx0 = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( st_SMX, r_0 );    /* (q_0, t_0) location offset */
+                  qx1 = MATRIX_3D_SPARSE_GetOffset_ByIndex_Prv( st_SMX, r_0 );    /* (q_1, t_0) location offset */
 
                   /* initial location for square matrix and mapping to sparse matrix */
                   t_0 = lb_0;
-                  tx0 = t_0 - bnd->lb;    /* total_offset = offset_location - starting_location */
+                  tx0 = t_0 - bnd.lb;    /* total_offset = offset_location - starting_location */
 
                   for ( t_0 = lb_0; t_0 < rb_0; t_0++ ) 
                   {
                      t_1 = t_0 - 1; 
-                     tx0 = t_0 - bnd->lb;
+                     tx0 = t_0 - bnd.lb;
                      tx1 = tx0 - 1;
 
                      /* possible previous state */
@@ -293,11 +309,12 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             prv_B =  TSC_DELTA(t_1, B2M) *
                      XMX(SP_B, q_1);
 
+            fprintf(stdout, "CUR: %.3f, M: %.3f, I: %.3f, D: %.3f, B: %.3f\n", 
+               MSMX(qx0, tx0), MSMX(qx1, tx1), ISMX(qx1, tx1), DSMX(qx1, tx1), XMX(SP_B, q_1));
+            fprintf(stdout, "CUR: %.3f, M: %.3f, I: %.3f, D: %.3f, B: %.3f\n", 
+               MSMX(qx0, tx0), prv_M, prv_I, prv_D, prv_B);
+
             /* find maximum next state score */
-            if ( sc_max < prv_B ) {
-               st_cur = B_ST;
-               sc_max = prv_B;
-            }
             if ( sc_max < prv_M ) {
                st_cur = M_ST;
                sc_max = prv_M;
@@ -309,6 +326,10 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             if ( sc_max < prv_D ) {
                st_cur = D_ST;
                sc_max = prv_D;
+            }
+            if ( sc_max < prv_B ) {
+               st_cur = B_ST;
+               sc_max = prv_B;
             }
 
             /* update index to previous state */
@@ -347,11 +368,6 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
          {
             /* current state */
             sc_cur = ISMX(qx0, tx0);
-            /* No valid alignment goes to -INF */
-            if ( sc_cur == -INF ) {
-               fprintf( stderr, "ERROR: Impossible I_ST reached at (%d,%d)\n", q_0, t_0);
-               ERRORCHECK_exit(EXIT_FAILURE);
-            }
 
             /* possible previous states */
             prv_M =  TSC_DELTA(t_0, M2I) * 
@@ -444,48 +460,40 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
       if ( st_cur == X_ST ) {
          fprintf( stderr, "ERROR: Traceback failed from state %s:(%d,%d).\n",
             STATE_NAMES[st_prv], q_0, t_0 );
-         exit(1);
+         exit(EXIT_FAILURE);
       }
 
-      /* push new trace onto the alignment */
-      // fprintf( stdout, "[%ld] { %s, (%d, %d) }: %11.4f\n", 
-      //    aln->traces->N, STATE_NAMES[st_cur], q_0, t_0, sc_cur );
-      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
-      /** TODO: Add posterior scores to alignment */
+      /* Add posterior scores to alignment */
       {
-         /* temporary fix: using the optimal score, but should use the posterior score */
-         VECTOR_FLT_Pushback( aln->scores, sc_max );
-         // switch ( st_cur )
-         // {
-         //    case M_ST:
-         //    case I_ST:
-         //       /* search through bounds in row for bound containing index */
-         //       for ( r_0 = r_0b; r_0 > r_0e; r_0-- ) 
-         //       {
-         //          /* find bound that contains current index */
-         //          bnd = &EDG_X(edg, r_0);
-         //          /* if t_0 is inside range of current bound */
-         //          if ( IS_IN_RANGE( bnd->lb, bnd->rb - 1, t_0 ) ) 
-         //          {
-         //             /* fetch data mapping bound start location to data block in sparse matrix */
-         //             qx0 = VECTOR_INT_Get( st_SMX->imap_cur, r_0 );    /* (q_0, 0) location offset */
-         //             /* total_offset = offset_location - starting_location */
-         //             tx0 = t_0 - bnd->lb;    
-         //             tx1 = tx0 - 1;
-         //             /* found location, so break from loop */
-         //             SMX_X(st_SMX_post, st_cur, qx0, tx0);
-         //             break;
-         //          }
-         //       }
-         //    default:
-         //       post_sc = 0.0f;
-         // }
+         switch ( st_cur )
+         {
+            case M_ST:
+            case I_ST:
+               ref = MATRIX_3D_SPARSE_GetX( st_SMX_post, q_0, t_0, st_cur );
+               if ( ref == NULL ) {
+                  printf("ERROR: Impossible State reached at {%s,(%d,%d)}.\n", STATE_NAMES[st_cur], q_0, t_0 );
+                  printf("SPARSE BOUNDING: Q:[%d,%d] T:[%d,%d]\n", 
+                     st_SMX_post->Q_range.beg, st_SMX_post->Q_range.end, st_SMX_post->T_range.beg, st_SMX_post->T_range.end );
+                  sc_post = 0.0f;
+               } else {
+                  sc_post = *ref;
+               }
+            default:
+               sc_post = 0.0f;
+         }
+         /* push new trace onto the alignment */
+         ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
+         ALIGNMENT_AppendScore( aln, sc_post );
       }
+      
 
       /* For {N,C,J}, we deferred q_0 decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
          q_0--;
       }
+
+      fprintf(stderr, "{%s,(%d,%d)} -> {%s,(%d,%d)}\n", 
+         STATE_NAMES[st_prv], q_prv, t_prv, STATE_NAMES[st_cur], q_0, t_0);
 
       /* Update previous state */
       st_prv = st_cur;
@@ -494,51 +502,23 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
    /* reverse order of traceback */
    ALIGNMENT_Reverse( aln );
 
-   /* find end and begin alignment points, and best scoring alignment */
-   int   N           = ALIGNMENT_GetSize( aln );
-   int   num_alns    = 0;
-   int   best_aln    = -1;
-   int   long_aln    = -1;
-   float best_sc     = -INF;
-   float sc          = -INF;
-   float b_sc        = -INF;
-   float e_sc        = -INF;
-   int   b_i         = -1;
-   int   e_i         = -1;
-   for (int i = 0; i < N; i++) {
+   /* Set main model regions of alignment */
+   ALIGNMENT_FindRegions( aln );
+   ALIGNMENT_ScoreRegions( aln );
+
+   int N = VECTOR_INT_GetSize( aln->tr_beg );
+   VECTOR_FLT_Dump_byOpt( aln->tr_score,  ",", "TR_SCORE",  stdout );
+   VECTOR_INT_Dump_byOpt( aln->tr_beg,    ",", "TR_BEG",    stdout );
+   VECTOR_INT_Dump_byOpt( aln->tr_end,    ",", "TR_END",    stdout );
+   for ( int i = 0; i < N; i++ ) {
       TRACE tr = ALIGNMENT_GetTrace( aln, i );
-      if ( tr.st == B_ST ) {
-         b_i   = i;
-         VECTOR_INT_Pushback( aln->tr_beg, i + 1 );
-         /* TODO: need first match state score */
-         b_sc  = VECTOR_FLT_Get( aln->scores, i + 1 );
-      }
-      if ( tr.st == E_ST ) {
-         e_i   = i;
-         VECTOR_INT_Pushback( aln->tr_end, i - 1 );
-         /* TODO: need first match state score */
-         e_sc  = VECTOR_FLT_Get( aln->scores, i - 1 );
-         sc    = log(expf(e_sc) - expf(b_sc));
-         VECTOR_FLT_Pushback( aln->tr_score, sc );
-         // if ( sc >= best_sc ) {
-         //    best_sc  = sc;
-         //    best_aln = num_alns;
-         // }
-         if ( long_aln < e_i - b_i ) {
-            long_aln = e_i - b_i;
-            best_aln = num_alns;
-         }
-         num_alns++;
+      fprintf(stderr, "-%s-", STATE_CHARS[tr.st]);
+      if ( ((i+1) % 25) == 0 ) {
+         fprintf(stderr, "\n");
       }
    }
-   printf("num_alns: %d, best_aln: %d\n", num_alns, best_aln );
-   VECTOR_FLT_Dump( aln->tr_score, stdout );
-   VECTOR_INT_Dump( aln->tr_beg, stdout );
-   VECTOR_INT_Dump( aln->tr_end, stdout );
-
-   aln->best_idx = best_aln;
-   aln->beg = VEC_X( aln->tr_beg, best_aln );
-   aln->end = VEC_X( aln->tr_end, best_aln );
+   printf("\n");
+   exit(0);
 
    #if DEBUG
    {

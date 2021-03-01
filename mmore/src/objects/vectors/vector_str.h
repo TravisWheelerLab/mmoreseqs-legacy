@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_STR Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_STR_H

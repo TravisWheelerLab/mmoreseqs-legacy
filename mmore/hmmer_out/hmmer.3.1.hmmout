@@ -1,0 +1,34 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.3.fa
+# target sequence database:        targets/targets.1.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|A0A024F910|VLMS_LECSP  [L=8903]
+Description: Nonribosomal peptide synthetase vlms OS=Lecanicillium sp. OX=1756136 GN=vlmS PE=3 SV=1
+
+   [No hits detected that satisfy reporting thresholds]
+
+
+Domain annotation for each sequence (and alignments):
+
+   [No targets detected that satisfy reporting thresholds]
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (8903 nodes)
+Target sequence(s):                        1  (14507 residues searched)
+Passed MSV filter:                         0  (0); expected 0.0 (0.02)
+Passed bias filter:                        0  (0); expected 0.0 (0.02)
+Passed Vit filter:                         0  (0); expected 0.0 (0.001)
+Passed Fwd filter:                         0  (0); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               0  [number of targets reported over threshold]
+# CPU time: 0.57u 0.00s 00:00:00.56 Elapsed: 00:00:00.57
+# Mc/sec: 223.69
+//
+[ok]

@@ -356,16 +356,16 @@ STR_ToLower(   STR      str )
 /*! FUNCTION:  STR_StartsWith()
  *  SYNOPSIS:  Checks if start of <str> and <prefix> are equal up to the length of <prefix>.
  */
-bool 
+bool  
 STR_StartsWith(   STR      str,
                   STR      prefix )
 {
-   bool is_startswith;
-   int S = STR_GetLength( str );
-   int P = STR_GetLength( prefix );
+   int   is_startswith;
+   int   S  = STR_GetLength( str );
+   int   P  = STR_GetLength( prefix );
 
    /* if <prefix> is longer than <str>, then <str> cannot contain it */
-   if ( P > S ) return false;
+   if ( P > S ) return -1;
 
    /* otherwise, compare against the length of <prefix>. */
    is_startswith = strncmp( str, prefix, P );
@@ -375,16 +375,16 @@ STR_StartsWith(   STR      str,
 /*! FUNCTION:  STR_EndsWith()
  *  SYNOPSIS:  Checks if end of <str> and <suffix> are equal up to the length of <suffix>.
  */
-bool 
+bool  
 STR_EndsWith(  STR      str,
                STR      suffix )
 {
-   bool is_endswith;
-   int S = STR_GetLength( str );
-   int P = STR_GetLength( suffix );
+   int   is_endswith;
+   int   S  = STR_GetLength( str );
+   int   P  = STR_GetLength( suffix );
 
    /* if <prefix> is longer than <str>, then <str> cannot contain it */
-   if ( P > S ) return false;
+   if ( P > S ) return -1;
 
    /* otherwise, compare against the length of <prefix>. */
    str = &(str[S - P]);

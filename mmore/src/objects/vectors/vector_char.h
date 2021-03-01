@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_CHAR Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_CHAR_H

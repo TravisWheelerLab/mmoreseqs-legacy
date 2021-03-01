@@ -165,7 +165,7 @@ VECTOR_CHAR_Copy(  VECTOR_CHAR*   dest,
       dest = VECTOR_CHAR_Create();
    }
    /* allocate variable-sized data */
-   VECTOR_CHAR_Resize( dest, src->N );
+   VECTOR_CHAR_GrowTo( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
       *VECTOR_CHAR_GetX( dest, i ) = CHAR_Create( VEC_X( src, i ) );
@@ -326,7 +326,7 @@ VECTOR_CHAR_Push(  VECTOR_CHAR*   vec,
                   CHAR           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VECTOR_CHAR_Set( vec, vec->N, val );
+   VEC_X( vec, vec->N ) = val;
    vec->N++;
 }
 
@@ -791,6 +791,9 @@ VECTOR_CHAR_Dump_byOpt(  VECTOR_CHAR*    vec,
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
       fprintf(fp, "%s%s%s", CHAR_To_String(vec->data[i], s), delim, pad );
+   }
+   if ( vec->N >= 1 ) {
+      fprintf(fp, "%s%s", CHAR_To_String(vec->data[vec->N-1], s), pad );
    }
    fprintf(fp, "]\n" );
 }

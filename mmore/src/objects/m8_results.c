@@ -205,18 +205,18 @@ M8_RESULT_Dump(   M8_RESULT*  res,
 {  
    fprintf( fp, "{ ");
 
-   fprintf( fp, "%s: %s | ",    "QUERY",    res->query_name );
-   fprintf( fp, "%s: %s | ",    "TARGET",   res->target_name );
-   fprintf( fp, "%s: %.3f | ",  "PERCID",   res->perc_id );
-   fprintf( fp, "%s: %d | ",    "ALN_LEN",  res->aln_len );
-   fprintf( fp, "%s: %d | ",    "MISMAT",   res->mismatch );
-   fprintf( fp, "%s: %d | ",    "GAPS",     res->gap_openings );
+   fprintf( fp, "%s: %s | ",        "QUERY",    res->query_name );
+   fprintf( fp, "%s: %s | ",        "TARGET",   res->target_name );
+   fprintf( fp, "%s: %.3f | ",      "PERCID",   res->perc_id );
+   fprintf( fp, "%s: %d | ",        "ALN_LEN",  res->aln_len );
+   fprintf( fp, "%s: %d | ",        "MISMAT",   res->mismatch );
+   fprintf( fp, "%s: %d | ",        "GAPS",     res->gap_openings );
 
-   fprintf( fp, "%s: %d-%d | ",  "Q_RANGE",  res->q_beg, res->q_end );
-   fprintf( fp, "%s: %d-%d | ",  "T_RANGE",  res->t_beg, res->t_end );
+   fprintf( fp, "%s: (%d-%d) | ",   "Q_RANGE",  res->q_beg, res->q_end );
+   fprintf( fp, "%s: (%d-%d) | ",   "T_RANGE",  res->t_beg, res->t_end );
 
-   fprintf( fp, "%s: %.3e | ",  "EVAL",     res->eval );
-   fprintf( fp, "%s: %.1f   ",  "BITSC",    res->bitsc );
+   fprintf( fp, "%s: %.3e | ",      "EVAL",     res->eval );
+   fprintf( fp, "%s: %.1f   ",      "BITSC",    res->bitsc );
 
    fprintf( fp, "}\n");
 }

@@ -34,8 +34,6 @@
  *                An interactive pipeline which shows users how to work with tool and purpose of options.
  */
 STATUS_FLAG 
-interactive_pipeline( WORKER* worker );
-STATUS_FLAG 
 interactive_pipeline( WORKER* worker )
 {
 	printf("=== INTERACTIVE PIPELINE ===\n");

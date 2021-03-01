@@ -46,6 +46,7 @@
 #include "str.h"
 #include "str_ext.h"
 #include "xstr.h"
+#include "ptr.h"
 
 /* generic datatype (can potentially be dependent on any basic type) */
 #include "gen.h"

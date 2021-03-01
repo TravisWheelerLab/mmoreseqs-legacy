@@ -149,9 +149,16 @@ EDGEBOUNDS_Copy(  EDGEBOUNDS*          edg_dest,
    /* now copying begins */
    edg_dest->Q          = edg_src->Q;
    edg_dest->T          = edg_src->T;
-   EDGEBOUNDS_Reuse( edg_dest, edg_src->Q, edg_src->T );
-   edg_dest->edg_mode = edg_src->edg_mode;
-   VECTOR_BOUND_Copy( edg_dest->bounds, edg_src->bounds );
+   edg_dest->Q_range    = edg_src->Q_range;
+   edg_dest->T_range    = edg_src->T_range;
+   edg_dest->is_indexed = edg_src->is_indexed;
+   edg_dest->is_merged  = edg_src->is_merged;
+   edg_dest->is_sorted  = edg_src->is_sorted;
+   edg_dest->edg_mode   = edg_src->edg_mode;
+
+   EDGEBOUNDS_Reuse(    edg_dest, edg_src->Q,   edg_src->T );
+   VECTOR_BOUND_Copy(   edg_dest->bounds,       edg_src->bounds );
+   VECTOR_INT_Copy(     edg_dest->id_index,     edg_src->id_index );
 
    return edg_dest;
 }
@@ -234,15 +241,15 @@ EDGEBOUNDS_GetIndex_byRow(    const EDGEBOUNDS*   edg,
    N           = VECTOR_INT_GetSize( edg->id_index );
 
    /* if below range, then zero. */
-   if ( id_offset < 0 ) {
-      id_offset = 0;
+   if ( id_offset < 0 + index_pad ) {
+      id_offset = 0 + index_pad;
    }
    /* if above range, then max */
-   if ( id_offset >= (N-1) ) {
+   elif ( id_offset >= (N-1) ) {
       id_offset = (N-1);
    }
    /* if in range, table lookup */
-   index = VEC_X( edg->id_index, id_offset );
+   index = VECTOR_INT_Get( edg->id_index, id_offset );
    return index;
 }
 
@@ -273,7 +280,7 @@ EDGEBOUNDS_GetIndex_byRow_Fwd(   const EDGEBOUNDS*   edg,
       id_offset = (N-1);
    }
    /* if in range, table lookup */
-   index = VEC_X( edg->id_index, id_offset );
+   index = VECTOR_INT_Get( edg->id_index, id_offset );
    return index;
 }
 
@@ -309,43 +316,27 @@ EDGEBOUNDS_GetIndex_byRow_Bck(   const EDGEBOUNDS*   edg,
 }
 
 /*! FUNCTION:  EDGEBOUNDS_GetBoundRange_byRow()
- *  SYNOPSIS:  Gets the number of <bounds> and beginning <index> of row <id_0>.
+ *  SYNOPSIS:  Gets the index range <r_0b,r_0e> of bound row <id_0>.
  *             Returns pointer to head of row in <bounds>.
  *             Caller must have already run _Index().
  */
-BOUND*
-EDGEBOUNDS_GetBoundRange_byRow(  EDGEBOUNDS*    edg,
+STATUS_FLAG
+EDGEBOUNDS_GetIndexRange_byRow(  EDGEBOUNDS*    edg,
                                  int            id_0,
-                                 int*           index_p,
-                                 int*           num_bounds_p )
+                                 RANGE*         index_out )
 {
    int      id_offset;
-   int      index;
+   RANGE    index;
    int      num_bounds;
    BOUND*   row_head;
-
-   /* we assume user will not request an invalid row */
-   /* if <id_0> is not in the range of the edgebounds, we know the answer is none. */
-   #if SAFE || DEBUG
-   {
-      // bool in_range = IS_IN_RANGE( edg->Q_range.beg, edg->Q_range.end, id_0 );
-      // if ( in_range == false ) {
-      //    num_bounds = 0;
-      //    return NULL;
-      // }
-   }
-   #endif
    
    /* otherwise, we look it up in the index table */
-   id_offset      = id_0 - edg->Q_range.beg;
-   index          = VEC_X( edg->id_index, id_offset );
-   *index_p       = index;
-   /* number of bounds is equal to the distance between its index and the next id index */
-   num_bounds     = VEC_X( edg->id_index, id_offset + 1) - index;
-   *num_bounds_p  = num_bounds;
-   /* get row head at index */
-   row_head       = EDGEBOUNDS_GetX( edg, index );
-   return row_head;
+   index.beg = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, id_0 );
+   index.end = EDGEBOUNDS_GetIndex_byRow_Fwd( edg, id_0 + 1 );
+   if ( index_out != NULL ) {
+      *index_out = index;
+   }
+   return STATUS_SUCCESS;
 }
 
 /*! FUNCTION:  EDGEBOUNDS_GetBounds_byRow()
@@ -526,14 +517,18 @@ EDGEBOUNDS_Reverse( EDGEBOUNDS*   edg )
 STATUS_FLAG 
 EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
 {
-   /* number of entries in edgebounds map */
-   int N = EDGEBOUNDS_GetSize( edg );
+   RANGE    Q_range;
+   int      Q_size;
+   int      N;
 
+   /* number of entries in edgebounds map */
+   N = EDGEBOUNDS_GetSize( edg );
    /* find min/max range of Q and T */
-   EDGEBOUNDS_Find_BoundingBox( edg, &edg->Q_range, &edg->T_range );
+   EDGEBOUNDS_Find_BoundingBox( edg, NULL, NULL );
    /* we need an index to span all reachable Q values */
-   RANGE Q_range = edg->Q_range;
-   int   Q_size  = Q_range.end - Q_range.beg + 1;
+   Q_range  = edg->Q_range;
+   Q_size   = Q_range.end - Q_range.beg + 1;
+   // printf("Len: %d, Q_range: (%d,%d), Q_size: %d\n", N, Q_range.beg, Q_range.end, Q_size);
 
    /* clear old data */
    VECTOR_INT_Reuse( edg->id_index );
@@ -543,7 +538,7 @@ EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
    /* initial id size is minimum Q value */
    int      id_0;
    int      id_offset;
-   BOUND*   b_0;
+   BOUND    b_0;
 
    /* initial pad index for look backward safety */
    for (int i = 1; i < index_pad + 1; i++) {
@@ -556,10 +551,10 @@ EDGEBOUNDS_Index( EDGEBOUNDS*  edg )
    /* go through edgebound list and map <id_0>'s to position in <bounds>. */
    for ( int i_0 = 0; i_0 < N; i_0++)
    {
-      b_0 = EDGEBOUNDS_GetX( edg, i_0 );
+      b_0 = EDGEBOUNDS_Get( edg, i_0 );
       /* assign <id_0> index to its first instance in <bounds>. */
       /* if there are no <bounds> with <id_0>, then it is assigned to the edgebound proceed where it would be */
-      while ( b_0->id >= id_0 ) 
+      while ( b_0.id >= id_0 ) 
       {
          id_offset = id_0 - Q_range.beg + index_pad;
          VEC_X( edg->id_index, id_offset ) = i_0;
@@ -737,8 +732,8 @@ EDGEBOUNDS_Merge_Sub(   EDGEBOUNDS*    edg,
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
 void 
-EDGEBOUNDS_Dump(  EDGEBOUNDS*    edg,
-                  FILE*          fp )
+EDGEBOUNDS_Dump(  const EDGEBOUNDS*    edg,
+                  FILE*                fp )
 {
    /* test for bad file pointer */
    if (fp == NULL) {
@@ -922,11 +917,13 @@ EDGEBOUNDS_Cover_Matrix(   EDGEBOUNDS*    edg,
                            int            Q,
                            int            T )
 {
-   EDGEBOUNDS_Clear(edg);
-   for (int q_0 = 0; q_0 <= Q; q_0++) {
+   EDGEBOUNDS_Reuse(edg, Q, T);
+   for (int q_0 = 0; q_0 <= Q; q_0++) 
+   {
       BOUND bnd = (BOUND){ q_0, 0, T+1 };
       EDGEBOUNDS_Pushback(edg, bnd);
    }
+   EDGEBOUNDS_Index(edg);
 }
 
 /*! FUNCTION:  EDGEBOUNDS_Cover_Range()
@@ -962,13 +959,16 @@ EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
                               RANGE*        Q_range_out,
                               RANGE*        T_range_out )
 {
-   int N = EDGEBOUNDS_GetSize( edg );
-   int Q, T;
-   Q = edg->Q;
-   T = edg->T;
+   RANGE*   Q_range;
+   RANGE*   T_range; 
+   int      N;
+   int      Q, T;
 
-   RANGE* Q_range = &edg->Q_range;
-   RANGE* T_range = &edg->T_range; 
+   N        = EDGEBOUNDS_GetSize( edg );
+   Q_range  = &edg->Q_range;
+   T_range  = &edg->T_range; 
+   Q        = edg->Q;
+   T        = edg->T;
 
    /* find the target and query range */
    Q_range->beg = Q + 1;
@@ -982,7 +982,8 @@ EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
    }
 
    /* create bounding box */
-   for (int i = 0; i < N; i++) {
+   for (int i = 0; i < N; i++) 
+   {
       if ( T_range->beg > EDGEBOUNDS_Get( edg, i ).lb ) {
          T_range->beg = EDGEBOUNDS_Get( edg, i ).lb;
       }
@@ -991,13 +992,15 @@ EDGEBOUNDS_Find_BoundingBox(  EDGEBOUNDS*   edg,
       }
    }
    Q_range->beg = EDGEBOUNDS_Get( edg, 0 ).id;
-   Q_range->end = EDGEBOUNDS_Get( edg, EDGEBOUNDS_GetSize( edg ) - 1 ).id;
+   Q_range->end = EDGEBOUNDS_Get( edg, N-1 ).id;
+
    /* edge checks */
    T_range->beg = MAX(T_range->beg, 0);
    T_range->end = MIN(T_range->end, T + 1);
    Q_range->beg = MAX(Q_range->beg, 0);
    Q_range->end = MIN(Q_range->end, Q + 1);
 
+   /* output if not null */
    if ( Q_range_out != NULL ) {
       *Q_range_out = *Q_range;
    }

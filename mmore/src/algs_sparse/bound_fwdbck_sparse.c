@@ -166,7 +166,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
       int   num_cells   = MATRIX_2D_Cloud_Fill( cloud_MX, edg, 1.0 );
       int   num_cells2  = MATRIX_2D_Cloud_Count( cloud_MX );
       float pretotal    = MATRIX_2D_Total( cloud_MX );
-      printf("Forward Pretotal = %d %d %f\n", num_cells, num_cells2, pretotal);
+      // printf("Pre-Forward Cell Totals = %d %d %f\n", num_cells, num_cells2, pretotal);
 
       // MATRIX_2D_Reuse( cloud_MX3, 3, (Q+1)+(T+1) );
       // MATRIX_2D_Fill( cloud_MX3, 0 );
@@ -479,7 +479,7 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
    {
       // int   num_cells2  = MATRIX_2D_Cloud_Count( cloud_MX );
       // float pretotal    = MATRIX_2D_Total( cloud_MX );
-      // printf("Forward Pretotal = %d %f\n", num_cells2, pretotal);
+      // printf("Pre-Forward Cell Totals = %d %f\n", num_cells2, pretotal);
 
       // printf("POST => travis testing...\n");
       // int truetot = (Q+1) * (T+1);
@@ -512,8 +512,8 @@ run_Bound_Forward_Sparse(  const SEQUENCE*               query,         /* query
 }
 
 
-/** FUNCTION:  run_Bound_Forward_Sparse()
- *  SYNOPSIS:  Perform Edge-Bounded Forward step of Cloud Search Algorithm.
+/** FUNCTION:  run_Bound_Backward_Sparse()
+ *  SYNOPSIS:  Perform Edge-Bounded Backward step of Cloud Search Algorithm.
  *             Runs traditional Forward-Backward Algorithm, but only performs
  *             computation on cells that fall within the bounds determined by
  *             the <edg> EDGEBOUNDS object, which stores a series of 
@@ -695,7 +695,7 @@ run_Bound_Backward_Sparse(    const SEQUENCE*               query,         /* qu
             // bnd   = EDG_X(edg, r_0);            /* bounds for current bound */
             bnd   = MATRIX_3D_SPARSE_GetBound_byIndex( st_SMX, r_0 );
             lb_0  = MAX(bnd.lb, T_range.beg);      /* can't overflow left edge */
-            rb_0  = MIN(bnd.rb, T_range.end);  /* can't overflow right edge */
+            rb_0  = MIN(bnd.rb, T_range.end);      /* can't overflow right edge */
 
             /* fetch data mapping bound start location to data block in sparse matrix */
             qx0   = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( st_SMX, r_0 );
@@ -1013,6 +1013,15 @@ MY_Prod( const float    x,
          const float    y )
 {
    return MATH_Prod( x, y );
+}
+
+static 
+inline 
+float
+MY_Max(  const float    x,
+         const float    y )
+{
+   return MATH_Max( x, y );
 }
 
 static 

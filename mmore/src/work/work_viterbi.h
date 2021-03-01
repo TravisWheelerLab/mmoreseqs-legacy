@@ -17,4 +17,19 @@
 void 
 WORK_viterbi_and_traceback( WORKER*  worker );
 
+/*! FUNCTION:  	WORK_viterbi_sparse()
+ *  SYNOPSIS:  	Run Viterbi algorithm.
+ *                Depends on <task> settings in <worker>.
+ */
+void 
+WORK_viterbi_sparse( WORKER*  worker );
+
+/*! FUNCTION:  	WORK_viterbi_traceback_sparse()
+ *  SYNOPSIS:  	Run Viterbi Traceback algorithm.
+ *                Depends on <task> settings in <worker>.
+ */
+void 
+WORK_viterbi_traceback_sparse( WORKER*  worker );
+
+
 #endif /* _WORK_VITERBI */

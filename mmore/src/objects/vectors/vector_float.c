@@ -165,7 +165,7 @@ VECTOR_FLT_Copy(  VECTOR_FLT*   dest,
       dest = VECTOR_FLT_Create();
    }
    /* allocate variable-sized data */
-   VECTOR_FLT_Resize( dest, src->N );
+   VECTOR_FLT_GrowTo( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
       *VECTOR_FLT_GetX( dest, i ) = FLT_Create( VEC_X( src, i ) );
@@ -326,7 +326,7 @@ VECTOR_FLT_Push(  VECTOR_FLT*   vec,
                   FLT           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VECTOR_FLT_Set( vec, vec->N, val );
+   VEC_X( vec, vec->N ) = val;
    vec->N++;
 }
 
@@ -791,6 +791,9 @@ VECTOR_FLT_Dump_byOpt(  VECTOR_FLT*    vec,
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
       fprintf(fp, "%s%s%s", FLT_To_String(vec->data[i], s), delim, pad );
+   }
+   if ( vec->N >= 1 ) {
+      fprintf(fp, "%s%s", FLT_To_String(vec->data[vec->N-1], s), pad );
    }
    fprintf(fp, "]\n" );
 }

@@ -1,0 +1,741 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.2.fa
+# target sequence database:        targets/targets.8.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q5HFY8|EBH_STAAC  [L=10498]
+Description: Extracellular matrix-binding protein ebh OS=Staphylococcus aureus (strain COL) OX=93062 GN=ebh PE=3 SV=1
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence            Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------            -----------
+          0 6654.7 1419.3          0 1792.2 157.1   22.0 23  sp|Q5HPA2|EBH_STAEQ  Extracellular matrix-binding protein ebh
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|Q5HPA2|EBH_STAEQ  Extracellular matrix-binding protein ebh OS=Staphylococcus epidermidis (strain ATCC 35984 / RP62
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 1792.2 157.1         0         0     718    2719 ..      14    2010 ..       2    2013 .. 0.96
+   2 !  127.1  16.8   7.4e-42   7.4e-42    2532    2691 ..    1993    2152 ..    1992    2153 .. 0.98
+   3 !  136.9  19.0   8.6e-45   8.6e-45    2515    2687 ..    2146    2318 ..    2144    2318 .. 0.99
+   4 !  434.4  67.3  2.1e-134  2.1e-134    2515    3060 ..    2316    2858 ..    2315    2860 .. 0.99
+   5 !  160.7  27.9   5.7e-52   5.7e-52    2515    2738 ..    2823    3046 ..    2822    3049 .. 0.99
+   6 !  145.4  25.0   2.2e-47   2.2e-47    2515    2722 ..    2993    3200 ..    2991    3202 .. 0.98
+   7 !  746.1 132.6  2.9e-228  2.9e-228    2515    3385 ..    3163    4034 ..    3163    4037 .. 0.99
+   8 !  157.8  35.0   4.3e-51   4.3e-51    8668    8958 ..    4027    4317 ..    4025    4321 .. 0.97
+   9 !  251.8  58.2   2.2e-79   2.2e-79    8438    8883 ..    4300    4745 ..    4298    4746 .. 0.89
+  10 !  268.0  70.3   2.9e-84   2.9e-84    8275    8783 ..    4640    5149 ..    4638    5151 .. 0.98
+  11 !  233.8  29.4   5.7e-74   5.7e-74    8405    8652 ..    5148    5395 ..    5145    5396 .. 0.98
+  12 !  281.7  61.7     2e-88     2e-88    8506    8905 ..    5375    5774 ..    5374    5774 .. 0.99
+  13 !  131.6  31.0   3.4e-43   3.4e-43    8645    8902 ..    5766    6021 ..    5766    6034 .. 0.95
+  14 !  184.4  39.3   4.3e-59   4.3e-59    8650    8960 ..    6021    6331 ..    6017    6336 .. 0.97
+  15 !  216.0  63.2   1.3e-68   1.3e-68    8675    9141 ..    6298    6767 ..    6298    6769 .. 0.97
+  16 !  191.0  48.7   4.4e-61   4.4e-61    8581    8950 ..    6582    6950 ..    6580    6950 .. 0.98
+  17 !  162.3  41.8   1.9e-52   1.9e-52    8637    8954 ..    6763    7080 ..    6760    7080 .. 0.98
+  18 !  123.0  31.6   1.3e-40   1.3e-40    3148    3380 ..    7069    7300 ..    7064    7303 .. 0.97
+  19 !  179.7  39.6   1.1e-57   1.1e-57    8579    8900 ..    7209    7529 ..    7207    7534 .. 0.98
+  20 !  502.2  98.2  8.3e-155  8.3e-155    8652    9493 ..    7533    8374 ..    7527    8381 .. 0.98
+  21 !  166.5  39.1     1e-53     1e-53    9177    9531 ..    8185    8542 ..    8183    8546 .. 0.96
+  22 !  164.6  53.6   3.8e-53   3.8e-53    9245    9646 ..    8380    8785 ..    8375    8787 .. 0.95
+  23 !  300.7  57.1   3.8e-94   3.8e-94    9767   10414 ..    8752    9414 ..    8752    9439 .] 0.85
+
+  Alignments for each domain:
+  == domain 1  score: 1792.2 bits;  conditional E-value: 0
+  sp|Q5HFY8|EBH_STAAC  718 vtsiqplrinltsnenftdkdwqitgiprtlhienstnrpnnarernielvgnllpgdyfgtirfgrkeqlfeirvkphtptitttae 805 
+                           +   q +ri ltsne + d +w itg p+tl ++n+  r nna e+n+ lvg++ pg+yf t++fg k + feir kp  p i tta 
+  sp|Q5HPA2|EBH_STAEQ   14 LPYQQEIRIKLTSNEPIKDSEWSITGYPNTLTLQNAVGRTNNATEKNLALVGHIDPGNYFITVKFGDKVEQFEIRSKPTPPRIITTAN 101 
+                           344578********************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC  806 qlrgtalqkvpvnisgipldpsalvylvap.tnqttnggseadqipsgytilatgtpdg...vhntitirpqdyvvfippvgkqirav 889 
+                           +lrg +  k  + ++ ip d +a + lv   t+   +       +p +yt++a +  d+    +  +t+r  dy+  +p  g +++a+
+  sp|Q5HPA2|EBH_STAEQ  102 ELRGNSNHKPEIRVTDIPNDTTAKIKLVMGgTDGDHDPEINPYTVPENYTVVAEAYHDNdpsKNGVLTFRSSDYLKDLPLSG-ELKAI 188 
+                           *************************9986515555555666778*********98776522156689********9998665.79*** PP
+
+  sp|Q5HFY8|EBH_STAAC  890 vyynkvvasnmsnavtilpddipptinnpvginakyyrgdevnftmgvsdrh..sgiknttittlpngwtsnltkadknn..gslsit 973 
+                           vyyn+ v sn+sn+v +  d  pptin p g+  kyyrgd v +t+ v+d+   sg+++  +  lp gwt  +t    nn  g+l + 
+  sp|Q5HPA2|EBH_STAEQ  189 VYYNQYVQSNFSNSVPFSSDTTPPTINEPAGLVHKYYRGDHVEITLPVTDNTggSGLRDVNV-NLPQGWTKTFTINPNNNteGTLKLI 275 
+                           **************************************************862267777765.69*******998777765699**** PP
+
+  sp|Q5HFY8|EBH_STAAC  974 grvsmnqafnsditfkvsatdnvnnttndsqskhvsihvgkisedahpivlgntekvvvvnptavsndekqsiitafmnknqnirgyl 1061
+                           g++  n+a+n+   f ++atdn  nttn +  k   ++vgk+++d +p+ l+  +  +v +p+++sn e++ +   +   n nir+yl
+  sp|Q5HPA2|EBH_STAEQ  276 GNIPSNEAYNTTYHFNITATDNSGNTTNPA--KTFILNVGKLADDLNPVGLSRDQLQLVTDPSSLSNSEREEVKRKISEANANIRSYL 361 
+                           ****************************86..567899************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1062 astdpvtvdnngnvtlhyrdgssttldatnvmtyepvvkpeyqt.vna.aktatvtiakgqsfsig.dikqyftlsngqpipsgtftn 1146
+                              +p+    ng+vt++yrdgs   +da nv+tyep  k  +    n   k a +tia+gq+++ig ++++yf+lsng  +p+  ft+
+  sp|Q5HPA2|EBH_STAEQ  362 LQNNPILAGVNGDVTFYYRDGSVDVIDAENVITYEPERKSIFSEnGNTnKKEAVITIARGQNYTIGpNLRKYFSLSNGSDLPNRDFTS 449 
+                           *************************************99887541444257899***********9669******************* PP
+
+  sp|Q5HFY8|EBH_STAAC 1147 itsdrtiptaqevsqmnagtqlyhitatnayhkdsedfyislkiidvkqpegdqrvyrtstydlttdeiskvkqafinanrdvitlae 1234
+                           i++  ++p++ e+s++n g   y++ a nayhk  +++ + lki++v  p g+ rvyr sty+lt dei+k+kqaf  an   + l +
+  sp|Q5HPA2|EBH_STAEQ  450 ISAIGSLPSSSEISRLNVGNYNYRVNAKNAYHKTQQELNLKLKIVEVNAPTGNNRVYRVSTYNLTNDEINKIKQAFKAANSG-LNLND 536 
+                           ****************************************************************************999975.79*** PP
+
+  sp|Q5HFY8|EBH_STAAC 1235 gdisvtntpnganvstitvninkgrltksfasnlanmnflrwvnfpqdytvtwtnakianrptdgglswsddhksliyrydatlgtqi 1322
+                           +di+v+n  +  nvs++tv i kg l k f+snl nmnflrwvn+  dyt++wt++ki  r tdggl ws dhksliy+ydatlg qi
+  sp|Q5HPA2|EBH_STAEQ  537 NDITVSNNFDHRNVSSVTVTIRKGDLIKEFSSNLNNMNFLRWVNIRDDYTISWTSSKIQGRNTDGGLEWSPDHKSLIYKYDATLGRQI 624 
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1323 ttndiltmlkatttvpglrnnitgneksqaeaggrpnfrttgysqsnattdgqrqftlngqviqvldiinpsngyggqpvtnsntran 1410
+                            tnd+lt+l+at    +lr+ni +nek  ae g+       gys+s    dg++ + ln+  iqvld++ p ngygg+ v++sn   n
+  sp|Q5HPA2|EBH_STAEQ  625 NTNDVLTLLQATAKNSNLRSNINSNEKQLAERGS------NGYSKSIIRDDGEKSYLLNSNPIQVLDLVEPDNGYGGRQVSHSNVIYN 706 
+                           *******************************995......6*********************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1411 hsnstvvnvnepaangagaftidhvvksnsthna.sdavykaqlyltpygpkqyvehlnqntgnttdainiyfvpsdlvnptisvgny 1497
+                           + ns++vn   p anga+af id vvk+n+ +n     +ykaqlyl py+pk y+e l qn +nt + in+yfvpsd vnp+i+vgny
+  sp|Q5HPA2|EBH_STAEQ  707 EKNSSIVNGQVPEANGASAFNIDKVVKANAANNGiMGVIYKAQLYLAPYSPKGYIEKLGQNLSNTNNVINVYFVPSDKVNPSITVGNY 794 
+                           ******************************999725789************************************************* PP
+
+  sp|Q5HFY8|EBH_STAAC 1498 tnhqvfsgetftntitandnfgvqsvtvpntsqitgtvdnnhqhvsatapnvtsatnktinllatdtsgntattsfnvtvkplrdkyr 1585
+                            +h v+sgetf nti  ndn+g+ +v   + s it t +nn  ++   apnvt++tnk + + atd sgn +  sf v +kpl++kyr
+  sp|Q5HPA2|EBH_STAEQ  795 DHHTVYSGETFKNTINVNDNYGLNTVASTSDSAITMTRNNN--ELVGQAPNVTNSTNKIVKVKATDKSGNESIVSFTVNIKPLNEKYR 880 
+                           ************************99888888888776555..46689**************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1586 vgtsstaanpvrianisnnatvsqadqttiinsltftetvpnrsyarasaneitsktvsnvsrtgnnanvtvtvtyqdgttstvtvpv 1673
+                           + tss+   pvri+ni nna +s  dq  + +sl++t+ +  r+y + s n++ s+ vs v+r+gnna v vt t+ dgtt+t+tvpv
+  sp|Q5HPA2|EBH_STAEQ  881 ITTSSSNQTPVRISNIQNNANLSIEDQNRVKSSLSMTKILGTRNYVNESNNDVRSQVVSKVNRSGNNATVNVTTTFSDGTTNTITVPV 968 
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1674 khvipeivahshytvqgqdfpagngssasdyfklsngsdiadatitwvsgqapnkdntrigeditvtahilidgettpitktatykvv 1761
+                           khv+ e+v  ++ tv+gq fp g g+s +d+f l  g  + da i wv++q p+ ++ +ig d+t+ a+i++dgettpi k  tyk+ 
+  sp|Q5HPA2|EBH_STAEQ  969 KHVLLEVVPTTRTTVRGQQFPTGKGTSPNDFFSLRTGGPV-DARIVWVNNQGPDINSNQIGRDLTLHAEIFFDGETTPIRKDTTYKLS 1055
+                           *************************************986.9********************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1762 rtvpkhvfetargvlypgvsdmydakqyvkpvnnswstnaqhmnfqfv.gtygpnkdvvgistrlirvtydnrqtedltilskvkpdp 1848
+                           +++pk+++et  +  + +  d y    +v+ vn  w    +hm+f++  g+  p+    g  t+ + v y n qte++ +l kvkp+ 
+  sp|Q5HPA2|EBH_STAEQ 1056 QSIPKQIYETTINGRFNSSGDAYPG-NFVQAVNQYWP---EHMDFRWAqGSGTPSSRNAGSFTKTVTVVYQNGQTENVNVLFKVKPNK 1139
+                           ***********9999********87.69********6...8****9974677799999****************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 1849 pridansvtykagltnqeikvnnvlnnssvklfkadntplnvtnithgsgfssvvtvsdalpnggikakssismnnvtyttqdehgqv 1936
+                           p id+nsv  k  l  q+i v nv  n+ v l++++ t +  tn t  s+  + vt+   lp g+i ak+s++ nnvtyt q+  g  
+  sp|Q5HPA2|EBH_STAEQ 1140 PVIDSNSVISKGQLNGQQILVRNVPQNAQVTLYQSNGTVIPNTNTTIDSNGIATVTIQGTLPTGNITAKTSMT-NNVTYTKQNSSGIA 1226
+                           **********************************************99999999****************985.9************* PP
+
+  sp|Q5HFY8|EBH_STAAC 1937 vtvtrnesvdsndsatvtvtpqlqattegavfikggdgfdfghverfiqnpphgatvawhdspdtwkntvgnthktavvtlpngqgtr 2024
+                              t++ sv s +s  v vt  +qa  +g  +ikg  +++f+    fi n p  +t+ w++ p++wkn +g t kt  vtlpn qgtr
+  sp|Q5HPA2|EBH_STAEQ 1227 SNTTEDISVFSENSDQVNVTAGMQAKNDGIKIIKG-TNYNFNDFNSFISNIPAHSTLTWNEEPNSWKNNIGTTTKTVTVTLPNHQGTR 1313
+                           *******************************9997.579************************************************* PP
+
+  sp|Q5HFY8|EBH_STAAC 2025 nvevpvkvypvanakapsrdvkgqnltngtdamnyitfdpntntngitaawanrqqpnnqqagvqhlnvdvtypgisaakrvpvtvnv 2112
+                            v++p+ +yp   ak p rd kg+nltngtd  nyi f+ n n  g ta+w +++qp+   agvq+l   v ypgis   +vpv v v
+  sp|Q5HPA2|EBH_STAEQ 1314 TVDIPITIYPTVTAKNPVRDQKGRNLTNGTDVYNYIIFENN-NRLGGTASWKDNRQPDKNIAGVQNLIALVNYPGISTPLEVPVKVWV 1400
+                           **************************************965.667779**************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2113 yqfefpqttytttvggtlasgtqasgyahmqnatglptdgftykwnrdttgtndanwsamnkpnvakvvnakydviy..nghtfatsl 2198
+                           y f+f q  y   vg t+  gt a  y h++n  glp dg+ + wn+ +tgt    w ++       v    ydv+   n   + ts 
+  sp|Q5HPA2|EBH_STAEQ 1401 YNFDFTQPIYKIQVGDTFPKGTWAGYYKHLENGEGLPIDGWKFYWNQQSTGTTSDQWQSLAYTRTPFVKTGTYDVVNpsNWGVWQTSQ 1488
+                           ***************************************************************************963367789**** PP
+
+  sp|Q5HFY8|EBH_STAAC 2199 pakfvvkdvqpakptvtetaagaitiapganqtvnthagn..vttyadklvikrngnvvttftrrnntspwvkeasaatvagiagtnn 2284
+                            akf+v + +p +pt+t++  g +t+ pga + +     n  +   adk+vi +ngn +ttf + nn   w  e  +  + gi  tnn
+  sp|Q5HPA2|EBH_STAEQ 1489 SAKFIVTNAKPNQPTITQSKTGDVTVTPGAVRNILISGTNdyIQASADKIVINKNGNKLTTFVK-NNDGRWTVETGSPDINGIGPTNN 1575
+                           ******************************8887666555337889****************96.77899****************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2285 gitvaag..tfnpadtiqvvatqgsgetvsdeqrsddftvvapqpnqattkiwqnghiditpnnpsghlinptqamdiaytekvgnga 2370
+                           g  ++ +     p d+i+ +at+gsget+s    s+ + v apqp q  t  + ng +di p+n   + +npt+ ++i ytek+ ng 
+  sp|Q5HPA2|EBH_STAEQ 1576 GTAISLSrlAVRPGDSIEAIATEGSGETISTSATSEIYIVKAPQPEQVATHTYDNGTFDILPDNS-RNSLNPTERVEINYTEKL-NGN 1661
+                           *88776522679***************************************************96.5678*************8.899 PP
+
+  sp|Q5HFY8|EBH_STAAC 2371 ehsktinvvrgqnnqwtiankpdyvtldaqtgkvtfnantikpnssititpkagtghsvssnpstltapaahtvntteivkdygsnvt 2458
+                           e  k++ + ++ n +wti nkp+yv ++   gkv f+antikpns ititpkag g++ ++np+ + apa ht+   eivk+ g nvt
+  sp|Q5HPA2|EBH_STAEQ 1662 ETQKSFTITKNNNGKWTINNKPNYVEFNQDNGKVVFSANTIKPNSQITITPKAGQGNTENTNPTVIQAPAQHTLTINEIVKEQGQNVT 1749
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2459 aaeinnavqvankrtatikngtamptnlaggstttipvtvtyndgsteevqesiftkadkrelitaknhlddpvstegkkpgtitqyn 2546
+                             +innavqv nk+   ik g a+ptnlaggst+ ipv + y+dgs+ee  e++ tk +k eli a+ +ld+ +s e+k p++i  ++
+  sp|Q5HPA2|EBH_STAEQ 1750 NDDINNAVQVPNKNRVAIKQGNALPTNLAGGSTSHIPVVIYYSDGSSEEATETVRTKVNKTELINARRRLDEEISKENKTPSSIRNFD 1837
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2547 namhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnkednsqlvtsknnlqssvnqvpstagmtqqsidn 2634
+                            am+ aq qintak++a qvi  e atpqqv+ al+kv+aaq ki++akallqnk dnsqlv +k  lq s+    st gmtq s  n
+  sp|Q5HPA2|EBH_STAEQ 1838 QAMNRAQSQINTAKSDADQVIGTEFATPQQVNSALSKVQAAQNKINEAKALLQNKADNSQLVRAKEQLQQSIQPAASTDGMTQDSTRN 1925
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2635 ynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadthaleqavqqlnrtgtttgkkpasitaynnsi 2719
+                           y  k++ ae  i  a  vi+ngdat+qqi+d k+ v+ a     +ak +l ad   l+ a   lnr   t  kkpas+  yn +i
+  sp|Q5HPA2|EBH_STAEQ 1926 YKNKRQAAEQAIQHANSVINNGDATSQQINDAKNTVEQAQRDYVEAKSNLRADKSQLQSAYDTLNRDVLTNDKKPASVRRYNEAI 2010
+                           **********************************************************************************988 PP
+
+  == domain 2  score: 127.1 bits;  conditional E-value: 7.4e-42
+  sp|Q5HFY8|EBH_STAAC 2532 vstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnkednsqlvtsknnlqssvn 2619
+                           v t  kkp+++ +yn a+ n +++++tak +a   + n + + +qv dal k++  q k++qa allq ke+ns+lv +k  lq +vn
+  sp|Q5HPA2|EBH_STAEQ 1993 VLTNDKKPASVRRYNEAISNIRKELDTAKADASSTLRNTNPSVEQVRDALNKINTVQPKVNQAIALLQPKENNSELVQAKKRLQDAVN 2080
+                           56889*********************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2620 qvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadthal 2691
+                            +p t gmtqq+i+nyn k+reae  +t+aqrvidngdat q+i+ ek +v+ a+ al  ak +l ad + l
+  sp|Q5HPA2|EBH_STAEQ 2081 DIPQTQGMTQQTINNYNDKQREAERALTSAQRVIDNGDATTQEITSEKSKVEQAMQALTNAKSNLRADKNEL 2152
+                           ********************************************************************9876 PP
+
+  == domain 3  score: 136.9 bits;  conditional E-value: 8.6e-45
+  sp|Q5HFY8|EBH_STAAC 2515 kadkrelitaknhlddpvstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnke 2602
+                           +adk+el ta n l + vst gkkp++i qy  a    q qin ak ea++++ n++    qv+ al k++a q k+ +a  +lqnke
+  sp|Q5HPA2|EBH_STAEQ 2146 RADKNELQTAYNKLIENVSTNGKKPASIRQYETAKARIQNQINDAKNEAERILGNDNPQVSQVTQALNKIKAIQPKLTEAINMLQNKE 2233
+                           79************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2603 dnsqlvtsknnlqssvnqvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltad 2687
+                           +n++lv +kn l+++vn    t gmtq++i+nynakkrea+ ei  a  +i+ngdataq is ek +v+  l al  ak+dl ad
+  sp|Q5HPA2|EBH_STAEQ 2234 NNTELVNAKNRLENAVNDTDPTHGMTQETINNYNAKKREAQNEIQKANMIINNGDATAQDISSEKSKVEQVLQALQNAKNDLRAD 2318
+                           **********************************************************************************998 PP
+
+  == domain 4  score: 434.4 bits;  conditional E-value: 2.1e-134
+  sp|Q5HFY8|EBH_STAAC 2515 kadkrelitaknhlddpvstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnke 2602
+                           +adkrel ta n l   v+t gkkp++i  y +a +n + q ntak ea  v+ n + t   v dal k++a q ++ +a  +lq+ke
+  sp|Q5HPA2|EBH_STAEQ 2316 RADKRELQTAYNKLIQNVNTNGKKPSSIQNYKSARRNIENQYNTAKNEAHNVLENTNPTVNAVEDALRKINAIQPEVTKAINILQDKE 2403
+                           79************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2603 dnsqlvtsknnlqssvnqvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadtha 2690
+                           dns+lv +k  l  ++n  ps  gmtq+si+ny  k+rea+   ++a  +i+ngda+ +qi++ k rv+ a  aln+ak+ ltadt +
+  sp|Q5HPA2|EBH_STAEQ 2404 DNSELVRAKEKLDQAINSQPSLNGMTQESINNYTTKRREAQNIASSADTIINNGDASIEQITENKIRVEEATNALNEAKQHLTADTTS 2491
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2691 leqavqqlnrtgtttgkkpasitaynnsiralqsdltsaknsanaiiqkpirtvqevqsaltnvnrvnerltqainqlvpladnsalk 2778
+                           l+  v++l+r g t +kkp+s++aynn+i++lqs++t  +n an ii kpir+v+ev +al  vn++n+rlt  in l pla+  +lk
+  sp|Q5HPA2|EBH_STAEQ 2492 LKTEVRKLSRRGDTNNKKPSSVSAYNNTIHSLQSEITQTENRANTIINKPIRSVEEVNNALHEVNQLNQRLTDTINLLQPLANKESLK 2579
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2779 taktkldeeinksvttdgmtqssiqayenakragqtestnaqnvinngdatdqqiaaektkveekynslkqaiagltpdlaplqtakt 2866
+                            a+ +l+ +in++v tdgmtq s++ y+ ak  +q es+ aq +inngda+dq+++ e  k+ +k + l  +i  lt +  pl+tak 
+  sp|Q5HPA2|EBH_STAEQ 2580 EARNRLESKINETVQTDGMTQQSVENYKQAKIKAQNESSIAQTLINNGDASDQEVSTEIEKLNQKLSELTNSINHLTVNKEPLETAKN 2667
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2867 qlqndidqptsttgmtsasiaafneklsaartkiqeidrvlashpdvatirqnvtaanaaksaldqarngltvdkaplenaknqlqys 2954
+                           qlq +idq  st gmt  s+ ++  kl  a+ ki  i++vla++pdv  ir n        + l qa+ gltvdk pl nak  lq s
+  sp|Q5HPA2|EBH_STAEQ 2668 QLQANIDQKPSTDGMTQQSVQSYERKLQEAKDKINSINNVLANNPDVNAIRTNKVETEQINNELTQAKQGLTVDKQPLINAKTALQQS 2755
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2955 idtqtsttgmtqdsinaynakltaarnkiqqinqvlag.sptveqintntstanqaksdldharqaltpdkaplqtaktqleqsinqp 3041
+                           +d q sttgmt+ +i  ynak   a+  iq  n+++ +  p+v+q++   s   qa s+l++a+ al  dk  lq a  ql     qp
+  sp|Q5HPA2|EBH_STAEQ 2756 LDNQPSTTGMTEATIQNYNAKRQKAEQVIQNANKIIENaQPSVQQVSDEKSKVEQALSELNNAKSALRADKQELQQAYNQL----IQP 2839
+                           ***********************************98527***********************************999887....48* PP
+
+  sp|Q5HFY8|EBH_STAAC 3042 tdttgmttaslnaynqklq 3060
+                           td  +   as+ aynq+ q
+  sp|Q5HPA2|EBH_STAEQ 2840 TDLNNKKPASITAYNQRYQ 2858
+                           ****************987 PP
+
+  == domain 5  score: 160.7 bits;  conditional E-value: 5.7e-52
+  sp|Q5HFY8|EBH_STAAC 2515 kadkrelitaknhlddpvstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnke 2602
+                           +adk+el  a n+l  p    +kkp++it yn   +    ++n+ kt   +++  ++ +   v++al kvr  q k+++a+allqnke
+  sp|Q5HPA2|EBH_STAEQ 2823 RADKQELQQAYNQLIQPTDLNNKKPASITAYNQRYQQFSNELNSTKTNTDRILKEQNPSVADVNNALNKVREVQQKLNEARALLQNKE 2910
+                           79************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2603 dnsqlvtsknnlqssvnqvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadtha 2690
+                           dns lv +k  lq +v+qvpst gmtqq+ d+yn+k++ a+ ei+ aq+vidngdat qqis+ k +v+ al aln ak  l ad + 
+  sp|Q5HPA2|EBH_STAEQ 2911 DNSALVRAKEQLQQAVDQVPSTEGMTQQTKDDYNSKQQAAQQEISKAQQVIDNGDATTQQISNAKTNVERALEALNNAKTGLRADKEE 2998
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2691 leqavqqlnrtgtttgkkpasitaynnsiralqsdltsaknsanaiiq 2738
+                           l+ a  ql +   t+gk pasi  yn +   +q+ + sakn an+i+ 
+  sp|Q5HPA2|EBH_STAEQ 2999 LQNAYNQLTQNIDTSGKTPASIRKYNEAKSRIQTQIDSAKNEANSILT 3046
+                           *********************************************985 PP
+
+  == domain 6  score: 145.4 bits;  conditional E-value: 2.2e-47
+  sp|Q5HFY8|EBH_STAAC 2515 kadkrelitaknhlddpvstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnke 2602
+                           +adk+el  a n+l   + t gk p++i +yn a    q qi++ak ea  ++ n++    qv+ al k++a q ++d+a a+l+nke
+  sp|Q5HPA2|EBH_STAEQ 2993 RADKEELQNAYNQLTQNIDTSGKTPASIRKYNEAKSRIQTQIDSAKNEANSILTNDNPQVSQVTAALNKIKAVQPELDKAIAMLKNKE 3080
+                           79************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2603 dnsqlvtsknnlqssvnqvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadtha 2690
+                           +n+ lv +k  lq  vn+v  t gmt  + +ny +kkreae ei  aq++i+ngdat qqi++e +rv+ a+ a+n+ak+dl ad   
+  sp|Q5HPA2|EBH_STAEQ 3081 NNNALVQAKQQLQQIVNEVDPTQGMTTDTANNYKSKKREAEDEIQKAQQIINNGDATEQQITNETNRVNQAINAINKAKNDLRADKSQ 3168
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2691 leqavqqlnrtgtttgkkpasitaynnsiral 2722
+                           le a  ql +   t gkkpasi  y  + +a+
+  sp|Q5HPA2|EBH_STAEQ 3169 LENAYNQLIQNVDTNGKKPASIQQYQAARQAI 3200
+                           *************************9887776 PP
+
+  == domain 7  score: 746.1 bits;  conditional E-value: 2.9e-228
+  sp|Q5HFY8|EBH_STAAC 2515 kadkrelitaknhlddpvstegkkpgtitqynnamhnaqqqintakteaqqvinneratpqqvsdaltkvraaqtkidqakallqnke 2602
+                           +adk +l  a n+l   v t gkkp++i qy  a +  + q n ak+ea q++ n + +  +v+ al kv+a q k++ a  +lqnke
+  sp|Q5HPA2|EBH_STAEQ 3163 RADKSQLENAYNQLIQNVDTNGKKPASIQQYQAARQAIETQYNNAKSEAHQILENSNPSVNEVAQALQKVEAVQLKVNDAIHILQNKE 3250
+                           59************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2603 dnsqlvtsknnlqssvnqvpstagmtqqsidnynakkreaeteitaaqrvidngdataqqisdekhrvdnaltalnqakhdltadtha 2690
+                           +ns lvt+kn lq svn  p t gmtq si+ny ak++ea++ i  a+ vi+ngdata+qisdek +v+ al  ln ak+ ltadt  
+  sp|Q5HPA2|EBH_STAEQ 3251 NNSALVTAKNQLQQSVNDQPLTTGMTQDSINNYEAKRNEAQSAIRNAEAVINNGDATAKQISDEKSKVEQALAHLNDAKQQLTADTTE 3338
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2691 leqavqqlnrtgtttgkkpasitaynnsiralqsdltsaknsanaiiqkpirtvqevqsaltnvnrvnerltqainqlvpladnsalk 2778
+                           l+ avqqlnr g t +kkp si ayn +i++l++ +tsak++ana+iqkpirtvqev +al  vn++n++lt+ainql pl++n alk
+  sp|Q5HPA2|EBH_STAEQ 3339 LQTAVQQLNRRGDTNNKKPRSINAYNKAIQSLETQITSAKDNANAVIQKPIRTVQEVNNALQQVNQLNQQLTEAINQLQPLSNNDALK 3426
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2779 taktkldeeinksvttdgmtqssiqayenakragqtestnaqnvinngdatdqqiaaektkveekynslkqaiagltpdlaplqtakt 2866
+                            a+  l+ +in++v tdgmtq si+ay+nakr +q es  a  +inngda +qqi  e  +v ++  +l qai glt +  pl+takt
+  sp|Q5HPA2|EBH_STAEQ 3427 AARLNLENKINQTVQTDGMTQQSIEAYQNAKRVAQNESNTALALINNGDADEQQITTETDRVNQQTTNLTQAINGLTVNKEPLETAKT 3514
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2867 qlqndidqptsttgmtsasiaafneklsaartkiqeidrvlashpdvatirqnvtaanaaksaldqarngltvdkaplenaknqlqys 2954
+                            lqn+idq  st gmt  s+a +n+kl  a+ +i  i++vla++pdv  i+ n   a    + l qa+n+l vd  ple  k qlq  
+  sp|Q5HPA2|EBH_STAEQ 3515 ALQNNIDQVPSTDGMTQQSVANYNQKLQIAKNEINTINNVLANNPDVNAIKTNKAEAERISNDLTQAKNNLQVDTQPLEKIKRQLQDE 3602
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 2955 idtqtsttgmtqdsinaynakltaarnkiqqinqvlagsptveqintntstanqaksdldharqaltpdkaplqtaktqleqsinqpt 3042
+                           id  t+t gmtqds++ yn  l+aa  +  ++n++l  +ptveq+  + + a q   dl +ar +l pdk  lq ak +le sinq t
+  sp|Q5HPA2|EBH_STAEQ 3603 IDQGTNTDGMTQDSVDNYNDSLSAAIIEKGKVNKLLKRNPTVEQVKESVANAQQVIQDLQNARTSLVPDKTQLQEAKNRLENSINQQT 3690
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 3043 dttgmttaslnaynqklqaarqklteinqvlngnptvqnindkvteanqakdqlntarqgltldrqpalttlhgasnlnqaqqnnftq 3130
+                           dt gmt  sln yn kl  arq l +i++vl g ptv  i     ean  k  l+tar  ltl+r+p +  +++ s+ln aq++nf  
+  sp|Q5HPA2|EBH_STAEQ 3691 DTDGMTQDSLNNYNDKLAKARQNLEKISKVLGGQPTVAEIRQNTDEANAHKQALDTARSQLTLNREPYINHINNESHLNNAQKDNFKA 3778
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 3131 qinaaqnhaaletiksnitalntamtklkdsvadnntiksdqnytdatpankqaydnavnaakgvigettnptmdvntvnqkaasvks 3218
+                           q+n+a nh  letik+    ln +mt l +s+ad    k  +ny da+   +q ydnavnaakg++++t +ptm  + ++qka  vk 
+  sp|Q5HPA2|EBH_STAEQ 3779 QVNSAPNHNTLETIKNKADTLNQSMTALSESIADYENQKQQENYLDASNNKRQDYDNAVNAAKGILNQTQSPTMSADVIDQKAEDVKR 3866
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 3219 tkdaldgqqnlqrakteatnaithasdlnqaqknaltqqvnsaqnvqavndikqttqslntamtglkrgvanhnqvvqsdnyvnadtn 3306
+                           tk aldg q l+ ak +a n +   +dln aq+  lt  +n + n+ +vn  k+   ++ntamt lk+ +an++  +   ny+nad +
+  sp|Q5HPA2|EBH_STAEQ 3867 TKTALDGNQRLEVAKQQALNHLNTLNDLNDAQRQTLTDTINHSPNINSVNQAKEKANTVNTAMTQLKQTIANYDDELHDGNYINADKD 3954
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 3307 kkndynnaynhandiin.gnaqhpvitpsdvnnalsnvtskehalngeaklnaakqeantalghlnnlnnaqrqnlqsqi 3385
+                           kk+ ynna n+a  +in ++a +  + p+++n     v + ++ lng  kl  ak++ant +  l  ln aqr   +  +
+  sp|Q5HPA2|EBH_STAEQ 3955 KKDAYNNAVNNAKQLINqSDANQAQLDPAEINKVTQRVNTTKNDLNGNDKLAEAKRDANTTIDGLTYLNEAQRNKAKENV 4034
+                           ****************944688899************************************************9877665 PP
+
+  == domain 8  score: 157.8 bits;  conditional E-value: 4.3e-51
+  sp|Q5HFY8|EBH_STAAC 8668 qqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnptldkaqveql 8755
+                           +   +  +  a+t+  +  +l +   ln am+alrns+ d    +a+s +ined   k+ay  av +a+ lin  +np + +  v q 
+  sp|Q5HPA2|EBH_STAEQ 4027 RNKAKENVGKASTKTNITSQLQDYNQLNIAMQALRNSVNDVNNVKANSNYINEDNGPKEAYNQAVTHAQTLINAQSNPEMSRDVVNQK 4114
+                           5555666999****************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8756 tqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgskf 8843
+                           tqavn a  nlhg qkl   +  a t++  l +l n q+   +  +n+  tr ev ++l +ak+ld +m  l++ +  q   +  s +
+  sp|Q5HPA2|EBH_STAEQ 4115 TQAVNTAHQNLHGQQKLEQAQSSANTEIGNLPNLTNTQKAKEKELVNSKQTRTEVQEQLNQAKSLDSSMGTLKSLVAKQPTVQKTSVY 4202
+                           **************************************99988999****************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8844 inedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqavttvnalpnlnhaqqqaltdainaap 8931
+                           ined+p++ ay  ++   + +in+t++p ldk+ v+     ++t ++ lhg+qkl   + +a+  +n l +ln  q++a+  ain a 
+  sp|Q5HPA2|EBH_STAEQ 4203 INEDQPEQSAYNDSITMGQTIINKTADPVLDKTLVDNAISNISTKENALHGEQKLTTAKTEAINALNTLADLNTPQKEAIKTAINTAH 4290
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8932 trtevaqhvqtateldhametlknkvd 8958
+                           trt+v  +   a +++ am tl+  + 
+  sp|Q5HPA2|EBH_STAEQ 4291 TRTDVTAEQSKANQINSAMHTLRQNIS 4317
+                           **********************98775 PP
+
+  == domain 9  score: 251.8 bits;  conditional E-value: 2.2e-79
+  sp|Q5HFY8|EBH_STAAC 8438 qnantlnqamhglrqsiqdnaatkanskyinedqpeqqnydqavqaanniineqtatldnnainqaattvnttkaalhgdvklqndkd 8525
+                             an +n amh lrq+i dn +    s yin +  +q  + +a+  a  i+neq atld n+inq a  + ttk al g+ +l+  k+
+  sp|Q5HPA2|EBH_STAEQ 4300 SKANQINSAMHTLRQNISDNESVTNESNYINAEPEKQHAFTEALNNAKEIVNEQQATLDANSINQKAQAILTTKNALDGEEQLRRAKE 4387
+                           4689999999999999999999999999999987778889999999999999999999999999999999999999999999999999 PP
+
+  sp|Q5HFY8|EBH_STAAC 8526 hakqtvsqlahlnnaqkhmedtlidsettrtavkqdlteaqaldqlmdalqqsiadkdatrassayvnaepnkkqsydeavqnaesii 8613
+                           +a q ++ l +l +aq++ e  l++s  trt v   l +a+ l+++m+ l   i  k+    ss ++n + n++q+y  a+ +ae++ 
+  sp|Q5HPA2|EBH_STAEQ 4388 NADQEINTLNQLTDAQRNSEKGLVNSSQTRTEVASQLAKAKELNKVMEQLNHLINGKNQMINSSKFINEDANQQQAYSNAIASAEALK 4475
+                           9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 PP
+
+  sp|Q5HFY8|EBH_STAAC 8614 aglnnptinkgnvssatqavissknaldgverlaqdkqtagnslnhldqltpaqqqalenq.innattrgevaqklteaqalnqamea 8700
+                               np ++k  +  a   + s+ n l+g  +l + k+ a  s+n+l  lt  q+   enq +n a tr +va kl +a+al+q+m+ 
+  sp|Q5HPA2|EBH_STAEQ 4476 NKSQNPELDKVTIEQAINNINSAINNLNGEAKLTKAKEDAVASINNLSGLTNEQKPK-ENQaVNGAQTRDQVANKLRDAEALDQSMQT 4562
+                           999999999999999999999999999999999999999999999999999866655.555389999999999999999999999999 PP
+
+  sp|Q5HFY8|EBH_STAAC 8701 lrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdlnqlng 8788
+                           lr+ + +q    + s ++ned  qk+ y  a+ n    i   +np l+k+ ++q    +n ak++lhg +kl  dk  a  ++ ql  
+  sp|Q5HPA2|EBH_STAEQ 4563 LRDLVNNQNAIHSTSNYFNEDSTQKNTYDNAIDNGSTYITGQHNPELNKSTIDQTISRINTAKNDLHGVEKLQRDKGTANQEIGQLGY 4650
+                           9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 PP
+
+  sp|Q5HFY8|EBH_STAAC 8789 lnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgskfinedkpqkdayqaavqnakdlinqtgnptldks 8876
+                           ln+pq+   es +n + tr+ev + l eak+l+ am+ lr+ + ++   + +s +in+    +  y  a+q a+++in+ gnptl+ks
+  sp|Q5HPA2|EBH_STAEQ 4651 LNDPQKSGEESLVNGSNTRSEVEEHLNEAKSLNNAMKQLRDKVAEKTNVKQSSDYINDSTEHQRGYDQALQEAENIINEIGNPTLNKS 4738
+                           9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999 PP
+
+  sp|Q5HFY8|EBH_STAAC 8877 qveqltq 8883
+                           ++eq  q
+  sp|Q5HPA2|EBH_STAEQ 4739 EIEQKLQ 4745
+                           9998655 PP
+
+  == domain 10  score: 268.0 bits;  conditional E-value: 2.9e-84
+  sp|Q5HFY8|EBH_STAAC 8275 qannrldqldhlnnaqkqqlqsqitqssdiaavnghkqtaeslntamgnlinaiadhqaveqrgnfinadtdkqtayntavneaaami 8362
+                            an ++ ql +ln+ qk   +s +  s+  + v  h   a+sln am  l + +a+   v+q +++in  t+ q  y+ a+ ea  +i
+  sp|Q5HPA2|EBH_STAEQ 4640 TANQEIGQLGYLNDPQKSGEESLVNGSNTRSEVEEHLNEAKSLNNAMKQLRDKVAEKTNVKQSSDYINDSTEHQRGYDQALQEAENII 4727
+                           6999************************************************************************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8363 nkqtgqnanqteveqaitkvqttlqalngdhnlqvaktnatqaidaltslndpqktalkdqvtaatlvtavhqieqnantlnqamhgl 8450
+                           n+  +   n++e+eq + ++     al g h l+ ak na   i+ lt+lnd q+    + v a   + av+q       +n am++l
+  sp|Q5HPA2|EBH_STAEQ 4728 NEIGNPTLNKSEIEQKLQQLTDAQNALQGSHLLEEAKNNAITGINKLTALNDAQRQKAIENVQAQQTIPAVNQQLTLDREINTAMQAL 4815
+                           **999**************************************************99999************98888899******** PP
+
+  sp|Q5HFY8|EBH_STAAC 8451 rqsiqdnaatkanskyinedqpeqqnydqavqaanniine.qtatldnnainqaattvnttkaalhgdvklqndkdhakqtvsqlahl 8537
+                           r  +         s y+ned+  + nyd +vqa   ii++ q   ++ n i qa   +ntt+ al g+ kl  d++   + +  l+ l
+  sp|Q5HPA2|EBH_STAEQ 4816 RDKVGQQNNVHQQSNYFNEDEQPKHNYDNSVQAGQTIIDKlQDPIMNKNEIEQAINQINTTQTALSGENKLHTDQESTNRQIEGLSSL 4903
+                           ***987778888999***********************9747788999**************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8538 nnaqkhmedtlidsettrtavkqdlteaqaldqlmdalqqsiadkdatrassayvnaepnkkqsydeavqnaesiiaglnnptinkgn 8625
+                           n aq + e  l++   trt v q l  a+ ++  m  l+  i +k+  + ssay+na+p k  +yd+a+qnae+ii +  n  +nk+ 
+  sp|Q5HPA2|EBH_STAEQ 4904 NTAQINAEKDLVNQAKTRTDVAQKLAAAKEINSAMSNLRDGIQNKEDIKRSSAYINADPTKVTAYDQALQNAENIINATPNVELNKAT 4991
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8626 vssatqavissknaldgverlaqdkqtagnslnhldqltpaqqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqtea 8713
+                           +  a   v  ++  ldgv++la  kq a  ++n l+ l   q++ l   in+a tr +v ++l +a  ln amealrns+q+  q + 
+  sp|Q5HPA2|EBH_STAEQ 4992 IEQALSRVQQAQQDLDGVQQLANAKQQATQTVNGLNSLNDGQKRELNLLINSANTRTKVQEELNKATELNHAMEALRNSVQNVDQVKQ 5079
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8714 gskfinedkpqkdayqaavqnakdlinqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdl 8783
+                           +s ++ned+p++  y  av  a+  in    p ldk  +e+ltq vn  kd lhg qkl  d+q a t +
+  sp|Q5HPA2|EBH_STAEQ 5080 SSNYVNEDQPEQHNYDNAVNEAQATINNNAQPVLDKLAIERLTQTVNTTKDALHGAQKLTQDQQAAETGI 5149
+                           ****************************************************************998865 PP
+
+  == domain 11  score: 233.8 bits;  conditional E-value: 5.7e-74
+  sp|Q5HFY8|EBH_STAAC 8405 aidaltslndpqktalkdqvtaatlvtavhqieqnantlnqamhglrqsiqdnaatkanskyinedqpeqqnydqavqaanniineqt 8492
+                            i  ltsln+pqk a   +vtaat    v+ i q a tl+ am glr+si+d   tk +skyined  +qq yd av  a  +i+e  
+  sp|Q5HPA2|EBH_STAEQ 5148 GIRGLTSLNEPQKNAEVAKVTAATTRDEVRNIRQEATTLDTAMLGLRKSIKDKNDTKNSSKYINEDHDQQQAYDNAVNNAQQVIDETQ 5235
+                           6789************************************************************************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8493 atldnnainqaattvnttkaalhgdvklqndkdhakqtvsqlahlnnaqkhmedtlidsettrtavkqdlteaqaldqlmdalqqsia 8580
+                           atl ++ inq a  v   k+ lhgd klq+dkd akqt++ql +ln+aqkhmed+lid+e+trt v+ dlteaqald lm al++si 
+  sp|Q5HPA2|EBH_STAEQ 5236 ATLSSDTINQLANAVTQAKSNLHGDTKLQHDKDSAKQTIAQLQNLNSAQKHMEDSLIDNESTRTQVQHDLTEAQALDGLMGALKESIK 5323
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8581 dkdatrassayvnaepnkkqsydeavqnaesiiaglnnptinkgnvssatqavissknaldgverlaqdkqt 8652
+                           d     ++  y+naep+kkq+yd avqna++ii g n ptinkgnv++atq v ++k+aldg  rl + k  
+  sp|Q5HPA2|EBH_STAEQ 5324 DYTNIVSNGNYINAEPSKKQAYDAAVQNAQNIINGTNQPTINKGNVTTATQTVKNTKDALDGDHRLEEAKNN 5395
+                           999999999*********************************************************998865 PP
+
+  == domain 12  score: 281.7 bits;  conditional E-value: 2e-88
+  sp|Q5HFY8|EBH_STAAC 8506 tvnttkaalhgdvklqndkdhakqtvsqlahlnnaqkhmedtlidsettrtavkqdlteaqaldqlmdalqqsiadkdatrassayvn 8593
+                           tv  tk al gd +l+  k++a qt+  l++lnnaqk  e  l++s +t   v+q+l  aq ld  m  l+qsia kd  +a s y+n
+  sp|Q5HPA2|EBH_STAEQ 5375 TVKNTKDALDGDHRLEEAKNNANQTIRNLSNLNNAQKDAEKNLVNSASTLEQVQQNLQTAQQLDNAMGELRQSIAKKDQVKADSKYLN 5462
+                           7899************************************************************************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8594 aepnkkqsydeavqnaesiiaglnnptinkgnvssatqavissknaldgverlaqdkqtagnslnhldqltpaqqqalenqinnattr 8681
+                            +p  kq+yd+avq  e+ii    np + k+n+  atq+v +++ al g e+l qdkqt++  l+ l  lt aq++ l  qin + +r
+  sp|Q5HPA2|EBH_STAEQ 5463 EDPQIKQNYDDAVQRVETIINETQNPELLKANIDQATQSVQNAEQALHGAEKLNQDKQTSSTELDGLTDLTDAQREKLREQINTSNSR 5550
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8682 gevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnptldkaqveqltqavnqakdnlhgd 8769
+                            ++ qk+ +a+aln am+ l+  +  +    a+s + ned  qkday  a++ a+d+in ++np l+   +      + qa+dnlhg 
+  sp|Q5HPA2|EBH_STAEQ 5551 DDIKQKIEQAKALNDAMKKLKEQVAQKDGVHANSDYTNEDSAQKDAYNNALKQAEDIINNSSNPNLNAQDITNALNNIKQAQDNLHGA 5638
+                           ********************************************************************99*999999*********** PP
+
+  sp|Q5HFY8|EBH_STAAC 8770 qkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgskfinedkpqkdayqaa 8857
+                           qkl  dk      +  ln ln pq+ al   in a +r +va+kl ea+ald+am+ l++ +    q  ++s fined  ++  y   
+  sp|Q5HPA2|EBH_STAEQ 5639 QKLQQDKNTTNQAIGNLNHLNQPQKDALIQAINGATSRDQVAEKLKEAEALDEAMKQLEDQVNQDDQISNSSPFINEDSDKQKTYNDK 5726
+                           **************************************************************99999********************* PP
+
+  sp|Q5HFY8|EBH_STAAC 8858 vqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqa 8905
+                           +q ak++inqt+nptldk ++    q +  a +nlhgdqkla+ +q a
+  sp|Q5HPA2|EBH_STAEQ 5727 IQAAKEIINQTSNPTLDKQKIADTLQNIKDAVNNLHGDQKLAQSKQDA 5774
+                           *******************************************99875 PP
+
+  == domain 13  score: 131.6 bits;  conditional E-value: 3.4e-43
+  sp|Q5HFY8|EBH_STAAC 8645 rlaqdkqtagnslnhldqltpaqqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaav 8732
+                           +laq kq a+n lnhld lt  q+  ++  inna tr ev ++l  a+ ln  m  l+  i d+ q +  s +in d  +k  y  a+
+  sp|Q5HPA2|EBH_STAEQ 5766 KLAQSKQDANNQLNHLDDLTEEQKNHFKPLINNADTRDEVNKQLEIAKQLNGDMSTLHKVINDKDQIQHLSNYINADNDKKQNYDNAI 5853
+                           69************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8733 qnakdlinqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakal 8820
+                           + a+dli+  +  tld   ++ l   ++qa + l+g+ ++     +a+ d++ ln+ln pqrq ++  in+  t   +aq+l +ak l
+  sp|Q5HPA2|EBH_STAEQ 5854 KEAEDLIHN-HPDTLDHKALQDLLNKIDQAHNELNGESRFKQALDNALNDIDSLNSLNVPQRQTVKDNINHVTTLESLAQELQKAKEL 5940
+                           *******84.4569************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8821 dqamqalrnsiqdqqqtesgskfinedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardq 8902
+                           + am+a+r+si +q+q   +s + ned  q++ay  av    ++i +  n t+d   ++q tq + ta + l+gdqkl   +
+  sp|Q5HPA2|EBH_STAEQ 5941 NDAMKAMRDSIMNQEQIRKNSNYTNEDLAQQNAYNHAVDKINNIIGE-DNATMDPQIIKQATQDINTAINGLNGDQKLQDAK 6021
+                           *********************************************97.69***************************96433 PP
+
+  == domain 14  score: 184.4 bits;  conditional E-value: 4.3e-59
+  sp|Q5HFY8|EBH_STAAC 8650 kqtagnslnhldqltpaqqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakd 8737
+                           k  a   + ++  lt  q+qalen in  t+r+ va++l+ a+ ln  me l+ ++        +s +ined  +k+ay+ a+   ++
+  sp|Q5HPA2|EBH_STAEQ 6021 KTDAKQQITNFTGLTEPQKQALENIINQQTSRANVAKQLSHAKFLNGKMEELKVAVAKASLVRQNSNYINEDVSEKEAYEQAIAKGQE 6108
+                           4446677889999*************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8738 linqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamq 8825
+                           +in  nnpt+    + +  q +n a+ nlhgd kl   ++ a  ++  l+gln+ q   l   i    t+  v qkl eaka++qamq
+  sp|Q5HPA2|EBH_STAEQ 6109 IINSENNPTISSTDINRTIQEINDAEQNLHGDNKLRQAQEIAKNEIQNLDGLNSAQITKLIQDIGRTTTKPAVTQKLEEAKAINQAMQ 6196
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8826 alrnsiqdqqqtesgskfinedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqavttvnalp 8913
+                            l+ si d+  t ++s ++ned  +k ay  av  a+ linq ++pt+d s ++ +tq v  akd+lhg  kla++q  +   +n   
+  sp|Q5HPA2|EBH_STAEQ 6197 QLKQSIADKDATLNSSNYLNEDSEKKLAYDNAVSQAEQLINQLNDPTMDISNIQAITQKVIQAKDSLHGANKLAQNQADSNLIINQST 6284
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8914 nlnhaqqqaltdainaaptrtevaqhvqtateldhametlknkvdqv 8960
+                           nln  q+qal d in a t+ +va+ +  a +l++ m tlk  v++ 
+  sp|Q5HPA2|EBH_STAEQ 6285 NLNDKQKQALNDLINHAQTKQQVAEIIAQANKLNNEMGTLKTLVEEQ 6331
+                           *****************************************999864 PP
+
+  == domain 15  score: 216.0 bits;  conditional E-value: 1.3e-68
+  sp|Q5HFY8|EBH_STAAC 8675 innattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnptldkaqveqltqavnqa 8762
+                           in+a t+ +va+ + +a  ln  m  l+  +++q      sk+ined   ++ y  ++q  ++++n t +  l+  ++    q ++  
+  sp|Q5HPA2|EBH_STAEQ 6298 INHAQTKQQVAEIIAQANKLNNEMGTLKTLVEEQSNVHQQSKYINEDPQVQNIYNDSIQKGREILNGTTDDVLNNNKIADAIQNIHLT 6385
+                           799********************************************999************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8763 kdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgskfinedkpq 8850
+                           k++lhgdqkl   +q a  +ln l +lnn qrq+   +in+a +r ev+  l  akal++am+ l+n +  +   +  s fined+  
+  sp|Q5HPA2|EBH_STAEQ 6386 KNDLHGDQKLQKAQQDATNELNYLTNLNNSQRQSEHDEINSAPSRTEVSNDLNHAKALNEAMRQLENEVALENSVKKLSDFINEDEAA 6473
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8851 kdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqavttvnalpnlnhaqqqaltdainaaptrtevaq 8938
+                           ++ y  a+q akd+in   + tldk+ +e     +  a+++lhg+qkl + + qav  ++ l  ln  q  a    +n a t+ ev +
+  sp|Q5HPA2|EBH_STAEQ 6474 QNEYSNALQKAKDIINGVPSSTLDKATIEDALLELQNARESLHGEQKLQEAKNQAVAEIDNLQALNPGQVLAEKTLVNQASTKPEVQE 6561
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8939 hvqtateldhametlknkvdqvntdkaqpnyteastdkkeavdqalqaaesitdptngsnankdavdqvltklqekenelngnervae 9026
+                            +q a el++am+ lk ++++    ka   y  a +  +   + al     i   t     nkd +++    ++  en lng  ++ae
+  sp|Q5HPA2|EBH_STAEQ 6562 ALQKAKELNEAMKALKTEINKKEQIKADSRYVNADSGLQANYNSALNYGSQIIATTQPPELNKDVINRATQTIKTAENNLNGQSKLAE 6649
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9027 aktqakqtidqlthlnadqiatakqnidqatklqpiaelvdqatqlnqsmdqlqqavnehanveqtvdytqadsdkqnaykqaiadae 9114
+                           ak+   q+i+ l  l   q       i+qa   q + ++v+ + ql+ sm+qlqq vn    v+q  d+   ds +q+ay  ai  a+
+  sp|Q5HPA2|EBH_STAEQ 6650 AKSDGNQSIEHLQGLTQSQKDKQHDLINQAQTKQQVDDIVNNSKQLDNSMNQLQQIVNNDNTVKQNSDFINEDSSQQDAYNHAIQAAK 6737
+                           *******************9999999************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9115 nvlkqn...ankqqvdqalqnilnakqaln 9141
+                           +++  +    +k q+dqa++ni  a   l+
+  sp|Q5HPA2|EBH_STAEQ 6738 DLITAHptiMDKNQIDQAIENIKQALNDLH 6767
+                           99987622257999***9999866665555 PP
+
+  == domain 16  score: 191.0 bits;  conditional E-value: 4.4e-61
+  sp|Q5HFY8|EBH_STAAC 8581 dkdatrassayvnaepnkkqsydeavqnaesiiaglnnptinkgnvssatqavissknaldgverlaqdkqtagnslnhldqltpaqq 8668
+                            k+  +a s yvna+   + +y+ a+     iia    p +nk  ++ atq + +++n l+g  +la+ k   + s+ hl  lt +q+
+  sp|Q5HPA2|EBH_STAEQ 6582 KKEQIKADSRYVNADSGLQANYNSALNYGSQIIATTQPPELNKDVINRATQTIKTAENNLNGQSKLAEAKSDGNQSIEHLQGLTQSQK 6669
+                           578899********************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8669 qalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnpt.ldkaqveql 8755
+                               + in a t+ +v   +  ++ l+ +m  l+  + +    + +s fined  q+day  a+q akdli    +pt +dk q++q 
+  sp|Q5HPA2|EBH_STAEQ 6670 DKQHDLINQAQTKQQVDDIVNNSKQLDNSMNQLQQIVNNDNTVKQNSDFINEDSSQQDAYNHAIQAAKDLIT--AHPTiMDKNQIDQA 6755
+                           **********************************************************************95..567637******** PP
+
+  sp|Q5HFY8|EBH_STAAC 8756 tqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgskf 8843
+                            + + qa ++lhg  kl++dk++a   l  ln+l n q+  + + i +a tr++v +k+a ak l+  m+alr+si d  +   +sk+
+  sp|Q5HPA2|EBH_STAEQ 6756 IENIKQALNDLHGSNKLSEDKKEASEQLQNLNSLTNGQKDTILNHIFSAPTRSQVGEKIASAKQLNNTMKALRDSIADNNEILQSSKY 6843
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8844 inedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqavttvnalpnlnhaqqqaltdainaap 8931
+                           +ned  q++ay  av  ak++in    p +   +++ +   v   kdnlhgdqkla+d+  a  t+nal  ln+aq+  l   +  + 
+  sp|Q5HPA2|EBH_STAEQ 6844 FNEDSEQQNAYNQAVNKAKNIINDQPTPVMANDEIQSVLNEVKQTKDNLHGDQKLANDKTDAQATLNALNYLNQAQRGNLETKVQNSN 6931
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8932 trtevaqhvqtateldham 8950
+                           +r ev + vq a +l+ am
+  sp|Q5HPA2|EBH_STAEQ 6932 SRPEVQKVVQLANQLNDAM 6950
+                           ***************9887 PP
+
+  == domain 17  score: 162.3 bits;  conditional E-value: 1.9e-52
+  sp|Q5HFY8|EBH_STAAC 8637 knaldgverlaqdkqtagnslnhldqltpaqqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpq 8724
+                            n l g  +l++dk+ a+  l +l+ lt  q+  + n i +a tr++v +k+  a+ ln  m+alr+si d  +   +sk++ned  q
+  sp|Q5HPA2|EBH_STAEQ 6763 LNDLHGSNKLSEDKKEASEQLQNLNSLTNGQKDTILNHIFSAPTRSQVGEKIASAKQLNNTMKALRDSIADNNEILQSSKYFNEDSEQ 6850
+                           57899*********************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8725 kdayqaavqnakdlinqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaq 8812
+                           ++ay  av  ak++in    p +   +++ +   v q kdnlhgdqkla+dk  a   ln ln ln  qr  le+++ n+ +r ev +
+  sp|Q5HPA2|EBH_STAEQ 6851 QNAYNQAVNKAKNIINDQPTPVMANDEIQSVLNEVKQTKDNLHGDQKLANDKTDAQATLNALNYLNQAQRGNLETKVQNSNSRPEVQK 6938
+                           **************************************************************************************99 PP
+
+  sp|Q5HFY8|EBH_STAAC 8813 klaeakaldqamqalrnsiqdqqqtesgskfinedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklar 8900
+                            +  a  l+ am+ l +++      +  s +ined  q+  +       k+++ +  np +  + +  +   +t ak++lhg qkl +
+  sp|Q5HPA2|EBH_STAEQ 6939 VVQLANQLNDAMKKLDDALTGNDAIKQTSNYINEDTSQQVNFDEYTDRGKNIVAEQTNPNMSPTNINTIADKITEAKNDLHGVQKLKQ 7026
+                           9999************************************************************************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8901 dqqqavttvnalpnlnhaqqqaltdainaaptrtevaqhvqtateldhametlk 8954
+                            qqq++ t+n +  ln+aq++ l   i    tr+ev q +  a  l+ +m tl+
+  sp|Q5HPA2|EBH_STAEQ 7027 AQQQSINTINQMTGLNQAQKEQLNQEIQQTQTRSEVHQVINKAQALNDSMNTLR 7080
+                           **************************************************9985 PP
+
+  == domain 18  score: 123.0 bits;  conditional E-value: 1.3e-40
+  sp|Q5HFY8|EBH_STAAC 3148 italntamtklkdsvadnntiksdqnytdatpankqaydnavnaakgvigettnptmdvntvnqkaasvkstkdaldgqqnlqrakte 3235
+                             aln +m  l+ s+ d + +k   ny + t  n+ ay+nav+  k +i++t+nptm+   v +  ++vk +kdal g++ l   k  
+  sp|Q5HPA2|EBH_STAEQ 7069 AQALNDSMNTLRQSITDEHEVKQTSNYINETVGNQTAYNNAVDRVKQIINQTSNPTMNPLEVERATSNVKISKDALHGERELNDNKNS 7156
+                           579************************************************************************************* PP
+
+  sp|Q5HFY8|EBH_STAAC 3236 atnaithasdlnqaqknaltqqvnsaqnvqavndikqttqslntamtglkrgvanhnqvvqsdnyvnadtnkkndynnaynhandiin 3323
+                            t a+ h  +lnqaqk alt ++  a  v  vn+i    ++ln  m  lk  va ++ v qs+ny+n d+  +n yn+  nha  ii+
+  sp|Q5HPA2|EBH_STAEQ 7157 KTFAVNHLDNLNQAQKEALTHEIEQATIVSQVNNIYNKAKALNNDMKKLKDIVAQQDNVRQSNNYINEDSTPQNMYNDTINHAQSIID 7244
+                           ***************************************************************************************8 PP
+
+  sp|Q5HFY8|EBH_STAAC 3324 gnaqhpvitpsdvnnalsnvtskehalngeaklnaakqeantalghlnnlnnaqrqn 3380
+                               +p ++  ++ na++n+    +al+ge kl  ak+ an  ++ ln+ln  qr  
+  sp|Q5HPA2|EBH_STAEQ 7245 Q-VANPTMSHDEIENAINNIKHAINALDGEHKLQQAKENANLLINSLNDLNAPQRDA 7300
+                           6.568**********************************************999975 PP
+
+  == domain 19  score: 179.7 bits;  conditional E-value: 1.1e-57
+  sp|Q5HFY8|EBH_STAAC 8579 iadkdatrassayvnaepnkkqsydeavqnaesiiaglnnptinkgnvssatqavissknaldgverlaqdkqtagnslnhldqltpa 8666
+                           +a +d  r s+ y+n +   +  y++ + +a+sii  + npt++   + +a   +  + naldg  +l q k+ a+  +n l+ l   
+  sp|Q5HPA2|EBH_STAEQ 7209 VAQQDNVRQSNNYINEDSTPQNMYNDTINHAQSIIDQVANPTMSHDEIENAINNIKHAINALDGEHKLQQAKENANLLINSLNDLNAP 7296
+                           7899************************************************************************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8667 qqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdlinqtnnptldkaqveq 8754
+                           q+ a+   +n a tr +va++l  aqaln am+ lrnsiq+q      sk+in    +k+ y  av+  +++in+  +ptldk  ++q
+  sp|Q5HPA2|EBH_STAEQ 7297 QRDAINRLVNEAQTREKVAEQLQSAQALNDAMKHLRNSIQNQSSVRQESKYINASDAKKEQYNHAVREVENIINEQ-HPTLDKEIIKQ 7383
+                           **************************************************************************85.7********** PP
+
+  sp|Q5HFY8|EBH_STAAC 8755 ltqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqalrnsiqdqqqtesgsk 8842
+                           lt  vnqa ++l+g + l  dkq+a   +  l  ln  q+ al  +inna tr eva  + +ak ld am+ l+ si+d++q + +s 
+  sp|Q5HPA2|EBH_STAEQ 7384 LTDGVNQANNDLNGVELLDADKQNAHQSIPTLMHLNQAQQNALNEKINNAVTRTEVAAIIGQAKLLDHAMENLEESIKDKEQVKQSSN 7471
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8843 finedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklar 8900
+                           +ined   ++ y  av +  +++nqt nptl    +e     v  ak  l+g qkl +
+  sp|Q5HPA2|EBH_STAEQ 7472 YINEDSDVQETYDNAVDHVTEILNQTVNPTLSIEDIEHAINEVNQAKKQLRGKQKLYQ 7529
+                           *******************************************************965 PP
+
+  == domain 20  score: 502.2 bits;  conditional E-value: 8.3e-155
+  sp|Q5HFY8|EBH_STAAC 8652 tagnslnhldqltpaqqqalenqinnattrgevaqklteaqalnqamealrnsiqdqqqteagskfinedkpqkdayqaavqnakdli 8739
+                            a   l+ ld lt  q  ++ nqi  a tr evaq + +a++ln am+al+   ++  +   +s+fined+p+k ayq a+ +   +i
+  sp|Q5HPA2|EBH_STAEQ 7533 LADKELSKLDDLTSQQSSSISNQIYTAKTRTEVAQAIEKAKSLNHAMKALNKVYKNADKVLDSSRFINEDQPEKKAYQQAINHVDSII 7620
+                           577899**********************************************9*********************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8740 nqtnnptldkaqveqltqavnqakdnlhgdqkladdkqhavtdlnqlnglnnpqrqalesqinnaatrgevaqklaeakaldqamqal 8827
+                           ++  np +d   +  +t  +  a++nlhgdqkla  +q a   +n l  ln  qr+ + +   na tr +va+ l  a+ald+am+ l
+  sp|Q5HPA2|EBH_STAEQ 7621 HRQTNPEMDPTVINSITHELETAQNNLHGDQKLAHAQQDAANVINGLIHLNVAQREVMINTNTNATTREKVAKNLDNAQALDKAMETL 7708
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 8828 rnsiqdqqqtesgskfinedkpqkdayqaavqnakdlinqtgnptldksqveqltqavttakdnlhgdqklardqqqavttvnalpnl 8915
+                           +  +  +    + sk++ned   +  y   + +a+ l+nqt nptl+  +v+ +   v   +  l g +kl+ d+  a   +  +  l
+  sp|Q5HPA2|EBH_STAEQ 7709 QQVVAHKNNILNDSKYLNEDSKYQQQYDRVIADAEQLLNQTTNPTLEPYKVDIVKDNVLANEKILFGAEKLSYDKSNANDEIKHMNYL 7796
+                           *********************************************************9999999************************ PP
+
+  sp|Q5HFY8|EBH_STAAC 8916 nhaqqqaltdainaaptrtevaqhvqtateldhametlknkvdqvntdkaqpnyteastdkkeavdqalqaaesitdptngsnankda 9003
+                           n+aq+q++ d i+ a  rtev q +q a  ld+am++l++k   v td   pnyteas dkke vdq +  a++i d  ngsn + d 
+  sp|Q5HPA2|EBH_STAEQ 7797 NNAQKQSIKDMISHAALRTEVKQLLQQAKILDEAMKSLEDKTQVVITDTTLPNYTEASEDKKEKVDQTVSHAQAIIDKINGSNVSLDQ 7884
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9004 vdqvltklqekenelngnervaeaktqakqtidqlthlnadqiatakqnidqatklqpiaelvdqatqlnqsmdqlqqavnehanveq 9091
+                           v q l +l +    l+g++rv eak  a qtidqlthln+ q  tak+++  atkl+ ia + + a  ln+ m +l+q +n   +ve 
+  sp|Q5HPA2|EBH_STAEQ 7885 VRQALEQLTQASENLDGDQRVEEAKVHANQTIDQLTHLNSLQQQTAKESVKNATKLEEIATVSNNAQALNKVMGKLEQFINHADSVEN 7972
+                           **********9999*******************************************************************999**** PP
+
+  sp|Q5HFY8|EBH_STAAC 9092 tvdytqadsdkqnaykqaiadaenvlkqnankqqvdqalqnilnakqalngdervalaktngkhdidqlnalnnaqqdgfkgridqsn 9179
+                           + +y qad dk  ay +a+   +++ k na + +  qalq ++ a+ +lng er+  a+  + + i  l  +nnaq+ +++ ++ qs+
+  sp|Q5HPA2|EBH_STAEQ 7973 SDNYRQADDDKIIAYDEALEHGQDIQKTNATQNETKQALQQLIYAETSLNGFERLNHARPRALEYIKSLEKINNAQKSALEDKVTQSH 8060
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9180 dlnqiqqivdeakalnramdqlsqeitdnegrtkgstnyvnadtqvkqvydetvdkakqaldkstgqnltakqviklndavtaakkal 9267
+                           dl +++ iv+e   ln  m +l+  i +n + tk+s ny+nad   k  + + ++ a+ al+k+ gqnl    +  + d +   k al
+  sp|Q5HPA2|EBH_STAEQ 8061 DLLELEHIVNEGTNLNDIMGELANAIVNNYAPTKASINYINADNLRKDNFTQAINNARDALNKTQGQNLDFNAIDTFKDDIFKTKDAL 8148
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9268 ngeerlnnrkaealqrldqlthlnnaqrqlaiqqinnaetlnkasrainratkldnamgavqqyideqhlgvisstnyinaddnlkan 9355
+                           ng erl   k++a + +d l  +n aq   a  +i n  ++ + sr +n+a  l++am +++  ++ q + v +s+nyin+d++lk  
+  sp|Q5HPA2|EBH_STAEQ 8149 NGIERLTAAKSKAEKLIDSLKFINKAQFTHANDEIINTNSIAQLSRIVNQAFDLNDAMKSLRDELNNQAFPVQASSNYINSDEDLKQQ 8236
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9356 ydnaianaaheldkvqgnaiakaeaeqlkqniidaqnalngdqnlanakdkanafvnslnglnqqqqdlahkainnadtvsdvtdivn 9443
+                           +d+a++na   l k  g  + + + + lkq i d ++alng q l+ ak ka  +v sl+ +n  q+ +a+  i+n+d +s + + ++
+  sp|Q5HPA2|EBH_STAEQ 8237 FDHALSNARKVLAKENGKNLDEKQIQGLKQVIEDTKDALNGIQRLSKAKAKAIQYVQSLSYINDAQRHIAENNIHNSDDLSSLANTLS 8324
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9444 nqidlndametlkhlvdneipnaeqtvnyqnaddnaktnfddakrlantl 9493
+                              dl++am+ l+  +++   +   +vny nad n +  fd+a + a+  
+  sp|Q5HPA2|EBH_STAEQ 8325 KASDLDNAMKDLRDTIESNSTSVPNSVNYINADKNLQIEFDEALQQASAT 8374
+                           *******************************************9887654 PP
+
+  == domain 21  score: 166.5 bits;  conditional E-value: 1e-53
+  sp|Q5HFY8|EBH_STAAC 9177 qsndlnqiqqivdeakalnramdqlsqeitdnegrtkgstnyvnadtqvkqvydetvdkakqaldkstgqnltakqviklndavtaak 9264
+                            +n + q+ +iv++a  ln am  l  e+ +     ++s+ny+n+d  +kq +d  +  a++ l k  g+nl  kq+  l   +   k
+  sp|Q5HPA2|EBH_STAEQ 8185 NTNSIAQLSRIVNQAFDLNDAMKSLRDELNNQAFPVQASSNYINSDEDLKQQFDHALSNARKVLAKENGKNLDEKQIQGLKQVIEDTK 8272
+                           579999************************9999****************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9265 kalngeerlnnrkaealqrldqlthlnnaqrqlaiqqinnaetlnkasrainratkldnamgavqqyideqhlgvisstnyinaddnl 9352
+                            alng +rl+  ka+a+q +  l+++n+aqr +a   i+n++ l+  ++ +++a+ ldnam  ++  i+    +v +s nyinad nl
+  sp|Q5HPA2|EBH_STAEQ 8273 DALNGIQRLSKAKAKAIQYVQSLSYINDAQRHIAENNIHNSDDLSSLANTLSKASDLDNAMKDLRDTIESNSTSVPNSVNYINADKNL 8360
+                           **************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9353 kanydnaianaaheldkvqgnaiakaeaeqlkqniidaqnalngdqnlanakdkanafvnslnglnqqqqdlahkainnadtvsdvtd 9440
+                           +  +d a+  a+    k   n     e   l q i d +nalng+q la  k k   ++  l  ln+ q +     +n+a+t+++++ 
+  sp|Q5HPA2|EBH_STAEQ 8361 QIEFDEALQQASATSSKTSENPATIEEVLGLSQAIYDTKNALNGEQRLATEKSKDLKLIKGLKDLNKAQLEDVTNKVNSANTLTELSQ 8448
+                           ******************************************************************98866556669*********** PP
+
+  sp|Q5HFY8|EBH_STAAC 9441 ivnnqidlndametlkhlvdneipnaeqtvnyqnaddnaktnfddakrlantllnsd...ntnvndingaiqavndaihnlngdqrlq 9525
+                           +  + ++lnd m+ l+  +   +   + ++ny+nad n k  f+ a + a  +ln +   n n+ndi   +  +++a   lng++rl+
+  sp|Q5HPA2|EBH_STAEQ 8449 LTQSTLELNDKMKLLRDKLKTLVNPVKASLNYRNADYNLKRQFNKALKEAKGVLNKNsgtNVNINDIQHLLTQIDNAKDQLNGERRLK 8536
+                           ********************999999************************99998643337899***********************9 PP
+
+  sp|Q5HFY8|EBH_STAAC 9526 dakdka 9531
+                           + + k+
+  sp|Q5HPA2|EBH_STAEQ 8537 EHQQKS 8542
+                           988775 PP
+
+  == domain 22  score: 164.6 bits;  conditional E-value: 3.8e-53
+  sp|Q5HFY8|EBH_STAAC 9245 gqnltakqviklndavtaakkalngeerlnnrkaealqrldqlthlnnaqrqlaiqqinnaetlnkasrainratkldnamgavqqyi 9332
+                               t ++v+ l+ a+   k alnge+rl  +k++ l+ +  l  ln aq +    ++n+a tl + s+      +l++ m  ++  +
+  sp|Q5HPA2|EBH_STAEQ 8380 ENPATIEEVLGLSQAIYDTKNALNGEQRLATEKSKDLKLIKGLKDLNKAQLEDVTNKVNSANTLTELSQLTQSTLELNDKMKLLRDKL 8467
+                           3446899****************************************************************999************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9333 deqhlgvisstnyinaddnlkanydnaianaaheldkvqgnaiakaeaeqlkqniidaqnalngdqnlanakdkanafv.nslnglnq 9419
+                                 v +s ny nad nlk  ++ a+  a   l+k  g  +   + + l   i +a++ lng++ l   + k+  f+   l+ ln 
+  sp|Q5HPA2|EBH_STAEQ 8468 KTLVNPVKASLNYRNADYNLKRQFNKALKEAKGVLNKNSGTNVNINDIQHLLTQIDNAKDQLNGERRLKEHQQKSEVFIiKELDILNN 8555
+                           999999**********************************************************************996378****** PP
+
+  sp|Q5HFY8|EBH_STAAC 9420 qqqdlahkainnadtvsdvtdivnnqidlndametlkhlvdneipnaeqtvnyqnaddnaktnfddakrlantllnsdn...tnvndi 9504
+                            q+      i  +  +  +  iv+n i+lndam+ lk+ v       +  + y nad++ k  +d a +lan +l+ +n    + n i
+  sp|Q5HPA2|EBH_STAEQ 8556 AQKAAIINQIRASKDIKIINQIVDNAIELNDAMQGLKEHVAQLTATTKDNIEYLNADEDHKLQYDYAINLANNVLDKENgtnKDANII 8643
+                           999999999999999**********************99999999******************************8776211456778 PP
+
+  sp|Q5HFY8|EBH_STAAC 9505 ngaiqavndaihnlngdqrlqdakdkaiqsinqalanklkeieasnatdqdkliaknkaeelansiinninkatsnqavsqvqtagnh 9592
+                            g iq ++da   lng +rl+da+ ka   i   l  +l eie +nat   k  ak    e a   ++nin atsn  v+q +  g  
+  sp|Q5HPA2|EBH_STAEQ 8644 IGMIQNMDDARALLNGIERLKDAQTKAHNDIKDTLKRQLDEIEHANATSNSKAQAKQMVNEEARKALSNINDATSNDLVNQAKDEGQS 8731
+                           8*************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 9593 aieqvhaneipkakidankdvdkqvqalideidrnpnltdkekqalkdrinqil 9646
+                           aie +ha+e+pkak+dan+ +d++v+ +   i +npnl+++ek  l  +in+++
+  sp|Q5HPA2|EBH_STAEQ 8732 AIEHIHADELPKAKLDANQMIDQKVEDINHLISQNPNLSNEEKNKLISQINKLV 8785
+                           ***************************************************986 PP
+
+  == domain 23  score: 300.7 bits;  conditional E-value: 3.8e-94
+  sp|Q5HFY8|EBH_STAAC  9767 idkrvqalideidqnpnltdkekqalkdrinqilqqghndinnaltkeeieqakaqlaqalqdikdlvkakedaknaikalanakr 9852 
+                            id++v+ +   i qnpnl+++ek  l  +in+++    n+i  a+ k++ie a  +l + ++  k l+ ak +ak  ik l+  kr
+  sp|Q5HPA2|EBH_STAEQ  8752 IDQKVEDINHLISQNPNLSNEEKNKLISQINKLVNGIKNEIQQAINKQQIENATTKLDEVIETTKKLIIAKAEAKQMIKELSQKKR 8837 
+                            78999999999*************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC  9853 dqinsnpdltpeqkakalkeideaekralqnvenaqtidqlnrglnlglddirnthvwevdeqpavneifeatpeqilvngelivh 9938 
+                            d in+n dltp qka al +id+ ek alq++en+ +id +n++   +++ + +  +w+ d+qp v e+ e + +  lv +e++vh
+  sp|Q5HPA2|EBH_STAEQ  8838 DAINNNTDLTPSQKAHALADIDKTEKDALQHIENSNSIDDINNNKEHAFNTLAHIIIWDTDQQPLVFELPELSLQNALVTSEVVVH 8923 
+                            ************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC  9939 rddiiteqdilahinlidqlsaevidtpstatisdsltakvevtlldgskvivnvpvkvvekelsvvkqqaiesienaaqqkinei 10024
+                            rd+ i+ + i+  + l d+l   ++  p+t  ++d ltakv+v l dgs v vnvpvkvvekel + k+ ai++i+   +qki +i
+  sp|Q5HPA2|EBH_STAEQ  8924 RDETISLESIIGAMTLTDELKVNIVSLPNTDKVADHLTAKVKVILADGSYVTVNVPVKVVEKELQIAKKDAIKTIDVLVKQKIKDI 9009 
+                            ************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 10025 nnsvtltleqkeaaiaevnklkqqaidhvnnapdvhsveeiqqqeqahieqfnpeqftieqaksnaiksiedaiqhmideikartd 10110
+                            +++  lt  q+e a ae+ +lk+qaid vn++  +  +e +++ +  +i+qf+p++ft+ +ak + i  +   iq+ + ei+    
+  sp|Q5HPA2|EBH_STAEQ  9010 DSNNELTSTQREDAKAEIERLKKQAIDKVNHSKSIKDIETVKRTDFEEIDQFDPKRFTLNKAKKDIITDVNTQIQNGFKEIETIKG 9095 
+                            ************************************************************************************** PP
+
+  sp|Q5HFY8|EBH_STAAC 10111 ltdkekqeaiaklnqlkeqaiqaiqraqsideiseqleqfkaqmkaanptakelakrkqeaisrikdfsnekinsirnseigtade 10196
+                            lt  ek +   +l  l+++ ++ +++a ++ e+++  ++f  + k     a  l  +k  a  ++      k   i n++ ++   
+  sp|Q5HPA2|EBH_STAEQ  9096 LTSNEKTQFDKQLTALQKEFLEKVEHAHNLVELNQLQQEFNNRYKHILNQAH-LLGEKHIAEHKLGYVVVNKTQQILNNQSASYFI 9180 
+                            **********************************99999****999877776.556688899999999999*************** PP
+
+  sp|Q5HFY8|EBH_STAAC 10197 kqaamnqineivletirdinnahtlqqveaalnngiarisavqivtsdra.kqssstgnesnshlti...gygtanhpfnssti.. 10276
+                            kq a+++i +i let++ i  aht+q v  al  gi +i  v +   +++   s    n  +s +         anh   + t+  
+  sp|Q5HPA2|EBH_STAEQ  9181 KQWALDRIKQIQLETMNSIRGAHTVQDVHKALLQGIEQILKVNVSIINQSfNDSLHNFNYLHSKFDArlrEKDVANHIVQTETFke 9266 
+                            ***************************************99998666555144444555555554431113578999988887622 PP
+
+  sp|Q5HFY8|EBH_STAAC 10277 .....g.hkkkldedddidplhmrhfsnnfgnvikn...aigvvgisgllasfwffiakrrrkedeeeeleirdnnkdsiketldd 10353
+                                 g +  k++++     lh +   + f +++ n    +gv+ ++gll+sfw+ +akrr+ke+e e+  i++++kd     l d
+  sp|Q5HPA2|EBH_STAEQ  9267 vlkgtGvEPGKINKETQQPKLHKNDNDSLFKHLVDNfgkTVGVITLTGLLSSFWLVLAKRRKKEEE-EKQSIKNHHKDI---RLSD 9348 
+                            22211223457888888888999888888888887744469******************9988865.56689*999995...3556 PP
+
+  sp|Q5HFY8|EBH_STAAC 10354 tkhl.pllfakrrrkedeedvtveekdslnng...esldkv..khtpfflpkrrrkedeedvevtne 10414
+                            t  + p+++ kr + + ee +  ++k s+  +   +s +k   ++    +p  +rk++ ++ +   +
+  sp|Q5HPA2|EBH_STAEQ  9349 TDKIdPIVITKR-KIDKEEQIQNDDKHSIPVAkhkKSKEKQlsEEDIHSIPVVKRKQNSDNKDTKQK 9414 
+                            655517777665.556677888888887753310023333211122234454444444443333333 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (10498 nodes)
+Target sequence(s):                        1  (9439 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 3.24u 0.26s 00:00:03.50 Elapsed: 00:00:03.51
+# Mc/sec: 28.22
+//
+[ok]

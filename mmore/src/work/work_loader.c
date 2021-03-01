@@ -125,21 +125,27 @@ WORK_load_mmseqs_alignment( WORKER*  worker )
    int            Q        = q_seq->N;
    HMM_PROFILE*   t_prof   = worker->t_prof;
    int            T        = t_prof->N;
+   M8_RESULT*     mm_m8    = worker->mmseqs_cur;
+
+   if ( args->verbose_level >= VERBOSE_ALL ) {
+      M8_RESULT_Dump( mm_m8, stdout );
+   }
 
    /* load viterbi alignment */
    TRACE aln_beg, aln_end;
    ALIGNMENT_Reuse( worker->trace_vit, Q, T  );
    /* if no cigar alignment, just use the beginning and end of the alignment */
-   aln_beg.t_0 = worker->mmseqs_cur->t_beg;
-   aln_beg.q_0 = worker->mmseqs_cur->q_beg;
+   aln_beg.t_0 = mm_m8->t_beg;
+   aln_beg.q_0 = mm_m8->q_beg;
    aln_beg.st  = M_ST;
-   ALIGNMENT_Pushback( worker->trace_vit, aln_beg );
-   aln_end.t_0 = worker->mmseqs_cur->t_end;
-   aln_end.q_0 = worker->mmseqs_cur->q_end;
+   ALIGNMENT_AddTrace( worker->trace_vit, aln_beg );
+   aln_end.t_0 = mm_m8->t_end;
+   aln_end.q_0 = mm_m8->q_end;
    aln_end.st  = M_ST;
-   ALIGNMENT_Pushback( worker->trace_vit, aln_end );
+   ALIGNMENT_AddTrace( worker->trace_vit, aln_end );
    /* since only start and end point of alignment is known, set endpoints by default */
-   ALIGNMENT_SetEndpoints( worker->trace_vit, 0, 1 );
+   ALIGNMENT_AddRegion( worker->trace_vit, 0, 1, mm_m8->eval );
+   ALIGNMENT_SetRegion( worker->trace_vit, 0 );
 }
 
 /*! FUNCTION:  	WORK_load_target()
@@ -148,11 +154,11 @@ WORK_load_mmseqs_alignment( WORKER*  worker )
 void 
 WORK_load_target(    WORKER*     worker )
 {
-   ARGS*          args           = worker->args;
-   TASKS*         tasks          = worker->tasks;
-   TIMES*         times          = worker->times;
-   CLOCK*         timer          = worker->timer;
-   HMM_PROFILE*   t_prof         = worker->t_prof;
+   ARGS*          args     = worker->args;
+   TASKS*         tasks    = worker->tasks;
+   TIMES*         times    = worker->times;
+   CLOCK*         timer    = worker->timer;
+   HMM_PROFILE*   t_prof   = worker->t_prof;
 
    CLOCK_Start( timer );
 

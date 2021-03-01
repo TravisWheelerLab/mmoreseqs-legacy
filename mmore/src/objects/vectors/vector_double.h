@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_DBL Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_DBL_H

@@ -166,7 +166,7 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
       int   num_cells   = MATRIX_2D_Cloud_Fill( cloud_MX, edg, 1.0 );
       int   num_cells2  = MATRIX_2D_Cloud_Count( cloud_MX );
       float pretotal    = MATRIX_2D_Total( cloud_MX );
-      printf("Forward Pretotal = %d %d %f\n", num_cells, num_cells2, pretotal);
+      // printf("Pre-Forward Cell Totals = %d %d %f\n", num_cells, num_cells2, pretotal);
 
       // MATRIX_2D_Reuse( cloud_MX3, 3, (Q+1)+(T+1) );
       // MATRIX_2D_Fill( cloud_MX3, 0 );
@@ -573,7 +573,7 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
    {
       // int   num_cells2  = MATRIX_2D_Cloud_Count( cloud_MX );
       // float pretotal    = MATRIX_2D_Total( cloud_MX );
-      // printf("Forward Pretotal = %d %f\n", num_cells2, pretotal);
+      // printf("Pre-Forward Cell Totals = %d %f\n", num_cells2, pretotal);
 
       // printf("POST => travis testing...\n");
       // int truetot = (Q+1) * (T+1);

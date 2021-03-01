@@ -135,7 +135,7 @@ WORK_times_init(  WORKER*    worker,
    times->quad_fwd             = val;
    times->quad_bck             = val;
    times->quad_vit             = val;
-   times->quad_trace           = val;
+   times->quad_vit_trace       = val;
    times->quad_cloud_fwd       = val;
    times->quad_cloud_bck       = val;
    times->quad_merge           = val;
@@ -144,6 +144,7 @@ WORK_times_init(  WORKER*    worker,
    times->quad_bound_bck       = val;
    times->quad_posterior       = val;
    times->quad_optacc          = val;
+   times->quad_opt_trace       = val;
    /* linear algs */   
    times->lin_fwd              = val;
    times->lin_bck              = val;
@@ -160,7 +161,7 @@ WORK_times_init(  WORKER*    worker,
    times->sp_fwd               = val;
    times->sp_bck               = val;
    times->sp_vit               = val;
-   times->sp_trace             = val;
+   times->sp_vit_trace         = val;
    times->sp_cloud_fwd         = val;
    times->sp_cloud_bck         = val;
    times->sp_bound_fwd         = val;
@@ -169,6 +170,7 @@ WORK_times_init(  WORKER*    worker,
    times->sp_decodedom         = val;
    times->sp_biascorr          = val;
    times->sp_optacc            = val;
+   times->sp_opt_trace         = val;
    /* doms */
    times->dom_total            = val;
    times->dom_bound_fwd        = val;
@@ -176,6 +178,7 @@ WORK_times_init(  WORKER*    worker,
    times->dom_posterior        = val;
    times->dom_biascorr         = val;
    times->dom_optacc           = val;
+   times->dom_opt_trace        = val;
 }
 
 /* add times to running totals */
@@ -201,7 +204,7 @@ WORK_times_add( WORKER* worker )
    time_totals->quad_fwd             += times->quad_fwd;
    time_totals->quad_bck             += times->quad_bck;
    time_totals->quad_vit             += times->quad_vit;
-   time_totals->quad_trace           += times->quad_trace;
+   time_totals->quad_vit_trace       += times->quad_vit_trace;
    time_totals->quad_cloud_fwd       += times->quad_cloud_fwd;
    time_totals->quad_cloud_bck       += times->quad_cloud_bck;
    time_totals->quad_merge           += times->quad_merge;
@@ -210,6 +213,7 @@ WORK_times_add( WORKER* worker )
    time_totals->quad_bound_bck       += times->quad_bound_bck;
    time_totals->quad_posterior       += times->quad_posterior;
    time_totals->quad_optacc          += times->quad_optacc;
+   time_totals->quad_opt_trace       += times->quad_opt_trace;
    /* linear algs */   
    time_totals->lin_fwd              += times->lin_fwd;
    time_totals->lin_bck              += times->lin_bck;
@@ -226,7 +230,7 @@ WORK_times_add( WORKER* worker )
    time_totals->sp_fwd               += times->sp_fwd;
    time_totals->sp_bck               += times->sp_bck;
    time_totals->sp_vit               += times->sp_vit;
-   time_totals->sp_trace             += times->sp_trace;
+   time_totals->sp_vit_trace             += times->sp_vit_trace;
    time_totals->sp_cloud_fwd         += times->sp_cloud_fwd;
    time_totals->sp_cloud_bck         += times->sp_cloud_bck;
    time_totals->sp_bound_fwd         += times->sp_bound_fwd;
@@ -235,6 +239,7 @@ WORK_times_add( WORKER* worker )
    time_totals->sp_decodedom         += times->sp_decodedom;
    time_totals->sp_biascorr          += times->sp_biascorr;
    time_totals->sp_optacc            += times->sp_optacc;
+   time_totals->sp_opt_trace         += times->sp_opt_trace;
    /* doms */
    time_totals->dom_total            += times->dom_total;
    time_totals->dom_bound_fwd        += times->dom_bound_fwd;
@@ -242,5 +247,6 @@ WORK_times_add( WORKER* worker )
    time_totals->dom_posterior        += times->dom_posterior;
    time_totals->dom_biascorr         += times->dom_biascorr;
    time_totals->dom_optacc           += times->dom_optacc;
+   time_totals->dom_opt_trace        += times->dom_opt_trace;
 }
 

@@ -18,17 +18,16 @@
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "_algs_linear.h"
 
 /* header */
+#include "_algs_linear.h"
 #include "pruning_linear.h"
 
-/*
- *  FUNCTION: 	PRUNER_diag_by_xdrop_edgetrim_Linear()
+/*! FUNCTION: 	PRUNER_diag_by_xdrop_edgetrim_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
- * 		      	(2) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
+ * 		      (2) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
  * 				(3) Performs pruning from right-edge, moving left.
  * 				(4) Stores edgebounds in left and right bound list.
  */
@@ -36,26 +35,26 @@ inline
 STATUS_FLAG 
 PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
                             			MATRIX_2D* 		sp_MX,			/* special state matrix */
-	                                	const float     alpha,			/* x-drop value */
-	                                	const int       gamma,			/* number of antidiagonals before pruning */
-	                                	const int 		d_1,			/* previous antidiagonal */
-	                                	const int 		d_0,			/* current antidiagonal */
-	                                	const int 		dx1,			/* previous antidiag (mod-mapped) */
-	                                	const int 		dx0, 			/* current antidiag (mod-mapped) */
+	                                	const float   	alpha,			/* x-drop value */
+	                                	const int      gamma,			/* number of antidiagonals before pruning */
+	                                	const int 		d_1,				/* previous antidiagonal */
+	                                	const int 		d_0,				/* current antidiagonal */
+	                                	const int 		dx1,				/* previous antidiag (mod-mapped) */
+	                                	const int 		dx0, 				/* current antidiag (mod-mapped) */
 	                                	const int 		d_cnt, 			/* number of antidiags traversed */
-	                                	const int 		le, 			/* right edge of dp matrix on current antidiag */
+	                                	const int 		le, 				/* right edge of dp matrix on current antidiag */
 	                                	const int 		re,				/* left edge of dp matrix on current antidiag */
 	                                	float*    		total_max,		/* (UPDATED) current maximum score */
 	                                	VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
 	                                	VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
-	int 		i, j, k; 					/* indexes */
-	int 		q_0;						/* row index (query position) */
-	int 		t_0;						/* column index (target position) */
-	int 		k_0;						/* offset into antidiagonal */
-	int 		lb_0, rb_0; 				/* left/right bounds of current antidiagonal */
-	int 		lb_1, rb_1; 				/* left/right bounds of previous antidiagonal */
-	float 		diag_max, cell_max;         /* max score for all normal states in a given cell/antidiagonal */
+	int 			i, j, k; 						/* indexes */
+	int 			q_0;								/* row index (query position) */
+	int 			t_0;								/* column index (target position) */
+	int 			k_0;								/* offset into antidiagonal */
+	int 			lb_0, rb_0; 					/* left/right bounds of current antidiagonal */
+	int 			lb_1, rb_1; 					/* left/right bounds of previous antidiagonal */
+	float 		diag_max, cell_max;        /* max score for all normal states in a given cell/antidiagonal */
 	float 		diag_limit, total_limit; 	/* pruning thresholds for current limit */
 
 	/* reset int vectors */
@@ -144,10 +143,11 @@ PRUNER_via_xdrop_edgetrim_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix
 			}
 		}
 	}
+
+	return STATUS_SUCCESS;
 }
 
-/*
- *  FUNCTION: 	prune_diag_by_xdrop_bifurcate_Linear()
+/*! FUNCTION: 	prune_diag_by_xdrop_bifurcate_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and trims all cells which fall below pruning threshold
  * 				(1) Computes the diag_max on the given antidiagonal.
@@ -267,15 +267,15 @@ PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matri
 			}
 		}
 	}
+	return STATUS_SUCCESS;
 }
 
-/*
- *  FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
+/*! FUNCTION: 	prune_diag_by_xdrop_edgetrim_or_die_Linear()
  *  SYNOPSIS: 	Prunes antidiagonal of Cloud Search.
  * 				Uses x-drop and only trims in from left and right ends of search space. No bifurcation.
- *				Alpha: 		x-drop value determining whether cells are pruned in antidiagonal
+ *					Alpha: 		x-drop value determining whether cells are pruned in antidiagonal
  * 				Alpha-Max: 	x-drop value determining whether search is terminated
- *				Beta:  		number of free passes before pruning
+ *					Beta:  		number of free passes before pruning
  * 				(1) Updates the total_max, which stores the highest scoring cell in the matrix thus far.
  * 				(1b) If diag_max falls below score global threshold, terminate entire search.
  * 		      (2) Performs pruning from left-edge, moving right until a cell is found which all states fall below limit = (total_max - alpha).
@@ -285,23 +285,23 @@ PRUNER_via_xdrop_bifurcate_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matri
 inline
 STATUS_FLAG 
 PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal state matrix */
-                                                MATRIX_2D* 		sp_MX,			/* special state matrix */
-                                                const float    alpha,			/* x-drop value for by-diag prune */
-                                                const float 	beta, 			/* x-drop value for global prune */
-                                                const int      gamma,			/* number of antidiagonals before pruning */
-                                                const RANGE 	vit_range, 		/* antidiagonal locations for the start-end of the input viterbi alignment */ 
-                                                const int 		d_1,			   /* previous antidiagonal */
-                                                const int 		d_0,			   /* current antidiagonal */
-                                                const int 		dx1,			   /* previous antidiag (mod-mapped) */
-                                                const int 		dx0, 			   /* current antidiag (mod-mapped) */
-                                                const int 		d_cnt, 			/* number of antidiags traversed */
-                                                const int 		le, 			   /* right edge of dp matrix on current antidiag */
-                                                const int 		re,				/* left edge of dp matrix on current antidiag */
-                                                float*    		total_max,		/* (UPDATED) current maximum score */
-																COORDS* 			coords_max, 	/* (UPDATED) cell coords of maximum score */
-                                                bool* 			is_term_flag, 	/* (UPDATED) if termination trigger has been reached */ 
-                                                VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
-                                                VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
+																MATRIX_2D* 		sp_MX,			/* special state matrix */
+																const float    alpha,			/* x-drop value for by-diag prune */
+																const float 	beta, 			/* x-drop value for global prune */
+																const int      gamma,			/* number of antidiagonals before pruning */
+																const RANGE 	vit_range, 		/* antidiagonal locations for the start-end of the input viterbi alignment */ 
+																const int 		d_1,				/* previous antidiagonal */
+																const int 		d_0,				/* current antidiagonal */
+																const int 		dx1,				/* previous antidiag (mod-mapped) */
+																const int 		dx0, 				/* current antidiag (mod-mapped) */
+																const int 		d_cnt, 			/* number of antidiags traversed */
+																const int 		le, 				/* right edge of dp matrix on current antidiag */
+																const int 		re,				/* left edge of dp matrix on current antidiag */
+																float*    		total_max,		/* UPDATED: current maximum score */
+																COORDS* 			coords_max, 	/* UPDATED: location of maximum score */ 
+																bool* 			is_term_flag, 	/* UPDATED: if termination trigger has been reached */ 
+																VECTOR_INT* 	lb_vec[3], 		/* OUTPUT: current list of left-bounds */
+																VECTOR_INT* 	rb_vec[3] )		/* OUTPUT: current list of right-bounds */
 {
 	int 		i, j, k; 					   /* indexes */
 	int 		q_0;						      /* row index (query position) */
@@ -310,45 +310,36 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 	int 		lb_0, rb_0; 				   /* left/right bounds of current antidiagonal */
 	int 		lb_1, rb_1; 				   /* left/right bounds of previous antidiagonal */
 	float 	diag_max, cell_max;        /* max score for all normal states in a given cell/antidiagonal */
-	float 	diag_limit;						/* pruning threshold based on global max */
-	float 	total_limit; 		   		/* termination threshold based on antidiag max */
+	float 	diag_limit 	= -INF;			/* pruning threshold based on global max */
+	float 	total_limit = -INF; 		   /* termination threshold based on antidiag max */
 	bool 		is_d_0_in_viterbi; 			/* checks if we have gone past the seed viterbi alignment */
-	float 	prv_max; 						/* lookup previous maximum to check for updates */
-	COORDS 	coords_diagmax; 				/* q_0 of antidiag maximum */
 
 	/* clear data int vectors (which will be used to create edgebounds) */
 	VECTOR_INT_Reuse( lb_vec[0] );
 	VECTOR_INT_Reuse( rb_vec[0] );
 
 	/* (1) update maximum score using antidiagonal */
-	diag_max = -INF;
 	for ( i = 0; i < lb_vec[1]->N; i++ ) {
 		lb_1 = VEC_X( lb_vec[1], i );
 		rb_1 = VEC_X( rb_vec[1], i );
 
+		diag_max = -INF;
 		for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 		{
 			q_0 = k_0;
-			t_0 = d_1 - k_0;    /* looking back one diag */
-			// /* NOTE: Can we presume the only max we care about is in the MATCH state? */
-			diag_max = MATH_Max( MATH_Max( diag_max,        MMX3(dx1, k_0) ),
-			                     MATH_Max( IMX3(dx1, k_0),  DMX3(dx1, k_0) ) );
-			// diag_max = MATH_Max( diag_max, MMX3(dx1, k_0) );
+			t_0 = d_1 - k_0;
 			
-			/* if maximum has increased, then update cell (we really only care about q_0) */
-			if ( diag_max > prv_max ) {
-				coords_diagmax.q_0 = q_0;
-				// coords_diagmax.t_0 = t_0;
-			}
-			/* look back one cell */
-			prv_max = diag_max;
-		}
-	}
+			cell_max = MATH_Max( MMX3(dx1, k_0),
+			           MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
 
-	/* Update <total_max> if new maximum found */
-	if ( *total_max < diag_max ) {
-		*total_max = diag_max;
-		*coords_max = coords_diagmax;
+			/* update diag max */
+			if ( cell_max > diag_max ) {
+				diag_max = cell_max;
+			}
+		}
+
+		/* Total max records largest cell score seen so far */
+		*total_max = MAX( *total_max, diag_max );
 	}
 
 	/* Set score limit for terminating search */
@@ -433,4 +424,5 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 			}
 		}
 	}
+	return STATUS_SUCCESS;
 }

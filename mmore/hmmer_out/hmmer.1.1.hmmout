@@ -1,0 +1,907 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.1.fa
+# target sequence database:        targets/targets.1.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q8WXI7|MUC16_HUMAN  [L=14507]
+Description: Mucin-16 OS=Homo sapiens OX=9606 GN=MUC16 PE=1 SV=3
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence              Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------              -----------
+          0 29928.1 2475.2          0 29928.0 2475.2    1.0  1  sp|Q8WXI7|MUC16_HUMAN  Mucin-16 OS=Homo sapiens OX=9606 GN=MU
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|Q8WXI7|MUC16_HUMAN  Mucin-16 OS=Homo sapiens OX=9606 GN=MUC16 PE=1 SV=3
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 29928.0 2475.2         0         0       1   14507 []       1   14507 []       1   14507 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 29928.0 bits;  conditional E-value: 0
+  sp|Q8WXI7|MUC16_HUMAN     1 mlkpsglpgsssptrslmtgsrstkatpemdsgltgatlspktstgaivvtehtlpftspdktlasptssvvgrttqslgvmss 84   
+                              mlkpsglpgsssptrslmtgsrstkatpemdsgltgatlspktstgaivvtehtlpftspdktlasptssvvgrttqslgvmss
+  sp|Q8WXI7|MUC16_HUMAN     1 MLKPSGLPGSSSPTRSLMTGSRSTKATPEMDSGLTGATLSPKTSTGAIVVTEHTLPFTSPDKTLASPTSSVVGRTTQSLGVMSS 84   
+                              89********************************************************************************** PP
+
+  sp|Q8WXI7|MUC16_HUMAN    85 alpestsrgmthseqrtspslspqvngtpsrnypatsmvsglssprtrtsstegnftkeastytltvettsgpvtekytvptet 168  
+                              alpestsrgmthseqrtspslspqvngtpsrnypatsmvsglssprtrtsstegnftkeastytltvettsgpvtekytvptet
+  sp|Q8WXI7|MUC16_HUMAN    85 ALPESTSRGMTHSEQRTSPSLSPQVNGTPSRNYPATSMVSGLSSPRTRTSSTEGNFTKEASTYTLTVETTSGPVTEKYTVPTET 168  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   169 sttegdstetpwdtryipvkitspmktfadstaskenapvsmtpaettvtdshtpgrtnpsfgtlyssfldlspkgtpnsrget 252  
+                              sttegdstetpwdtryipvkitspmktfadstaskenapvsmtpaettvtdshtpgrtnpsfgtlyssfldlspkgtpnsrget
+  sp|Q8WXI7|MUC16_HUMAN   169 STTEGDSTETPWDTRYIPVKITSPMKTFADSTASKENAPVSMTPAETTVTDSHTPGRTNPSFGTLYSSFLDLSPKGTPNSRGET 252  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   253 slelilsttgypfsspepgsaghsristsaplsssasvldnkisetsifsgqsltsplspgvpearastmpnsaipfsmtlsna 336  
+                              slelilsttgypfsspepgsaghsristsaplsssasvldnkisetsifsgqsltsplspgvpearastmpnsaipfsmtlsna
+  sp|Q8WXI7|MUC16_HUMAN   253 SLELILSTTGYPFSSPEPGSAGHSRISTSAPLSSSASVLDNKISETSIFSGQSLTSPLSPGVPEARASTMPNSAIPFSMTLSNA 336  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   337 etsaervrstisslgtpsistkqtaetiltfhafaetmdipsthiaktlasewlgspgtlggtstsaltttspsttlvseetnt 420  
+                              etsaervrstisslgtpsistkqtaetiltfhafaetmdipsthiaktlasewlgspgtlggtstsaltttspsttlvseetnt
+  sp|Q8WXI7|MUC16_HUMAN   337 ETSAERVRSTISSLGTPSISTKQTAETILTFHAFAETMDIPSTHIAKTLASEWLGSPGTLGGTSTSALTTTSPSTTLVSEETNT 420  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   421 hhstsgketegtlntsmtpletsapgeesemtatlvptlgfttldskirspsqvssshptrelrttgstsgrqssstaahgssd 504  
+                              hhstsgketegtlntsmtpletsapgeesemtatlvptlgfttldskirspsqvssshptrelrttgstsgrqssstaahgssd
+  sp|Q8WXI7|MUC16_HUMAN   421 HHSTSGKETEGTLNTSMTPLETSAPGEESEMTATLVPTLGFTTLDSKIRSPSQVSSSHPTRELRTTGSTSGRQSSSTAAHGSSD 504  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   505 ilrattsstskasswtsestaqqfsepqhtqwvetspsmkterppastsvaapittsvpsvvsgfttlktsstkgiwleetsad 588  
+                              ilrattsstskasswtsestaqqfsepqhtqwvetspsmkterppastsvaapittsvpsvvsgfttlktsstkgiwleetsad
+  sp|Q8WXI7|MUC16_HUMAN   505 ILRATTSSTSKASSWTSESTAQQFSEPQHTQWVETSPSMKTERPPASTSVAAPITTSVPSVVSGFTTLKTSSTKGIWLEETSAD 588  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   589 tligestagptthqfavptgismtggsstrgsqgtthlltratassetsadltlatngvpvsvspavsktaagssppggtkpsy 672  
+                              tligestagptthqfavptgismtggsstrgsqgtthlltratassetsadltlatngvpvsvspavsktaagssppggtkpsy
+  sp|Q8WXI7|MUC16_HUMAN   589 TLIGESTAGPTTHQFAVPTGISMTGGSSTRGSQGTTHLLTRATASSETSADLTLATNGVPVSVSPAVSKTAAGSSPPGGTKPSY 672  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   673 tmvssvipetsslqssafregtslgltplntrhpfsspepdsaghtkistsipllssasvledkvsatstfshhkatssittgt 756  
+                              tmvssvipetsslqssafregtslgltplntrhpfsspepdsaghtkistsipllssasvledkvsatstfshhkatssittgt
+  sp|Q8WXI7|MUC16_HUMAN   673 TMVSSVIPETSSLQSSAFREGTSLGLTPLNTRHPFSSPEPDSAGHTKISTSIPLLSSASVLEDKVSATSTFSHHKATSSITTGT 756  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   757 peistktkpssavlssmtlsnaatspervrnatsplthpspsgeetagsvltlstsaettdspnihptgtltsessespstlsl 840  
+                              peistktkpssavlssmtlsnaatspervrnatsplthpspsgeetagsvltlstsaettdspnihptgtltsessespstlsl
+  sp|Q8WXI7|MUC16_HUMAN   757 PEISTKTKPSSAVLSSMTLSNAATSPERVRNATSPLTHPSPSGEETAGSVLTLSTSAETTDSPNIHPTGTLTSESSESPSTLSL 840  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   841 psvsgvkttfssstpsthlftsgeeteetsnpsvsqpetsvsrvrttlastsvptpvfptmdtwptrsaqfssshlvselrats 924  
+                              psvsgvkttfssstpsthlftsgeeteetsnpsvsqpetsvsrvrttlastsvptpvfptmdtwptrsaqfssshlvselrats
+  sp|Q8WXI7|MUC16_HUMAN   841 PSVSGVKTTFSSSTPSTHLFTSGEETEETSNPSVSQPETSVSRVRTTLASTSVPTPVFPTMDTWPTRSAQFSSSHLVSELRATS 924  
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN   925 stsvtnstgsalpkishltgtatmsqtnrdtfndsaapqsttwpetsprfktglpsatttvstsatslsatvmvskftspatss 1008 
+                              stsvtnstgsalpkishltgtatmsqtnrdtfndsaapqsttwpetsprfktglpsatttvstsatslsatvmvskftspatss
+  sp|Q8WXI7|MUC16_HUMAN   925 STSVTNSTGSALPKISHLTGTATMSQTNRDTFNDSAAPQSTTWPETSPRFKTGLPSATTTVSTSATSLSATVMVSKFTSPATSS 1008 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1009 meatsirepsttilttettngpgsmavastnipigkgyitegrldtshlpigttassetsmdftmakesvsmsvspsqsmdaag 1092 
+                              meatsirepsttilttettngpgsmavastnipigkgyitegrldtshlpigttassetsmdftmakesvsmsvspsqsmdaag
+  sp|Q8WXI7|MUC16_HUMAN  1009 MEATSIREPSTTILTTETTNGPGSMAVASTNIPIGKGYITEGRLDTSHLPIGTTASSETSMDFTMAKESVSMSVSPSQSMDAAG 1092 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1093 sstpgrtsqfvdtfsddvyhltsreitiprdgtssaltpqmtathppspdpgsarstwlgilssspssptpkvtmsstfstqrv 1176 
+                              sstpgrtsqfvdtfsddvyhltsreitiprdgtssaltpqmtathppspdpgsarstwlgilssspssptpkvtmsstfstqrv
+  sp|Q8WXI7|MUC16_HUMAN  1093 SSTPGRTSQFVDTFSDDVYHLTSREITIPRDGTSSALTPQMTATHPPSPDPGSARSTWLGILSSSPSSPTPKVTMSSTFSTQRV 1176 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1177 ttsmimdtvetsrwnmpnlpsttsltpsniptsgaigkstlvpldtpspatsleasegglptlstypestntpsihlgahasse 1260 
+                              ttsmimdtvetsrwnmpnlpsttsltpsniptsgaigkstlvpldtpspatsleasegglptlstypestntpsihlgahasse
+  sp|Q8WXI7|MUC16_HUMAN  1177 TTSMIMDTVETSRWNMPNLPSTTSLTPSNIPTSGAIGKSTLVPLDTPSPATSLEASEGGLPTLSTYPESTNTPSIHLGAHASSE 1260 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1261 spstikltmasvvkpgsytpltfpsiethihvstarmayssgsspemtapgetntgstwdpttyitttdpkdtssaqvstphsv 1344 
+                              spstikltmasvvkpgsytpltfpsiethihvstarmayssgsspemtapgetntgstwdpttyitttdpkdtssaqvstphsv
+  sp|Q8WXI7|MUC16_HUMAN  1261 SPSTIKLTMASVVKPGSYTPLTFPSIETHIHVSTARMAYSSGSSPEMTAPGETNTGSTWDPTTYITTTDPKDTSSAQVSTPHSV 1344 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1345 rtlrttenhpktesatpaaysgspkissspnltspatkawtitdttehstqlhytklaekssgfetqsapgpvsvviptsptig 1428 
+                              rtlrttenhpktesatpaaysgspkissspnltspatkawtitdttehstqlhytklaekssgfetqsapgpvsvviptsptig
+  sp|Q8WXI7|MUC16_HUMAN  1345 RTLRTTENHPKTESATPAAYSGSPKISSSPNLTSPATKAWTITDTTEHSTQLHYTKLAEKSSGFETQSAPGPVSVVIPTSPTIG 1428 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1429 sstleltsdvpgeplvlapseqttitlpmatwlstslteemastdldisspsspmstfaifppmstpshelskseadtsairnt 1512 
+                              sstleltsdvpgeplvlapseqttitlpmatwlstslteemastdldisspsspmstfaifppmstpshelskseadtsairnt
+  sp|Q8WXI7|MUC16_HUMAN  1429 SSTLELTSDVPGEPLVLAPSEQTTITLPMATWLSTSLTEEMASTDLDISSPSSPMSTFAIFPPMSTPSHELSKSEADTSAIRNT 1512 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1513 dsttldqhlgirslgrtgdlttvpitpltttwtsviehstqaqdtlsatmspthvtqslkdqtsipasaspshltevypelgtq 1596 
+                              dsttldqhlgirslgrtgdlttvpitpltttwtsviehstqaqdtlsatmspthvtqslkdqtsipasaspshltevypelgtq
+  sp|Q8WXI7|MUC16_HUMAN  1513 DSTTLDQHLGIRSLGRTGDLTTVPITPLTTTWTSVIEHSTQAQDTLSATMSPTHVTQSLKDQTSIPASASPSHLTEVYPELGTQ 1596 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1597 grssseattfwkpstdtlsreietgptniqstppmdntttgssssgvtlgiahlpigtsspaetstnmalerrsstatvsmagt 1680 
+                              grssseattfwkpstdtlsreietgptniqstppmdntttgssssgvtlgiahlpigtsspaetstnmalerrsstatvsmagt
+  sp|Q8WXI7|MUC16_HUMAN  1597 GRSSSEATTFWKPSTDTLSREIETGPTNIQSTPPMDNTTTGSSSSGVTLGIAHLPIGTSSPAETSTNMALERRSSTATVSMAGT 1680 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1681 mgllvtsapgrsisqslgrvssvlsesttegvtdsskgssprlntqgntalssslepsyaegsqmstsipltsspttpdvefig 1764 
+                              mgllvtsapgrsisqslgrvssvlsesttegvtdsskgssprlntqgntalssslepsyaegsqmstsipltsspttpdvefig
+  sp|Q8WXI7|MUC16_HUMAN  1681 MGLLVTSAPGRSISQSLGRVSSVLSESTTEGVTDSSKGSSPRLNTQGNTALSSSLEPSYAEGSQMSTSIPLTSSPTTPDVEFIG 1764 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1765 gstfwtkevttvmtsdiskssartesssatlmstalgstentgkeklrtasmdlpsptpsmevtpwisltlsnapnttdsldls 1848 
+                              gstfwtkevttvmtsdiskssartesssatlmstalgstentgkeklrtasmdlpsptpsmevtpwisltlsnapnttdsldls
+  sp|Q8WXI7|MUC16_HUMAN  1765 GSTFWTKEVTTVMTSDISKSSARTESSSATLMSTALGSTENTGKEKLRTASMDLPSPTPSMEVTPWISLTLSNAPNTTDSLDLS 1848 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1849 hgvhtssagtlatdrslntgvtrasrlengsdtsskslsmgnsthtsmtyteksevsssihprpetsapgaettltstpgnrai 1932 
+                              hgvhtssagtlatdrslntgvtrasrlengsdtsskslsmgnsthtsmtyteksevsssihprpetsapgaettltstpgnrai
+  sp|Q8WXI7|MUC16_HUMAN  1849 HGVHTSSAGTLATDRSLNTGVTRASRLENGSDTSSKSLSMGNSTHTSMTYTEKSEVSSSIHPRPETSAPGAETTLTSTPGNRAI 1932 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  1933 sltlpfssipveevistgitsgpdinsapmthspitpptivwtstgtieqstqplhavssekvsvqtqstpyvnsvavsaspth 2016 
+                              sltlpfssipveevistgitsgpdinsapmthspitpptivwtstgtieqstqplhavssekvsvqtqstpyvnsvavsaspth
+  sp|Q8WXI7|MUC16_HUMAN  1933 SLTLPFSSIPVEEVISTGITSGPDINSAPMTHSPITPPTIVWTSTGTIEQSTQPLHAVSSEKVSVQTQSTPYVNSVAVSASPTH 2016 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2017 ensvssgsstsspyssaslesldstisrrnaitswlwdlttslptttwpstslsealssghsgvsnpsstttefplfsaastsa 2100 
+                              ensvssgsstsspyssaslesldstisrrnaitswlwdlttslptttwpstslsealssghsgvsnpsstttefplfsaastsa
+  sp|Q8WXI7|MUC16_HUMAN  2017 ENSVSSGSSTSSPYSSASLESLDSTISRRNAITSWLWDLTTSLPTTTWPSTSLSEALSSGHSGVSNPSSTTTEFPLFSAASTSA 2100 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2101 akqrnpetethgpqntaastlntdassvtglsetpvgasissevplpmaitsrsdvsgltsestanpslgtassagtkltrtis 2184 
+                              akqrnpetethgpqntaastlntdassvtglsetpvgasissevplpmaitsrsdvsgltsestanpslgtassagtkltrtis
+  sp|Q8WXI7|MUC16_HUMAN  2101 AKQRNPETETHGPQNTAASTLNTDASSVTGLSETPVGASISSEVPLPMAITSRSDVSGLTSESTANPSLGTASSAGTKLTRTIS 2184 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2185 lptseslvsfrmnkdpwtvsiplgshpttntetsipvnsagppglstvasdvidtpsdgaesiptvsfspspdtevttishfpe 2268 
+                              lptseslvsfrmnkdpwtvsiplgshpttntetsipvnsagppglstvasdvidtpsdgaesiptvsfspspdtevttishfpe
+  sp|Q8WXI7|MUC16_HUMAN  2185 LPTSESLVSFRMNKDPWTVSIPLGSHPTTNTETSIPVNSAGPPGLSTVASDVIDTPSDGAESIPTVSFSPSPDTEVTTISHFPE 2268 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2269 ktthsfrtissltheltsrvtpipgdwmssamstkptgaspsitlgerrtitsaapttspivltasftetstvsldnettvkts 2352 
+                              ktthsfrtissltheltsrvtpipgdwmssamstkptgaspsitlgerrtitsaapttspivltasftetstvsldnettvkts
+  sp|Q8WXI7|MUC16_HUMAN  2269 KTTHSFRTISSLTHELTSRVTPIPGDWMSSAMSTKPTGASPSITLGERRTITSAAPTTSPIVLTASFTETSTVSLDNETTVKTS 2352 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2353 dildarktnelpsdsssssdlintsiasstmdvtktasisptsisgmtassspslfssdrpqvptsttetntatspsvssntys 2436 
+                              dildarktnelpsdsssssdlintsiasstmdvtktasisptsisgmtassspslfssdrpqvptsttetntatspsvssntys
+  sp|Q8WXI7|MUC16_HUMAN  2353 DILDARKTNELPSDSSSSSDLINTSIASSTMDVTKTASISPTSISGMTASSSPSLFSSDRPQVPTSTTETNTATSPSVSSNTYS 2436 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2437 ldggsnvggtpstlppftithpvetssallawsrpvrtfstmvstdtasgenptssnsvvtsvpapgtwtsvgsttdlpamgfl 2520 
+                              ldggsnvggtpstlppftithpvetssallawsrpvrtfstmvstdtasgenptssnsvvtsvpapgtwtsvgsttdlpamgfl
+  sp|Q8WXI7|MUC16_HUMAN  2437 LDGGSNVGGTPSTLPPFTITHPVETSSALLAWSRPVRTFSTMVSTDTASGENPTSSNSVVTSVPAPGTWTSVGSTTDLPAMGFL 2520 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2521 ktspageahsllastiepataftphlsaavvtgssatseasllttseskaihsspqtpttptsganwetsatpesllvvtetsd 2604 
+                              ktspageahsllastiepataftphlsaavvtgssatseasllttseskaihsspqtpttptsganwetsatpesllvvtetsd
+  sp|Q8WXI7|MUC16_HUMAN  2521 KTSPAGEAHSLLASTIEPATAFTPHLSAAVVTGSSATSEASLLTTSESKAIHSSPQTPTTPTSGANWETSATPESLLVVTETSD 2604 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2605 ttltskilvtdtilfstvstppskfpstgtlsgasfptllpdtpaipltateptsslatsfdstplvtiasdslgtvpettltm 2688 
+                              ttltskilvtdtilfstvstppskfpstgtlsgasfptllpdtpaipltateptsslatsfdstplvtiasdslgtvpettltm
+  sp|Q8WXI7|MUC16_HUMAN  2605 TTLTSKILVTDTILFSTVSTPPSKFPSTGTLSGASFPTLLPDTPAIPLTATEPTSSLATSFDSTPLVTIASDSLGTVPETTLTM 2688 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2689 setsngdalvlktvsnpdrsipgitiqgvtesplhpsstspskivaprnttyegsitvalstlpagttgslvfsqssensetta 2772 
+                              setsngdalvlktvsnpdrsipgitiqgvtesplhpsstspskivaprnttyegsitvalstlpagttgslvfsqssensetta
+  sp|Q8WXI7|MUC16_HUMAN  2689 SETSNGDALVLKTVSNPDRSIPGITIQGVTESPLHPSSTSPSKIVAPRNTTYEGSITVALSTLPAGTTGSLVFSQSSENSETTA 2772 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2773 lvdssaglerasvmplttgsqgmassggirsgsthstgtktfsslpltmnpgevtamseittnrltatqstapkgipvkptsae 2856 
+                              lvdssaglerasvmplttgsqgmassggirsgsthstgtktfsslpltmnpgevtamseittnrltatqstapkgipvkptsae
+  sp|Q8WXI7|MUC16_HUMAN  2773 LVDSSAGLERASVMPLTTGSQGMASSGGIRSGSTHSTGTKTFSSLPLTMNPGEVTAMSEITTNRLTATQSTAPKGIPVKPTSAE 2856 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2857 sglltpvsassspskafaslttapptwgipqstltfefsevpsldtksaslptpgqslntipdsdastassslskspeknprar 2940 
+                              sglltpvsassspskafaslttapptwgipqstltfefsevpsldtksaslptpgqslntipdsdastassslskspeknprar
+  sp|Q8WXI7|MUC16_HUMAN  2857 SGLLTPVSASSSPSKAFASLTTAPPTWGIPQSTLTFEFSEVPSLDTKSASLPTPGQSLNTIPDSDASTASSSLSKSPEKNPRAR 2940 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  2941 mmtstkaisassfqstgftetpegsaspsmagheprvptsgtgdpryasesmsypdpskassamtstslasklttlfstgqaar 3024 
+                              mmtstkaisassfqstgftetpegsaspsmagheprvptsgtgdpryasesmsypdpskassamtstslasklttlfstgqaar
+  sp|Q8WXI7|MUC16_HUMAN  2941 MMTSTKAISASSFQSTGFTETPEGSASPSMAGHEPRVPTSGTGDPRYASESMSYPDPSKASSAMTSTSLASKLTTLFSTGQAAR 3024 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3025 sgsssspislsteketsflsptastsrktslflgpsmarqpnilvhlqtsaltlsptstlnmsqeeppeltssqtiaeeegtta 3108 
+                              sgsssspislsteketsflsptastsrktslflgpsmarqpnilvhlqtsaltlsptstlnmsqeeppeltssqtiaeeegtta
+  sp|Q8WXI7|MUC16_HUMAN  3025 SGSSSSPISLSTEKETSFLSPTASTSRKTSLFLGPSMARQPNILVHLQTSALTLSPTSTLNMSQEEPPELTSSQTIAEEEGTTA 3108 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3109 etqtltftpsetptsllpvsspteptarrksspetwassisvpaktslvettdgtlvttikmssqaaqgnstwpapaeetgssp 3192 
+                              etqtltftpsetptsllpvsspteptarrksspetwassisvpaktslvettdgtlvttikmssqaaqgnstwpapaeetgssp
+  sp|Q8WXI7|MUC16_HUMAN  3109 ETQTLTFTPSETPTSLLPVSSPTEPTARRKSSPETWASSISVPAKTSLVETTDGTLVTTIKMSSQAAQGNSTWPAPAEETGSSP 3192 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3193 agtspgspemsttlkimsskepsispeirstvrnspwktpettvpmettvepvtlqstalgsgstsishlptgttsptkspten 3276 
+                              agtspgspemsttlkimsskepsispeirstvrnspwktpettvpmettvepvtlqstalgsgstsishlptgttsptkspten
+  sp|Q8WXI7|MUC16_HUMAN  3193 AGTSPGSPEMSTTLKIMSSKEPSISPEIRSTVRNSPWKTPETTVPMETTVEPVTLQSTALGSGSTSISHLPTGTTSPTKSPTEN 3276 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3277 mlatervslspsppeawtnlysgtpggtrqslatmssvslesptarsitgtgqqsspelvskttgmefsmwhgstggttgdthv 3360 
+                              mlatervslspsppeawtnlysgtpggtrqslatmssvslesptarsitgtgqqsspelvskttgmefsmwhgstggttgdthv
+  sp|Q8WXI7|MUC16_HUMAN  3277 MLATERVSLSPSPPEAWTNLYSGTPGGTRQSLATMSSVSLESPTARSITGTGQQSSPELVSKTTGMEFSMWHGSTGGTTGDTHV 3360 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3361 slstssniledpvtspnsvssltdkskhktetwvsttaipstvlnnkimaaeqqtsrsvdeaysstsswsdqtsgsditlgasp 3444 
+                              slstssniledpvtspnsvssltdkskhktetwvsttaipstvlnnkimaaeqqtsrsvdeaysstsswsdqtsgsditlgasp
+  sp|Q8WXI7|MUC16_HUMAN  3361 SLSTSSNILEDPVTSPNSVSSLTDKSKHKTETWVSTTAIPSTVLNNKIMAAEQQTSRSVDEAYSSTSSWSDQTSGSDITLGASP 3444 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3445 dvtntlyitstaqttslvslpsgdqgitsltnpsggktssassvtspsigletlranvsavksdiaptaghlsqtsspaevsil 3528 
+                              dvtntlyitstaqttslvslpsgdqgitsltnpsggktssassvtspsigletlranvsavksdiaptaghlsqtsspaevsil
+  sp|Q8WXI7|MUC16_HUMAN  3445 DVTNTLYITSTAQTTSLVSLPSGDQGITSLTNPSGGKTSSASSVTSPSIGLETLRANVSAVKSDIAPTAGHLSQTSSPAEVSIL 3528 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3529 dvttaptpgisttittmgtnsistttpnpevgmstmdstpaterrttstehpstwsstaasdswtvtdmtsnlkvarspgtist 3612 
+                              dvttaptpgisttittmgtnsistttpnpevgmstmdstpaterrttstehpstwsstaasdswtvtdmtsnlkvarspgtist
+  sp|Q8WXI7|MUC16_HUMAN  3529 DVTTAPTPGISTTITTMGTNSISTTTPNPEVGMSTMDSTPATERRTTSTEHPSTWSSTAASDSWTVTDMTSNLKVARSPGTIST 3612 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3613 mhttsflassteldsmstphgritvigtslvtpssdasavktetstsertlspsdttastpistfsrvqrmsisvpdilstswt 3696 
+                              mhttsflassteldsmstphgritvigtslvtpssdasavktetstsertlspsdttastpistfsrvqrmsisvpdilstswt
+  sp|Q8WXI7|MUC16_HUMAN  3613 MHTTSFLASSTELDSMSTPHGRITVIGTSLVTPSSDASAVKTETSTSERTLSPSDTTASTPISTFSRVQRMSISVPDILSTSWT 3696 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3697 pssteaedvpvsmvstdhastktdpntplstflfdslstldwdtgrslssatattsapqgattpqeltletmispatsqlpfsi 3780 
+                              pssteaedvpvsmvstdhastktdpntplstflfdslstldwdtgrslssatattsapqgattpqeltletmispatsqlpfsi
+  sp|Q8WXI7|MUC16_HUMAN  3697 PSSTEAEDVPVSMVSTDHASTKTDPNTPLSTFLFDSLSTLDWDTGRSLSSATATTSAPQGATTPQELTLETMISPATSQLPFSI 3780 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3781 ghitsavtpaamarssgvtfsrpdptskkaeqtstqlptttsahpgqvprsaattldviphtaktpdatfqrqgqtaltteara 3864 
+                              ghitsavtpaamarssgvtfsrpdptskkaeqtstqlptttsahpgqvprsaattldviphtaktpdatfqrqgqtaltteara
+  sp|Q8WXI7|MUC16_HUMAN  3781 GHITSAVTPAAMARSSGVTFSRPDPTSKKAEQTSTQLPTTTSAHPGQVPRSAATTLDVIPHTAKTPDATFQRQGQTALTTEARA 3864 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3865 tsdswnekekstpsapwitemmnsvsedtikevtssssvlrtlntldinlesgttsspswksspyeriapsesttdkeaihpst 3948 
+                              tsdswnekekstpsapwitemmnsvsedtikevtssssvlrtlntldinlesgttsspswksspyeriapsesttdkeaihpst
+  sp|Q8WXI7|MUC16_HUMAN  3865 TSDSWNEKEKSTPSAPWITEMMNSVSEDTIKEVTSSSSVLRTLNTLDINLESGTTSSPSWKSSPYERIAPSESTTDKEAIHPST 3948 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  3949 ntvettgwvtssehashstipahsasskltspvvttstreqaivsmstttwpestrartepnsfltielrdvspymdtssttqt 4032 
+                              ntvettgwvtssehashstipahsasskltspvvttstreqaivsmstttwpestrartepnsfltielrdvspymdtssttqt
+  sp|Q8WXI7|MUC16_HUMAN  3949 NTVETTGWVTSSEHASHSTIPAHSASSKLTSPVVTTSTREQAIVSMSTTTWPESTRARTEPNSFLTIELRDVSPYMDTSSTTQT 4032 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4033 siisspgstaitkgprteitsskrisssflaqsmrssdspseaitrlsnfpamtesggmilamqtsppgatslsaptldtsata 4116 
+                              siisspgstaitkgprteitsskrisssflaqsmrssdspseaitrlsnfpamtesggmilamqtsppgatslsaptldtsata
+  sp|Q8WXI7|MUC16_HUMAN  4033 SIISSPGSTAITKGPRTEITSSKRISSSFLAQSMRSSDSPSEAITRLSNFPAMTESGGMILAMQTSPPGATSLSAPTLDTSATA 4116 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4117 swtgtplattqrftysekttlfskgpedtsqpsppsveetssssslvpihattspsnilltsqghspsstppvtsvflsetsgl 4200 
+                              swtgtplattqrftysekttlfskgpedtsqpsppsveetssssslvpihattspsnilltsqghspsstppvtsvflsetsgl
+  sp|Q8WXI7|MUC16_HUMAN  4117 SWTGTPLATTQRFTYSEKTTLFSKGPEDTSQPSPPSVEETSSSSSLVPIHATTSPSNILLTSQGHSPSSTPPVTSVFLSETSGL 4200 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4201 gkttdmsrislepgtslppnlsstagealstyeasrdtkaihhsadtavtnmeatsseyspipghtkpskatsplvtshimgdi 4284 
+                              gkttdmsrislepgtslppnlsstagealstyeasrdtkaihhsadtavtnmeatsseyspipghtkpskatsplvtshimgdi
+  sp|Q8WXI7|MUC16_HUMAN  4201 GKTTDMSRISLEPGTSLPPNLSSTAGEALSTYEASRDTKAIHHSADTAVTNMEATSSEYSPIPGHTKPSKATSPLVTSHIMGDI 4284 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4285 tsstsvfgssetteietvssvnqglqerstsqvassatetstvithvssgdatthvtktqatfssgtsissphqfitstntftd 4368 
+                              tsstsvfgssetteietvssvnqglqerstsqvassatetstvithvssgdatthvtktqatfssgtsissphqfitstntftd
+  sp|Q8WXI7|MUC16_HUMAN  4285 TSSTSVFGSSETTEIETVSSVNQGLQERSTSQVASSATETSTVITHVSSGDATTHVTKTQATFSSGTSISSPHQFITSTNTFTD 4368 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4369 vstnpstslimtessgvtittqtgptgaatqgpylldtstmpyltetplavtpdfmqsekttliskgpkdvswtsppsvaetsy 4452 
+                              vstnpstslimtessgvtittqtgptgaatqgpylldtstmpyltetplavtpdfmqsekttliskgpkdvswtsppsvaetsy
+  sp|Q8WXI7|MUC16_HUMAN  4369 VSTNPSTSLIMTESSGVTITTQTGPTGAATQGPYLLDTSTMPYLTETPLAVTPDFMQSEKTTLISKGPKDVSWTSPPSVAETSY 4452 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4453 pssltpflvttippatstlqgqhtsspvsatsvltsglvkttdmlntsmepvtnspqnlnnpsneilatlaattdietihpsin 4536 
+                              pssltpflvttippatstlqgqhtsspvsatsvltsglvkttdmlntsmepvtnspqnlnnpsneilatlaattdietihpsin
+  sp|Q8WXI7|MUC16_HUMAN  4453 PSSLTPFLVTTIPPATSTLQGQHTSSPVSATSVLTSGLVKTTDMLNTSMEPVTNSPQNLNNPSNEILATLAATTDIETIHPSIN 4536 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4537 kavtnmgtassahvlhstlpvssepstatspmvpassmgdalasisipgsettdiegeptssltagrkenstlqemnsttesni 4620 
+                              kavtnmgtassahvlhstlpvssepstatspmvpassmgdalasisipgsettdiegeptssltagrkenstlqemnsttesni
+  sp|Q8WXI7|MUC16_HUMAN  4537 KAVTNMGTASSAHVLHSTLPVSSEPSTATSPMVPASSMGDALASISIPGSETTDIEGEPTSSLTAGRKENSTLQEMNSTTESNI 4620 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4621 ilsnvsvgaiteatkmevpsfdatfiptpaqstkfpdifsvassrlsnsppmtisthmtttqtgssgatskiplaldtstlets 4704 
+                              ilsnvsvgaiteatkmevpsfdatfiptpaqstkfpdifsvassrlsnsppmtisthmtttqtgssgatskiplaldtstlets
+  sp|Q8WXI7|MUC16_HUMAN  4621 ILSNVSVGAITEATKMEVPSFDATFIPTPAQSTKFPDIFSVASSRLSNSPPMTISTHMTTTQTGSSGATSKIPLALDTSTLETS 4704 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4705 agtpsvvtegfahskittamnndvkdvsqtnppfqdeasspssqapvlvttlpssvaftpqwhstsspvsmssvltsslvktag 4788 
+                              agtpsvvtegfahskittamnndvkdvsqtnppfqdeasspssqapvlvttlpssvaftpqwhstsspvsmssvltsslvktag
+  sp|Q8WXI7|MUC16_HUMAN  4705 AGTPSVVTEGFAHSKITTAMNNDVKDVSQTNPPFQDEASSPSSQAPVLVTTLPSSVAFTPQWHSTSSPVSMSSVLTSSLVKTAG 4788 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4789 kvdtsletvtsspqsmsntlddisvtsaattdietthpsintvvtnvgttgsafeshstvsaypepskvtspnvttstmedtti 4872 
+                              kvdtsletvtsspqsmsntlddisvtsaattdietthpsintvvtnvgttgsafeshstvsaypepskvtspnvttstmedtti
+  sp|Q8WXI7|MUC16_HUMAN  4789 KVDTSLETVTSSPQSMSNTLDDISVTSAATTDIETTHPSINTVVTNVGTTGSAFESHSTVSAYPEPSKVTSPNVTTSTMEDTTI 4872 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4873 srsipksskttrtetettssltpklretsisqeitsstetstvpykeltgattevsrtdvtsssstsfpgpdqstvsldistet 4956 
+                              srsipksskttrtetettssltpklretsisqeitsstetstvpykeltgattevsrtdvtsssstsfpgpdqstvsldistet
+  sp|Q8WXI7|MUC16_HUMAN  4873 SRSIPKSSKTTRTETETTSSLTPKLRETSISQEITSSTETSTVPYKELTGATTEVSRTDVTSSSSTSFPGPDQSTVSLDISTET 4956 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  4957 ntrlstspimtesaeitittqtgphgatsqdtftmdpsnttpqagihsamthgfsqldvttlmsripqdvswtsppsvdktssp 5040 
+                              ntrlstspimtesaeitittqtgphgatsqdtftmdpsnttpqagihsamthgfsqldvttlmsripqdvswtsppsvdktssp
+  sp|Q8WXI7|MUC16_HUMAN  4957 NTRLSTSPIMTESAEITITTQTGPHGATSQDTFTMDPSNTTPQAGIHSAMTHGFSQLDVTTLMSRIPQDVSWTSPPSVDKTSSP 5040 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5041 ssflsspamttpslisstlpedklsspmtslltsglvkitdilrtrlepvtsslpnfsstsdkilatskdskdtkeifpsinte 5124 
+                              ssflsspamttpslisstlpedklsspmtslltsglvkitdilrtrlepvtsslpnfsstsdkilatskdskdtkeifpsinte
+  sp|Q8WXI7|MUC16_HUMAN  5041 SSFLSSPAMTTPSLISSTLPEDKLSSPMTSLLTSGLVKITDILRTRLEPVTSSLPNFSSTSDKILATSKDSKDTKEIFPSINTE 5124 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5125 etnvkannsgheshspaladsetpkattqmvitttvgdpapstsmpvhgssettnikreptyfltprlretstsqessfptdts 5208 
+                              etnvkannsgheshspaladsetpkattqmvitttvgdpapstsmpvhgssettnikreptyfltprlretstsqessfptdts
+  sp|Q8WXI7|MUC16_HUMAN  5125 ETNVKANNSGHESHSPALADSETPKATTQMVITTTVGDPAPSTSMPVHGSSETTNIKREPTYFLTPRLRETSTSQESSFPTDTS 5208 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5209 fllskvptgtitevsstgvnssskistpdhdkstvppdtftgeiprvftssiktksaemtittqasppesashstlpldtsttl 5292 
+                              fllskvptgtitevsstgvnssskistpdhdkstvppdtftgeiprvftssiktksaemtittqasppesashstlpldtsttl
+  sp|Q8WXI7|MUC16_HUMAN  5209 FLLSKVPTGTITEVSSTGVNSSSKISTPDHDKSTVPPDTFTGEIPRVFTSSIKTKSAEMTITTQASPPESASHSTLPLDTSTTL 5292 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5293 sqggthstvtqgfpysevttlmgmgpgnvswmttppveetssvsslmsspamtspspvsstspqsipssplpvtalptsvlvtt 5376 
+                              sqggthstvtqgfpysevttlmgmgpgnvswmttppveetssvsslmsspamtspspvsstspqsipssplpvtalptsvlvtt
+  sp|Q8WXI7|MUC16_HUMAN  5293 SQGGTHSTVTQGFPYSEVTTLMGMGPGNVSWMTTPPVEETSSVSSLMSSPAMTSPSPVSSTSPQSIPSSPLPVTALPTSVLVTT 5376 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5377 tdvlgttspesvtssppnlssitherpatykdtahteaamhhstntavtnvgtsgsghksqssvladsetskatplmsttstlg 5460 
+                              tdvlgttspesvtssppnlssitherpatykdtahteaamhhstntavtnvgtsgsghksqssvladsetskatplmsttstlg
+  sp|Q8WXI7|MUC16_HUMAN  5377 TDVLGTTSPESVTSSPPNLSSITHERPATYKDTAHTEAAMHHSTNTAVTNVGTSGSGHKSQSSVLADSETSKATPLMSTTSTLG 5460 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5461 dtsvststpnisqtnqiqteptaslsprlresstsektssttetntafsyvptgaitqasrteisssrtsisdldrptiapdis 5544 
+                              dtsvststpnisqtnqiqteptaslsprlresstsektssttetntafsyvptgaitqasrteisssrtsisdldrptiapdis
+  sp|Q8WXI7|MUC16_HUMAN  5461 DTSVSTSTPNISQTNQIQTEPTASLSPRLRESSTSEKTSSTTETNTAFSYVPTGAITQASRTEISSSRTSISDLDRPTIAPDIS 5544 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5545 tgmitrlftspimtksaemtvttqtttpgatsqgilpwdtsttlfqggthstvsqgfphseittlrsrtpgdvswmttppveet 5628 
+                              tgmitrlftspimtksaemtvttqtttpgatsqgilpwdtsttlfqggthstvsqgfphseittlrsrtpgdvswmttppveet
+  sp|Q8WXI7|MUC16_HUMAN  5545 TGMITRLFTSPIMTKSAEMTVTTQTTTPGATSQGILPWDTSTTLFQGGTHSTVSQGFPHSEITTLRSRTPGDVSWMTTPPVEET 5628 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5629 ssgfslmspsmtspspvsstspesipssplpvtalltsvlvtttnvlgttspepvtssppnlssptqerlttykdtahteamha 5712 
+                              ssgfslmspsmtspspvsstspesipssplpvtalltsvlvtttnvlgttspepvtssppnlssptqerlttykdtahteamha
+  sp|Q8WXI7|MUC16_HUMAN  5629 SSGFSLMSPSMTSPSPVSSTSPESIPSSPLPVTALLTSVLVTTTNVLGTTSPEPVTSSPPNLSSPTQERLTTYKDTAHTEAMHA 5712 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5713 smhtntavanvgtsisghesqssvpadshtskatspmgitfamgdtsvststpaffetriqtestsslipglrdtrtseeintv 5796 
+                              smhtntavanvgtsisghesqssvpadshtskatspmgitfamgdtsvststpaffetriqtestsslipglrdtrtseeintv
+  sp|Q8WXI7|MUC16_HUMAN  5713 SMHTNTAVANVGTSISGHESQSSVPADSHTSKATSPMGITFAMGDTSVSTSTPAFFETRIQTESTSSLIPGLRDTRTSEEINTV 5796 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5797 tetstvlsevptttttevsrtevitssrttisgpdhskmspyistetitrlstfpfvtgstemaitnqtgpigtisqatltldt 5880 
+                              tetstvlsevptttttevsrtevitssrttisgpdhskmspyistetitrlstfpfvtgstemaitnqtgpigtisqatltldt
+  sp|Q8WXI7|MUC16_HUMAN  5797 TETSTVLSEVPTTTTTEVSRTEVITSSRTTISGPDHSKMSPYISTETITRLSTFPFVTGSTEMAITNQTGPIGTISQATLTLDT 5880 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5881 sstaswegthspvtqrfphseetttmsrstkgvswqsppsveetsspsspvplpaitshsslysavsgssptsalpvtslltsg 5964 
+                              sstaswegthspvtqrfphseetttmsrstkgvswqsppsveetsspsspvplpaitshsslysavsgssptsalpvtslltsg
+  sp|Q8WXI7|MUC16_HUMAN  5881 SSTASWEGTHSPVTQRFPHSEETTTMSRSTKGVSWQSPPSVEETSSPSSPVPLPAITSHSSLYSAVSGSSPTSALPVTSLLTSG 5964 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  5965 rrktidmldthselvtsslpsassfsgeiltseastntetihfsentaetnmgttnsmhklhssvsihsqpsghtppkvtgsmm 6048 
+                              rrktidmldthselvtsslpsassfsgeiltseastntetihfsentaetnmgttnsmhklhssvsihsqpsghtppkvtgsmm
+  sp|Q8WXI7|MUC16_HUMAN  5965 RRKTIDMLDTHSELVTSSLPSASSFSGEILTSEASTNTETIHFSENTAETNMGTTNSMHKLHSSVSIHSQPSGHTPPKVTGSMM 6048 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6049 edaivststpgspetknvdrdstspltpelkedstalvmnsttesntvfssvsldaatevsraevtyydptfmpasaqstkspd 6132 
+                              edaivststpgspetknvdrdstspltpelkedstalvmnsttesntvfssvsldaatevsraevtyydptfmpasaqstkspd
+  sp|Q8WXI7|MUC16_HUMAN  6049 EDAIVSTSTPGSPETKNVDRDSTSPLTPELKEDSTALVMNSTTESNTVFSSVSLDAATEVSRAEVTYYDPTFMPASAQSTKSPD 6132 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6133 ispeassshsnsppltisthktiatqtgpsgvtslgqltldtstiatsagtpsartqdfvdsettsvmnndlndvlktspfsae 6216 
+                              ispeassshsnsppltisthktiatqtgpsgvtslgqltldtstiatsagtpsartqdfvdsettsvmnndlndvlktspfsae
+  sp|Q8WXI7|MUC16_HUMAN  6133 ISPEASSSHSNSPPLTISTHKTIATQTGPSGVTSLGQLTLDTSTIATSAGTPSARTQDFVDSETTSVMNNDLNDVLKTSPFSAE 6216 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6217 eanslssqapllvttspspvtstlqehstsslvsvtsvptptlakitdmdtnlepvtrspqnlrntlatseattdthtmhpsin 6300 
+                              eanslssqapllvttspspvtstlqehstsslvsvtsvptptlakitdmdtnlepvtrspqnlrntlatseattdthtmhpsin
+  sp|Q8WXI7|MUC16_HUMAN  6217 EANSLSSQAPLLVTTSPSPVTSTLQEHSTSSLVSVTSVPTPTLAKITDMDTNLEPVTRSPQNLRNTLATSEATTDTHTMHPSIN 6300 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6301 tavanvgttsspnefyftvspdsdpykatsavvitstsgdsivstsmprssamkkiesettfslifrlretstsqkigsssdts 6384 
+                              tavanvgttsspnefyftvspdsdpykatsavvitstsgdsivstsmprssamkkiesettfslifrlretstsqkigsssdts
+  sp|Q8WXI7|MUC16_HUMAN  6301 TAVANVGTTSSPNEFYFTVSPDSDPYKATSAVVITSTSGDSIVSTSMPRSSAMKKIESETTFSLIFRLRETSTSQKIGSSSDTS 6384 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6385 tvfdkaftaattevsrteltsssrtsiqgtekptmspdtstrsvtmlstfagltkseertiatqtgphratsqgtltwdtsitt 6468 
+                              tvfdkaftaattevsrteltsssrtsiqgtekptmspdtstrsvtmlstfagltkseertiatqtgphratsqgtltwdtsitt
+  sp|Q8WXI7|MUC16_HUMAN  6385 TVFDKAFTAATTEVSRTELTSSSRTSIQGTEKPTMSPDTSTRSVTMLSTFAGLTKSEERTIATQTGPHRATSQGTLTWDTSITT 6468 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6469 sqagthsamthgfsqldlstltsrvpeyisgtsppsvektsssssllslpaitspspvpttlpesrpsspvhltslptsglvkt 6552 
+                              sqagthsamthgfsqldlstltsrvpeyisgtsppsvektsssssllslpaitspspvpttlpesrpsspvhltslptsglvkt
+  sp|Q8WXI7|MUC16_HUMAN  6469 SQAGTHSAMTHGFSQLDLSTLTSRVPEYISGTSPPSVEKTSSSSSLLSLPAITSPSPVPTTLPESRPSSPVHLTSLPTSGLVKT 6552 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6553 tdmlasvaslppnlgstshkipttsedikdtekmypstniavtnvgtttsekesyssvpayseppkvtspmvtsfnirdtivst 6636 
+                              tdmlasvaslppnlgstshkipttsedikdtekmypstniavtnvgtttsekesyssvpayseppkvtspmvtsfnirdtivst
+  sp|Q8WXI7|MUC16_HUMAN  6553 TDMLASVASLPPNLGSTSHKIPTTSEDIKDTEKMYPSTNIAVTNVGTTTSEKESYSSVPAYSEPPKVTSPMVTSFNIRDTIVST 6636 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6637 smpgsseitriemestfslahglkgtstsqdpivsteksavlhklttgatetsrtevassrrtsipgpdhstespdistevips 6720 
+                              smpgsseitriemestfslahglkgtstsqdpivsteksavlhklttgatetsrtevassrrtsipgpdhstespdistevips
+  sp|Q8WXI7|MUC16_HUMAN  6637 SMPGSSEITRIEMESTFSLAHGLKGTSTSQDPIVSTEKSAVLHKLTTGATETSRTEVASSRRTSIPGPDHSTESPDISTEVIPS 6720 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6721 lpislgitessnmtiitrtgpplgstsqgtftldtpttssragthsmatqefphsemttvmnkdpeilswtippsiektsfsss 6804 
+                              lpislgitessnmtiitrtgpplgstsqgtftldtpttssragthsmatqefphsemttvmnkdpeilswtippsiektsfsss
+  sp|Q8WXI7|MUC16_HUMAN  6721 LPISLGITESSNMTIITRTGPPLGSTSQGTFTLDTPTTSSRAGTHSMATQEFPHSEMTTVMNKDPEILSWTIPPSIEKTSFSSS 6804 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6805 lmpspamtsppvsstlpktihttpspmtslltpslvmttdtlgtspepttssppnlsstsheilttdedttaieamhpststaa 6888 
+                              lmpspamtsppvsstlpktihttpspmtslltpslvmttdtlgtspepttssppnlsstsheilttdedttaieamhpststaa
+  sp|Q8WXI7|MUC16_HUMAN  6805 LMPSPAMTSPPVSSTLPKTIHTTPSPMTSLLTPSLVMTTDTLGTSPEPTTSSPPNLSSTSHEILTTDEDTTAIEAMHPSTSTAA 6888 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6889 tnvettssghgsqssvladsektkatapmdttstmghttvstsmsvssettkikrestysltpglretsisqnasfstdtsivl 6972 
+                              tnvettssghgsqssvladsektkatapmdttstmghttvstsmsvssettkikrestysltpglretsisqnasfstdtsivl
+  sp|Q8WXI7|MUC16_HUMAN  6889 TNVETTSSGHGSQSSVLADSEKTKATAPMDTTSTMGHTTVSTSMSVSSETTKIKRESTYSLTPGLRETSISQNASFSTDTSIVL 6972 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  6973 sevptgttaevsrtevtssgrtsipgpsqstvlpeistrtmtrlfasptmtesaemtiptqtgpsgstsqdtltldtsttksqa 7056 
+                              sevptgttaevsrtevtssgrtsipgpsqstvlpeistrtmtrlfasptmtesaemtiptqtgpsgstsqdtltldtsttksqa
+  sp|Q8WXI7|MUC16_HUMAN  6973 SEVPTGTTAEVSRTEVTSSGRTSIPGPSQSTVLPEISTRTMTRLFASPTMTESAEMTIPTQTGPSGSTSQDTLTLDTSTTKSQA 7056 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7057 kthstltqrfphsemttlmsrgpgdmswqsspslenpsslpsllslpattspppisstlpvtisssplpvtslltsspvtttdm 7140 
+                              kthstltqrfphsemttlmsrgpgdmswqsspslenpsslpsllslpattspppisstlpvtisssplpvtslltsspvtttdm
+  sp|Q8WXI7|MUC16_HUMAN  7057 KTHSTLTQRFPHSEMTTLMSRGPGDMSWQSSPSLENPSSLPSLLSLPATTSPPPISSTLPVTISSSPLPVTSLLTSSPVTTTDM 7140 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7141 lhtspelvtssppklshtsderlttgkdttnteavhpstntaasnveipssghespssaladsetskatspmfitstqedttva 7224 
+                              lhtspelvtssppklshtsderlttgkdttnteavhpstntaasnveipssghespssaladsetskatspmfitstqedttva
+  sp|Q8WXI7|MUC16_HUMAN  7141 LHTSPELVTSSPPKLSHTSDERLTTGKDTTNTEAVHPSTNTAASNVEIPSSGHESPSSALADSETSKATSPMFITSTQEDTTVA 7224 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7225 istphfletsriqkesisslspklretgssvetssaietsavlsevsigatteisrtevtsssrtsisgsaestmlpeisttrk 7308 
+                              istphfletsriqkesisslspklretgssvetssaietsavlsevsigatteisrtevtsssrtsisgsaestmlpeisttrk
+  sp|Q8WXI7|MUC16_HUMAN  7225 ISTPHFLETSRIQKESISSLSPKLRETGSSVETSSAIETSAVLSEVSIGATTEISRTEVTSSSRTSISGSAESTMLPEISTTRK 7308 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7309 iikfptspilaessemtiktqtsppgstsestftldtsttpslvithstmtqrlphseittlvsrgagdvprpsslpveetspp 7392 
+                              iikfptspilaessemtiktqtsppgstsestftldtsttpslvithstmtqrlphseittlvsrgagdvprpsslpveetspp
+  sp|Q8WXI7|MUC16_HUMAN  7309 IIKFPTSPILAESSEMTIKTQTSPPGSTSESTFTLDTSTTPSLVITHSTMTQRLPHSEITTLVSRGAGDVPRPSSLPVEETSPP 7392 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7393 ssqlslsamispspvsstlpasshsssasvtslltpgqvkttevldasaepetssppslsstsveilatsevttdtekihpfsn 7476 
+                              ssqlslsamispspvsstlpasshsssasvtslltpgqvkttevldasaepetssppslsstsveilatsevttdtekihpfsn
+  sp|Q8WXI7|MUC16_HUMAN  7393 SSQLSLSAMISPSPVSSTLPASSHSSSASVTSLLTPGQVKTTEVLDASAEPETSSPPSLSSTSVEILATSEVTTDTEKIHPFSN 7476 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7477 tavtkvgtsssghespssvlpdsettkatsamgtisimgdtsvstltpalsntrkiqsepasslttrlretstseetslatean 7560 
+                              tavtkvgtsssghespssvlpdsettkatsamgtisimgdtsvstltpalsntrkiqsepasslttrlretstseetslatean
+  sp|Q8WXI7|MUC16_HUMAN  7477 TAVTKVGTSSSGHESPSSVLPDSETTKATSAMGTISIMGDTSVSTLTPALSNTRKIQSEPASSLTTRLRETSTSEETSLATEAN 7560 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7561 tvlskvstgattevsrteaisfsrtsmsgpeqstmsqdisigtiprisassvltesakmtittqtgpsestlestlnlntattp 7644 
+                              tvlskvstgattevsrteaisfsrtsmsgpeqstmsqdisigtiprisassvltesakmtittqtgpsestlestlnlntattp
+  sp|Q8WXI7|MUC16_HUMAN  7561 TVLSKVSTGATTEVSRTEAISFSRTSMSGPEQSTMSQDISIGTIPRISASSVLTESAKMTITTQTGPSESTLESTLNLNTATTP 7644 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7645 swvethsiviqgfphpemttsmgrgpggvswpsppfvketsppssplslpavtsphpvsttflahippsplpvtslltsgpatt 7728 
+                              swvethsiviqgfphpemttsmgrgpggvswpsppfvketsppssplslpavtsphpvsttflahippsplpvtslltsgpatt
+  sp|Q8WXI7|MUC16_HUMAN  7645 SWVETHSIVIQGFPHPEMTTSMGRGPGGVSWPSPPFVKETSPPSSPLSLPAVTSPHPVSTTFLAHIPPSPLPVTSLLTSGPATT 7728 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7729 tdilgtstepgtssssslsttsherlttykdtahteavhpstntggtnvattssgyksqssvladsspmcttstmgdtsvltst 7812 
+                              tdilgtstepgtssssslsttsherlttykdtahteavhpstntggtnvattssgyksqssvladsspmcttstmgdtsvltst
+  sp|Q8WXI7|MUC16_HUMAN  7729 TDILGTSTEPGTSSSSSLSTTSHERLTTYKDTAHTEAVHPSTNTGGTNVATTSSGYKSQSSVLADSSPMCTTSTMGDTSVLTST 7812 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7813 pafletrriqtelassltpglressgsegtssgtkmstvlskvptgatteiskedvtsipgpaqstispdistrtvswfstspv 7896 
+                              pafletrriqtelassltpglressgsegtssgtkmstvlskvptgatteiskedvtsipgpaqstispdistrtvswfstspv
+  sp|Q8WXI7|MUC16_HUMAN  7813 PAFLETRRIQTELASSLTPGLRESSGSEGTSSGTKMSTVLSKVPTGATTEISKEDVTSIPGPAQSTISPDISTRTVSWFSTSPV 7896 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7897 mtesaeitmnthtsplgattqgtstldtssttsltmthstisqgfshsqmstlmrrgpedvswmsppllektrpsfslmsspat 7980 
+                              mtesaeitmnthtsplgattqgtstldtssttsltmthstisqgfshsqmstlmrrgpedvswmsppllektrpsfslmsspat
+  sp|Q8WXI7|MUC16_HUMAN  7897 MTESAEITMNTHTSPLGATTQGTSTLDTSSTTSLTMTHSTISQGFSHSQMSTLMRRGPEDVSWMSPPLLEKTRPSFSLMSSPAT 7980 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  7981 tspspvsstlpesisssplpvtslltsglakttdmlhkssepvtnspanlsstsveilatsevttdtekthpssnrtvtdvgts 8064 
+                              tspspvsstlpesisssplpvtslltsglakttdmlhkssepvtnspanlsstsveilatsevttdtekthpssnrtvtdvgts
+  sp|Q8WXI7|MUC16_HUMAN  7981 TSPSPVSSTLPESISSSPLPVTSLLTSGLAKTTDMLHKSSEPVTNSPANLSSTSVEILATSEVTTDTEKTHPSSNRTVTDVGTS 8064 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8065 ssghestsfvladsqtskvtspmvitstmedtsvststpgffetsriqteptssltlglrktsssegtslatemstvlsgvptg 8148 
+                              ssghestsfvladsqtskvtspmvitstmedtsvststpgffetsriqteptssltlglrktsssegtslatemstvlsgvptg
+  sp|Q8WXI7|MUC16_HUMAN  8065 SSGHESTSFVLADSQTSKVTSPMVITSTMEDTSVSTSTPGFFETSRIQTEPTSSLTLGLRKTSSSEGTSLATEMSTVLSGVPTG 8148 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8149 ataevsrtevtsssrtsisgfaqltvspetstetitrlptssimtesaemmiktqtdppgstpesthtvdisttpnwvethstv 8232 
+                              ataevsrtevtsssrtsisgfaqltvspetstetitrlptssimtesaemmiktqtdppgstpesthtvdisttpnwvethstv
+  sp|Q8WXI7|MUC16_HUMAN  8149 ATAEVSRTEVTSSSRTSISGFAQLTVSPETSTETITRLPTSSIMTESAEMMIKTQTDPPGSTPESTHTVDISTTPNWVETHSTV 8232 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8233 tqrfshsemttlvsrspgdmlwpsqssveetssassllslpattspspvsstlvedfpsaslpvtsllnpglvittdrmgisre 8316 
+                              tqrfshsemttlvsrspgdmlwpsqssveetssassllslpattspspvsstlvedfpsaslpvtsllnpglvittdrmgisre
+  sp|Q8WXI7|MUC16_HUMAN  8233 TQRFSHSEMTTLVSRSPGDMLWPSQSSVEETSSASSLLSLPATTSPSPVSSTLVEDFPSASLPVTSLLNPGLVITTDRMGISRE 8316 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8317 pgtsstsnlsstsherlttledtvdtedmqpsthtavtnvrtsisghesqssvlsdsetpkatspmgttytmgetsvsistsdf 8400 
+                              pgtsstsnlsstsherlttledtvdtedmqpsthtavtnvrtsisghesqssvlsdsetpkatspmgttytmgetsvsistsdf
+  sp|Q8WXI7|MUC16_HUMAN  8317 PGTSSTSNLSSTSHERLTTLEDTVDTEDMQPSTHTAVTNVRTSISGHESQSSVLSDSETPKATSPMGTTYTMGETSVSISTSDF 8400 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8401 fetsriqieptssltsglretssserissategstvlsevpsgattevsrtevissrgtsmsgpdqftispdisteaitrlsts 8484 
+                              fetsriqieptssltsglretssserissategstvlsevpsgattevsrtevissrgtsmsgpdqftispdisteaitrlsts
+  sp|Q8WXI7|MUC16_HUMAN  8401 FETSRIQIEPTSSLTSGLRETSSSERISSATEGSTVLSEVPSGATTEVSRTEVISSRGTSMSGPDQFTISPDISTEAITRLSTS 8484 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8485 pimtesaesaitietgspgatsegtltldtstttfwsgthstaspgfshsemttlmsrtpgdvpwpslpsveeassvssslssp 8568 
+                              pimtesaesaitietgspgatsegtltldtstttfwsgthstaspgfshsemttlmsrtpgdvpwpslpsveeassvssslssp
+  sp|Q8WXI7|MUC16_HUMAN  8485 PIMTESAESAITIETGSPGATSEGTLTLDTSTTTFWSGTHSTASPGFSHSEMTTLMSRTPGDVPWPSLPSVEEASSVSSSLSSP 8568 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8569 amtstsffstlpesisssphpvtalltlgpvkttdmlrtssepetssppnlsstsaeilatsevtkdrekihpssntpvvnvgt 8652 
+                              amtstsffstlpesisssphpvtalltlgpvkttdmlrtssepetssppnlsstsaeilatsevtkdrekihpssntpvvnvgt
+  sp|Q8WXI7|MUC16_HUMAN  8569 AMTSTSFFSTLPESISSSPHPVTALLTLGPVKTTDMLRTSSEPETSSPPNLSSTSAEILATSEVTKDREKIHPSSNTPVVNVGT 8652 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8653 viykhlspssvladlvttkptspmattstlgntsvststpafpetmmtqptssltsglreistsqetssatersaslsgmptga 8736 
+                              viykhlspssvladlvttkptspmattstlgntsvststpafpetmmtqptssltsglreistsqetssatersaslsgmptga
+  sp|Q8WXI7|MUC16_HUMAN  8653 VIYKHLSPSSVLADLVTTKPTSPMATTSTLGNTSVSTSTPAFPETMMTQPTSSLTSGLREISTSQETSSATERSASLSGMPTGA 8736 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8737 ttkvsrtealslgrtstpgpaqstispeistetitristpltttgsaemtitpktghsgassqgtftldtssraswpgthsaat 8820 
+                              ttkvsrtealslgrtstpgpaqstispeistetitristpltttgsaemtitpktghsgassqgtftldtssraswpgthsaat
+  sp|Q8WXI7|MUC16_HUMAN  8737 TTKVSRTEALSLGRTSTPGPAQSTISPEISTETITRISTPLTTTGSAEMTITPKTGHSGASSQGTFTLDTSSRASWPGTHSAAT 8820 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8821 hrsphsgmttpmsrgpedvswpsrpsvektsppsslvslsavtspsplystpsesshssplrvtslftpvmmkttdmldtslep 8904 
+                              hrsphsgmttpmsrgpedvswpsrpsvektsppsslvslsavtspsplystpsesshssplrvtslftpvmmkttdmldtslep
+  sp|Q8WXI7|MUC16_HUMAN  8821 HRSPHSGMTTPMSRGPEDVSWPSRPSVEKTSPPSSLVSLSAVTSPSPLYSTPSESSHSSPLRVTSLFTPVMMKTTDMLDTSLEP 8904 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8905 vttsppsmnitsdeslatskatmeteaiqlsentavtqmgtisarqefyssypglpepskvtspvvtsstikdivsttipasse 8988 
+                              vttsppsmnitsdeslatskatmeteaiqlsentavtqmgtisarqefyssypglpepskvtspvvtsstikdivsttipasse
+  sp|Q8WXI7|MUC16_HUMAN  8905 VTTSPPSMNITSDESLATSKATMETEAIQLSENTAVTQMGTISARQEFYSSYPGLPEPSKVTSPVVTSSTIKDIVSTTIPASSE 8988 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  8989 itriemeststltptpretstsqeihsatkpstvpykaltsatiedsmtqvmsssrgpspdqstmsqdistevitrlstspikt 9072 
+                              itriemeststltptpretstsqeihsatkpstvpykaltsatiedsmtqvmsssrgpspdqstmsqdistevitrlstspikt
+  sp|Q8WXI7|MUC16_HUMAN  8989 ITRIEMESTSTLTPTPRETSTSQEIHSATKPSTVPYKALTSATIEDSMTQVMSSSRGPSPDQSTMSQDISTEVITRLSTSPIKT 9072 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9073 estemtittqtgspgatsrgtltldtsttfmsgthstasqgfshsqmtalmsrtpgdvpwlshpsveeassasfslsspvmtss 9156 
+                              estemtittqtgspgatsrgtltldtsttfmsgthstasqgfshsqmtalmsrtpgdvpwlshpsveeassasfslsspvmtss
+  sp|Q8WXI7|MUC16_HUMAN  9073 ESTEMTITTQTGSPGATSRGTLTLDTSTTFMSGTHSTASQGFSHSQMTALMSRTPGDVPWLSHPSVEEASSASFSLSSPVMTSS 9156 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9157 spvsstlpdsihssslpvtslltsglvkttellgtssepetssppnlsstsaeilaitevttdteklemtnvvtsgythespss 9240 
+                              spvsstlpdsihssslpvtslltsglvkttellgtssepetssppnlsstsaeilaitevttdteklemtnvvtsgythespss
+  sp|Q8WXI7|MUC16_HUMAN  9157 SPVSSTLPDSIHSSSLPVTSLLTSGLVKTTELLGTSSEPETSSPPNLSSTSAEILAITEVTTDTEKLEMTNVVTSGYTHESPSS 9240 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9241 vladsvttkatssmgityptgdtnvltstpafsdtsriqtksklsltpglmetsiseetssatekstvlssvptgattevsrte 9324 
+                              vladsvttkatssmgityptgdtnvltstpafsdtsriqtksklsltpglmetsiseetssatekstvlssvptgattevsrte
+  sp|Q8WXI7|MUC16_HUMAN  9241 VLADSVTTKATSSMGITYPTGDTNVLTSTPAFSDTSRIQTKSKLSLTPGLMETSISEETSSATEKSTVLSSVPTGATTEVSRTE 9324 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9325 aisssrtsipgpaqstmssdtsmetitristpltrkestdmaitpktgpsgatsqgtftldssstaswpgthsattqrfpqsvv 9408 
+                              aisssrtsipgpaqstmssdtsmetitristpltrkestdmaitpktgpsgatsqgtftldssstaswpgthsattqrfpqsvv
+  sp|Q8WXI7|MUC16_HUMAN  9325 AISSSRTSIPGPAQSTMSSDTSMETITRISTPLTRKESTDMAITPKTGPSGATSQGTFTLDSSSTASWPGTHSATTQRFPQSVV 9408 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9409 ttpmsrgpedvswpsplsveknsppsslvssssvtspsplystpsgsshsspvpvtslftsimmkatdmldaslepettsapnm 9492 
+                              ttpmsrgpedvswpsplsveknsppsslvssssvtspsplystpsgsshsspvpvtslftsimmkatdmldaslepettsapnm
+  sp|Q8WXI7|MUC16_HUMAN  9409 TTPMSRGPEDVSWPSPLSVEKNSPPSSLVSSSSVTSPSPLYSTPSGSSHSSPVPVTSLFTSIMMKATDMLDASLEPETTSAPNM 9492 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9493 nitsdeslaaskatteteaihvfentaashvettsateelyssspgfseptkvispvvtsssirdnmvsttmpgssgitrieie 9576 
+                              nitsdeslaaskatteteaihvfentaashvettsateelyssspgfseptkvispvvtsssirdnmvsttmpgssgitrieie
+  sp|Q8WXI7|MUC16_HUMAN  9493 NITSDESLAASKATTETEAIHVFENTAASHVETTSATEELYSSSPGFSEPTKVISPVVTSSSIRDNMVSTTMPGSSGITRIEIE 9576 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9577 smssltpglretrtsqditsstetstvlykmpsgatpevsrtevmpssrtsipgpaqstmsldisdevvtrlstspimtesaei 9660 
+                              smssltpglretrtsqditsstetstvlykmpsgatpevsrtevmpssrtsipgpaqstmsldisdevvtrlstspimtesaei
+  sp|Q8WXI7|MUC16_HUMAN  9577 SMSSLTPGLRETRTSQDITSSTETSTVLYKMPSGATPEVSRTEVMPSSRTSIPGPAQSTMSLDISDEVVTRLSTSPIMTESAEI 9660 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9661 tittqtgyslatsqvtlplgtsmtflsgthstmsqglshsemtnlmsrgpeslswtsprfvettrssssltslplttslspvss 9744 
+                              tittqtgyslatsqvtlplgtsmtflsgthstmsqglshsemtnlmsrgpeslswtsprfvettrssssltslplttslspvss
+  sp|Q8WXI7|MUC16_HUMAN  9661 TITTQTGYSLATSQVTLPLGTSMTFLSGTHSTMSQGLSHSEMTNLMSRGPESLSWTSPRFVETTRSSSSLTSLPLTTSLSPVSS 9744 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9745 tlldsspssplpvtslilpglvkttevldtssepktssspnlsstsveipatseimtdtekihpssntavakvrtsssvheshs 9828 
+                              tlldsspssplpvtslilpglvkttevldtssepktssspnlsstsveipatseimtdtekihpssntavakvrtsssvheshs
+  sp|Q8WXI7|MUC16_HUMAN  9745 TLLDSSPSSPLPVTSLILPGLVKTTEVLDTSSEPKTSSSPNLSSTSVEIPATSEIMTDTEKIHPSSNTAVAKVRTSSSVHESHS 9828 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9829 svladsettitipsmgitsavddttvftsnpafsetrripteptfsltpgfretstseettsitetsavlygvptsattevsmt 9912 
+                              svladsettitipsmgitsavddttvftsnpafsetrripteptfsltpgfretstseettsitetsavlygvptsattevsmt
+  sp|Q8WXI7|MUC16_HUMAN  9829 SVLADSETTITIPSMGITSAVDDTTVFTSNPAFSETRRIPTEPTFSLTPGFRETSTSEETTSITETSAVLYGVPTSATTEVSMT 9912 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9913 eimssnrihipdsdqstmspdiitevitrlssssmmsestqmtittqksspgataqstltlatttaplarthstvpprflhsem 9996 
+                              eimssnrihipdsdqstmspdiitevitrlssssmmsestqmtittqksspgataqstltlatttaplarthstvpprflhsem
+  sp|Q8WXI7|MUC16_HUMAN  9913 EIMSSNRIHIPDSDQSTMSPDIITEVITRLSSSSMMSESTQMTITTQKSSPGATAQSTLTLATTTAPLARTHSTVPPRFLHSEM 9996 
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN  9997 ttlmsrspenpswksslfvektsssssllslpvttspsvsstlpqsipsssfsvtslltpgmvkttdtstepgtslspnlsgts 10080
+                              ttlmsrspenpswksslfvektsssssllslpvttspsvsstlpqsipsssfsvtslltpgmvkttdtstepgtslspnlsgts
+  sp|Q8WXI7|MUC16_HUMAN  9997 TTLMSRSPENPSWKSSLFVEKTSSSSSLLSLPVTTSPSVSSTLPQSIPSSSFSVTSLLTPGMVKTTDTSTEPGTSLSPNLSGTS 10080
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10081 veilaasevttdtekihpsssmavtnvgttssghelyssvsihsepskatypvgtpssmaetsistsmpanfettgfeaepfsh 10164
+                              veilaasevttdtekihpsssmavtnvgttssghelyssvsihsepskatypvgtpssmaetsistsmpanfettgfeaepfsh
+  sp|Q8WXI7|MUC16_HUMAN 10081 VEILAASEVTTDTEKIHPSSSMAVTNVGTTSSGHELYSSVSIHSEPSKATYPVGTPSSMAETSISTSMPANFETTGFEAEPFSH 10164
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10165 ltsgfrktnmsldtssvtptntpsspgsthllqssktdftssaktsspdwppasqyteipvdiitpfnaspsitestgitsfpe 10248
+                              ltsgfrktnmsldtssvtptntpsspgsthllqssktdftssaktsspdwppasqyteipvdiitpfnaspsitestgitsfpe
+  sp|Q8WXI7|MUC16_HUMAN 10165 LTSGFRKTNMSLDTSSVTPTNTPSSPGSTHLLQSSKTDFTSSAKTSSPDWPPASQYTEIPVDIITPFNASPSITESTGITSFPE 10248
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10249 srftmsvtesthhlstdllpsaetistgtvmpslseamtsfattgvpraisgsgspfsrtesgpgdatlstiaeslpsstpvpf 10332
+                              srftmsvtesthhlstdllpsaetistgtvmpslseamtsfattgvpraisgsgspfsrtesgpgdatlstiaeslpsstpvpf
+  sp|Q8WXI7|MUC16_HUMAN 10249 SRFTMSVTESTHHLSTDLLPSAETISTGTVMPSLSEAMTSFATTGVPRAISGSGSPFSRTESGPGDATLSTIAESLPSSTPVPF 10332
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10333 ssstftttdsstipalheitsssatpyrvdtslgtessttegrlvmvstldtssqpgrtssspildtrmtesvelgtvtsayqv 10416
+                              ssstftttdsstipalheitsssatpyrvdtslgtessttegrlvmvstldtssqpgrtssspildtrmtesvelgtvtsayqv
+  sp|Q8WXI7|MUC16_HUMAN 10333 SSSTFTTTDSSTIPALHEITSSSATPYRVDTSLGTESSTTEGRLVMVSTLDTSSQPGRTSSSPILDTRMTESVELGTVTSAYQV 10416
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10417 pslstrltrtdgimehitkipneaahrgtirpvkgpqtstspaspkglhtggtkrmettttalkttttalkttsratlttsvyt 10500
+                              pslstrltrtdgimehitkipneaahrgtirpvkgpqtstspaspkglhtggtkrmettttalkttttalkttsratlttsvyt
+  sp|Q8WXI7|MUC16_HUMAN 10417 PSLSTRLTRTDGIMEHITKIPNEAAHRGTIRPVKGPQTSTSPASPKGLHTGGTKRMETTTTALKTTTTALKTTSRATLTTSVYT 10500
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10501 ptlgtltplnasmqmastiptemmittpyvfpdvpettsslatslgaetstalprttpsvfnresettaslvsrsgaerspviq 10584
+                              ptlgtltplnasmqmastiptemmittpyvfpdvpettsslatslgaetstalprttpsvfnresettaslvsrsgaerspviq
+  sp|Q8WXI7|MUC16_HUMAN 10501 PTLGTLTPLNASMQMASTIPTEMMITTPYVFPDVPETTSSLATSLGAETSTALPRTTPSVFNRESETTASLVSRSGAERSPVIQ 10584
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10585 tldvsssepdttaswvihpaetiptvskttpnffhseldtvsstatshgadvssaiptnispseldaltplvtisgtdtsttfp 10668
+                              tldvsssepdttaswvihpaetiptvskttpnffhseldtvsstatshgadvssaiptnispseldaltplvtisgtdtsttfp
+  sp|Q8WXI7|MUC16_HUMAN 10585 TLDVSSSEPDTTASWVIHPAETIPTVSKTTPNFFHSELDTVSSTATSHGADVSSAIPTNISPSELDALTPLVTISGTDTSTTFP 10668
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10669 tltksphetetrttwlthpaetsstiprtipnfshhesdatpsiatspgaetssaipimtvspgaedlvtsqvtssgtdrnmti 10752
+                              tltksphetetrttwlthpaetsstiprtipnfshhesdatpsiatspgaetssaipimtvspgaedlvtsqvtssgtdrnmti
+  sp|Q8WXI7|MUC16_HUMAN 10669 TLTKSPHETETRTTWLTHPAETSSTIPRTIPNFSHHESDATPSIATSPGAETSSAIPIMTVSPGAEDLVTSQVTSSGTDRNMTI 10752
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10753 ptltlspgepktiaslvthpeaqtssaiptstispavsrlvtsmvtslaaktsttnraltnspgepattvslvthpaqtsptvp 10836
+                              ptltlspgepktiaslvthpeaqtssaiptstispavsrlvtsmvtslaaktsttnraltnspgepattvslvthpaqtsptvp
+  sp|Q8WXI7|MUC16_HUMAN 10753 PTLTLSPGEPKTIASLVTHPEAQTSSAIPTSTISPAVSRLVTSMVTSLAAKTSTTNRALTNSPGEPATTVSLVTHPAQTSPTVP 10836
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10837 wttsiffhsksdttpsmttshgaesssavptptvstevpgvvtplvtssravisttipiltlspgepettpsmatshgeeassa 10920
+                              wttsiffhsksdttpsmttshgaesssavptptvstevpgvvtplvtssravisttipiltlspgepettpsmatshgeeassa
+  sp|Q8WXI7|MUC16_HUMAN 10837 WTTSIFFHSKSDTTPSMTTSHGAESSSAVPTPTVSTEVPGVVTPLVTSSRAVISTTIPILTLSPGEPETTPSMATSHGEEASSA 10920
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 10921 iptptvspgvpgvvtslvtssravtsttipiltfslgepettpsmatshgteagsavptvlpevpgmvtslvassravtsttlp 11004
+                              iptptvspgvpgvvtslvtssravtsttipiltfslgepettpsmatshgteagsavptvlpevpgmvtslvassravtsttlp
+  sp|Q8WXI7|MUC16_HUMAN 10921 IPTPTVSPGVPGVVTSLVTSSRAVTSTTIPILTFSLGEPETTPSMATSHGTEAGSAVPTVLPEVPGMVTSLVASSRAVTSTTLP 11004
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11005 tltlspgepettpsmatshgaeasstvptvspevpgvvtslvtsssgvnstsiptlilspgelettpsmatshgaeassavptp 11088
+                              tltlspgepettpsmatshgaeasstvptvspevpgvvtslvtsssgvnstsiptlilspgelettpsmatshgaeassavptp
+  sp|Q8WXI7|MUC16_HUMAN 11005 TLTLSPGEPETTPSMATSHGAEASSTVPTVSPEVPGVVTSLVTSSSGVNSTSIPTLILSPGELETTPSMATSHGAEASSAVPTP 11088
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11089 tvspgvsgvvtplvtssravtsttipiltlsssepettpsmatshgveassavltvspevpgmvtslvtssravtsttiptlti 11172
+                              tvspgvsgvvtplvtssravtsttipiltlsssepettpsmatshgveassavltvspevpgmvtslvtssravtsttiptlti
+  sp|Q8WXI7|MUC16_HUMAN 11089 TVSPGVSGVVTPLVTSSRAVTSTTIPILTLSSSEPETTPSMATSHGVEASSAVLTVSPEVPGMVTSLVTSSRAVTSTTIPTLTI 11172
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11173 ssdepetttslvthseakmisaiptlavsptvqglvtslvtssgsetsafsnltvassqpetidswvahpgteassvvptltvs 11256
+                              ssdepetttslvthseakmisaiptlavsptvqglvtslvtssgsetsafsnltvassqpetidswvahpgteassvvptltvs
+  sp|Q8WXI7|MUC16_HUMAN 11173 SSDEPETTTSLVTHSEAKMISAIPTLAVSPTVQGLVTSLVTSSGSETSAFSNLTVASSQPETIDSWVAHPGTEASSVVPTLTVS 11256
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11257 tgepftnislvthpaessstlprttsrfshseldtmpstvtspeaesssaisttispgipgvltslvtssgrdisatfptvpes 11340
+                              tgepftnislvthpaessstlprttsrfshseldtmpstvtspeaesssaisttispgipgvltslvtssgrdisatfptvpes
+  sp|Q8WXI7|MUC16_HUMAN 11257 TGEPFTNISLVTHPAESSSTLPRTTSRFSHSELDTMPSTVTSPEAESSSAISTTISPGIPGVLTSLVTSSGRDISATFPTVPES 11340
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11341 pheseataswvthpavtsttvprttpnyshsepdttpsiatspgaeatsdfptitvspdvpdmvtsqvtssgtdtsitiptltl 11424
+                              pheseataswvthpavtsttvprttpnyshsepdttpsiatspgaeatsdfptitvspdvpdmvtsqvtssgtdtsitiptltl
+  sp|Q8WXI7|MUC16_HUMAN 11341 PHESEATASWVTHPAVTSTTVPRTTPNYSHSEPDTTPSIATSPGAEATSDFPTITVSPDVPDMVTSQVTSSGTDTSITIPTLTL 11424
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11425 ssgepetttsfitysethtssaiptlpvspgaskmltslvissgtdstttfptltetpyepettaiqlihpaetntmvprttpk 11508
+                              ssgepetttsfitysethtssaiptlpvspgaskmltslvissgtdstttfptltetpyepettaiqlihpaetntmvprttpk
+  sp|Q8WXI7|MUC16_HUMAN 11425 SSGEPETTTSFITYSETHTSSAIPTLPVSPGASKMLTSLVISSGTDSTTTFPTLTETPYEPETTAIQLIHPAETNTMVPRTTPK 11508
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11509 fshsksdttlpvaitspgpeassavstttispdmsdlvtslvpssgtdtsttfptlsetpyepettatwlthpaetsttvsgti 11592
+                              fshsksdttlpvaitspgpeassavstttispdmsdlvtslvpssgtdtsttfptlsetpyepettatwlthpaetsttvsgti
+  sp|Q8WXI7|MUC16_HUMAN 11509 FSHSKSDTTLPVAITSPGPEASSAVSTTTISPDMSDLVTSLVPSSGTDTSTTFPTLSETPYEPETTATWLTHPAETSTTVSGTI 11592
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11593 pnfshrgsdtapsmvtspgvdtrsgvptttippsipgvvtsqvtssatdtstaiptltpspgepettassathpgtqtgftvpi 11676
+                              pnfshrgsdtapsmvtspgvdtrsgvptttippsipgvvtsqvtssatdtstaiptltpspgepettassathpgtqtgftvpi
+  sp|Q8WXI7|MUC16_HUMAN 11593 PNFSHRGSDTAPSMVTSPGVDTRSGVPTTTIPPSIPGVVTSQVTSSATDTSTAIPTLTPSPGEPETTASSATHPGTQTGFTVPI 11676
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11677 rtvpssepdtmaswvthppqtstpvsrttssfshsspdatpvmatsprteassavlttispgapemvtsqitssgaatsttvpt 11760
+                              rtvpssepdtmaswvthppqtstpvsrttssfshsspdatpvmatsprteassavlttispgapemvtsqitssgaatsttvpt
+  sp|Q8WXI7|MUC16_HUMAN 11677 RTVPSSEPDTMASWVTHPPQTSTPVSRTTSSFSHSSPDATPVMATSPRTEASSAVLTTISPGAPEMVTSQITSSGAATSTTVPT 11760
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11761 lthspgmpettallsthprtetsktfpastvfpqvsettasltirpgaetstalptqttsslftllvtgtsrvdlsptaspgvs 11844
+                              lthspgmpettallsthprtetsktfpastvfpqvsettasltirpgaetstalptqttsslftllvtgtsrvdlsptaspgvs
+  sp|Q8WXI7|MUC16_HUMAN 11761 LTHSPGMPETTALLSTHPRTETSKTFPASTVFPQVSETTASLTIRPGAETSTALPTQTTSSLFTLLVTGTSRVDLSPTASPGVS 11844
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11845 aktaplsthpgtetstmiptstlslgllettgllatsssaetststltltvspavsglssasittdkpqtvtswntetspsvts 11928
+                              aktaplsthpgtetstmiptstlslgllettgllatsssaetststltltvspavsglssasittdkpqtvtswntetspsvts
+  sp|Q8WXI7|MUC16_HUMAN 11845 AKTAPLSTHPGTETSTMIPTSTLSLGLLETTGLLATSSSAETSTSTLTLTVSPAVSGLSSASITTDKPQTVTSWNTETSPSVTS 11928
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 11929 vgppefsrtvtgttmtlipsemptppktshgegvspttilrttmveatnlattgssptvakttttfntlagslftplttpgmst 12012
+                              vgppefsrtvtgttmtlipsemptppktshgegvspttilrttmveatnlattgssptvakttttfntlagslftplttpgmst
+  sp|Q8WXI7|MUC16_HUMAN 11929 VGPPEFSRTVTGTTMTLIPSEMPTPPKTSHGEGVSPTTILRTTMVEATNLATTGSSPTVAKTTTTFNTLAGSLFTPLTTPGMST 12012
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12013 lasesvtsrtsynhrswisttssynrrywtpatstpvtstfspgistssipsstaatvpfmvpftlnftitnlqyeedmrhpgs 12096
+                              lasesvtsrtsynhrswisttssynrrywtpatstpvtstfspgistssipsstaatvpfmvpftlnftitnlqyeedmrhpgs
+  sp|Q8WXI7|MUC16_HUMAN 12013 LASESVTSRTSYNHRSWISTTSSYNRRYWTPATSTPVTSTFSPGISTSSIPSSTAATVPFMVPFTLNFTITNLQYEEDMRHPGS 12096
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12097 rkfnaterelqgllkplfrnssleylysgcrlaslrpekdssatavdaicthrpdpedlgldrerlywelsnltngiqelgpyt 12180
+                              rkfnaterelqgllkplfrnssleylysgcrlaslrpekdssatavdaicthrpdpedlgldrerlywelsnltngiqelgpyt
+  sp|Q8WXI7|MUC16_HUMAN 12097 RKFNATERELQGLLKPLFRNSSLEYLYSGCRLASLRPEKDSSATAVDAICTHRPDPEDLGLDRERLYWELSNLTNGIQELGPYT 12180
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12181 ldrnslyvngfthrssmpttstpgtstvdvgtsgtpssspspttagpllmpftlnftitnlqyeedmrrtgsrkfntmesvlqg 12264
+                              ldrnslyvngfthrssmpttstpgtstvdvgtsgtpssspspttagpllmpftlnftitnlqyeedmrrtgsrkfntmesvlqg
+  sp|Q8WXI7|MUC16_HUMAN 12181 LDRNSLYVNGFTHRSSMPTTSTPGTSTVDVGTSGTPSSSPSPTTAGPLLMPFTLNFTITNLQYEEDMRRTGSRKFNTMESVLQG 12264
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12265 llkplfkntsvgplysgcrltllrpekdgaatgvdaicthrldpkspglnreqlywelskltndieelgpytldrnslyvngft 12348
+                              llkplfkntsvgplysgcrltllrpekdgaatgvdaicthrldpkspglnreqlywelskltndieelgpytldrnslyvngft
+  sp|Q8WXI7|MUC16_HUMAN 12265 LLKPLFKNTSVGPLYSGCRLTLLRPEKDGAATGVDAICTHRLDPKSPGLNREQLYWELSKLTNDIEELGPYTLDRNSLYVNGFT 12348
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12349 hqssvsttstpgtstvdlrtsgtpsslssptimaagpllvpftlnftitnlqygedmghpgsrkfnttervlqgllgpifknts 12432
+                              hqssvsttstpgtstvdlrtsgtpsslssptimaagpllvpftlnftitnlqygedmghpgsrkfnttervlqgllgpifknts
+  sp|Q8WXI7|MUC16_HUMAN 12349 HQSSVSTTSTPGTSTVDLRTSGTPSSLSSPTIMAAGPLLVPFTLNFTITNLQYGEDMGHPGSRKFNTTERVLQGLLGPIFKNTS 12432
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12433 vgplysgcrltslrsekdgaatgvdaicihhldpkspglnrerlywelsqltngikelgpytldrnslyvngfthrtsvptsst 12516
+                              vgplysgcrltslrsekdgaatgvdaicihhldpkspglnrerlywelsqltngikelgpytldrnslyvngfthrtsvptsst
+  sp|Q8WXI7|MUC16_HUMAN 12433 VGPLYSGCRLTSLRSEKDGAATGVDAICIHHLDPKSPGLNRERLYWELSQLTNGIKELGPYTLDRNSLYVNGFTHRTSVPTSST 12516
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12517 pgtstvdlgtsgtpfslpspatagpllvlftlnftitnlkyeedmhrpgsrkfnttervlqtllgpmfkntsvgllysgcrltl 12600
+                              pgtstvdlgtsgtpfslpspatagpllvlftlnftitnlkyeedmhrpgsrkfnttervlqtllgpmfkntsvgllysgcrltl
+  sp|Q8WXI7|MUC16_HUMAN 12517 PGTSTVDLGTSGTPFSLPSPATAGPLLVLFTLNFTITNLKYEEDMHRPGSRKFNTTERVLQTLLGPMFKNTSVGLLYSGCRLTL 12600
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12601 lrsekdgaatgvdaicthrldpkspgvdreqlywelsqltngikelgpytldrnslyvngfthwipvptsstpgtstvdlgsgt 12684
+                              lrsekdgaatgvdaicthrldpkspgvdreqlywelsqltngikelgpytldrnslyvngfthwipvptsstpgtstvdlgsgt
+  sp|Q8WXI7|MUC16_HUMAN 12601 LRSEKDGAATGVDAICTHRLDPKSPGVDREQLYWELSQLTNGIKELGPYTLDRNSLYVNGFTHWIPVPTSSTPGTSTVDLGSGT 12684
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12685 psslpspttagpllvpftlnftitnlkyeedmhcpgsrkfnttervlqsllgpmfkntsvgplysgcrltllrsekdgaatgvd 12768
+                              psslpspttagpllvpftlnftitnlkyeedmhcpgsrkfnttervlqsllgpmfkntsvgplysgcrltllrsekdgaatgvd
+  sp|Q8WXI7|MUC16_HUMAN 12685 PSSLPSPTTAGPLLVPFTLNFTITNLKYEEDMHCPGSRKFNTTERVLQSLLGPMFKNTSVGPLYSGCRLTLLRSEKDGAATGVD 12768
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12769 aicthrldpkspgvdreqlywelsqltngikelgpytldrnslyvngfthqtsapntstpgtstvdlgtsgtpsslpsptsagp 12852
+                              aicthrldpkspgvdreqlywelsqltngikelgpytldrnslyvngfthqtsapntstpgtstvdlgtsgtpsslpsptsagp
+  sp|Q8WXI7|MUC16_HUMAN 12769 AICTHRLDPKSPGVDREQLYWELSQLTNGIKELGPYTLDRNSLYVNGFTHQTSAPNTSTPGTSTVDLGTSGTPSSLPSPTSAGP 12852
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12853 llvpftlnftitnlqyeedmhhpgsrkfnttervlqgllgpmfkntsvgllysgcrltllrpekngaatgmdaicshrldpksp 12936
+                              llvpftlnftitnlqyeedmhhpgsrkfnttervlqgllgpmfkntsvgllysgcrltllrpekngaatgmdaicshrldpksp
+  sp|Q8WXI7|MUC16_HUMAN 12853 LLVPFTLNFTITNLQYEEDMHHPGSRKFNTTERVLQGLLGPMFKNTSVGLLYSGCRLTLLRPEKNGAATGMDAICSHRLDPKSP 12936
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 12937 glnreqlywelsqlthgikelgpytldrnslyvngfthrssvaptstpgtstvdlgtsgtpsslpspttavpllvpftlnftit 13020
+                              glnreqlywelsqlthgikelgpytldrnslyvngfthrssvaptstpgtstvdlgtsgtpsslpspttavpllvpftlnftit
+  sp|Q8WXI7|MUC16_HUMAN 12937 GLNREQLYWELSQLTHGIKELGPYTLDRNSLYVNGFTHRSSVAPTSTPGTSTVDLGTSGTPSSLPSPTTAVPLLVPFTLNFTIT 13020
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13021 nlqygedmrhpgsrkfnttervlqgllgplfknssvgplysgcrlislrsekdgaatgvdaicthhlnpqspgldreqlywqls 13104
+                              nlqygedmrhpgsrkfnttervlqgllgplfknssvgplysgcrlislrsekdgaatgvdaicthhlnpqspgldreqlywqls
+  sp|Q8WXI7|MUC16_HUMAN 13021 NLQYGEDMRHPGSRKFNTTERVLQGLLGPLFKNSSVGPLYSGCRLISLRSEKDGAATGVDAICTHHLNPQSPGLDREQLYWQLS 13104
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13105 qmtngikelgpytldrnslyvngfthrssglttstpwtstvdlgtsgtpspvpsptttgpllvpftlnftitnlqyeenmghpg 13188
+                              qmtngikelgpytldrnslyvngfthrssglttstpwtstvdlgtsgtpspvpsptttgpllvpftlnftitnlqyeenmghpg
+  sp|Q8WXI7|MUC16_HUMAN 13105 QMTNGIKELGPYTLDRNSLYVNGFTHRSSGLTTSTPWTSTVDLGTSGTPSPVPSPTTTGPLLVPFTLNFTITNLQYEENMGHPG 13188
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13189 srkfnitesvlqgllkplfkstsvgplysgcrltllrpekdgvatrvdaicthrpdpkipgldrqqlywelsqlthsitelgpy 13272
+                              srkfnitesvlqgllkplfkstsvgplysgcrltllrpekdgvatrvdaicthrpdpkipgldrqqlywelsqlthsitelgpy
+  sp|Q8WXI7|MUC16_HUMAN 13189 SRKFNITESVLQGLLKPLFKSTSVGPLYSGCRLTLLRPEKDGVATRVDAICTHRPDPKIPGLDRQQLYWELSQLTHSITELGPY 13272
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13273 tldrdslyvngftqrssvpttstpgtftvqpetsetpsslpgptatgpvllpftlnftitnlqyeedmrrpgsrkfnttervlq 13356
+                              tldrdslyvngftqrssvpttstpgtftvqpetsetpsslpgptatgpvllpftlnftitnlqyeedmrrpgsrkfnttervlq
+  sp|Q8WXI7|MUC16_HUMAN 13273 TLDRDSLYVNGFTQRSSVPTTSTPGTFTVQPETSETPSSLPGPTATGPVLLPFTLNFTITNLQYEEDMRRPGSRKFNTTERVLQ 13356
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13357 gllmplfkntsvsslysgcrltllrpekdgaatrvdavcthrpdpkspgldrerlywklsqlthgitelgpytldrhslyvngf 13440
+                              gllmplfkntsvsslysgcrltllrpekdgaatrvdavcthrpdpkspgldrerlywklsqlthgitelgpytldrhslyvngf
+  sp|Q8WXI7|MUC16_HUMAN 13357 GLLMPLFKNTSVSSLYSGCRLTLLRPEKDGAATRVDAVCTHRPDPKSPGLDRERLYWKLSQLTHGITELGPYTLDRHSLYVNGF 13440
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13441 thqssmtttrtpdtstmhlatsrtpaslsgpmtaspllvlftinftitnlryeenmhhpgsrkfnttervlqgllrpvfkntsv 13524
+                              thqssmtttrtpdtstmhlatsrtpaslsgpmtaspllvlftinftitnlryeenmhhpgsrkfnttervlqgllrpvfkntsv
+  sp|Q8WXI7|MUC16_HUMAN 13441 THQSSMTTTRTPDTSTMHLATSRTPASLSGPMTASPLLVLFTINFTITNLRYEENMHHPGSRKFNTTERVLQGLLRPVFKNTSV 13524
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13525 gplysgcrltllrpkkdgaatkvdaictyrpdpkspgldreqlywelsqlthsitelgpytldrdslyvngftqrssvpttsip 13608
+                              gplysgcrltllrpkkdgaatkvdaictyrpdpkspgldreqlywelsqlthsitelgpytldrdslyvngftqrssvpttsip
+  sp|Q8WXI7|MUC16_HUMAN 13525 GPLYSGCRLTLLRPKKDGAATKVDAICTYRPDPKSPGLDREQLYWELSQLTHSITELGPYTLDRDSLYVNGFTQRSSVPTTSIP 13608
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13609 gtptvdlgtsgtpvskpgpsaaspllvlftlnftitnlryeenmqhpgsrkfnttervlqgllrslfkstsvgplysgcrltll 13692
+                              gtptvdlgtsgtpvskpgpsaaspllvlftlnftitnlryeenmqhpgsrkfnttervlqgllrslfkstsvgplysgcrltll
+  sp|Q8WXI7|MUC16_HUMAN 13609 GTPTVDLGTSGTPVSKPGPSAASPLLVLFTLNFTITNLRYEENMQHPGSRKFNTTERVLQGLLRSLFKSTSVGPLYSGCRLTLL 13692
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13693 rpekdgtatgvdaicthhpdpksprldreqlywelsqlthnitelgpyaldndslfvngfthrssvsttstpgtptvylgaskt 13776
+                              rpekdgtatgvdaicthhpdpksprldreqlywelsqlthnitelgpyaldndslfvngfthrssvsttstpgtptvylgaskt
+  sp|Q8WXI7|MUC16_HUMAN 13693 RPEKDGTATGVDAICTHHPDPKSPRLDREQLYWELSQLTHNITELGPYALDNDSLFVNGFTHRSSVSTTSTPGTPTVYLGASKT 13776
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13777 pasifgpsaashllilftlnftitnlryeenmwpgsrkfnttervlqgllrplfkntsvgplysgcrltllrpekdgeatgvda 13860
+                              pasifgpsaashllilftlnftitnlryeenmwpgsrkfnttervlqgllrplfkntsvgplysgcrltllrpekdgeatgvda
+  sp|Q8WXI7|MUC16_HUMAN 13777 PASIFGPSAASHLLILFTLNFTITNLRYEENMWPGSRKFNTTERVLQGLLRPLFKNTSVGPLYSGCRLTLLRPEKDGEATGVDA 13860
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13861 icthrpdptgpgldreqlylelsqlthsitelgpytldrdslyvngfthrssvpttstgvvseepftlnftinnlrymadmgqp 13944
+                              icthrpdptgpgldreqlylelsqlthsitelgpytldrdslyvngfthrssvpttstgvvseepftlnftinnlrymadmgqp
+  sp|Q8WXI7|MUC16_HUMAN 13861 ICTHRPDPTGPGLDREQLYLELSQLTHSITELGPYTLDRDSLYVNGFTHRSSVPTTSTGVVSEEPFTLNFTINNLRYMADMGQP 13944
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 13945 gslkfnitdnvmqhllsplfqrsslgarytgcrvialrsvkngaetrvdllctylqplsgpglpikqvfhelsqqthgitrlgp 14028
+                              gslkfnitdnvmqhllsplfqrsslgarytgcrvialrsvkngaetrvdllctylqplsgpglpikqvfhelsqqthgitrlgp
+  sp|Q8WXI7|MUC16_HUMAN 13945 GSLKFNITDNVMQHLLSPLFQRSSLGARYTGCRVIALRSVKNGAETRVDLLCTYLQPLSGPGLPIKQVFHELSQQTHGITRLGP 14028
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14029 ysldkdslylngynepgpdeppttpkpattflpplseattamgyhlktltlnftisnlqyspdmgkgsatfnstegvlqhllrp 14112
+                              ysldkdslylngynepgpdeppttpkpattflpplseattamgyhlktltlnftisnlqyspdmgkgsatfnstegvlqhllrp
+  sp|Q8WXI7|MUC16_HUMAN 14029 YSLDKDSLYLNGYNEPGPDEPPTTPKPATTFLPPLSEATTAMGYHLKTLTLNFTISNLQYSPDMGKGSATFNSTEGVLQHLLRP 14112
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14113 lfqkssmgpfylgcqlislrpekdgaatgvdttctyhpdpvgpgldiqqlywelsqlthgvtqlgfyvldrdslfingyapqnl 14196
+                              lfqkssmgpfylgcqlislrpekdgaatgvdttctyhpdpvgpgldiqqlywelsqlthgvtqlgfyvldrdslfingyapqnl
+  sp|Q8WXI7|MUC16_HUMAN 14113 LFQKSSMGPFYLGCQLISLRPEKDGAATGVDTTCTYHPDPVGPGLDIQQLYWELSQLTHGVTQLGFYVLDRDSLFINGYAPQNL 14196
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14197 sirgeyqinfhivnwnlsnpdptsseyitllrdiqdkvttlykgsqlhdtfrfclvtnltmdsvlvtvkalfssnldpslveqv 14280
+                              sirgeyqinfhivnwnlsnpdptsseyitllrdiqdkvttlykgsqlhdtfrfclvtnltmdsvlvtvkalfssnldpslveqv
+  sp|Q8WXI7|MUC16_HUMAN 14197 SIRGEYQINFHIVNWNLSNPDPTSSEYITLLRDIQDKVTTLYKGSQLHDTFRFCLVTNLTMDSVLVTVKALFSSNLDPSLVEQV 14280
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14281 fldktlnasfhwlgstyqlvdihvtemessvyqptsssstqhfylnftitnlpysqdkaqpgttnyqrnkrniedalnqlfrns 14364
+                              fldktlnasfhwlgstyqlvdihvtemessvyqptsssstqhfylnftitnlpysqdkaqpgttnyqrnkrniedalnqlfrns
+  sp|Q8WXI7|MUC16_HUMAN 14281 FLDKTLNASFHWLGSTYQLVDIHVTEMESSVYQPTSSSSTQHFYLNFTITNLPYSQDKAQPGTTNYQRNKRNIEDALNQLFRNS 14364
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14365 siksyfsdcqvstfrsvpnrhhtgvdslcnfsplarrvdrvaiyeeflrmtrngtqlqnftldrssvlvdgyspnrnepltgns 14448
+                              siksyfsdcqvstfrsvpnrhhtgvdslcnfsplarrvdrvaiyeeflrmtrngtqlqnftldrssvlvdgyspnrnepltgns
+  sp|Q8WXI7|MUC16_HUMAN 14365 SIKSYFSDCQVSTFRSVPNRHHTGVDSLCNFSPLARRVDRVAIYEEFLRMTRNGTQLQNFTLDRSSVLVDGYSPNRNEPLTGNS 14448
+                              ************************************************************************************ PP
+
+  sp|Q8WXI7|MUC16_HUMAN 14449 dlpfwaviliglagllgvitclicgvlvttrrrkkegeynvqqqcpgyyqshldledlq 14507
+                              dlpfwaviliglagllgvitclicgvlvttrrrkkegeynvqqqcpgyyqshldledlq
+  sp|Q8WXI7|MUC16_HUMAN 14449 DLPFWAVILIGLAGLLGVITCLICGVLVTTRRRKKEGEYNVQQQCPGYYQSHLDLEDLQ 14507
+                              *********************************************************98 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (14507 nodes)
+Target sequence(s):                        1  (14507 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 4.24u 0.93s 00:00:05.17 Elapsed: 00:00:05.18
+# Mc/sec: 40.56
+//
+[ok]

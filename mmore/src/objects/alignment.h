@@ -25,22 +25,22 @@ ALIGNMENT_Destroy( ALIGNMENT*    aln );
  *  SYNOPSIS:  Wipes <aln>'s old data for reuse, sets dimensions <Q x T>.
  */
 void 
-ALIGNMENT_Reuse(     ALIGNMENT*  aln,
-                     int         Q,
-                     int         T );
-
-/*! FUNCTION:  ALIGNMENT_Pushback()
- *  SYNOPSIS:  Push trace onto end of alignment.
- */
-void 
-ALIGNMENT_Pushback(     ALIGNMENT*  aln,
-                        TRACE       tr );
+ALIGNMENT_Reuse(     ALIGNMENT*     aln,
+                     int            Q,
+                     int            T );
 
 /*! FUNCTION:  ALIGNMENT_GetSize()
  *  SYNOPSIS:  Return size of <aln>
  */
 size_t
 ALIGNMENT_GetSize(    ALIGNMENT*   aln );
+
+/*! FUNCTION:  ALIGNMENT_GetNumRegions()
+ *  SYNOPSIS:  Return number of discontiguous (broken by jump state) traceback alignments in <aln>.
+ *             Use must have run _FindAligns() first.
+ */
+size_t
+ALIGNMENT_GetNumRegions(    ALIGNMENT*   aln );
 
 /*! FUNCTION:  ALIGNMENT_GetTrace()
  *  SYNOPSIS:  Get <i>th trace in <aln>
@@ -70,38 +70,60 @@ ALIGNMENT_GrowTo(    ALIGNMENT*   aln,
 int ALIGNMENT_Compare(  ALIGNMENT*     a,
                         ALIGNMENT*     b );
 
-/*! FUNCTION:  ALIGNMENT_Append()
+/*! FUNCTION:  ALIGNMENT_AddTrace()
+ *  SYNOPSIS:  Push trace onto end of alignment.
+ */
+void 
+ALIGNMENT_AddTrace(  ALIGNMENT*     aln,
+                     TRACE          tr );
+
+/*! FUNCTION:  ALIGNMENT_AppendTrace()
  *  SYNOPSIS:  Append trace <st_cur, q_0, t_0> to <aln>.
  */
 int 
-ALIGNMENT_Append(    ALIGNMENT*   aln,       /* Traceback Alignment */
-                     const int    st_cur,    /* HMM state */
-                     const int    q_0,       /* index in query/sequence */
-                     const int    t_0 );     /* index in target/model */
+ALIGNMENT_AppendTrace(  ALIGNMENT*     aln,       /* Traceback Alignment */
+                        const int      st_cur,    /* HMM state */
+                        const int      q_0,       /* index in query/sequence */
+                        const int      t_0 );     /* index in target/model */
 
-/*! FUNCTION:  ALIGNMENT_Find_Length()
- *  SYNOPSIS:  Scan <aln> for beginning, end, and length of alignment. 
- *             Stores <beg> and <end>.
+/*! FUNCTION:  ALIGNMENT_AppendScore()
+ *  SYNOPSIS:  Append trace <st_cur, q_0, t_0> to <aln>.
  */
-void 
-ALIGNMENT_Find_Length(  ALIGNMENT*  aln );
+int 
+ALIGNMENT_AppendScore(  ALIGNMENT*     aln,        /* Traceback Alignment */
+                        const float    score );    /* Score */
 
-/*! FUNCTION:  ALIGNMENT_PushbackSubaln()
+/*! FUNCTION:  ALIGNMENT_FindRegions()
+ *  SYNOPSIS:  Scan full model alignment traceback for all alignement regions. 
+ *             These regions are those running through the core model, from a BEGIN to an END state.
+ *             Stores each <beg> and <end> positions in the full alignment are pushed to alignment vectors <tr_beg> amd <tr_end>.
+ *             Returns the number of alignment regions.
+ */
+int  
+ALIGNMENT_FindRegions(  ALIGNMENT*  aln );
+
+/*! FUNCTION:  ALIGNMENT_ScoreRegions()
+ *  SYNOPSIS:  Scan <aln> for all alignments running talo through the core model (running from BEGIN to END state).
+ *             Caller must run _AppendScore() for each _AppendTrace().
+ */
+float 
+ALIGNMENT_ScoreRegions(  ALIGNMENT*  aln );
+
+/*! FUNCTION:  ALIGNMENT_AddRegion()
  *  SYNOPSIS:  Adds a distinct, discrete alignment region to list with <beg> and <end> points and <score> for region.
  */
 void 
-ALIGNMENT_Pushback_Subaln(    ALIGNMENT*  aln,
-                              int         beg,
-                              int         end,
-                              float       score );
+ALIGNMENT_AddRegion(    ALIGNMENT*     aln,
+                        int            beg,
+                        int            end,
+                        float          score );
 
-/*! FUNCTION:  ALIGNMENT_SetEndpoints()
+/*! FUNCTION:  ALIGNMENT_SetRegion()
  *  SYNOPSIS:  Sets <beg> and <end> endpoint indexes of the <aln> alignment.
  */
 void 
-ALIGNMENT_SetEndpoints(   ALIGNMENT*  aln,
-                           int         beg,
-                           int         end );
+ALIGNMENT_SetRegion(    ALIGNMENT*  aln,
+                        int         aln_idx );
 
 /*! FUNCTION:  ALIGNMENT_Reverse()
  *  SYNOPSIS:  Reverse order of <aln>.

@@ -249,9 +249,34 @@ MATRIX_3D_SPARSE_GetX_byOffset(  const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3
    return MATRIX_3D_SPARSE_GetX_by1D( smx, flat_idx );
 }
 
+/*! FUNCTION:  MATRIX_3D_SPARSE_Get()
+ *  SYNOPSIS:  Get cell value in corresponding to given (q_0, t_0, st_0) coordinates in complete, embedding matrix.
+ *             Search is linear in the number of discrete data blocks (bounds) per row. Not the fastest for matrix traversal, but good for spot lookups.
+ *             Caller must call _Index() before calling this.
+ *
+ *  RETURN:    Reference to <smx> data array location if success.
+ *             Returns -INF if out-of-bounds of sparse matrix.
+ */
+float 
+MATRIX_3D_SPARSE_Get(      const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPARSE object */
+                           const int                  q_0,     /* query/row index */
+                           const int                  t_0,     /* target/column index */
+                           const int                  st_0 )   /* state index */
+{
+   float*   ref;
+   float    val;
+   ref = MATRIX_3D_SPARSE_GetX( smx, q_0, t_0, st_0 );
+   if ( ref == NULL ) {
+      val = -INF;
+   } else {
+      val = *ref;
+   }
+   return val;
+}
+
 /*! FUNCTION:  MATRIX_3D_SPARSE_GetX()
  *  SYNOPSIS:  Get reference to cell in corresponding to given (q_0,t_0) coordinates in complete, embedding matrix.
- *             Search is linear in the number of discrete data blocks (bounds) per row. Not the fastest for matrix traversal, but good for spot lookups.
+ *             Search is linear in the number of discontiguous data bounds per row. Not the fastest for matrix traversal, but good for spot lookups.
  *             Caller must call _Index() before calling this.
  *
  *  RETURN:    Reference to <smx> data array location if success.
@@ -263,15 +288,26 @@ MATRIX_3D_SPARSE_GetX(     const MATRIX_3D_SPARSE*    smx,     /* MATRIX_3D_SPAR
                            const int                  t_0,     /* target/column index */
                            const int                  st_0 )   /* state index */
 {
+   /* check if coords are inside bounds */
+   bool is_q_in_Q = IS_IN_RANGE( smx->Q_range.beg, smx->Q_range.end, q_0 );
+   bool is_t_in_T = IS_IN_RANGE( smx->T_range.beg, smx->T_range.end, t_0 );
+   // printf("MX3D_GET:(q_0,t_0,st_0) = (%d,%d,%d) | in_range = (%d,%d)\n", q_0, t_0, st_0, is_q_0_in_Q, is_t_0_in_T );
+   /* if either is outside of bounds, cell doesn't exist in sparse matrix */
+   if ( (is_q_in_Q && is_t_in_T) == false ) {
+      return NULL;
+   }
    /* get start of row from index */
+   // printf("edg_inner->N: %ld, edg_inner->index->N: %ld %d\n", smx->edg_inner->bounds->N, smx->edg_inner->id_index->N, smx->edg_inner->is_indexed );
    int idx_beg = EDGEBOUNDS_GetIndex_byRow( smx->edg_inner, q_0 );
    int idx_end = EDGEBOUNDS_GetIndex_byRow( smx->edg_inner, q_0 + 1 );
    /* linear search of column */
-   for (int i_0 = idx_beg; i_0 < idx_end; i_0++ ) {
-      BOUND bnd      = MATRIX_3D_SPARSE_GetBound_byIndex( smx, i_0 );
+   for (int i_0 = idx_beg; i_0 < idx_end; i_0++ ) 
+   {
+      BOUND bnd = MATRIX_3D_SPARSE_GetBound_byIndex( smx, i_0 );
       /* find if bound in data block */
       bool in_range  = IS_IN_RANGE( bnd.lb, bnd.rb - 1, t_0 );
-      if ( in_range == true ) {
+      if ( in_range == true ) 
+      {
          /* build flat index */
          int qx0 = MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur( smx, i_0 );
          int tx0 = t_0 - bnd.lb;
@@ -360,7 +396,7 @@ MATRIX_3D_SPARSE_GetOffset_ByIndex_Prv(   const MATRIX_3D_SPARSE*    smx,
    return qx0_prv;
 }
 
-/*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur()
  *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
  */
 inline
@@ -371,6 +407,70 @@ MATRIX_3D_SPARSE_GetOffset_ByIndex_Cur(   const MATRIX_3D_SPARSE*    smx,
    int qx0_cur;
    qx0_cur  = VEC_X( smx->imap_cur, r_0 );
    return qx0_cur;
+}
+
+/*! FUNCTION:  MATRIX_3D_SPARSE_GetOffset_byCoords()
+ *  SYNOPSIS:  Gets the offset to start of datablock corresponding to <r_0>th bound in <edg_inner>.
+ *             Gets the offsets for the current cell <qx0_prv_out>, 
+ *             the cell immediately above it on the previous row <qx0_cur_out>, 
+ *             and the cell immediately below it on the next row <qx0_nxt_out>.
+ */
+inline
+STATUS_FLAG 
+MATRIX_3D_SPARSE_GetOffset_ByCoords(   const MATRIX_3D_SPARSE*    smx,        
+                                       const int                  q_0,              /* IN: q_0 position in matrix */
+                                       const int                  t_0,              /* IN: t_0 position in matrix */
+                                       int*                       qx0_prv_out,      /* OUT: offset to position in previous row */
+                                       int*                       qx0_cur_out,      /* OUT: offset to position in current row */
+                                       int*                       qx0_nxt_out,      /* OUT: offset to position in next row */
+                                       int*                       tx0_out )         /* OUT: offset to position in data block */
+{
+   RANGE bnd_range;
+   BOUND bnd;
+   int   qx0_prv, qx0_cur, qx0_nxt; 
+   int   tx0;
+   /* get range of bounds contained on row q_0 */
+   EDGEBOUNDS_GetIndexRange_byRow( smx->edg_inner, q_0, &bnd_range );
+   /* look through all bounds on row q_0 */
+   for ( int r_0 = bnd_range.beg; r_0 < bnd_range.end; r_0++ ) 
+   { 
+      bnd = EDGEBOUNDS_Get( smx->edg_inner, r_0 );
+      /* if bound contains t_0, then we've found location */
+      bool is_t_in_T = IS_IN_RANGE( bnd.lb, bnd.rb, t_0 );
+      if ( is_t_in_T == true ) 
+      {
+         MATRIX_3D_SPARSE_GetOffset_ByIndex( smx, r_0, &qx0_prv, &qx0_cur, &qx0_nxt );
+         tx0 = t_0 - bnd.lb;
+         if ( qx0_prv_out != NULL ) {
+            *qx0_prv_out = qx0_prv;
+         }
+         if ( qx0_cur_out != NULL ) {
+            *qx0_cur_out = qx0_cur;
+         }
+         if ( qx0_nxt_out != NULL ) {
+            *qx0_nxt_out = qx0_nxt;
+         }
+         if ( tx0_out != NULL ) {
+            *tx0_out = tx0;
+         }
+         return STATUS_SUCCESS;
+      }
+   }
+   /* if cell not contained in sparse matrix */
+   if ( qx0_prv_out != NULL ) {
+      *qx0_prv_out = -1;
+   }
+   if ( qx0_cur_out != NULL ) {
+      *qx0_cur_out = -1;
+   }
+   if ( qx0_nxt_out != NULL ) {
+      *qx0_nxt_out = -1;
+   }
+   if ( tx0_out != NULL ) {
+      *tx0_out = -1;
+   }
+
+   return STATUS_FAILURE;
 }
 
 /*! FUNCTION:  MATRIX_3D_SPARSE_Get_CurrentRow_Offset()
@@ -549,8 +649,7 @@ MATRIX_3D_SPARSE_Embed(    int                  Q,
          tx0 = t_0 - lb_0;
 
          /* embed linear row into quadratic test matrix */
-         float val = SMX_X(smx, MAT_ST, qx0, tx0);
-         MX_3D(mx, MAT_ST, q_0, t_0) = val;
+         MX_3D(mx, MAT_ST, q_0, t_0) = SMX_X(smx, MAT_ST, qx0, tx0);
          MX_3D(mx, INS_ST, q_0, t_0) = SMX_X(smx, INS_ST, qx0, tx0);
          MX_3D(mx, DEL_ST, q_0, t_0) = SMX_X(smx, DEL_ST, qx0, tx0);
       }
@@ -590,20 +689,22 @@ MATRIX_3D_SPARSE_Log_Embed(   int                  Q,
    for ( int r_0 = r_0b; r_0 < r_0e; r_0++ ) 
    {
       /* get bound */
-      bnd   = EDGEBOUNDS_GetX(edg, r_0);
-      q_0   = id_0;
+      bnd   = EDGEBOUNDS_GetX( edg, r_0 );
+      q_0   = bnd->id;
+      lb_0  = bnd->lb;
+      rb_0  = bnd->rb;
 
       /* fetch data mapping bound start location to data block in sparse matrix */
       qx0 = VECTOR_INT_Get( smx->imap_cur, r_0 );    /* (q_0, t_0) location offset */
 
-      for (t_0 = bnd->lb; t_0 < bnd->rb; t_0++)
+      for (t_0 = lb_0; t_0 < rb_0; t_0++)
       {
-         tx0 = t_0 - bnd->lb;
+         tx0 = t_0 - lb_0;
 
          /* embed linear row into quadratic test matrix */
-         MX_3D(mx, MAT_ST, q_0, t_0) = logf( SMX_X(smx, MAT_ST, qx0, tx0));
-         MX_3D(mx, INS_ST, q_0, t_0) = logf( SMX_X(smx, INS_ST, qx0, tx0));
-         MX_3D(mx, DEL_ST, q_0, t_0) = logf( SMX_X(smx, DEL_ST, qx0, tx0));
+         MX_3D(mx, MAT_ST, q_0, t_0) = logf( SMX_X(smx, MAT_ST, qx0, tx0) );
+         MX_3D(mx, INS_ST, q_0, t_0) = logf( SMX_X(smx, INS_ST, qx0, tx0) );
+         MX_3D(mx, DEL_ST, q_0, t_0) = logf( SMX_X(smx, DEL_ST, qx0, tx0) );
       }
    }
 }

@@ -54,7 +54,7 @@ WORK_init( WORKER* worker )
    worker->q_index_file       = FILER_Create( args->q_indexpath, read_mode );
    worker->t_index_file       = FILER_Create( args->t_indexpath, read_mode );
    worker->mmseqs_file        = FILER_Create( args->mmseqs_m8_filepath, read_mode );
-   worker->hitlist_file       = FILER_Create( args->hitlist_filepath, read_mode );
+   // worker->hitlist_file       = FILER_Create( args->hitlist_filepath, read_mode );
    /* output files */
    worker->output_file        = FILER_Create( args->output_filepath, write_mode );
    if ( args->is_redirect_stdout == false ) {
@@ -70,13 +70,13 @@ WORK_init( WORKER* worker )
       worker->myout_file         = FILER_Create( args->myout_filepath, write_mode );
    }
    if ( args->mydomout_filepath != NULL ) {
-      worker->mydomout_file         = FILER_Create( args->mydomout_filepath, write_mode );
+      worker->mydomout_file      = FILER_Create( args->mydomout_filepath, write_mode );
    }
    if ( args->mytimeout_filepath != NULL ) {
-      worker->mytimeout_file         = FILER_Create( args->mytimeout_filepath, write_mode );
+      worker->mytimeout_file     = FILER_Create( args->mytimeout_filepath, write_mode );
    }
    if ( args->mythreshout_filepath != NULL ) {
-      worker->mythreshout_file         = FILER_Create( args->mythreshout_filepath, write_mode );
+      worker->mythreshout_file   = FILER_Create( args->mythreshout_filepath, write_mode );
    }
 
    /* target and profile structures */

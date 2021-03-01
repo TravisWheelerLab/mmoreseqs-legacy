@@ -165,7 +165,7 @@ VECTOR_TRACE_Copy(  VECTOR_TRACE*   dest,
       dest = VECTOR_TRACE_Create();
    }
    /* allocate variable-sized data */
-   VECTOR_TRACE_Resize( dest, src->N );
+   VECTOR_TRACE_GrowTo( dest, src->N );
    /* copy variable-sized data */
    for (int i = 0; i < src->N; i++ ) {
       *VECTOR_TRACE_GetX( dest, i ) = TRACE_Create( VEC_X( src, i ) );
@@ -326,7 +326,7 @@ VECTOR_TRACE_Push(  VECTOR_TRACE*   vec,
                   TRACE           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VECTOR_TRACE_Set( vec, vec->N, val );
+   VEC_X( vec, vec->N ) = val;
    vec->N++;
 }
 
@@ -791,6 +791,9 @@ VECTOR_TRACE_Dump_byOpt(  VECTOR_TRACE*    vec,
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
       fprintf(fp, "%s%s%s", TRACE_To_String(vec->data[i], s), delim, pad );
+   }
+   if ( vec->N >= 1 ) {
+      fprintf(fp, "%s%s", TRACE_To_String(vec->data[vec->N-1], s), pad );
    }
    fprintf(fp, "]\n" );
 }

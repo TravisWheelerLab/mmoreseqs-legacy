@@ -152,6 +152,7 @@
 /* error-checking macros */
 #define ERROR_alloc(...) 			ERRORCHECK_alloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_malloc(...) 			ERRORCHECK_malloc(__VA_ARGS__, ERRORCHECK_locate() )
+// #define ERROR_calloc(...) 			ERRORCHECK_calloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_realloc(...) 		ERRORCHECK_realloc(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_free(...) 			ERRORCHECK_free(__VA_ARGS__, ERRORCHECK_locate() )
 #define ERROR_fopen(...) 			ERRORCHECK_fopen(__VA_ARGS__, ERRORCHECK_locate() )
@@ -159,7 +160,6 @@
 
 /* gets the location where error occurred */
 #define ERRORCHECK_locate()			__FILE__, __LINE__, __FUNCTION__
-
 
 /* === MATRIX FUNCTIONS AND MACROS === */
 

@@ -44,6 +44,7 @@
 #include "score_matrix.h"
 #include "sequence.h"
 #include "scriptrunner.h"
+#include "commandline.h"
 
 /* worker (dependent on most object types) */
 #include "worker_thread.h"

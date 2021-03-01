@@ -114,8 +114,8 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backtracing, so T is terminal/exit state. C is the non-emit state after the end of the alignment. */
-   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* initialize previous q_0 */
@@ -127,7 +127,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
    {
       /* if we have reached the end of the query sequence */
       if (q_0 == 0) {
-         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
+         ALIGNMENT_AppendTrace( aln, S_ST, q_0, t_0 );
          break;
       } 
 
@@ -421,7 +421,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
          }
       }
 
-      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
+      ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
 
       /* For {N,C,J}, we deferred i decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {

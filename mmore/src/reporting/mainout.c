@@ -150,6 +150,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
                            RESULT*  result,
                            FILE*    fp )
 {
+   BUFFER*        buffer         = worker->buffer;
    ALIGNMENT*     aln            = worker->trace_vit;
    // ALIGNMENT*     aln            = worker->trace_post;
    HMM_PROFILE*   t_prof         = worker->t_prof;
@@ -160,7 +161,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
    /* short names for alignment */
    STR            t_name         = "=T=";      /* short target name for alignment */
    STR            q_name         = "=Q=";      /* short query name for alignment */
-   STR            c_name         = "= =";       /* short center name for alignment */
+   STR            c_name         = "=X=";      /* short center name for alignment */
 
    /* alignment strings */
    STR            cigar_aln      = NULL;
@@ -178,7 +179,6 @@ void REPORT_stdout_entry(  WORKER*  worker,
    int            def_width      = 100;      /* default window size */
    int            aln_width      = 100;      /* current window size (can change to fit alignment) */
 
-
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {
       ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
@@ -187,7 +187,6 @@ void REPORT_stdout_entry(  WORKER*  worker,
    cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
 
    if ( aln->is_hmmer_aln == false ) {
-      /*! TODO: fix hmmer align tool */
       ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
    }
    target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
@@ -208,58 +207,72 @@ void REPORT_stdout_entry(  WORKER*  worker,
    /* Scores Header */
    fprintf( fp, "== %*s\n", 
       0, "Scores for complete sequences:");
-   /* Alignment Header */
-   fprintf( fp, "== %*s\n", 
-      0, "Alignment:");
-   fprintf( fp, "==== %*s %d :: %s %3.2f %s | %s %-3.2e %s\n",
-      0, "Domain", 0,                                    /* domain number */
-      "Score:",         finalsc->seq_sc,     "bits",     /* bit-score */
-      "E-value:",       finalsc->eval,       ""          /* e-value (raw) */
-   );
-   /* MMSEQS-style Cigar Alignment */
-   if (true)
-   {
-      fprintf( fp, "%*s %s\n\n", 
-         0, "==== MMSEQS Cigar Alignment:", cigar_aln );
-   }
+   
+   /* Domain Table */
 
-   /* HMMER-style Alignment */
-   int offset = 0; 
-   if (true) 
+   
+   int N_regions = ALIGNMENT_GetNumRegions( aln );
+   for ( int i_domain = 0; i_domain < N_regions; i_domain++ ) 
    {
-      fprintf( fp, "%*s %s\n", 
-         0, "==== HMMER Pairwise Alignment ===:\n", "" );
-      /* create alignment rows */
-      for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+      /* Alignment Header */
+      fprintf( fp, "== %*s\n", 
+         0, "Alignment:");
+      fprintf( fp, "==== %*s %d :: %s %3.2f %s | %s %-3.2e %s\n",
+         0, "Domain",      i_domain,                        /* domain number */
+         "Score:",         finalsc->seq_sc,     "bits",     /* bit-score */
+         "E-value:",       finalsc->eval,       ""          /* e-value (raw) */
+      );
+
+      /* MMSEQS-style Cigar Alignment */
       {
-         /* if remaining alignment exceeds window size, constrain it */
-         aln_width = MIN( aln->end - aln->beg + 1, def_width );
+         fprintf( fp, "%*s\n", 
+            0, "==== MMSEQS Cigar Alignment ===:" );
+         fprintf( fp, "%*.*s %s\n\n",
+            name_width, name_width, "", cigar_aln );
+      }
 
-         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-            name_width, name_width,                         /* padding */
-            t_name,                                         /* name */
-            VEC_X( aln->traces, i ).t_0,                    /* starting index */
-            aln_width,                                      /* number of residues per line */
-            &VEC_X( aln->target_aln, offset ),              /* alignment residues */
-            VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
-         );
-         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-            name_width, name_width,                         /* padding */
-            c_name,                                         /* name */
-            i,                                              /* starting index */
-            aln_width,                                      /* number of residues per line */
-            &VEC_X( aln->center_aln, offset ),              /* alignment residues */
-            i + aln_width - 1                               /* ending index */
-         );
-         fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-            name_width, name_width,                         /* padding */
-            q_name,                                         /* name */
-            VEC_X( aln->traces, i ).q_0,                    /* starting index */
-            aln_width,                                      /* number of residues per line */
-            &VEC_X( aln->query_aln, offset ),               /* alignment residues */
-            VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
-         );
-         fprintf( fp, "\n" );
+      /* HMMER-style Pairwise Alignment */
+      int      offset   = 0; 
+      TRACE    tr_beg, tr_end;
+      {
+         printf( "target: %d, query: %d, center: %d\n", 
+            VECTOR_CHAR_GetSize( aln->target_aln ), VECTOR_CHAR_GetSize( aln->query_aln ), VECTOR_CHAR_GetSize( aln->center_aln ) );
+
+         fprintf( fp, "==== HMMER-Style Alignment === | Domain: %d\n",
+            i_domain );
+         /* create alignment rows */
+         for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+         {
+            
+            /* if remaining alignment exceeds window size, constrain it */
+            aln_width = MIN( aln->end - aln->beg, def_width );
+
+            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+               name_width, name_width,                         /* padding */
+               t_name,                                         /* name */
+               VEC_X( aln->traces, i ).t_0,                    /* starting index */
+               aln_width,                                      /* number of residues per line */
+               &VEC_X( aln->target_aln, offset ),              /* alignment residues */
+               VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
+            );
+            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+               name_width, name_width,                         /* padding */
+               c_name,                                         /* name */
+               i,                                              /* starting index */
+               aln_width,                                      /* number of residues per line */
+               &VEC_X( aln->center_aln, offset ),              /* alignment residues */
+               i + aln_width - 1                               /* ending index */
+            );
+            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+               name_width, name_width,                         /* padding */
+               q_name,                                         /* name */
+               VEC_X( aln->traces, i ).q_0,                    /* starting index */
+               aln_width,                                      /* number of residues per line */
+               &VEC_X( aln->query_aln, offset ),               /* alignment residues */
+               VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
+            );
+            fprintf( fp, "\n" );
+         }
       }
    }
 
@@ -267,8 +280,31 @@ void REPORT_stdout_entry(  WORKER*  worker,
    fprintf( fp, "\n");
 }
 
-/*    FUNCTION:   REPORT_stdout_footer()
- *    SYNOPSIS:   Print Summary Statistics after all searches completed.
+/*!  FUNCTION:   REPORT_stdout_align()
+ *   SYNOPSIS:   Print <i>th alignment.
+ */
+void 
+REPORT_stdout_domtbl(   WORKER*  worker,
+                        RESULT*  result,
+                        int      i_domain,
+                        FILE*    fp )
+{
+   
+}
+
+/*!  FUNCTION:   REPORT_stdout_align()
+ *   SYNOPSIS:   Print <i>th alignment.
+ */
+void 
+REPORT_stdout_hmmer_align(    WORKER*  worker,
+                              int      i_domain,
+                              FILE*    fp )
+{
+
+}
+
+/*!  FUNCTION:   REPORT_stdout_footer()
+ *   SYNOPSIS:   Print Summary Statistics after all searches completed.
  *                (modeled after HMMER, see example)
  */
 void 
@@ -282,8 +318,8 @@ REPORT_stdout_footer(   WORKER*  worker,
    fprintf( fp, "\n# [ok.]\n" );
 }
 
-/*!   FUNCTION:   REPORT_stdout_footer_search_summary()
- *    SYNOPSIS:   Print Summary Statistics after all searches completed.
+/*!  FUNCTION:   REPORT_stdout_footer_search_summary()
+ *   SYNOPSIS:   Print Summary Statistics after all searches completed.
  *                (modeled after HMMER, see example)
  */
 void 
@@ -331,8 +367,8 @@ REPORT_stdout_footer_search_summary(   WORKER*  worker,
    fprintf( fp, "\n" );
 }
 
-/*!   FUNCTION:   REPORT_stdout_footer_time_summary()
- *    SYNOPSIS:   Print Runtime Summary.
+/*!  FUNCTION:   REPORT_stdout_footer_time_summary()
+ *   SYNOPSIS:   Print Runtime Summary.
  */
 void 
 REPORT_stdout_footer_time_summary(     WORKER*  worker,

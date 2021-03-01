@@ -19,9 +19,8 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_linear.h"
-
 /* header */
+#include "_algs_linear.h"
 #include "viterbi_linear.h"
 
 /*

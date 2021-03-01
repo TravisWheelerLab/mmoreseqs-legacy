@@ -20,9 +20,8 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_quad.h"
-
 /* header */
+#include "_algs_quad.h"
 #include "merge_reorient_quad.h"
 
 /*! FUNCTION:  EDGEBOUNDS_Merge_Reorient_Naive()

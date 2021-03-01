@@ -1,81 +1,88 @@
 #################################################################################
 #		  NAME: TEMPLATE MAKEFILE
-# 		AUTHOR: David Rich (modified from source)
+# 		AUTHOR: David Rich 
 #
 #		SOURCE: https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
 #################################################################################
 
-# define C compiler to use
-SHELL = /bin/sh
-CC = gcc
-CXX = g++
+# COMPILER TOOLS:
+SHELL 	= /bin/sh
+CC 		= gcc
+CXX 		= g++
+# OTHER TOOLS:
+CP 		= cp
 
-# location of root folder of makefile
+# ROOT FOLDER:
 ROOT_DIR ?= $(shell pwd)
-$(info **** ROOT_DIR = $(ROOT_DIR) **** )
+# $(info **** ROOT_DIR = $(ROOT_DIR) **** )
 
-# package information 
-PACKAGE = FB-PRUNER 
-PACKAGE_VERSION = 0.1A
-PACKAGE_TARNAME = mmore
+# PACKAGE/BUILD INFORMATION:
+PACKAGE 				= FB-PRUNER 
+PACKAGE_VERSION 	= 0.1A
+PACKAGE_TARNAME 	= mmore
 
-# final executable
-TARGET_EXEC ?= mmore
-MAIN_EXEC 	?= mmore
+# FINAL EXECUTABLE:
+TARGET_EXEC 	?= mmore
+MAIN_EXEC 		?= mmore
 
-# library directories 
-LIB_DIR 		?= ./lib
-EASEL_DIR 	?= $(LIB_DIR)/easel
+# LIBRARY DIRECTORIES: 
+LIB_DIR 			?= ./lib
+EASEL_DIR 		?= $(LIB_DIR)/easel
 
 # main tool directory (need this for scripts)
-MMORE_BIN 	?= ./build
+MMORE_BIN 		?= build/
 
-# other tools directories
-TOOL_DIR 	?= ./tools
-MMSEQS_DIR 	?= $(TOOL_DIR)/MMseqs2
-MMSEQS_BIN 	?= $(MMSEQS_DIR)/bin
-HMMER_DIR 	?= $(TOOL_DIR)/hmmer
-HMMER_BIN 	?= $(HMMER_DIR)/bin
+# TOOL DIRECTORIES:
+TOOL_DIR 		?= tools/
+MMSEQS_DIR 		?= $(TOOL_DIR)/MMseqs2
+MMSEQS_BIN 		?= $(MMSEQS_DIR)/bin
+HMMER_DIR 		?= $(TOOL_DIR)/hmmer
+HMMER_BIN 		?= $(HMMER_DIR)/bin
 
+# INPUT/OUTPUT DIRECTORIES:
+INSTALL_DIR 	?= bin/
+BUILD_DIR 		?= build/
+SRC_DIRS 		?= src/
+SCRIPT_DIRS 	?= scripts/
 
-# input/output directories
-INSTALL_DIR ?= ./bin
-BUILD_DIR 	?= ./build
-SRC_DIRS 	?= ./src
-
+# SOURCES:
 # get all source code from source directory
-SRCS 	:= $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+SRCS 				:= $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+# get all scripts from script directory
+SCRIPTS 			:= $(shell find $())
 # for each source file, create an object (.o)
-OBJS 	:= $(SRCS:%=$(BUILD_DIR)/%.o)
+OBJS 				:= $(SRCS:%=$(BUILD_DIR)/%.o)
 # for each object file create a dependency file (.d)
-DEPS 	:= $(OBJS:.o=.d)
+DEPS 				:= $(OBJS:.o=.d)
 
-# find all included dependency files
-INC_DIRS 	:= $(shell find $(SRC_DIRS) -type d)
-# create a compiler flag for each included dependency
-INC_FLAGS 	:= $(addprefix -I,$(INC_DIRS))
+# INCLUDED DIRECTORIES:
+INC_DIRS 		:= $(shell find $(SRC_DIRS) -type d)
+# Include flags:
+INC_FLAGS 		:= $(addprefix -I,$(INC_DIRS))
 
-# include library archives
-INC_LIBS := -I$(EASEL_DIR)
+# Include library archives
+INC_LIBS 		:= -I$(EASEL_DIR)
+# Macro Variables:
+INC_VARS 		:= -DPROJECT_LOC=$(ROOT_DIR) 			\
+						-DMMSEQS_BIN_LOC=$(MMSEQS_BIN) 	\
+						-DHMMER_BIN_LOC=$(HMMER_BIN) 		\
+						-DMMORE_BIN_LOC=$(MMORE_BIN) 
 
-# variables declarations
-INC_VARS := -DPROJECT_LOC=$(ROOT_DIR) -DMMSEQS_BIN_LOC=$(MMSEQS_BIN) -DHMMER_BIN_LOC=$(HMMER_BIN) -DMMORE_BIN_LOC=$(MMORE_BIN) 
-
-# Any C linked libraries I want to include
+# LINKED LIBRARIES:
 # suggested flags: -lm -L(easel library location) -leasel
-CLIBS 			:= -lm -L${EASEL_DIR} -leasel
+CLIBS 		:= -lm -L${EASEL_DIR} -leasel
 # standard C compiler flags to be run (non-build-specific)
 # suggested flags: -std=gnu99 -g -DROOT_DIR=$(ROOT_DIR)
-CFLAGS 			:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_VARS)
+CFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_VARS)
 # standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
 # suggested flags: -MMD -MP -O3
-CPPFLAGS 		?= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_VARS)
+CXXFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_VARS)
 
-# flags for debugging and profiling
+# BUILD-SPECIFIC FLAGS: 
 # -g (DEBUGGING INFO FOR VALGRIND)
 # -pg (PROFILING INFO FOR GPROF)
-# suggested flags: -g (valgrind) -pg (gprof) -DDEBUG=1 -fsanitize=address
-DEBUGFLAGS 		:= -pg -fsanitize=address -DDEBUG=1 
+# suggested flags: -g (line numbers) -pg (gprof) -DDEBUG=1 -fsanitize=address
+DEBUGFLAGS 		:= -g -pg -fsanitize=address -DDEBUG=1 
 # flags for alpha version
 ALPHAFLAGS 		:= -g -O1 -fsanitize=address
 # flags for alpha version
@@ -83,79 +90,88 @@ VALFLAGS 		:= -g -O0
 # flags for release version
 RELEASEFLAGS 	:= -O3
 
-$(info ************  BUILD FB_PRUNER  ************)
+# SELECT BUILD-SPECIFIC FLAGS: 
 # special flags for DEBUG
 ifeq ($(BUILD), DEBUG)
-	CFLAGS+=$(DEBUGFLAGS)
-	CPPFLAGS+=$(DEBUGFLAGS)
-	TARGET_EXEC=mmore-DEBUG
+	TYPE			=  DEBUG
+	CFLAGS		+= $(DEBUGFLAGS)
+	CPPFLAGS		+=	$(DEBUGFLAGS)
+	TARGET_EXEC	=	mmore-DEBUG
 endif
 # special flags for ALPHA 
 ifeq ($(BUILD), ALPHA)
-# 	$(info RELEASE FLAGGED)
-	CFLAGS+=$(ALPHAFLAGS)
-	CPPFLAGS+=$(ALPHAFLAGS)
-	TARGET_EXEC=mmore-ALPHA
+	TYPE			=	ALPHA
+	CFLAGS		+=	$(ALPHAFLAGS)
+	CPPFLAGS		+=	$(ALPHAFLAGS)
+	TARGET_EXEC	=	mmore-ALPHA
 endif
 # special flags for ALPHA 
 ifeq ($(BUILD), VALGRIND)
-# 	$(info RELEASE FLAGGED)
-	CFLAGS+=$(VALFLAGS)
-	CPPFLAGS+=$(VALFLAGS)
-	TARGET_EXEC=mmore-VALGRIND
+	TYPE			=	VALGRIND
+	CFLAGS		+=	$(VALFLAGS)
+	CPPFLAGS		+=	$(VALFLAGS)
+	TARGET_EXEC	= 	mmore-VALGRIND
 endif
 # special flags for RELEASE 
+BUILD ?= RELEASE
 ifeq ($(BUILD), RELEASE)
-# 	$(info RELEASE FLAGGED)
-	CFLAGS+=$(RELEASEFLAGS)
-	CPPFLAGS+=$(RELEASEFLAGS)
-	TARGET_EXEC=mmore-RELEASE
+	TYPE			=	RELEASE
+	CFLAGS		+=	$(RELEASEFLAGS)
+	CPPFLAGS		+=	$(RELEASEFLAGS)
+	TARGET_EXEC	=	mmore-RELEASE
+endif
+# build type
+$(info *** BUILD-TYPE: ${TYPE} *** )
+
+# PROGRAMS
+PROGRAMS = \
+	${BUILD_DIR}/${TARGET_EXEC} \
+
+# $(info *** PROGRAMS: ${PROGRAMS} *** )
+# $(info *** CFLAGS: ${CFLAGS} *** )
+
+# SILENCE UNNECCESSARY OUTPUT
+ECHO_SUBDIR0 = +${MAKE} -C #space separator after -c
+ECHO_SUBDIR1 = 
+ifndef V
+	QUIET_CC      = echo 'CC $@'; ${CC}
+	QUIET_CXX     = echo 'CXX $@'; ${CXX}
+	QUIET_GEN     = echo 'GEN $@'; ${GEN}
+	QUIET_AR      = echo 'AR $@'; ${AR}
+	QUIET_SUBDIR0 = +@subdir=
+	QUIET_SUBDIR1 = ; echo 'SUBDIR $$subdir' \
+		        		echo '${MAKE} -s -C $$subdir'
 endif
 
-# compile each object file before executable
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
-
-# assembly
-$(BUILD_DIR)/%.s.o: %.s
-	$(MKDIR_P) $(dir $@)
-	$(AS) $(ASFLAGS) -c $< -o $@
-
-# c source
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(CLIBS) 
-
-# c++ source
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
-.PHONY: all install clean
+.PHONY: all force install clean
 
 # full install
-all:
-	# compile each object file before executable
-	$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-		$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
+all: ${PROGRAMS}
 
-	# assembly
-	$(BUILD_DIR)/%.s.o: %.s
-		$(MKDIR_P) $(dir $@)
-		$(AS) $(ASFLAGS) -c $< -o $@
+# C executable
+${PROGRAMS}: $(OBJS)
+	$(info CC $@)
+	@$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
 
-	# c source
-	$(BUILD_DIR)/%.c.o: %.c
-		$(MKDIR_P) $(dir $@)
-		$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@ $(CLIBS) 
+# C source
+$(BUILD_DIR)/%.c.o: %.c
+	$(info CC $@)
+	@$(MKDIR_P) $(dir $@)
+	@$(CC) $(CFLAGS) -c $< -o $@ $(CLIBS) 
 
-	# c++ source
-	$(BUILD_DIR)/%.cpp.o: %.cpp
-		$(MKDIR_P) $(dir $@)
-		$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+# C++ source
+$(BUILD_DIR)/%.cpp.o: %.cpp
+	$(info CXX $@)
+	@$(MKDIR_P) $(dir $@)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# pull submodules and make them
+# force remake
+force:
+	echo '*** MAKE FORCE-ALL ***'
+
+# install submodules and make them
 submodules:
+	echo '*** MAKE SUBMODULE ***'
 	git submodule update --recursive
 	make easel 
 	make mmseqs

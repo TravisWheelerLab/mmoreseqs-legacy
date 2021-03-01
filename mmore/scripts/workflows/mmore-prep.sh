@@ -14,10 +14,10 @@
 # (2b) if <query> is .hmm file, convert to .fasta (consensus) file
 # (2c) verify that final <query> is .fasta file
 #
-# (3a) if <target_mmseqs> is .msa file, convert to .mm_msa file.
-# (3b) if <target_mmseqs> is .mm_msa file, convert to .hhm file.
-# (3c) if <target_mmseqs> is .hhm file, convert to .mm_db file.
-# (3d) if <target_mmseqs> is .fasta file, convert to .mm_db file.
+# (3a) if <target_mmseqs_p> is .msa file, convert to .mm_msa file.
+# (3b) if <target_mmseqs_p> is .mm_msa file, convert to .hhm file.
+# (3c) if <target_mmseqs_p> is .hhm file, convert to .mm_db file.
+# (3d) if <target_mmseqs_p> is .fasta file, convert to .mm_db file.
 # (3e) verify that final <target_mmseqs> file is .mm_db file.
 # 
 # (4a) if <query_mmseqs> is .msa file, convert to .fasta (consensus) file.
@@ -26,8 +26,6 @@
 # (4d) if <query_mmseqs> is .fasta file, convert to .mm_db file.
 # (4e) verify that final <query_mmseqs> file is .mm_db file.
 #
-# (5a) 
-# (5b)
 
 # ##### FUNCTIONS ###### #
 # main script only contains the minimum functions needed to load helper function script

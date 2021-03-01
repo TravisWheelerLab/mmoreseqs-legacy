@@ -357,7 +357,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, 
+            &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -382,8 +383,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          rb_0 = MIN(rb_0, re_0);
 
          /* Update changes to list */
-         VEC_X( lb_vec[0], b ) = lb_0;
-         VEC_X( rb_vec[0], b ) = rb_0;
+         VEC_X( lb_vec[0], i ) = lb_0;
+         VEC_X( rb_vec[0], i ) = rb_0;
 
          /* Bound to be added */
          bnd_new = (BOUND){d_0, lb_0, rb_0};
@@ -1000,9 +1001,10 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
-         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
+         /* prune bounds using both local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, 
+            &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 

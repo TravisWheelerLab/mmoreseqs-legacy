@@ -15,5 +15,10 @@
 			"ctime": "cpp",
 			"mainout.h": "c"
 		}
+	},
+	"extensions": {
+		"recommendations": [
+			"austin.code-gnu-global"
+		]
 	}
 }

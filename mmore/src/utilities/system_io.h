@@ -9,7 +9,7 @@
 #ifndef _SYSTEMIO_H
 #define _SYSTEMIO_H
 
-#include "structs.h"
+#include "../objects/structs.h"
 
 /*! FUNCTION:  	SYSTEMIO_Exists()
  *  SYNOPSIS:  	Checks whether <filename> exists.

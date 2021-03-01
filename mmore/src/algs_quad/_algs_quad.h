@@ -18,7 +18,6 @@
 #include "viterbi_traceback_quad.h"
 #include "viterbi_quad.h"
 #include "pruning_quad.h"
-#include "ranged_fwdback_quad.h"
 #include "posterior_quad.h"
 
 #endif /* _ALGS_QUAD_H */

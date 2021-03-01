@@ -73,6 +73,7 @@ WORK_load_script_env_args( WORKER* worker )
    /* MMSEQS PARAMETERS */
    /* PREFILTER */
    /* P2S SEARCH */
+   
    /* S2S SEARCH */
    SCRIPTRUNNER_Add_Env_Variable( runner, "HITS_PER_SEARCH",      INT_To_String( args->mmseqs_hits_per_search, buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "KMER",                 INT_To_String( args->mmseqs_kmer,            buffer ) );

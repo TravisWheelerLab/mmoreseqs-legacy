@@ -21,6 +21,18 @@ BUFFER_Create();
 BUFFER*
 BUFFER_Destroy( BUFFER*  buffer );
 
+/*!  FUNCTION:  BUFFER_GetSize()
+ *   SYNOPSIS:  Get the size of buffer.  
+ */
+size_t
+BUFFER_GetSize( BUFFER* buffer );
+
+/*!  FUNCTION:  BUFFER_Empty()
+ *   SYNOPSIS:  Empty <buffer>.
+ */
+void
+BUFFER_Empty( BUFFER*  buffer );
+
 /*!  FUNCTION:  BUFFER_SetDelimiter()
  *   SYNOPSIS:  Split <buffer>'s <delimiter> to be used for splitting lines.
  */
@@ -41,5 +53,17 @@ BUFFER_Move(   BUFFER*     buffer,
  */
 bool
 BUFFER_IsEmpty(   BUFFER*     buffer );
+
+/*!  FUNCTION:  BUFFER_GetLength()
+ *   SYNOPSIS:  Get occupied length of buffer.
+ */
+size_t
+BUFFER_GetLength(   BUFFER*     buffer );
+
+/*!  FUNCTION:  BUFFER_GetMaxLength()
+ *   SYNOPSIS:  Get max length of buffer.
+ */
+size_t
+BUFFER_GetMaxLength(   BUFFER*     buffer );
 
 #endif /* _BUFFER_H */

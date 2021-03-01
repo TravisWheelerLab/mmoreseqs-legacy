@@ -63,7 +63,12 @@ char*
 STR_To_String( const STR   data,
                char*       buf )
 {
-   sprintf( buf, "%s", data );
+   if ( data == NULL ) {
+      sprintf( buf, "%s", "(null)" );
+   }
+   else {
+      sprintf( buf, "%s", data );
+   }
 
    return buf;
 }

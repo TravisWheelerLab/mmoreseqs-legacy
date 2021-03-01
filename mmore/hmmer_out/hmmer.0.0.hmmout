@@ -1,0 +1,2087 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.0.fa
+# target sequence database:        targets/targets.0.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q8WZ42|TITIN_HUMAN  [L=34350]
+Description: Titin OS=Homo sapiens OX=9606 GN=TTN PE=1 SV=4
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence              Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------              -----------
+          0 78722.8 1081.4          0 78722.7 1081.3    1.0  1  sp|Q8WZ42|TITIN_HUMAN  Titin OS=Homo sapiens OX=9606 GN=TTN P
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|Q8WZ42|TITIN_HUMAN  Titin OS=Homo sapiens OX=9606 GN=TTN PE=1 SV=4
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 78722.7 1081.3         0         0       1   34350 []       1   34350 []       1   34350 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 78722.7 bits;  conditional E-value: 0
+  sp|Q8WZ42|TITIN_HUMAN     1 mttqaptftqplqsvvvlegstatfeahisgfpvpevswfrdgqviststlpgvqisfsdgrakltipavtkansgryslkatn 84   
+                              mttqaptftqplqsvvvlegstatfeahisgfpvpevswfrdgqviststlpgvqisfsdgrakltipavtkansgryslkatn
+  sp|Q8WZ42|TITIN_HUMAN     1 MTTQAPTFTQPLQSVVVLEGSTATFEAHISGFPVPEVSWFRDGQVISTSTLPGVQISFSDGRAKLTIPAVTKANSGRYSLKATN 84   
+                              8*********************************************************************************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN    85 gsgqatstaellvkaetappnfvqrlqsmtvrqgsqvrlqvrvtgiptpvvkfyrdgaeiqssldfqisqegdlyslliaeayp 168  
+                              gsgqatstaellvkaetappnfvqrlqsmtvrqgsqvrlqvrvtgiptpvvkfyrdgaeiqssldfqisqegdlyslliaeayp
+  sp|Q8WZ42|TITIN_HUMAN    85 GSGQATSTAELLVKAETAPPNFVQRLQSMTVRQGSQVRLQVRVTGIPTPVVKFYRDGAEIQSSLDFQISQEGDLYSLLIAEAYP 168  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   169 edsgtysvnatnsvgratstaellvqgeeevpakktktivstaqisesrqtriekkieahfdarsiatvemvidgaagqqlphk 252  
+                              edsgtysvnatnsvgratstaellvqgeeevpakktktivstaqisesrqtriekkieahfdarsiatvemvidgaagqqlphk
+  sp|Q8WZ42|TITIN_HUMAN   169 EDSGTYSVNATNSVGRATSTAELLVQGEEEVPAKKTKTIVSTAQISESRQTRIEKKIEAHFDARSIATVEMVIDGAAGQQLPHK 252  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   253 tpprippkpksrsptppsiaakaqlarqqspspirhspspvrhvraptpspvrsvspaaristspirsvrspllmrktqastva 336  
+                              tpprippkpksrsptppsiaakaqlarqqspspirhspspvrhvraptpspvrsvspaaristspirsvrspllmrktqastva
+  sp|Q8WZ42|TITIN_HUMAN   253 TPPRIPPKPKSRSPTPPSIAAKAQLARQQSPSPIRHSPSPVRHVRAPTPSPVRSVSPAARISTSPIRSVRSPLLMRKTQASTVA 336  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   337 tgpevpppwkqegyvassseaemrettlttstqirteerwegrygvqeqvtisgaagaaasvsasasyaaeavatgakevkqda 420  
+                              tgpevpppwkqegyvassseaemrettlttstqirteerwegrygvqeqvtisgaagaaasvsasasyaaeavatgakevkqda
+  sp|Q8WZ42|TITIN_HUMAN   337 TGPEVPPPWKQEGYVASSSEAEMRETTLTTSTQIRTEERWEGRYGVQEQVTISGAAGAAASVSASASYAAEAVATGAKEVKQDA 420  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   421 dksaavatvvaavdmarvrepvisaveqtaqrttttavhiqpaqeqvrkeaektavtkvvvaadkakeqelksrtkevittkqe 504  
+                              dksaavatvvaavdmarvrepvisaveqtaqrttttavhiqpaqeqvrkeaektavtkvvvaadkakeqelksrtkevittkqe
+  sp|Q8WZ42|TITIN_HUMAN   421 DKSAAVATVVAAVDMARVREPVISAVEQTAQRTTTTAVHIQPAQEQVRKEAEKTAVTKVVVAADKAKEQELKSRTKEVITTKQE 504  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   505 qmhvtheqirketektfvpkvvisaakakeqetriseeitkkqkqvtqeairqeteitaasmvvvatakstkletvpgaqeett 588  
+                              qmhvtheqirketektfvpkvvisaakakeqetriseeitkkqkqvtqeairqeteitaasmvvvatakstkletvpgaqeett
+  sp|Q8WZ42|TITIN_HUMAN   505 QMHVTHEQIRKETEKTFVPKVVISAAKAKEQETRISEEITKKQKQVTQEAIRQETEITAASMVVVATAKSTKLETVPGAQEETT 588  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   589 tqqdqmhlsyekimketrktvvpkvivatpkvkeqdlvsrgregittkreqvqitqekmrkeaektalstiavatakakeqeti 672  
+                              tqqdqmhlsyekimketrktvvpkvivatpkvkeqdlvsrgregittkreqvqitqekmrkeaektalstiavatakakeqeti
+  sp|Q8WZ42|TITIN_HUMAN   589 TQQDQMHLSYEKIMKETRKTVVPKVIVATPKVKEQDLVSRGREGITTKREQVQITQEKMRKEAEKTALSTIAVATAKAKEQETI 672  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   673 lrtretmatrqeqiqvthgkvdvgkkaeavatvvaavdqarvreprepghleesyaqqttleygykerisaakvaeppqrpase 756  
+                              lrtretmatrqeqiqvthgkvdvgkkaeavatvvaavdqarvreprepghleesyaqqttleygykerisaakvaeppqrpase
+  sp|Q8WZ42|TITIN_HUMAN   673 LRTRETMATRQEQIQVTHGKVDVGKKAEAVATVVAAVDQARVREPREPGHLEESYAQQTTLEYGYKERISAAKVAEPPQRPASE 756  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   757 phvvpkavkprviqapsethikttdqkgmhissqikkttdltterlvhvdkrprtasphftvskisvpktehgyeasiagsaia 840  
+                              phvvpkavkprviqapsethikttdqkgmhissqikkttdltterlvhvdkrprtasphftvskisvpktehgyeasiagsaia
+  sp|Q8WZ42|TITIN_HUMAN   757 PHVVPKAVKPRVIQAPSETHIKTTDQKGMHISSQIKKTTDLTTERLVHVDKRPRTASPHFTVSKISVPKTEHGYEASIAGSAIA 840  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   841 tlqkelsatssaqkitksvkaptvkpsetrvraeptplpqfpfadtpdtykseagvevkkevgvsitgttvreerfevlhgrea 924  
+                              tlqkelsatssaqkitksvkaptvkpsetrvraeptplpqfpfadtpdtykseagvevkkevgvsitgttvreerfevlhgrea
+  sp|Q8WZ42|TITIN_HUMAN   841 TLQKELSATSSAQKITKSVKAPTVKPSETRVRAEPTPLPQFPFADTPDTYKSEAGVEVKKEVGVSITGTTVREERFEVLHGREA 924  
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN   925 kvtetarvpapveipvtpptlvsglknvtviegesvtlechisgypsptvtwyredyqiessidfqitfqsgiarlmireafae 1008 
+                              kvtetarvpapveipvtpptlvsglknvtviegesvtlechisgypsptvtwyredyqiessidfqitfqsgiarlmireafae
+  sp|Q8WZ42|TITIN_HUMAN   925 KVTETARVPAPVEIPVTPPTLVSGLKNVTVIEGESVTLECHISGYPSPTVTWYREDYQIESSIDFQITFQSGIARLMIREAFAE 1008 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1009 dsgrftcsavneagtvstscylavqvseefekettavtekftteekrfvesrdvvmtdtslteeqagpgepaapyfitkpvvqk 1092 
+                              dsgrftcsavneagtvstscylavqvseefekettavtekftteekrfvesrdvvmtdtslteeqagpgepaapyfitkpvvqk
+  sp|Q8WZ42|TITIN_HUMAN  1009 DSGRFTCSAVNEAGTVSTSCYLAVQVSEEFEKETTAVTEKFTTEEKRFVESRDVVMTDTSLTEEQAGPGEPAAPYFITKPVVQK 1092 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1093 lveggsvvfgcqvggnpkphvywkksgvplttgyrykvsynkqtgecklvismtfaddageytivvrnkhgetsasaslleead 1176 
+                              lveggsvvfgcqvggnpkphvywkksgvplttgyrykvsynkqtgecklvismtfaddageytivvrnkhgetsasaslleead
+  sp|Q8WZ42|TITIN_HUMAN  1093 LVEGGSVVFGCQVGGNPKPHVYWKKSGVPLTTGYRYKVSYNKQTGECKLVISMTFADDAGEYTIVVRNKHGETSASASLLEEAD 1176 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1177 yellmksqqemlyqtqvtafvqepkvgetapgfvyseyekeyekeqalirkkmakdtvvvrtyvedqefhissfeerlikeiey 1260 
+                              yellmksqqemlyqtqvtafvqepkvgetapgfvyseyekeyekeqalirkkmakdtvvvrtyvedqefhissfeerlikeiey
+  sp|Q8WZ42|TITIN_HUMAN  1177 YELLMKSQQEMLYQTQVTAFVQEPKVGETAPGFVYSEYEKEYEKEQALIRKKMAKDTVVVRTYVEDQEFHISSFEERLIKEIEY 1260 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1261 riikttleelleedgeekmavdiseseavesgfdsriknyrilegmgvtfhckmsgyplpkiawykdgkrikhgeryqmdflqd 1344 
+                              riikttleelleedgeekmavdiseseavesgfdsriknyrilegmgvtfhckmsgyplpkiawykdgkrikhgeryqmdflqd
+  sp|Q8WZ42|TITIN_HUMAN  1261 RIIKTTLEELLEEDGEEKMAVDISESEAVESGFDSRIKNYRILEGMGVTFHCKMSGYPLPKIAWYKDGKRIKHGERYQMDFLQD 1344 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1345 graslripvvlpedegiytafasnikgnaicsgklyvepaaplgaptyiptlepvsrirslsprsvsrspirmsparmsparms 1428 
+                              graslripvvlpedegiytafasnikgnaicsgklyvepaaplgaptyiptlepvsrirslsprsvsrspirmsparmsparms
+  sp|Q8WZ42|TITIN_HUMAN  1345 GRASLRIPVVLPEDEGIYTAFASNIKGNAICSGKLYVEPAAPLGAPTYIPTLEPVSRIRSLSPRSVSRSPIRMSPARMSPARMS 1428 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1429 parmsparmspgrrleetdesqlerlykpvfvlkpvsfkclegqtarfdlkvvgrpmpetfwfhdgqqivndythkvvikedgt 1512 
+                              parmsparmspgrrleetdesqlerlykpvfvlkpvsfkclegqtarfdlkvvgrpmpetfwfhdgqqivndythkvvikedgt
+  sp|Q8WZ42|TITIN_HUMAN  1429 PARMSPARMSPGRRLEETDESQLERLYKPVFVLKPVSFKCLEGQTARFDLKVVGRPMPETFWFHDGQQIVNDYTHKVVIKEDGT 1512 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1513 qsliivpatpsdsgewtvvaqnragrssisviltveavehqvkpmfveklknvnikegsrlemkvratgnpnpdivwlknsdii 1596 
+                              qsliivpatpsdsgewtvvaqnragrssisviltveavehqvkpmfveklknvnikegsrlemkvratgnpnpdivwlknsdii
+  sp|Q8WZ42|TITIN_HUMAN  1513 QSLIIVPATPSDSGEWTVVAQNRAGRSSISVILTVEAVEHQVKPMFVEKLKNVNIKEGSRLEMKVRATGNPNPDIVWLKNSDII 1596 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1597 vphkypkiriegtkgeaalkidstvsqdsawytatainkagrdttrckvnvevefaepeperkliiprgtyrakeiaapelepl 1680 
+                              vphkypkiriegtkgeaalkidstvsqdsawytatainkagrdttrckvnvevefaepeperkliiprgtyrakeiaapelepl
+  sp|Q8WZ42|TITIN_HUMAN  1597 VPHKYPKIRIEGTKGEAALKIDSTVSQDSAWYTATAINKAGRDTTRCKVNVEVEFAEPEPERKLIIPRGTYRAKEIAAPELEPL 1680 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1681 hlrygqeqweegdlydkekqqkpffkkkltslrlkrfgpahfecrltpigdptmvvewlhdgkpleaanrlrminefgycsldy 1764 
+                              hlrygqeqweegdlydkekqqkpffkkkltslrlkrfgpahfecrltpigdptmvvewlhdgkpleaanrlrminefgycsldy
+  sp|Q8WZ42|TITIN_HUMAN  1681 HLRYGQEQWEEGDLYDKEKQQKPFFKKKLTSLRLKRFGPAHFECRLTPIGDPTMVVEWLHDGKPLEAANRLRMINEFGYCSLDY 1764 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1765 gvaysrdsgiitcratnkygtdhtsatlivkdekslveesqlpegrkglqrieelermahegaltgvttdqkekqkpdivlype 1848 
+                              gvaysrdsgiitcratnkygtdhtsatlivkdekslveesqlpegrkglqrieelermahegaltgvttdqkekqkpdivlype
+  sp|Q8WZ42|TITIN_HUMAN  1765 GVAYSRDSGIITCRATNKYGTDHTSATLIVKDEKSLVEESQLPEGRKGLQRIEELERMAHEGALTGVTTDQKEKQKPDIVLYPE 1848 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1849 pvrvlegetarfrcrvtgypqpkvnwylngqlirkskrfrvrydgihyldivdcksydtgevkvtaenpegviehkvkleiqqr 1932 
+                              pvrvlegetarfrcrvtgypqpkvnwylngqlirkskrfrvrydgihyldivdcksydtgevkvtaenpegviehkvkleiqqr
+  sp|Q8WZ42|TITIN_HUMAN  1849 PVRVLEGETARFRCRVTGYPQPKVNWYLNGQLIRKSKRFRVRYDGIHYLDIVDCKSYDTGEVKVTAENPEGVIEHKVKLEIQQR 1932 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  1933 edfrsvlrrapeprpefhvhepgklqfevqkvdrpvdttetkevvklkraerithekvpeeseelrskfkrrteegyyeaitav 2016 
+                              edfrsvlrrapeprpefhvhepgklqfevqkvdrpvdttetkevvklkraerithekvpeeseelrskfkrrteegyyeaitav
+  sp|Q8WZ42|TITIN_HUMAN  1933 EDFRSVLRRAPEPRPEFHVHEPGKLQFEVQKVDRPVDTTETKEVVKLKRAERITHEKVPEESEELRSKFKRRTEEGYYEAITAV 2016 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2017 elksrkkdesyeellrktkdellhwtkelteeekkalaeegkitiptfkpdkielspsmeapkiferiqsqtvgqgsdahfrvr 2100 
+                              elksrkkdesyeellrktkdellhwtkelteeekkalaeegkitiptfkpdkielspsmeapkiferiqsqtvgqgsdahfrvr
+  sp|Q8WZ42|TITIN_HUMAN  2017 ELKSRKKDESYEELLRKTKDELLHWTKELTEEEKKALAEEGKITIPTFKPDKIELSPSMEAPKIFERIQSQTVGQGSDAHFRVR 2100 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2101 vvgkpdpecewykngvkiersdriywywpednvcelvirdvtaedsasimvkainiagetsshafllvqakqlitftqelqdvv 2184 
+                              vvgkpdpecewykngvkiersdriywywpednvcelvirdvtaedsasimvkainiagetsshafllvqakqlitftqelqdvv
+  sp|Q8WZ42|TITIN_HUMAN  2101 VVGKPDPECEWYKNGVKIERSDRIYWYWPEDNVCELVIRDVTAEDSASIMVKAINIAGETSSHAFLLVQAKQLITFTQELQDVV 2184 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2185 akekdtmatfecetsepfvkvkwykdgmevhegdkyrmhsdrkvhflsiltidtsdaedyscvlvedenvkttaklivegavve 2268 
+                              akekdtmatfecetsepfvkvkwykdgmevhegdkyrmhsdrkvhflsiltidtsdaedyscvlvedenvkttaklivegavve
+  sp|Q8WZ42|TITIN_HUMAN  2185 AKEKDTMATFECETSEPFVKVKWYKDGMEVHEGDKYRMHSDRKVHFLSILTIDTSDAEDYSCVLVEDENVKTTAKLIVEGAVVE 2268 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2269 fvkelqdievpesysgelecivspeniegkwyhndvelksngkytitsrrgrqnltvkdvtkedqgeysfvidgkkttcklkmk 2352 
+                              fvkelqdievpesysgelecivspeniegkwyhndvelksngkytitsrrgrqnltvkdvtkedqgeysfvidgkkttcklkmk
+  sp|Q8WZ42|TITIN_HUMAN  2269 FVKELQDIEVPESYSGELECIVSPENIEGKWYHNDVELKSNGKYTITSRRGRQNLTVKDVTKEDQGEYSFVIDGKKTTCKLKMK 2352 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2353 prpiailqglsdqkvcegdivqlevkvslesvegvwmkdgqevqpsdrvhividkqshmlliedmtkedagnysftipalglst 2436 
+                              prpiailqglsdqkvcegdivqlevkvslesvegvwmkdgqevqpsdrvhividkqshmlliedmtkedagnysftipalglst
+  sp|Q8WZ42|TITIN_HUMAN  2353 PRPIAILQGLSDQKVCEGDIVQLEVKVSLESVEGVWMKDGQEVQPSDRVHIVIDKQSHMLLIEDMTKEDAGNYSFTIPALGLST 2436 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2437 sgrvsvysvdvitplkdvnviegtkavleckvsvpdvtsvkwylndeqikpddrvqaivkgtkqrlvinrthasdegpyklivg 2520 
+                              sgrvsvysvdvitplkdvnviegtkavleckvsvpdvtsvkwylndeqikpddrvqaivkgtkqrlvinrthasdegpyklivg
+  sp|Q8WZ42|TITIN_HUMAN  2437 SGRVSVYSVDVITPLKDVNVIEGTKAVLECKVSVPDVTSVKWYLNDEQIKPDDRVQAIVKGTKQRLVINRTHASDEGPYKLIVG 2520 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2521 rvetncnlsvekikiirglrdltctetqnvvfevelshsgidvlwnfkdkeikpsskykieahgkiykltvlnmmkddegkytf 2604 
+                              rvetncnlsvekikiirglrdltctetqnvvfevelshsgidvlwnfkdkeikpsskykieahgkiykltvlnmmkddegkytf
+  sp|Q8WZ42|TITIN_HUMAN  2521 RVETNCNLSVEKIKIIRGLRDLTCTETQNVVFEVELSHSGIDVLWNFKDKEIKPSSKYKIEAHGKIYKLTVLNMMKDDEGKYTF 2604 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2605 yagenmtsgkltvaggaiskpltdqtvaesqeavfecevanpdskgewlrdgkhlpltnnirsesdghkrrliiaatklddige 2688 
+                              yagenmtsgkltvaggaiskpltdqtvaesqeavfecevanpdskgewlrdgkhlpltnnirsesdghkrrliiaatklddige
+  sp|Q8WZ42|TITIN_HUMAN  2605 YAGENMTSGKLTVAGGAISKPLTDQTVAESQEAVFECEVANPDSKGEWLRDGKHLPLTNNIRSESDGHKRRLIIAATKLDDIGE 2688 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2689 ytykvatsktsaklkveavkikktlknltvtetqdavftvelthpnvkgvqwikngvvlesnekyaisvkgtiyslrikncaiv 2772 
+                              ytykvatsktsaklkveavkikktlknltvtetqdavftvelthpnvkgvqwikngvvlesnekyaisvkgtiyslrikncaiv
+  sp|Q8WZ42|TITIN_HUMAN  2689 YTYKVATSKTSAKLKVEAVKIKKTLKNLTVTETQDAVFTVELTHPNVKGVQWIKNGVVLESNEKYAISVKGTIYSLRIKNCAIV 2772 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2773 desvygfrlgrlgasarlhvetvkiikkpkdvtalenatvafevsvshdtvpvkwfhksveikpsdkhrlvserkvhklmlqni 2856 
+                              desvygfrlgrlgasarlhvetvkiikkpkdvtalenatvafevsvshdtvpvkwfhksveikpsdkhrlvserkvhklmlqni
+  sp|Q8WZ42|TITIN_HUMAN  2773 DESVYGFRLGRLGASARLHVETVKIIKKPKDVTALENATVAFEVSVSHDTVPVKWFHKSVEIKPSDKHRLVSERKVHKLMLQNI 2856 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2857 spsdageytavvgqleckaklfvetlhitktmknievpetktasfecevshfnvpsmwlkngveiemsekfkivvqgklhqlii 2940 
+                              spsdageytavvgqleckaklfvetlhitktmknievpetktasfecevshfnvpsmwlkngveiemsekfkivvqgklhqlii
+  sp|Q8WZ42|TITIN_HUMAN  2857 SPSDAGEYTAVVGQLECKAKLFVETLHITKTMKNIEVPETKTASFECEVSHFNVPSMWLKNGVEIEMSEKFKIVVQGKLHQLII 2940 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  2941 mntstedsaeytfvcgndqvsatltvtpimitsmlkdinaeekdtitfevtvnyegisykwlkngveikstdkcqmrtkklths 3024 
+                              mntstedsaeytfvcgndqvsatltvtpimitsmlkdinaeekdtitfevtvnyegisykwlkngveikstdkcqmrtkklths
+  sp|Q8WZ42|TITIN_HUMAN  2941 MNTSTEDSAEYTFVCGNDQVSATLTVTPIMITSMLKDINAEEKDTITFEVTVNYEGISYKWLKNGVEIKSTDKCQMRTKKLTHS 3024 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3025 lnirnvhfgdaadytfvagkatstatlyvearhiefrkhikdikvlekkramfecevsepditvqwmkddqelqitdrikiqke 3108 
+                              lnirnvhfgdaadytfvagkatstatlyvearhiefrkhikdikvlekkramfecevsepditvqwmkddqelqitdrikiqke
+  sp|Q8WZ42|TITIN_HUMAN  3025 LNIRNVHFGDAADYTFVAGKATSTATLYVEARHIEFRKHIKDIKVLEKKRAMFECEVSEPDITVQWMKDDQELQITDRIKIQKE 3108 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3109 kyvhrllipstrmsdagkytvvaggnvstaklfvegrdvrirsikkevqviekqravvefevneddvdahwykdgieinfqvqe 3192 
+                              kyvhrllipstrmsdagkytvvaggnvstaklfvegrdvrirsikkevqviekqravvefevneddvdahwykdgieinfqvqe
+  sp|Q8WZ42|TITIN_HUMAN  3109 KYVHRLLIPSTRMSDAGKYTVVAGGNVSTAKLFVEGRDVRIRSIKKEVQVIEKQRAVVEFEVNEDDVDAHWYKDGIEINFQVQE 3192 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3193 rhkyvverrihrmfisetrqsdageytfvagrnrssvtlyvnapeppqvlqelqpvtvqsgkparfcavisgrpqpkiswykee 3276 
+                              rhkyvverrihrmfisetrqsdageytfvagrnrssvtlyvnapeppqvlqelqpvtvqsgkparfcavisgrpqpkiswykee
+  sp|Q8WZ42|TITIN_HUMAN  3193 RHKYVVERRIHRMFISETRQSDAGEYTFVAGRNRSSVTLYVNAPEPPQVLQELQPVTVQSGKPARFCAVISGRPQPKISWYKEE 3276 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3277 qllstgfkckflhdgqeytlllieafpedaavytceakndygvattsaslsvevpevvspdqempvyppaiitplqdtvtsegq 3360 
+                              qllstgfkckflhdgqeytlllieafpedaavytceakndygvattsaslsvevpevvspdqempvyppaiitplqdtvtsegq
+  sp|Q8WZ42|TITIN_HUMAN  3277 QLLSTGFKCKFLHDGQEYTLLLIEAFPEDAAVYTCEAKNDYGVATTSASLSVEVPEVVSPDQEMPVYPPAIITPLQDTVTSEGQ 3360 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3361 parfqcrvsgtdlkvswyskdkkikpsrffrmtqfedtyqleiaeaypedegtytfvasnavgqvsstanlsleapesilheri 3444 
+                              parfqcrvsgtdlkvswyskdkkikpsrffrmtqfedtyqleiaeaypedegtytfvasnavgqvsstanlsleapesilheri
+  sp|Q8WZ42|TITIN_HUMAN  3361 PARFQCRVSGTDLKVSWYSKDKKIKPSRFFRMTQFEDTYQLEIAEAYPEDEGTYTFVASNAVGQVSSTANLSLEAPESILHERI 3444 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3445 eqeiememkefsssflsaeeeglhsaelqlskinetlellsespvyptkfdsekegtgpifikevsnadismgdvatlsvtvig 3528 
+                              eqeiememkefsssflsaeeeglhsaelqlskinetlellsespvyptkfdsekegtgpifikevsnadismgdvatlsvtvig
+  sp|Q8WZ42|TITIN_HUMAN  3445 EQEIEMEMKEFSSSFLSAEEEGLHSAELQLSKINETLELLSESPVYPTKFDSEKEGTGPIFIKEVSNADISMGDVATLSVTVIG 3528 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3529 ipkpkiqwffngvlltpsadykfvfdgddhsliilftkledegeytcmasndygkticsaylkinskgeghkdtetesavaksl 3612 
+                              ipkpkiqwffngvlltpsadykfvfdgddhsliilftkledegeytcmasndygkticsaylkinskgeghkdtetesavaksl
+  sp|Q8WZ42|TITIN_HUMAN  3529 IPKPKIQWFFNGVLLTPSADYKFVFDGDDHSLIILFTKLEDEGEYTCMASNDYGKTICSAYLKINSKGEGHKDTETESAVAKSL 3612 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3613 eklggpcpphflkelkpircaqglpaifeytvvgepaptvtwfkenkqlctsvyytiihnpngsgtfivndpqredsglyicka 3696 
+                              eklggpcpphflkelkpircaqglpaifeytvvgepaptvtwfkenkqlctsvyytiihnpngsgtfivndpqredsglyicka
+  sp|Q8WZ42|TITIN_HUMAN  3613 EKLGGPCPPHFLKELKPIRCAQGLPAIFEYTVVGEPAPTVTWFKENKQLCTSVYYTIIHNPNGSGTFIVNDPQREDSGLYICKA 3696 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3697 enmlgestcaaellvlledtdmtdtpckakstpeapedfpqtplkgpavealdseqeiatfvkdtilkaaliteenqqlsyehi 3780 
+                              enmlgestcaaellvlledtdmtdtpckakstpeapedfpqtplkgpavealdseqeiatfvkdtilkaaliteenqqlsyehi
+  sp|Q8WZ42|TITIN_HUMAN  3697 ENMLGESTCAAELLVLLEDTDMTDTPCKAKSTPEAPEDFPQTPLKGPAVEALDSEQEIATFVKDTILKAALITEENQQLSYEHI 3780 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3781 akanelssqlplgaqelqsileqdkltpestreflcingsihfqplkepspnlqlqivqsqktfskegilmpeepetqavlsdt 3864 
+                              akanelssqlplgaqelqsileqdkltpestreflcingsihfqplkepspnlqlqivqsqktfskegilmpeepetqavlsdt
+  sp|Q8WZ42|TITIN_HUMAN  3781 AKANELSSQLPLGAQELQSILEQDKLTPESTREFLCINGSIHFQPLKEPSPNLQLQIVQSQKTFSKEGILMPEEPETQAVLSDT 3864 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3865 ekifpsamsieqinsltveplktllaepegnypqssieppmhsyltsvaeevlspkektvsdtnreqrvtlqkqeaqsalilsq 3948 
+                              ekifpsamsieqinsltveplktllaepegnypqssieppmhsyltsvaeevlspkektvsdtnreqrvtlqkqeaqsalilsq
+  sp|Q8WZ42|TITIN_HUMAN  3865 EKIFPSAMSIEQINSLTVEPLKTLLAEPEGNYPQSSIEPPMHSYLTSVAEEVLSPKEKTVSDTNREQRVTLQKQEAQSALILSQ 3948 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  3949 slaeghveslqspdvmisqvnyeplvpsehscteggkiliesanplenagqdsavrieegkslrfplaleekqvllkeehsdnv 4032 
+                              slaeghveslqspdvmisqvnyeplvpsehscteggkiliesanplenagqdsavrieegkslrfplaleekqvllkeehsdnv
+  sp|Q8WZ42|TITIN_HUMAN  3949 SLAEGHVESLQSPDVMISQVNYEPLVPSEHSCTEGGKILIESANPLENAGQDSAVRIEEGKSLRFPLALEEKQVLLKEEHSDNV 4032 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4033 vmppdqiieskrepvaikkvqevqgrdllskesllsgipeeqrlnlkiqicralqaavaseqpglfsewlrniekveveavnit 4116 
+                              vmppdqiieskrepvaikkvqevqgrdllskesllsgipeeqrlnlkiqicralqaavaseqpglfsewlrniekveveavnit
+  sp|Q8WZ42|TITIN_HUMAN  4033 VMPPDQIIESKREPVAIKKVQEVQGRDLLSKESLLSGIPEEQRLNLKIQICRALQAAVASEQPGLFSEWLRNIEKVEVEAVNIT 4116 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4117 qeprhimcmylvtsaksvteevtiiiedvdpqmanlkmelrdalcaiiyeeidiltaegpriqqgaktslqeemdsfsgsqkve 4200 
+                              qeprhimcmylvtsaksvteevtiiiedvdpqmanlkmelrdalcaiiyeeidiltaegpriqqgaktslqeemdsfsgsqkve
+  sp|Q8WZ42|TITIN_HUMAN  4117 QEPRHIMCMYLVTSAKSVTEEVTIIIEDVDPQMANLKMELRDALCAIIYEEIDILTAEGPRIQQGAKTSLQEEMDSFSGSQKVE 4200 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4201 pitepeveskylisteevsyfnvqsrvkyldatpvtkgvasavvsdekqdeslkpseekeesssesgteevatvkiqeaeggli 4284 
+                              pitepeveskylisteevsyfnvqsrvkyldatpvtkgvasavvsdekqdeslkpseekeesssesgteevatvkiqeaeggli
+  sp|Q8WZ42|TITIN_HUMAN  4201 PITEPEVESKYLISTEEVSYFNVQSRVKYLDATPVTKGVASAVVSDEKQDESLKPSEEKEESSSESGTEEVATVKIQEAEGGLI 4284 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4285 kedgpmihtplvdtvseegdivhlttsitnakevnwyfenklvpsdekfkclqdqntytlvidkvntedhqgeyvcealndsgk 4368 
+                              kedgpmihtplvdtvseegdivhlttsitnakevnwyfenklvpsdekfkclqdqntytlvidkvntedhqgeyvcealndsgk
+  sp|Q8WZ42|TITIN_HUMAN  4285 KEDGPMIHTPLVDTVSEEGDIVHLTTSITNAKEVNWYFENKLVPSDEKFKCLQDQNTYTLVIDKVNTEDHQGEYVCEALNDSGK 4368 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4369 tatsakltvvkraapvikrkieplevalghlakftceiqsapnvrfqwfkagreiyesdkcsirsskyissleilrtqvvdcge 4452 
+                              tatsakltvvkraapvikrkieplevalghlakftceiqsapnvrfqwfkagreiyesdkcsirsskyissleilrtqvvdcge
+  sp|Q8WZ42|TITIN_HUMAN  4369 TATSAKLTVVKRAAPVIKRKIEPLEVALGHLAKFTCEIQSAPNVRFQWFKAGREIYESDKCSIRSSKYISSLEILRTQVVDCGE 4452 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4453 ytckasneygsvsctatltvteaypptflsrpkslttfvgkaakfictvtgtpvietiwqkdgaalspspnwrisdaenkhile 4536 
+                              ytckasneygsvsctatltvteaypptflsrpkslttfvgkaakfictvtgtpvietiwqkdgaalspspnwrisdaenkhile
+  sp|Q8WZ42|TITIN_HUMAN  4453 YTCKASNEYGSVSCTATLTVTEAYPPTFLSRPKSLTTFVGKAAKFICTVTGTPVIETIWQKDGAALSPSPNWRISDAENKHILE 4536 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4537 lsnltiqdrgvysckasnkfgadicqaeliiidkphfikelepvqsainkkvhlecqvdedrkvtvtwskdgqklppgkdykic 4620 
+                              lsnltiqdrgvysckasnkfgadicqaeliiidkphfikelepvqsainkkvhlecqvdedrkvtvtwskdgqklppgkdykic
+  sp|Q8WZ42|TITIN_HUMAN  4537 LSNLTIQDRGVYSCKASNKFGADICQAELIIIDKPHFIKELEPVQSAINKKVHLECQVDEDRKVTVTWSKDGQKLPPGKDYKIC 4620 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4621 fedkiatleiplaklkdsgtyvctasneagssscsatvtvreppsfvkkvdpsylmlpgesarlhcklkgspviqvtwfknnke 4704 
+                              fedkiatleiplaklkdsgtyvctasneagssscsatvtvreppsfvkkvdpsylmlpgesarlhcklkgspviqvtwfknnke
+  sp|Q8WZ42|TITIN_HUMAN  4621 FEDKIATLEIPLAKLKDSGTYVCTASNEAGSSSCSATVTVREPPSFVKKVDPSYLMLPGESARLHCKLKGSPVIQVTWFKNNKE 4704 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4705 lsesntvrmyfvnseailditdvkvedsgsysceavndvgsdscsteivikeppsfiktlepadivrgtnallqcevsgtgpfe 4788 
+                              lsesntvrmyfvnseailditdvkvedsgsysceavndvgsdscsteivikeppsfiktlepadivrgtnallqcevsgtgpfe
+  sp|Q8WZ42|TITIN_HUMAN  4705 LSESNTVRMYFVNSEAILDITDVKVEDSGSYSCEAVNDVGSDSCSTEIVIKEPPSFIKTLEPADIVRGTNALLQCEVSGTGPFE 4788 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4789 iswfkdkkqirsskkyrlfsqkslvcleifsfnsadvgeyecvvanevgkcgcmathllkepptfvkkvddlialggqtvtlqa 4872 
+                              iswfkdkkqirsskkyrlfsqkslvcleifsfnsadvgeyecvvanevgkcgcmathllkepptfvkkvddlialggqtvtlqa
+  sp|Q8WZ42|TITIN_HUMAN  4789 ISWFKDKKQIRSSKKYRLFSQKSLVCLEIFSFNSADVGEYECVVANEVGKCGCMATHLLKEPPTFVKKVDDLIALGGQTVTLQA 4872 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4873 avrgsepisvtwmkgqeviredgkikmsfsngvavliipdvqisfggkytclaeneagsqtsvgelivkepakiieraeliqvt 4956 
+                              avrgsepisvtwmkgqeviredgkikmsfsngvavliipdvqisfggkytclaeneagsqtsvgelivkepakiieraeliqvt
+  sp|Q8WZ42|TITIN_HUMAN  4873 AVRGSEPISVTWMKGQEVIREDGKIKMSFSNGVAVLIIPDVQISFGGKYTCLAENEAGSQTSVGELIVKEPAKIIERAELIQVT 4956 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  4957 agdpatleytvagtpelkpkwykdgrplvaskkyrisfknnvaqlkfysaelhdsgqytfeisnevgssscettftvldrdiap 5040 
+                              agdpatleytvagtpelkpkwykdgrplvaskkyrisfknnvaqlkfysaelhdsgqytfeisnevgssscettftvldrdiap
+  sp|Q8WZ42|TITIN_HUMAN  4957 AGDPATLEYTVAGTPELKPKWYKDGRPLVASKKYRISFKNNVAQLKFYSAELHDSGQYTFEISNEVGSSSCETTFTVLDRDIAP 5040 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5041 fftkplrnvdsvvngtcrldckiagslpmrvswfkdgkeiaasdryriafvegtasleiirvdmndagnftcratnsvgskdss 5124 
+                              fftkplrnvdsvvngtcrldckiagslpmrvswfkdgkeiaasdryriafvegtasleiirvdmndagnftcratnsvgskdss
+  sp|Q8WZ42|TITIN_HUMAN  5041 FFTKPLRNVDSVVNGTCRLDCKIAGSLPMRVSWFKDGKEIAASDRYRIAFVEGTASLEIIRVDMNDAGNFTCRATNSVGSKDSS 5124 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5125 galivqeppsfvtkpgskdvlpgsavclkstfqgstpltirwfkgnkelvsggscyitkealesslelylvktsdsgtytckvs 5208 
+                              galivqeppsfvtkpgskdvlpgsavclkstfqgstpltirwfkgnkelvsggscyitkealesslelylvktsdsgtytckvs
+  sp|Q8WZ42|TITIN_HUMAN  5125 GALIVQEPPSFVTKPGSKDVLPGSAVCLKSTFQGSTPLTIRWFKGNKELVSGGSCYITKEALESSLELYLVKTSDSGTYTCKVS 5208 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5209 nvaggvecsanlfvkepatfveklepsqllkkgdatqlackvtgtppikitwfandreikesskhrmsfvestavlrltdvgie 5292 
+                              nvaggvecsanlfvkepatfveklepsqllkkgdatqlackvtgtppikitwfandreikesskhrmsfvestavlrltdvgie
+  sp|Q8WZ42|TITIN_HUMAN  5209 NVAGGVECSANLFVKEPATFVEKLEPSQLLKKGDATQLACKVTGTPPIKITWFANDREIKESSKHRMSFVESTAVLRLTDVGIE 5292 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5293 dsgeymceaqneagsdhcssivivkespyftkefkpievlkeydvmllaevagtppfeitwfkdntilrsgrkyktfiqdhlvs 5376 
+                              dsgeymceaqneagsdhcssivivkespyftkefkpievlkeydvmllaevagtppfeitwfkdntilrsgrkyktfiqdhlvs
+  sp|Q8WZ42|TITIN_HUMAN  5293 DSGEYMCEAQNEAGSDHCSSIVIVKESPYFTKEFKPIEVLKEYDVMLLAEVAGTPPFEITWFKDNTILRSGRKYKTFIQDHLVS 5376 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5377 lqilkfvaadageyqcrvtnevgssicsarvtlreppsfikkiestsslrggtaafqatlkgslpitvtwlkdsdeiteddnir 5460 
+                              lqilkfvaadageyqcrvtnevgssicsarvtlreppsfikkiestsslrggtaafqatlkgslpitvtwlkdsdeiteddnir
+  sp|Q8WZ42|TITIN_HUMAN  5377 LQILKFVAADAGEYQCRVTNEVGSSICSARVTLREPPSFIKKIESTSSLRGGTAAFQATLKGSLPITVTWLKDSDEITEDDNIR 5460 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5461 mtfennvaslylsgievkhdgkyvcqakndagiqrcsallsvkepatiteeavsidvtqgdpatlqvkfsgtkeitakwfkdgq 5544 
+                              mtfennvaslylsgievkhdgkyvcqakndagiqrcsallsvkepatiteeavsidvtqgdpatlqvkfsgtkeitakwfkdgq
+  sp|Q8WZ42|TITIN_HUMAN  5461 MTFENNVASLYLSGIEVKHDGKYVCQAKNDAGIQRCSALLSVKEPATITEEAVSIDVTQGDPATLQVKFSGTKEITAKWFKDGQ 5544 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5545 eltlgskykisvtdtvsilkiistekkdsgeytfevqndvgrssckarinvldliippsftkklkkmdsikgsfidlecivags 5628 
+                              eltlgskykisvtdtvsilkiistekkdsgeytfevqndvgrssckarinvldliippsftkklkkmdsikgsfidlecivags
+  sp|Q8WZ42|TITIN_HUMAN  5545 ELTLGSKYKISVTDTVSILKIISTEKKDSGEYTFEVQNDVGRSSCKARINVLDLIIPPSFTKKLKKMDSIKGSFIDLECIVAGS 5628 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5629 hpisiqwfkddqeisasekykfsfhdntafleisqlegtdsgtytcsatnkaghnqcsghltvkeppyfvekpqsqdvnpntrv 5712 
+                              hpisiqwfkddqeisasekykfsfhdntafleisqlegtdsgtytcsatnkaghnqcsghltvkeppyfvekpqsqdvnpntrv
+  sp|Q8WZ42|TITIN_HUMAN  5629 HPISIQWFKDDQEISASEKYKFSFHDNTAFLEISQLEGTDSGTYTCSATNKAGHNQCSGHLTVKEPPYFVEKPQSQDVNPNTRV 5712 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5713 qlkalvggtapmtikwfkdnkelhsgaarsvwkddtstslelfaakatdsgtyicqlsndvgtatskatlfvkeppqfikkpsp 5796 
+                              qlkalvggtapmtikwfkdnkelhsgaarsvwkddtstslelfaakatdsgtyicqlsndvgtatskatlfvkeppqfikkpsp
+  sp|Q8WZ42|TITIN_HUMAN  5713 QLKALVGGTAPMTIKWFKDNKELHSGAARSVWKDDTSTSLELFAAKATDSGTYICQLSNDVGTATSKATLFVKEPPQFIKKPSP 5796 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5797 vlvlrngqsttfecqitgtpkirvswyldgneitaiqkhgisfidglatfqisgarvensgtyvcearndagtascsielkvke 5880 
+                              vlvlrngqsttfecqitgtpkirvswyldgneitaiqkhgisfidglatfqisgarvensgtyvcearndagtascsielkvke
+  sp|Q8WZ42|TITIN_HUMAN  5797 VLVLRNGQSTTFECQITGTPKIRVSWYLDGNEITAIQKHGISFIDGLATFQISGARVENSGTYVCEARNDAGTASCSIELKVKE 5880 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5881 pptfirelkpvevvkysdvelecevtgtppfevtwlknnreirsskkytltdrvsvfnlhitkcdpsdtgeyqcivsneggscs 5964 
+                              pptfirelkpvevvkysdvelecevtgtppfevtwlknnreirsskkytltdrvsvfnlhitkcdpsdtgeyqcivsneggscs
+  sp|Q8WZ42|TITIN_HUMAN  5881 PPTFIRELKPVEVVKYSDVELECEVTGTPPFEVTWLKNNREIRSSKKYTLTDRVSVFNLHITKCDPSDTGEYQCIVSNEGGSCS 5964 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  5965 cstrvalkeppsfikkientttvlkssatfqstvagsppisitwlkddqildeddnvyisfvdsvatlqirsvdnghsgrytcq 6048 
+                              cstrvalkeppsfikkientttvlkssatfqstvagsppisitwlkddqildeddnvyisfvdsvatlqirsvdnghsgrytcq
+  sp|Q8WZ42|TITIN_HUMAN  5965 CSTRVALKEPPSFIKKIENTTTVLKSSATFQSTVAGSPPISITWLKDDQILDEDDNVYISFVDSVATLQIRSVDNGHSGRYTCQ 6048 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6049 aknesgvercyafllvqepaqivekaksvdvtekdpmtlecvvagtpelkvkwlkdgkqivpsryfsmsfennvasfriqsvmk 6132 
+                              aknesgvercyafllvqepaqivekaksvdvtekdpmtlecvvagtpelkvkwlkdgkqivpsryfsmsfennvasfriqsvmk
+  sp|Q8WZ42|TITIN_HUMAN  6049 AKNESGVERCYAFLLVQEPAQIVEKAKSVDVTEKDPMTLECVVAGTPELKVKWLKDGKQIVPSRYFSMSFENNVASFRIQSVMK 6132 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6133 qdsgqytfkvendfgssscdaylrvldqnippsftkkltkmdkvlgssihmeckvsgslpisaqwfkdgkeistsakyrlvche 6216 
+                              qdsgqytfkvendfgssscdaylrvldqnippsftkkltkmdkvlgssihmeckvsgslpisaqwfkdgkeistsakyrlvche
+  sp|Q8WZ42|TITIN_HUMAN  6133 QDSGQYTFKVENDFGSSSCDAYLRVLDQNIPPSFTKKLTKMDKVLGSSIHMECKVSGSLPISAQWFKDGKEISTSAKYRLVCHE 6216 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6217 rsvslevnnleledtanytckvsnvagddacsgiltvkeppsflvkpgrqqaipdstvefkailkgtppfkikwfkddvelvsg 6300 
+                              rsvslevnnleledtanytckvsnvagddacsgiltvkeppsflvkpgrqqaipdstvefkailkgtppfkikwfkddvelvsg
+  sp|Q8WZ42|TITIN_HUMAN  6217 RSVSLEVNNLELEDTANYTCKVSNVAGDDACSGILTVKEPPSFLVKPGRQQAIPDSTVEFKAILKGTPPFKIKWFKDDVELVSG 6300 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6301 pkcfiglegstsflnlysvdasktgqytchvtndvgsdscttmllvteppkfvkkleaskivkagdssrleckiagspeirvvw 6384 
+                              pkcfiglegstsflnlysvdasktgqytchvtndvgsdscttmllvteppkfvkkleaskivkagdssrleckiagspeirvvw
+  sp|Q8WZ42|TITIN_HUMAN  6301 PKCFIGLEGSTSFLNLYSVDASKTGQYTCHVTNDVGSDSCTTMLLVTEPPKFVKKLEASKIVKAGDSSRLECKIAGSPEIRVVW 6384 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6385 frnehelpasdkyrmtfidsvaviqmnnlstedsgdficeaqnpagstscstkvivkeppvfssfppivetlknaevslecels 6468 
+                              frnehelpasdkyrmtfidsvaviqmnnlstedsgdficeaqnpagstscstkvivkeppvfssfppivetlknaevslecels
+  sp|Q8WZ42|TITIN_HUMAN  6385 FRNEHELPASDKYRMTFIDSVAVIQMNNLSTEDSGDFICEAQNPAGSTSCSTKVIVKEPPVFSSFPPIVETLKNAEVSLECELS 6468 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6469 gtppfevvwykdkrqlrsskkykiasknfhtsihilnvdtsdigeyhckaqnevgsdtcvctvklkepprfvsklnsltvvage 6552 
+                              gtppfevvwykdkrqlrsskkykiasknfhtsihilnvdtsdigeyhckaqnevgsdtcvctvklkepprfvsklnsltvvage
+  sp|Q8WZ42|TITIN_HUMAN  6469 GTPPFEVVWYKDKRQLRSSKKYKIASKNFHTSIHILNVDTSDIGEYHCKAQNEVGSDTCVCTVKLKEPPRFVSKLNSLTVVAGE 6552 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6553 paelqasiegaqpifvqwlkekeevireseniritfvenvatlqfakaepanagkyicqikndggmrenmatlmvlepavivek 6636 
+                              paelqasiegaqpifvqwlkekeevireseniritfvenvatlqfakaepanagkyicqikndggmrenmatlmvlepavivek
+  sp|Q8WZ42|TITIN_HUMAN  6553 PAELQASIEGAQPIFVQWLKEKEEVIRESENIRITFVENVATLQFAKAEPANAGKYICQIKNDGGMRENMATLMVLEPAVIVEK 6636 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6637 agpmtvtvgetctleckvagtpelsvewykdgklltssqkhkfsfynkisslrilsverqdagtytfqvqnnvgkssctavvdv 6720 
+                              agpmtvtvgetctleckvagtpelsvewykdgklltssqkhkfsfynkisslrilsverqdagtytfqvqnnvgkssctavvdv
+  sp|Q8WZ42|TITIN_HUMAN  6637 AGPMTVTVGETCTLECKVAGTPELSVEWYKDGKLLTSSQKHKFSFYNKISSLRILSVERQDAGTYTFQVQNNVGKSSCTAVVDV 6720 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6721 sdravppsftrrlkntggvlgascileckvagsspisvawfhektkivsgakyqttfsdnvctlqlnsldssdmgnytcvaanv 6804 
+                              sdravppsftrrlkntggvlgascileckvagsspisvawfhektkivsgakyqttfsdnvctlqlnsldssdmgnytcvaanv
+  sp|Q8WZ42|TITIN_HUMAN  6721 SDRAVPPSFTRRLKNTGGVLGASCILECKVAGSSPISVAWFHEKTKIVSGAKYQTTFSDNVCTLQLNSLDSSDMGNYTCVAANV 6804 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6805 agsdecravltvqeppsfvkepeplevlpgknvtftsvirgtppfkvnwfrgarelvkgdrcniyfedtvaelelfnidisqsg 6888 
+                              agsdecravltvqeppsfvkepeplevlpgknvtftsvirgtppfkvnwfrgarelvkgdrcniyfedtvaelelfnidisqsg
+  sp|Q8WZ42|TITIN_HUMAN  6805 AGSDECRAVLTVQEPPSFVKEPEPLEVLPGKNVTFTSVIRGTPPFKVNWFRGARELVKGDRCNIYFEDTVAELELFNIDISQSG 6888 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6889 eytcvvsnnagqascttrlfvkepaaflkrlsdhsvepgksiilestytgtlpisvtwkkdgfnittsekcnivttektcilei 6972 
+                              eytcvvsnnagqascttrlfvkepaaflkrlsdhsvepgksiilestytgtlpisvtwkkdgfnittsekcnivttektcilei
+  sp|Q8WZ42|TITIN_HUMAN  6889 EYTCVVSNNAGQASCTTRLFVKEPAAFLKRLSDHSVEPGKSIILESTYTGTLPISVTWKKDGFNITTSEKCNIVTTEKTCILEI 6972 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  6973 lnstkrdagqysceieneagrdvcgalvstleppyfvtelepleaavgdsvslqcqvagtpeitvswykgdtklrptpeyrtyf 7056 
+                              lnstkrdagqysceieneagrdvcgalvstleppyfvtelepleaavgdsvslqcqvagtpeitvswykgdtklrptpeyrtyf
+  sp|Q8WZ42|TITIN_HUMAN  6973 LNSTKRDAGQYSCEIENEAGRDVCGALVSTLEPPYFVTELEPLEAAVGDSVSLQCQVAGTPEITVSWYKGDTKLRPTPEYRTYF 7056 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7057 tnnvatlvfnkvnindsgeytckaensigtassktvfriqerqlppsfarqlkdieqtvglpvtltcrlngsapiqvcwyrdgv 7140 
+                              tnnvatlvfnkvnindsgeytckaensigtassktvfriqerqlppsfarqlkdieqtvglpvtltcrlngsapiqvcwyrdgv
+  sp|Q8WZ42|TITIN_HUMAN  7057 TNNVATLVFNKVNINDSGEYTCKAENSIGTASSKTVFRIQERQLPPSFARQLKDIEQTVGLPVTLTCRLNGSAPIQVCWYRDGV 7140 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7141 llrddenlqtsfvdnvatlkilqtdlshsgqyscsasnplgtasssarltarepkkspffdikpvsidviagesadfechvtga 7224 
+                              llrddenlqtsfvdnvatlkilqtdlshsgqyscsasnplgtasssarltarepkkspffdikpvsidviagesadfechvtga
+  sp|Q8WZ42|TITIN_HUMAN  7141 LLRDDENLQTSFVDNVATLKILQTDLSHSGQYSCSASNPLGTASSSARLTAREPKKSPFFDIKPVSIDVIAGESADFECHVTGA 7224 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7225 qpmritwskdnkeirpggnytitcvgntphlrilkvgkgdsgqytcqatndvgkdmcsaqlsvkeppkfvkkleaskvakqges 7308 
+                              qpmritwskdnkeirpggnytitcvgntphlrilkvgkgdsgqytcqatndvgkdmcsaqlsvkeppkfvkkleaskvakqges
+  sp|Q8WZ42|TITIN_HUMAN  7225 QPMRITWSKDNKEIRPGGNYTITCVGNTPHLRILKVGKGDSGQYTCQATNDVGKDMCSAQLSVKEPPKFVKKLEASKVAKQGES 7308 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7309 iqleckisgspeikvswfrndselheswkynmsfinsvalltineasaedsgdyiceahngvgdascstaltvkappvftqkps 7392 
+                              iqleckisgspeikvswfrndselheswkynmsfinsvalltineasaedsgdyiceahngvgdascstaltvkappvftqkps
+  sp|Q8WZ42|TITIN_HUMAN  7309 IQLECKISGSPEIKVSWFRNDSELHESWKYNMSFINSVALLTINEASAEDSGDYICEAHNGVGDASCSTALTVKAPPVFTQKPS 7392 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7393 pvgalkgsdvilqceisgtppfevvwvkdrkqvrnskkfkitskhfdtslhilnleasdvgeyhckatnevgsdtcscsvkfke 7476 
+                              pvgalkgsdvilqceisgtppfevvwvkdrkqvrnskkfkitskhfdtslhilnleasdvgeyhckatnevgsdtcscsvkfke
+  sp|Q8WZ42|TITIN_HUMAN  7393 PVGALKGSDVILQCEISGTPPFEVVWVKDRKQVRNSKKFKITSKHFDTSLHILNLEASDVGEYHCKATNEVGSDTCSCSVKFKE 7476 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7477 pprfvkklsdtstligdavelraivegfqpisvvwlkdrgeviresentrisfidniatlqlgspeasnsgkyicqikndagmr 7560 
+                              pprfvkklsdtstligdavelraivegfqpisvvwlkdrgeviresentrisfidniatlqlgspeasnsgkyicqikndagmr
+  sp|Q8WZ42|TITIN_HUMAN  7477 PPRFVKKLSDTSTLIGDAVELRAIVEGFQPISVVWLKDRGEVIRESENTRISFIDNIATLQLGSPEASNSGKYICQIKNDAGMR 7560 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7561 ecsavltvlepariiekpepmtvttgnpfalecvvtgtpelsakwfkdgrelsadskhhitfinkvaslkipcaemsdkglysf 7644 
+                              ecsavltvlepariiekpepmtvttgnpfalecvvtgtpelsakwfkdgrelsadskhhitfinkvaslkipcaemsdkglysf
+  sp|Q8WZ42|TITIN_HUMAN  7561 ECSAVLTVLEPARIIEKPEPMTVTTGNPFALECVVTGTPELSAKWFKDGRELSADSKHHITFINKVASLKIPCAEMSDKGLYSF 7644 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7645 evknsvgksnctvsvhvsdrivppsfirklkdvnailgasvvlecrvsgsapisvgwfqdgneivsgpkcqssfsenvctlnls 7728 
+                              evknsvgksnctvsvhvsdrivppsfirklkdvnailgasvvlecrvsgsapisvgwfqdgneivsgpkcqssfsenvctlnls
+  sp|Q8WZ42|TITIN_HUMAN  7645 EVKNSVGKSNCTVSVHVSDRIVPPSFIRKLKDVNAILGASVVLECRVSGSAPISVGWFQDGNEIVSGPKCQSSFSENVCTLNLS 7728 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7729 llepsdtgiytcvaanvagsdecsavltvqeppsfeqtpdsvevlpgmsltftsvirgtppfkvkwfkgsrelvpgescnisle 7812 
+                              llepsdtgiytcvaanvagsdecsavltvqeppsfeqtpdsvevlpgmsltftsvirgtppfkvkwfkgsrelvpgescnisle
+  sp|Q8WZ42|TITIN_HUMAN  7729 LLEPSDTGIYTCVAANVAGSDECSAVLTVQEPPSFEQTPDSVEVLPGMSLTFTSVIRGTPPFKVKWFKGSRELVPGESCNISLE 7812 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7813 dfvtelelfevqplesgdysclvtndagsasctthlfvkepatfvkrladfsvetgspivleatytgtppisvswikdeylisq 7896 
+                              dfvtelelfevqplesgdysclvtndagsasctthlfvkepatfvkrladfsvetgspivleatytgtppisvswikdeylisq
+  sp|Q8WZ42|TITIN_HUMAN  7813 DFVTELELFEVQPLESGDYSCLVTNDAGSASCTTHLFVKEPATFVKRLADFSVETGSPIVLEATYTGTPPISVSWIKDEYLISQ 7896 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7897 sercsitmtekstileilestiedyaqysclieneagqdicealvsvleppyfieplehveavigepatlqckvdgtpeirisw 7980 
+                              sercsitmtekstileilestiedyaqysclieneagqdicealvsvleppyfieplehveavigepatlqckvdgtpeirisw
+  sp|Q8WZ42|TITIN_HUMAN  7897 SERCSITMTEKSTILEILESTIEDYAQYSCLIENEAGQDICEALVSVLEPPYFIEPLEHVEAVIGEPATLQCKVDGTPEIRISW 7980 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  7981 ykehtklrsapaykmqfknnvaslvinkvdhsdvgeysckadnsvgavassavlvikarklppffarklkdvhetlgfpvafec 8064 
+                              ykehtklrsapaykmqfknnvaslvinkvdhsdvgeysckadnsvgavassavlvikarklppffarklkdvhetlgfpvafec
+  sp|Q8WZ42|TITIN_HUMAN  7981 YKEHTKLRSAPAYKMQFKNNVASLVINKVDHSDVGEYSCKADNSVGAVASSAVLVIKARKLPPFFARKLKDVHETLGFPVAFEC 8064 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8065 ringseplqvswykdgvllkddanlqtsfvhnvatlqilqtdqshigqyncsasnplgtasssaklilsehevppffdlkpvsv 8148 
+                              ringseplqvswykdgvllkddanlqtsfvhnvatlqilqtdqshigqyncsasnplgtasssaklilsehevppffdlkpvsv
+  sp|Q8WZ42|TITIN_HUMAN  8065 RINGSEPLQVSWYKDGVLLKDDANLQTSFVHNVATLQILQTDQSHIGQYNCSASNPLGTASSSAKLILSEHEVPPFFDLKPVSV 8148 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8149 dlalgesgtfkchvtgtapikitwakdnreirpggnykmtlventatltvlkvgkgdagqytcyasniagkdscsaqlgvqepp 8232 
+                              dlalgesgtfkchvtgtapikitwakdnreirpggnykmtlventatltvlkvgkgdagqytcyasniagkdscsaqlgvqepp
+  sp|Q8WZ42|TITIN_HUMAN  8149 DLALGESGTFKCHVTGTAPIKITWAKDNREIRPGGNYKMTLVENTATLTVLKVGKGDAGQYTCYASNIAGKDSCSAQLGVQEPP 8232 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8233 rfikklepsrivkqdeftryeckiggspeikvlwykdeteiqesskfrmsfvdsvavlemhnlsvedsgdytceahnaagsass 8316 
+                              rfikklepsrivkqdeftryeckiggspeikvlwykdeteiqesskfrmsfvdsvavlemhnlsvedsgdytceahnaagsass
+  sp|Q8WZ42|TITIN_HUMAN  8233 RFIKKLEPSRIVKQDEFTRYECKIGGSPEIKVLWYKDETEIQESSKFRMSFVDSVAVLEMHNLSVEDSGDYTCEAHNAAGSASS 8316 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8317 stslkvkeppifrkkphpietlkgadvhlecelqgtppfhvswykdkrelrsgkkykimsenfltsihilnvdaadigeyqcka 8400 
+                              stslkvkeppifrkkphpietlkgadvhlecelqgtppfhvswykdkrelrsgkkykimsenfltsihilnvdaadigeyqcka
+  sp|Q8WZ42|TITIN_HUMAN  8317 STSLKVKEPPIFRKKPHPIETLKGADVHLECELQGTPPFHVSWYKDKRELRSGKKYKIMSENFLTSIHILNVDAADIGEYQCKA 8400 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8401 tndvgsdtcvgsialkapprfvkklsdistvvgkevqlqttiegaepisvvwfkdkgeivresdniwisyseniatlqfsrvep 8484 
+                              tndvgsdtcvgsialkapprfvkklsdistvvgkevqlqttiegaepisvvwfkdkgeivresdniwisyseniatlqfsrvep
+  sp|Q8WZ42|TITIN_HUMAN  8401 TNDVGSDTCVGSIALKAPPRFVKKLSDISTVVGKEVQLQTTIEGAEPISVVWFKDKGEIVRESDNIWISYSENIATLQFSRVEP 8484 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8485 anagkytcqikndagmqecfatlsvlepativekpesikvttgdtctlectvagtpelstkwfkdgkeltsdnkykisffnkvs 8568 
+                              anagkytcqikndagmqecfatlsvlepativekpesikvttgdtctlectvagtpelstkwfkdgkeltsdnkykisffnkvs
+  sp|Q8WZ42|TITIN_HUMAN  8485 ANAGKYTCQIKNDAGMQECFATLSVLEPATIVEKPESIKVTTGDTCTLECTVAGTPELSTKWFKDGKELTSDNKYKISFFNKVS 8568 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8569 glkiinvapsdsgvysfevqnpvgkdsctaslqvsdrtvppsftrklketnglsgssvvmeckvygsppisvswfhegneissg 8652 
+                              glkiinvapsdsgvysfevqnpvgkdsctaslqvsdrtvppsftrklketnglsgssvvmeckvygsppisvswfhegneissg
+  sp|Q8WZ42|TITIN_HUMAN  8569 GLKIINVAPSDSGVYSFEVQNPVGKDSCTASLQVSDRTVPPSFTRKLKETNGLSGSSVVMECKVYGSPPISVSWFHEGNEISSG 8652 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8653 rkyqttltdntcaltvnmleesdsgdytciatnmagsdecsapltvreppsfvqkpdpmdvltgtnvtftsivkgtppfsvswf 8736 
+                              rkyqttltdntcaltvnmleesdsgdytciatnmagsdecsapltvreppsfvqkpdpmdvltgtnvtftsivkgtppfsvswf
+  sp|Q8WZ42|TITIN_HUMAN  8653 RKYQTTLTDNTCALTVNMLEESDSGDYTCIATNMAGSDECSAPLTVREPPSFVQKPDPMDVLTGTNVTFTSIVKGTPPFSVSWF 8736 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8737 kgsselvpgdrcnvsledsvaelelfdvdtsqsgeytcivsneagkasctthlyikapakfvkrlndysiekgkplilegtftg 8820 
+                              kgsselvpgdrcnvsledsvaelelfdvdtsqsgeytcivsneagkasctthlyikapakfvkrlndysiekgkplilegtftg
+  sp|Q8WZ42|TITIN_HUMAN  8737 KGSSELVPGDRCNVSLEDSVAELELFDVDTSQSGEYTCIVSNEAGKASCTTHLYIKAPAKFVKRLNDYSIEKGKPLILEGTFTG 8820 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8821 tppisvtwkknginvtpsqrcnittteksaileipsstvedagqyncyienasgkdscsaqilileppyfvkqlepvkvsvgds 8904 
+                              tppisvtwkknginvtpsqrcnittteksaileipsstvedagqyncyienasgkdscsaqilileppyfvkqlepvkvsvgds
+  sp|Q8WZ42|TITIN_HUMAN  8821 TPPISVTWKKNGINVTPSQRCNITTTEKSAILEIPSSTVEDAGQYNCYIENASGKDSCSAQILILEPPYFVKQLEPVKVSVGDS 8904 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8905 aslqcqlagtpeigvswykgdtklrptttykmhfrnnvatlvfnqvdindsgeyickaensvgevsastfltvqeqklppsfsr 8988 
+                              aslqcqlagtpeigvswykgdtklrptttykmhfrnnvatlvfnqvdindsgeyickaensvgevsastfltvqeqklppsfsr
+  sp|Q8WZ42|TITIN_HUMAN  8905 ASLQCQLAGTPEIGVSWYKGDTKLRPTTTYKMHFRNNVATLVFNQVDINDSGEYICKAENSVGEVSASTFLTVQEQKLPPSFSR 8988 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  8989 qlrdvqetvglpvvfdcaisgsepisvswykdgkplkdspnvqtsfldntatlnifktdrslagqysctatnpigsasssarli 9072 
+                              qlrdvqetvglpvvfdcaisgsepisvswykdgkplkdspnvqtsfldntatlnifktdrslagqysctatnpigsasssarli
+  sp|Q8WZ42|TITIN_HUMAN  8989 QLRDVQETVGLPVVFDCAISGSEPISVSWYKDGKPLKDSPNVQTSFLDNTATLNIFKTDRSLAGQYSCTATNPIGSASSSARLI 9072 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9073 ltegknppffdirlapvdavvgesadfechvtgtqpikvswakdsreirsggkyqisylensahltvlkvdkgdsgqytcyavn 9156 
+                              ltegknppffdirlapvdavvgesadfechvtgtqpikvswakdsreirsggkyqisylensahltvlkvdkgdsgqytcyavn
+  sp|Q8WZ42|TITIN_HUMAN  9073 LTEGKNPPFFDIRLAPVDAVVGESADFECHVTGTQPIKVSWAKDSREIRSGGKYQISYLENSAHLTVLKVDKGDSGQYTCYAVN 9156 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9157 evgkdsctaqlnikerlippsftkrlsetveetegnsfklegrvagsqpitvawyknnieiqptsnceitfknntlvlqvrkag 9240 
+                              evgkdsctaqlnikerlippsftkrlsetveetegnsfklegrvagsqpitvawyknnieiqptsnceitfknntlvlqvrkag
+  sp|Q8WZ42|TITIN_HUMAN  9157 EVGKDSCTAQLNIKERLIPPSFTKRLSETVEETEGNSFKLEGRVAGSQPITVAWYKNNIEIQPTSNCEITFKNNTLVLQVRKAG 9240 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9241 mndaglytckvsndagsalctssivikepkkppvfdqhltpvtvsegeyvqlschvqgsepiriqwlkagreikpsdrcsfsfa 9324 
+                              mndaglytckvsndagsalctssivikepkkppvfdqhltpvtvsegeyvqlschvqgsepiriqwlkagreikpsdrcsfsfa
+  sp|Q8WZ42|TITIN_HUMAN  9241 MNDAGLYTCKVSNDAGSALCTSSIVIKEPKKPPVFDQHLTPVTVSEGEYVQLSCHVQGSEPIRIQWLKAGREIKPSDRCSFSFA 9324 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9325 sgtavlelrdvakadsgdyvckasnvagsdttkskvtikdkpavapatkkaavdgrlffvsepqsirvvekttatfiakvggdp 9408 
+                              sgtavlelrdvakadsgdyvckasnvagsdttkskvtikdkpavapatkkaavdgrlffvsepqsirvvekttatfiakvggdp
+  sp|Q8WZ42|TITIN_HUMAN  9325 SGTAVLELRDVAKADSGDYVCKASNVAGSDTTKSKVTIKDKPAVAPATKKAAVDGRLFFVSEPQSIRVVEKTTATFIAKVGGDP 9408 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9409 ipnvkwtkgkwrqlnqggrvfihqkgdeakleirdttktdsglyrcvafnehgeiesnvnlqvderkkqekiegdlramlkktp 9492 
+                              ipnvkwtkgkwrqlnqggrvfihqkgdeakleirdttktdsglyrcvafnehgeiesnvnlqvderkkqekiegdlramlkktp
+  sp|Q8WZ42|TITIN_HUMAN  9409 IPNVKWTKGKWRQLNQGGRVFIHQKGDEAKLEIRDTTKTDSGLYRCVAFNEHGEIESNVNLQVDERKKQEKIEGDLRAMLKKTP 9492 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9493 ilkkgageeeeidimellknvdpkeyekyarmygitdfrgllqafellkqsqeeethrleieeierserdekefeelvsfiqqr 9576 
+                              ilkkgageeeeidimellknvdpkeyekyarmygitdfrgllqafellkqsqeeethrleieeierserdekefeelvsfiqqr
+  sp|Q8WZ42|TITIN_HUMAN  9493 ILKKGAGEEEEIDIMELLKNVDPKEYEKYARMYGITDFRGLLQAFELLKQSQEEETHRLEIEEIERSERDEKEFEELVSFIQQR 9576 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9577 lsqtepvtlikdienqtvlkdndavfeidikinypeiklswykgteklepsdkfeisidgdrhtlrvkncqlkdqgnyrlvcgp 9660 
+                              lsqtepvtlikdienqtvlkdndavfeidikinypeiklswykgteklepsdkfeisidgdrhtlrvkncqlkdqgnyrlvcgp
+  sp|Q8WZ42|TITIN_HUMAN  9577 LSQTEPVTLIKDIENQTVLKDNDAVFEIDIKINYPEIKLSWYKGTEKLEPSDKFEISIDGDRHTLRVKNCQLKDQGNYRLVCGP 9660 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9661 hiasakltviepawerhlqdvtlkegqtctmtcqfsvpnvksewfrngrilkpqgrhktevehkvhkltiadvraedqgqytck 9744 
+                              hiasakltviepawerhlqdvtlkegqtctmtcqfsvpnvksewfrngrilkpqgrhktevehkvhkltiadvraedqgqytck
+  sp|Q8WZ42|TITIN_HUMAN  9661 HIASAKLTVIEPAWERHLQDVTLKEGQTCTMTCQFSVPNVKSEWFRNGRILKPQGRHKTEVEHKVHKLTIADVRAEDQGQYTCK 9744 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9745 yedletsaelrieaepiqftkriqnivvsehqsatfecevsfddaivtwykgpteltesqkynfrndgrchymtihnvtpddeg 9828 
+                              yedletsaelrieaepiqftkriqnivvsehqsatfecevsfddaivtwykgpteltesqkynfrndgrchymtihnvtpddeg
+  sp|Q8WZ42|TITIN_HUMAN  9745 YEDLETSAELRIEAEPIQFTKRIQNIVVSEHQSATFECEVSFDDAIVTWYKGPTELTESQKYNFRNDGRCHYMTIHNVTPDDEG 9828 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9829 vysviarleprgearstaelylttkeiklelkppdipdsrvpiptmpiravppeeippvvappiplllptpeekkpppkrievt 9912 
+                              vysviarleprgearstaelylttkeiklelkppdipdsrvpiptmpiravppeeippvvappiplllptpeekkpppkrievt
+  sp|Q8WZ42|TITIN_HUMAN  9829 VYSVIARLEPRGEARSTAELYLTTKEIKLELKPPDIPDSRVPIPTMPIRAVPPEEIPPVVAPPIPLLLPTPEEKKPPPKRIEVT 9912 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9913 kkavkkdakkvvakpkemtpreeivkkppppttlipakapeiidvsskaeevkimtitrkkevqkekeavyekkqavhkekrvf 9996 
+                              kkavkkdakkvvakpkemtpreeivkkppppttlipakapeiidvsskaeevkimtitrkkevqkekeavyekkqavhkekrvf
+  sp|Q8WZ42|TITIN_HUMAN  9913 KKAVKKDAKKVVAKPKEMTPREEIVKKPPPPTTLIPAKAPEIIDVSSKAEEVKIMTITRKKEVQKEKEAVYEKKQAVHKEKRVF 9996 
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN  9997 iesfeepydelevepytepfeqpyyeepdedyeeikveakkevheeweedfeegqeyyereegydegeeeweeayqereviqvq 10080
+                              iesfeepydelevepytepfeqpyyeepdedyeeikveakkevheeweedfeegqeyyereegydegeeeweeayqereviqvq
+  sp|Q8WZ42|TITIN_HUMAN  9997 IESFEEPYDELEVEPYTEPFEQPYYEEPDEDYEEIKVEAKKEVHEEWEEDFEEGQEYYEREEGYDEGEEEWEEAYQEREVIQVQ 10080
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10081 kevyeesherkvpakvpekkappppkvikkpviekiektsrrmeeekvqvtkvpevskkivpqkpsrtpvqeevievkvpavht 10164
+                              kevyeesherkvpakvpekkappppkvikkpviekiektsrrmeeekvqvtkvpevskkivpqkpsrtpvqeevievkvpavht
+  sp|Q8WZ42|TITIN_HUMAN 10081 KEVYEESHERKVPAKVPEKKAPPPPKVIKKPVIEKIEKTSRRMEEEKVQVTKVPEVSKKIVPQKPSRTPVQEEVIEVKVPAVHT 10164
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10165 kkmviseekmffashteeevsvtvpevqkeivteekihvaiskrvepppkvpelpekpapeevapvpipkkveppapkvpevpk 10248
+                              kkmviseekmffashteeevsvtvpevqkeivteekihvaiskrvepppkvpelpekpapeevapvpipkkveppapkvpevpk
+  sp|Q8WZ42|TITIN_HUMAN 10165 KKMVISEEKMFFASHTEEEVSVTVPEVQKEIVTEEKIHVAISKRVEPPPKVPELPEKPAPEEVAPVPIPKKVEPPAPKVPEVPK 10248
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10249 kpvpeekkpvpvpkkepaappkvpevpkkpvpeekipvpvakkkeappakvpevqkgvvteekitivtqreespppavpeipkk 10332
+                              kpvpeekkpvpvpkkepaappkvpevpkkpvpeekipvpvakkkeappakvpevqkgvvteekitivtqreespppavpeipkk
+  sp|Q8WZ42|TITIN_HUMAN 10249 KPVPEEKKPVPVPKKEPAAPPKVPEVPKKPVPEEKIPVPVAKKKEAPPAKVPEVQKGVVTEEKITIVTQREESPPPAVPEIPKK 10332
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10333 kvpeerkpvprkeeevppppkvpalpkkpvpeekvavpvpvakkapppraevskktvveekrfvaeeklsfavpqrvevtrhev 10416
+                              kvpeerkpvprkeeevppppkvpalpkkpvpeekvavpvpvakkapppraevskktvveekrfvaeeklsfavpqrvevtrhev
+  sp|Q8WZ42|TITIN_HUMAN 10333 KVPEERKPVPRKEEEVPPPPKVPALPKKPVPEEKVAVPVPVAKKAPPPRAEVSKKTVVEEKRFVAEEKLSFAVPQRVEVTRHEV 10416
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10417 saeeewsyseeeegvsisvyreeereeeeeaevteyevmeepeeyvveeklhiiskrveaepaevterqekkivlkpkipakie 10500
+                              saeeewsyseeeegvsisvyreeereeeeeaevteyevmeepeeyvveeklhiiskrveaepaevterqekkivlkpkipakie
+  sp|Q8WZ42|TITIN_HUMAN 10417 SAEEEWSYSEEEEGVSISVYREEEREEEEEAEVTEYEVMEEPEEYVVEEKLHIISKRVEAEPAEVTERQEKKIVLKPKIPAKIE 10500
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10501 epppakvpeapkkivpekkvpapvpkkekvpppkvpeepkkpvpekkvppkvikmeeplpakvterhmqitqeekvlvavtkke 10584
+                              epppakvpeapkkivpekkvpapvpkkekvpppkvpeepkkpvpekkvppkvikmeeplpakvterhmqitqeekvlvavtkke
+  sp|Q8WZ42|TITIN_HUMAN 10501 EPPPAKVPEAPKKIVPEKKVPAPVPKKEKVPPPKVPEEPKKPVPEKKVPPKVIKMEEPLPAKVTERHMQITQEEKVLVAVTKKE 10584
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10585 appkarvpeepkravpeekvlklkpkreeeppakvtefrkrvvkeekvsieapkrepqpikevtimeekeraytleeeavsvqr 10668
+                              appkarvpeepkravpeekvlklkpkreeeppakvtefrkrvvkeekvsieapkrepqpikevtimeekeraytleeeavsvqr
+  sp|Q8WZ42|TITIN_HUMAN 10585 APPKARVPEEPKRAVPEEKVLKLKPKREEEPPAKVTEFRKRVVKEEKVSIEAPKREPQPIKEVTIMEEKERAYTLEEEAVSVQR 10668
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10669 eeeyeeyeeydykefeeyepteeydqyeeyeereyeryeeheeyitepekpipvkpvpeepvptkpkappakvlkkavpeekvp 10752
+                              eeeyeeyeeydykefeeyepteeydqyeeyeereyeryeeheeyitepekpipvkpvpeepvptkpkappakvlkkavpeekvp
+  sp|Q8WZ42|TITIN_HUMAN 10669 EEEYEEYEEYDYKEFEEYEPTEEYDQYEEYEEREYERYEEHEEYITEPEKPIPVKPVPEEPVPTKPKAPPAKVLKKAVPEEKVP 10752
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10753 vpipkklkppppkvpeepkkvfeekirisitkrekeqvtepaakvpmkpkrvvaeekvpvprkevappvrvpevpkelepeeva 10836
+                              vpipkklkppppkvpeepkkvfeekirisitkrekeqvtepaakvpmkpkrvvaeekvpvprkevappvrvpevpkelepeeva
+  sp|Q8WZ42|TITIN_HUMAN 10753 VPIPKKLKPPPPKVPEEPKKVFEEKIRISITKREKEQVTEPAAKVPMKPKRVVAEEKVPVPRKEVAPPVRVPEVPKELEPEEVA 10836
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10837 feeevvthveeylveeeeeyiheeeefiteeevvpvipvkvpevprkpvpeekkpvpvpkkkeappakvpevpkkpeekvpvli 10920
+                              feeevvthveeylveeeeeyiheeeefiteeevvpvipvkvpevprkpvpeekkpvpvpkkkeappakvpevpkkpeekvpvli
+  sp|Q8WZ42|TITIN_HUMAN 10837 FEEEVVTHVEEYLVEEEEEYIHEEEEFITEEEVVPVIPVKVPEVPRKPVPEEKKPVPVPKKKEAPPAKVPEVPKKPEEKVPVLI 10920
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 10921 pkkekpppakvpevpkkpvpeekvpvpvpkkveappakvpevpkkpvpekkvpvpapkkveappakvpevpkklipeekkptpv 11004
+                              pkkekpppakvpevpkkpvpeekvpvpvpkkveappakvpevpkkpvpekkvpvpapkkveappakvpevpkklipeekkptpv
+  sp|Q8WZ42|TITIN_HUMAN 10921 PKKEKPPPAKVPEVPKKPVPEEKVPVPVPKKVEAPPAKVPEVPKKPVPEKKVPVPAPKKVEAPPAKVPEVPKKLIPEEKKPTPV 11004
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11005 pkkveapppkvpkkrepvpvpvalpqeeevlfeeeivpeeevlpeeeevlpeeeevlpeeeevlpeeeeippeeeevppeeeyv 11088
+                              pkkveapppkvpkkrepvpvpvalpqeeevlfeeeivpeeevlpeeeevlpeeeevlpeeeevlpeeeeippeeeevppeeeyv
+  sp|Q8WZ42|TITIN_HUMAN 11005 PKKVEAPPPKVPKKREPVPVPVALPQEEEVLFEEEIVPEEEVLPEEEEVLPEEEEVLPEEEEVLPEEEEIPPEEEEVPPEEEYV 11088
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11089 peeeefvpeeevlpevkpkvpvpapvpeikkkvtekkvvipkkeeappakvpevpkkveekriilpkeeevlpvevteepeeep 11172
+                              peeeefvpeeevlpevkpkvpvpapvpeikkkvtekkvvipkkeeappakvpevpkkveekriilpkeeevlpvevteepeeep
+  sp|Q8WZ42|TITIN_HUMAN 11089 PEEEEFVPEEEVLPEVKPKVPVPAPVPEIKKKVTEKKVVIPKKEEAPPAKVPEVPKKVEEKRIILPKEEEVLPVEVTEEPEEEP 11172
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11173 iseeeipeeppsieeveevapprvpevikkavpeaptpvpkkveappakvskkipeekvpvpvqkkeappakvpevpkkvpekk 11256
+                              iseeeipeeppsieeveevapprvpevikkavpeaptpvpkkveappakvskkipeekvpvpvqkkeappakvpevpkkvpekk
+  sp|Q8WZ42|TITIN_HUMAN 11173 ISEEEIPEEPPSIEEVEEVAPPRVPEVIKKAVPEAPTPVPKKVEAPPAKVSKKIPEEKVPVPVQKKEAPPAKVPEVPKKVPEKK 11256
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11257 vlvpkkeavppakgrtvleekvsvafrqevvvkerlelevveaeveeipeeeefheveeyfeegefheveefikleqhrveeeh 11340
+                              vlvpkkeavppakgrtvleekvsvafrqevvvkerlelevveaeveeipeeeefheveeyfeegefheveefikleqhrveeeh
+  sp|Q8WZ42|TITIN_HUMAN 11257 VLVPKKEAVPPAKGRTVLEEKVSVAFRQEVVVKERLELEVVEAEVEEIPEEEEFHEVEEYFEEGEFHEVEEFIKLEQHRVEEEH 11340
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11341 rvekvhrvievfeaeevevfekpkappkgpeisekiippkkpptkvvprkeppakvpevpkkivveekvrvpeeprvpptkvpe 11424
+                              rvekvhrvievfeaeevevfekpkappkgpeisekiippkkpptkvvprkeppakvpevpkkivveekvrvpeeprvpptkvpe
+  sp|Q8WZ42|TITIN_HUMAN 11341 RVEKVHRVIEVFEAEEVEVFEKPKAPPKGPEISEKIIPPKKPPTKVVPRKEPPAKVPEVPKKIVVEEKVRVPEEPRVPPTKVPE 11424
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11425 vlppkevvpekkvpvppakkpeapppkvpeapkevvpekkvpvpppkkpevpptkvpevpkaavpekkvpeaippkpespppev 11508
+                              vlppkevvpekkvpvppakkpeapppkvpeapkevvpekkvpvpppkkpevpptkvpevpkaavpekkvpeaippkpespppev
+  sp|Q8WZ42|TITIN_HUMAN 11425 VLPPKEVVPEKKVPVPPAKKPEAPPPKVPEAPKEVVPEKKVPVPPPKKPEVPPTKVPEVPKAAVPEKKVPEAIPPKPESPPPEV 11508
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11509 peapkevvpekkvpaappkkpevtpvkvpeapkevvpekkvpvpppkkpevpptkvpevpkvavpekkvpeaippkpespppev 11592
+                              peapkevvpekkvpaappkkpevtpvkvpeapkevvpekkvpvpppkkpevpptkvpevpkvavpekkvpeaippkpespppev
+  sp|Q8WZ42|TITIN_HUMAN 11509 PEAPKEVVPEKKVPAAPPKKPEVTPVKVPEAPKEVVPEKKVPVPPPKKPEVPPTKVPEVPKVAVPEKKVPEAIPPKPESPPPEV 11592
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11593 feepeevaleeppaevveepepaappqvtvppkkpvpekkapavvakkpelppvkvpevpkevvpekkvplvvpkkpeappakv 11676
+                              feepeevaleeppaevveepepaappqvtvppkkpvpekkapavvakkpelppvkvpevpkevvpekkvplvvpkkpeappakv
+  sp|Q8WZ42|TITIN_HUMAN 11593 FEEPEEVALEEPPAEVVEEPEPAAPPQVTVPPKKPVPEKKAPAVVAKKPELPPVKVPEVPKEVVPEKKVPLVVPKKPEAPPAKV 11676
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11677 pevpkevvpekkvavpkkpevppakvpevpkkpvleekpavpvperaespppevyeepeeiapeeeiapeeekpvpvaeeeepe 11760
+                              pevpkevvpekkvavpkkpevppakvpevpkkpvleekpavpvperaespppevyeepeeiapeeeiapeeekpvpvaeeeepe
+  sp|Q8WZ42|TITIN_HUMAN 11677 PEVPKEVVPEKKVAVPKKPEVPPAKVPEVPKKPVLEEKPAVPVPERAESPPPEVYEEPEEIAPEEEIAPEEEKPVPVAEEEEPE 11760
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11761 vpppavpeepkkiipekkvpvikkpeapppkepepekviekpklkprppppppappkedvkekifqlkaipkkkvpekpqvpek 11844
+                              vpppavpeepkkiipekkvpvikkpeapppkepepekviekpklkprppppppappkedvkekifqlkaipkkkvpekpqvpek
+  sp|Q8WZ42|TITIN_HUMAN 11761 VPPPAVPEEPKKIIPEKKVPVIKKPEAPPPKEPEPEKVIEKPKLKPRPPPPPPAPPKEDVKEKIFQLKAIPKKKVPEKPQVPEK 11844
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11845 veltplkvpggekkvrkllperkpepkeevvlksvlrkrpeeeepkvepkklekvkkpavpeppppkpveevevptvtkrerki 11928
+                              veltplkvpggekkvrkllperkpepkeevvlksvlrkrpeeeepkvepkklekvkkpavpeppppkpveevevptvtkrerki
+  sp|Q8WZ42|TITIN_HUMAN 11845 VELTPLKVPGGEKKVRKLLPERKPEPKEEVVLKSVLRKRPEEEEPKVEPKKLEKVKKPAVPEPPPPKPVEEVEVPTVTKRERKI 11928
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 11929 peptkvpeikpaiplpapepkpkpeaevktikpppvepeptpiaapvtvpvvgkkaeakapkeeaakpkgpikgvpkktpspie 12012
+                              peptkvpeikpaiplpapepkpkpeaevktikpppvepeptpiaapvtvpvvgkkaeakapkeeaakpkgpikgvpkktpspie
+  sp|Q8WZ42|TITIN_HUMAN 11929 PEPTKVPEIKPAIPLPAPEPKPKPEAEVKTIKPPPVEPEPTPIAAPVTVPVVGKKAEAKAPKEEAAKPKGPIKGVPKKTPSPIE 12012
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12013 aerrklrpgsggekppdeapftyqlkavplkfvkeikdiiltesefvgssaifeclvspstaittwmkdgsnirespkhrfiad 12096
+                              aerrklrpgsggekppdeapftyqlkavplkfvkeikdiiltesefvgssaifeclvspstaittwmkdgsnirespkhrfiad
+  sp|Q8WZ42|TITIN_HUMAN 12013 AERRKLRPGSGGEKPPDEAPFTYQLKAVPLKFVKEIKDIILTESEFVGSSAIFECLVSPSTAITTWMKDGSNIRESPKHRFIAD 12096
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12097 gkdrklhiidvqlsdageytcvlrlgnkektstaklvveelpvrfvktleeevtvvkgqplylscelnkerdvvwrkdgkivve 12180
+                              gkdrklhiidvqlsdageytcvlrlgnkektstaklvveelpvrfvktleeevtvvkgqplylscelnkerdvvwrkdgkivve
+  sp|Q8WZ42|TITIN_HUMAN 12097 GKDRKLHIIDVQLSDAGEYTCVLRLGNKEKTSTAKLVVEELPVRFVKTLEEEVTVVKGQPLYLSCELNKERDVVWRKDGKIVVE 12180
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12181 kpgrivpgviglmraltindaddtdagtytvtvenannlecsscvkvvevirdwlvkpirdqhvkpkgtaifacdiakdtpnik 12264
+                              kpgrivpgviglmraltindaddtdagtytvtvenannlecsscvkvvevirdwlvkpirdqhvkpkgtaifacdiakdtpnik
+  sp|Q8WZ42|TITIN_HUMAN 12181 KPGRIVPGVIGLMRALTINDADDTDAGTYTVTVENANNLECSSCVKVVEVIRDWLVKPIRDQHVKPKGTAIFACDIAKDTPNIK 12264
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12265 wfkgydeipaepndkteilrdgnhlylkiknampediaeyaveiegkrypakltlgerevellkpiedvtiyekesasfdaeis 12348
+                              wfkgydeipaepndkteilrdgnhlylkiknampediaeyaveiegkrypakltlgerevellkpiedvtiyekesasfdaeis
+  sp|Q8WZ42|TITIN_HUMAN 12265 WFKGYDEIPAEPNDKTEILRDGNHLYLKIKNAMPEDIAEYAVEIEGKRYPAKLTLGEREVELLKPIEDVTIYEKESASFDAEIS 12348
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12349 eadipgqwklkgellrpsptceikaeggkrfltlhkvkldqagevlyqalnaittailtvkeieldfavplkdvtvperrqarf 12432
+                              eadipgqwklkgellrpsptceikaeggkrfltlhkvkldqagevlyqalnaittailtvkeieldfavplkdvtvperrqarf
+  sp|Q8WZ42|TITIN_HUMAN 12349 EADIPGQWKLKGELLRPSPTCEIKAEGGKRFLTLHKVKLDQAGEVLYQALNAITTAILTVKEIELDFAVPLKDVTVPERRQARF 12432
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12433 ecvltreanviwskgpdiikssdkfdiiadgkkhilvindsqfddegvytaevegkktsarlfvtgirlkfmspledqtvkege 12516
+                              ecvltreanviwskgpdiikssdkfdiiadgkkhilvindsqfddegvytaevegkktsarlfvtgirlkfmspledqtvkege
+  sp|Q8WZ42|TITIN_HUMAN 12433 ECVLTREANVIWSKGPDIIKSSDKFDIIADGKKHILVINDSQFDDEGVYTAEVEGKKTSARLFVTGIRLKFMSPLEDQTVKEGE 12516
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12517 tatfvcelshekmhvvwfkndaklhtsrtvlissegkthklemkevtlddisqikaqvkelsstaqlkvleadpyftvklhdkt 12600
+                              tatfvcelshekmhvvwfkndaklhtsrtvlissegkthklemkevtlddisqikaqvkelsstaqlkvleadpyftvklhdkt
+  sp|Q8WZ42|TITIN_HUMAN 12517 TATFVCELSHEKMHVVWFKNDAKLHTSRTVLISSEGKTHKLEMKEVTLDDISQIKAQVKELSSTAQLKVLEADPYFTVKLHDKT 12600
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12601 avekdeitlkcevskdvpvkwfkdgeeivpspkysikadglrrilkikkadlkdkgeyvcdcgtdktkanvtvearlikvekpl 12684
+                              avekdeitlkcevskdvpvkwfkdgeeivpspkysikadglrrilkikkadlkdkgeyvcdcgtdktkanvtvearlikvekpl
+  sp|Q8WZ42|TITIN_HUMAN 12601 AVEKDEITLKCEVSKDVPVKWFKDGEEIVPSPKYSIKADGLRRILKIKKADLKDKGEYVCDCGTDKTKANVTVEARLIKVEKPL 12684
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12685 ygvevfvgetahfeielsepdvhgqwklkgqpltaspdceiiedgkkhililhncqlgmtgevsfqaanaksaanlkvkelpli 12768
+                              ygvevfvgetahfeielsepdvhgqwklkgqpltaspdceiiedgkkhililhncqlgmtgevsfqaanaksaanlkvkelpli
+  sp|Q8WZ42|TITIN_HUMAN 12685 YGVEVFVGETAHFEIELSEPDVHGQWKLKGQPLTASPDCEIIEDGKKHILILHNCQLGMTGEVSFQAANAKSAANLKVKELPLI 12768
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12769 fitplsdvkvfekdeakfecevsrepktfrwlkgtqeitgddrfelikdgtkhsmviksaafedeakymfeaedkhtsgkliie 12852
+                              fitplsdvkvfekdeakfecevsrepktfrwlkgtqeitgddrfelikdgtkhsmviksaafedeakymfeaedkhtsgkliie
+  sp|Q8WZ42|TITIN_HUMAN 12769 FITPLSDVKVFEKDEAKFECEVSREPKTFRWLKGTQEITGDDRFELIKDGTKHSMVIKSAAFEDEAKYMFEAEDKHTSGKLIIE 12852
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12853 girlkfltplkdvtakekesavftvelshdnirvkwfkndqrlhttrsvsmqdegkthsitfkdlsiddtsqirveamgmssea 12936
+                              girlkfltplkdvtakekesavftvelshdnirvkwfkndqrlhttrsvsmqdegkthsitfkdlsiddtsqirveamgmssea
+  sp|Q8WZ42|TITIN_HUMAN 12853 GIRLKFLTPLKDVTAKEKESAVFTVELSHDNIRVKWFKNDQRLHTTRSVSMQDEGKTHSITFKDLSIDDTSQIRVEAMGMSSEA 12936
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 12937 kltvlegdpyftgklqdytgvekdevilqceiskadapvkwfkdgkeikpsknavikadgkkrmlilkkalksdigqytcdcgt 13020
+                              kltvlegdpyftgklqdytgvekdevilqceiskadapvkwfkdgkeikpsknavikadgkkrmlilkkalksdigqytcdcgt
+  sp|Q8WZ42|TITIN_HUMAN 12937 KLTVLEGDPYFTGKLQDYTGVEKDEVILQCEISKADAPVKWFKDGKEIKPSKNAVIKADGKKRMLILKKALKSDIGQYTCDCGT 13020
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13021 dktsgkldiedreiklvrplhsvevmetetarfeteiseddihanwklkgeallqtpdceikeegkihslvlhncrldqtggvd 13104
+                              dktsgkldiedreiklvrplhsvevmetetarfeteiseddihanwklkgeallqtpdceikeegkihslvlhncrldqtggvd
+  sp|Q8WZ42|TITIN_HUMAN 13021 DKTSGKLDIEDREIKLVRPLHSVEVMETETARFETEISEDDIHANWKLKGEALLQTPDCEIKEEGKIHSLVLHNCRLDQTGGVD 13104
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13105 fqaanvkssahlrvkprvigllrplkdvtvtagetatfdcelsyedipvewylkgkklepsdkvvprsegkvhtltlrdvkled 13188
+                              fqaanvkssahlrvkprvigllrplkdvtvtagetatfdcelsyedipvewylkgkklepsdkvvprsegkvhtltlrdvkled
+  sp|Q8WZ42|TITIN_HUMAN 13105 FQAANVKSSAHLRVKPRVIGLLRPLKDVTVTAGETATFDCELSYEDIPVEWYLKGKKLEPSDKVVPRSEGKVHTLTLRDVKLED 13188
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13189 agevqltakdfkthanlfvkeppveftkpledqtveegatavlecevsrenakvkwfkngteilkskkyeivadgrvrklvihd 13272
+                              agevqltakdfkthanlfvkeppveftkpledqtveegatavlecevsrenakvkwfkngteilkskkyeivadgrvrklvihd
+  sp|Q8WZ42|TITIN_HUMAN 13189 AGEVQLTAKDFKTHANLFVKEPPVEFTKPLEDQTVEEGATAVLECEVSRENAKVKWFKNGTEILKSKKYEIVADGRVRKLVIHD 13272
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13273 ctpediktytcdakdfktscnlnvvpphveflrpltdlqvrekemarfecelsrenakvkwfkdgaeikkgkkydiiskgavri 13356
+                              ctpediktytcdakdfktscnlnvvpphveflrpltdlqvrekemarfecelsrenakvkwfkdgaeikkgkkydiiskgavri
+  sp|Q8WZ42|TITIN_HUMAN 13273 CTPEDIKTYTCDAKDFKTSCNLNVVPPHVEFLRPLTDLQVREKEMARFECELSRENAKVKWFKDGAEIKKGKKYDIISKGAVRI 13356
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13357 lvinkcllddeaeyscevrtartsgmltvleeeavftknlanievsetdtiklvcevskpgaeviwykgdeeiietgryeilte 13440
+                              lvinkcllddeaeyscevrtartsgmltvleeeavftknlanievsetdtiklvcevskpgaeviwykgdeeiietgryeilte
+  sp|Q8WZ42|TITIN_HUMAN 13357 LVINKCLLDDEAEYSCEVRTARTSGMLTVLEEEAVFTKNLANIEVSETDTIKLVCEVSKPGAEVIWYKGDEEIIETGRYEILTE 13440
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13441 grkrilviqnahledagnyncrlpssrtdgkvkvhelaaefiskpqnleilegekaefvcsiskesfpvqwkrddktlesgdky 13524
+                              grkrilviqnahledagnyncrlpssrtdgkvkvhelaaefiskpqnleilegekaefvcsiskesfpvqwkrddktlesgdky
+  sp|Q8WZ42|TITIN_HUMAN 13441 GRKRILVIQNAHLEDAGNYNCRLPSSRTDGKVKVHELAAEFISKPQNLEILEGEKAEFVCSISKESFPVQWKRDDKTLESGDKY 13524
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13525 dviadgkkrvlvvkdatlqdmgtyvvmvgaaraaahltvieklrivvplkdtrvkeqqevvfncevntegakakwfrneeaifd 13608
+                              dviadgkkrvlvvkdatlqdmgtyvvmvgaaraaahltvieklrivvplkdtrvkeqqevvfncevntegakakwfrneeaifd
+  sp|Q8WZ42|TITIN_HUMAN 13525 DVIADGKKRVLVVKDATLQDMGTYVVMVGAARAAAHLTVIEKLRIVVPLKDTRVKEQQEVVFNCEVNTEGAKAKWFRNEEAIFD 13608
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13609 sskyiilqkdlvytlrirdahlddqanynvsltnhrgenvksaanliveeedlriveplkdietmekksvtfwckvnrlnvtlk 13692
+                              sskyiilqkdlvytlrirdahlddqanynvsltnhrgenvksaanliveeedlriveplkdietmekksvtfwckvnrlnvtlk
+  sp|Q8WZ42|TITIN_HUMAN 13609 SSKYIILQKDLVYTLRIRDAHLDDQANYNVSLTNHRGENVKSAANLIVEEEDLRIVEPLKDIETMEKKSVTFWCKVNRLNVTLK 13692
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13693 wtkngeevpfdnrvsyrvdkykhmltikdcgfpdegeyivtagqdksvaelliieaptefvehledqtvtefddavfscqlsre 13776
+                              wtkngeevpfdnrvsyrvdkykhmltikdcgfpdegeyivtagqdksvaelliieaptefvehledqtvtefddavfscqlsre
+  sp|Q8WZ42|TITIN_HUMAN 13693 WTKNGEEVPFDNRVSYRVDKYKHMLTIKDCGFPDEGEYIVTAGQDKSVAELLIIEAPTEFVEHLEDQTVTEFDDAVFSCQLSRE 13776
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13777 kanvkwyrngreikegkkykfekdgsihrliikdcrlddeceyacgvedrksrarlfveeipveiirppqdileapgadvvfla 13860
+                              kanvkwyrngreikegkkykfekdgsihrliikdcrlddeceyacgvedrksrarlfveeipveiirppqdileapgadvvfla
+  sp|Q8WZ42|TITIN_HUMAN 13777 KANVKWYRNGREIKEGKKYKFEKDGSIHRLIIKDCRLDDECEYACGVEDRKSRARLFVEEIPVEIIRPPQDILEAPGADVVFLA 13860
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13861 elnkdkvevqwlrnnmvvvqgdkhqmmsegkihrlqicdikprdqgeyrfiakdkearaklelaaapkiktadqdlvvdvgkpl 13944
+                              elnkdkvevqwlrnnmvvvqgdkhqmmsegkihrlqicdikprdqgeyrfiakdkearaklelaaapkiktadqdlvvdvgkpl
+  sp|Q8WZ42|TITIN_HUMAN 13861 ELNKDKVEVQWLRNNMVVVQGDKHQMMSEGKIHRLQICDIKPRDQGEYRFIAKDKEARAKLELAAAPKIKTADQDLVVDVGKPL 13944
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 13945 tmvvpydaypkaeaewfkeneplstktidttaeqtsfrileakkgdkgrykivlqnkhgkaegfinlkvidvpgpvrnlevtet 14028
+                              tmvvpydaypkaeaewfkeneplstktidttaeqtsfrileakkgdkgrykivlqnkhgkaegfinlkvidvpgpvrnlevtet
+  sp|Q8WZ42|TITIN_HUMAN 13945 TMVVPYDAYPKAEAEWFKENEPLSTKTIDTTAEQTSFRILEAKKGDKGRYKIVLQNKHGKAEGFINLKVIDVPGPVRNLEVTET 14028
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14029 fdgevslaweepltdggskiigyvverrdikrktwvlatdraesceftvtglqkggveylfrvsarnrvgtgepvetdnpvear 14112
+                              fdgevslaweepltdggskiigyvverrdikrktwvlatdraesceftvtglqkggveylfrvsarnrvgtgepvetdnpvear
+  sp|Q8WZ42|TITIN_HUMAN 14029 FDGEVSLAWEEPLTDGGSKIIGYVVERRDIKRKTWVLATDRAESCEFTVTGLQKGGVEYLFRVSARNRVGTGEPVETDNPVEAR 14112
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14113 skydvpgpplnvtitdvnrfgvsltweppeydggaeitnyvielrdktsirwdtamtvraedlsatvtdvvegqeysfrvraqn 14196
+                              skydvpgpplnvtitdvnrfgvsltweppeydggaeitnyvielrdktsirwdtamtvraedlsatvtdvvegqeysfrvraqn
+  sp|Q8WZ42|TITIN_HUMAN 14113 SKYDVPGPPLNVTITDVNRFGVSLTWEPPEYDGGAEITNYVIELRDKTSIRWDTAMTVRAEDLSATVTDVVEGQEYSFRVRAQN 14196
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14197 rigvgkpsaatpfvkvadpierpsppvnltssdqtqssvqlkwepplkdggspilgyiierceegkdnwircnmklvpeltykv 14280
+                              rigvgkpsaatpfvkvadpierpsppvnltssdqtqssvqlkwepplkdggspilgyiierceegkdnwircnmklvpeltykv
+  sp|Q8WZ42|TITIN_HUMAN 14197 RIGVGKPSAATPFVKVADPIERPSPPVNLTSSDQTQSSVQLKWEPPLKDGGSPILGYIIERCEEGKDNWIRCNMKLVPELTYKV 14280
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14281 tglekgnkylyrvsaenkagvsdpseilgpltaddafveptmdlsafkdglevivpnpitilvpstgyprptatwcfgdkvlet 14364
+                              tglekgnkylyrvsaenkagvsdpseilgpltaddafveptmdlsafkdglevivpnpitilvpstgyprptatwcfgdkvlet
+  sp|Q8WZ42|TITIN_HUMAN 14281 TGLEKGNKYLYRVSAENKAGVSDPSEILGPLTADDAFVEPTMDLSAFKDGLEVIVPNPITILVPSTGYPRPTATWCFGDKVLET 14364
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14365 gdrvkmktlsayaelvispsersdkgiytlklenrvktisgeidvnviarpsapkelkfgditkdsvhltweppdddggspltg 14448
+                              gdrvkmktlsayaelvispsersdkgiytlklenrvktisgeidvnviarpsapkelkfgditkdsvhltweppdddggspltg
+  sp|Q8WZ42|TITIN_HUMAN 14365 GDRVKMKTLSAYAELVISPSERSDKGIYTLKLENRVKTISGEIDVNVIARPSAPKELKFGDITKDSVHLTWEPPDDDGGSPLTG 14448
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14449 yvvekrevsrktwtkvmdfvtdleftvpdlvqgkeylfkvcarnkcgpgepayvdepvnmstpatvpdppenvkwrdrtansif 14532
+                              yvvekrevsrktwtkvmdfvtdleftvpdlvqgkeylfkvcarnkcgpgepayvdepvnmstpatvpdppenvkwrdrtansif
+  sp|Q8WZ42|TITIN_HUMAN 14449 YVVEKREVSRKTWTKVMDFVTDLEFTVPDLVQGKEYLFKVCARNKCGPGEPAYVDEPVNMSTPATVPDPPENVKWRDRTANSIF 14532
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14533 ltwdppkndggsrikgyivercprgsdkwvacgepvaetkmevtgleegkwyayrvkalnrqgaskpsrpteeiqavdtqeape 14616
+                              ltwdppkndggsrikgyivercprgsdkwvacgepvaetkmevtgleegkwyayrvkalnrqgaskpsrpteeiqavdtqeape
+  sp|Q8WZ42|TITIN_HUMAN 14533 LTWDPPKNDGGSRIKGYIVERCPRGSDKWVACGEPVAETKMEVTGLEEGKWYAYRVKALNRQGASKPSRPTEEIQAVDTQEAPE 14616
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14617 ifldvkllagltvkagtkielpatvtgkpepkitwtkadmilkqdkritienvpkkstvtivdskrsdtgtyiieavnvcgrat 14700
+                              ifldvkllagltvkagtkielpatvtgkpepkitwtkadmilkqdkritienvpkkstvtivdskrsdtgtyiieavnvcgrat
+  sp|Q8WZ42|TITIN_HUMAN 14617 IFLDVKLLAGLTVKAGTKIELPATVTGKPEPKITWTKADMILKQDKRITIENVPKKSTVTIVDSKRSDTGTYIIEAVNVCGRAT 14700
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14701 avvevnvldkpgppaafditdvtnesclltwnpprddggskitnyvverratdsevwhklsstvkdtnfkatklipnkeyifrv 14784
+                              avvevnvldkpgppaafditdvtnesclltwnpprddggskitnyvverratdsevwhklsstvkdtnfkatklipnkeyifrv
+  sp|Q8WZ42|TITIN_HUMAN 14701 AVVEVNVLDKPGPPAAFDITDVTNESCLLTWNPPRDDGGSKITNYVVERRATDSEVWHKLSSTVKDTNFKATKLIPNKEYIFRV 14784
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14785 aaenmygvgepvqaspitakyqfdppgpptrlepsditkdavtltwcepdddggspitgywverldpdtdkwvrcnkmpvkdtt 14868
+                              aaenmygvgepvqaspitakyqfdppgpptrlepsditkdavtltwcepdddggspitgywverldpdtdkwvrcnkmpvkdtt
+  sp|Q8WZ42|TITIN_HUMAN 14785 AAENMYGVGEPVQASPITAKYQFDPPGPPTRLEPSDITKDAVTLTWCEPDDDGGSPITGYWVERLDPDTDKWVRCNKMPVKDTT 14868
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14869 yrvkgltnkkkyrfrvlaenlagpgkpskstepilikdpidppwppgkptvkdvgktsvrlnwtkpehdggakiesyviemlkt 14952
+                              yrvkgltnkkkyrfrvlaenlagpgkpskstepilikdpidppwppgkptvkdvgktsvrlnwtkpehdggakiesyviemlkt
+  sp|Q8WZ42|TITIN_HUMAN 14869 YRVKGLTNKKKYRFRVLAENLAGPGKPSKSTEPILIKDPIDPPWPPGKPTVKDVGKTSVRLNWTKPEHDGGAKIESYVIEMLKT 14952
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 14953 gtdewvrvaegvpttqhllpglmegqeysfrvravnkagesepsepsdpvlcreklyppspprwlevinitkntadlkwtvpek 15036
+                              gtdewvrvaegvpttqhllpglmegqeysfrvravnkagesepsepsdpvlcreklyppspprwlevinitkntadlkwtvpek
+  sp|Q8WZ42|TITIN_HUMAN 14953 GTDEWVRVAEGVPTTQHLLPGLMEGQEYSFRVRAVNKAGESEPSEPSDPVLCREKLYPPSPPRWLEVINITKNTADLKWTVPEK 15036
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15037 dggspitnyivekrdvrrkgwqtvdttvkdtkctvtpltegslyvfrvaaenaigqsdyteiedsvlakdtfttpgppyalavv 15120
+                              dggspitnyivekrdvrrkgwqtvdttvkdtkctvtpltegslyvfrvaaenaigqsdyteiedsvlakdtfttpgppyalavv
+  sp|Q8WZ42|TITIN_HUMAN 15037 DGGSPITNYIVEKRDVRRKGWQTVDTTVKDTKCTVTPLTEGSLYVFRVAAENAIGQSDYTEIEDSVLAKDTFTTPGPPYALAVV 15120
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15121 dvtkrhvdlkweppkndggrpiqryviekkerlgtrwvkagktagpdcnfrvtdviegtevqfqvraeneagvghpsepteils 15204
+                              dvtkrhvdlkweppkndggrpiqryviekkerlgtrwvkagktagpdcnfrvtdviegtevqfqvraeneagvghpsepteils
+  sp|Q8WZ42|TITIN_HUMAN 15121 DVTKRHVDLKWEPPKNDGGRPIQRYVIEKKERLGTRWVKAGKTAGPDCNFRVTDVIEGTEVQFQVRAENEAGVGHPSEPTEILS 15204
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15205 iedptsppsppldlhvtdagrkhiaiawkppeknggspiigyhvemcpvgtekwmrvnsrpikdlkfkveegvvpdkeyvlrvr 15288
+                              iedptsppsppldlhvtdagrkhiaiawkppeknggspiigyhvemcpvgtekwmrvnsrpikdlkfkveegvvpdkeyvlrvr
+  sp|Q8WZ42|TITIN_HUMAN 15205 IEDPTSPPSPPLDLHVTDAGRKHIAIAWKPPEKNGGSPIIGYHVEMCPVGTEKWMRVNSRPIKDLKFKVEEGVVPDKEYVLRVR 15288
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15289 avnaigvsepseisenvvakdpdckptidlethdiiviegeklsipvpfravpvptvswhkdgkevkasdrltmkndhisahle 15372
+                              avnaigvsepseisenvvakdpdckptidlethdiiviegeklsipvpfravpvptvswhkdgkevkasdrltmkndhisahle
+  sp|Q8WZ42|TITIN_HUMAN 15289 AVNAIGVSEPSEISENVVAKDPDCKPTIDLETHDIIVIEGEKLSIPVPFRAVPVPTVSWHKDGKEVKASDRLTMKNDHISAHLE 15372
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15373 vpksvradagiytitlenklgsatasinvkviglpgpckdikasditkssckltweppefdggtpilhyvlerreagrrtyipv 15456
+                              vpksvradagiytitlenklgsatasinvkviglpgpckdikasditkssckltweppefdggtpilhyvlerreagrrtyipv
+  sp|Q8WZ42|TITIN_HUMAN 15373 VPKSVRADAGIYTITLENKLGSATASINVKVIGLPGPCKDIKASDITKSSCKLTWEPPEFDGGTPILHYVLERREAGRRTYIPV 15456
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15457 msgenklswtvkdlipngeyffrvkavnkvgggeyielknpviaqdpkqppdppvdvevhnptaeamtitwkpplydggskimg 15540
+                              msgenklswtvkdlipngeyffrvkavnkvgggeyielknpviaqdpkqppdppvdvevhnptaeamtitwkpplydggskimg
+  sp|Q8WZ42|TITIN_HUMAN 15457 MSGENKLSWTVKDLIPNGEYFFRVKAVNKVGGGEYIELKNPVIAQDPKQPPDPPVDVEVHNPTAEAMTITWKPPLYDGGSKIMG 15540
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15541 yiiekiakgeerwkrcnehlvpiltytakgleegkeyqfrvraenaagisepsratpptkavdpidapkvilrtslevkrgdei 15624
+                              yiiekiakgeerwkrcnehlvpiltytakgleegkeyqfrvraenaagisepsratpptkavdpidapkvilrtslevkrgdei
+  sp|Q8WZ42|TITIN_HUMAN 15541 YIIEKIAKGEERWKRCNEHLVPILTYTAKGLEEGKEYQFRVRAENAAGISEPSRATPPTKAVDPIDAPKVILRTSLEVKRGDEI 15624
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15625 aldasisgspyptitwikdenvivpeeikkraaplvrrrkgevqeeepfvlpltqrlsidnskkgesqlrvrdslrpdhglymi 15708
+                              aldasisgspyptitwikdenvivpeeikkraaplvrrrkgevqeeepfvlpltqrlsidnskkgesqlrvrdslrpdhglymi
+  sp|Q8WZ42|TITIN_HUMAN 15625 ALDASISGSPYPTITWIKDENVIVPEEIKKRAAPLVRRRKGEVQEEEPFVLPLTQRLSIDNSKKGESQLRVRDSLRPDHGLYMI 15708
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15709 kvendhgiakapctvsvldtpgppinfvfedirktsvlckwepplddggseiinytlekkdktkpdsewivvtstlrhckysvt 15792
+                              kvendhgiakapctvsvldtpgppinfvfedirktsvlckwepplddggseiinytlekkdktkpdsewivvtstlrhckysvt
+  sp|Q8WZ42|TITIN_HUMAN 15709 KVENDHGIAKAPCTVSVLDTPGPPINFVFEDIRKTSVLCKWEPPLDDGGSEIINYTLEKKDKTKPDSEWIVVTSTLRHCKYSVT 15792
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15793 kliegkeylfrvraenrfgpgppcvskplvakdpfgppdapdkpivedvtsnsmlvkwnepkdngspilgywlekrevnsthws 15876
+                              kliegkeylfrvraenrfgpgppcvskplvakdpfgppdapdkpivedvtsnsmlvkwnepkdngspilgywlekrevnsthws
+  sp|Q8WZ42|TITIN_HUMAN 15793 KLIEGKEYLFRVRAENRFGPGPPCVSKPLVAKDPFGPPDAPDKPIVEDVTSNSMLVKWNEPKDNGSPILGYWLEKREVNSTHWS 15876
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15877 rvnksllnalkanvdgllegltyvfrvcaenaagpgkfsppsdpktahdpisppgppiprvtdtssttieleweppafngggei 15960
+                              rvnksllnalkanvdgllegltyvfrvcaenaagpgkfsppsdpktahdpisppgppiprvtdtssttieleweppafngggei
+  sp|Q8WZ42|TITIN_HUMAN 15877 RVNKSLLNALKANVDGLLEGLTYVFRVCAENAAGPGKFSPPSDPKTAHDPISPPGPPIPRVTDTSSTTIELEWEPPAFNGGGEI 15960
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 15961 vgyfvdkqlvgtnewsrctekmikvrqytvkeiregadyklrvsavnaagegppgetqpvtvaepqeppaveldvsvkggiqim 16044
+                              vgyfvdkqlvgtnewsrctekmikvrqytvkeiregadyklrvsavnaagegppgetqpvtvaepqeppaveldvsvkggiqim
+  sp|Q8WZ42|TITIN_HUMAN 15961 VGYFVDKQLVGTNEWSRCTEKMIKVRQYTVKEIREGADYKLRVSAVNAAGEGPPGETQPVTVAEPQEPPAVELDVSVKGGIQIM 16044
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16045 agktlripavvtgrpvptkvwtkeegeldkdrvvidnvgtkseliikdalrkdhgryvitatnscgskfaaarvevfdvpgpvl 16128
+                              agktlripavvtgrpvptkvwtkeegeldkdrvvidnvgtkseliikdalrkdhgryvitatnscgskfaaarvevfdvpgpvl
+  sp|Q8WZ42|TITIN_HUMAN 16045 AGKTLRIPAVVTGRPVPTKVWTKEEGELDKDRVVIDNVGTKSELIIKDALRKDHGRYVITATNSCGSKFAAARVEVFDVPGPVL 16128
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16129 dlkpvvtnrkmcllnwsdpeddggseitgfiierkdakmhtwrqpieterskcditgllegqeykfrviaknkfgcgppveigp 16212
+                              dlkpvvtnrkmcllnwsdpeddggseitgfiierkdakmhtwrqpieterskcditgllegqeykfrviaknkfgcgppveigp
+  sp|Q8WZ42|TITIN_HUMAN 16129 DLKPVVTNRKMCLLNWSDPEDDGGSEITGFIIERKDAKMHTWRQPIETERSKCDITGLLEGQEYKFRVIAKNKFGCGPPVEIGP 16212
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16213 ilavdplgpptsperltytertkstitldwkeprsnggspiqgyiiekrrhdkpdfervnkrlcpttsflvenldehqmyefrv 16296
+                              ilavdplgpptsperltytertkstitldwkeprsnggspiqgyiiekrrhdkpdfervnkrlcpttsflvenldehqmyefrv
+  sp|Q8WZ42|TITIN_HUMAN 16213 ILAVDPLGPPTSPERLTYTERTKSTITLDWKEPRSNGGSPIQGYIIEKRRHDKPDFERVNKRLCPTTSFLVENLDEHQMYEFRV 16296
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16297 kavneigesepslplnvviqddevpptiklrlsvrgdtikvkagepvhipadvtglpmpkiewsknetviekptdalqitkeev 16380
+                              kavneigesepslplnvviqddevpptiklrlsvrgdtikvkagepvhipadvtglpmpkiewsknetviekptdalqitkeev
+  sp|Q8WZ42|TITIN_HUMAN 16297 KAVNEIGESEPSLPLNVVIQDDEVPPTIKLRLSVRGDTIKVKAGEPVHIPADVTGLPMPKIEWSKNETVIEKPTDALQITKEEV 16380
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16381 srseaktelsipkavredkgtytvtasnrlgsvfrnvhvevydrpspprnlavtdikaescyltwdapldnggseithyvidkr 16464
+                              srseaktelsipkavredkgtytvtasnrlgsvfrnvhvevydrpspprnlavtdikaescyltwdapldnggseithyvidkr
+  sp|Q8WZ42|TITIN_HUMAN 16381 SRSEAKTELSIPKAVREDKGTYTVTASNRLGSVFRNVHVEVYDRPSPPRNLAVTDIKAESCYLTWDAPLDNGGSEITHYVIDKR 16464
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16465 dasrkkaeweevtntavekrygiwklipngqyefrvravnkygisdecksdkvviqdpyrlpgppgkpkvlartkgsmlvswtp 16548
+                              dasrkkaeweevtntavekrygiwklipngqyefrvravnkygisdecksdkvviqdpyrlpgppgkpkvlartkgsmlvswtp
+  sp|Q8WZ42|TITIN_HUMAN 16465 DASRKKAEWEEVTNTAVEKRYGIWKLIPNGQYEFRVRAVNKYGISDECKSDKVVIQDPYRLPGPPGKPKVLARTKGSMLVSWTP 16548
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16549 pldnggspitgywlekreegspywsrvsrapitkvglkgvefnvprllegvkyqframainaagigppsepsdpevagdpifpp 16632
+                              pldnggspitgywlekreegspywsrvsrapitkvglkgvefnvprllegvkyqframainaagigppsepsdpevagdpifpp
+  sp|Q8WZ42|TITIN_HUMAN 16549 PLDNGGSPITGYWLEKREEGSPYWSRVSRAPITKVGLKGVEFNVPRLLEGVKYQFRAMAINAAGIGPPSEPSDPEVAGDPIFPP 16632
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16633 gppscpevkdktkssislgwkppakdggspikgyivemqeegttdwkrvnepdklittcecvvpnlkelrkyrfrvkavneage 16716
+                              gppscpevkdktkssislgwkppakdggspikgyivemqeegttdwkrvnepdklittcecvvpnlkelrkyrfrvkavneage
+  sp|Q8WZ42|TITIN_HUMAN 16633 GPPSCPEVKDKTKSSISLGWKPPAKDGGSPIKGYIVEMQEEGTTDWKRVNEPDKLITTCECVVPNLKELRKYRFRVKAVNEAGE 16716
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16717 sepsdttgeipatdiqeepevfidigaqdclvckagsqiripavikgrptpksswefdgkakkamkdgvhdipedaqletaens 16800
+                              sepsdttgeipatdiqeepevfidigaqdclvckagsqiripavikgrptpksswefdgkakkamkdgvhdipedaqletaens
+  sp|Q8WZ42|TITIN_HUMAN 16717 SEPSDTTGEIPATDIQEEPEVFIDIGAQDCLVCKAGSQIRIPAVIKGRPTPKSSWEFDGKAKKAMKDGVHDIPEDAQLETAENS 16800
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16801 sviiipeckrshtgkysitaknkagqktancrvkvmdvpgppkdlkvsditrgscrlswkmpdddggdrikgyviekrtidgka 16884
+                              sviiipeckrshtgkysitaknkagqktancrvkvmdvpgppkdlkvsditrgscrlswkmpdddggdrikgyviekrtidgka
+  sp|Q8WZ42|TITIN_HUMAN 16801 SVIIIPECKRSHTGKYSITAKNKAGQKTANCRVKVMDVPGPPKDLKVSDITRGSCRLSWKMPDDDGGDRIKGYVIEKRTIDGKA 16884
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16885 wtkvnpdcgsttfvvpdllseqqyffrvraenrfgigppvetiqrttardpiyppdppiklkiglitkntvhlswkppkndggs 16968
+                              wtkvnpdcgsttfvvpdllseqqyffrvraenrfgigppvetiqrttardpiyppdppiklkiglitkntvhlswkppkndggs
+  sp|Q8WZ42|TITIN_HUMAN 16885 WTKVNPDCGSTTFVVPDLLSEQQYFFRVRAENRFGIGPPVETIQRTTARDPIYPPDPPIKLKIGLITKNTVHLSWKPPKNDGGS 16968
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 16969 pvthyiveclawdptgtkkeawrqcnkrdveelqftvedlveggeyefrvkavnaagvskpsatvgpvtvkdqtcppsidlkef 17052
+                              pvthyiveclawdptgtkkeawrqcnkrdveelqftvedlveggeyefrvkavnaagvskpsatvgpvtvkdqtcppsidlkef
+  sp|Q8WZ42|TITIN_HUMAN 16969 PVTHYIVECLAWDPTGTKKEAWRQCNKRDVEELQFTVEDLVEGGEYEFRVKAVNAAGVSKPSATVGPVTVKDQTCPPSIDLKEF 17052
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17053 meveegtnvnivakikgvpfptltwfkappkkpdnkepvlydthvnklvvddtctlvipqsrrsdtglytitavnnlgtaskem 17136
+                              meveegtnvnivakikgvpfptltwfkappkkpdnkepvlydthvnklvvddtctlvipqsrrsdtglytitavnnlgtaskem
+  sp|Q8WZ42|TITIN_HUMAN 17053 MEVEEGTNVNIVAKIKGVPFPTLTWFKAPPKKPDNKEPVLYDTHVNKLVVDDTCTLVIPQSRRSDTGLYTITAVNNLGTASKEM 17136
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17137 rlnvlgrpgppvgpikfesvsadqmtlswfppkddggskitnyviekreanrktwvhvssepkectytipkllegheyvfrima 17220
+                              rlnvlgrpgppvgpikfesvsadqmtlswfppkddggskitnyviekreanrktwvhvssepkectytipkllegheyvfrima
+  sp|Q8WZ42|TITIN_HUMAN 17137 RLNVLGRPGPPVGPIKFESVSADQMTLSWFPPKDDGGSKITNYVIEKREANRKTWVHVSSEPKECTYTIPKLLEGHEYVFRIMA 17220
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17221 qnkygigepldsepetarnlfsvpgapdkptvssvtrnsmtvnweepeydggspvtgywlemkdttskrwkrvnrdpikamtlg 17304
+                              qnkygigepldsepetarnlfsvpgapdkptvssvtrnsmtvnweepeydggspvtgywlemkdttskrwkrvnrdpikamtlg
+  sp|Q8WZ42|TITIN_HUMAN 17221 QNKYGIGEPLDSEPETARNLFSVPGAPDKPTVSSVTRNSMTVNWEEPEYDGGSPVTGYWLEMKDTTSKRWKRVNRDPIKAMTLG 17304
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17305 vsykvtgliegsdyqfrvyainaagvgpaslpsdpatardpiappgppfpkvtdwtkssadlewspplkdggskvtgyiveyke 17388
+                              vsykvtgliegsdyqfrvyainaagvgpaslpsdpatardpiappgppfpkvtdwtkssadlewspplkdggskvtgyiveyke
+  sp|Q8WZ42|TITIN_HUMAN 17305 VSYKVTGLIEGSDYQFRVYAINAAGVGPASLPSDPATARDPIAPPGPPFPKVTDWTKSSADLEWSPPLKDGGSKVTGYIVEYKE 17388
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17389 egkeewekgkdkevrgtklvvtglkegafykfrvravniagigepgevtdviemkdrlvspdlqldasvrdrivvhaggvirii 17472
+                              egkeewekgkdkevrgtklvvtglkegafykfrvravniagigepgevtdviemkdrlvspdlqldasvrdrivvhaggvirii
+  sp|Q8WZ42|TITIN_HUMAN 17389 EGKEEWEKGKDKEVRGTKLVVTGLKEGAFYKFRVRAVNIAGIGEPGEVTDVIEMKDRLVSPDLQLDASVRDRIVVHAGGVIRII 17472
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17473 ayvsgkppptvtwnmnertlpqeatiettaisssmvikncqrshqgvysllakneagerkktiivdvldvpgpvgtpflahnlt 17556
+                              ayvsgkppptvtwnmnertlpqeatiettaisssmvikncqrshqgvysllakneagerkktiivdvldvpgpvgtpflahnlt
+  sp|Q8WZ42|TITIN_HUMAN 17473 AYVSGKPPPTVTWNMNERTLPQEATIETTAISSSMVIKNCQRSHQGVYSLLAKNEAGERKKTIIVDVLDVPGPVGTPFLAHNLT 17556
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17557 nesckltwfspeddggspitnyviekresdrrawtpvtytvtrqnatvqgliqgkayffriaaensigmgpfvetsealvirep 17640
+                              nesckltwfspeddggspitnyviekresdrrawtpvtytvtrqnatvqgliqgkayffriaaensigmgpfvetsealvirep
+  sp|Q8WZ42|TITIN_HUMAN 17557 NESCKLTWFSPEDDGGSPITNYVIEKRESDRRAWTPVTYTVTRQNATVQGLIQGKAYFFRIAAENSIGMGPFVETSEALVIREP 17640
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17641 itvperpedlevkevtkntvtltwnppkydggseiinyvlesrligtekfhkvtndnllsrkytvkglkegdtyeyrvsavniv 17724
+                              itvperpedlevkevtkntvtltwnppkydggseiinyvlesrligtekfhkvtndnllsrkytvkglkegdtyeyrvsavniv
+  sp|Q8WZ42|TITIN_HUMAN 17641 ITVPERPEDLEVKEVTKNTVTLTWNPPKYDGGSEIINYVLESRLIGTEKFHKVTNDNLLSRKYTVKGLKEGDTYEYRVSAVNIV 17724
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17725 gqgkpsfctkpitckdelapptlhldfrdkltirvgeafaltgrysgkpkpkvswfkdeadvleddrthikttpatlalekika 17808
+                              gqgkpsfctkpitckdelapptlhldfrdkltirvgeafaltgrysgkpkpkvswfkdeadvleddrthikttpatlalekika
+  sp|Q8WZ42|TITIN_HUMAN 17725 GQGKPSFCTKPITCKDELAPPTLHLDFRDKLTIRVGEAFALTGRYSGKPKPKVSWFKDEADVLEDDRTHIKTTPATLALEKIKA 17808
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17809 krsdsgkycvvvenstgsrkgfcqvnvvdrpgppvgpvsfdevtkdymviswkpplddggskitnyiiekkevgkdvwmpvtsa 17892
+                              krsdsgkycvvvenstgsrkgfcqvnvvdrpgppvgpvsfdevtkdymviswkpplddggskitnyiiekkevgkdvwmpvtsa
+  sp|Q8WZ42|TITIN_HUMAN 17809 KRSDSGKYCVVVENSTGSRKGFCQVNVVDRPGPPVGPVSFDEVTKDYMVISWKPPLDDGGSKITNYIIEKKEVGKDVWMPVTSA 17892
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17893 sakttckvskllegkdyifrihaenlygisdplvsdsmkakdrfrvpdapdqpivtevtkdsalvtwnkphdggkpitnyilek 17976
+                              sakttckvskllegkdyifrihaenlygisdplvsdsmkakdrfrvpdapdqpivtevtkdsalvtwnkphdggkpitnyilek
+  sp|Q8WZ42|TITIN_HUMAN 17893 SAKTTCKVSKLLEGKDYIFRIHAENLYGISDPLVSDSMKAKDRFRVPDAPDQPIVTEVTKDSALVTWNKPHDGGKPITNYILEK 17976
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 17977 retmskrwarvtkdpihpytkfrvpdllegcqyefrvsaeneigigdpsppskpvfakdpiakpsppvnpeaidttcnsvdltw 18060
+                              retmskrwarvtkdpihpytkfrvpdllegcqyefrvsaeneigigdpsppskpvfakdpiakpsppvnpeaidttcnsvdltw
+  sp|Q8WZ42|TITIN_HUMAN 17977 RETMSKRWARVTKDPIHPYTKFRVPDLLEGCQYEFRVSAENEIGIGDPSPPSKPVFAKDPIAKPSPPVNPEAIDTTCNSVDLTW 18060
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18061 qpprhdggskilgyiveyqkvgdeewrranhtpescpetkykvtglrdgqtykfrvlavnaagesdpahvpepvlvkdrleppe 18144
+                              qpprhdggskilgyiveyqkvgdeewrranhtpescpetkykvtglrdgqtykfrvlavnaagesdpahvpepvlvkdrleppe
+  sp|Q8WZ42|TITIN_HUMAN 18061 QPPRHDGGSKILGYIVEYQKVGDEEWRRANHTPESCPETKYKVTGLRDGQTYKFRVLAVNAAGESDPAHVPEPVLVKDRLEPPE 18144
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18145 lildanmareqhikvgdtlrlsaiikgvpfpkvtwkkedrdaptkaridvtpvgskleirnaahedggiysltvenpagsktvs 18228
+                              lildanmareqhikvgdtlrlsaiikgvpfpkvtwkkedrdaptkaridvtpvgskleirnaahedggiysltvenpagsktvs
+  sp|Q8WZ42|TITIN_HUMAN 18145 LILDANMAREQHIKVGDTLRLSAIIKGVPFPKVTWKKEDRDAPTKARIDVTPVGSKLEIRNAAHEDGGIYSLTVENPAGSKTVS 18228
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18229 vkvlvldkpgpprdlevseirkdscyltwkeplddggsvitnyvverrdvasaqwsplsatskkkshfakhlnegnqylfrvaa 18312
+                              vkvlvldkpgpprdlevseirkdscyltwkeplddggsvitnyvverrdvasaqwsplsatskkkshfakhlnegnqylfrvaa
+  sp|Q8WZ42|TITIN_HUMAN 18229 VKVLVLDKPGPPRDLEVSEIRKDSCYLTWKEPLDDGGSVITNYVVERRDVASAQWSPLSATSKKKSHFAKHLNEGNQYLFRVAA 18312
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18313 enqygrgpfvetpkpikaldplhppgppkdlhhvdvdktevslvwnkpdrdggspitgylveyqeegtqdwikfktvtnlecvv 18396
+                              enqygrgpfvetpkpikaldplhppgppkdlhhvdvdktevslvwnkpdrdggspitgylveyqeegtqdwikfktvtnlecvv
+  sp|Q8WZ42|TITIN_HUMAN 18313 ENQYGRGPFVETPKPIKALDPLHPPGPPKDLHHVDVDKTEVSLVWNKPDRDGGSPITGYLVEYQEEGTQDWIKFKTVTNLECVV 18396
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18397 tglqqgktyrfrvkaenivglglpdttipiecqeklvppsveldvklieglvvkagttvrfpaiirgvpvptakwttdgseikt 18480
+                              tglqqgktyrfrvkaenivglglpdttipiecqeklvppsveldvklieglvvkagttvrfpaiirgvpvptakwttdgseikt
+  sp|Q8WZ42|TITIN_HUMAN 18397 TGLQQGKTYRFRVKAENIVGLGLPDTTIPIECQEKLVPPSVELDVKLIEGLVVKAGTTVRFPAIIRGVPVPTAKWTTDGSEIKT 18480
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18481 dehytvetdnfssvltiknclrrdtgeyqitvsnaagsktvavhltvldvpgpptgpinildvtpehmtiswqppkddggspvi 18564
+                              dehytvetdnfssvltiknclrrdtgeyqitvsnaagsktvavhltvldvpgpptgpinildvtpehmtiswqppkddggspvi
+  sp|Q8WZ42|TITIN_HUMAN 18481 DEHYTVETDNFSSVLTIKNCLRRDTGEYQITVSNAAGSKTVAVHLTVLDVPGPPTGPINILDVTPEHMTISWQPPKDDGGSPVI 18564
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18565 nyivekqdtrkdtwgvvssgssktklkiphlqkgceyvfrvraenkigvgppldstptvakhkfsppsppgkpvvtditenaat 18648
+                              nyivekqdtrkdtwgvvssgssktklkiphlqkgceyvfrvraenkigvgppldstptvakhkfsppsppgkpvvtditenaat
+  sp|Q8WZ42|TITIN_HUMAN 18565 NYIVEKQDTRKDTWGVVSSGSSKTKLKIPHLQKGCEYVFRVRAENKIGVGPPLDSTPTVAKHKFSPPSPPGKPVVTDITENAAT 18648
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18649 vswtlpksdggspitgyymerrevtgkwvrvnktpiadlkfrvtglyegntyefrvfaenlaglskpspssdpikacrpikppg 18732
+                              vswtlpksdggspitgyymerrevtgkwvrvnktpiadlkfrvtglyegntyefrvfaenlaglskpspssdpikacrpikppg
+  sp|Q8WZ42|TITIN_HUMAN 18649 VSWTLPKSDGGSPITGYYMERREVTGKWVRVNKTPIADLKFRVTGLYEGNTYEFRVFAENLAGLSKPSPSSDPIKACRPIKPPG 18732
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18733 ppinpklkdksretadlvwtkplsdggspilgyvvecqkpgtaqwnrinkdelirqcafrvpgliegneyrfrikaanivgege 18816
+                              ppinpklkdksretadlvwtkplsdggspilgyvvecqkpgtaqwnrinkdelirqcafrvpgliegneyrfrikaanivgege
+  sp|Q8WZ42|TITIN_HUMAN 18733 PPINPKLKDKSRETADLVWTKPLSDGGSPILGYVVECQKPGTAQWNRINKDELIRQCAFRVPGLIEGNEYRFRIKAANIVGEGE 18816
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18817 prelaesviakdilhppeveldvtcrdvitvrvgqtirilarvkgrpepditwtkegkvlvrekrvdliqdlprvelqikeavr 18900
+                              prelaesviakdilhppeveldvtcrdvitvrvgqtirilarvkgrpepditwtkegkvlvrekrvdliqdlprvelqikeavr
+  sp|Q8WZ42|TITIN_HUMAN 18817 PRELAESVIAKDILHPPEVELDVTCRDVITVRVGQTIRILARVKGRPEPDITWTKEGKVLVREKRVDLIQDLPRVELQIKEAVR 18900
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18901 adhgkyiisaknssghaqgsaivnvldrpgpcqnlkvtnvtkenctiswenpldnggseitnfiveyrkpnqkgwsivasdvtk 18984
+                              adhgkyiisaknssghaqgsaivnvldrpgpcqnlkvtnvtkenctiswenpldnggseitnfiveyrkpnqkgwsivasdvtk
+  sp|Q8WZ42|TITIN_HUMAN 18901 ADHGKYIISAKNSSGHAQGSAIVNVLDRPGPCQNLKVTNVTKENCTISWENPLDNGGSEITNFIVEYRKPNQKGWSIVASDVTK 18984
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 18985 rlikanllanneyyfrvcaenkvgvgptietktpilainpidrpgepenlhiadkgktfvylkwrrpdydggspnlsyhverrl 19068
+                              rlikanllanneyyfrvcaenkvgvgptietktpilainpidrpgepenlhiadkgktfvylkwrrpdydggspnlsyhverrl
+  sp|Q8WZ42|TITIN_HUMAN 18985 RLIKANLLANNEYYFRVCAENKVGVGPTIETKTPILAINPIDRPGEPENLHIADKGKTFVYLKWRRPDYDGGSPNLSYHVERRL 19068
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19069 kgsddwervhkgsikethymvdrcvenqiyefrvqtkneggesdwvkteevvvkedlqkpvldlklsgvltvkagdtirleagv 19152
+                              kgsddwervhkgsikethymvdrcvenqiyefrvqtkneggesdwvkteevvvkedlqkpvldlklsgvltvkagdtirleagv
+  sp|Q8WZ42|TITIN_HUMAN 19069 KGSDDWERVHKGSIKETHYMVDRCVENQIYEFRVQTKNEGGESDWVKTEEVVVKEDLQKPVLDLKLSGVLTVKAGDTIRLEAGV 19152
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19153 rgkpfpevawtkdkdatdltrsprvkidtradsskfsltkakrsdggkyvvtatntagsfvayatvnvldkpgpvrnlkivdvs 19236
+                              rgkpfpevawtkdkdatdltrsprvkidtradsskfsltkakrsdggkyvvtatntagsfvayatvnvldkpgpvrnlkivdvs
+  sp|Q8WZ42|TITIN_HUMAN 19153 RGKPFPEVAWTKDKDATDLTRSPRVKIDTRADSSKFSLTKAKRSDGGKYVVTATNTAGSFVAYATVNVLDKPGPVRNLKIVDVS 19236
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19237 sdrctvcwdppeddggceiqnyilekcetkrmvwstysatvltpgttvtrliegneyifrvraenkigtgppteskpviaktky 19320
+                              sdrctvcwdppeddggceiqnyilekcetkrmvwstysatvltpgttvtrliegneyifrvraenkigtgppteskpviaktky
+  sp|Q8WZ42|TITIN_HUMAN 19237 SDRCTVCWDPPEDDGGCEIQNYILEKCETKRMVWSTYSATVLTPGTTVTRLIEGNEYIFRVRAENKIGTGPPTESKPVIAKTKY 19320
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19321 dkpgrpdppevtkvskeemtvvwnppeydggksitgyflekkekhstrwvpvnksaiperrmkvqnllpdheyqfrvkaeneig 19404
+                              dkpgrpdppevtkvskeemtvvwnppeydggksitgyflekkekhstrwvpvnksaiperrmkvqnllpdheyqfrvkaeneig
+  sp|Q8WZ42|TITIN_HUMAN 19321 DKPGRPDPPEVTKVSKEEMTVVWNPPEYDGGKSITGYFLEKKEKHSTRWVPVNKSAIPERRMKVQNLLPDHEYQFRVKAENEIG 19404
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19405 igepslpsrpvvakdpieppgpptnfrvvdttkhsitlgwgkpvydggapiigyvvemrpkiadaspdegwkrcnaaaqlvrke 19488
+                              igepslpsrpvvakdpieppgpptnfrvvdttkhsitlgwgkpvydggapiigyvvemrpkiadaspdegwkrcnaaaqlvrke
+  sp|Q8WZ42|TITIN_HUMAN 19405 IGEPSLPSRPVVAKDPIEPPGPPTNFRVVDTTKHSITLGWGKPVYDGGAPIIGYVVEMRPKIADASPDEGWKRCNAAAQLVRKE 19488
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19489 ftvtsldenqeyefrvcaqnqvgigrpaelkeaikpkeileppeidldasmrklvivragcpirlfaivrgrpapkvtwrkvgi 19572
+                              ftvtsldenqeyefrvcaqnqvgigrpaelkeaikpkeileppeidldasmrklvivragcpirlfaivrgrpapkvtwrkvgi
+  sp|Q8WZ42|TITIN_HUMAN 19489 FTVTSLDENQEYEFRVCAQNQVGIGRPAELKEAIKPKEILEPPEIDLDASMRKLVIVRAGCPIRLFAIVRGRPAPKVTWRKVGI 19572
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19573 dnvvrkgqvdlvdtmaflvipnstrddsgkysltlvnpagekavfvnvrvldtpgpvsdlkvsdvtktschvswappendggsq 19656
+                              dnvvrkgqvdlvdtmaflvipnstrddsgkysltlvnpagekavfvnvrvldtpgpvsdlkvsdvtktschvswappendggsq
+  sp|Q8WZ42|TITIN_HUMAN 19573 DNVVRKGQVDLVDTMAFLVIPNSTRDDSGKYSLTLVNPAGEKAVFVNVRVLDTPGPVSDLKVSDVTKTSCHVSWAPPENDGGSQ 19656
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19657 vthyivekreadrktwstvtpevkktsfhvtnlvpgneyyfrvtavneygpgvptdvpkpvlasdplsepdpprklevtemtkn 19740
+                              vthyivekreadrktwstvtpevkktsfhvtnlvpgneyyfrvtavneygpgvptdvpkpvlasdplsepdpprklevtemtkn
+  sp|Q8WZ42|TITIN_HUMAN 19657 VTHYIVEKREADRKTWSTVTPEVKKTSFHVTNLVPGNEYYFRVTAVNEYGPGVPTDVPKPVLASDPLSEPDPPRKLEVTEMTKN 19740
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19741 satlawlpplrdggakidgyitsyreeeqpadrwteysvvkdlslvvtglkegkkykfrvaarnavgvslpreaegvyeakeql 19824
+                              satlawlpplrdggakidgyitsyreeeqpadrwteysvvkdlslvvtglkegkkykfrvaarnavgvslpreaegvyeakeql
+  sp|Q8WZ42|TITIN_HUMAN 19741 SATLAWLPPLRDGGAKIDGYITSYREEEQPADRWTEYSVVKDLSLVVTGLKEGKKYKFRVAARNAVGVSLPREAEGVYEAKEQL 19824
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19825 lppkilmpeqitikagkklrieahvygkphptckwkkgedevvtsshlavhkadsssiliikdvtrkdsgyysltaenssgtdt 19908
+                              lppkilmpeqitikagkklrieahvygkphptckwkkgedevvtsshlavhkadsssiliikdvtrkdsgyysltaenssgtdt
+  sp|Q8WZ42|TITIN_HUMAN 19825 LPPKILMPEQITIKAGKKLRIEAHVYGKPHPTCKWKKGEDEVVTSSHLAVHKADSSSILIIKDVTRKDSGYYSLTAENSSGTDT 19908
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19909 qkikvvvmdapgppqppfdisdidadacslswhipledggsnitnyivekcdvsrgdwvtalasvtktscrvgklipgqeyifr 19992
+                              qkikvvvmdapgppqppfdisdidadacslswhipledggsnitnyivekcdvsrgdwvtalasvtktscrvgklipgqeyifr
+  sp|Q8WZ42|TITIN_HUMAN 19909 QKIKVVVMDAPGPPQPPFDISDIDADACSLSWHIPLEDGGSNITNYIVEKCDVSRGDWVTALASVTKTSCRVGKLIPGQEYIFR 19992
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 19993 vraenrfgisepltspkmvaqfpfgvpsepknarvtkvnkdcifvawdrpdsdggspiigylierkernsllwvkandtlvrst 20076
+                              vraenrfgisepltspkmvaqfpfgvpsepknarvtkvnkdcifvawdrpdsdggspiigylierkernsllwvkandtlvrst
+  sp|Q8WZ42|TITIN_HUMAN 19993 VRAENRFGISEPLTSPKMVAQFPFGVPSEPKNARVTKVNKDCIFVAWDRPDSDGGSPIIGYLIERKERNSLLWVKANDTLVRST 20076
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20077 eypcaglvegleysfriyalnkagssppskpteyvtarmpvdppgkpevidvtkstvsliwarpkhdggskiigyfveacklpg 20160
+                              eypcaglvegleysfriyalnkagssppskpteyvtarmpvdppgkpevidvtkstvsliwarpkhdggskiigyfveacklpg
+  sp|Q8WZ42|TITIN_HUMAN 20077 EYPCAGLVEGLEYSFRIYALNKAGSSPPSKPTEYVTARMPVDPPGKPEVIDVTKSTVSLIWARPKHDGGSKIIGYFVEACKLPG 20160
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20161 dkwvrcntaphqipqeeytatgleekaqyqfraiartavnisppsepsdpvtilaenvppridlsvamkslltvkagtnvclda 20244
+                              dkwvrcntaphqipqeeytatgleekaqyqfraiartavnisppsepsdpvtilaenvppridlsvamkslltvkagtnvclda
+  sp|Q8WZ42|TITIN_HUMAN 20161 DKWVRCNTAPHQIPQEEYTATGLEEKAQYQFRAIARTAVNISPPSEPSDPVTILAENVPPRIDLSVAMKSLLTVKAGTNVCLDA 20244
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20245 tvfgkpmptvswkkdgtllkpaegikmamqrnlctlelfsvnrkdsgdytitaenssgsksatiklkvldkpgppasvkinkmy 20328
+                              tvfgkpmptvswkkdgtllkpaegikmamqrnlctlelfsvnrkdsgdytitaenssgsksatiklkvldkpgppasvkinkmy
+  sp|Q8WZ42|TITIN_HUMAN 20245 TVFGKPMPTVSWKKDGTLLKPAEGIKMAMQRNLCTLELFSVNRKDSGDYTITAENSSGSKSATIKLKVLDKPGPPASVKINKMY 20328
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20329 sdramlsweppledggseitnyivdkretsrpnwaqvsatvpitscsvekliegheyqfricaenkygvgdpvftepaiaknpy 20412
+                              sdramlsweppledggseitnyivdkretsrpnwaqvsatvpitscsvekliegheyqfricaenkygvgdpvftepaiaknpy
+  sp|Q8WZ42|TITIN_HUMAN 20329 SDRAMLSWEPPLEDGGSEITNYIVDKRETSRPNWAQVSATVPITSCSVEKLIEGHEYQFRICAENKYGVGDPVFTEPAIAKNPY 20412
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20413 dppgrcdppvisnitkdhmtvswkppaddggspitgyllekretqavnwtkvnrkpiiertlkatglqegteyefrvtainkag 20496
+                              dppgrcdppvisnitkdhmtvswkppaddggspitgyllekretqavnwtkvnrkpiiertlkatglqegteyefrvtainkag
+  sp|Q8WZ42|TITIN_HUMAN 20413 DPPGRCDPPVISNITKDHMTVSWKPPADDGGSPITGYLLEKRETQAVNWTKVNRKPIIERTLKATGLQEGTEYEFRVTAINKAG 20496
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20497 pgkpsdaskaayardpqyppgppafpkvydttrssvslswgkpaydggspiigylvevkradsdnwvrcnlpqnlqktrfevtg 20580
+                              pgkpsdaskaayardpqyppgppafpkvydttrssvslswgkpaydggspiigylvevkradsdnwvrcnlpqnlqktrfevtg
+  sp|Q8WZ42|TITIN_HUMAN 20497 PGKPSDASKAAYARDPQYPPGPPAFPKVYDTTRSSVSLSWGKPAYDGGSPIIGYLVEVKRADSDNWVRCNLPQNLQKTRFEVTG 20580
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20581 lmedtqyqfrvyavnkigysdpsdvpdkhypkdilippegeldadlrktlilragvtmrlyvpvkgrpppkitwskpnvnlrdr 20664
+                              lmedtqyqfrvyavnkigysdpsdvpdkhypkdilippegeldadlrktlilragvtmrlyvpvkgrpppkitwskpnvnlrdr
+  sp|Q8WZ42|TITIN_HUMAN 20581 LMEDTQYQFRVYAVNKIGYSDPSDVPDKHYPKDILIPPEGELDADLRKTLILRAGVTMRLYVPVKGRPPPKITWSKPNVNLRDR 20664
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20665 igldikstdfdtflrcenvnkydagkyiltlenscgkkeytivvkvldtpgppvnvtvkeiskdsayvtweppiidggspiiny 20748
+                              igldikstdfdtflrcenvnkydagkyiltlenscgkkeytivvkvldtpgppvnvtvkeiskdsayvtweppiidggspiiny
+  sp|Q8WZ42|TITIN_HUMAN 20665 IGLDIKSTDFDTFLRCENVNKYDAGKYILTLENSCGKKEYTIVVKVLDTPGPPVNVTVKEISKDSAYVTWEPPIIDGGSPIINY 20748
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20749 vvqkrdaerkswstvttecsktsfrvanleegksyffrvfaeneygigdpgetrdavkasqtpgpvvdlkvrsvsksscsigwk 20832
+                              vvqkrdaerkswstvttecsktsfrvanleegksyffrvfaeneygigdpgetrdavkasqtpgpvvdlkvrsvsksscsigwk
+  sp|Q8WZ42|TITIN_HUMAN 20749 VVQKRDAERKSWSTVTTECSKTSFRVANLEEGKSYFFRVFAENEYGIGDPGETRDAVKASQTPGPVVDLKVRSVSKSSCSIGWK 20832
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20833 kphsdggsriigyvvdflteenkwqrvmkslslqysakdltegkeytfrvsaenengegtpseitvvarddvvapdldlkglpd 20916
+                              kphsdggsriigyvvdflteenkwqrvmkslslqysakdltegkeytfrvsaenengegtpseitvvarddvvapdldlkglpd
+  sp|Q8WZ42|TITIN_HUMAN 20833 KPHSDGGSRIIGYVVDFLTEENKWQRVMKSLSLQYSAKDLTEGKEYTFRVSAENENGEGTPSEITVVARDDVVAPDLDLKGLPD 20916
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 20917 lcylakensnfrlkipikgkpapsvswkkgedplatdtrvsvessavnttlivydcqksdagkytitlknvagtkegtisikvv 21000
+                              lcylakensnfrlkipikgkpapsvswkkgedplatdtrvsvessavnttlivydcqksdagkytitlknvagtkegtisikvv
+  sp|Q8WZ42|TITIN_HUMAN 20917 LCYLAKENSNFRLKIPIKGKPAPSVSWKKGEDPLATDTRVSVESSAVNTTLIVYDCQKSDAGKYTITLKNVAGTKEGTISIKVV 21000
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21001 gkpgiptgpikfdevtaeamtlkwappkddggseitnyilekrdsvnnkwvtcasavqkttfrvtrlhegmeytfrvsaenkyg 21084
+                              gkpgiptgpikfdevtaeamtlkwappkddggseitnyilekrdsvnnkwvtcasavqkttfrvtrlhegmeytfrvsaenkyg
+  sp|Q8WZ42|TITIN_HUMAN 21001 GKPGIPTGPIKFDEVTAEAMTLKWAPPKDDGGSEITNYILEKRDSVNNKWVTCASAVQKTTFRVTRLHEGMEYTFRVSAENKYG 21084
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21085 vgeglksepivarhpfdvpdappppnivdvrhdsvsltwtdpkktggspitgyhlefkernsllwkranktpirmrdfkvtglt 21168
+                              vgeglksepivarhpfdvpdappppnivdvrhdsvsltwtdpkktggspitgyhlefkernsllwkranktpirmrdfkvtglt
+  sp|Q8WZ42|TITIN_HUMAN 21085 VGEGLKSEPIVARHPFDVPDAPPPPNIVDVRHDSVSLTWTDPKKTGGSPITGYHLEFKERNSLLWKRANKTPIRMRDFKVTGLT 21168
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21169 egleyefrvmainlagvgkpslpsepvvaldpidppgkpevinitrnsvtliwtepkydgghkltgyivekrdlpskswmkanh 21252
+                              egleyefrvmainlagvgkpslpsepvvaldpidppgkpevinitrnsvtliwtepkydgghkltgyivekrdlpskswmkanh
+  sp|Q8WZ42|TITIN_HUMAN 21169 EGLEYEFRVMAINLAGVGKPSLPSEPVVALDPIDPPGKPEVINITRNSVTLIWTEPKYDGGHKLTGYIVEKRDLPSKSWMKANH 21252
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21253 vnvpecaftvtdlveggkyefrirakntagaisapsestetiickdeyeaptivldptikdgltikagdtivlnaisilgkplp 21336
+                              vnvpecaftvtdlveggkyefrirakntagaisapsestetiickdeyeaptivldptikdgltikagdtivlnaisilgkplp
+  sp|Q8WZ42|TITIN_HUMAN 21253 VNVPECAFTVTDLVEGGKYEFRIRAKNTAGAISAPSESTETIICKDEYEAPTIVLDPTIKDGLTIKAGDTIVLNAISILGKPLP 21336
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21337 ksswskagkdirpsditqitstptssmltikyatrkdageytitatnpfgtkvehvkvtvldvpgppgpveisnvsaekatltw 21420
+                              ksswskagkdirpsditqitstptssmltikyatrkdageytitatnpfgtkvehvkvtvldvpgppgpveisnvsaekatltw
+  sp|Q8WZ42|TITIN_HUMAN 21337 KSSWSKAGKDIRPSDITQITSTPTSSMLTIKYATRKDAGEYTITATNPFGTKVEHVKVTVLDVPGPPGPVEISNVSAEKATLTW 21420
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21421 tppledggspiksyilekretsrllwtvvsediqscrhvatkliqgneyifrvsavnhygkgepvqsepvkmvdrfgppgppek 21504
+                              tppledggspiksyilekretsrllwtvvsediqscrhvatkliqgneyifrvsavnhygkgepvqsepvkmvdrfgppgppek
+  sp|Q8WZ42|TITIN_HUMAN 21421 TPPLEDGGSPIKSYILEKRETSRLLWTVVSEDIQSCRHVATKLIQGNEYIFRVSAVNHYGKGEPVQSEPVKMVDRFGPPGPPEK 21504
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21505 pevsnvtkntatvswkrpvddggseitgyhverrekkslrwvraiktpvsdlrckvtglqegstyefrvsaenragigppseas 21588
+                              pevsnvtkntatvswkrpvddggseitgyhverrekkslrwvraiktpvsdlrckvtglqegstyefrvsaenragigppseas
+  sp|Q8WZ42|TITIN_HUMAN 21505 PEVSNVTKNTATVSWKRPVDDGGSEITGYHVERREKKSLRWVRAIKTPVSDLRCKVTGLQEGSTYEFRVSAENRAGIGPPSEAS 21588
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21589 dsvlmkdaayppgppsnphvtdttkksaslawgkphydggleitgyvvehqkvgdeawikdttgtalritqfvvpdlqtkekyn 21672
+                              dsvlmkdaayppgppsnphvtdttkksaslawgkphydggleitgyvvehqkvgdeawikdttgtalritqfvvpdlqtkekyn
+  sp|Q8WZ42|TITIN_HUMAN 21589 DSVLMKDAAYPPGPPSNPHVTDTTKKSASLAWGKPHYDGGLEITGYVVEHQKVGDEAWIKDTTGTALRITQFVVPDLQTKEKYN 21672
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21673 frisaindagvgepavipdveiveremapdfeldaelrrtlvvraglsirifvpikgrpapevtwtkdninlknranientesf 21756
+                              frisaindagvgepavipdveiveremapdfeldaelrrtlvvraglsirifvpikgrpapevtwtkdninlknranientesf
+  sp|Q8WZ42|TITIN_HUMAN 21673 FRISAINDAGVGEPAVIPDVEIVEREMAPDFELDAELRRTLVVRAGLSIRIFVPIKGRPAPEVTWTKDNINLKNRANIENTESF 21756
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21757 tlliipecnrydtgkfvmtienpagkksgfvnvrvldtpgpvlnlrptditkdsvtlhwdlplidggsritnyivekreatrks 21840
+                              tlliipecnrydtgkfvmtienpagkksgfvnvrvldtpgpvlnlrptditkdsvtlhwdlplidggsritnyivekreatrks
+  sp|Q8WZ42|TITIN_HUMAN 21757 TLLIIPECNRYDTGKFVMTIENPAGKKSGFVNVRVLDTPGPVLNLRPTDITKDSVTLHWDLPLIDGGSRITNYIVEKREATRKS 21840
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21841 ystattkchkctykvtglsegceyffrvmaeneygigeptettepvkaseapsppdslnimditkstvslawpkpkhdggskit 21924
+                              ystattkchkctykvtglsegceyffrvmaeneygigeptettepvkaseapsppdslnimditkstvslawpkpkhdggskit
+  sp|Q8WZ42|TITIN_HUMAN 21841 YSTATTKCHKCTYKVTGLSEGCEYFFRVMAENEYGIGEPTETTEPVKASEAPSPPDSLNIMDITKSTVSLAWPKPKHDGGSKIT 21924
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 21925 gyvieaqrkgsdqwthittvkglecvvrnltegeeytfqvmavnsagrsapresrpvivkeqtmlpeldlrgiyqklviakagd 22008
+                              gyvieaqrkgsdqwthittvkglecvvrnltegeeytfqvmavnsagrsapresrpvivkeqtmlpeldlrgiyqklviakagd
+  sp|Q8WZ42|TITIN_HUMAN 21925 GYVIEAQRKGSDQWTHITTVKGLECVVRNLTEGEEYTFQVMAVNSAGRSAPRESRPVIVKEQTMLPELDLRGIYQKLVIAKAGD 22008
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22009 nikveipvlgrpkptvtwkkgdqilkqtqrvnfettatstilninecvrsdsgpypltarnivgevgdvitiqvhdipgpptgp 22092
+                              nikveipvlgrpkptvtwkkgdqilkqtqrvnfettatstilninecvrsdsgpypltarnivgevgdvitiqvhdipgpptgp
+  sp|Q8WZ42|TITIN_HUMAN 22009 NIKVEIPVLGRPKPTVTWKKGDQILKQTQRVNFETTATSTILNINECVRSDSGPYPLTARNIVGEVGDVITIQVHDIPGPPTGP 22092
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22093 ikfdevssdfvtfswdppendggvpisnyvvemrqtdsttwvelattvirttykatrlttgleyqfrvkaqnrygvgpgitsac 22176
+                              ikfdevssdfvtfswdppendggvpisnyvvemrqtdsttwvelattvirttykatrlttgleyqfrvkaqnrygvgpgitsac
+  sp|Q8WZ42|TITIN_HUMAN 22093 IKFDEVSSDFVTFSWDPPENDGGVPISNYVVEMRQTDSTTWVELATTVIRTTYKATRLTTGLEYQFRVKAQNRYGVGPGITSAC 22176
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22177 ivanypfkvpgppgtpqvtavtkdsmtiswheplsdggspilgyhverkerngilwqtvskalvpgnifkssgltdgiayefrv 22260
+                              ivanypfkvpgppgtpqvtavtkdsmtiswheplsdggspilgyhverkerngilwqtvskalvpgnifkssgltdgiayefrv
+  sp|Q8WZ42|TITIN_HUMAN 22177 IVANYPFKVPGPPGTPQVTAVTKDSMTISWHEPLSDGGSPILGYHVERKERNGILWQTVSKALVPGNIFKSSGLTDGIAYEFRV 22260
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22261 iaenmagkskpskpsepmlaldpidppgkpvplnitrhtvtlkwakpeytggfkitsyivekrdlpngrwlkanfsnileneft 22344
+                              iaenmagkskpskpsepmlaldpidppgkpvplnitrhtvtlkwakpeytggfkitsyivekrdlpngrwlkanfsnileneft
+  sp|Q8WZ42|TITIN_HUMAN 22261 IAENMAGKSKPSKPSEPMLALDPIDPPGKPVPLNITRHTVTLKWAKPEYTGGFKITSYIVEKRDLPNGRWLKANFSNILENEFT 22344
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22345 vsgltedaayefrviaknaagaisppsepsdaitcrddveapkikvdvkfkdtvilkageafrleadvsgrppptmewskdgke 22428
+                              vsgltedaayefrviaknaagaisppsepsdaitcrddveapkikvdvkfkdtvilkageafrleadvsgrppptmewskdgke
+  sp|Q8WZ42|TITIN_HUMAN 22345 VSGLTEDAAYEFRVIAKNAAGAISPPSEPSDAITCRDDVEAPKIKVDVKFKDTVILKAGEAFRLEADVSGRPPPTMEWSKDGKE 22428
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22429 legtakleikiadfstnlvnkdstrrdsgaytltatnpggfakhifnvkvldrpgppegplavtevtsekcvlswfpplddgga 22512
+                              legtakleikiadfstnlvnkdstrrdsgaytltatnpggfakhifnvkvldrpgppegplavtevtsekcvlswfpplddgga
+  sp|Q8WZ42|TITIN_HUMAN 22429 LEGTAKLEIKIADFSTNLVNKDSTRRDSGAYTLTATNPGGFAKHIFNVKVLDRPGPPEGPLAVTEVTSEKCVLSWFPPLDDGGA 22512
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22513 kidhyivqkretsrlawtnvasevqvtklkvtkllkgneyifrvmavnkygvgeplesepvlavnpygppdppknpevttitkd 22596
+                              kidhyivqkretsrlawtnvasevqvtklkvtkllkgneyifrvmavnkygvgeplesepvlavnpygppdppknpevttitkd
+  sp|Q8WZ42|TITIN_HUMAN 22513 KIDHYIVQKRETSRLAWTNVASEVQVTKLKVTKLLKGNEYIFRVMAVNKYGVGEPLESEPVLAVNPYGPPDPPKNPEVTTITKD 22596
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22597 smvvcwghpdsdggseiinyiverrdkagqrwikcnkktltdlrykvsgltegheyefrimaenaagisapsptspfykacdtv 22680
+                              smvvcwghpdsdggseiinyiverrdkagqrwikcnkktltdlrykvsgltegheyefrimaenaagisapsptspfykacdtv
+  sp|Q8WZ42|TITIN_HUMAN 22597 SMVVCWGHPDSDGGSEIINYIVERRDKAGQRWIKCNKKTLTDLRYKVSGLTEGHEYEFRIMAENAAGISAPSPTSPFYKACDTV 22680
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22681 fkpgppgnprvldtsrssisiawnkpiydggseitgymveialpeedewqivtppaglkatsytitgltenqeykiriyamnse 22764
+                              fkpgppgnprvldtsrssisiawnkpiydggseitgymveialpeedewqivtppaglkatsytitgltenqeykiriyamnse
+  sp|Q8WZ42|TITIN_HUMAN 22681 FKPGPPGNPRVLDTSRSSISIAWNKPIYDGGSEITGYMVEIALPEEDEWQIVTPPAGLKATSYTITGLTENQEYKIRIYAMNSE 22764
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22765 glgepalvpgtpkaedrmlppeieldadlrkvvtiracctlrlfvpikgrpapevkwardhgesldkasiestssytllivgnv 22848
+                              glgepalvpgtpkaedrmlppeieldadlrkvvtiracctlrlfvpikgrpapevkwardhgesldkasiestssytllivgnv
+  sp|Q8WZ42|TITIN_HUMAN 22765 GLGEPALVPGTPKAEDRMLPPEIELDADLRKVVTIRACCTLRLFVPIKGRPAPEVKWARDHGESLDKASIESTSSYTLLIVGNV 22848
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22849 nrfdsgkyiltvenssgsksafvnvrvldtpgppqdlkvkevtktsvtltwdpplldggskiknyivekrestrkaystvatnc 22932
+                              nrfdsgkyiltvenssgsksafvnvrvldtpgppqdlkvkevtktsvtltwdpplldggskiknyivekrestrkaystvatnc
+  sp|Q8WZ42|TITIN_HUMAN 22849 NRFDSGKYILTVENSSGSKSAFVNVRVLDTPGPPQDLKVKEVTKTSVTLTWDPPLLDGGSKIKNYIVEKRESTRKAYSTVATNC 22932
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 22933 hktswkvdqlqegcsyyfrvlaeneygiglpaetaesvkaserplppgkitlmdvtrnsvslswekpehdggsrilgyivemqt 23016
+                              hktswkvdqlqegcsyyfrvlaeneygiglpaetaesvkaserplppgkitlmdvtrnsvslswekpehdggsrilgyivemqt
+  sp|Q8WZ42|TITIN_HUMAN 22933 HKTSWKVDQLQEGCSYYFRVLAENEYGIGLPAETAESVKASERPLPPGKITLMDVTRNSVSLSWEKPEHDGGSRILGYIVEMQT 23016
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23017 kgsdkwatcatvkvteatitgliqgeeysfrvsaqnekgisdprqlsvpviakdlvippafkllfntftvlagedlkvdvpfig 23100
+                              kgsdkwatcatvkvteatitgliqgeeysfrvsaqnekgisdprqlsvpviakdlvippafkllfntftvlagedlkvdvpfig
+  sp|Q8WZ42|TITIN_HUMAN 23017 KGSDKWATCATVKVTEATITGLIQGEEYSFRVSAQNEKGISDPRQLSVPVIAKDLVIPPAFKLLFNTFTVLAGEDLKVDVPFIG 23100
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23101 rptpavtwhkdnvplkqttrvnaestennslltikdacredvghyvvkltnsageaietlnvivldkpgpptgpvkmdevtads 23184
+                              rptpavtwhkdnvplkqttrvnaestennslltikdacredvghyvvkltnsageaietlnvivldkpgpptgpvkmdevtads
+  sp|Q8WZ42|TITIN_HUMAN 23101 RPTPAVTWHKDNVPLKQTTRVNAESTENNSLLTIKDACREDVGHYVVKLTNSAGEAIETLNVIVLDKPGPPTGPVKMDEVTADS 23184
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23185 itlswgppkydggssinnyivekrdtstttwqivsatvarttikacrlktgceyqfriaaenrygkstylnseptvaqypfkvp 23268
+                              itlswgppkydggssinnyivekrdtstttwqivsatvarttikacrlktgceyqfriaaenrygkstylnseptvaqypfkvp
+  sp|Q8WZ42|TITIN_HUMAN 23185 ITLSWGPPKYDGGSSINNYIVEKRDTSTTTWQIVSATVARTTIKACRLKTGCEYQFRIAAENRYGKSTYLNSEPTVAQYPFKVP 23268
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23269 gppgtpvvtlssrdsmevqwnepisdggsrvigyhlerkernsilwvklnktpipqtkfkttgleegveyefrvsaenivgigk 23352
+                              gppgtpvvtlssrdsmevqwnepisdggsrvigyhlerkernsilwvklnktpipqtkfkttgleegveyefrvsaenivgigk
+  sp|Q8WZ42|TITIN_HUMAN 23269 GPPGTPVVTLSSRDSMEVQWNEPISDGGSRVIGYHLERKERNSILWVKLNKTPIPQTKFKTTGLEEGVEYEFRVSAENIVGIGK 23352
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23353 pskvsecyvardpcdppgrpeaiivtrnsvtlqwkkptydggskitgyivekkelpegrwmkasftniidthfevtglvedhry 23436
+                              pskvsecyvardpcdppgrpeaiivtrnsvtlqwkkptydggskitgyivekkelpegrwmkasftniidthfevtglvedhry
+  sp|Q8WZ42|TITIN_HUMAN 23353 PSKVSECYVARDPCDPPGRPEAIIVTRNSVTLQWKKPTYDGGSKITGYIVEKKELPEGRWMKASFTNIIDTHFEVTGLVEDHRY 23436
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23437 efrviarnaagvfsepsestgaitardevdpprismdpkykdtivvhagesfkvdadiygkpiptiqwikgdqelsntarleik 23520
+                              efrviarnaagvfsepsestgaitardevdpprismdpkykdtivvhagesfkvdadiygkpiptiqwikgdqelsntarleik
+  sp|Q8WZ42|TITIN_HUMAN 23437 EFRVIARNAAGVFSEPSESTGAITARDEVDPPRISMDPKYKDTIVVHAGESFKVDADIYGKPIPTIQWIKGDQELSNTARLEIK 23520
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23521 stdfatslsvkdavrvdsgnyilkaknvagersvtvnvkvldrpgppegpvvisgvtaekctlawkpplqdggsdiinyiverr 23604
+                              stdfatslsvkdavrvdsgnyilkaknvagersvtvnvkvldrpgppegpvvisgvtaekctlawkpplqdggsdiinyiverr
+  sp|Q8WZ42|TITIN_HUMAN 23521 STDFATSLSVKDAVRVDSGNYILKAKNVAGERSVTVNVKVLDRPGPPEGPVVISGVTAEKCTLAWKPPLQDGGSDIINYIVERR 23604
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23605 etsrlvwtvvdanvqtlsckvtkllegneytfrimavnkygvgeplesepvvaknpfvvpdapkapevttvtkdsmivvwerpa 23688
+                              etsrlvwtvvdanvqtlsckvtkllegneytfrimavnkygvgeplesepvvaknpfvvpdapkapevttvtkdsmivvwerpa
+  sp|Q8WZ42|TITIN_HUMAN 23605 ETSRLVWTVVDANVQTLSCKVTKLLEGNEYTFRIMAVNKYGVGEPLESEPVVAKNPFVVPDAPKAPEVTTVTKDSMIVVWERPA 23688
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23689 sdggseilgyvlekrdkegirwtrchkrligelrlrvtglienhdyefrvsaenaaglsepsppsayqkacdpiykpgppnnpk 23772
+                              sdggseilgyvlekrdkegirwtrchkrligelrlrvtglienhdyefrvsaenaaglsepsppsayqkacdpiykpgppnnpk
+  sp|Q8WZ42|TITIN_HUMAN 23689 SDGGSEILGYVLEKRDKEGIRWTRCHKRLIGELRLRVTGLIENHDYEFRVSAENAAGLSEPSPPSAYQKACDPIYKPGPPNNPK 23772
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23773 viditrssvflswskpiydggceiqgyivekcdvsvgewtmctpptginktnievekllekheynfricainkagvgehadvpg 23856
+                              viditrssvflswskpiydggceiqgyivekcdvsvgewtmctpptginktnievekllekheynfricainkagvgehadvpg
+  sp|Q8WZ42|TITIN_HUMAN 23773 VIDITRSSVFLSWSKPIYDGGCEIQGYIVEKCDVSVGEWTMCTPPTGINKTNIEVEKLLEKHEYNFRICAINKAGVGEHADVPG 23856
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23857 piiveekleapdidldlelrkiiniraggslrlfvpikgrptpevkwgkvdgeirdaaiidvtssftslvldnvnrydsgkytl 23940
+                              piiveekleapdidldlelrkiiniraggslrlfvpikgrptpevkwgkvdgeirdaaiidvtssftslvldnvnrydsgkytl
+  sp|Q8WZ42|TITIN_HUMAN 23857 PIIVEEKLEAPDIDLDLELRKIINIRAGGSLRLFVPIKGRPTPEVKWGKVDGEIRDAAIIDVTSSFTSLVLDNVNRYDSGKYTL 23940
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 23941 tlenssgtksafvtvrvldtpsppvnlkvteitkdsvsitwepplldggskiknyivekreatrksyaavvtnchknswkidql 24024
+                              tlenssgtksafvtvrvldtpsppvnlkvteitkdsvsitwepplldggskiknyivekreatrksyaavvtnchknswkidql
+  sp|Q8WZ42|TITIN_HUMAN 23941 TLENSSGTKSAFVTVRVLDTPSPPVNLKVTEITKDSVSITWEPPLLDGGSKIKNYIVEKREATRKSYAAVVTNCHKNSWKIDQL 24024
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24025 qegcsyyfrvtaeneygiglpaqtadpikvaevpqppgkitvddvtrnsvslswtkpehdggskiiqyivemqakhsekwseca 24108
+                              qegcsyyfrvtaeneygiglpaqtadpikvaevpqppgkitvddvtrnsvslswtkpehdggskiiqyivemqakhsekwseca
+  sp|Q8WZ42|TITIN_HUMAN 24025 QEGCSYYFRVTAENEYGIGLPAQTADPIKVAEVPQPPGKITVDDVTRNSVSLSWTKPEHDGGSKIIQYIVEMQAKHSEKWSECA 24108
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24109 rvkslqavitnltqgeeylfrvvavnekgrsdprslavpivakdlviepdvkpafssysvqvgqdlkievpisgrpkptitwtk 24192
+                              rvkslqavitnltqgeeylfrvvavnekgrsdprslavpivakdlviepdvkpafssysvqvgqdlkievpisgrpkptitwtk
+  sp|Q8WZ42|TITIN_HUMAN 24109 RVKSLQAVITNLTQGEEYLFRVVAVNEKGRSDPRSLAVPIVAKDLVIEPDVKPAFSSYSVQVGQDLKIEVPISGRPKPTITWTK 24192
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24193 dglplkqttrinvtdsldlttlsikethkddggqygitvanvvgqktasieivtldkpdppkgpvkfddvsaesitlswnpply 24276
+                              dglplkqttrinvtdsldlttlsikethkddggqygitvanvvgqktasieivtldkpdppkgpvkfddvsaesitlswnpply
+  sp|Q8WZ42|TITIN_HUMAN 24193 DGLPLKQTTRINVTDSLDLTTLSIKETHKDDGGQYGITVANVVGQKTASIEIVTLDKPDPPKGPVKFDDVSAESITLSWNPPLY 24276
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24277 tggcqitnyivqkrdttttvwdvvsatvarttlkvtklktgteyqfrifaenrygqsfalesdpivaqypykepgppgtpfata 24360
+                              tggcqitnyivqkrdttttvwdvvsatvarttlkvtklktgteyqfrifaenrygqsfalesdpivaqypykepgppgtpfata
+  sp|Q8WZ42|TITIN_HUMAN 24277 TGGCQITNYIVQKRDTTTTVWDVVSATVARTTLKVTKLKTGTEYQFRIFAENRYGQSFALESDPIVAQYPYKEPGPPGTPFATA 24360
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24361 iskdsmviqwhepvnnggspvigyhlerkernsilwtkvnktiihdtqfkaqnleegieyefrvyaenivgvgkasknsecyva 24444
+                              iskdsmviqwhepvnnggspvigyhlerkernsilwtkvnktiihdtqfkaqnleegieyefrvyaenivgvgkasknsecyva
+  sp|Q8WZ42|TITIN_HUMAN 24361 ISKDSMVIQWHEPVNNGGSPVIGYHLERKERNSILWTKVNKTIIHDTQFKAQNLEEGIEYEFRVYAENIVGVGKASKNSECYVA 24444
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24445 rdpcdppgtpepimvkrneitlqwtkpvydggsmitgyivekrdlpdgrwmkasftnvietqftvsgltedqryefrviaknaa 24528
+                              rdpcdppgtpepimvkrneitlqwtkpvydggsmitgyivekrdlpdgrwmkasftnvietqftvsgltedqryefrviaknaa
+  sp|Q8WZ42|TITIN_HUMAN 24445 RDPCDPPGTPEPIMVKRNEITLQWTKPVYDGGSMITGYIVEKRDLPDGRWMKASFTNVIETQFTVSGLTEDQRYEFRVIAKNAA 24528
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24529 gaiskpsdstgpitakdevelprismdpkfrdtivvnagetfrleadvhgkplptiewlrgdkeieesarceikntdfkalliv 24612
+                              gaiskpsdstgpitakdevelprismdpkfrdtivvnagetfrleadvhgkplptiewlrgdkeieesarceikntdfkalliv
+  sp|Q8WZ42|TITIN_HUMAN 24529 GAISKPSDSTGPITAKDEVELPRISMDPKFRDTIVVNAGETFRLEADVHGKPLPTIEWLRGDKEIEESARCEIKNTDFKALLIV 24612
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24613 kdairidggqyilrasnvagsksfpvnvkvldrpgppegpvqvtgvtsekcsltwspplqdggsdishyvvekretsrlawtvv 24696
+                              kdairidggqyilrasnvagsksfpvnvkvldrpgppegpvqvtgvtsekcsltwspplqdggsdishyvvekretsrlawtvv
+  sp|Q8WZ42|TITIN_HUMAN 24613 KDAIRIDGGQYILRASNVAGSKSFPVNVKVLDRPGPPEGPVQVTGVTSEKCSLTWSPPLQDGGSDISHYVVEKRETSRLAWTVV 24696
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24697 asevvtnslkvtkllegneyvfrimavnkygvgeplesapvlmknpfvlpgppkslevtniakdsmtvcwnrpdsdggseiigy 24780
+                              asevvtnslkvtkllegneyvfrimavnkygvgeplesapvlmknpfvlpgppkslevtniakdsmtvcwnrpdsdggseiigy
+  sp|Q8WZ42|TITIN_HUMAN 24697 ASEVVTNSLKVTKLLEGNEYVFRIMAVNKYGVGEPLESAPVLMKNPFVLPGPPKSLEVTNIAKDSMTVCWNRPDSDGGSEIIGY 24780
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24781 ivekrdrsgirwikcnkrritdlrlrvtgltedheyefrvsaenaagvgepspatvyykacdpvfkpgpptnahivdttknsit 24864
+                              ivekrdrsgirwikcnkrritdlrlrvtgltedheyefrvsaenaagvgepspatvyykacdpvfkpgpptnahivdttknsit
+  sp|Q8WZ42|TITIN_HUMAN 24781 IVEKRDRSGIRWIKCNKRRITDLRLRVTGLTEDHEYEFRVSAENAAGVGEPSPATVYYKACDPVFKPGPPTNAHIVDTTKNSIT 24864
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24865 lawgkpiydggseilgyvveickadeeewqivtpqtglrvtrfeiskltehqeykirvcalnkvglgeatsvpgtvkpedklea 24948
+                              lawgkpiydggseilgyvveickadeeewqivtpqtglrvtrfeiskltehqeykirvcalnkvglgeatsvpgtvkpedklea
+  sp|Q8WZ42|TITIN_HUMAN 24865 LAWGKPIYDGGSEILGYVVEICKADEEEWQIVTPQTGLRVTRFEISKLTEHQEYKIRVCALNKVGLGEATSVPGTVKPEDKLEA 24948
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 24949 peldldselrkgivvraggsarihipfkgrptpeitwsreegeftdkvqiekgvnytqlsidncdrndagkyilklenssgsks 25032
+                              peldldselrkgivvraggsarihipfkgrptpeitwsreegeftdkvqiekgvnytqlsidncdrndagkyilklenssgsks
+  sp|Q8WZ42|TITIN_HUMAN 24949 PELDLDSELRKGIVVRAGGSARIHIPFKGRPTPEITWSREEGEFTDKVQIEKGVNYTQLSIDNCDRNDAGKYILKLENSSGSKS 25032
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25033 afvtvkvldtpgppqnlavkevrkdsaflvweppiidggakvknyvidkrestrkayanvsskcsktsfkvenltegaiyyfrv 25116
+                              afvtvkvldtpgppqnlavkevrkdsaflvweppiidggakvknyvidkrestrkayanvsskcsktsfkvenltegaiyyfrv
+  sp|Q8WZ42|TITIN_HUMAN 25033 AFVTVKVLDTPGPPQNLAVKEVRKDSAFLVWEPPIIDGGAKVKNYVIDKRESTRKAYANVSSKCSKTSFKVENLTEGAIYYFRV 25116
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25117 maenefgvgvpvetvdavkaaeppsppgkvtltdvsqtsaslmwekpehdggsrvlgyvvemqpkgtekwsivaeskvcnavvt 25200
+                              maenefgvgvpvetvdavkaaeppsppgkvtltdvsqtsaslmwekpehdggsrvlgyvvemqpkgtekwsivaeskvcnavvt
+  sp|Q8WZ42|TITIN_HUMAN 25117 MAENEFGVGVPVETVDAVKAAEPPSPPGKVTLTDVSQTSASLMWEKPEHDGGSRVLGYVVEMQPKGTEKWSIVAESKVCNAVVT 25200
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25201 glssgqeyqfrvkaynekgksdprvlgvpviakdltiqpslklpfntysiqagedlkieipvigrprpniswvkdgeplkqttr 25284
+                              glssgqeyqfrvkaynekgksdprvlgvpviakdltiqpslklpfntysiqagedlkieipvigrprpniswvkdgeplkqttr
+  sp|Q8WZ42|TITIN_HUMAN 25201 GLSSGQEYQFRVKAYNEKGKSDPRVLGVPVIAKDLTIQPSLKLPFNTYSIQAGEDLKIEIPVIGRPRPNISWVKDGEPLKQTTR 25284
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25285 vnveetatstvlhikegnkddfgkytvtatnsagtatenlsvivlekpgppvgpvrfdevsadfvvisweppaytggcqisnyi 25368
+                              vnveetatstvlhikegnkddfgkytvtatnsagtatenlsvivlekpgppvgpvrfdevsadfvvisweppaytggcqisnyi
+  sp|Q8WZ42|TITIN_HUMAN 25285 VNVEETATSTVLHIKEGNKDDFGKYTVTATNSAGTATENLSVIVLEKPGPPVGPVRFDEVSADFVVISWEPPAYTGGCQISNYI 25368
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25369 vekrdtttttwhmvsatvarttikitklktgteyqfrifaenrygksapldskavivqypfkepgppgtpfvtsiskdqmlvqw 25452
+                              vekrdtttttwhmvsatvarttikitklktgteyqfrifaenrygksapldskavivqypfkepgppgtpfvtsiskdqmlvqw
+  sp|Q8WZ42|TITIN_HUMAN 25369 VEKRDTTTTTWHMVSATVARTTIKITKLKTGTEYQFRIFAENRYGKSAPLDSKAVIVQYPFKEPGPPGTPFVTSISKDQMLVQW 25452
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25453 hepvndggtkiigyhleqkeknsilwvklnktpiqdtkfkttgldegleyefkvsaenivgigkpskvsecfvardpcdppgrp 25536
+                              hepvndggtkiigyhleqkeknsilwvklnktpiqdtkfkttgldegleyefkvsaenivgigkpskvsecfvardpcdppgrp
+  sp|Q8WZ42|TITIN_HUMAN 25453 HEPVNDGGTKIIGYHLEQKEKNSILWVKLNKTPIQDTKFKTTGLDEGLEYEFKVSAENIVGIGKPSKVSECFVARDPCDPPGRP 25536
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25537 eaivitrnnvtlkwkkpaydggskitgyivekkdlpdgrwmkasftnvleteftvsglvedqryefrviarnaagnfsepsdss 25620
+                              eaivitrnnvtlkwkkpaydggskitgyivekkdlpdgrwmkasftnvleteftvsglvedqryefrviarnaagnfsepsdss
+  sp|Q8WZ42|TITIN_HUMAN 25537 EAIVITRNNVTLKWKKPAYDGGSKITGYIVEKKDLPDGRWMKASFTNVLETEFTVSGLVEDQRYEFRVIARNAAGNFSEPSDSS 25620
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25621 gaitardeidapnasldpkykdvivvhagetfvleadirgkpipdvvwskdgkeleetaarmeikstiqkttlvvkdcirtdgg 25704
+                              gaitardeidapnasldpkykdvivvhagetfvleadirgkpipdvvwskdgkeleetaarmeikstiqkttlvvkdcirtdgg
+  sp|Q8WZ42|TITIN_HUMAN 25621 GAITARDEIDAPNASLDPKYKDVIVVHAGETFVLEADIRGKPIPDVVWSKDGKELEETAARMEIKSTIQKTTLVVKDCIRTDGG 25704
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25705 qyilklsnvggtksipitvkvldrpgppegplkvtgvtaekcylawnpplqdgganishyiiekretsrlswtqvstevqalny 25788
+                              qyilklsnvggtksipitvkvldrpgppegplkvtgvtaekcylawnpplqdgganishyiiekretsrlswtqvstevqalny
+  sp|Q8WZ42|TITIN_HUMAN 25705 QYILKLSNVGGTKSIPITVKVLDRPGPPEGPLKVTGVTAEKCYLAWNPPLQDGGANISHYIIEKRETSRLSWTQVSTEVQALNY 25788
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25789 kvtkllpgneyifrvmavnkygigeplesgpvtacnpykppgppstpevsaitkdsmvvtwarpvddggteiegyilekrdkeg 25872
+                              kvtkllpgneyifrvmavnkygigeplesgpvtacnpykppgppstpevsaitkdsmvvtwarpvddggteiegyilekrdkeg
+  sp|Q8WZ42|TITIN_HUMAN 25789 KVTKLLPGNEYIFRVMAVNKYGIGEPLESGPVTACNPYKPPGPPSTPEVSAITKDSMVVTWARPVDDGGTEIEGYILEKRDKEG 25872
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25873 vrwtkcnkktltdlrlrvtglteghsyefrvaaenaagvgepsepsvfyracdalyppgppsnpkvtdtsrssvslawskpiyd 25956
+                              vrwtkcnkktltdlrlrvtglteghsyefrvaaenaagvgepsepsvfyracdalyppgppsnpkvtdtsrssvslawskpiyd
+  sp|Q8WZ42|TITIN_HUMAN 25873 VRWTKCNKKTLTDLRLRVTGLTEGHSYEFRVAAENAAGVGEPSEPSVFYRACDALYPPGPPSNPKVTDTSRSSVSLAWSKPIYD 25956
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 25957 ggapvkgyvvevkeaaadewttctpptglqgkqftvtklkenteynfricainsegvgepatlpgsvvaqerieppeieldadl 26040
+                              ggapvkgyvvevkeaaadewttctpptglqgkqftvtklkenteynfricainsegvgepatlpgsvvaqerieppeieldadl
+  sp|Q8WZ42|TITIN_HUMAN 25957 GGAPVKGYVVEVKEAAADEWTTCTPPTGLQGKQFTVTKLKENTEYNFRICAINSEGVGEPATLPGSVVAQERIEPPEIELDADL 26040
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26041 rkvvvlrasatlrlfvtikgrpepevkwekaegiltdraqievtssftmlvidnvtrfdsgrynltlennsgsktafvnvrvld 26124
+                              rkvvvlrasatlrlfvtikgrpepevkwekaegiltdraqievtssftmlvidnvtrfdsgrynltlennsgsktafvnvrvld
+  sp|Q8WZ42|TITIN_HUMAN 26041 RKVVVLRASATLRLFVTIKGRPEPEVKWEKAEGILTDRAQIEVTSSFTMLVIDNVTRFDSGRYNLTLENNSGSKTAFVNVRVLD 26124
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26125 spsapvnltirevkkdsvtlswepplidggakitnyivekrettrkayatitnnctkttfrienlqegcsyyfrvlasneygig 26208
+                              spsapvnltirevkkdsvtlswepplidggakitnyivekrettrkayatitnnctkttfrienlqegcsyyfrvlasneygig
+  sp|Q8WZ42|TITIN_HUMAN 26125 SPSAPVNLTIREVKKDSVTLSWEPPLIDGGAKITNYIVEKRETTRKAYATITNNCTKTTFRIENLQEGCSYYFRVLASNEYGIG 26208
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26209 lpaettepvkvsepplppgrvtlvdvtrntatikwekpesdggskitgyvvemqtkgsekwstctqvktleatisgltageeyv 26292
+                              lpaettepvkvsepplppgrvtlvdvtrntatikwekpesdggskitgyvvemqtkgsekwstctqvktleatisgltageeyv
+  sp|Q8WZ42|TITIN_HUMAN 26209 LPAETTEPVKVSEPPLPPGRVTLVDVTRNTATIKWEKPESDGGSKITGYVVEMQTKGSEKWSTCTQVKTLEATISGLTAGEEYV 26292
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26293 frvaavnekgrsdprqlgvpviardieikpsvelpfhtfnvkareqlkidvpfkgrpqatvnwrkdgqtlkettrvnvsssktv 26376
+                              frvaavnekgrsdprqlgvpviardieikpsvelpfhtfnvkareqlkidvpfkgrpqatvnwrkdgqtlkettrvnvsssktv
+  sp|Q8WZ42|TITIN_HUMAN 26293 FRVAAVNEKGRSDPRQLGVPVIARDIEIKPSVELPFHTFNVKAREQLKIDVPFKGRPQATVNWRKDGQTLKETTRVNVSSSKTV 26376
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26377 tslsikeaskedvgtyelcvsnsagsitvpitiivldrpgppgpiridevscdsitiswnppeydggcqisnyivekkettstt 26460
+                              tslsikeaskedvgtyelcvsnsagsitvpitiivldrpgppgpiridevscdsitiswnppeydggcqisnyivekkettstt
+  sp|Q8WZ42|TITIN_HUMAN 26377 TSLSIKEASKEDVGTYELCVSNSAGSITVPITIIVLDRPGPPGPIRIDEVSCDSITISWNPPEYDGGCQISNYIVEKKETTSTT 26460
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26461 whivsqavartsikivrlttgseyqfrvcaenrygkssysessavvaeypfsppgppgtpkvvhatkstmlvtwqvpvndggsr 26544
+                              whivsqavartsikivrlttgseyqfrvcaenrygkssysessavvaeypfsppgppgtpkvvhatkstmlvtwqvpvndggsr
+  sp|Q8WZ42|TITIN_HUMAN 26461 WHIVSQAVARTSIKIVRLTTGSEYQFRVCAENRYGKSSYSESSAVVAEYPFSPPGPPGTPKVVHATKSTMLVTWQVPVNDGGSR 26544
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26545 vigyhleykerssilwskankiliadtqmkvsgldeglmyeyrvyaeniagigkcskscepvpardpcdppgqpevtnitrksv 26628
+                              vigyhleykerssilwskankiliadtqmkvsgldeglmyeyrvyaeniagigkcskscepvpardpcdppgqpevtnitrksv
+  sp|Q8WZ42|TITIN_HUMAN 26545 VIGYHLEYKERSSILWSKANKILIADTQMKVSGLDEGLMYEYRVYAENIAGIGKCSKSCEPVPARDPCDPPGQPEVTNITRKSV 26628
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26629 slkwskphydggakitgyiverrelpdgrwlkcnytniqetyfevteltedqryefrvfarnaadsvsepsestgpiivkddve 26712
+                              slkwskphydggakitgyiverrelpdgrwlkcnytniqetyfevteltedqryefrvfarnaadsvsepsestgpiivkddve
+  sp|Q8WZ42|TITIN_HUMAN 26629 SLKWSKPHYDGGAKITGYIVERRELPDGRWLKCNYTNIQETYFEVTELTEDQRYEFRVFARNAADSVSEPSESTGPIIVKDDVE 26712
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26713 pprvmmdvkfrdvivvkagevlkinadiagrplpviswakdgieieerarteiistdnhtlltvkdcirrdtgqyvltlknvag 26796
+                              pprvmmdvkfrdvivvkagevlkinadiagrplpviswakdgieieerarteiistdnhtlltvkdcirrdtgqyvltlknvag
+  sp|Q8WZ42|TITIN_HUMAN 26713 PPRVMMDVKFRDVIVVKAGEVLKINADIAGRPLPVISWAKDGIEIEERARTEIISTDNHTLLTVKDCIRRDTGQYVLTLKNVAG 26796
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26797 trsvavnckvldkpgppagpleingltaekcslswgrpqedggadidyyivekretshlawticegelqmtsckvtkllkgney 26880
+                              trsvavnckvldkpgppagpleingltaekcslswgrpqedggadidyyivekretshlawticegelqmtsckvtkllkgney
+  sp|Q8WZ42|TITIN_HUMAN 26797 TRSVAVNCKVLDKPGPPAGPLEINGLTAEKCSLSWGRPQEDGGADIDYYIVEKRETSHLAWTICEGELQMTSCKVTKLLKGNEY 26880
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26881 ifrvtgvnkygvgeplesvaikaldpftvpspptsleitsvtkesmtlcwsrpesdggseisgyiierreknslrwvrvnkkpv 26964
+                              ifrvtgvnkygvgeplesvaikaldpftvpspptsleitsvtkesmtlcwsrpesdggseisgyiierreknslrwvrvnkkpv
+  sp|Q8WZ42|TITIN_HUMAN 26881 IFRVTGVNKYGVGEPLESVAIKALDPFTVPSPPTSLEITSVTKESMTLCWSRPESDGGSEISGYIIERREKNSLRWVRVNKKPV 26964
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 26965 ydlrvkstglregceyeyrvyaenaaglslpsetspliraedpvflpsppskpkivdsgkttitiawvkplfdggapitgytve 27048
+                              ydlrvkstglregceyeyrvyaenaaglslpsetspliraedpvflpsppskpkivdsgkttitiawvkplfdggapitgytve
+  sp|Q8WZ42|TITIN_HUMAN 26965 YDLRVKSTGLREGCEYEYRVYAENAAGLSLPSETSPLIRAEDPVFLPSPPSKPKIVDSGKTTITIAWVKPLFDGGAPITGYTVE 27048
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27049 ykksddtdwktsiqslrgteytisglttgaeyvfrvksvnkvgasdpsdssdpqiakereeeplfdidsemrktlivkagasft 27132
+                              ykksddtdwktsiqslrgteytisglttgaeyvfrvksvnkvgasdpsdssdpqiakereeeplfdidsemrktlivkagasft
+  sp|Q8WZ42|TITIN_HUMAN 27049 YKKSDDTDWKTSIQSLRGTEYTISGLTTGAEYVFRVKSVNKVGASDPSDSSDPQIAKEREEEPLFDIDSEMRKTLIVKAGASFT 27132
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27133 mtvpfrgrpvpnvlwskpdtdlrtrayvdttdsrtsltienanrndsgkytltiqnvlsaasltlvvkvldtpgpptnitvqdv 27216
+                              mtvpfrgrpvpnvlwskpdtdlrtrayvdttdsrtsltienanrndsgkytltiqnvlsaasltlvvkvldtpgpptnitvqdv
+  sp|Q8WZ42|TITIN_HUMAN 27133 MTVPFRGRPVPNVLWSKPDTDLRTRAYVDTTDSRTSLTIENANRNDSGKYTLTIQNVLSAASLTLVVKVLDTPGPPTNITVQDV 27216
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27217 tkesavlswdvpendggapvknyhiekreaskkawvsvtnncnrlsykvtnlqegaiyyfrvsgenefgvgipaetkegvkite 27300
+                              tkesavlswdvpendggapvknyhiekreaskkawvsvtnncnrlsykvtnlqegaiyyfrvsgenefgvgipaetkegvkite
+  sp|Q8WZ42|TITIN_HUMAN 27217 TKESAVLSWDVPENDGGAPVKNYHIEKREASKKAWVSVTNNCNRLSYKVTNLQEGAIYYFRVSGENEFGVGIPAETKEGVKITE 27300
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27301 kpsppeklgvtsiskdsvsltwlkpehdggsrivhyvvealekgqknwvkcavaksthhvvsglrenseyffrvfaenqaglsd 27384
+                              kpsppeklgvtsiskdsvsltwlkpehdggsrivhyvvealekgqknwvkcavaksthhvvsglrenseyffrvfaenqaglsd
+  sp|Q8WZ42|TITIN_HUMAN 27301 KPSPPEKLGVTSISKDSVSLTWLKPEHDGGSRIVHYVVEALEKGQKNWVKCAVAKSTHHVVSGLRENSEYFFRVFAENQAGLSD 27384
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27385 prelllpvlikeqleppeidmknfpshtvyvragsnlkvdipisgkplpkvtlsrdgvplkatmrfnteitaenltinlkesvt 27468
+                              prelllpvlikeqleppeidmknfpshtvyvragsnlkvdipisgkplpkvtlsrdgvplkatmrfnteitaenltinlkesvt
+  sp|Q8WZ42|TITIN_HUMAN 27385 PRELLLPVLIKEQLEPPEIDMKNFPSHTVYVRAGSNLKVDIPISGKPLPKVTLSRDGVPLKATMRFNTEITAENLTINLKESVT 27468
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27469 adagryeitaanssgttkafinivvldrpgpptgpvvisditeesvtlkweppkydggsqvtnyillkretstavwtevsatva 27552
+                              adagryeitaanssgttkafinivvldrpgpptgpvvisditeesvtlkweppkydggsqvtnyillkretstavwtevsatva
+  sp|Q8WZ42|TITIN_HUMAN 27469 ADAGRYEITAANSSGTTKAFINIVVLDRPGPPTGPVVISDITEESVTLKWEPPKYDGGSQVTNYILLKRETSTAVWTEVSATVA 27552
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27553 rtmmkvmklttgeeyqfrikaenrfgisdhidsacvtvklpyttpgppstpwvtnvtresitvgwhepvsnggsavvgyhlemk 27636
+                              rtmmkvmklttgeeyqfrikaenrfgisdhidsacvtvklpyttpgppstpwvtnvtresitvgwhepvsnggsavvgyhlemk
+  sp|Q8WZ42|TITIN_HUMAN 27553 RTMMKVMKLTTGEEYQFRIKAENRFGISDHIDSACVTVKLPYTTPGPPSTPWVTNVTRESITVGWHEPVSNGGSAVVGYHLEMK 27636
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27637 drnsilwqkanklvirtthfkvttisagliyefrvyaenaagvgkpshpsepvlaidacepprnvritdisknsvslswqqpaf 27720
+                              drnsilwqkanklvirtthfkvttisagliyefrvyaenaagvgkpshpsepvlaidacepprnvritdisknsvslswqqpaf
+  sp|Q8WZ42|TITIN_HUMAN 27637 DRNSILWQKANKLVIRTTHFKVTTISAGLIYEFRVYAENAAGVGKPSHPSEPVLAIDACEPPRNVRITDISKNSVSLSWQQPAF 27720
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27721 dggskitgyiverrdlpdgrwtkasftnvtetqfiisgltqnsqyefrvfarnavgsisnpsevvgpitcidsyggpvidlple 27804
+                              dggskitgyiverrdlpdgrwtkasftnvtetqfiisgltqnsqyefrvfarnavgsisnpsevvgpitcidsyggpvidlple
+  sp|Q8WZ42|TITIN_HUMAN 27721 DGGSKITGYIVERRDLPDGRWTKASFTNVTETQFIISGLTQNSQYEFRVFARNAVGSISNPSEVVGPITCIDSYGGPVIDLPLE 27804
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27805 ytevvkyragtsvklragisgkpaptiewykddkelqtnalvcventtdlasilikdadrlnsgcyelklrnamgsasatirvq 27888
+                              ytevvkyragtsvklragisgkpaptiewykddkelqtnalvcventtdlasilikdadrlnsgcyelklrnamgsasatirvq
+  sp|Q8WZ42|TITIN_HUMAN 27805 YTEVVKYRAGTSVKLRAGISGKPAPTIEWYKDDKELQTNALVCVENTTDLASILIKDADRLNSGCYELKLRNAMGSASATIRVQ 27888
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27889 ildkpgppggpiefktvtaekitllwrppaddggakithyivekretsrvvwsmvsehleeciitttkiikgneyifrvravnk 27972
+                              ildkpgppggpiefktvtaekitllwrppaddggakithyivekretsrvvwsmvsehleeciitttkiikgneyifrvravnk
+  sp|Q8WZ42|TITIN_HUMAN 27889 ILDKPGPPGGPIEFKTVTAEKITLLWRPPADDGGAKITHYIVEKRETSRVVWSMVSEHLEECIITTTKIIKGNEYIFRVRAVNK 27972
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 27973 ygigeplesdsvvaknafvtpgppgipevtkitknsmtvvwsrpiadggsdisgyflekrdkkslgwfkvlketirdtrqkvtg 28056
+                              ygigeplesdsvvaknafvtpgppgipevtkitknsmtvvwsrpiadggsdisgyflekrdkkslgwfkvlketirdtrqkvtg
+  sp|Q8WZ42|TITIN_HUMAN 27973 YGIGEPLESDSVVAKNAFVTPGPPGIPEVTKITKNSMTVVWSRPIADGGSDISGYFLEKRDKKSLGWFKVLKETIRDTRQKVTG 28056
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28057 ltensdyqyrvcavnaagqgpfsepsefykaadpidppgppakiriadstkssitlgwskpvydggsavtgyvveirqgeeeew 28140
+                              ltensdyqyrvcavnaagqgpfsepsefykaadpidppgppakiriadstkssitlgwskpvydggsavtgyvveirqgeeeew
+  sp|Q8WZ42|TITIN_HUMAN 28057 LTENSDYQYRVCAVNAAGQGPFSEPSEFYKAADPIDPPGPPAKIRIADSTKSSITLGWSKPVYDGGSAVTGYVVEIRQGEEEEW 28140
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28141 ttvstkgevrtteyvvsnlkpgvnyyfrvsavncagqgepiemnepvqakdileapeidldvalrtsviakagedvqvlipfkg 28224
+                              ttvstkgevrtteyvvsnlkpgvnyyfrvsavncagqgepiemnepvqakdileapeidldvalrtsviakagedvqvlipfkg
+  sp|Q8WZ42|TITIN_HUMAN 28141 TTVSTKGEVRTTEYVVSNLKPGVNYYFRVSAVNCAGQGEPIEMNEPVQAKDILEAPEIDLDVALRTSVIAKAGEDVQVLIPFKG 28224
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28225 rppptvtwrkdeknlgsdarysientdssslltipqvtrndtgkyiltiengvgepksstvsvkvldtpaacqklqvkhvsrgt 28308
+                              rppptvtwrkdeknlgsdarysientdssslltipqvtrndtgkyiltiengvgepksstvsvkvldtpaacqklqvkhvsrgt
+  sp|Q8WZ42|TITIN_HUMAN 28225 RPPPTVTWRKDEKNLGSDARYSIENTDSSSLLTIPQVTRNDTGKYILTIENGVGEPKSSTVSVKVLDTPAACQKLQVKHVSRGT 28308
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28309 vtllwdpplidggspiinyviekrdatkrtwsvvshkcsstsfklidlsektpfffrvlaeneigigepcettepvkaaevpap 28392
+                              vtllwdpplidggspiinyviekrdatkrtwsvvshkcsstsfklidlsektpfffrvlaeneigigepcettepvkaaevpap
+  sp|Q8WZ42|TITIN_HUMAN 28309 VTLLWDPPLIDGGSPIINYVIEKRDATKRTWSVVSHKCSSTSFKLIDLSEKTPFFFRVLAENEIGIGEPCETTEPVKAAEVPAP 28392
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28393 irdlsmkdstktsvilswtkpdfdggsviteyvverkgkgeqtwshagisktceievsqlkeqsvlefrvfaknekglsdpvti 28476
+                              irdlsmkdstktsvilswtkpdfdggsviteyvverkgkgeqtwshagisktceievsqlkeqsvlefrvfaknekglsdpvti
+  sp|Q8WZ42|TITIN_HUMAN 28393 IRDLSMKDSTKTSVILSWTKPDFDGGSVITEYVVERKGKGEQTWSHAGISKTCEIEVSQLKEQSVLEFRVFAKNEKGLSDPVTI 28476
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28477 gpitvkeliitpevdlsdipgaqvtvrighnvhlelpykgkpkpsiswlkdglplkesefvrfsktenkitlsiknakkehggk 28560
+                              gpitvkeliitpevdlsdipgaqvtvrighnvhlelpykgkpkpsiswlkdglplkesefvrfsktenkitlsiknakkehggk
+  sp|Q8WZ42|TITIN_HUMAN 28477 GPITVKELIITPEVDLSDIPGAQVTVRIGHNVHLELPYKGKPKPSISWLKDGLPLKESEFVRFSKTENKITLSIKNAKKEHGGK 28560
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28561 ytvildnavcriavpitvitlgppskpkgpirfdeikadsvilswdvpedngggeitcysiekretsqtnwkmvcssvarttfk 28644
+                              ytvildnavcriavpitvitlgppskpkgpirfdeikadsvilswdvpedngggeitcysiekretsqtnwkmvcssvarttfk
+  sp|Q8WZ42|TITIN_HUMAN 28561 YTVILDNAVCRIAVPITVITLGPPSKPKGPIRFDEIKADSVILSWDVPEDNGGGEITCYSIEKRETSQTNWKMVCSSVARTTFK 28644
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28645 vpnlvkdaeyqfrvraenrygvsqplvssiivakhqfripgppgkpviynvtsdgmsltwdapvydggsevtgfhvekkernsi 28728
+                              vpnlvkdaeyqfrvraenrygvsqplvssiivakhqfripgppgkpviynvtsdgmsltwdapvydggsevtgfhvekkernsi
+  sp|Q8WZ42|TITIN_HUMAN 28645 VPNLVKDAEYQFRVRAENRYGVSQPLVSSIIVAKHQFRIPGPPGKPVIYNVTSDGMSLTWDAPVYDGGSEVTGFHVEKKERNSI 28728
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28729 lwqkvntspisgreyratglvegldyqfrvyaensaglsspsdpskftlavspvdppgtpdyidvtretitlkwnpplrdggsk 28812
+                              lwqkvntspisgreyratglvegldyqfrvyaensaglsspsdpskftlavspvdppgtpdyidvtretitlkwnpplrdggsk
+  sp|Q8WZ42|TITIN_HUMAN 28729 LWQKVNTSPISGREYRATGLVEGLDYQFRVYAENSAGLSSPSDPSKFTLAVSPVDPPGTPDYIDVTRETITLKWNPPLRDGGSK 28812
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28813 ivgysiekrqgnerwvrcnftdvsecqytvtglspgdryefriiarnavgtisppsqssgiimtrdenvppivefgpeyfdgli 28896
+                              ivgysiekrqgnerwvrcnftdvsecqytvtglspgdryefriiarnavgtisppsqssgiimtrdenvppivefgpeyfdgli
+  sp|Q8WZ42|TITIN_HUMAN 28813 IVGYSIEKRQGNERWVRCNFTDVSECQYTVTGLSPGDRYEFRIIARNAVGTISPPSQSSGIIMTRDENVPPIVEFGPEYFDGLI 28896
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28897 iksgeslrikalvqgrpvprvtwfkdgveiekrmnmeitdvlgstslfvrdatrdhrgvytveaknasgsakaeikvkvqdtpg 28980
+                              iksgeslrikalvqgrpvprvtwfkdgveiekrmnmeitdvlgstslfvrdatrdhrgvytveaknasgsakaeikvkvqdtpg
+  sp|Q8WZ42|TITIN_HUMAN 28897 IKSGESLRIKALVQGRPVPRVTWFKDGVEIEKRMNMEITDVLGSTSLFVRDATRDHRGVYTVEAKNASGSAKAEIKVKVQDTPG 28980
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 28981 kvvgpirftnitgekmtlwwdaplndgcapithyiiekretsrlawaliedkceaqsytaiklingneyqfrvsavnkfgvgrp 29064
+                              kvvgpirftnitgekmtlwwdaplndgcapithyiiekretsrlawaliedkceaqsytaiklingneyqfrvsavnkfgvgrp
+  sp|Q8WZ42|TITIN_HUMAN 28981 KVVGPIRFTNITGEKMTLWWDAPLNDGCAPITHYIIEKRETSRLAWALIEDKCEAQSYTAIKLINGNEYQFRVSAVNKFGVGRP 29064
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29065 ldsdpvvaqiqytvpdapgipepsnitgnsitltwarpesdggseiqqyilerrekkstrwvkviskrpisetrfkvtgltegn 29148
+                              ldsdpvvaqiqytvpdapgipepsnitgnsitltwarpesdggseiqqyilerrekkstrwvkviskrpisetrfkvtgltegn
+  sp|Q8WZ42|TITIN_HUMAN 29065 LDSDPVVAQIQYTVPDAPGIPEPSNITGNSITLTWARPESDGGSEIQQYILERREKKSTRWVKVISKRPISETRFKVTGLTEGN 29148
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29149 eyefhvmaenaagvgpasgisrlikcrepvnppgpptvvkvtdtskttvslewskpvfdggmeiigyiiemckadlgdwhkvna 29232
+                              eyefhvmaenaagvgpasgisrlikcrepvnppgpptvvkvtdtskttvslewskpvfdggmeiigyiiemckadlgdwhkvna
+  sp|Q8WZ42|TITIN_HUMAN 29149 EYEFHVMAENAAGVGPASGISRLIKCREPVNPPGPPTVVKVTDTSKTTVSLEWSKPVFDGGMEIIGYIIEMCKADLGDWHKVNA 29232
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29233 eacvktrytvtdlqageeykfrvsaingagkgdscevtgtikavdrltapeldidanfkqthvvragasirlfiayqgrptpta 29316
+                              eacvktrytvtdlqageeykfrvsaingagkgdscevtgtikavdrltapeldidanfkqthvvragasirlfiayqgrptpta
+  sp|Q8WZ42|TITIN_HUMAN 29233 EACVKTRYTVTDLQAGEEYKFRVSAINGAGKGDSCEVTGTIKAVDRLTAPELDIDANFKQTHVVRAGASIRLFIAYQGRPTPTA 29316
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29317 vwskpdsnlslradihttdsfstltvencnrndagkytltvennsgsksitftvkvldtpgppgpitfkdvtrgsatlmwdapl 29400
+                              vwskpdsnlslradihttdsfstltvencnrndagkytltvennsgsksitftvkvldtpgppgpitfkdvtrgsatlmwdapl
+  sp|Q8WZ42|TITIN_HUMAN 29317 VWSKPDSNLSLRADIHTTDSFSTLTVENCNRNDAGKYTLTVENNSGSKSITFTVKVLDTPGPPGPITFKDVTRGSATLMWDAPL 29400
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29401 ldggarihhyvvekreasrrswqvisekctrqifkvndlaegvpyyfrvsavneygvgepyempepivateqpapprrldvvdt 29484
+                              ldggarihhyvvekreasrrswqvisekctrqifkvndlaegvpyyfrvsavneygvgepyempepivateqpapprrldvvdt
+  sp|Q8WZ42|TITIN_HUMAN 29401 LDGGARIHHYVVEKREASRRSWQVISEKCTRQIFKVNDLAEGVPYYFRVSAVNEYGVGEPYEMPEPIVATEQPAPPRRLDVVDT 29484
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29485 skssavlawlkpdhdggsritgyllemrqkgsdfwveaghtkqltftverlvekteyefrvkakndagysepreafssviikep 29568
+                              skssavlawlkpdhdggsritgyllemrqkgsdfwveaghtkqltftverlvekteyefrvkakndagysepreafssviikep
+  sp|Q8WZ42|TITIN_HUMAN 29485 SKSSAVLAWLKPDHDGGSRITGYLLEMRQKGSDFWVEAGHTKQLTFTVERLVEKTEYEFRVKAKNDAGYSEPREAFSSVIIKEP 29568
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29569 qieptadltgitnqlitckagspftidvpisgrpapkvtwkleemrlketdrvsitttkdrttltvkdsmrgdsgryfltlent 29652
+                              qieptadltgitnqlitckagspftidvpisgrpapkvtwkleemrlketdrvsitttkdrttltvkdsmrgdsgryfltlent
+  sp|Q8WZ42|TITIN_HUMAN 29569 QIEPTADLTGITNQLITCKAGSPFTIDVPISGRPAPKVTWKLEEMRLKETDRVSITTTKDRTTLTVKDSMRGDSGRYFLTLENT 29652
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29653 agvktfsvtvvvigrpgpvtgpievssvsaescvlswgepkdgggteitnyivekresgttawqlvnssvkrtqikvthltkym 29736
+                              agvktfsvtvvvigrpgpvtgpievssvsaescvlswgepkdgggteitnyivekresgttawqlvnssvkrtqikvthltkym
+  sp|Q8WZ42|TITIN_HUMAN 29653 AGVKTFSVTVVVIGRPGPVTGPIEVSSVSAESCVLSWGEPKDGGGTEITNYIVEKRESGTTAWQLVNSSVKRTQIKVTHLTKYM 29736
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29737 eysfrvssenrfgvskplesapiiaehpfvppsaptrpevyhvsanamsirweepyhdggskiigywvekkerntilwvkenkv 29820
+                              eysfrvssenrfgvskplesapiiaehpfvppsaptrpevyhvsanamsirweepyhdggskiigywvekkerntilwvkenkv
+  sp|Q8WZ42|TITIN_HUMAN 29737 EYSFRVSSENRFGVSKPLESAPIIAEHPFVPPSAPTRPEVYHVSANAMSIRWEEPYHDGGSKIIGYWVEKKERNTILWVKENKV 29820
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29821 pclecnykvtglvegleyqfrtyalnaagvskaseasrpimaqnpvdapgrpevtdvtrstvsliwsapaydggskvvgyiier 29904
+                              pclecnykvtglvegleyqfrtyalnaagvskaseasrpimaqnpvdapgrpevtdvtrstvsliwsapaydggskvvgyiier
+  sp|Q8WZ42|TITIN_HUMAN 29821 PCLECNYKVTGLVEGLEYQFRTYALNAAGVSKASEASRPIMAQNPVDAPGRPEVTDVTRSTVSLIWSAPAYDGGSKVVGYIIER 29904
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29905 kpvsevgdgrwlkcnytivsdnfftvtalsegdtyefrvlaknaagviskgsestgpvtcrdeyappkaeldarlhgdlvtira 29988
+                              kpvsevgdgrwlkcnytivsdnfftvtalsegdtyefrvlaknaagviskgsestgpvtcrdeyappkaeldarlhgdlvtira
+  sp|Q8WZ42|TITIN_HUMAN 29905 KPVSEVGDGRWLKCNYTIVSDNFFTVTALSEGDTYEFRVLAKNAAGVISKGSESTGPVTCRDEYAPPKAELDARLHGDLVTIRA 29988
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 29989 gsdlvldaavggkpepkiiwtkgdkeldlcekvslqytgkratavikfcdrsdsgkytltvknasgtkavsvmvkvldspgpcg 30072
+                              gsdlvldaavggkpepkiiwtkgdkeldlcekvslqytgkratavikfcdrsdsgkytltvknasgtkavsvmvkvldspgpcg
+  sp|Q8WZ42|TITIN_HUMAN 29989 GSDLVLDAAVGGKPEPKIIWTKGDKELDLCEKVSLQYTGKRATAVIKFCDRSDSGKYTLTVKNASGTKAVSVMVKVLDSPGPCG 30072
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30073 kltvsrvtqekctlawslpqedggaeithyiverretsrlnwvivegecptlsyvvtrliknneyifrvravnkygpgvpvese 30156
+                              kltvsrvtqekctlawslpqedggaeithyiverretsrlnwvivegecptlsyvvtrliknneyifrvravnkygpgvpvese
+  sp|Q8WZ42|TITIN_HUMAN 30073 KLTVSRVTQEKCTLAWSLPQEDGGAEITHYIVERRETSRLNWVIVEGECPTLSYVVTRLIKNNEYIFRVRAVNKYGPGVPVESE 30156
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30157 pivarnsftipsppgipeevgtgkehiiiqwtkpesdggneisnylvdkrekkslrwtrvnkdyvvydtrlkvtslmegcdyqf 30240
+                              pivarnsftipsppgipeevgtgkehiiiqwtkpesdggneisnylvdkrekkslrwtrvnkdyvvydtrlkvtslmegcdyqf
+  sp|Q8WZ42|TITIN_HUMAN 30157 PIVARNSFTIPSPPGIPEEVGTGKEHIIIQWTKPESDGGNEISNYLVDKREKKSLRWTRVNKDYVVYDTRLKVTSLMEGCDYQF 30240
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30241 rvtavnaagnsepseasnfiscrepsytpgppsaprvvdttkhsislawtkpmydggtdivgyvlemqekdtdqwyrvhtnati 30324
+                              rvtavnaagnsepseasnfiscrepsytpgppsaprvvdttkhsislawtkpmydggtdivgyvlemqekdtdqwyrvhtnati
+  sp|Q8WZ42|TITIN_HUMAN 30241 RVTAVNAAGNSEPSEASNFISCREPSYTPGPPSAPRVVDTTKHSISLAWTKPMYDGGTDIVGYVLEMQEKDTDQWYRVHTNATI 30324
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30325 rnteftvpdlkmgqkysfrvaavnvkgmseysesiaeiepverieipdleladdlkktvtiragaslrlmvsvsgrpppvitws 30408
+                              rnteftvpdlkmgqkysfrvaavnvkgmseysesiaeiepverieipdleladdlkktvtiragaslrlmvsvsgrpppvitws
+  sp|Q8WZ42|TITIN_HUMAN 30325 RNTEFTVPDLKMGQKYSFRVAAVNVKGMSEYSESIAEIEPVERIEIPDLELADDLKKTVTIRAGASLRLMVSVSGRPPPVITWS 30408
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30409 kqgidlasraiidttesysllivdkvnrydagkytieaenqsgkksatvlvkvydtpgpcpsvkvkevsrdsvtitweiptidg 30492
+                              kqgidlasraiidttesysllivdkvnrydagkytieaenqsgkksatvlvkvydtpgpcpsvkvkevsrdsvtitweiptidg
+  sp|Q8WZ42|TITIN_HUMAN 30409 KQGIDLASRAIIDTTESYSLLIVDKVNRYDAGKYTIEAENQSGKKSATVLVKVYDTPGPCPSVKVKEVSRDSVTITWEIPTIDG 30492
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30493 gapvnnyivekreaamrafktvttkcsktlyrisglvegtmyyfrvlpeniygigepcetsdavlvsevplvpaklevvdvtks 30576
+                              gapvnnyivekreaamrafktvttkcsktlyrisglvegtmyyfrvlpeniygigepcetsdavlvsevplvpaklevvdvtks
+  sp|Q8WZ42|TITIN_HUMAN 30493 GAPVNNYIVEKREAAMRAFKTVTTKCSKTLYRISGLVEGTMYYFRVLPENIYGIGEPCETSDAVLVSEVPLVPAKLEVVDVTKS 30576
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30577 tvtlawekplydggsrltgyvleackagterwmkvvtlkptvlehtvtslnegeqylfriraqnekgvsepretvtavtvqdlr 30660
+                              tvtlawekplydggsrltgyvleackagterwmkvvtlkptvlehtvtslnegeqylfriraqnekgvsepretvtavtvqdlr
+  sp|Q8WZ42|TITIN_HUMAN 30577 TVTLAWEKPLYDGGSRLTGYVLEACKAGTERWMKVVTLKPTVLEHTVTSLNEGEQYLFRIRAQNEKGVSEPRETVTAVTVQDLR 30660
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30661 vlptidlstmpqktihvpagrpvelvipiagrpppaaswffagsklreservtvethtkvakltirettirdtgeytlelknvt 30744
+                              vlptidlstmpqktihvpagrpvelvipiagrpppaaswffagsklreservtvethtkvakltirettirdtgeytlelknvt
+  sp|Q8WZ42|TITIN_HUMAN 30661 VLPTIDLSTMPQKTIHVPAGRPVELVIPIAGRPPPAASWFFAGSKLRESERVTVETHTKVAKLTIRETTIRDTGEYTLELKNVT 30744
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30745 gttsetikviildkpgpptgpikideidatsitisweppeldggaplsgyvveqrdahrpgwlpvsesvtrstfkftrltegne 30828
+                              gttsetikviildkpgpptgpikideidatsitisweppeldggaplsgyvveqrdahrpgwlpvsesvtrstfkftrltegne
+  sp|Q8WZ42|TITIN_HUMAN 30745 GTTSETIKVIILDKPGPPTGPIKIDEIDATSITISWEPPELDGGAPLSGYVVEQRDAHRPGWLPVSESVTRSTFKFTRLTEGNE 30828
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30829 yvfrvaatnrfgigsylqseviecrssiripgppetlqifdvsrdgmtltwyppeddggsqvtgyiverkevradrwvrvnkvp 30912
+                              yvfrvaatnrfgigsylqseviecrssiripgppetlqifdvsrdgmtltwyppeddggsqvtgyiverkevradrwvrvnkvp
+  sp|Q8WZ42|TITIN_HUMAN 30829 YVFRVAATNRFGIGSYLQSEVIECRSSIRIPGPPETLQIFDVSRDGMTLTWYPPEDDGGSQVTGYIVERKEVRADRWVRVNKVP 30912
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30913 vtmtryrstgltegleyehrvtainargsgkpsrpskpivamdpiappgkpqnprvtdttrtsvslawsvpedeggskvtgyli 30996
+                              vtmtryrstgltegleyehrvtainargsgkpsrpskpivamdpiappgkpqnprvtdttrtsvslawsvpedeggskvtgyli
+  sp|Q8WZ42|TITIN_HUMAN 30913 VTMTRYRSTGLTEGLEYEHRVTAINARGSGKPSRPSKPIVAMDPIAPPGKPQNPRVTDTTRTSVSLAWSVPEDEGGSKVTGYLI 30996
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 30997 emqkvdqhewtkcnttptkireytlthlpqgaeyrfrvlacnaggpgepaevpgtvkvtemleypdyelderyqegifvrqggv 31080
+                              emqkvdqhewtkcnttptkireytlthlpqgaeyrfrvlacnaggpgepaevpgtvkvtemleypdyelderyqegifvrqggv
+  sp|Q8WZ42|TITIN_HUMAN 30997 EMQKVDQHEWTKCNTTPTKIREYTLTHLPQGAEYRFRVLACNAGGPGEPAEVPGTVKVTEMLEYPDYELDERYQEGIFVRQGGV 31080
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31081 irltipikgkpfpickwtkegqdiskramiatsethtelvikeadrgdsgtydlvlenkcgkkavyikvrvigspnspegpley 31164
+                              irltipikgkpfpickwtkegqdiskramiatsethtelvikeadrgdsgtydlvlenkcgkkavyikvrvigspnspegpley
+  sp|Q8WZ42|TITIN_HUMAN 31081 IRLTIPIKGKPFPICKWTKEGQDISKRAMIATSETHTELVIKEADRGDSGTYDLVLENKCGKKAVYIKVRVIGSPNSPEGPLEY 31164
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31165 ddiqvrsvrvswrppaddggadilgyilerrevpkaawytidsrvrgtslvvkglkenveyhfrvsaenqfgiskplkseepvt 31248
+                              ddiqvrsvrvswrppaddggadilgyilerrevpkaawytidsrvrgtslvvkglkenveyhfrvsaenqfgiskplkseepvt
+  sp|Q8WZ42|TITIN_HUMAN 31165 DDIQVRSVRVSWRPPADDGGADILGYILERREVPKAAWYTIDSRVRGTSLVVKGLKENVEYHFRVSAENQFGISKPLKSEEPVT 31248
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31249 pktplnppeppsnppevldvtkssvslswsrpkddggsrvtgyyierketstdkwvrhnktqitttmytvtglvpdaeyqfrii 31332
+                              pktplnppeppsnppevldvtkssvslswsrpkddggsrvtgyyierketstdkwvrhnktqitttmytvtglvpdaeyqfrii
+  sp|Q8WZ42|TITIN_HUMAN 31249 PKTPLNPPEPPSNPPEVLDVTKSSVSLSWSRPKDDGGSRVTGYYIERKETSTDKWVRHNKTQITTTMYTVTGLVPDAEYQFRII 31332
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31333 aqndvglsetspasepvvckdpfdkpsqpgeleilsiskdsvtlqwekpecdggkeilgywveyrqsgdsawkksnkerikdkq 31416
+                              aqndvglsetspasepvvckdpfdkpsqpgeleilsiskdsvtlqwekpecdggkeilgywveyrqsgdsawkksnkerikdkq
+  sp|Q8WZ42|TITIN_HUMAN 31333 AQNDVGLSETSPASEPVVCKDPFDKPSQPGELEILSISKDSVTLQWEKPECDGGKEILGYWVEYRQSGDSAWKKSNKERIKDKQ 31416
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31417 ftigglleateyefrvfaenetglsrprrtamsiktkltsgeapgirkemkdvttklgeaaqlscqivgrplpdikwyrfgkel 31500
+                              ftigglleateyefrvfaenetglsrprrtamsiktkltsgeapgirkemkdvttklgeaaqlscqivgrplpdikwyrfgkel
+  sp|Q8WZ42|TITIN_HUMAN 31417 FTIGGLLEATEYEFRVFAENETGLSRPRRTAMSIKTKLTSGEAPGIRKEMKDVTTKLGEAAQLSCQIVGRPLPDIKWYRFGKEL 31500
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31501 iqsrkykmssdgrthtltvmteeqedegvytciatnevgevetssklllqatpqfhpgyplkekyygavgstlrlhvmyigrpv 31584
+                              iqsrkykmssdgrthtltvmteeqedegvytciatnevgevetssklllqatpqfhpgyplkekyygavgstlrlhvmyigrpv
+  sp|Q8WZ42|TITIN_HUMAN 31501 IQSRKYKMSSDGRTHTLTVMTEEQEDEGVYTCIATNEVGEVETSSKLLLQATPQFHPGYPLKEKYYGAVGSTLRLHVMYIGRPV 31584
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31585 pamtwfhgqkllqnsenitientehythlvmknvqrkthagkykvqlsnvfgtvdaildveiqdkpdkptgpivieallknsav 31668
+                              pamtwfhgqkllqnsenitientehythlvmknvqrkthagkykvqlsnvfgtvdaildveiqdkpdkptgpivieallknsav
+  sp|Q8WZ42|TITIN_HUMAN 31585 PAMTWFHGQKLLQNSENITIENTEHYTHLVMKNVQRKTHAGKYKVQLSNVFGTVDAILDVEIQDKPDKPTGPIVIEALLKNSAV 31668
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31669 iswkppaddggswitnyvvekceakegaewqlvssaisvttcrivnltenagyyfrvsaqntfgisdplevssvviikspfekp 31752
+                              iswkppaddggswitnyvvekceakegaewqlvssaisvttcrivnltenagyyfrvsaqntfgisdplevssvviikspfekp
+  sp|Q8WZ42|TITIN_HUMAN 31669 ISWKPPADDGGSWITNYVVEKCEAKEGAEWQLVSSAISVTTCRIVNLTENAGYYFRVSAQNTFGISDPLEVSSVVIIKSPFEKP 31752
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31753 gapgkptitavtkdscvvawkppasdggakirnyylekrekkqnkwisvtteeiretvfsvknliegleyefrvkcenlggese 31836
+                              gapgkptitavtkdscvvawkppasdggakirnyylekrekkqnkwisvtteeiretvfsvknliegleyefrvkcenlggese
+  sp|Q8WZ42|TITIN_HUMAN 31753 GAPGKPTITAVTKDSCVVAWKPPASDGGAKIRNYYLEKREKKQNKWISVTTEEIRETVFSVKNLIEGLEYEFRVKCENLGGESE 31836
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31837 wseisepitpksdvpiqaphfkeelrnlnvryqsnatlvckvtghpkpivkwyrqgkeiiadglkyriqefkggyhqliiasvt 31920
+                              wseisepitpksdvpiqaphfkeelrnlnvryqsnatlvckvtghpkpivkwyrqgkeiiadglkyriqefkggyhqliiasvt
+  sp|Q8WZ42|TITIN_HUMAN 31837 WSEISEPITPKSDVPIQAPHFKEELRNLNVRYQSNATLVCKVTGHPKPIVKWYRQGKEIIADGLKYRIQEFKGGYHQLIIASVT 31920
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 31921 dddatvyqvratnqggsvsgtaslevevpakihlpktlegmgavhalrgevvsikipfsgkpdpvitwqkgqdlidnnghyqvi 32004
+                              dddatvyqvratnqggsvsgtaslevevpakihlpktlegmgavhalrgevvsikipfsgkpdpvitwqkgqdlidnnghyqvi
+  sp|Q8WZ42|TITIN_HUMAN 31921 DDDATVYQVRATNQGGSVSGTASLEVEVPAKIHLPKTLEGMGAVHALRGEVVSIKIPFSGKPDPVITWQKGQDLIDNNGHYQVI 32004
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32005 vtrsftslvfpngverkdagfyvvcaknrfgidqktveldvadvpdpprgvkvsdvsrdsvnltwtepasdggskitnyivekc 32088
+                              vtrsftslvfpngverkdagfyvvcaknrfgidqktveldvadvpdpprgvkvsdvsrdsvnltwtepasdggskitnyivekc
+  sp|Q8WZ42|TITIN_HUMAN 32005 VTRSFTSLVFPNGVERKDAGFYVVCAKNRFGIDQKTVELDVADVPDPPRGVKVSDVSRDSVNLTWTEPASDGGSKITNYIVEKC 32088
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32089 attaerwlrvgqaretrytvinlfgktsyqfrviaenkfglskpsepseptitkedktramnydeevdetrevsmtkashsstk 32172
+                              attaerwlrvgqaretrytvinlfgktsyqfrviaenkfglskpsepseptitkedktramnydeevdetrevsmtkashsstk
+  sp|Q8WZ42|TITIN_HUMAN 32089 ATTAERWLRVGQARETRYTVINLFGKTSYQFRVIAENKFGLSKPSEPSEPTITKEDKTRAMNYDEEVDETREVSMTKASHSSTK 32172
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32173 elyekymiaedlgrgefgivhrcvetsskktymakfvkvkgtdqvlvkkeisilniarhrnilhlhesfesmeelvmifefisg 32256
+                              elyekymiaedlgrgefgivhrcvetsskktymakfvkvkgtdqvlvkkeisilniarhrnilhlhesfesmeelvmifefisg
+  sp|Q8WZ42|TITIN_HUMAN 32173 ELYEKYMIAEDLGRGEFGIVHRCVETSSKKTYMAKFVKVKGTDQVLVKKEISILNIARHRNILHLHESFESMEELVMIFEFISG 32256
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32257 ldiferintsafelnereivsyvhqvcealqflhshnighfdirpeniiyqtrrsstikiiefgqarqlkpgdnfrllftapey 32340
+                              ldiferintsafelnereivsyvhqvcealqflhshnighfdirpeniiyqtrrsstikiiefgqarqlkpgdnfrllftapey
+  sp|Q8WZ42|TITIN_HUMAN 32257 LDIFERINTSAFELNEREIVSYVHQVCEALQFLHSHNIGHFDIRPENIIYQTRRSSTIKIIEFGQARQLKPGDNFRLLFTAPEY 32340
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32341 yapevhqhdvvstatdmwslgtlvyvllsginpflaetnqqiienimnaeytfdeeafkeisieamdfvdrllvkerksrmtas 32424
+                              yapevhqhdvvstatdmwslgtlvyvllsginpflaetnqqiienimnaeytfdeeafkeisieamdfvdrllvkerksrmtas
+  sp|Q8WZ42|TITIN_HUMAN 32341 YAPEVHQHDVVSTATDMWSLGTLVYVLLSGINPFLAETNQQIIENIMNAEYTFDEEAFKEISIEAMDFVDRLLVKERKSRMTAS 32424
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32425 ealqhpwlkqkiervstkvirtlkhrryyhtlikkdlnmvvsaariscggairsqkgvsvakvkvasieigpvsgqimhavgee 32508
+                              ealqhpwlkqkiervstkvirtlkhrryyhtlikkdlnmvvsaariscggairsqkgvsvakvkvasieigpvsgqimhavgee
+  sp|Q8WZ42|TITIN_HUMAN 32425 EALQHPWLKQKIERVSTKVIRTLKHRRYYHTLIKKDLNMVVSAARISCGGAIRSQKGVSVAKVKVASIEIGPVSGQIMHAVGEE 32508
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32509 gghvkyvckienydqstqvtwyfgvrqlensekyeityedgvailyvkditklddgtyrckvvndygedssyaelfvkgvrevy 32592
+                              gghvkyvckienydqstqvtwyfgvrqlensekyeityedgvailyvkditklddgtyrckvvndygedssyaelfvkgvrevy
+  sp|Q8WZ42|TITIN_HUMAN 32509 GGHVKYVCKIENYDQSTQVTWYFGVRQLENSEKYEITYEDGVAILYVKDITKLDDGTYRCKVVNDYGEDSSYAELFVKGVREVY 32592
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32593 dyycrrtmkkikrrtdtmrllerppeftlplynktayvgenvrfgvtitvhpephvtwyksgqkikpgdndkkytfesdkglyq 32676
+                              dyycrrtmkkikrrtdtmrllerppeftlplynktayvgenvrfgvtitvhpephvtwyksgqkikpgdndkkytfesdkglyq
+  sp|Q8WZ42|TITIN_HUMAN 32593 DYYCRRTMKKIKRRTDTMRLLERPPEFTLPLYNKTAYVGENVRFGVTITVHPEPHVTWYKSGQKIKPGDNDKKYTFESDKGLYQ 32676
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32677 ltinsvttdddaeytvvarnkygedsckakltvtlhppptdstlrpmfkrllanaecqegqsvcfeirvsgippptlkwekdgq 32760
+                              ltinsvttdddaeytvvarnkygedsckakltvtlhppptdstlrpmfkrllanaecqegqsvcfeirvsgippptlkwekdgq
+  sp|Q8WZ42|TITIN_HUMAN 32677 LTINSVTTDDDAEYTVVARNKYGEDSCKAKLTVTLHPPPTDSTLRPMFKRLLANAECQEGQSVCFEIRVSGIPPPTLKWEKDGQ 32760
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32761 plslgpnieiihegldyyalhirdtlpedtgyyrvtatntagstscqahlqverlrykkqefkskeeherhvqkqidktlrmae 32844
+                              plslgpnieiihegldyyalhirdtlpedtgyyrvtatntagstscqahlqverlrykkqefkskeeherhvqkqidktlrmae
+  sp|Q8WZ42|TITIN_HUMAN 32761 PLSLGPNIEIIHEGLDYYALHIRDTLPEDTGYYRVTATNTAGSTSCQAHLQVERLRYKKQEFKSKEEHERHVQKQIDKTLRMAE 32844
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32845 ilsgtesvpltqvakealreaavlykpavstktvkgefrleieekkeerklrmpydvpeprkykqttieedqrikqfvpmsdmk 32928
+                              ilsgtesvpltqvakealreaavlykpavstktvkgefrleieekkeerklrmpydvpeprkykqttieedqrikqfvpmsdmk
+  sp|Q8WZ42|TITIN_HUMAN 32845 ILSGTESVPLTQVAKEALREAAVLYKPAVSTKTVKGEFRLEIEEKKEERKLRMPYDVPEPRKYKQTTIEEDQRIKQFVPMSDMK 32928
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 32929 wykkirdqyempgkldrvvqkrpkrirlsrweqfyvmplpritdqyrpkwripklsqddleivrparrrtpspdydfyyrprrr 33012
+                              wykkirdqyempgkldrvvqkrpkrirlsrweqfyvmplpritdqyrpkwripklsqddleivrparrrtpspdydfyyrprrr
+  sp|Q8WZ42|TITIN_HUMAN 32929 WYKKIRDQYEMPGKLDRVVQKRPKRIRLSRWEQFYVMPLPRITDQYRPKWRIPKLSQDDLEIVRPARRRTPSPDYDFYYRPRRR 33012
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33013 slgdisdeelllpiddylamkrteeerlrleeelelgfsasppsrspphfelsslrysspqahvkveetrkdfrystyhiptka 33096
+                              slgdisdeelllpiddylamkrteeerlrleeelelgfsasppsrspphfelsslrysspqahvkveetrkdfrystyhiptka
+  sp|Q8WZ42|TITIN_HUMAN 33013 SLGDISDEELLLPIDDYLAMKRTEEERLRLEEELELGFSASPPSRSPPHFELSSLRYSSPQAHVKVEETRKDFRYSTYHIPTKA 33096
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33097 eastsyaelrerhaqaayrqpkqrqrimaeredeellrpvtttqhlseykseldfmskeeksrkksrrqrevteiteieeeyei 33180
+                              eastsyaelrerhaqaayrqpkqrqrimaeredeellrpvtttqhlseykseldfmskeeksrkksrrqrevteiteieeeyei
+  sp|Q8WZ42|TITIN_HUMAN 33097 EASTSYAELRERHAQAAYRQPKQRQRIMAEREDEELLRPVTTTQHLSEYKSELDFMSKEEKSRKKSRRQREVTEITEIEEEYEI 33180
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33181 skhaqressssasrllrrrrslsptyielmrpvselirsrpqpaeeyeddterrsptpertrprspspvsserslsrfersarf 33264
+                              skhaqressssasrllrrrrslsptyielmrpvselirsrpqpaeeyeddterrsptpertrprspspvsserslsrfersarf
+  sp|Q8WZ42|TITIN_HUMAN 33181 SKHAQRESSSSASRLLRRRRSLSPTYIELMRPVSELIRSRPQPAEEYEDDTERRSPTPERTRPRSPSPVSSERSLSRFERSARF 33264
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33265 difsryesmkaalktqktserkyevlsqqpftldhapritlrmrshrvpcgqntrfilnvqskptaevkwyhngvelqesskih 33348
+                              difsryesmkaalktqktserkyevlsqqpftldhapritlrmrshrvpcgqntrfilnvqskptaevkwyhngvelqesskih
+  sp|Q8WZ42|TITIN_HUMAN 33265 DIFSRYESMKAALKTQKTSERKYEVLSQQPFTLDHAPRITLRMRSHRVPCGQNTRFILNVQSKPTAEVKWYHNGVELQESSKIH 33348
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33349 ytntsgvltleildchtddsgtyravctnykgeasdyatldvtggdyttyasqrrdeevprsvfpeltrteayavssfkktsem 33432
+                              ytntsgvltleildchtddsgtyravctnykgeasdyatldvtggdyttyasqrrdeevprsvfpeltrteayavssfkktsem
+  sp|Q8WZ42|TITIN_HUMAN 33349 YTNTSGVLTLEILDCHTDDSGTYRAVCTNYKGEASDYATLDVTGGDYTTYASQRRDEEVPRSVFPELTRTEAYAVSSFKKTSEM 33432
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33433 easssvrevksqmtetreslssyehsasaemksaaleeksleeksttrkikttlaariltkprsmtvyegesarfscdtdgepv 33516
+                              easssvrevksqmtetreslssyehsasaemksaaleeksleeksttrkikttlaariltkprsmtvyegesarfscdtdgepv
+  sp|Q8WZ42|TITIN_HUMAN 33433 EASSSVREVKSQMTETRESLSSYEHSASAEMKSAALEEKSLEEKSTTRKIKTTLAARILTKPRSMTVYEGESARFSCDTDGEPV 33516
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33517 ptvtwlrkgqvlstsarhqvtttkykstfeissvqasdegnysvvvensegkqeaeftltiqkarvtekavtspprvkspeprv 33600
+                              ptvtwlrkgqvlstsarhqvtttkykstfeissvqasdegnysvvvensegkqeaeftltiqkarvtekavtspprvkspeprv
+  sp|Q8WZ42|TITIN_HUMAN 33517 PTVTWLRKGQVLSTSARHQVTTTKYKSTFEISSVQASDEGNYSVVVENSEGKQEAEFTLTIQKARVTEKAVTSPPRVKSPEPRV 33600
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33601 kspeavkspkrvkspepshpkavsptetkptptekvqhlpvsappkitqflkaeaskeiakltcvvessvlrakevtwykdgkk 33684
+                              kspeavkspkrvkspepshpkavsptetkptptekvqhlpvsappkitqflkaeaskeiakltcvvessvlrakevtwykdgkk
+  sp|Q8WZ42|TITIN_HUMAN 33601 KSPEAVKSPKRVKSPEPSHPKAVSPTETKPTPTEKVQHLPVSAPPKITQFLKAEASKEIAKLTCVVESSVLRAKEVTWYKDGKK 33684
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33685 lkenghfqfhysadgtyelkinnltesdqgeyvceisgeggtsktnlqfmgqafksihekvskisetkksdqkttestvtrkte 33768
+                              lkenghfqfhysadgtyelkinnltesdqgeyvceisgeggtsktnlqfmgqafksihekvskisetkksdqkttestvtrkte
+  sp|Q8WZ42|TITIN_HUMAN 33685 LKENGHFQFHYSADGTYELKINNLTESDQGEYVCEISGEGGTSKTNLQFMGQAFKSIHEKVSKISETKKSDQKTTESTVTRKTE 33768
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33769 pkapepisskpvivtglqdttvssdsvakfavkatgeprptaiwtkdgkaitqggkyklsedkggffleihktdtsdsglytct 33852
+                              pkapepisskpvivtglqdttvssdsvakfavkatgeprptaiwtkdgkaitqggkyklsedkggffleihktdtsdsglytct
+  sp|Q8WZ42|TITIN_HUMAN 33769 PKAPEPISSKPVIVTGLQDTTVSSDSVAKFAVKATGEPRPTAIWTKDGKAITQGGKYKLSEDKGGFFLEIHKTDTSDSGLYTCT 33852
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33853 vknsagsvsssckltikaikdteaqkvstqktseitpqkkavvqeeisqkalrseeikmseaksqeklalkeeaskvliseevk 33936
+                              vknsagsvsssckltikaikdteaqkvstqktseitpqkkavvqeeisqkalrseeikmseaksqeklalkeeaskvliseevk
+  sp|Q8WZ42|TITIN_HUMAN 33853 VKNSAGSVSSSCKLTIKAIKDTEAQKVSTQKTSEITPQKKAVVQEEISQKALRSEEIKMSEAKSQEKLALKEEASKVLISEEVK 33936
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 33937 ksaatsleksivheeitktsqaseevrthaeikafstqmsinegqrlvlkaniagatdvkwvlngveltnseeyrygvsgsdqt 34020
+                              ksaatsleksivheeitktsqaseevrthaeikafstqmsinegqrlvlkaniagatdvkwvlngveltnseeyrygvsgsdqt
+  sp|Q8WZ42|TITIN_HUMAN 33937 KSAATSLEKSIVHEEITKTSQASEEVRTHAEIKAFSTQMSINEGQRLVLKANIAGATDVKWVLNGVELTNSEEYRYGVSGSDQT 34020
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 34021 ltikqashrdegiltcisktkegivkcqydltlskelsdapafisqprsqninegqnvlftceisgepspeiewfknnlpisis 34104
+                              ltikqashrdegiltcisktkegivkcqydltlskelsdapafisqprsqninegqnvlftceisgepspeiewfknnlpisis
+  sp|Q8WZ42|TITIN_HUMAN 34021 LTIKQASHRDEGILTCISKTKEGIVKCQYDLTLSKELSDAPAFISQPRSQNINEGQNVLFTCEISGEPSPEIEWFKNNLPISIS 34104
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 34105 snvsisrsrnvysleirnasvsdsgkytikaknfrgqcsataslmvlplveepsrevvlrtsgdtslqgsfssqsvqmsaskqe 34188
+                              snvsisrsrnvysleirnasvsdsgkytikaknfrgqcsataslmvlplveepsrevvlrtsgdtslqgsfssqsvqmsaskqe
+  sp|Q8WZ42|TITIN_HUMAN 34105 SNVSISRSRNVYSLEIRNASVSDSGKYTIKAKNFRGQCSATASLMVLPLVEEPSREVVLRTSGDTSLQGSFSSQSVQMSASKQE 34188
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 34189 asfssfssssassmtemkfasmsaqsmssmqesfvemssssfmgisnmtqlesstskmlkagirgippkiealpsdisidegkv 34272
+                              asfssfssssassmtemkfasmsaqsmssmqesfvemssssfmgisnmtqlesstskmlkagirgippkiealpsdisidegkv
+  sp|Q8WZ42|TITIN_HUMAN 34189 ASFSSFSSSSASSMTEMKFASMSAQSMSSMQESFVEMSSSSFMGISNMTQLESSTSKMLKAGIRGIPPKIEALPSDISIDEGKV 34272
+                              ************************************************************************************ PP
+
+  sp|Q8WZ42|TITIN_HUMAN 34273 ltvacaftgeptpevtwscggrkihsqeqgrfhientddlttliimdvqkqdgglytlslgnefgsdsatvnihirsi 34350
+                              ltvacaftgeptpevtwscggrkihsqeqgrfhientddlttliimdvqkqdgglytlslgnefgsdsatvnihirsi
+  sp|Q8WZ42|TITIN_HUMAN 34273 LTVACAFTGEPTPEVTWSCGGRKIHSQEQGRFHIENTDDLTTLIIMDVQKQDGGLYTLSLGNEFGSDSATVNIHIRSI 34350
+                              ****************************************************************************97 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (34350 nodes)
+Target sequence(s):                        1  (34350 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 25.28u 5.23s 00:00:30.51 Elapsed: 00:00:30.58
+# Mc/sec: 38.58
+//
+[ok]

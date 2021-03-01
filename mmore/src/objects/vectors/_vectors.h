@@ -53,6 +53,7 @@
 
 /* dynamically allocated / pointers datatypes */
 #include "vector_str.h"
+#include "vector_ptr.h"
 
 /* XSTR is the string builder class - functionally it is a VEC_CHAR */
 // #include "vector_xstr.h"

@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_RANGE Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_RANGE_H

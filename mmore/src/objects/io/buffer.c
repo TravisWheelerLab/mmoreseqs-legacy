@@ -54,10 +54,12 @@ BUFFER_Create()
 BUFFER*
 BUFFER_Destroy( BUFFER*  buffer )
 {
+   int line_max = 2048;
    if (buffer == NULL) { 
       return buffer;
    }
 
+   buffer->line_max        = line_max;
    buffer->line            = VECTOR_CHAR_Destroy( buffer->line );
    buffer->split_line      = VECTOR_CHAR_Destroy( buffer->split_line );
    buffer->field_offsets   = VECTOR_INT_Destroy( buffer->field_offsets );
@@ -65,6 +67,16 @@ BUFFER_Destroy( BUFFER*  buffer )
    buffer                  = ERROR_free( buffer );
 
    return buffer;
+}
+
+/*!  FUNCTION:  BUFFER_Empty()
+ *   SYNOPSIS:  Empty <buffer> 
+ */
+void
+BUFFER_Empty( BUFFER*  buffer )
+{
+   VECTOR_CHAR_Reuse( buffer->line );
+   VECTOR_CHAR_Set( buffer->line, 0, NULL_CHAR );
 }
 
 /*!  FUNCTION:  BUFFER_SetDelimiter()
@@ -99,4 +111,22 @@ BUFFER_IsEmpty(   BUFFER*     buffer )
    bool is_empty;
    is_empty = (buffer->line_len <= 0);
    return is_empty;
+}
+
+/*!  FUNCTION:  BUFFER_GetLength()
+ *   SYNOPSIS:  Get occupied length of buffer.
+ */
+size_t
+BUFFER_GetLength(   BUFFER*     buffer )
+{
+   return VECTOR_CHAR_GetSize( buffer->line );
+}
+
+/*!  FUNCTION:  BUFFER_GetMaxLength()
+ *   SYNOPSIS:  Get max length of buffer.
+ */
+size_t
+BUFFER_GetMaxLength(   BUFFER*     buffer )
+{
+   return VECTOR_CHAR_GetSize( buffer->line );
 }

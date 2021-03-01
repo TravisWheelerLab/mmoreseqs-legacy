@@ -147,6 +147,22 @@ function ADD_OPT
 	fi
 }
 
+# copies file, either through copying or symbolic link
+function COPY_FILE
+{
+	if [ "$DO_COPY" == "0" ] 
+	then
+		COPY="ln -s"
+	else 
+		COPY="cp"
+	fi 
+
+	local SRC=$1
+	local DEST=$2
+
+	$COPY "$SRC" "$DEST"
+}
+
 # set default parameters for uninitialized environmental variables
 function SET_ENV_ARG_DEFAULTS
 {

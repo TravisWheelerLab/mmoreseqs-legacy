@@ -19,11 +19,10 @@
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "../algs_quad/_algs_quad.h"
 #include "../algs_linear/_algs_linear.h"
-#include "../parsers/_parsers.h"
 
 /* header */
+#include "../algs_quad/_algs_quad.h"
 #include "posterior_quad.h"
 
 

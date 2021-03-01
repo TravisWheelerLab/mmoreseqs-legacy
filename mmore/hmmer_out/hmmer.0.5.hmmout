@@ -1,0 +1,329 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.0.fa
+# target sequence database:        targets/targets.5.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q8WZ42|TITIN_HUMAN  [L=34350]
+Description: Titin OS=Homo sapiens OX=9606 GN=TTN PE=1 SV=4
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence              Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------              -----------
+          0 1430.1  54.1   6.1e-132  424.3  13.7    7.8  7  sp|Q96RW7|HMCN1_HUMAN  Hemicentin-1 OS=Homo sapiens OX=9606 G
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|Q96RW7|HMCN1_HUMAN  Hemicentin-1 OS=Homo sapiens OX=9606 GN=HMCN1 PE=1 SV=2
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   98.9   0.5   5.7e-34   5.7e-34    8630    8932 ..     451     746 ..     431     751 .. 0.76
+   2 !  364.7   6.8  5.4e-114  5.4e-114    7256    8328 ..     758    1828 ..     750    1830 .. 0.87
+   3 !  152.6   0.3   4.1e-50   4.1e-50    7216    7643 ..    1845    2268 ..    1837    2270 .. 0.91
+   4 !  424.3  13.7  6.1e-132  6.1e-132    8188    9356 ..    2151    3330 ..    2149    3344 .. 0.85
+   5 !  237.3   0.1   1.3e-75   1.3e-75    5844    6492 ..    3302    3946 ..    3297    3950 .. 0.86
+   6 !  142.7   0.2   3.7e-47   3.7e-47    5667    6015 ..    3869    4209 ..    3860    4220 .. 0.90
+   7 !   99.5   0.1   3.9e-34   3.9e-34    4633    4932 ..    4229    4518 ..    4217    4529 .. 0.73
+
+  Alignments for each domain:
+  == domain 1  score: 98.9 bits;  conditional E-value: 5.7e-34
+  sp|Q8WZ42|TITIN_HUMAN 8630 ckvygsppisvswfhegneissgrkyqttltdntcaltvnmleesdsgdytciatnmagsdecsapltvreppsfvqkpdpmdvlt 8715
+                             c v +  p+++s+ + g  +   +  + + +     l +  +  sd g y cia + ag+  +   + v epp  +q p+ + v  
+  sp|Q96RW7|HMCN1_HUMAN  451 CSVDSLLPFTLSFVRNGVTLGVDQYLKESAS---VNLDIAKVTLSDEGFYECIAVSSAGTGRAQTFFDVSEPPPVIQVPNNVTVTP 533 
+                             5555555666666555554444433333333...3345555666888888888888888888888888888888888888888888 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8716 gtnvtftsivkgtppfsvswfkgsselvpgdrcnvsledsvaelelfdvdtsqsgeytcivsneagkasctthlyikapakfvkrl 8801
+                             g    +t ++ +   ++++w ++  ++  ++ + +    ++  lel  v  + +gey c+vs+e g ++++  l ++ p k     
+  sp|Q96RW7|HMCN1_HUMAN  534 GERAVLTCLIISAVDYNLTWQRNDRDVRLAEPARIRTLANL-SLELKSVKFNDAGEYHCMVSSEGGSSAASVFLTVQEPPKVTVMP 618 
+                             88888888888888888888888888888888877655444.58888888888888888888888888888888888888888888 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8802 ndysiekgkplilegtftgtppisvtwkknginvtpsqrcnittteksaileipsstvedagqyncyienasgkdscsaqililep 8887
+                              + s+  g  + +  + tg p   + w  n + +  s r  +t+      l i ++  +dag y c   n++g d  ++ +  +e 
+  sp|Q96RW7|HMCN1_HUMAN  619 KNQSFTGGSEVSIMCSATGYPKPKIAWTVNDMFIVGSHRYRMTSD---GTLFIKNAAPKDAGIYGCLASNSAGTDKQNSTLRYIEA 701 
+                             888888888888888888888888888888888888888887753...45677888888888888888888888888888888887 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8888 pyfvkqlepvkvsvgdsaslqcqlagtpeigvswykgdtklrptt 8932
+                             p ++     + v++gd   ++c+ +g p   v w+kgd +lrp+t
+  sp|Q96RW7|HMCN1_HUMAN  702 PKLMVVQSELLVALGDITVMECKTSGIPPPQVKWFKGDLELRPST 746 
+                             776665566778888888888888888888888888888888887 PP
+
+  == domain 2  score: 364.7 bits;  conditional E-value: 5.4e-114
+  sp|Q8WZ42|TITIN_HUMAN 7256 rilkvgkgdsgqytcqatndvgkdmcsaqlsvkeppkfvkkleaskvakqgesiqleckisgspeikvswfrndselheswkynms 7341
+                             +i +    d+g ytc a n+ g+      l v  pp f+++  a    + g ++ l c + g pe  + w r d+    s  +++s
+  sp|Q96RW7|HMCN1_HUMAN  758 KIQETQDLDAGDYTCVAINEAGRATGKITLDVGSPPVFIQEP-ADVSMEIGSNVTLPCYVQGYPEPTIKWRRLDNMPIFSRPFSVS 842 
+                             444445569******************************863.5555678*************************99999999999 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7342 finsv..alltineasaedsgdyiceahngvgdascstaltvk..appvftqkpspvgalkgsdvilqcei.sgtppfevvwvkdr 7422
+                              i+ +    l i    a d g yicea+n  g     t +tv     p++   ps  + ++g  + l c + +g p  e  w+k+ 
+  sp|Q96RW7|HMCN1_HUMAN  843 SISQLrtGALFILNLWASDKGTYICEAENQFGKIQSETTVTVTglVAPLIGISPSVANVIEGQQLTLPCTLlAGNPIPERRWIKNS 928 
+                             988653334555567899****************999999986335799999*****************853899999*******9 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7423 kqvrnskkfkitskhfdtslhilnleasdvgeyhckatnevgsdtcscsvkfkepprfvkklsdtstligdavelraivegfqpis 7508
+                               +  +  + +   + d slhi  ++  d gey c a+n  g++  + sv     p +       st+ g  v l     g    s
+  sp|Q96RW7|HMCN1_HUMAN  929 AMLLQNPYITV---RSDGSLHIERVQLQDGGEYTCVASNVAGTNNKTTSVVVHVLPTIQHGQQILSTIEGIPVTLPCKASGNPKPS 1011
+                             99887765544...4599***************************************9999999******************999* PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7509 vvwlkdrgeviresentrisfidniatlqlgspeasnsgkyicqikndagmrecsavltvleparii........ekpepmtvttg 7586
+                             v+w k +ge+i  s     +  d   +l + sp    sg+y+c   n ag  +    ltv    r++        +kp  ++v  g
+  sp|Q96RW7|HMCN1_HUMAN 1012 VIWSK-KGELISTSSAKFSAGAD--GSLYVVSPGGEESGEYVCTATNTAGYAKRKVQLTVYVRPRVFgdqrglsqDKPVEISVLAG 1094
+                             ***88.8****887654444444..689999****************************9877776433333334688889999** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7587 npfalecvvtgtpelsakwfkdgrelsadskhhitfinkvaslkipcaemsdkglysfevknsvgksnctvsvhvsdrivppsfir 7672
+                                 l c v + p     w k+ + +s  s +h tf+    s+ki     sd g+y     n  g     v ++v    vpp + r
+  sp|Q96RW7|HMCN1_HUMAN 1095 EEVTLPCEVKSLPPPIITWAKETQLISPFSPRH-TFLP-SGSMKITETRTSDSGMYLCVATNIAGNVTQAVKLNV---HVPPKIQR 1175
+                             ***************************999999.7886.589***************999999986555555444...48****** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7673 klkdvnailgasvvlecrvsgsapisvgwfqdgneivsgpkcqssfsenvctlnlsllepsdtgiytcvaanvagsdecsavltvq 7758
+                               k +   +g  v + c+  g+    + w + g+ ++   +     s    tl++    psd giytcva n+ag+de    l vq
+  sp|Q96RW7|HMCN1_HUMAN 1176 GPKHLKVQVGQRVDIPCNAQGTPLPVITWSKGGSTMLVDGEH--HVSNPDGTLSIDQATPSDAGIYTCVATNIAGTDETEITLHVQ 1259
+                             *********************8766789**999986554443..4455567999999***************************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7759 eppsfeqt..pdsv...evlpgmsltftsvirgtppfkvkwfkgsrelvpgescnisledfvtelelfevqplesgdysclvtnda 7839
+                             epp+ e    p +    e + ++ + f    +gtp   +kw+ + rel  g    is+ +  t l +  v p ++g+y c+  n+a
+  sp|Q96RW7|HMCN1_HUMAN 1260 EPPTVEDLepPYNTtfqERVANQRIEFPCPAKGTPKPTIKWLHNGRELT-GREPGISILEDGTLLVIASVTPYDNGEYICVAVNEA 1344
+                             ****99642143322237788999***********************97.66667887777899********************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7840 gsasctthlfvkepatfv..krladfsvetgspivleatytgtppisvswikdeylisqsercsitmtekstileilestiedyaq 7923
+                             g+     +l v  p  +   +++ + sv  +    l     gtp   + w kd   +++s   +i       il+++ +t ed  +
+  sp|Q96RW7|HMCN1_HUMAN 1345 GTTERKYNLKVHVPPVIKdkEQVTNVSVLLNQLTNLFCEVEGTPSPIIMWYKDNVQVTESS--TIQTVNNGKILKLFRATPEDAGR 1428
+                             **********99998764225689999999999999999*****999*******9887765..677778899************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7924 ysclieneagqdicealvsvleppyfiep..lehveavigepatlqckvdgtpeiriswykehtklr.sapaykmqfknnvaslvi 8006
+                             ysc   n ag       + vl pp +i      +v  v++    l+c+v gtp   i w+k+   l    p  ++  +  v  l +
+  sp|Q96RW7|HMCN1_HUMAN 1429 YSCKAINIAGTSQKYFNIDVLVPPTIIGTnfPNEVSVVLNRDVALECQVKGTPFPDIHWFKDGKPLFlGDPNVELLDRGQV--LHL 1512
+                             ************9999*********997522467999*************************9887615677777666666..566 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8007 nkvdhsdvgeysckadnsvgavassavlvikarklppff..arklkdvhetlgfpvafecringseplqvswykdgvllkddanlq 8090
+                                 ++d g y c   n+ g  a    l i    +pp +   +   d+   ++  + +ec+  g     ++wykdg  +    + q
+  sp|Q96RW7|HMCN1_HUMAN 1513 KNARRNDKGRYQCTVSNAAGKQAKDIKLTIY---IPPSIkgGNVTTDISVLINSLIKLECETRGLPMPAITWYKDGQPIMS--SSQ 1593
+                             78899******************99999885...788762245678******************99999*******98875..568 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8091 tsfvhnvatlqilqtdqshigqyncsasnplgtasssaklilsehevppffd...lkpvsvdlalgesgtfkchvtgtapikitwa 8173
+                               ++     l i +   s  + y c  +n  gta  s  +   +  vpp+++     p++  + ++ s t++c   g     +tw 
+  sp|Q96RW7|HMCN1_HUMAN 1594 ALYIDKGQYLHIPRAQVSDSATYTCHVANVAGTAEKSFHV---DVYVPPMIEgnlATPLNKQVVIAHSLTLECKAAGNPSPILTWL 1676
+                             99********************************988765...557999987443479*******************987779*** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8174 kdnreirpggnykmtlventatltvlkvgkgdagqytcyasniagkdscsaqlgvqepprfikklepsr.ivkqdeftryeckigg 8258
+                             kd   ++ + n ++        l ++   + d gqy c a+++ag+     ++ v  pp +    e s  iv  + + + +c + g
+  sp|Q96RW7|HMCN1_HUMAN 1677 KDGVPVKANDNIRIE--AGGKKLEIMSAQEIDRGQYICVATSVAGEKEIKYEVDVLVPPAIEGGDETSYfIVMVNNLLELDCHVTG 1760
+                             ******999888765..5677899************************************9999999863678899********** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8259 speikvlwykdeteiqesskfrmsfvdsvavlemhnlsvedsgdytceahnaagsassstslkvkeppif 8328
+                             sp   ++w kd   i e   f++ +     v+      v ++g y c a n ag       + v  pp +
+  sp|Q96RW7|HMCN1_HUMAN 1761 SPPPTIMWLKDGQLIDERDGFKILLNGRKLVI--AQAQVSNTGLYRCMAANTAGDHKKEFEVTVHVPPTI 1828
+                             **********************9876666555..5678899***************99999999999976 PP
+
+  == domain 3  score: 152.6 bits;  conditional E-value: 4.1e-50
+  sp|Q8WZ42|TITIN_HUMAN 7216 dfechvtgaqpmritwskdnkeirpg.gnytitcvgntphlrilkvgkgdsgqytcqatndvgkdmcsaqlsvkeppkfvkkle.a 7299
+                              ++c   g     itw kd++ ++ + gn  i   g    l+i k    d+g+ytc atn  g+ +   ql v epp +    +  
+  sp|Q96RW7|HMCN1_HUMAN 1845 ALQCIANGIPNPSITWLKDDQPVNTAqGNLKIQSSGRV--LQIAKTLLEDAGRYTCVATNAAGETQQHIQLHVHEPPSLEDAGKmL 1928
+                             5789999999999*********9864399999999876..8999999******************************986432213 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7300 skvakqgesiqleckisgspeikvswfrndselheswkynmsfinsvalltineasaedsgdyiceahngvgdascstaltvkapp 7385
+                             ++    +  +qleck +g+p   ++w++++  l      +m+f+n   ++ i  a   d+g y c a n+ g      +l v   p
+  sp|Q96RW7|HMCN1_HUMAN 1929 NETVLVSNPVQLECKAAGNPVPVITWYKDNRLLS--GSTSMTFLNRGQIIDIESAQISDAGIYKCVAINSAGATELFYSLQVHVAP 2012
+                             455566789******************9877664..5679********************************************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7386 vftqkpspvgalkgsdvilqceisgtppfevvwvkdrkqvrn.skkfkitskhfdtslhilnleasdvgeyhckatnevgsdtcsc 7470
+                              ++   + v+ + ++ v l+ce  g p   + w+kd   v + s  +++ s      l + + + sd g y c a n  g      
+  sp|Q96RW7|HMCN1_HUMAN 2013 SISGSNNMVAVVVNNPVRLECEARGIPAPSLTWLKDGSPVSSfSNGLQVLSG--GRILALTSAQISDTGRYTCVAVNAAGEKQRDI 2096
+                             **************************************99873555667665..567888999*********************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7471 svkfkepprfvkklsdtstligdavelraivegfqpisvvwlkdrgeviresentrisfidniatlqlgspeasnsgkyicqiknd 7556
+                              ++   pp+++ +  + s li+ avel    +++ p ++ wlkd   ++++     +s+ +n + l++   +  ++g+y c+  n 
+  sp|Q96RW7|HMCN1_HUMAN 2097 DLRVYVPPNIMGEEQNVSVLISQAVELLCQSDAIPPPTLTWLKDGHPLLKK---PGLSISENRSVLKIEDAQVQDTGRYTCEATNV 2179
+                             ********************************************8888765...4688889************************* PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7557 agmrecsavltvlepariiekpe..pmtvttgnpfalecvvtgtpelsakwfkdgrelsadskhhitfinkvaslkipcaemsdkg 7640
+                             ag  e +  + +  p +i    e   +tv  gn ++l c  +g p  +  w k g  +  ds  ++ +++    l+i  ae sd +
+  sp|Q96RW7|HMCN1_HUMAN 2180 AGKTEKNYNVNIWVPPNIGGSDEltQLTVIEGNLISLLCESSGIPPPNLIWKKKGSPVLTDSMGRVRILSGGRQLQISIAEKSDAA 2265
+                             ****************99766553378999******************************************************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 7641 lys 7643
+                             lys
+  sp|Q96RW7|HMCN1_HUMAN 2266 LYS 2268
+                             **8 PP
+
+  == domain 4  score: 424.3 bits;  conditional E-value: 6.1e-132
+  sp|Q8WZ42|TITIN_HUMAN 8188 tlventatltvlkvgkgdagqytcyasniagkdscsaqlgvqepprfikklepsri.vkqdeftryeckiggspeikvlwykdete 8272
+                             ++ en + l +      d g+ytc a+n+agk   +  +++  pp++    e +++ v +  +    c+ +g p   ++w k  + 
+  sp|Q96RW7|HMCN1_HUMAN 2151 SISENRSVLKIEDAQVQDTGRYTCEATNVAGKTEKNYNVNIWVPPNIGGSDELTQLtVIEGNLISLLCESSGIPPPNLIWKKKGSP 2236
+                             56789999999999999*****************************988888776525677889999******************* PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8273 iqesskfrmsfvdsvavlemhnlsvedsgdytceahnaagsassstslkvk.eppifrkkphpietl..kgadvhlecelqgtppf 8355
+                             +   s  r+ ++     l++      d++ y+c a n ag+a    +l+v   p i +   hp e +  +g  + lece+qg pp 
+  sp|Q96RW7|HMCN1_HUMAN 2237 VLTDSMGRVRILSGGRQLQISIAEKSDAALYSCVASNVAGTAKKEYNLQVYiRPTITNSGSHPTEIIvtRGKSISLECEVQGIPPP 2322
+                             *********************999*************************973677888999**9965449**************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8356 hvswykdkrelrsgkkykimsenfltsihilnvdaadigeyqckatndvgsdtcvgsialkapprfv...kklsdistvvgkevql 8438
+                              v+w kd + l  +k  +i+ e  +   ++ n+  +d g y c a n  g       +++ app ++   +   +is v    v l
+  sp|Q96RW7|HMCN1_HUMAN 2323 TVTWMKDGHPLIKAKGVEILDEGHIL--QLKNIHVSDTGRYVCVAVNVAGMTDKKYDLSVHAPPSIIgnhRSPENISVVEKNSVSL 2406
+                             ***********************985..5679999***************999999*********994333456788888889999 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8439 qttiegaepisvvwfkdkgeivresdniwisyseniatlqfsrvepanagkytcqikndagmqecfatlsvlepativek..pesi 8522
+                                  g    s+ wfkd    v  s+++ i     +  l  + +   +ag+ytc ++n ag +  +  lsvl p  iv +   e +
+  sp|Q96RW7|HMCN1_HUMAN 2407 TCEASGIPLPSITWFKDG-WPVSLSNSVRILSGGRMLRLMQTTM--EDAGQYTCVVRNAAGEERKIFGLSVLVPPHIVGEntLEDV 2489
+                             9999999889******95.5667788888877766665555555..578**************99999******9999652269** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8523 kvttgdtctlectvagtpelstkwfkdgkeltsdnkykisffnkvsglkiinvapsdsgvysfevqnpvgkdsctaslqv..sdrt 8606
+                             kv    + tl c v g p     w kdg+ l  d  + i    +   l+i nv    +g y+    +p g  s + sl v  s   
+  sp|Q96RW7|HMCN1_HUMAN 2490 KVKEKQSVTLTCEVTGNPVPEITWHKDGQPLQEDEAHHIISGGR--FLQITNVQVPHTGRYTCLASSPAGHKSRSFSLNVfvSPTI 2573
+                             ************************************99866555..699*****9*****************99999987214444 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8607 vppsftrklketnglsgssvvmeckvygsppisvswfhegneissgrkyqttltdntcaltvnmleesdsgdytciatnmagsdec 8692
+                                      ++   + +s   + c+ y+ pp +++wf +g  + s+r  +      t  l +   +e ++g y+c+atn ag    
+  sp|Q96RW7|HMCN1_HUMAN 2574 AGVGSDGNPEDVTVILNSPTSLVCEAYSYPPATITWFKDGTPLESNRNIRILPGGRT--LQILNAQEDNAGRYSCVATNEAGEMIK 2657
+                             445556677888899999999**************************9987555555..4455568889*************9988 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8693 sapltvreppsfvqkpd.......pmdvltgtnvtfts..ivkgtppfsvswfkgsselvpgdrcnvsledsvaelelfdvdtsqs 8769
+                                + v  pp +  k d       p +v    n t+t      + p  s+sw+k    l   d+ n++       l++ +   s +
+  sp|Q96RW7|HMCN1_HUMAN 2658 HYEVKVYIPPII-NKGDlwgpglsPKEVKIKVNNTLTLecEAYAIPSASLSWYKDGQPLKSDDHVNIAANGHT--LQIKEAQISDT 2740
+                             888888888854.443322222338888877777776511556799********************9987765..77789999*** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8770 geytcivsneagkasctthlyikapakfvkrln.....dy.siekgk......plilegtftgtppisvtwkknginvtpsqrcni 8843
+                             g ytc+ sn ag+      + i+ p  f k        d     ++k      p+ l     + pp ++tw k+g  +t s +  i
+  sp|Q96RW7|HMCN1_HUMAN 2741 GRYTCVASNIAGEDELDFDVNIQVPPSFQKLWEignmlDTgRNGEAKdviinnPISLYCETNAAPPPTLTWYKDGHPLTSSDKVLI 2826
+                             ****************************885431111122122234511111144444555688*****************99877 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8844 ttteksaileipsstvedagqyncyienasgkdscsaqilileppyfvk...ql.epvkvsvgdsaslqcqlagtpeigvswykgd 8925
+                                    +l+ip + vedag+y c   n +g+ds    + +l pp +      l e v v v+ sa ++c  +g+p    sw k  
+  sp|Q96RW7|HMCN1_HUMAN 2827 L--PGGRVLQIPRAKVEDAGRYTCVAVNEAGEDSLQYDVRVLVPPIIKGansDLpEEVTVLVNKSALIECLSSGSPAPRNSWQKDG 2910
+                             6..5678**************************************87532112337889999**********************99 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 8926 tklrptttykmhfrnnvatlvfnqvdindsgeyickaensvgevsastfltvqeqklppsf.srqlrdvqetvglpvvfdcaisgs 9010
+                               l     +k+   +n   l +    i d g y+c aen+ g   a  ++ +    +pps    + +++   v+  + + c +sg 
+  sp|Q96RW7|HMCN1_HUMAN 2911 QPLLEDDHHKF--LSNGRILQILNTQITDIGRYVCVAENTAGS--AKKYFNLNV-HVPPSViGPKSENLTVVVNNFISLTCEVSGF 2991
+                             99998888875..555555555567899*************96..556666654.46777516677888889999999******** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 9011 episvswykdgkplkdspnvqtsfldntatlnifktdrslagqysctatnpigsasssarliltegknppffd...irlapvdavv 9093
+                              p  +sw k+ +p+k   n  t ++    tl i++   s  g+y+c a n  g +     l  t    p + d     l+ v+   
+  sp|Q96RW7|HMCN1_HUMAN 2992 PPPDLSWLKNEQPIKL--NTNTLIVPGGRTLQIIRAKVSDGGEYTCIAINQAGESKKKFSL--TVYVPPSIKDhdsESLSVVNVRE 3073
+                             **************96..666899***************************9987665555..44444444331124688899999 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 9094 gesadfechvtgtqpikvswakdsreirsggkyqisylensahltvlkvdkgdsgqytcyavnevgkdsctaqlnikerlippsft 9179
+                             g s  +ec+  +  p  ++w k+ r i  +    +  l +   l + k + +d+gqy c a+n  g+d     ln+    +pps+ 
+  sp|Q96RW7|HMCN1_HUMAN 3074 GTSVSLECESNAVPPPVITWYKNGRMITESTH--VEILADGQMLHIKKAEVSDTGQYVCRAINVAGRDDKNFHLNV---YVPPSIE 3154
+                             ***************************98765..6668899999999****************************9...69***** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 9180 krlsetveetegnsfklegrvagsqpitvawyknnieiqptsnceitfknntlvlqvrkagmndaglytckvsndagsalctssiv 9265
+                                 e + et +n   l     g  p t+aw kn+  i+ + + e+ + +    lq+ ++  +d+g ytc  sn  g a     + 
+  sp|Q96RW7|HMCN1_HUMAN 3155 GPEREVIVETISNPVTLTCDATGIPPPTIAWLKNHKRIENSDSLEVRILSGGSKLQIARSQHSDSGNYTCIASNMEGKAQKYYFLS 3240
+                             *******************************************************************************9999998 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 9266 ikepkkppvfdqhl.tpvtvsegeyvqlschvqgsepiriqwlkagreikpsdrcsfsfasgtavlelrdvakadsgdyvckasnv 9350
+                             i+ p  p v   ++ + v+v  ge v+l c+  g     iqwlk g+ i   +   +  +++ + l +     +d+g y c a+n 
+  sp|Q96RW7|HMCN1_HUMAN 3241 IQVP--PSVAGAEIpSDVSVLLGENVELVCNANGIPTPLIQWLKDGKPIASGETERIRVSANGSTLNIYGALTSDTGKYTCVATNP 3324
+                             9887..556555542689999*************99999***********999888888888899********************* PP
+
+  sp|Q8WZ42|TITIN_HUMAN 9351 agsdtt 9356
+                             ag +  
+  sp|Q96RW7|HMCN1_HUMAN 3325 AGEEDR 3330
+                             **8765 PP
+
+  == domain 5  score: 237.3 bits;  conditional E-value: 1.3e-75
+  sp|Q8WZ42|TITIN_HUMAN 5844 atfqisgarvensgtyvcearndagtascsielkvkepptfir...elkpvevvkysdvelecevtgtppfevtwlknnreirssk 5926
+                             +t+ i ga   ++g y c a n ag     + l v   pt+     e + +  +  + + +ec  tgtpp ++ wlkn   +  s 
+  sp|Q96RW7|HMCN1_HUMAN 3302 STLNIYGALTSDTGKYTCVATNPAGEEDRIFNLNVYVTPTIRGnkdEAEKLMTLVDTSINIECRATGTPPPQINWLKNGLPLPLSS 3387
+                             68999***********************************86511133444445567799***********************999 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 5927 kytltdrvsvfnlhitkcdpsdtgeyqcivsneggscscstrvalkeppsfikkie.ntttvlkssatfqstva.gsppisitwlk 6010
+                                l     v  ++i ++  sd + y c+ sn +g  +   ++ +  pp++   +     tvlk s+t  + +  g+p  s+ wl+
+  sp|Q96RW7|HMCN1_HUMAN 3388 HIRLLAAGQV--IRIVRAQVSDVAVYTCVASNRAGVDNKHYNLQVFAPPNMDNSMGtEEITVLKGSSTSMACITdGTPAPSMAWLR 3471
+                             9999887777..5789**********************************998875145799**9999888765389999****** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6011 ddqildeddnvyisfvdsvatlqirsvdnghsgrytcqaknesgvercyafllvqepaqi..vekaksvdvtekdpmtlecvvagt 6094
+                             d q l  d ++ +s       lq+   +   sg+ytc a ne+g    + +l v ep  i   e+ + + v   +p+ l c+ +g 
+  sp|Q96RW7|HMCN1_HUMAN 3472 DGQPLGLDAHLTVSTHGM--VLQLLKAETEDSGKYTCIASNEAGEVSKHFILKVLEPPHIngSEEHEEISVIVNNPLELTCIASGI 3555
+                             ********9999987655..5899999999**************999999999****9994458889999**************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6095 pelkvkwlkdgkqivpsryfsmsfennvasfriqsvmkqdsgqytfkvendfgssscdaylrvldqnippsftkkltkmd..kvlg 6178
+                             p  k+ w+kdg+ +  +             +ri + + +d+g+yt    +  g    +  +rv   ++pp++       d   + +
+  sp|Q96RW7|HMCN1_HUMAN 3556 PAPKMTWMKDGRPLPQTDQVQTL--GGGEVLRISTAQVEDTGRYTCLASSPAGDDDKEYLVRV---HVPPNIAGTDEPRDitVLRN 3636
+                             ************98666554433..444568**********************9988877776...79998765544444205557 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6179 ssihmeckvsgslpisaqwfkdgkeistsakyrlvchersvslevnnleledtanytckvsnvagddacsgiltvkeppsflvkpg 6264
+                               + +eck  +  p    w+++g+ +  + + r++   r   l++nn +l dtanytc  sn+ag      iltv  pp++   p 
+  sp|Q96RW7|HMCN1_HUMAN 3637 RQVTLECKSDAVPPPVITWLRNGERLQATPRVRILSGGRY--LQINNADLGDTANYTCVASNIAGKTTREFILTVNVPPNIKGGPQ 3720
+                             89******999999999*****************998885..899**********************************9877776 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6265 rqqaipdstvefkailkgtppfkikwfkddvelvsgpkcfiglegstsflnlysvdasktgqytchvtndvgsdscttmllvtepp 6350
+                                 + + +  ++ i +g p  +i w kd   l  +   +  le+   fl++ s   + tg+y c  tn  g+d     l v  pp
+  sp|Q96RW7|HMCN1_HUMAN 3721 SLVILLNKSTVLECIAEGVPTPRITWRKDGAVLAGNHARYSILEN--GFLHIQSAHVTDTGRYLCMATNAAGTDRRRIDLQVHVPP 3804
+                             666677888889******************999988888888885..7************************************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6351 kfvkkleaskivkagdssrleckiagspeirvvwfrnehelpas...dkyrmtfidsvaviqmnnlstedsgdficeaqnpagsts 6433
+                              +      +  v  +  + l c+  g p+  + w +n h l      + yr+    s+ +i   + s +d++ + c   n ag   
+  sp|Q96RW7|HMCN1_HUMAN 3805 SIAPGP-TNMTVIVNVQTTLACEATGIPKPSINWRKNGHLLNVDqnqNSYRLLSSGSLVII---SPSVDDTATYECTVTNGAGDDK 3886
+                             987654.455555677899********************9987611145666666665555...5699****************** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6434 cstkvivkeppvfssfppivetlknaevslecelsgtppfevvwykdk.rqlrsskkyki 6492
+                              +  + v+ pp ++  p      k+a   + c  sg p   + w k+  r l     y+i
+  sp|Q96RW7|HMCN1_HUMAN 3887 RTVDLTVQVPPSIADEPTDFLVTKHAPAVITCTASGVPFPSIHWTKNGiRLLPRGDGYRI 3946
+                             ******************9999***************988999*9986244455556666 PP
+
+  == domain 6  score: 142.7 bits;  conditional E-value: 3.7e-47
+  sp|Q8WZ42|TITIN_HUMAN 5667 tdsgtytcsatnkaghnqcsghltvkeppyfvekpqsqdvnpntrvqlkalvggtapmtikwfkdnkelh.sgaarsvwkddtsts 5751
+                              d++ty c+ tn ag ++ +  ltv+ pp + ++p    v  +    +    +g    +i w k+   l   g     ++  +s +
+  sp|Q96RW7|HMCN1_HUMAN 3869 DDTATYECTVTNGAGDDKRTVDLTVQVPPSIADEPTDFLVTKHAPAVITCTASGVPFPSIHWTKNGIRLLpRGD---GYRILSSGA 3951
+                             5899**************************************************9999******9977650444...466678999 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 5752 lelfaakatdsgtyicqlsndvgtatskatlfvkeppqfikkpspvlvlrngqsttfecqitgtpkirvswyldgnei.taiqkhg 5836
+                             +e++a +   +g y c   n  g+a    tl v epp +  +ps + v+ n+    + c+ tgtp   ++w  +g  + t+ + h+
+  sp|Q96RW7|HMCN1_HUMAN 3952 IEILATQLNHAGRYTCVARNAAGSAHRHVTLHVHEPPVIQPQPSELHVILNNP-ILLPCEATGTPSPFITWQKEGINVnTSGRNHA 4036
+                             **********************************************9999975.6799*****************76626777888 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 5837 isfidglatfqisgarvensgtyvcearndagtascsielkvkepptfirelkpvevvkysdvelecevtgtppfevtwlknnrei 5922
+                             +    gl   qis a  e++gty+c a+n agta   i+l v+ pp +   lk   +     + l ce  g pp ++tw k+ r i
+  sp|Q96RW7|HMCN1_HUMAN 4037 VLPSGGL---QISRAVREDAGTYMCVAQNPAGTALGKIKLNVQVPPVISPHLKEYVIAVDKPITLSCEADGLPPPDITWHKDGRAI 4119
+                             8776665...9*******************************************9999999************************9 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 5923 rsskkytltdrvsvfnlhitkcdpsdtgeyqcivsneggscscstrvalkeppsfikkientttvlkssatfqstva.gsppisit 6007
+                               s +  +   +s  +l+i    p d g y c+ +n +gs s st++ +  pp  i+  e   tv ++s  +   va g p  +i 
+  sp|Q96RW7|HMCN1_HUMAN 4120 VESIRQRV---LSSGSLQIAFVQPGDAGHYTCMAANVAGSSSTSTKLTVHVPPR-IRSTEGHYTVNENSQAILPCVAdGIPTPAIN 4201
+                             88876654...4667899*******************************99997.78899999998877666665553889999** PP
+
+  sp|Q8WZ42|TITIN_HUMAN 6008 wlkddqil 6015
+                             w kd+ +l
+  sp|Q96RW7|HMCN1_HUMAN 4202 WKKDNVLL 4209
+                             ***99877 PP
+
+  == domain 7  score: 99.5 bits;  conditional E-value: 3.9e-34
+  sp|Q8WZ42|TITIN_HUMAN 4633 aklkdsgtyvctasneagssscsatvtvreppsfvkkvdpsylmlpgesarlhcklkgspviqvtwfknnkelsesntvrmyfvns 4718
+                               l+dsg y c a+n ag  + + ++tv+  p+f +       +  ge  rl ck  g p+ ++tw  nn  +      ++  vn 
+  sp|Q96RW7|HMCN1_HUMAN 4229 VVLEDSGFYTCVANNAAGEDTHTVSLTVHVLPTFTEL-PGDVSLNKGEQLRLSCKATGIPLPKLTWTFNNNIIP----AHFDSVNG 4309
+                             4578888888888888888888888888888888764.344455678888888888888888888877776543....34455777 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 4719 eailditdvkvedsgsysceavndvgsdscsteivikeppsfiktlepadivr..gtnallqcevsgtgpfeiswfkdkkqirssk 4802
+                              + l i  v  edsg+y c a n vg   +   + +kepp f k   p++ ++  g na+l cev g     i w +    i+ s 
+  sp|Q96RW7|HMCN1_HUMAN 4310 HSELVIERVSKEDSGTYVCTAENSVGFVKAIGFVYVKEPPVF-KGDYPSNWIEplGGNAILNCEVKGDPTPTIQWNRKGVDIEISH 4394
+                             777778888888888888888888888888888888888887.4555666654347888888888888888888888888888888 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 4803 kyrlfsqkslvcleifsfnsadvgeyecvvanevgkcgcmathllkepptf.vkkvddlialggqtvtlqaavrgsepisvtwmkg 4887
+                             + r +   sl    i+   + d g+y cv  ne g      +  l+ pp + ++ v+ +i  gg+   l     g    ++tw + 
+  sp|Q96RW7|HMCN1_HUMAN 4395 RIRQLGNGSL---AIYGTVNEDAGDYTCVATNEAGVVERSMSLTLQSPPIItLEPVETVINAGGKI-ILNCQATGEPQPTITWSRQ 4476
+                             8887777665...46777778888888888888888877777777777765246677777777764.4666666766668888887 PP
+
+  sp|Q8WZ42|TITIN_HUMAN 4888 qeviredgkikmsfsngvavliipdvqisfggkytclaeneagsq 4932
+                                i  d ++ +  +n+   l i d q    +++ c+a n  gs 
+  sp|Q96RW7|HMCN1_HUMAN 4477 GHSISWDDRVNVLSNNS---LYIADAQKEDTSEFECVARNLMGSV 4518
+                             77788888888766554...5677888888888888888887774 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (34350 nodes)
+Target sequence(s):                        1  (5635 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 7.14u 0.41s 00:00:07.55 Elapsed: 00:00:07.56
+# Mc/sec: 25.58
+//
+[ok]

@@ -17,6 +17,6 @@
 
 /* reader and writer (depend on buffer) */
 #include "reader.h"
-// #include "writer.h"
+#include "writer.h"
 
 #endif /* _IO_H */

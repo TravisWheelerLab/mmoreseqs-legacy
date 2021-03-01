@@ -95,8 +95,8 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backalnacing, so C is end state */
-   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* End of alnace is S state */
@@ -104,7 +104,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
    {
       if (q_0 == 0) 
       {
-         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
+         ALIGNMENT_AppendTrace( aln, S_ST, q_0, t_0 );
          break;
       } 
       q_1 = q_0 - 1;
@@ -275,7 +275,7 @@ int run_Traceback_Quad_via_hmmer(   const SEQUENCE*     query,       /* query se
             ERRORCHECK_exit(EXIT_FAILURE);
       }
 
-      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
+      ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
 
       /* For NCJ, we deferred i decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && st_cur == st_prv) {
@@ -383,8 +383,8 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backalnacing, so C is end state */
-   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* End of alnace is S state */
@@ -392,7 +392,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
    {
       /* if we have reached the end of the query sequence */
       if (q_0 == 0) {
-         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
+         ALIGNMENT_AppendTrace( aln, S_ST, q_0, t_0 );
          break;
       } 
 
@@ -676,7 +676,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
          }
       }
       
-      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
+      ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
 
       /* For {N,C,J}, we deferred i decrement. */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {
@@ -690,7 +690,7 @@ int run_Traceback_Quad_via_cmp(     const SEQUENCE*     query,       /* query se
    /* reverse order of traceback */
    ALIGNMENT_Reverse( aln );
    /* scan traceback for all begin, end states */
-   ALIGNMENT_Find_Length( aln );
+   ALIGNMENT_FindRegions( aln );
 
    #if DEBUG
    {
@@ -781,8 +781,8 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
    ALIGNMENT_Reuse( aln, Q, T );
 
    /* Backalnacing, so C is end state */
-   ALIGNMENT_Append( aln, T_ST, q_0, t_0 );
-   ALIGNMENT_Append( aln, C_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, T_ST, q_0, t_0 );
+   ALIGNMENT_AppendTrace( aln, C_ST, q_0, t_0 );
    st_prv = C_ST;
 
    /* End of trace is S state */
@@ -790,7 +790,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
    {
       /* if we have reached the end of the query sequence */
       if (q_0 == 0) {
-         ALIGNMENT_Append( aln, S_ST, q_0, t_0 );
+         ALIGNMENT_AppendTrace( aln, S_ST, q_0, t_0 );
          break;
       } 
 
@@ -1085,7 +1085,7 @@ int run_Traceback_Quad_via_max(     const SEQUENCE*     query,       /* query se
          }
       }
 
-      ALIGNMENT_Append( aln, st_cur, q_0, t_0 );
+      ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
 
       /* For NCJ, we deferred i decrement. (only if looping within state) */
       if ( (st_cur == N_ST || st_cur == J_ST || st_cur == C_ST) && (st_cur == st_prv) ) {

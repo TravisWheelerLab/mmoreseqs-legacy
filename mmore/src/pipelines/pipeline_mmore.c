@@ -17,6 +17,10 @@
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
+#include "../parsers/_parsers.h"
+#include "../algs_linear/_algs_linear.h"
+#include "../algs_quad/_algs_quad.h"
+#include "../algs_naive/_algs_naive.h"
 #include "../work/_work.h"
 
 /* header */

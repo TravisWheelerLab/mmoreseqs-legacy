@@ -1,0 +1,55 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.0.fa
+# target sequence database:        targets/targets.6.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|Q8WZ42|TITIN_HUMAN  [L=34350]
+Description: Titin OS=Homo sapiens OX=9606 GN=TTN PE=1 SV=4
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence             Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------             -----------
+  ------ inclusion threshold ------
+          1  -55.4  67.4          1  -22.2  29.2    2.0  2  sp|P21817|RYR1_HUMAN  Ryanodine receptor 1 OS=Homo sapiens OX
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|P21817|RYR1_HUMAN  Ryanodine receptor 1 OS=Homo sapiens OX=9606 GN=RYR1 PE=1 SV=3
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?  -27.4  30.2         1         1   11043   11095 ..    1867    1920 ..    1852    1938 .. 0.45
+   2 ?  -22.2  29.2         1         1   11566   11631 ..    4472    4534 ..    4457    4551 .. 0.61
+
+  Alignments for each domain:
+  == domain 1  score: -27.4 bits;  conditional E-value: 1
+  sp|Q8WZ42|TITIN_HUMAN 11043 eeevlpeeeevlpeeeevlpeeeevlpe.eeeippeeeevppeeeyvpeeeefv 11095
+                              e ev+ eeee   eeee   e+ee   e eee   e+e+   eee   e e+  
+   sp|P21817|RYR1_HUMAN  1867 EPEVFTEEEEEEDEEEEGEEEDEEEKEEdEEETAQEKEDEEKEEEEAAEGEKEE 1920 
+                              445555555555555554444333333303333334333333433333333222 PP
+
+  == domain 2  score: -22.2 bits;  conditional E-value: 1
+  sp|Q8WZ42|TITIN_HUMAN 11566 evpkvavpekkvpeaippkpespppevfeepeevaleeppaevveepepaappqvtvppkkpvpek 11631
+                               + k  +    v e +pp+pe p pe   epe+   e    e v ep p  pp+   pp  p p+k
+   sp|P21817|RYR1_HUMAN  4472 PILKRKLGVDGVEEELPPEPE-PEPEPELEPEKADAENGEKEEVPEPTPE-PPKKQAPPSPP-PKK 4534 
+                              233444444567788888887.5556666788888888777777777774.66666777654.333 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (34350 nodes)
+Target sequence(s):                        1  (5038 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 3.72u 0.02s 00:00:03.74 Elapsed: 00:00:03.74
+# Mc/sec: 46.16
+//
+[ok]

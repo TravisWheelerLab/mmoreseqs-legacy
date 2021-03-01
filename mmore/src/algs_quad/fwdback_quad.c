@@ -20,9 +20,8 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-#include "_algs_quad.h"
-
 /* header */
+#include "_algs_quad.h"
 #include "fwdback_quad.h"
 
 

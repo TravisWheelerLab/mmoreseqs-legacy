@@ -3,7 +3,7 @@
  *  PURPOSE:   VECTOR_FLT Object Functions
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       Lots.
+ *  BUG:       
  *******************************************************************************/
 
 #ifndef _VECTOR_FLT_H

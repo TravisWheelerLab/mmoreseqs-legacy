@@ -15,8 +15,8 @@ UPPER_TMP="XXX"
 LOWER_TMP="template"
 
 # classes to build
-ALL_UPPER=(STR INT CHAR FLT DBL RANGE TRACE BOUND)
-ALL_LOWER=(str int char float double range trace bound)
+ALL_UPPER=(STR INT PTR CHAR FLT DBL RANGE TRACE BOUND)
+ALL_LOWER=(str int ptr char float double range trace bound)
 
 cd $VECTOR_DIR
 

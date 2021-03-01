@@ -105,15 +105,14 @@ EDGEBOUNDS_GetIndex_byRow_Bck(   const EDGEBOUNDS*   edg,
 
 
 /*! FUNCTION:  EDGEBOUNDS_GetBoundRange_byRow()
- *  SYNOPSIS:  Gets the number of <bounds> and beginning <index> of row <id_0>.
+ *  SYNOPSIS:  Gets the index range <r_0b,r_0e> of bound row <id_0>.
  *             Returns pointer to head of row in <bounds>.
  *             Caller must have already run _Index().
  */
-BOUND*
-EDGEBOUNDS_GetBoundRange_byRow(  EDGEBOUNDS*    edg,
+STATUS_FLAG
+EDGEBOUNDS_GetIndexRange_byRow(  EDGEBOUNDS*    edg,
                                  int            id_0,
-                                 int*           index_p,
-                                 int*           num_bounds_p );
+                                 RANGE*         index_out );
 
 /*! FUNCTION:  EDGEBOUNDS_GetRow()
  *  SYNOPSIS:  Gets <i_0>th bound of row <id_0>.
@@ -268,8 +267,8 @@ EDGEBOUNDS_Merge_Sub(   EDGEBOUNDS*    edg,
  *  SYNOPSIS: Print EDGEBOUND object to file.
  */
 void 
-EDGEBOUNDS_Dump(  EDGEBOUNDS*     edg,
-                  FILE*           fp );
+EDGEBOUNDS_Dump(  const EDGEBOUNDS*    edg,
+                  FILE*                fp );
 
 /*! FUNCTION: EDGEBOUNDS_Print()
  *  SYNOPSIS: Print EDGEBOUND object to file.
@@ -303,7 +302,8 @@ EDGEBOUNDS_Count( EDGEBOUNDS*    edg );
 /*! FUNCTION: EDGEBOUNDS_Validate()
  *  SYNOPSIS: Verifies that edgebound ranges don't go out-of-bounds of containing matrix dimensions.
  */
-int EDGEBOUNDS_Validate( EDGEBOUNDS*    edg );
+int 
+EDGEBOUNDS_Validate( EDGEBOUNDS*    edg );
 
 /*! FUNCTION: EDGEBOUNDS_Cover_Matrix()
  *  SYNOPSIS: For testing. Creates an edgebounds that covers every cell in DP Matrix with dimensions {Q x T}.

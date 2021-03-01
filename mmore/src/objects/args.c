@@ -30,7 +30,7 @@ ARGS_Create()
 {
    ARGS* args = NULL;
 
-   args = (ARGS*) calloc( 1, sizeof(ARGS) );
+   args = ERROR_malloc( sizeof(ARGS) );
    if (args == NULL) {
       fprintf(stderr, "ERROR: Unable to malloc ARGS.\n");
       ERRORCHECK_exit(EXIT_FAILURE);
@@ -44,7 +44,7 @@ ARGS_Create()
 
    args->t_filepath              = NULL;
    args->q_filepath              = NULL; 
-   args->t_mmseqs_p_filepath       = NULL;
+   args->t_mmseqs_p_filepath     = NULL;
 
    args->t_indexpath             = NULL;  
    args->q_indexpath             = NULL;

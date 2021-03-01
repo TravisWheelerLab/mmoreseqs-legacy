@@ -1,0 +1,332 @@
+# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3 (Sept 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             queries/queries.6.fa
+# target sequence database:        targets/targets.12.fa
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       sp|P21817|RYR1_HUMAN  [L=5038]
+Description: Ryanodine receptor 1 OS=Homo sapiens OX=9606 GN=RYR1 PE=1 SV=3
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence           Description 
+    ------- ------ -----    ------- ------ -----   ---- --  --------           -----------
+          0 11364.8  29.4          0 11364.6  29.4    1.0  1  sp|P16960|RYR1_PIG  Ryanodine receptor 1 OS=Sus scrofa OX=982
+
+
+Domain annotation for each sequence (and alignments):
+>> sp|P16960|RYR1_PIG  Ryanodine receptor 1 OS=Sus scrofa OX=9823 GN=RYR1 PE=2 SV=2
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ! 11364.6  29.4         0         0       1    5038 []       1    5035 []       1    5035 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 11364.6 bits;  conditional E-value: 0
+  sp|P21817|RYR1_HUMAN    1 mgd.aegedevqflrtddevvlqcsatvlkeqlklclaaegfgnrlcfleptsnaqnvppdlaiccfvleqslsvralqemlantve 86  
+                            mgd  egedevqflrtddevvlqc+atvlkeqlklclaaegfgnrlcfleptsnaqnvppdlaiccfvleqslsvralqemlantve
+    sp|P16960|RYR1_PIG    1 MGDgGEGEDEVQFLRTDDEVVLQCNATVLKEQLKLCLAAEGFGNRLCFLEPTSNAQNVPPDLAICCFVLEQSLSVRALQEMLANTVE 87  
+                            566359********************************************************************************* PP
+
+  sp|P21817|RYR1_HUMAN   87 agvessqggghrtllyghaillrhahsrmylsclttsrsmtdklafdvglqedatgeacwwtmhpaskqrsegekvrvgddiilvsv 173 
+                            agvessqggghrtllyghaillrhahs mylsclttsrsmtdklafdvglqedatgeacwwt hpaskqrsegekvrvgdd+ilvsv
+    sp|P16960|RYR1_PIG   88 AGVESSQGGGHRTLLYGHAILLRHAHSGMYLSCLTTSRSMTDKLAFDVGLQEDATGEACWWTTHPASKQRSEGEKVRVGDDLILVSV 174 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  174 sserylhlstasgelqvdasfmqtlwnmnpicsrceegfvtgghvlrlfhghmdecltispadsddqrrlvyyeggavctharslwr 260 
+                            sserylhlstasgelqvdasfmqtlwnmnpics ceeg+vtgghvlrlfhghmdecltispadsddqrrlvyyegg+vctharslwr
+    sp|P16960|RYR1_PIG  175 SSERYLHLSTASGELQVDASFMQTLWNMNPICSGCEEGYVTGGHVLRLFHGHMDECLTISPADSDDQRRLVYYEGGSVCTHARSLWR 261 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  261 leplriswsgshlrwgqplrvrhvttgqylaltedqglvvvdaskahtkatsfcfriskekldvapkrdvegmgppeikygeslcfv 347 
+                            leplriswsgshlrwgqplr+rhvttg+ylal edqglvvvdaskahtkatsfcfriskekld apkrdvegmgppeikygeslcfv
+    sp|P16960|RYR1_PIG  262 LEPLRISWSGSHLRWGQPLRIRHVTTGRYLALIEDQGLVVVDASKAHTKATSFCFRISKEKLDTAPKRDVEGMGPPEIKYGESLCFV 348 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  348 qhvasglwltyaapdpkalrlgvlkkkamlhqeghmddalsltrcqqeesqaarmihstnglynqfiksldsfsgkprgsgppagta 434 
+                            qhvasglwltyaapdpkalrlgvlkkka+lhqeghmddalsltrcqqeesqaarmi+st glyn fik ldsfsgkprgsg pagta
+    sp|P16960|RYR1_PIG  349 QHVASGLWLTYAAPDPKALRLGVLKKKAILHQEGHMDDALSLTRCQQEESQAARMIYSTAGLYNHFIKGLDSFSGKPRGSGAPAGTA 435 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  435 lpiegvilslqdliiyfeppsedlqheekqsklrslrnrqslfqeegmlsmvlncidrlnvyttaahfaefageeaaeswkeivnll 521 
+                            lp+egvilslqdli yfeppse+lqheekqsklrslrnrqslfqeegmls+vlncidrlnvyttaahfaefageeaaeswkeivnll
+    sp|P16960|RYR1_PIG  436 LPLEGVILSLQDLIGYFEPPSEELQHEEKQSKLRSLRNRQSLFQEEGMLSLVLNCIDRLNVYTTAAHFAEFAGEEAAESWKEIVNLL 522 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  522 yellaslirgnrsncalfstnldwlvskldrleassgilevlycvliespevlniiqenhiksiislldkhgrnhkvldvlcslcvc 608 
+                            ye+laslirgnr+ncalfs nldwlvskldrleassgilevlycvliespevlniiqenhiksiislldkhgrnhkvldvlcslcvc
+    sp|P16960|RYR1_PIG  523 YEILASLIRGNRANCALFSNNLDWLVSKLDRLEASSGILEVLYCVLIESPEVLNIIQENHIKSIISLLDKHGRNHKVLDVLCSLCVC 609 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  609 ngvavrsnqdlitenllpgrelllqtnlinyvtsirpnifvgraegttqyskwyfevmvdevtpfltaqathlrvgwaltegytpyp 695 
+                            ngvavrsnqdlitenllpgrelllqtnlinyvtsirpnifvgraegttqyskwyfevmvdev pfltaqathlrvgwaltegy+pyp
+    sp|P16960|RYR1_PIG  610 NGVAVRSNQDLITENLLPGRELLLQTNLINYVTSIRPNIFVGRAEGTTQYSKWYFEVMVDEVVPFLTAQATHLRVGWALTEGYSPYP 696 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  696 gagegwggngvgddlysygfdglhlwtghvarpvtspgqhllapedvisccldlsvpsisfringcpvqgvfesfnldglffpvvsf 782 
+                            g gegwggngvgddlysygfdglhlwtghv r vtspgqhllapedv+sccldlsvpsisfringcpvqgvfe+fnl+glffpvvsf
+    sp|P16960|RYR1_PIG  697 GGGEGWGGNGVGDDLYSYGFDGLHLWTGHVPRLVTSPGQHLLAPEDVVSCCLDLSVPSISFRINGCPVQGVFEAFNLNGLFFPVVSF 783 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  783 sagvkvrfllggrhgefkflpppgyapcheavlprerlhlepikeyrregprgphlvgpsrclshtdfvpcpvdtvqivlpphleri 869 
+                            sagvkvrfllggrhgefkflpppgyapcheavlprerl+lepikeyrregprgphlvgpsrclshtdfvpcpvdtvqivlpphleri
+    sp|P16960|RYR1_PIG  784 SAGVKVRFLLGGRHGEFKFLPPPGYAPCHEAVLPRERLRLEPIKEYRREGPRGPHLVGPSRCLSHTDFVPCPVDTVQIVLPPHLERI 870 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  870 reklaenihelwaltrieqgwtygpvrddnkrlhpclvdfhslpepernynlqmsgetlktllalgchvgmadekaednlkktklpk 956 
+                            reklaenihelwaltrieqgwtygpvrddnkrlhpclvdfhslpepernynlqmsgetlktllalgchvgmadekaednl+ktklpk
+    sp|P16960|RYR1_PIG  871 REKLAENIHELWALTRIEQGWTYGPVRDDNKRLHPCLVDFHSLPEPERNYNLQMSGETLKTLLALGCHVGMADEKAEDNLRKTKLPK 957 
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN  957 tymmsngykpapldlshvrltpaqttlvdrlaenghnvwardrvgqgwsysavqdiparrnprlvpyrlldeatkrsnrdslcqavr 1043
+                            tymmsngykpapldlshvrltpaqttlvdrlaenghnvwardrv+qgwsysavqdiparrnprlvpyrlldeatkrsnrdslcqavr
+    sp|P16960|RYR1_PIG  958 TYMMSNGYKPAPLDLSHVRLTPAQTTLVDRLAENGHNVWARDRVAQGWSYSAVQDIPARRNPRLVPYRLLDEATKRSNRDSLCQAVR 1044
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1044 tllgygynieppdqepsqvenqsrcdrvrifraeksytvqsgrwyfefeavttgemrvgwarpelrpdvelgadelayvfnghrgqr 1130
+                            tllgygynieppdqepsqve+qsr drvrifraeksy vqsgrwyfefeavttgemrvgwarpelrpdvelgadelayvfnghrgqr
+    sp|P16960|RYR1_PIG 1045 TLLGYGYNIEPPDQEPSQVESQSRWDRVRIFRAEKSYAVQSGRWYFEFEAVTTGEMRVGWARPELRPDVELGADELAYVFNGHRGQR 1131
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1131 whlgsepfgrpwqpgdvvgcmidltentiiftlngevlmsdsgsetafreieigdgflpvcslgpgqvghlnlgqdvsslrffaicg 1217
+                            whlgse fgrpwq gdvvgcmidltentiiftlngevlmsdsgsetafr+ie+gdgflpvcslgpgqvghlnlgqdvsslrffaicg
+    sp|P16960|RYR1_PIG 1132 WHLGSELFGRPWQSGDVVGCMIDLTENTIIFTLNGEVLMSDSGSETAFRDIEVGDGFLPVCSLGPGQVGHLNLGQDVSSLRFFAICG 1218
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1218 lqegfepfainmqrpvttwfskglpqfepvplehphyevsrvdgtvdtppclrlthrtwgsqnslvemlflrlslpvqfhqhfrcta 1304
+                            lqegfepfainmqrpvttwfsk+lpqfe vplehphyevsrvdgtvdtppclrlthrtwgsqnslvemlflrlslpvqfhqhfrcta
+    sp|P16960|RYR1_PIG 1219 LQEGFEPFAINMQRPVTTWFSKSLPQFEAVPLEHPHYEVSRVDGTVDTPPCLRLTHRTWGSQNSLVEMLFLRLSLPVQFHQHFRCTA 1305
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1305 gatplappglqppaedearaaepdpdyenlrrsaggwseaengkegtakegapggtpqaggeaqparaenekdatteknkkrgflfk 1391
+                            gatplappglqppaedearaaepdpdyenlrrsag w eae gkegtakegapggt qag eaqp raenekdatteknkkrgflfk
+    sp|P16960|RYR1_PIG 1306 GATPLAPPGLQPPAEDEARAAEPDPDYENLRRSAGRWGEAEGGKEGTAKEGAPGGTAQAGVEAQPPRAENEKDATTEKNKKRGFLFK 1392
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1392 akkvammtqppatptlprlphdvvpadnrddpeiilntttyyysvrvfagqepscvwagwvtpdyhqhdmsfdlskvrvvtvtmgde 1478
+                            akk ammtqppatptlprlph+vvpad+rddp+iilntttyyysvrvfagqepscvw gwvtpdyhqhdm+fdl+kvr vtvtmgde
+    sp|P16960|RYR1_PIG 1393 AKKAAMMTQPPATPTLPRLPHEVVPADDRDDPDIILNTTTYYYSVRVFAGQEPSCVWVGWVTPDYHQHDMNFDLTKVRAVTVTMGDE 1479
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1479 qgnvhsslkcsncymvwggdfvspgqqgrishtdlvigclvdlatglmtftangkesntffqvepntklfpavfvlpthqnviqfel 1565
+                            qgn+hsslkcsncymvwggdfvspgqqgrishtdlvigclvdlatglmtftangkesntffqvepntklfpavfvlpthqnviqfel
+    sp|P16960|RYR1_PIG 1480 QGNIHSSLKCSNCYMVWGGDFVSPGQQGRISHTDLVIGCLVDLATGLMTFTANGKESNTFFQVEPNTKLFPAVFVLPTHQNVIQFEL 1566
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1566 gkqknimplsaamfqserknpapqcpprlemqmlmpvswsrmpnhflqvetrragerlgwavqcqepltmmalhipeenrcmdilel 1652
+                            gkqknimplsaamf serknpapqcpprlemqmlmpvswsrmpnhfl+vetrragerlgwavqcqepltmmalhipeenrcmdilel
+    sp|P16960|RYR1_PIG 1567 GKQKNIMPLSAAMFLSERKNPAPQCPPRLEMQMLMPVSWSRMPNHFLRVETRRAGERLGWAVQCQEPLTMMALHIPEENRCMDILEL 1653
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1653 serldlqrfhshtlrlyravcalgnnrvahalcshvdqaqllhaledahlpgplragyydllisihlesacrsrrsmlseyivpltp 1739
+                            serldlq+fhshtlrlyravcalgnnrvahalcshvdqaqllhaledahlpgplragyydllisihlesacrsrrsmlseyivpltp
+    sp|P16960|RYR1_PIG 1654 SERLDLQQFHSHTLRLYRAVCALGNNRVAHALCSHVDQAQLLHALEDAHLPGPLRAGYYDLLISIHLESACRSRRSMLSEYIVPLTP 1740
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1740 etraitlfppgrstenghprhglpgvgvttslrpphhfsppcfvaalpaagaaeaparlspaiplealrdkalrmlgeavrdggqha 1826
+                            etraitlfppg+ teng  rhglpgvgvttslrpphhfs pcfvaalpa gaaeaparlsp+iplealrdkalrmlgeavrdggqha
+    sp|P16960|RYR1_PIG 1741 ETRAITLFPPGKRTENGPRRHGLPGVGVTTSLRPPHHFSAPCFVAALPAVGAAEAPARLSPSIPLEALRDKALRMLGEAVRDGGQHA 1827
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1827 rdpvggsvefqfvpvlklvstllvmgifgdedvkqilkmiepevfteeeeeedeeeegeeedeeekeedeeetaqekedeekeeeea 1913
+                            rdpvggsvefqfvpvlklvstllvmgifgdedvkqilkmiepevfteeeeee+eeee eeedeeekeedeee a+ekedeekeeee 
+    sp|P16960|RYR1_PIG 1828 RDPVGGSVEFQFVPVLKLVSTLLVMGIFGDEDVKQILKMIEPEVFTEEEEEEEEEEEEEEEDEEEKEEDEEEEAREKEDEEKEEEET 1914
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 1914 aegekeegleegllqmklpesvklqmchlleyfcdqelqhrveslaafaeryvdklqanqrsrygllikafsmtaaetarrtrefrs 2000
+                            aegekee leegllqmklpesvklqmc+lleyfcdqelqhrveslaafaeryvdklqanqr ryg+l+kaf+mtaaetarrtrefrs
+    sp|P16960|RYR1_PIG 1915 AEGEKEEYLEEGLLQMKLPESVKLQMCNLLEYFCDQELQHRVESLAAFAERYVDKLQANQRDRYGILMKAFTMTAAETARRTREFRS 2001
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2001 ppqeqinmllqfkdgtdeedcplpeeirqdlldfhqdllahcgiqldgeeeepeeettlgsrlmsllekvrlvkkkeekpeeersae 2087
+                            ppqeqinmll fkdg deedcplp+eirqdll+fhqdll hcgiql+geeeepeee tlgsrlmsllekvrlvkkkeek eee  ae
+    sp|P16960|RYR1_PIG 2002 PPQEQINMLLHFKDGEDEEDCPLPDEIRQDLLEFHQDLLTHCGIQLEGEEEEPEEEATLGSRLMSLLEKVRLVKKKEEKSEEEPPAE 2088
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2088 eskprslqelvshmvvrwaqedfvqspelvramfsllhrqydglgellralpraytispssvedtmslleclgqirsllivqmgpqe 2174
+                            esk +slqelvsh vvrwaqedfvqspelvramfsllhrqydglgellralpraytispssvedtmslleclgqirsllivqmgpqe
+    sp|P16960|RYR1_PIG 2089 ESKAQSLQELVSHTVVRWAQEDFVQSPELVRAMFSLLHRQYDGLGELLRALPRAYTISPSSVEDTMSLLECLGQIRSLLIVQMGPQE 2175
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2175 enlmiqsignimnnkvfyqhpnlmralgmhetvmevmvnvlgggeskeirfpkmvtsccrflcyfcrisrqnqrsmfdhlsyllens 2261
+                            enlmiqsignimnnkvfyqhpnlmralgmhetvmevmvnvlgggeskeirfpkmvtsccrflcyfcrisrqnqrsmfdhlsyllens
+    sp|P16960|RYR1_PIG 2176 ENLMIQSIGNIMNNKVFYQHPNLMRALGMHETVMEVMVNVLGGGESKEIRFPKMVTSCCRFLCYFCRISRQNQRSMFDHLSYLLENS 2262
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2262 giglgmqgstpldvaaasvidnnelalalqeqdlekvvsylagcglqscpmlvakgypdigwnpcggeryldflrfavfvngesvee 2348
+                            giglgmqgstpldvaaasvidnnelalalqeqdlekvvsylagcglqscpml+akgypdigwnpcggeryldflrfavfvngesvee
+    sp|P16960|RYR1_PIG 2263 GIGLGMQGSTPLDVAAASVIDNNELALALQEQDLEKVVSYLAGCGLQSCPMLLAKGYPDIGWNPCGGERYLDFLRFAVFVNGESVEE 2349
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2349 nanvvvrllirkpecfgpalrgeggsgllaaieeairisedpardgpgirrdrrrehfgeeppeenrvhlghaimsfyaalidllgr 2435
+                            nanvvvrllirkpecfgpalrgeggsglla ieeairisedpardgpg+rrdrrrehfgeeppeenrvhlghaimsfyaalidllgr
+    sp|P16960|RYR1_PIG 2350 NANVVVRLLIRKPECFGPALRGEGGSGLLATIEEAIRISEDPARDGPGVRRDRRREHFGEEPPEENRVHLGHAIMSFYAALIDLLGR 2436
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2436 capemhliqagkgealrirailrslvpledlvgiislplqiptlgkdgalvqpkmsasfvpdhkasmvlfldrvygienqdfllhvl 2522
+                            capemhliqagkgealrirailrslvpl+dlvgiislplqiptlgkdgalvqpkmsasfvpdhkasmvlfldrvygienqdfllhvl
+    sp|P16960|RYR1_PIG 2437 CAPEMHLIQAGKGEALRIRAILRSLVPLDDLVGIISLPLQIPTLGKDGALVQPKMSASFVPDHKASMVLFLDRVYGIENQDFLLHVL 2523
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2523 dvgflpdmraaasldtatfsttemalalnrylclavlplitkcaplfagtehraimvdsmlhtvyrlsrgrsltkaqrdviedclms 2609
+                            dvgflpdmraaasldtatfsttemalalnrylclavlplitkcaplfagtehraimvdsmlhtvyrlsrgrsltkaqrdvie+clm+
+    sp|P16960|RYR1_PIG 2524 DVGFLPDMRAAASLDTATFSTTEMALALNRYLCLAVLPLITKCAPLFAGTEHRAIMVDSMLHTVYRLSRGRSLTKAQRDVIEECLMA 2610
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2610 lcryirpsmlqhllrrlvfdvpilnefakmplklltnhyercwkyyclptgwanfgvtseeelhltrklfwgifdslahkkydpely 2696
+                            lcryirpsmlqhllrrlvfdvpilnefakmplklltnhyercwkyyclptgwanfgvtseeelhltrklfwgifdslahkkydpely
+    sp|P16960|RYR1_PIG 2611 LCRYIRPSMLQHLLRRLVFDVPILNEFAKMPLKLLTNHYERCWKYYCLPTGWANFGVTSEEELHLTRKLFWGIFDSLAHKKYDPELY 2697
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2697 rmampclcaiagalppdyvdasysskaekkatvdaegnfdprpvetlnviipekldsfinkfaeythekwafdkiqnnwsygenide 2783
+                            rmampclcaiagalppdyvdasysskaekkatvdaegnfdprpvetlnviipekldsfinkfaeythekwafdkiqnnwsygenide
+    sp|P16960|RYR1_PIG 2698 RMAMPCLCAIAGALPPDYVDASYSSKAEKKATVDAEGNFDPRPVETLNVIIPEKLDSFINKFAEYTHEKWAFDKIQNNWSYGENIDE 2784
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2784 elkthpmlrpyktfsekdkeiyrwpikeslkamiawewtiekaregeeektekkktrkisqsaqtydpregynpqppdlsavtlsre 2870
+                            elkthpmlrpyktfsekdkeiyrwpikeslkamiawewtiekaregeeektekkktrkisqsaqtyd regynpqppdls vtlsre
+    sp|P16960|RYR1_PIG 2785 ELKTHPMLRPYKTFSEKDKEIYRWPIKESLKAMIAWEWTIEKAREGEEEKTEKKKTRKISQSAQTYDAREGYNPQPPDLSGVTLSRE 2871
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2871 lqamaeqlaenyhntwgrkkkqeleakgggthpllvpydtltakekardrekaqellkflqmngyavtrglkdmeldsssiekrfaf 2957
+                            lqamaeqlaenyhntwgrkkkqeleakgggthpllvpydtltakekardrekaqellkflqmngyavtrglkdmeld+ssiekrfaf
+    sp|P16960|RYR1_PIG 2872 LQAMAEQLAENYHNTWGRKKKQELEAKGGGTHPLLVPYDTLTAKEKARDREKAQELLKFLQMNGYAVTRGLKDMELDTSSIEKRFAF 2958
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 2958 gflqqllrwmdisqefiahleavvssgrvekspheqeikffakillplinqyftnhclyflstpakvlgsgghasnkekemitslfc 3044
+                            gflqqllrwmdisqefiahleavvssgrvekspheqeikffakillplinqyftnhclyflstpakvlgsgghasnkekemitslfc
+    sp|P16960|RYR1_PIG 2959 GFLQQLLRWMDISQEFIAHLEAVVSSGRVEKSPHEQEIKFFAKILLPLINQYFTNHCLYFLSTPAKVLGSGGHASNKEKEMITSLFC 3045
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3045 klaalvrhrvslfgtdapavvnclhilarsldartvmksgpeivkaglrsffesasediekmvenlrlgkvsqartqvkgvgqnlty 3131
+                            klaalvrhrvslfgtdapavvnclhilarsldartvmksgpeivkaglrsffesasediekmvenlrlgkvsqartqvkgvgqnlty
+    sp|P16960|RYR1_PIG 3046 KLAALVRHRVSLFGTDAPAVVNCLHILARSLDARTVMKSGPEIVKAGLRSFFESASEDIEKMVENLRLGKVSQARTQVKGVGQNLTY 3132
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3132 ttvallpvlttlfqhiaqhqfgddvilddvqvscyrtlcsiyslgttkntyveklrpalgeclarlaaampvaflepqlneynacsv 3218
+                            ttvallpvlttlfqhiaqhqfgddvilddvqvscyrtlcsiyslgtt+n yveklrpalgeclarlaaampvaflepqlneynacsv
+    sp|P16960|RYR1_PIG 3133 TTVALLPVLTTLFQHIAQHQFGDDVILDDVQVSCYRTLCSIYSLGTTRNPYVEKLRPALGECLARLAAAMPVAFLEPQLNEYNACSV 3219
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3219 yttksprerailglpnsveemcpdipvlerlmadigglaesgarytemphvieitlpmlcsylprwwergpeappsalpagapppct 3305
+                            yttksprerailglpnsveemcpdipvlerlmadigglaesgarytemphvieitlpmlcsylprwwergpeapp alpagapppct
+    sp|P16960|RYR1_PIG 3220 YTTKSPRERAILGLPNSVEEMCPDIPVLERLMADIGGLAESGARYTEMPHVIEITLPMLCSYLPRWWERGPEAPPPALPAGAPPPCT 3306
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3306 avtsdhlnsllgnilriivnnlgideaswmkrlavfaqpivsrarpellqshfiptigrlrkragkvvseeeqlrleakaeaqegel 3392
+                            avtsdhlnsllgnilriivnnlgideaswmkrlavfaqpivsrarpell shfiptigrlrkragkvv+eeeqlrleakaea+egel
+    sp|P16960|RYR1_PIG 3307 AVTSDHLNSLLGNILRIIVNNLGIDEASWMKRLAVFAQPIVSRARPELLHSHFIPTIGRLRKRAGKVVAEEEQLRLEAKAEAEEGEL 3393
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3393 lvrdefsvlcrdlyalyplliryvdnnraqwltepnpsaeelfrmvgeifiywskshnfkreeqnfvvqneinnmsfltadnkskma 3479
+                            lvrdefsvlcrdlyalyplliryvdnnra wltepnpsaeelfrmvgeifiywskshnfkreeqnfvvqneinnmsfltadnkskma
+    sp|P16960|RYR1_PIG 3394 LVRDEFSVLCRDLYALYPLLIRYVDNNRAHWLTEPNPSAEELFRMVGEIFIYWSKSHNFKREEQNFVVQNEINNMSFLTADNKSKMA 3480
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3480 kagdiqsggsdqertkkkrrgdrysvqtslivatlkkmlpiglnmcaptdqdlitlaktryalkdtdeevreflhnnlhlqgkvegs 3566
+                            k     sggsdqertkkkr gdrysvqtslivatlkkmlpiglnmcaptdq+litlaktryalkdtdeevrefl+nnlhlqgkvegs
+    sp|P16960|RYR1_PIG 3481 K-----SGGSDQERTKKKRLGDRYSVQTSLIVATLKKMLPIGLNMCAPTDQELITLAKTRYALKDTDEEVREFLQNNLHLQGKVEGS 3562
+                            8.....68******************************************************************************* PP
+
+  sp|P21817|RYR1_HUMAN 3567 pslrwqmalyrgvpgreedaddpekivrrvqevsavlyyldqtehpykskkavwhkllskqrrravvacfrmtplynlpthracnmf 3653
+                            pslrwqmalyrg+pgreedaddpekivrrvqevsavly+l+q ehpykskkavwhkllskqrrravvacfrmtplynlpthracnmf
+    sp|P16960|RYR1_PIG 3563 PSLRWQMALYRGLPGREEDADDPEKIVRRVQEVSAVLYHLEQMEHPYKSKKAVWHKLLSKQRRRAVVACFRMTPLYNLPTHRACNMF 3649
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3654 lesykaawiltedhsfedrmiddlskageqeeeeeeveekkpdplhqlvlhfsrtaltekskldedylymayadimakschleegge 3740
+                            lesykaawiltedhsfedrmiddlskageqeeeeeeveekkpdplhqlvlhfsrtaltekskldedylymayadimakschleegge
+    sp|P16960|RYR1_PIG 3650 LESYKAAWILTEDHSFEDRMIDDLSKAGEQEEEEEEVEEKKPDPLHQLVLHFSRTALTEKSKLDEDYLYMAYADIMAKSCHLEEGGE 3736
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3741 ngeaeeevevsfeekqmekqrllyqqarlhtrgaaemvlqmisackgetgamvsstlklgisilnggnaevqqkmldylkdkkevgf 3827
+                            ngea+eevevsfeek+mekqrllyqqarlh rgaaemvlqmisackgetgamvsstlklgisilnggna+vqqkmldylkdkkevgf
+    sp|P16960|RYR1_PIG 3737 NGEAQEEVEVSFEEKEMEKQRLLYQQARLHNRGAAEMVLQMISACKGETGAMVSSTLKLGISILNGGNADVQQKMLDYLKDKKEVGF 3823
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3828 fqsiqalmqtcsvldlnaferqnkaeglgmvnedgtvinrqngekvmaddeftqdlfrflqllceghnndfqnylrtqtgntttini 3914
+                            fqsiqalmqtcsvldlnaferqnkaeglgmvnedgtvinrqngekvmaddeftqdlfrflqllceghnndfqnylrtqtgntttini
+    sp|P16960|RYR1_PIG 3824 FQSIQALMQTCSVLDLNAFERQNKAEGLGMVNEDGTVINRQNGEKVMADDEFTQDLFRFLQLLCEGHNNDFQNYLRTQTGNTTTINI 3910
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 3915 iictvdyllrlqesisdfywyysgkdvieeqgkrnfskamsvakqvfnslteyiqgpctgnqqslahsrlwdavvgflhvfahmmmk 4001
+                            iictvdyllrlqesisdfywyysgkdvieeqgkrnfskamsvakqvfnslteyiqgpctgnqqslahsrlwdavvgflhvfahmmmk
+    sp|P16960|RYR1_PIG 3911 IICTVDYLLRLQESISDFYWYYSGKDVIEEQGKRNFSKAMSVAKQVFNSLTEYIQGPCTGNQQSLAHSRLWDAVVGFLHVFAHMMMK 3997
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4002 laqdssqiellkelldlqkdmvvmllsllegnvvngmiarqmvdmlvesssnvemilkffdmflklkdivgseafqdyvtdprglis 4088
+                            laqdssqiellkelldlqkdmvvmllsllegnvvngmiarqmvdmlvesssnvemilkffdmflklkdivgseafqdyvtdprglis
+    sp|P16960|RYR1_PIG 3998 LAQDSSQIELLKELLDLQKDMVVMLLSLLEGNVVNGMIARQMVDMLVESSSNVEMILKFFDMFLKLKDIVGSEAFQDYVTDPRGLIS 4084
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4089 kkdfqkamdsqkqfsgpeiqfllscseadeneminceefanrfqepardigfnvavlltnlsehvphdprlhnflelaesileyfrp 4175
+                            kkdfqkamdsqkqf+gpeiqfllscseadenemi+ceefanrfqepardigfnvavlltnlsehvphdprl+nflelaesileyfrp
+    sp|P16960|RYR1_PIG 4085 KKDFQKAMDSQKQFTGPEIQFLLSCSEADENEMIDCEEFANRFQEPARDIGFNVAVLLTNLSEHVPHDPRLRNFLELAESILEYFRP 4171
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4176 ylgrieimgasrrieriyfeisetnraqwempqvkeskrqfifdvvneggeaekmelfvsfcedtifemqiaaqisepegepetded 4262
+                            ylgrieimgasrrieriyfeisetnraqwempqvkeskrqfifdvvnegge+ekmelfvsfcedtifemqiaaqisepegepe ded
+    sp|P16960|RYR1_PIG 4172 YLGRIEIMGASRRIERIYFEISETNRAQWEMPQVKESKRQFIFDVVNEGGESEKMELFVSFCEDTIFEMQIAAQISEPEGEPEEDED 4258
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4263 egagaaeagaegaeegaaglegtaataaagatarvvaaagralrglsyrslrrrvrrlrrltareaatavaallwaavtragaagag 4349
+                            egag aeagaegaeega g eg a taaag tar+ aa +ralrglsyrslrrrvrrlrrltareaata+aallwaa+ +agaagag
+    sp|P16960|RYR1_PIG 4259 EGAGLAEAGAEGAEEGAVGPEGAAGTAAAGLTARLAAATSRALRGLSYRSLRRRVRRLRRLTAREAATALAALLWAALAHAGAAGAG 4345
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4350 aaagalgllwgslfggglvegakkvtvtellagmpdptsdevhgeqpagpggdadgegasegagdaaegagdeeeavheagpggadg 4436
+                            aaagal llwgslfggglvegakkvtvtellagmpdpt devhgeqpagpgg+adgega egag+a egagdee av+eagpggadg
+    sp|P16960|RYR1_PIG 4346 AAAGALRLLWGSLFGGGLVEGAKKVTVTELLAGMPDPTGDEVHGEQPAGPGGEADGEGAGEGAGEAWEGAGDEEVAVQEAGPGGADG 4432
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4437 avavtdggpfrpegagglgdmgdttpaepptpegspilkrklgvdgveeelppepepepepelepekadaengekeevpeptpeppk 4523
+                            avav +ggpfrpegagglgdmgdttpaepptpegspi+krklgvdg eeelppepepepep  epekadaengekeevp+p peppk
+    sp|P16960|RYR1_PIG 4433 AVAVAEGGPFRPEGAGGLGDMGDTTPAEPPTPEGSPIIKRKLGVDGEEEELPPEPEPEPEP--EPEKADAENGEKEEVPKPPPEPPK 4517
+                            ******************************************************9999998..6*********************** PP
+
+  sp|P21817|RYR1_HUMAN 4524 kqappspppkkeeagg...efwgelevqrvkflnylsrnfytlrflalflafainfillfykvsdsppgeddmegsaagdvsgagsg 4607
+                            k app pppkkee g+   efwgelevqrvkflnylsrnfytlrflalflafainfillfykvsdsppgeddmegsaagd+sgagsg
+    sp|P16960|RYR1_PIG 4518 KTAPPPPPPKKEEGGSgglEFWGELEVQRVKFLNYLSRNFYTLRFLALFLAFAINFILLFYKVSDSPPGEDDMEGSAAGDLSGAGSG 4604
+                            *************7633469******************************************************************* PP
+
+  sp|P21817|RYR1_HUMAN 4608 gssgwglgageeaegdedenmvyyfleestgymepalrclsllhtlvaflciigynclkvplvifkrekelarklefdglyiteqpe 4694
+                            g sgwg gagee egdedenmvyyfleestgymepalrclsllhtlvaflciigynclkvplvifkrekelarklefdglyiteqpe
+    sp|P16960|RYR1_PIG 4605 GGSGWGSGAGEEVEGDEDENMVYYFLEESTGYMEPALRCLSLLHTLVAFLCIIGYNCLKVPLVIFKREKELARKLEFDGLYITEQPE 4691
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4695 dddvkgqwdrlvlntpsfpsnywdkfvkrkvldkhgdiygreriaellgmdlatleitahnerkpnpppglltwlmsidvkyqiwkf 4781
+                            dddvkgqwdrlvlntpsfpsnywdkfvkrkvldkhgdiygreriaellgmdlatleitahnerkp pppglltwlmsidvkyqiwkf
+    sp|P16960|RYR1_PIG 4692 DDDVKGQWDRLVLNTPSFPSNYWDKFVKRKVLDKHGDIYGRERIAELLGMDLATLEITAHNERKPEPPPGLLTWLMSIDVKYQIWKF 4778
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4782 gviftdnsflylgwymvmsllghynnfffaahlldiamgvktlrtilssvthngkqlvmtvgllavvvylytvvafnffrkfynkse 4868
+                            gviftdnsflylgwymvmsllghynnfffaahlldiamgvktlrtilssvthngkqlvmtvgllavvvylytvvafnffrkfynkse
+    sp|P16960|RYR1_PIG 4779 GVIFTDNSFLYLGWYMVMSLLGHYNNFFFAAHLLDIAMGVKTLRTILSSVTHNGKQLVMTVGLLAVVVYLYTVVAFNFFRKFYNKSE 4865
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4869 dedepdmkcddmmtcylfhmyvgvragggigdeiedpagdeyelyrvvfditffffvivillaiiqgliidafgelrdqqeqvkedm 4955
+                            dedepdmkcddmmtcylfhmyvgvragggigdeiedpagdeyelyrvvfditffffvivillaiiqgliidafgelrdqqeqv+edm
+    sp|P16960|RYR1_PIG 4866 DEDEPDMKCDDMMTCYLFHMYVGVRAGGGIGDEIEDPAGDEYELYRVVFDITFFFFVIVILLAIIQGLIIDAFGELRDQQEQVREDM 4952
+                            *************************************************************************************** PP
+
+  sp|P21817|RYR1_HUMAN 4956 etkcficgigsdyfdttphgfethtleehnlanymfflmylinkdetehtgqesyvwkmyqercwdffpagdcfrkqyedqls 5038
+                            etkcficgigsdyfdttph fethtleehnlanymfflmylinkdetehtgqesyvwkmyqercwdffpagdcfrkqyedqls
+    sp|P16960|RYR1_PIG 4953 ETKCFICGIGSDYFDTTPHRFETHTLEEHNLANYMFFLMYLINKDETEHTGQESYVWKMYQERCWDFFPAGDCFRKQYEDQLS 5035
+                            *********************************************************************************97 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (5038 nodes)
+Target sequence(s):                        1  (5035 residues searched)
+Passed MSV filter:                         1  (1); expected 0.0 (0.02)
+Passed bias filter:                        1  (1); expected 0.0 (0.02)
+Passed Vit filter:                         1  (1); expected 0.0 (0.001)
+Passed Fwd filter:                         1  (1); expected 0.0 (1e-05)
+Initial search space (Z):                  1  [actual number of targets]
+Domain search space  (domZ):               1  [number of targets reported over threshold]
+# CPU time: 0.72u 0.11s 00:00:00.83 Elapsed: 00:00:00.83
+# Mc/sec: 30.24
+//
+[ok]
