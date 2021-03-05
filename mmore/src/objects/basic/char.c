@@ -43,6 +43,16 @@ CHAR_Destroy( CHAR   data )
    return data;
 }
 
+/*! FUNCTION:  CHAR_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+CHAR
+CHAR_Clear( CHAR   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  CHAR_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

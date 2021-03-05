@@ -20,6 +20,12 @@ TRACE_Create( const TRACE   data );
 TRACE
 TRACE_Destroy( TRACE   data );
 
+/*! FUNCTION:  TRACE_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+TRACE
+TRACE_Clear( TRACE   data );
+
 /*! FUNCTION:  TRACE_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

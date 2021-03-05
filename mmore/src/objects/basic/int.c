@@ -42,6 +42,16 @@ INT_Destroy( INT   data )
    return data;
 }
 
+/*! FUNCTION:  INT_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+INT
+INT_Clear( INT   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  INT_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

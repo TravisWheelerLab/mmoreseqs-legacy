@@ -78,7 +78,7 @@ itest_pipeline( WORKER* worker )
    // int               t_filetype     = args->t_filetype;
    // int               q_filetype     = args->q_filetype;
 
-   // char*             output_file    = args->output_filepath;
+   // char*             output_file    = args->stdout_fileout;
 
    // /* TODO: multi mode is unneccesary (only support for UNILOCAL) */
    // /* mode types: EDG_NONE, MODE_MULTILOCAL, MODE_MULTIGLOCAL, MODE_UNILOCAL, MODE_UNIGLOCAL */

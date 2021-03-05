@@ -56,27 +56,27 @@ WORK_init( WORKER* worker )
    worker->mmseqs_file        = FILER_Create( args->mmseqs_m8_filepath, read_mode );
    // worker->hitlist_file       = FILER_Create( args->hitlist_filepath, read_mode );
    /* output files */
-   worker->output_file        = FILER_Create( args->output_filepath, write_mode );
+   worker->output_file        = FILER_Create( args->stdout_fileout, write_mode );
    if ( args->is_redirect_stdout == false ) {
       worker->output_file->fp = stdout;
    }
-   if ( args->tblout_filepath != NULL ) {
-      worker->tblout_file        = FILER_Create( args->tblout_filepath, write_mode );
+   if ( args->tblout_fileout != NULL ) {
+      worker->tblout_file        = FILER_Create( args->tblout_fileout, write_mode );
    }
-   if ( args->m8out_filepath != NULL ) {
-      worker->m8out_file         = FILER_Create( args->m8out_filepath, write_mode );
+   if ( args->m8out_fileout != NULL ) {
+      worker->m8out_file         = FILER_Create( args->m8out_fileout, write_mode );
    }
-   if ( args->myout_filepath != NULL ) {
-      worker->myout_file         = FILER_Create( args->myout_filepath, write_mode );
+   if ( args->myout_fileout != NULL ) {
+      worker->myout_file         = FILER_Create( args->myout_fileout, write_mode );
    }
-   if ( args->mydomout_filepath != NULL ) {
-      worker->mydomout_file      = FILER_Create( args->mydomout_filepath, write_mode );
+   if ( args->mydom_fileout != NULL ) {
+      worker->mydomout_file      = FILER_Create( args->mydom_fileout, write_mode );
    }
-   if ( args->mytimeout_filepath != NULL ) {
-      worker->mytimeout_file     = FILER_Create( args->mytimeout_filepath, write_mode );
+   if ( args->mytime_fileout != NULL ) {
+      worker->mytimeout_file     = FILER_Create( args->mytime_fileout, write_mode );
    }
-   if ( args->mythreshout_filepath != NULL ) {
-      worker->mythreshout_file   = FILER_Create( args->mythreshout_filepath, write_mode );
+   if ( args->mythresh_fileout != NULL ) {
+      worker->mythreshout_file   = FILER_Create( args->mythresh_fileout, write_mode );
    }
 
    /* target and profile structures */

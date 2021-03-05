@@ -508,6 +508,12 @@ run_Viterbi_Traceback_Sparse(    const SEQUENCE*               query,         /*
          }
       }
 
+      #if DEBUG || TRUE
+      {
+         printf("ADDED: {%s, (%d, %d)}\n", STATE_NAMES[st_cur], q_0, t_0);
+      }
+      #endif
+
       ALIGNMENT_AppendScore( aln, sc_cur );
       ALIGNMENT_AppendTrace( aln, st_cur, q_0, t_0 );
 

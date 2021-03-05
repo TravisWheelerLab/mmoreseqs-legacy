@@ -38,8 +38,15 @@
 /* commandline flags */
 #define NUM_FLAG_CMDS 11
 
+/* search types */
+typedef enum {
+   P2S_SEARCH,
+   S2S_SEARCH
+} SEARCH_TYPE;
+#define NUM_SEARCH_TYPES 2
+
 /* Field sort for data struct  */
-typedef enum{
+typedef enum {
    SORT_NONE,  
    SORT_ID,
    SORT_NAME,
@@ -111,8 +118,10 @@ typedef enum {
    PIPELINE_INDEX,
    PIPELINE_UTEST,
    PIPELINE_VIZ,
+   PIPELINE_GENERIC,
+   PIPELINE_PREP
 } PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 7
+#define NUM_PIPELINE_MODES 8 
 
 /* Verbosity Modes (how much output does user want) */
 typedef enum {
@@ -187,8 +196,8 @@ typedef enum {
    FILE_MMDB   = 6,
    FILE_MMDB_S = 7,
    FILE_MMDB_P = 8,
-} FILE_TYPE;
-#define NUM_FILE_TYPES 3
+} FILETYPE;
+#define NUM_FILETYPES 3
 #define NUM_FILE_EXTS  3
 
 /* All HMM STATES */

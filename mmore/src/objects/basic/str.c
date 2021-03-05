@@ -49,8 +49,17 @@ STR_Destroy( STR   str )
    if ( str == NULL ) return str;
 
    str = ERROR_free( str );
-
    return str;
+}
+
+/*! FUNCTION:  STR_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+STR
+STR_Clear( STR   data )
+{
+   return NULL;
 }
 
 /*! FUNCTION:  STR_To_String()

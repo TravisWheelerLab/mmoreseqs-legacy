@@ -326,7 +326,7 @@ VECTOR_XXX_Push(  VECTOR_XXX*   vec,
                   XXX           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = XXX_Create( val );
    vec->N++;
 }
 

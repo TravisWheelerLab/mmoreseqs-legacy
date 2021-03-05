@@ -20,6 +20,12 @@ STR_Create(  const char*   chrs );
 STR
 STR_Destroy( STR   str );
 
+/*! FUNCTION:  STR_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+STR
+STR_Clear( STR   data );
+
 /*! FUNCTION:  STR_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

@@ -24,6 +24,12 @@ BOUND_Create( const BOUND   data );
 BOUND
 BOUND_Destroy( BOUND   data );
 
+/*! FUNCTION:  BOUND_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+BOUND
+BOUND_Clear( BOUND   data );
+
 /*! FUNCTION:  BOUND_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

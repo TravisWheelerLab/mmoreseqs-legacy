@@ -11,6 +11,7 @@
  *                XXX      XXX_Set( XXX data )
  *                size_t   XXX_Sizeof( XXX data )
  *                int      XXX_Compare( XXX a, XXX b )
+ *                bool     XXX_Equals( XXX a, XXX b )
  *                void     XXX_Swap( XXX* a, XXX* b )
  *                STR      XXX_To_String( XXX data, STR buffer ) 
  *                -  NOTE: Need to add a size parameter to _To_String(), so buffer doesn't overflows.

@@ -115,7 +115,7 @@ fi
 			REQ_ARGS=3
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
-				echo "Usage: <target> <query> <prep_folder> | <target_type> <query_type>"
+				echo "Usage: <i:target> <i:query> <prep_folder> | <target_type> <query_type>"
 				echo "Accepted Filetypes: FASTA, MSA"
 				exit 1
 			fi
@@ -137,38 +137,39 @@ fi
 			# main args:
 			TARGET="${TARGET:-$ARG_TARGET}"
 			QUERY="${QUERY:-$ARG_QUERY}"
-			PREP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
-			# mmore-seq args:
+			TEMP_DIR="${TEMP_DIR:-$ARG_TEMP_DIR}"
+			TARGET_TYPE=
+			# mmore args:
 			TARGET_MMORE="${TARGET_MMORE:-$ARG_TARGET_MMORE}"
 			QUERY_MMORE="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
+			TARGET_MMORE_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
+			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
+			# mmseqs args:
 			TARGET_MMSEQS_P="${TARGET_MMSEQS_P:-$ARG_TARGET_MMSEQS_P}"
 			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
 			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
-			# main arg types:
-			TARGET_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
-			QUERY_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
 			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
 			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
 			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
-			# options:
+			# directories:
 			ROOT_DIR="${ROOT_DIR:-'/'}"
-			# PREP_DIR="${PREP_DIR:-""}"
 			SCRIPT_DIR="${SCRIPT_DIR:-""}"
 			TEMP_DIR="${TEMP_DIR:-""}"
 			# pipeline options:
 			RM_TEMP="${RM_TEMP:-0}" 
 			DO_PREP="${DO_PREP:-0}"
+			DO_COPY="${DO_COPY:-1}"
 			DO_OVERWRITE="${DO_OVERWRITE:-1}"
 			DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
 			NUM_THREADS="${NUM_THREADS:-1}"
-			# mmseqs parameters:
+			# mmseqs options:
 			KMER="${KMER:-7}"
 			K_SCORE="${K_SCORE:-80}"
 			MIN_UNGAPPED_SCORE="${UNGAPPEDVIT_THRESH:-15}"
 			PVAL_CUTOFF="${GAPPEDVIT_THRESH:-0.001}"
 			EVAL_CUTOFF="${EVAL_CUTOFF:-200}"
 			SENSITIVITY="${SENSITIVITY:-7.5}"
-			# mmore parameters:
+			# mmore options:
 			ALPHA="${ALPHA:-12.0}"
 			BETA="${BETA:-16.0}"
 			GAMMA="${GAMMA:-5}"
@@ -234,22 +235,23 @@ fi
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ INPUT ==============="
-				echo "#           TARGET: $TARGET"
-				echo "#            QUERY: $QUERY"
-				echo "#      PREP_FOLDER: $TARGET_MMSEQS_P"
-				echo "#  TARGET_MMSEQS_S: $TARGET_MMSEQS_S"
-				echo "#     QUERY_MMSEQS: $QUERY_MMSEQS"
-				echo "#          RESULTS: $RESULTS"
+				echo "# 	============ MMORE-SEARCH ============"
+				echo "#           TARGET:  $TARGET [$TARGET_TYPE]"
+				echo "#            QUERY:  $QUERY [$QUERY_TYPE]"
+				echo "#      PREP_FOLDER:  $TARGET_MMSEQS_P"
+				echo "#  TARGET_MMSEQS_S:  $TARGET_MMSEQS_S"
+				echo "#     QUERY_MMSEQS:  $QUERY_MMSEQS"
+				echo "#          RESULTS:  $RESULTS"
 				echo ""
-				echo "#     FILTER_SCORE: $K_SCORE"
-				echo "#      UNGAP_SCORE: $MIN_UNGAPPED_SCORE"
-				echo "#        GAP_SCORE: $PVAL_CUTOFF => $EVAL_CUTOFF"
+				echo "#     FILTER_SCORE:  $K_SCORE"
+				echo "#      UNGAP_SCORE:  $MIN_UNGAPPED_SCORE"
+				echo "#      MMSEQS_EVAL:  $MMSEQS_EVAL"
+				echo "#       MMORE_EVAL:  $MMORE_EVAL"
 				echo ""
-				echo "#            ALPHA: $ALPHA"
-				echo "#             BETA: $BETA"
-				echo "#            GAMMA: $GAMMA"
-				echo "#     REPORT_SCORE: $PVALUE_REPORT => $EVALUE_REPORT"
+				echo "#            ALPHA:  $ALPHA"
+				echo "#             BETA:  $BETA"
+				echo "#            GAMMA:  $GAMMA"
+				echo "#     REPORT_SCORE:  $EVALUE_REPORT"
 			fi
 		}
 	}
@@ -288,18 +290,21 @@ fi
 
 		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
 		{
-			# main args:
-			TARGET="${TARGET_MMORE:-$ARG_TARGET_MMORE}"
-			QUERY="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
+			# mmore args:
+			TARGET_MMORE="${TARGET_MMORE:-$ARG_TARGET_MMORE}"
+			TARGET_MMORE_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
+			QUERY_MMORE="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
+			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
+			# mmseqs args:
 			TARGET_MMSEQS_P="${TARGET_MMSEQS_P:-$ARG_TARGET_MMSEQS_P}"
-			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
-			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
-			# main arg types:
-			TARGET_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
-			QUERY_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
 			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
+			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
 			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
+			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
 			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
+			# prep args:
+			TARGET_PREP="${TARGET_PREP:-""}"
+			QUERY_PREP="${QUERY_PREP:-""}"
 			# options :
 			ROOT_DIR="${ROOT_DIR:-'/'}"
 			PREP_DIR="${PREP_DIR:-""}"
@@ -312,12 +317,11 @@ fi
 			DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
 			NUM_THREADS="${NUM_THREADS:-1}"
 			# mmseqs parameters:
-			KMER="${KMER:-7}"
-			K_SCORE="${K_SCORE:-80}"
-			MIN_UNGAPPED_SCORE="${UNGAPPEDVIT_THRESH:-15}"
-			PVAL_CUTOFF="${GAPPEDVIT_THRESH:-0.001}"
-			EVAL_CUTOFF="${EVAL_CUTOFF:-200}"
-			SENSITIVITY="${SENSITIVITY:-7.5}"
+			MMSEQS_KMER="${MMSEQS_KMER:-7}"
+			MMSEQS_KSCORE="${MMSEQS_KSCORE:-80}"
+			MMSEQS_VITSCORE="${MMSEQS_VITSCORE:-15}"
+			MMSEQS_EVAL="${MMSEQS_EVAL:-0.001}"
+			MMSEQS_SENS="${MMSEQS_SENS:-7.5}"
 			# mmore parameters:
 			ALPHA="${ALPHA:-12.0}"
 			BETA="${BETA:-16.0}"
@@ -473,42 +477,6 @@ fi
 			# LOAD_SOURCE ${SCRIPT_DIR}/mmore-prep.sh $TARGET $QUERY $TARGET_MMSEQS $TARGET_TYPE $QUERY_TYPE $TARGET_MMSEQS_TYPE
 		fi
 
-		# verify that input files are proper type
-		{
-			:
-			# if [ $TARGET_TYPE != "HMM" ] 
-			# then 
-			# 	ERROR="TARGET_BAD_TYPE"
-			# 	echo "ERROR: <TARGET> must be filetype: HMM (Given: $TARGET_TYPE). Can be converted from MSA or FASTA."
-			# fi
-			# if [ $QUERY_TYPE != "FASTA" ] 
-			# then 
-			# 	ERROR="QUERY_BAD_TYPE"
-			# 	echo "ERROR: <QUERY> must be filetype: FASTA (Given: $QUERY_TYPE). Can be converted from HMM or MSA."
-			# fi
-			# if [ $TARGET_MMSEQS_P_TYPE != "HHM" ] || [ $TARGET_MMSEQS_P_TYPE != "FASTA" ] || [ $TARGET_MMSEQS_P_TYPE != "MMDB_P" ] || [ $TARGET_MMSEQS_P_TYPE != "MMDB_S" ]
-			# then	
-			# 	ERROR="TARGET_MMSEQS_BAD_TYPE"
-			# 	echo "ERROR: <TARGET_MMSEQS> must be filetype: FASTA, or MMDB_S (Given: ${TARGET_MMSEQS_TYPE}). Can be converted from MSA or MM_MSA."
-			# fi
-			# if [ $QUERY_MMSEQS_TYPE != "FASTA" ] || [ $QUERY_MMSEQS_TYPE != "MMDB_S" ]
-			# then
-			# 	ERROR="QUERY_MMSEQS_BAD_TYPE"
-			# 	echo "ERROR: <QUERY_MMSEQS> must be filetype: FASTA or MM_DB (Given: $QUERY_MMSEQS_TYPE). Can be converted from MSA or MM_MSA."
-			# fi 
-			# if [ -z $ERROR ] && (( $DO_IGNORE_WARNINGS != 1 )); 
-			# then 
-			# 	echo "HINT: To perform conversions, run again with 'mmore mmore -- prep 1' or run before with 'mmore prep'."
-			# 	exit 1
-			# fi
-
-			TARGET_TYPE="HMM"
-			QUERY_TYPE="FASTA"
-			TARGET_MMSEQS_P_TYPE="MMDB_P"
-			TARGET_MMSEQS_S_TYPE="MMDB_S"
-			QUERY_MMSEQS_TYPE="MMDB_S"
-		} 
-
 		# Verify that input files exist
 		{
 			FILE_EXISTS=$(CHECK_FILE_EXISTS $TARGET)
@@ -619,89 +587,6 @@ fi
 		# echo "DB_SIZE: $DB_SIZE"
 	}
 
-	# ==== MMSEQS BUILD DATABASE === #
-	{
-		:
-		# # create target profile database if input type is not already MMDB
-		# {
-		# 	if [ $TARGET_MMSEQS_P_TYPE != "MMDB_P" ] || [ $TARGET_MMSEQS_P_TYPE != "MMDB_S" ]
-		# 	then
-		# 		# database name
-		# 		FILENAME=$(GET_FILE_NAME $TARGET_MMSEQS_P)
-		# 		TARGET_MMSEQS_P_DB="${TMP_MMSEQS_DB}/${FILENAME}.TARGET_P.mmdb"
-		# 		TARGET_MMSEQS_P_DB="${TMP_MMSEQS_DB}/target.p.mmdb"
-
-		# 		# create database
-		# 		$MMSEQS createdb 								\
-		# 		$TARGET_MMSEQ_P $TARGET_MMSEQS_P_DB 	\
-
-		# 		# check exitcode of process
-		# 		EXIT_CODE=$?
-		# 		if (( $EXIT_CODE != 0 && $DO_IGNORE_WARNINGS != 0 )); then
-		# 			echo "ERROR: mmseqs createdb <TARGET_MMSEQS_PS> failed."
-		# 			ERROR_EXIT $EXIT_CODE
-		# 		fi
-
-		# 		TARGET_MMSEQS_S=$TARGET_MMSEQS_P_DB
-		# 		TARGET_MMSEQS_TYPE="MMDB_P"
-		# 	fi
-		# }
-
-		# # create target sequence database if input type is not already MMDB
-		# {
-		# 	if [ $TARGET_MMSEQS_S_TYPE != "MMDB_S" ]
-		# 	then
-		# 		# database name
-		# 		FILENAME=$(GET_FILE_NAME $TARGET_MMSEQS_S)
-		# 		TARGET_MMSEQS_S_DB="${TMP_MMSEQS_DB}/${FILENAME}.TARGET_S.mmdb"
-		# 		TARGET_MMSEQS_S_DB="${TMP_MMSEQS_DB}/target.s.mmdb"
-
-		# 		# create database
-		# 		$MMSEQS createdb 								\
-		# 		$TARGET_MMSEQ_S $TARGET_MMSEQS_S_DB 	\
-
-		# 		# check exitcode of process
-		# 		EXIT_CODE=$?
-		# 		if (( $EXIT_CODE != 0 && $DO_IGNORE_WARNINGS != 0 )); then
-		# 			echo "ERROR: mmseqs createdb <TARGET_MMSEQS_S> failed."
-		# 			ERROR_EXIT $EXIT_CODE
-		# 		fi
-
-		# 		TARGET_MMSEQS_S=$TARGET_MMSEQS_S_DB
-		# 		TARGET_MMSEQS_S_TYPE="MMDB_S"
-		# 	fi
-		# }
-
-		# # create query database if input type is not already MM_DB
-		# {
-		# 	if [ "QUERY_MMSEQS_TYPE" != "MMDB_S" ]
-		# 	then
-		# 		# database name
-		# 		FILENAME=$(GET_FILE_NAME $QUERY_MMSEQS)
-		# 		QUERY_MMSEQS_DB="${TMP_MMSEQS_DB}/${FILENAME}.QUERY.mmdb"
-		# 		QUERY_MMSEQS_DB="${TMP_MMSEQS_DB}/query.mmdb"
-
-		# 		# create database
-		# 		$MMSEQS createdb 							\
-		# 		$QUERY_MMSEQS $QUERY_MMSEQS_DB 	   \
-
-		# 		# check exitcode of process
-		# 		EXIT_CODE=$?
-		# 		if (( $EXIT_CODE != 0 && $DO_IGNORE_WARNINGS != 0 )); then
-		# 			echo "ERROR: mmseqs createdb <QUERY_MMSEQS> failed."
-		# 			ERROR_EXIT $EXIT_CODE
-		# 		fi
-
-		# 		TARGET_MMSEQS=$TARGET_MMSEQS_DB
-		# 		TARGET_MMSEQS_TYPE="MMDB_S"
-		# 	fi
-		# }
-
-		MMSEQS_QUERY_DB=$QUERY_MMSEQS
-		MMSEQS_TARGET_P_DB=$TARGET_MMSEQS_P 
-		MMSEQS_TARGET_S_DB=$TARGET_MMSEQS_S
-	}
-
 	# ==== MMSEQS SEARCH ======= #
 	{
 		# Configure MMSEQS Options
@@ -799,11 +684,6 @@ fi
 		# 	--remove-tmp-files  		0											\
 	}
 
-	# # ==== CONVERT MMSEQS OUTPUT -> MMORE INPUT === #
-	{
-		:
-	}
-
 	# # ==== MMORE SEARCH ==== #
 	{
 		:
@@ -876,5 +756,4 @@ fi
 	# 		fi
 	# 	}
 	# }
-
 }

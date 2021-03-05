@@ -47,7 +47,7 @@ XXX_Destroy( XXX   data )
    return data;
 }
 
-/*! FUNCTION:  XXX_Empty()
+/*! FUNCTION:  XXX_Clear()
  *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
  */
 inline

@@ -20,6 +20,12 @@ INT_Create( const INT   data );
 INT
 INT_Destroy( INT   data );
 
+/*! FUNCTION:  INT_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+INT
+INT_Clear( INT   data );
+
 /*! FUNCTION:  INT_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

@@ -24,6 +24,12 @@ PTR_Create( const PTR   data );
 PTR
 PTR_Destroy( PTR   data );
 
+/*! FUNCTION:  PTR_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+PTR
+PTR_Clear( PTR   data );
+
 /*! FUNCTION:  PTR_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.

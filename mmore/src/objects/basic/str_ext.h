@@ -41,6 +41,13 @@ STR
 STR_Copy(   STR            dest,
             const STR      src );
 
+/*! FUNCTION:  STR_Equals()
+ *  SYNOPSIS:  Compares data_1 and data_2. Returns true if they are equal, false otherwise.
+ */
+bool
+STR_Equals(    const STR   data_1,
+               const STR   data_2 );
+
 /*! FUNCTION:  STR_Overwrite_Char()
  *  SYNOPSIS:  Overwrites the contents of <ch> to <src>, and returns <dest>.
  */

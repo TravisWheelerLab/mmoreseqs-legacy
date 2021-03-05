@@ -22,11 +22,11 @@
 #include "_utilities.h"
 #include "system_io.h"
 
-/*! FUNCTION:  	SYSTEMIO_Exists()
+/*! FUNCTION:  	SYSTEMIO_FileExists()
  *  SYNOPSIS:  	Checks whether <filename> exists.
  */
 bool
-SYSTEMIO_Exists( const STR filename )
+SYSTEMIO_FileExists( const STR filename )
 {
    FILE* file;
    if ( file = fopen( filename, "r" ) ) {
@@ -110,6 +110,10 @@ STATUS_FLAG
 SYSTEMIO_AddEnvironmentalVar(    const STR   name,
                                  const STR   value )
 {
+   if ( name == NULL || value == NULL ) {
+      fprintf(stderr, "ERROR: Invalid Environmental Variable Assignment (name = %s, value = %s).\n",
+         name, value );
+   }
    STR env_command;
    env_command    = STR_Concat( name, "=" );
    env_command    = STR_Append( env_command, value );

@@ -4,15 +4,14 @@
 # 	DESC:  	translate id from profile database to query database.
 ##################################################################
 
-echo "in translate_ids.sh..."
-
 #verify proper number of variables
 NUM_ARGS="$#"
 REQ_ARGS="5"
 if (( $NUM_ARGS < $REQ_ARGS )); then 
-	echo "Incorrect number of arguments."
-	echo "./ <profile_db> <sequence_db> <results_db> <dummy_db> <remove_temp>"
+	echo "Incorrect number of arguments ($NUM_ARGS of $REQ_ARGS)."
+	echo "./translate_ids.sh <profile_db> <sequence_db> <results_db> <dummy_db> <remove_temp>"
 	echo "<rm_tmp> levels: [0] keep all files [1] remove dummy database files [2] remove profile id files"
+	echo "./translate_ids.sh [1]$1 [2]$2 [3]$3 [4]$4 [5]$5"
 	exit
 fi
 
@@ -25,8 +24,6 @@ RM_TEMP=$5
 # script and execution location (for accessing scripts)
 BENCH_DIR=$(pwd)
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-echo "BENCH_DIR: $BENCH_DIR"
-echo "SCRIPT_DIR: $SCRIPT_DIR"
 
 # sizes of databases
 P_SIZE=$(wc -l ${PROF_DB}_h | awk '{ print $1}')
@@ -35,8 +32,6 @@ if (( P_SIZE != S_SIZE )); then
 	echo "ERROR: Profile database and Sequence database are not the same size (P=$P_SIZE, Q=$S_SIZE)."
 	exit
 fi
-
-echo "DUMMY_DB: $DUMMY_DB"
 
 INDEX=${RESULTS_DB}.index
 P_INDEX=${RESULTS_DB}.pid.index

@@ -20,6 +20,12 @@ BOOL_Create( const BOOL   data );
 BOOL
 BOOL_Destroy( BOOL   data );
 
+/*! FUNCTION:  BOOL_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+BOOL
+BOOL_Clear( BOOL   data );
+
 /*! FUNCTION:  BOOL_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

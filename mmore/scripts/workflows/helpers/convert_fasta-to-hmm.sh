@@ -40,14 +40,14 @@ if (( NUM_ARGS < 2 )); then
 	exit
 fi
 
-# external programs/scripts
-HMMBUILD="${$4:-hmmbuild}"
-SPLIT_FILE="${$5:-${SCRIPT_DIR}/split_fasta.py}"
-
-# files
+# main file args
 INPUT_FILE="$1"
 OUTPUT_FILE="$2"
-TMP_DIR="${$3:-${BENCH_DIR}/tmp_convert/}"
+TMP_DIR="${3:-"${BENCH_DIR}/tmp_convert/"}"
+
+# external programs/scripts
+HMMBUILD="${4:-"hmmbuild"}"
+SPLIT_FILE="${5:-"${SCRIPT_DIR}/split_fasta.py"}"
 
 # size of input
 NUM_MODELS=$(grep ">" $INPUT_FILE | wc -l)
@@ -57,6 +57,8 @@ echo_v 3 "# OUTPUT_FILE:  $OUTPUT_FILE"
 echo_v 3 "#  SCRIPT_DIR:  $SCRIPT_DIR"
 echo_v 3 "#     TMP_DIR:  $TMP_DIR"
 echo_v 3 "#  NUM_MODELS:  $NUM_MODELS"
+echo_v 3 "#    HMMBUILD:  $HMMBUILD"
+echo_v 3 "#  SPLIT_FILE:  $SPLIT_FILE"
 
 mkdir ${TMP_DIR}
 cp ${INPUT_FILE} ${TMP_DIR}/${INPUT_FILE}

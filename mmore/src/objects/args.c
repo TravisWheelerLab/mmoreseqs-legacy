@@ -29,22 +29,28 @@ ARGS*
 ARGS_Create()
 {
    ARGS* args = NULL;
-
    args = ERROR_malloc( sizeof(ARGS) );
-   if (args == NULL) {
-      fprintf(stderr, "ERROR: Unable to malloc ARGS.\n");
-      ERRORCHECK_exit(EXIT_FAILURE);
-   }
 
    args->cmdline                 = NULL;
    args->opts                    = NULL;
 
+   // args->pipeline                = NULL;
+   args->pipeline_mode           = -1;
+   args->pipeline_name           = NULL;
+
+   args->search_name             = NULL;
+
    args->tmp_folderpath          = NULL;
    args->dbg_folderpath          = NULL;
+   args->prep_folderpath         = NULL;
 
    args->t_filepath              = NULL;
    args->q_filepath              = NULL; 
+   args->t_mmore_filepath        = NULL;
+   args->q_mmore_filepath        = NULL;
    args->t_mmseqs_p_filepath     = NULL;
+   args->t_mmseqs_s_filepath     = NULL;
+   args->q_mmseqs_filepath       = NULL;
 
    args->t_indexpath             = NULL;  
    args->q_indexpath             = NULL;
@@ -52,14 +58,17 @@ ARGS_Create()
    args->mmseqs_m8_filepath      = NULL;
    args->hitlist_filepath        = NULL;
 
-   args->output_filepath         = NULL; 
-   args->tblout_filepath         = NULL;
-   args->m8out_filepath          = NULL;
-   args->myout_filepath          = NULL;
-   args->mydomout_filepath       = NULL;
-   args->mytimeout_filepath      = NULL;
-   args->mythreshout_filepath    = NULL;
+   args->allout_fileout          = NULL;
+   args->stdout_fileout          = NULL; 
+   args->tblout_fileout          = NULL;
+   args->m8out_fileout           = NULL;
+   args->myout_fileout           = NULL;
+   args->mydom_fileout           = NULL;
+   args->mytime_fileout          = NULL;
+   args->mythresh_fileout        = NULL;
    args->customout_filepath      = NULL;
+
+   args->alpha                   = 12.0f;
 
    return args;
 }
@@ -76,12 +85,21 @@ ARGS_Destroy( ARGS* args )
    STR_Destroy( args->cmdline );
    STR_Destroy( args->opts );
 
+   STR_Destroy( args->pipeline_name );
+
+   STR_Destroy( args->search_name );
+
    STR_Destroy( args->tmp_folderpath );
    STR_Destroy( args->dbg_folderpath );
+   STR_Destroy( args->prep_folderpath );
 
    STR_Destroy( args->t_filepath );
    STR_Destroy( args->q_filepath );
+   STR_Destroy( args->t_mmore_filepath );
+   STR_Destroy( args->q_mmore_filepath );
    STR_Destroy( args->t_mmseqs_p_filepath );
+   STR_Destroy( args->t_mmseqs_s_filepath );
+   STR_Destroy( args->q_mmseqs_filepath );
 
    STR_Destroy( args->t_indexpath );
    STR_Destroy( args->q_indexpath );
@@ -89,13 +107,13 @@ ARGS_Destroy( ARGS* args )
    STR_Destroy( args->mmseqs_m8_filepath );
    STR_Destroy( args->hitlist_filepath );
 
-   STR_Destroy( args->output_filepath );
-   STR_Destroy( args->tblout_filepath );
-   STR_Destroy( args->m8out_filepath );
-   STR_Destroy( args->myout_filepath );
-   STR_Destroy( args->mydomout_filepath );
-   STR_Destroy( args->mytimeout_filepath );
-   STR_Destroy( args->mythreshout_filepath );
+   STR_Destroy( args->stdout_fileout );
+   STR_Destroy( args->tblout_fileout );
+   STR_Destroy( args->m8out_fileout );
+   STR_Destroy( args->myout_fileout );
+   STR_Destroy( args->mydom_fileout );
+   STR_Destroy( args->mytime_fileout );
+   STR_Destroy( args->mythresh_fileout );
    STR_Destroy( args->customout_filepath );
 
    ERROR_free( args );

@@ -15,11 +15,35 @@
 /* === MAIN PIPELINES === */
 
 /*! FUNCTION:  	mmore_pipeline()
- *  SYNOPSIS:  	Pipeline for MMore. 
- *                Runs MMore pipeline. Calls MMseqs pipeline, and results are piped to mmore_tail_pipeline().
+ *  SYNOPSIS:  	Full Pipeline for MMORE-SEQS Search. 
+ *                Runs MMSEQS and MMORE stages. Uses Target and Query for MMORE and Target Profile, Target Sequence and Query db for MMSEQS as input.
  */
 STATUS_FLAG 
 mmore_pipeline( WORKER* worker );
+
+/*! FUNCTION:     prep_pipeline()
+ *  SYNOPSIS:     Helper for overarching MMORE-SEQS pipeline. 
+ *                Prepares files for use in the MMORE-SEQS Pipeline
+ */
+STATUS_FLAG 
+prep_pipeline( WORKER* worker );
+
+/*! FUNCTION:     mmore_prep_pipeline()
+ *  SYNOPSIS:     Full Pipeline for MMORE-SEQS Search. 
+ *                Runs MMSEQS and MMORE stages. Uses prep folder as input.
+ */
+STATUS_FLAG 
+mmore_prep_pipeline( WORKER* worker );
+
+/*! FUNCTION:     mmore_easysearch_pipeline()
+ *  SYNOPSIS:     Full Pipeline for MMORE-SEQS Search.  
+ *                Uses only Target (MSA), Query (FASTA), and Prep Folder location.
+ *                Performs all prepatory steps and runs search.
+ */
+STATUS_FLAG 
+mmore_easysearch_pipeline( WORKER* worker );
+
+/* === ALTERNATIVE SEARCH PIPELINES === */
 
 /*! FUNCTION:  	generic_pipeline()
  *  SYNOPSIS:  	Generic pipeline.
@@ -39,7 +63,7 @@ interactive_pipeline( WORKER* worker );
 
 /*! FUNCTION:  	mmore_main_pipeline()
  *  SYNOPSIS:  	Internal pipeline for tail of MMore, post-MMseqs.
- *                Runs Adaptive Banding / Cloud Search step of MMORE pipeline.
+ *                Runs Adaptive Banding / Cloud Search step of MMORE-SEQS pipeline.
  */
 STATUS_FLAG 
 mmore_main_pipeline( WORKER* worker );
@@ -56,13 +80,6 @@ index_pipeline( WORKER* worker );
  */
 STATUS_FLAG 
 hmmbuild_pipeline( WORKER* worker );
-
-/*! FUNCTION:  prep_pipeline()
- *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
- *             Prepares files for use in the MMORE-SEQS Pipeline
- */
-STATUS_FLAG 
-prep_pipeline( WORKER* worker );
 
 /* === DEBUGGING PIPELINES === */
 

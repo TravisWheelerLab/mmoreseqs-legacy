@@ -23,6 +23,13 @@ ARGS_Parse(    ARGS*       args,
 void  
 ARGS_SetDefaults( ARGS*    args );
 
+/*! FUNCTION:  ARGS_MainArg_Parser()
+ *  SYNOPSIS:  Set default arguments.
+ */
+void
+ARGS_MainArg_Parser(    ARGS*          args,
+                        COMMANDLINE*   cmd );
+
 /*! FUNCTION:  ARGS_SetDefaults()
  *  SYNOPSIS:  Output arguments to <fp>.
  */
@@ -33,8 +40,8 @@ ARGS_Dump(     ARGS*    args,
 /*! FUNCTION:  ARGS_Find_Filetype()
  *  SYNOPSIS:  Examines target and query, and finds the type of the files (by extension).
  */
-FILE_TYPE 
-ARGS_Find_FileType( STR    filename );
+FILETYPE 
+ARGS_FindFiletype( STR    filename );
 
 /*! FUNCTION:  ARGS_Help_Info()
  *  SYNOPSIS:  Output help info.

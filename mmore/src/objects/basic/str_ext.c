@@ -96,6 +96,21 @@ STR_Copy(   STR            dest,
    return str;
 }
 
+/*! FUNCTION:  STR_Equals()
+ *  SYNOPSIS:  Compares data_1 and data_2. Returns true if they are equal, false otherwise.
+ */
+inline
+bool
+STR_Equals(    const STR   data_1,
+               const STR   data_2 )
+{
+   int cmp;
+   bool is_equal;
+   cmp      = STR_Compare( data_1, data_2 );
+   is_equal = ( cmp == 0 ); 
+   return is_equal;
+}
+
 /*! FUNCTION:  STR_Overwrite_Char()
  *  SYNOPSIS:  Overwrites the contents of <ch> to <src>, and returns <dest>.
  */
@@ -143,6 +158,13 @@ STR
 STR_Concat(    const STR   str_1,
                const STR   str_2 )
 {
+   if ( str_1 == NULL ) {
+      return STR_Create( str_2 );
+   }
+   if ( str_2 == NULL ) {
+      return STR_Create( str_1 );
+   }
+
    STR      str;
    size_t   L;
 
@@ -181,13 +203,13 @@ STR_Append(    STR         str,
  */
 inline
 size_t
-STR_GetLength(   const STR   str )
+STR_GetLength( const STR   str )
 {
-   // if ( str == NULL ) {
-   //    return 0;
-   // }
+   if ( str == NULL ) {
+      return 0;
+   }
 
-   size_t   L;
+   size_t L;
    L = strlen( str );
    return L;
 }

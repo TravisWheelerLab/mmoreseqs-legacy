@@ -43,6 +43,16 @@ DBL_Destroy( DBL   data )
    return data;
 }
 
+/*! FUNCTION:  DBL_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+DBL
+DBL_Clear( DBL   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  DBL_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

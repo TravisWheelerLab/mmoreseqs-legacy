@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 ###############################################################################
 #    FILE: 	split_fasta.py
 #   BRIEF: 	Split .fasta file
@@ -12,12 +11,15 @@ import os,sys
 # parse commandline args
 pwd = os.getcwd()
 eval = ""
+
+if len(sys.argv) < 3:
+   print("Usage: <fasta_file> <batch_size>")
+   sys.exit(1)
 if len(sys.argv) == 3:
 	in_file = sys.argv[1]
 	batch_size = int(sys.argv[2])
-else:
-   print("Usage: <fasta_file> <batch_size>")
-   sys.exit(0)
+if len(sys.argv) == 4:
+	out_dir = sys.argv[3]
 
 # get file name and extension
 file_parts = in_file.split(".")
@@ -27,16 +29,16 @@ file_name = ""
 for part in file_parts:
 	file_name += part + "."
 
-print("# FILE: {}".format(in_file))
-print("# FILE_NAME: {}".format(file_name))
-print("# FILE_EXT: {}".format(file_ext))
-print("# BATCH_SIZE: {}".format(batch_size))
+# print("# FILE: {}".format(in_file))
+# print("# FILE_NAME: {}".format(file_name))
+# print("# FILE_EXT: {}".format(file_ext))
+# print("# BATCH_SIZE: {}".format(batch_size))
 
 in_fp = open(in_file, "r")
 num_batches = 1
 num_models_in_batch = 0
 num_models = 0
-out_file = "{}{}.{}".format(file_name, num_batches-1, file_ext)
+out_file = "{}{}.{}".format(file_name, file_ext, num_batches-1)
 out_fp = open(out_file, "w")
 
 for line in in_fp:
@@ -46,7 +48,7 @@ for line in in_fp:
 		if num_models_in_batch >= batch_size:	
 			out_fp.close()
 			num_batches += 1
-			out_file = "{}{}.{}".format(file_name, num_batches-1, file_ext)
+			out_file = "{}{}.{}".format(file_name, file_ext, num_batches-1)
 			out_fp = open(out_file, "w")
 			num_models_in_batch = 0
 		num_models += 1

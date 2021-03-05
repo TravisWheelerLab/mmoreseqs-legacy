@@ -43,6 +43,16 @@ RANGE_Destroy( RANGE   data )
    return data;
 }
 
+/*! FUNCTION:  RANGE_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+RANGE
+RANGE_Clear( RANGE   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  RANGE_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

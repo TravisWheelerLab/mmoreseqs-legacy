@@ -71,20 +71,15 @@ mmore_pipeline( WORKER* worker )
    
    /* MAIN COMMANDLINE ARGS */
    /* pass main args with type appended */
-   str = STR_Set( str, "TARGET_MMORE_");
-   str = STR_Append( str, FILE_TYPE_NAMES[args->t_filetype] );
+   str = STR_Concat( "TARGET_MMORE_", FILETYPE_NAME_Get( args->t_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_filepath );
-   str = STR_Set( str, "QUERY_MMORE_");
-   str = STR_Append( str, FILE_TYPE_NAMES[args->q_filetype] );
+   str = STR_Concat( "QUERY_MMORE_", FILETYPE_NAME_Get( args->q_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_filepath );
-   str = STR_Set( str, "TARGET_MMSEQS_P_" );
-   str = STR_Append( str, FILE_TYPE_NAMES[args->t_mmseqs_p_filetype] );
+   str = STR_Concat( "TARGET_MMSEQS_P_", FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_p_filepath );
-   str = STR_Set( str, "TARGET_MMSEQS_S_" );
-   str = STR_Append( str, FILE_TYPE_NAMES[args->t_mmseqs_s_filetype] );
+   str = STR_Concat( "TARGET_MMSEQS_S_", FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_s_filepath );
-   str = STR_Set( str, "QUERY_MMSEQS_" );
-   str = STR_Append( str, FILE_TYPE_NAMES[args->q_mmseqs_filetype] );
+   str = STR_Concat( "QUERY_MMSEQS_", FILETYPE_NAME_Get( args->q_mmseqs_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_mmseqs_filepath );
 
    /* ENVIRONMENTAL ARGS */

@@ -23,6 +23,12 @@ XXX_Create( const XXX   data );
 XXX
 XXX_Destroy( XXX   data );
 
+/*! FUNCTION:  XXX_Clear()
+ *  SYNOPSIS:  Initialize or Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+XXX
+XXX_Clear( XXX   data );
+
 /*! FUNCTION:  XXX_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.

@@ -51,6 +51,8 @@ WORK_posterior( WORKER* worker )
 void 
 WORK_posterior_sparse( WORKER* worker )
 {
+   ARGS* args = worker->args;
+
    /* compute hmm model bias */
    WORK_null1_hmm_bias( worker );
    /* build sparse matrix */
@@ -63,14 +65,24 @@ WORK_posterior_sparse( WORKER* worker )
    WORK_decode_posterior( worker );
    /* compute sequence bias */
    WORK_null2_seq_bias( worker );
-   // /* compute optimal accuracy from posterior */
-   WORK_optimal_accuracy( worker );
-   // /* backtrace optimal accuracy for posterior alignment */
-   WORK_optacc_traceback( worker );
-   // /* compute viterbi */
-   // WORK_viterbi_sparse( worker );
-   // /* backtrace viterbi */
-   // WORK_viterbi_traceback_sparse( worker );
+
+   /* compute posterior alignment */
+   if ( args->is_run_postaln == true ) 
+   {
+      /* compute optimal accuracy from posterior */
+      WORK_optimal_accuracy( worker );
+      /* backtrace optimal accuracy for posterior alignment */
+      WORK_optacc_traceback( worker );
+   }
+   
+   /* compute viterbi alignment */
+   if ( args->is_run_vitaln == true )
+   {
+      /* compute viterbi */
+      WORK_viterbi_sparse( worker );
+      /* backtrace viterbi */
+      WORK_viterbi_traceback_sparse( worker );
+   }
 }
 
 /*! FUNCTION:  WORK_null1_hmm_bias()
@@ -269,6 +281,9 @@ WORK_null2_seq_bias( WORKER* worker )
    finalsc->null1_hmm_bias_natsc    = null2_seq_bias;
    finalsc->null1_hmm_bias_bitsc    = STATS_Nats_to_Bits( null2_seq_bias );
 
-   fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", 
-      null2_seq_bias, null2_seq_bias/CONST_LOG2);
+   if ( args->verbose_level >= VERBOSE_HIGH )
+   {
+      fprintf(stdout, "# ==> Null2 Compo Bias (full cloud): %11.4f %11.4f\n", 
+         null2_seq_bias, null2_seq_bias/CONST_LOG2);
+   }
 }

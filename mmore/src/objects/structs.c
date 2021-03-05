@@ -98,16 +98,21 @@ double BG_MODEL_log[] = {
 };
 
 /* descriptors of all pipelines */
-const int num_pipelines = 7;
+const int num_pipelines = 8;
 PIPELINE PIPELINES[] = {
-   { "null",         null_pipeline,          0,    NULL },
-   { "generic",      generic_pipeline,       2,    NULL },
-   { "mmore",        mmore_pipeline,         5,    NULL },
-   { "mmore_main",   mmore_main_pipeline,    2,    NULL },
-   { "index",        index_pipeline,         2,    NULL },
-   { "hmmbuild",     hmmbuild_pipeline,      1,    NULL },
-   { "interactive",  interactive_pipeline,   0,    NULL },
-   { "prep",         prep_pipeline,          3,    NULL }
+   /* mmore-seqs pipelines */
+   { "search",       mmore_pipeline,            5,    NULL },
+   { "mmore-main",   mmore_main_pipeline,       3,    NULL },
+   { "prep",         prep_pipeline,             3,    NULL },
+   { "mmore-prep",   mmore_prep_pipeline,       1,    NULL },
+   { "easy-search",  mmore_easysearch_pipeline, 3,    NULL },
+   /* helper pipelines */
+   { "index",        index_pipeline,            2,    NULL },  
+   { "hmmbuild",     hmmbuild_pipeline,         1,    NULL },
+   { "interactive",  interactive_pipeline,      0,    NULL },
+   /* alternative search pipelines */
+   { "null",         null_pipeline,             0,    NULL },
+   { "generic",      generic_pipeline,          2,    NULL },
 };
 
 /* full names of the all states */
@@ -200,70 +205,58 @@ int ALPHABET_LENGTHS[] = {
    4        /* DNA alphabet length */
 };
 
-/* file extension types */
-char* FILE_TYPE_EXTS[] = {
-   ".hmm",     
-   ".fasta",
-   ".fa",
-   ".msa",
-   ".hhm",
-   ".mm_msa"
+/* Map file extensions to FILETYPE */
+STR_TO_INT FILETYPE_EXTS[] = {
+   { ".hmm",      FILE_HMM },     
+   { ".fasta",    FILE_FASTA },
+   { ".fa",       FILE_FASTA },
+   { ".msa",      FILE_MSA },
+   { ".hhm",      FILE_HHM },
+   { ".mm_msa",   FILE_MM_MSA },
+   { ".smmdb",    FILE_MMDB_S },
+   { ".pmmdb",    FILE_MMDB_P }
 };
+const int NUM_FILETYPE_EXTS = 8;
 
-/* maps FILE_TYPE_NAMES to enum FILE_TYPE */
-int FILE_TYPE_MAP[] = {
-   FILE_HMM,
-   FILE_FASTA,
-   FILE_FASTA,
+int 
+FILETYPE_EXT_Get( STR   filetype_ext )
+{
+   for (int i = 0; i < NUM_FILETYPE_EXTS; i++) {
+      STR_TO_INT filetype_map = FILETYPE_EXTS[i];
+      if ( STR_Compare( filetype_ext, filetype_map.s ) == 0 ) {
+         return filetype_map.i;
+      }
+   }
+}
+
+/* Map FILETYPES to keyword names */
+STR_TO_INT FILETYPE_NAMES[] = {
+   { "NULL",      FILE_NULL },
+   { "HMM",       FILE_HMM },
+   { "FASTA",     FILE_FASTA },
+   { "MSA",       FILE_MSA },
+   { "MM_MSA",    FILE_MM_MSA },
+   { "HHM",       FILE_HHM },
+   { "MMDB",      FILE_MMDB },
+   { "SMMDB",     FILE_MMDB_S },
+   { "PMMDB",     FILE_MMDB_P }
 };
+const int NUM_FILETYPE_NAMES = 9;
 
-/* FILE_NAMES that map to FILE_TYPES */
-char* FILE_TYPE_NAMES[] = {
-   "NULL",
-   "HMMER",
-   "FASTA",
-   "MSA",
-   "MM_MSA",
-   "HHM",
-   "MMDB",
-   "MMDB_S",
-   "MMDB_P",
-};
-
-/* command line flags and options */
-// int   num_flag_cmds = 11;
-// ARG_OPT COMMAND_OPTS[] = {
-//    /* name | num_args | data_type | arg_loc | arg_bool | long_flag | short_flag | desc */
-//    /* output formats */
-//    {  "OUTFILE",           1,    DATATYPE_INT,        NULL,    "--output",          "-o",    "Result output file destination [test_output/results.tsv]."  },
-//    {  "INFILES",           2,    DATATYPE_STRING,     NULL,    "--input",           "-i",    "Input files: {target,query} [test cases]."  },
-//    /* general options */
-//    {  "INDEX",             2,    DATATYPE_STRING,     NULL,    "--index",           "-x",    "Index files: {target,query} [builds on fly]."  },
-//    /* mmseqs options */
-//    {  "MMSEQS_TMP",        1,    DATATYPE_STRING,     NULL,    "--mmseqs-tmp",      NULL,    "MMseqs temp folder [null]."  },
-//    {  "MMSEQS_INPUT",      1,    DATATYPE_STRING,     NULL,    "--mmseqs-input",    NULL,    "MMseqs results file input [null]."  },
-//    {  "MMSEQS_LOOKUP",     2,    DATATYPE_STRING,     NULL,    "--mmseqs-lookup",   NULL,    "MMseqs lookup files: {target,query} [null]."  },
-//    /* mmore main options */
-//    {  "ALPHA",             1,    DATATYPE_FLOAT,      NULL,    "--alpha",           "-a",    "MMORE X-drop per antidiagonal pruning ratio [20.0]." },
-//    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "MMore X-drop global " },
-//    {  "BETA",              1,    DATATYPE_INT,        NULL,    "--beta",            "-b",    "Number of passes of cloud search before pruning [5]." },
-   
-//    {  "WINDOW",            4,    DATATYPE_INT,        NULL,    "--window",          "-w",    "Examine substring of query and target."  },
-//    {  "Q_RANGE",           2,    DATATYPE_INT,        NULL,    "--qrange",          NULL,    "Give range of ids in query file index to search [-1,-1]."  },
-//    {  "T_RANGE",           2,    DATATYPE_INT,        NULL,    "--trange",          NULL,    "Give range of ids in target file index to search [-1,-1]."  },
-// };
+STR 
+FILETYPE_NAME_Get( FILETYPE   filetype_id )
+{
+   for (int i = 0; i < NUM_FILETYPE_NAMES; i++) {
+      STR_TO_INT filetype_map = FILETYPE_NAMES[i];
+      if ( filetype_id == filetype_map.i ) {
+         return filetype_map.s;
+      }
+   }
+   return NULL;
+}
 
 /* debugging data structures */
 DEBUG_KIT*  debugger;
-
-char* DATATYPE_NAMES[] = {
-   "NONE",
-   "INT",
-   "FLOAT",
-   "STR",
-   "BOOL"
-};
-
 
 /* initializes single_builder scoring matrix used in HMM_PROFILE_From_Seq() */
 /* SingleBuilder probability matrix (created by HMMER using p7_SingleBuilder, dependent on only bg frequencies) */
@@ -284,4 +277,3 @@ char* MMSEQS_BIN              = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMSEQS_BI
 char* HMMER_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(HMMER_BIN_LOC);
 /* hmmer 'mmore' binary location */
 char* MMORE_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
-

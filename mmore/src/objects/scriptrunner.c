@@ -98,7 +98,12 @@ SCRIPTRUNNER_Add_Env_Variable(   SCRIPTRUNNER*     runner,
                                  STR               env_value )
 {
    /* if value is NULL, does not create a variable. */
-   if ( env_value == NULL ) return STATUS_FAILURE;
+   if ( env_name == NULL ) {
+      fprintf(stderr, "ERROR: env_name is NULL. ( env_name = %s, env_value = %s )\n", env_name, env_value );
+   }
+   if ( env_value == NULL ) {
+      return STATUS_FAILURE;
+   } 
    
    VECTOR_STR_Pushback( runner->env_names, env_name );
    VECTOR_STR_Pushback( runner->env_values, env_value );
@@ -115,11 +120,12 @@ SCRIPTRUNNER_If_Add_Env_Variable(   SCRIPTRUNNER*     runner,
                                     STR               env_value,
                                     bool              condition )
 {
-   /* if value is NULL, does not create a variable. */
-   if ( env_value == NULL ) return STATUS_FAILURE;
+   /* if name or value is NULL, does not create a variable. */
+   if ( env_name == NULL || env_value == NULL ) {
+      return STATUS_FAILURE;
+   } 
    
-   if ( condition == true )
-   {
+   if ( condition == true ) {
       VECTOR_STR_Pushback( runner->env_names, env_name );
       VECTOR_STR_Pushback( runner->env_values, env_value );
    }
@@ -135,10 +141,15 @@ SCRIPTRUNNER_Add_Script_Argument(   SCRIPTRUNNER*     runner,
                                     STR               arg_flag,
                                     STR               arg_value )
 {
-   VECTOR_STR_Pushback( runner->arg_flags, arg_flag );
-   VECTOR_STR_Pushback( runner->arg_values, arg_value );
+   /* if value is null, do not add argument */
+   if ( arg_value != NULL ) {
+      VECTOR_STR_Pushback( runner->arg_flags, arg_flag );
+      VECTOR_STR_Pushback( runner->arg_values, arg_value );
 
-   return STATUS_SUCCESS;
+      return STATUS_SUCCESS;
+   }
+
+   return STATUS_FAILURE;
 }
 
 /*! FUNCTION:  SCRIPTRUNNER_Check()
@@ -150,7 +161,7 @@ SCRIPTRUNNER_Check(    SCRIPTRUNNER*     runner )
    /* check if tool is installed on system */
 
    /* check if script path exists */
-   bool file_exists = SYSTEMIO_Exists( runner->script_path );
+   bool file_exists = SYSTEMIO_FileExists( runner->script_path );
    if ( file_exists == false ) {
       fprintf( stderr, "ERROR: script '%s' for SCRIPTRUNNER does not exist.\n", 
          runner->script_path );
@@ -174,10 +185,10 @@ SCRIPTRUNNER_Execute(    SCRIPTRUNNER*     runner )
 
    /* load environmental variables */
    num_vars = VECTOR_STR_GetSize( runner->env_names ); 
-   for (int i = 0; i < num_vars; i++ )
+   for (int i = 0; i < num_vars; i++ )  
    {
-      STR env_name      = VEC_X( runner->env_names, i );
-      STR env_val       = VEC_X( runner->env_values, i );
+      STR env_name   = VEC_X( runner->env_names, i );
+      STR env_val    = VEC_X( runner->env_values, i );
       SYSTEMIO_AddEnvironmentalVar( env_name, env_val );
    }
 
@@ -192,8 +203,8 @@ SCRIPTRUNNER_Execute(    SCRIPTRUNNER*     runner )
    num_vars = VECTOR_STR_GetSize( runner->arg_flags );
    for (int i = 0; i < num_vars; i++ ) 
    {
-      STR arg_flag      = VEC_X( runner->arg_flags, i );
-      STR arg_val       = VEC_X( runner->arg_values, i );
+      STR arg_flag   = VEC_X( runner->arg_flags, i );
+      STR arg_val    = VEC_X( runner->arg_values, i );
       if ( arg_flag != NULL ) {
          VECTOR_STR_Pushback( runner->command, arg_flag );
       }
@@ -203,9 +214,8 @@ SCRIPTRUNNER_Execute(    SCRIPTRUNNER*     runner )
    VECTOR_STR_Pushback( runner->command, NULL );
 
    /* extract array from vector */
-   STR* command_array   = VECTOR_STR_GetArray( runner->command );
-   printf("# EXECUTING: %s\n", command_array[0] );
-   int ERRORCHECK_exit_code        = execvp( command_array[0], command_array );
+   STR* command_array = VECTOR_STR_GetArray( runner->command );
+   int ERRORCHECK_exit_code = execvp( command_array[0], command_array );
 
    /* program should not get here */
    fprintf( stderr, "ERROR: SCRIPTRUNNER failed with code (%d).\n", ERRORCHECK_exit_code );

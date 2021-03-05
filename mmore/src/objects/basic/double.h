@@ -20,6 +20,12 @@ DBL_Create( const DBL   data );
 DBL
 DBL_Destroy( DBL   data );
 
+/*! FUNCTION:  DBL_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+DBL
+DBL_Clear( DBL   data );
+
 /*! FUNCTION:  DBL_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

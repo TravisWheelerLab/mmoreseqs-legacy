@@ -20,6 +20,12 @@ RANGE_Create( const RANGE   data );
 RANGE
 RANGE_Destroy( RANGE   data );
 
+/*! FUNCTION:  RANGE_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+RANGE
+RANGE_Clear( RANGE   data );
+
 /*! FUNCTION:  RANGE_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

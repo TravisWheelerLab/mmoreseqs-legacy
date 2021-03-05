@@ -34,8 +34,8 @@ if len(sys.argv) < req_args:
 	print("# ./ <i:lookup_table> <i:db_index> <o:db_index>")
 	exit(-1)
 
-for i in range(len(sys.argv)):
-	print("# {}: {}".format(i, sys.argv[i]))
+# for i in range(len(sys.argv)):
+# 	print("# {}: {}".format(i, sys.argv[i]))
 
 # load args
 my_args["lookup_table"] = sys.argv[1]

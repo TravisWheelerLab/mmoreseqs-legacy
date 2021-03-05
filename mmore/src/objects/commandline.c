@@ -31,9 +31,11 @@ COMMANDLINE_Create( )
    COMMANDLINE* cmd;
    cmd = ERROR_malloc( sizeof(COMMANDLINE) );
 
+   cmd->cur_cmd         = 0;
    cmd->cur_opt         = 0;
    cmd->cur_arg         = 0;
 
+   cmd->cmds            = VECTOR_STR_Create();
    cmd->options         = VECTOR_STR_Create();
    cmd->arguments       = VECTOR_STR_Create();
    cmd->argument_opts   = VECTOR_INT_Create();
@@ -50,10 +52,11 @@ COMMANDLINE_Destroy( COMMANDLINE* cmd )
 {
    if ( cmd == NULL ) return NULL;
 
-   cmd->options         = VECTOR_STR_Create( cmd->options );
-   cmd->arguments       = VECTOR_STR_Create( cmd->arguments );
-   cmd->argument_opts   = VECTOR_INT_Create( cmd->argument_opts );
-   cmd->argument_index  = VECTOR_INT_Create( cmd->argument_index );
+   cmd->cmds            = VECTOR_STR_Destroy( cmd->cmds );
+   cmd->options         = VECTOR_STR_Destroy( cmd->options );
+   cmd->arguments       = VECTOR_STR_Destroy( cmd->arguments );
+   cmd->argument_opts   = VECTOR_INT_Destroy( cmd->argument_opts );
+   cmd->argument_index  = VECTOR_INT_Destroy( cmd->argument_index );
    cmd                  = ERROR_free( cmd );
 
    return NULL;
@@ -65,13 +68,26 @@ COMMANDLINE_Destroy( COMMANDLINE* cmd )
 void 
 COMMANDLINE_Reuse( COMMANDLINE* cmd )
 {
+   cmd->cur_cmd = 0;
    cmd->cur_opt = 0;
    cmd->cur_arg = 0;
 
+   VECTOR_STR_Reuse( cmd->cmds );
    VECTOR_STR_Reuse( cmd->options );
    VECTOR_STR_Reuse( cmd->arguments );
    VECTOR_INT_Reuse( cmd->argument_opts );
    VECTOR_INT_Reuse( cmd->argument_index );
+}
+
+/*! FUNCTION:  COMMANDLINE_Get()
+ *  SYNOPSIS:  Get <i>th commandline entry from <cmd>.
+ *             Caller must load
+ */
+STR 
+COMMANDLINE_Get(  COMMANDLINE*   cmd,
+                  int            i )
+{
+   return VECTOR_STR_Get( cmd->cmds, i );
 }
 
 /*! FUNCTION:  COMMANDLINE_Load()
@@ -90,9 +106,14 @@ COMMANDLINE_Load(    COMMANDLINE*   cmd,
    VECTOR_INT_Pushback( cmd->argument_index, 0 );
    VECTOR_STR_Pushback( cmd->options, NULL );
 
+   /* all commandline args */
    for (int i = 0; i < argc; i++) 
    {
       char* arg = argv[i];
+
+      /* add to full list */
+      VECTOR_STR_Pushback( cmd->cmds, arg );
+
       /* check if long flag option */
       if ( long_flag = STR_StartsWith( arg, "--" ), long_flag == 0 ) {
          // printf("long_flag: %d, %s\n", long_flag, arg );
@@ -116,6 +137,17 @@ COMMANDLINE_Load(    COMMANDLINE*   cmd,
       }
    }
    VECTOR_INT_Pushback( cmd->argument_index, arg_num );
+}
+
+/*! FUNCTION:  COMMANDLINE_GetNumOpts()
+ *  SYNOPSIS:  Get number of options.
+ */
+size_t 
+COMMANDLINE_GetNumCmds( COMMANDLINE*   cmd )
+{
+   size_t N;
+   N = VECTOR_STR_GetSize( cmd->options );
+   return N;
 }
 
 /*! FUNCTION:  COMMANDLINE_GetNumOpts()

@@ -29,7 +29,7 @@
 
 /*! FUNCTION:  prep_pipeline()
  *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
- *             Prepares files for use in the MMORE-SEQS Pipeline
+ *             Prepares files for use in the MMORE-SEQS Pipeline. 
  */
 STATUS_FLAG 
 mmore_prep_pipeline( WORKER* worker )
@@ -61,17 +61,17 @@ mmore_prep_pipeline( WORKER* worker )
    SCRIPTRUNNER_SetScript( runner, script_path );
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->query_prep );
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->target_prep );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILE_TYPE_NAMES[args->target_prep_type] );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILE_TYPE_NAMES[args->query_prep_type] );
-
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->prep_folderpath );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILETYPE_NAME_Get( args->target_prep_type ) );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILETYPE_NAME_Get( args->query_prep_type ) );
    
    /* COMMANDLINE ENVIRONMENTAL VARIABLES */
    /* pass main args with type appended */
    str = STR_Set( str, "TARGET_PREP_");
-   str = STR_Append( str, FILE_TYPE_NAMES[args->target_prep_type] );
+   str = STR_Append( str, FILETYPE_NAME_Get( args->target_prep_type ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->target_prep );
    str = STR_Set( str, "QUERY_PREP_");
-   str = STR_Append( str, FILE_TYPE_NAMES[args->query_prep_type] );
+   str = STR_Append( str, FILETYPE_NAME_Get( args->query_prep_type ) );
    SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->query_prep );
 
    /* TOOLS */

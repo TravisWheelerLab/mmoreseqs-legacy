@@ -150,13 +150,16 @@ void REPORT_stdout_entry(  WORKER*  worker,
                            RESULT*  result,
                            FILE*    fp )
 {
+   ARGS*          args           = worker->args;
    BUFFER*        buffer         = worker->buffer;
    ALIGNMENT*     aln            = worker->trace_vit;
-   // ALIGNMENT*     aln            = worker->trace_post;
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
    ALL_SCORES*    scores         = &result->scores;
    SCORES*        finalsc        = &result->final_scores;
+
+   /* if running an alignment */
+   bool           is_run_aln     = false;
 
    /* short names for alignment */
    STR            t_name         = "=T=";      /* short target name for alignment */
@@ -170,7 +173,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
    STR            center_aln     = NULL;
    STR            state_aln      = NULL;
 
-   /* TODO: some should be passed as arguments (reporter object?) */
+   /* some should be passed as arguments (reporter object?) */
    int            pad_left       = 3;
    int            ind_left       = 6;
    int            field_width    = 15;       
@@ -178,6 +181,24 @@ void REPORT_stdout_entry(  WORKER*  worker,
    /* number of residues per window in alignment window */
    int            def_width      = 100;      /* default window size */
    int            aln_width      = 100;      /* current window size (can change to fit alignment) */
+
+   /* type of alignment, if any */
+   if ( args->is_run_postaln == true ) {
+      is_run_aln = true;
+      aln = worker->trace_post;
+   }
+   elif ( args->is_run_vitaln == true ) {
+      is_run_aln = true;
+      aln = worker->trace_vit;
+   } 
+   elif ( args->is_run_mmseqsaln == true ) {
+      is_run_aln = true;
+      fprintf(stderr, "ERROR: MMSEQS Alignment not supported.\n");
+      ERRORCHECK_exit(EXIT_FAILURE);
+   }
+   else {
+      is_run_aln = false;
+   }
 
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {
@@ -209,8 +230,6 @@ void REPORT_stdout_entry(  WORKER*  worker,
       0, "Scores for complete sequences:");
    
    /* Domain Table */
-
-   
    int N_regions = ALIGNMENT_GetNumRegions( aln );
    for ( int i_domain = 0; i_domain < N_regions; i_domain++ ) 
    {
@@ -224,6 +243,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
       );
 
       /* MMSEQS-style Cigar Alignment */
+      if ( args->is_run_)
       {
          fprintf( fp, "%*s\n", 
             0, "==== MMSEQS Cigar Alignment ===:" );

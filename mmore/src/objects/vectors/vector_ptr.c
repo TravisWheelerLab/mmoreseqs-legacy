@@ -326,7 +326,7 @@ VECTOR_PTR_Push(  VECTOR_PTR*   vec,
                   PTR           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = PTR_Create( val );
    vec->N++;
 }
 

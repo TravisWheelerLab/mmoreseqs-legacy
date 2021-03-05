@@ -42,6 +42,16 @@ TRACE_Destroy( TRACE   data )
    return data;
 }
 
+/*! FUNCTION:  TRACE_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+TRACE
+TRACE_Clear( TRACE   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  TRACE_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

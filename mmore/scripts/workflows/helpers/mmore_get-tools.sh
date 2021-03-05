@@ -15,7 +15,7 @@ function echo_v
 	fi
 }
 
-echo_v 1 "In 'mmore-get-tools.sh'..."
+echo_v 3 "In 'mmore-get-tools.sh'..."
 
 # default whether to use system or local tools
 USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
@@ -26,6 +26,9 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 	# system installs
 	MMSEQS_SYSTEM=$(which mmseqs)
 	HMMER_SYSTEM=$(which hmmbuild)
+	HMMBUILD_SYSTEM=$(which hmmbuild)
+	HMMEMIT_SYSTEM=$(which hmmemit)
+	HMMSEARCH_SYSTEM=$(which hmmsearch)
 	MMORE_SYSTEM=$(which mmore)
 }
 
@@ -34,17 +37,17 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 	# which mmseqs
 	if [ -z "$MMSEQS_SYSTEM" ]
 	then
-		echo "MMSEQS is not installed on system."
+		echo_v 2 "Warning: MMSEQS is not installed on system."
 	fi
 	# which hmmbuild
 	if [ -z "$HMMER_SYSTEM" ]
 	then
-		echo "HMMER is not installed on system."
+		echo_v 2 "Warning: HMMER is not installed on system."
 	fi
 	# which mmore
 	if [ -z "$MMORE_SYSTEM" ]
 	then
-		echo "MMORE is not installed on system."
+		echo_v 2 "Warning: MMORE is not installed on system."
 	fi
 }
 
@@ -62,21 +65,24 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 	# local installs
 	MMSEQS_LOCAL=$(which mmseqs)
 	HMMER_LOCAL=$(which hmmbuild)
+	HMMBUILD_LOCAL=$(which hmmbuild)
+	HMMEMIT_LOCAL=$(which hmmemit)
+	HMMSEARCH_LOCAL=$(which hmmsearch)
 	MMORE_LOCAL=$(which mmore)
 }
 
 # look for other builds of mmore
 {
 	MMORE_PROGS=$(ls ${MMORE_DIR}/mmore-*)
-	echo PROGS: $(ls ${MMORE_DIR}/mmore-*)
+	echo_v 3 "PROGS: $(ls ${MMORE_DIR}/mmore-*)"
 	for PROG in $MMORE_PROGS
 	do 
-		echo $PROG
+		echo_v 3 "$PROG"
 		ALT_MMORE=$(which $PROG)
-		echo LOCAL: $MMORE_LOCAL
+		echo_v 3 "LOCAL: $MMORE_LOCAL"
 		if [ -z "$MMORE_LOCAL" ]
 		then
-			echo_v 1 "USING NON-STANDARD BUILD OF MMORE: $(GET_FILE_NAME $ALT_MMORE)"
+			echo_v 2 "Warning: Using non-standard version of MMORE => $(GET_FILE_NAME $ALT_MMORE)"
 			MMORE_LOCAL="$ALT_MMORE"
 		fi
 	done
@@ -87,17 +93,17 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 	# which mmseqs
 	if [ -z "$MMSEQS_LOCAL" ]
 	then
-		echo "MMSEQS is not installed locally."
+		echo_v 3 "MMSEQS is not installed locally."
 	fi
 	# which hmmbuild
 	if [ -z "$HMMER_LOCAL" ]
 	then
-		echo "HMMER is not installed locally."
+		echo_v 3 "HMMER is not installed locally."
 	fi
 	# which mmore
 	if [ -z "$MMORE_LOCAL" ]
 	then
-		echo "MMORE is not installed locally."
+		echo_v 3 "MMORE is not installed locally."
 	fi
 }
 
@@ -105,22 +111,20 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 {
 	if (( $USE_LOCAL_TOOLS != 1 )); then 
 		# use local tools 
-		MMSEQS="${MMSEQS:-$MMSEQS_SYSTEM}"
-		HMMER="${HMMER:-$HMMER_SYSTEM}"
-		MMORE="${MMORE:-$MMORE_SYSTEM}"
-		# use system tools 
-		MMSEQS="${MMSEQS:-$MMSEQS_LOCAL}"
-		HMMER="${HMMER:-$HMMER_LOCAL}"
-		MMORE="${MMORE:-$MMORE_LOCAL}"
+		MMSEQS="${MMSEQS_LOCAL:-$MMSEQS_SYSTEM}"
+		HMMER="${HMMER_LOCAL:-$HMMER_SYSTEM}"
+		HMMBUILD="${HMMBUILD_LOCAL:-$HMMBUILD_SYSTEM}"
+		HMMEMIT="${HMMEMIT_LOCAL:-$HMMEMIT_SYSTEM}"
+		HMMSEARCH="${HMMSEARCH_LOCAL:-$HMMSEARCH_SYSTEM}"
+		MMORE="${MMORE_LOCAL:-$MMORE_SYSTEM}"
 	else 
-		# use system tools 
-		MMSEQS="${MMSEQS:-$MMSEQS_LOCAL}"
-		HMMER="${HMMER:-$HMMER_LOCAL}"
-		MMORE="${MMORE:-$MMORE_LOCAL}"
 		# use local tools 
-		MMSEQS="${MMSEQS:-$MMSEQS_SYSTEM}"
-		HMMER="${HMMER:-$HMMER_SYSTEM}"
-		MMORE="${MMORE:-$MMORE_SYSTEM}"
+		MMSEQS="${MMSEQS_SYSTEM:-$MMSEQS_LOCAL}"
+		HMMER="${HMMER_SYSTEM:-$HMMER_LOCAL}"
+		HMMBUILD="${HMMBUILD_SYSTEM:-$HMMBUILD_LOCAL}"
+		HMMEMIT="${HMMEMIT_SYSTEM:-$HMMEMIT_LOCAL}"
+		HMMSEARCH="${HMMSEARCH_SYSTEM:-$HMMSEARCH_LOCAL}"
+		MMORE="${MMORE_SYSTEM:-$MMORE_LOCAL}"
 	fi 
 }
 
@@ -151,4 +155,9 @@ USE_LOCAL_TOOLS="${USE_LOCAL_TOOLS:-0}"
 	fi
 }
 
+
 echo_v 3 "'mmore_get-tools.sh' Loaded."
+echo_v 3 "# HMMBUILD: $HMMBUILD"
+echo_v 3 "# HMMEMIT: $HMMEMIT"
+echo_v 3 "# MMSEQS: $MMSEQS"
+echo_v 3 "# MMORE: $MMORE"

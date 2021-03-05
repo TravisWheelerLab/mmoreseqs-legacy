@@ -52,7 +52,7 @@ inline
 PTR
 PTR_Clear( PTR   data )
 {
-   return data;
+   return NULL;
 }
 
 /*! FUNCTION:  PTR_Compare()

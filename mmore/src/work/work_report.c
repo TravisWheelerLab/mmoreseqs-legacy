@@ -53,7 +53,7 @@ WORK_open( WORKER* worker )
    if ( worker->myout_file != NULL && args->is_myout ) {
       FILER_Open( worker->myout_file );
    }
-   if ( worker->mydomout_file != NULL && args->is_mydomout ) {
+   if ( worker->mydomout_file != NULL && args->is_mydom ) {
       FILER_Open( worker->mydomout_file );
    }
    if ( worker->mytimeout_file != NULL && args->is_mytimeout ) {
@@ -85,7 +85,7 @@ WORK_close( WORKER* worker )
    if ( args->is_myout ) {
       FILER_Close( worker->myout_file );
    }
-   if ( args->is_mydomout ) {
+   if ( args->is_mydom ) {
       FILER_Close( worker->mydomout_file );
    }
    if ( args->is_mytimeout ) {
@@ -122,7 +122,7 @@ WORK_report_header( WORKER*    worker )
    if ( args->is_mythreshout ) {
       REPORT_mythreshout_header( worker, worker->mythreshout_file->fp );
    }
-   if ( args->is_mydomout && args->is_run_domains ) {
+   if ( args->is_mydom && args->is_run_domains ) {
       REPORT_mydomout_header( worker, worker->mydomout_file->fp );
    }
 }
@@ -150,7 +150,7 @@ WORK_report_result_current( WORKER*  worker )
       if ( args->is_myout ) { 
          REPORT_myout_entry( worker, worker->result, worker->myout_file->fp );
       }
-      if ( args->is_mydomout && args->is_run_domains ) { 
+      if ( args->is_mydom && args->is_run_domains ) { 
          REPORT_mydomout_entry( worker, worker->result, worker->mydomout_file->fp );
       }
    }
@@ -198,7 +198,7 @@ WORK_report_footer( WORKER*    worker )
    if ( args->is_mythreshout ) { 
       REPORT_mythreshout_footer( worker, worker->mythreshout_file->fp );
    }
-   if ( args->is_mydomout && args->is_run_domains ) { 
+   if ( args->is_mydom && args->is_run_domains ) { 
       REPORT_myout_footer( worker, worker->mydomout_file->fp );
    }
 }

@@ -6,31 +6,19 @@
 ###########################################################################
 
 # PROGRAM:
-# (1a) if <target> is .msa file, convert to .hmm file
-# (1b) if <target> is .fasta file, convert to .hmm file
-# (1c) verify that final <target> is .hmm file
+# (1a) if <target> is .msa file:
+# (1b) convert <target> to .hmm file
+# (1b) convert <target> to .hmm file
 #
 # (2a) if <query> is .msa file, convert to .hmm file
 # (2b) if <query> is .hmm file, convert to .fasta (consensus) file
 # (2c) verify that final <query> is .fasta file
 #
-# (3a) if <target_mmseqs_p> is .msa file, convert to .mm_msa file.
-# (3b) if <target_mmseqs_p> is .mm_msa file, convert to .hhm file.
-# (3c) if <target_mmseqs_p> is .hhm file, convert to .mm_db file.
-# (3d) if <target_mmseqs_p> is .fasta file, convert to .mm_db file.
-# (3e) verify that final <target_mmseqs> file is .mm_db file.
-# 
-# (4a) if <query_mmseqs> is .msa file, convert to .fasta (consensus) file.
-# (4b) if <query_mmseqs> is .mm_msa file, convert to .fasta (consensus) file (?).
-# (4c) if <query_mmseqs> is .hhm file, convert to .fasta (consensus) file (?).
-# (4d) if <query_mmseqs> is .fasta file, convert to .mm_db file.
-# (4e) verify that final <query_mmseqs> file is .mm_db file.
-#
 
 # ##### FUNCTIONS ###### #
 # main script only contains the minimum functions needed to load helper function script
 {
-	#set verbosity
+	#set verbosity (MAXIMUM if not specified)
 	VERBOSE="${VERBOSE:-3}"
 	if (( $VERBOSE > 3 )); then 
 		VERB_ARG="-v"
@@ -109,285 +97,260 @@
 }
 
 # ##### MAIN ###### #
-echo_v 1 "Running Program: mmore-prep.sh..."
-
-# load functions
-echo_v 3 "Importing 'mmore_functions.sh..."
-LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_functions.sh"
-# load tools 
-echo_v 3 "Importing 'mmore_get-tools.sh'..."
-LOAD_SOURCE "${SCRIPT_DIR}/mmore_get-tools.sh"
-
-# variable preprocessing 
 {
-	# process commandline variables
+	echo_v 2 "# Running Program: mmore-prep.sh..."
+
+	# load script dependencies 
 	{
-		#verify proper number of variables
-		NUM_ARGS=$#
-		REQ_ARGS=4
-		if (( $NUM_ARGS < $REQ_ARGS )); then 
-			echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
-			echo "Usage: <target> <query> <target_mmseqs> <query_mmseqs> | <target_type> <query_type> <target_mmseqs_type> <query_mmseqs_type>"
-			echo "Accepted Filetypes: FASTA, HMM, HHM, MSA, MM_MSA, MM_DB"
-			exit 1
-		fi
-
-		# main commandline args
-		ARG_TARGET=$1
-		ARG_QUERY=$2
-		ARG_TARGET_MMSEQS=$3
-		ARG_QUERY_MMSEQS=$4
-		# optional commandline args
-		ARG_TARGET_TYPE=$5
-		ARG_QUERY_TYPE=$6
-		ARG_TARGET_MMSEQS_TYPE=$7
-		ARG_QUERY_MMSEQS_TYPE=$8
-
-		# print command line arguments
-		echo_v 1 "mmore.sh: [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS [3]$ARG_QUERY_MMSEQS | [4]$ARG_TARGET_TYPE [5]$ARG_QUERY_TYPE [6]$ARG_TARGET_MMSEQS_TYPE [7]$ARG_QUERY_MMSEQS_TYPE"
+		# load functions
+		echo_v 3 "Importing 'mmore_functions.sh..."
+		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_functions.sh"
+		# load tools 
+		echo_v 3 "Importing 'mmore_get-tools.sh'..."
+		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_get-tools.sh"
 	}
 
-	# process environmental variables: if optional args not supplied by environment, falls back on these defaults
+	# variable preprocessing 
 	{
-		# main args:
-		TARGET="${TARGET:-$ARG_TARGET}"
-		QUERY="${QUERY:-$ARG_QUERY}"
-		TARGET_MMSEQS="${TARGET_MMSEQS:-$ARG_TARGET_MMSEQS}"
-		QUERY_MMSEQS="${TARGET_MMSEQS:-$ARG_TARGET_MMSEQS}"
-		# main arg types:
-		TARGET_TYPE="${TARGET_TYPE:-$ARG_TARGET_TYPE}"
-		QUERY_TYPE="${QUERY_TYPE:-$ARG_QUERY_TYPE}"
-		TARGET_MMSEQS_TYPE="${TARGET_MMSEQS_TYPE:-$ARG_TARGET_MMSEQS_TYPE}"
-		QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
-		# options :
-		ROOT_DIR="${ROOT_DIR:-'/'}"
-		TEMP_DIR="${TEMP_DIR:-$(mktemp -d tmp-XXXX)}"
-		RM_TEMP="${RM_TEMP:-0}" 
-		DO_PREP="${DO_PREP:-}"
-		DO_OVERWRITE="${DO_OVERWRITE:-1}"
-		DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
-		NUM_THREADS="${NUM_THREADS:-1}"
-		# mmseqs parameters:
-		KMER="${KMER:-7}"
-		K_SCORE="${K_SCORE:-80}"
-		MIN_UNGAPPED_SCORE="${UNGAPPEDVIT_THRESH:-15}"
-		PVAL_CUTOFF="${GAPPEDVIT_THRESH:-0.001}"
-		EVAL_CUTOFF="${EVAL_CUTOFF:-200}"
-		SENSITIVITY="${SENSITIVITY:-7.5}"
-		# mmore parameters:
-		ALPHA="${ALPHA:-12.0}"
-		BETA="${BETA:-16.0}"
-		GAMMA="${GAMMA:-5}"
-		VIT_THRESH="${VIT_THRESH:-1e-3}"
-		CLOUD_THRESH="${CLOUD_THRESH:-1e-5}"
-		FWD_THRESH="${FWD_THRESH:-1e-5}"
-		DO_FILTER="${DO_FILTER:-0}"
-		DO_BIAS="${DO_BIAS:-1}"
-		DO_DOMAIN="${DO_DOMAIN:-1}"
-		DO_FULL="${DO_FULL:-0}"
-		# interrim files:
-		TARGET_MMSEQS_DB="${TARGET_MMSEQS_DB:-""}"
-		QUERY_MMSEQS_DB="${QUERY_MMSEQS_DB:-""}"
-		TARGET_INDEX="${TARGET_INDEX:-""}"
-		QUERY_INDEX="${QUERY_INDEX:-""}"
-		MMSEQS_P2SOUT="${MMSEQS_P2SOUT:-""}"
-		MMSEQS_S2SOUT="${MMSEQS_S2SOUT:-""}"
-		MMSEQS_M8OUT="${MMSEQS_OUT:-""}"
-		# output files:
-		MMORE_STDOUT="${MMORE_STDOUT:-""}"
-		MMORE_M8OUT="${MMORE_M8OUT:-""}"
-		MMORE_MYOUT="${MMORE_MYOUT:-""}"
-		MMORE_TIMEOUT="${MMORE_TIMEOUT:-""}"
-	}
+		# process commandline variables
+		{
+			#verify proper number of variables
+			NUM_ARGS=$#
+			REQ_ARGS=3
+			if (( $NUM_ARGS < $REQ_ARGS )); then 
+				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
+				echo "Usage: <target> <query> | <prep_folder> <target_type> <query_type>"
+				echo "Accepted Filetypes: FASTA, MSA"
+				exit 1
+			fi
 
-	# list of all main arguments
-	{
-		declare -A MAIN_FILES
-		MAIN_FILES["TARGET"]="$TARGET"
-		MAIN_FILES["QUERY"]="$QUERY" 
-		MAIN_FILES["TARGET_MMSEQS"]="$TARGET_MMSEQS" 
-		MAIN_FILES["QUERY_MMSEQS"]="$QUERY_MMSEQS"
+			# main commandline args
+			ARG_TARGET=$1
+			ARG_QUERY=$2
+			# optional args
+			ARG_TEMP_DIR=$3
+			ARG_PREP_DIR=$3
+			ARG_TARGET_TYPE=$4
+			ARG_QUERY_TYPE=$5
+		}
 
-		declare -A MAIN_TYPES
-		MAIN_TYPES["TARGET_TYPE"]="$TARGET_TYPE"
-		MAIN_TYPES["QUERY_TYPE"]="$QUERY_TYPE" 
-		MAIN_TYPES["TARGET_MMSEQS_TYPE"]="$TARGET_MMSEQS_TYPE" 
-		MAIN_TYPES["QUERY_MMSEQS_TYPE"]="$QUERY_MMSEQS_TYPE"
-	}
-
-	# list of all optional arguments
-	{
-		declare -A ARG_OPT
-	}
-
-	# specify input files (will verify they exist during preprocessing)
-	{
-		declare -A INPUT_FILES
-	}
-
-	# specify temporary files (will delete during cleanup stage)
-	{
-		declare -A TEMP_FILES
-	}
-
-	# specify output files (will move/copy from temp folder during cleanup stage)
-	{
-		OUTPUT_FILES=""
-	}
-
-	# report variables
-	{
-		if (( $VERBOSE >= 3 )); then
-			echo "#        TARGET: $TARGET"
-			echo "#         QUERY: $QUERY"
-			echo "#       RESULTS: $RESULTS"
+		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
+		{
+			# prep args:
+			TARGET="${TARGET:-$ARG_TARGET}"
+			QUERY="${QUERY:-$ARG_QUERY}"
+			TEMP_DIR="${TEMP_DIR:-$ARG_TEMP_DIR}"
+			PREP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
+			TARGET_TYPE="${TARGET_TYPE:-$ARG_TARGET_TYPE}"
+			QUERY_TYPE="${QUERY_TYPE:-$ARG_QUERY_TYPE}"
 			
-			echo "#  FILTER_SCORE: $K_SCORE"
-			echo "#   UNGAP_SCORE: $MIN_UNGAPPED_SCORE"
-			echo "#     GAP_SCORE: $PVAL_CUTOFF => $EVAL_CUTOFF"
-			
-			echo "#         ALPHA: $ALPHA"
-			echo "#          BETA: $BETA"
-			echo "#         GAMMA: $GAMMA"
-			echo "#  REPORT_SCORE: $PVALUE_REPORT => $EVALUE_REPORT"
-		fi
+			# load defaults:
+			SET_ENV_ARG_DEFAULTS
+		}
+
+		# report variables
+		{
+			if (( $VERBOSE >= 3 )); then
+				echo "# 	============ MMORESEQS: PREP ==============="
+				echo "#      TARGET_PREP:  $TARGET [$TARGET_TYPE]"
+				echo "#       QUERY_PREP:  $QUERY [$QUERY_TYPE]"
+				echo "#         PREP_DIR:  $TEMP_DIR"
+			fi
+		}
+
+		# build temporary folders
+		{
+			# top-level temporary directory
+			TMP="${TEMP_DIR}/"
+			TMP_DB="${TMP}/db/"
+			# mmore folders
+			TMP_MMORE="${TMP}/mmore/"
+			TMP_MMORE_DB="${TMP_MMORE}/db/"
+			# mmseqs folders
+			TMP_MMSEQS="${TMP}/mmseqs/"
+			TMP_MMSEQS_DB="${TMP_MMSEQS}/db/"
+
+			# make tmp directories
+			MAKE_DIR $TMP
+			MAKE_DIR $TMP_DB 
+			MAKE_DIR $TMP_MMORE
+			MAKE_DIR $TMP_MMORE_DB
+			MAKE_DIR $TMP_MMSEQS
+			MAKE_DIR $TMP_MMSEQS_DB
+
+			# list of temp folders 
+			TEMP_FOLDERS=""
+			TEMP_FOLDERS+="${TMP}" 
+			TEMP_FOLDERS+="${TMP_DB}"
+			TEMP_FOLDERS+="${TMP_MMORE}"
+			TEMP_FOLDERS+="${TMP_MMORE_DB}"
+			TEMP_FOLDERS+="${TMP_MMSEQS}" 
+			TEMP_FOLDERS+="${TMP_MMSEQS_DB}"
+		}
 	}
 
-	# build temporary folders
+	# === FILE FORMATTING === #
 	{
-		# top-level temporary directory
-		TMP_ROOT=${TEMP_DIR}/
-		TMP=${TMP_ROOT}/
-		# temporary subdirectories for mmseqs and mmore
-		TMP_MMSEQS=${TMP}/mmseqs/
-		TMP_MMORE=${TMP}/mmore/
-		# temporary subdirectories for mmseqs databases
-		TMP_MMSEQS_DB=${TMP_MMSEQS}/db/
+		echo_v 2 "# (1/3) Importing files: ${TARGET} [${TARGET_TYPE}], ${QUERY} [${QUERY_TYPE}]..."
+		# destination locations 
+		{
+			# main db
+			TARGET_MSA="${TMP_DB}/target.msa"
+			TARGET_HMM="${TMP_DB}/target.hmm"
+			TARGET_FASTA="${TMP_DB}/target.fasta"
+			# mmore db (soft link to main db)
+			TARGET_MMORE="${TMP_MMORE_DB}/target.hmm"
+			# mmseqs db
+			TARGET_MM_MSA="${TMP_MMSEQS_DB}/target.mm_msa"
+			TARGET_MMSEQS_S="${TMP_MMSEQS_DB}/target.smmdb"
+			TARGET_MMSEQS_P="${TMP_MMSEQS_DB}/target.pmmdb"
 
-		# make tmp directories
-		MAKE_DIR $TMP_ROOT
-		MAKE_DIR $TMP_MMORE
-		MAKE_DIR $TMP_MMSEQS
-		MAKE_DIR $TMP_MMSEQS_DB
+			# main db
+			QUERY_MSA="${TMP_DB}/query.msa"
+			QUERY_HMM="${TMP_DB}/query.hmm"
+			QUERY_FASTA="${TMP_DB}/query.fasta"
+			# mmore db (soft link to main db)
+			QUERY_MMORE="${TMP_MMORE_DB}/query.fasta" 
+			# mmseqs db
+			QUERY_MMSEQS="${TMP_MMSEQS_DB}/query.smmdb"
+		}
+		
+		# IMPORT main input files (MSA or FASTA files)
+		{
+			# import input files using copy or symbolic links
+			{
+				LINK="ln -nfs"
+				COPY="cp"
 
-		# list of temp folders 
-		TEMP_FOLDERS=""
-		TEMP_FOLDERS+="${TMP}" 
-		TEMP_FOLDERS+="${TMP_MMSEQS}" 
-		TEMP_FOLDERS+="${TMP_MMORE}"
-		TEMP_FOLDERS+="${TMP_MMSEQS_DB}"
+				if [ "$DO_COPY" == "0" ]
+				then
+					IMPORT="$LINK"
+				else
+					IMPORT="$COPY"
+				fi
+			}
+
+			# verify valid target formats 
+			if [ "$TARGET_TYPE" != "MSA" ] && [ "$TARGET_TYPE" != "FASTA" ]
+			then 
+				echo "ERROR: TARGET_TYPE '${TARGET_TYPE}' is not a valid file type."
+				exit 1
+			fi 
+			
+			# import target file 
+			TARGET_IN_TYPE="$TARGET_TYPE"
+			if [ "$TARGET_TYPE" == "MSA" ]; then
+				$IMPORT "${TARGET}" "${TARGET_MSA}"
+			elif [ "$TARGET_TYPE" == "FASTA" ]; then
+				$IMPORT "${TARGET}" "${TARGET_FASTA}"
+			fi 
+
+			# verify valid query formats 
+			if [ "$QUERY_TYPE" != "MSA" ] && [ "$QUERY_TYPE" != "FASTA" ]
+			then 
+				echo "ERROR: QUERY_TYPE '${QUERY_TYPE}' is not a valid file type."
+				exit 1
+			fi 
+
+			# import query file
+			QUERY_IN_TYPE="$QUERY_TYPE"
+			if [ "$QUERY_TYPE" == "MSA" ]; then
+				$IMPORT "${QUERY}" "${QUERY_MSA}"
+			elif [ "$QUERY_TYPE" == "FASTA" ]; then
+				$IMPORT "${QUERY}" "${QUERY_FASTA}"
+			fi
+		}
+
+		# IMPORT other files (MM_MSA, MMDB, HMM) 
+		{
+			:
+		}
+
+		echo_v 2 "# (2/3) Formatting TARGET [${TARGET_TYPE}] files..."
+		# TARGET file formatting
+		{
+			TARGET_TYPE="$TARGET_IN_TYPE"
+
+			# If target is a msa file 
+			if [ "$TARGET_TYPE" == "MSA" ]
+			then
+				# convert msa to hmm file 
+				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" 	\
+				> /dev/null
+
+				# convert hmm to fasta
+				$HMMEMIT -c "$TARGET_HMM" > "$TARGET_FASTA"	
+				sed -i 's/-consensus//g' "$TARGET_FASTA"
+
+				# link hmm to mmore
+				# $LINK $TARGET_HMM $TARGET_MMORE
+				$COPY $TARGET_HMM $TARGET_MMORE
+
+				# convert msa to mm_msa
+				$MMSEQS convertmsa								\
+				"$TARGET_MSA" "$TARGET_MM_MSA" 				\
+				# --identifier-field 	0 							\
+				> /dev/null
+
+				# convert fasta to sequence mmdb 
+				$MMSEQS createdb 									\
+				"$TARGET_FASTA" 	"$TARGET_MMSEQS_S" 		\
+				> /dev/null
+
+				# convert mm_msa to profile mmdb
+				$MMSEQS msa2profile  							\
+				"$TARGET_MM_MSA" "$TARGET_MMSEQS_P" 		\
+				> /dev/null
+			fi
+
+			# If target is a hmm file, then convert to consensus fasta file
+			if [ "$TARGET_TYPE" == "FASTA" ]
+			then
+				# convert fasta to hmm
+				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh "$TARGET_FASTA" "$TARGET_HMM" "tmp_split"
+
+				# convert fasta to sequence mmdb 
+				$MMSEQS createdb "$TARGET_FASTA" "$TARGET_MMSEQS_S" > /dev/null
+			fi
+		}
+
+		echo_v 2 "# (3/3) Formatting QUERY [${QUERY_TYPE}] files..."
+		# QUERY file formatting
+		{
+			# If query is a msa file
+			if [ "$QUERY_IN_TYPE" == "MSA" ]
+			then
+				# convert msa to hmm
+				$HMMBUILD  										\
+				"$QUERY_HMM" "$QUERY_MSA" 					\
+				> /dev/null
+
+				# convert hmm to fasta
+				$HMMEMIT -c "$QUERY_HMM" > "$QUERY_FASTA"	
+				sed -i 's/-consensus//g' "$QUERY_FASTA"
+
+				# link fasta to mmore
+				# $LINK "$QUERY_FASTA" "$QUERY_MMORE"
+				$COPY "$QUERY_FASTA" "$QUERY_MMORE"
+
+				# convert fasta to sequence mmdb 
+				$MMSEQS createdb  							\
+				"$QUERY_FASTA" "$QUERY_MMSEQS"  			\
+				> /dev/null
+			fi
+
+			# if query is a fasta file
+			if [ "$QUERY_IN_TYPE" == "FASTA" ]
+			then
+				# link fasta to mmore
+				# $LINK "$QUERY_FASTA" "$QUERY_MMORE"
+				$COPY "$QUERY_FASTA" "$QUERY_MMORE"
+
+				# convert fasta to sequence mmdb
+				$MMSEQS createdb  							\
+				"$QUERY_FASTA" "$QUERY_MMSEQS" 			\
+				> /dev/null
+			fi
+		}
 	}
 }
-
-# === FILE FORMATTING === #
-{
-	echo "# (0/4) File formatting and building..."
-
-	# QUERY file formatting
-	{
-		# currently not supported
-		if [ "$QUERY_TYPE" == "MSA" ]
-		then
-			QUERY_MSA=$QUERY
-			echo "WARNING: QUERY is an MSA file. Conversion currently not supported."	
-			exit 1	
-		fi
-
-		# If query is a hmm file, then convert to consensus fasta file
-		# WARNING: this may not be intended
-		if [ "$QUERY_TYPE" == "HMM" ]
-		then
-			QUERY_HMM=$QUERY
-			echo_v 1 	"WARNING: QUERY is an HMM file. Profile-to-Profile is not supported, \
-							so query being converted to FASTA consensus sequences. 				  \
-							This will result in a loss of accuracy."			
-
-			QUERY_TYPE="FASTA"
-		fi
-
-		# if target mmseqs file is a hhm, then we are ready.
-		if [ "$QUERY_TYPE" == "FASTA" ]
-		then
-			QUERY_FASTA=$QUERY
-			echo_v 1 ""
-			QUERY_TYPE="FASTA"
-		fi
-
-		# Final check if file is a valid file format
-		if [ "$QUERY_TYPE" != "FASTA" ]
-		then
-			echo "ERROR: QUERY is an unsupported filetype of '$QUERY_TYPE'."
-			echo "Valid QUERY Types: FASTA, HMM, MSA."
-			exit 1
-		fi
-	}
-
-	# TARGET file formatting
-	{
-		# if target is a msa file, then convert to HMM
-		if [[ "TARGET_TYPE" = "MSA" ]]
-		then 
-			TARGET_MSA=$TARGET 
-			echo "WARNING: TARGET is an MSA file. Conversion currently not supported."
-			exit 1
-			TARGET_TYPE="MSA"
-		fi
-
-		# If target is a hmm file, then 
-		if [[ "$TARGET_TYPE" != "HMM" ]]
-		then
-			TARGET_HMM=$TARGET
-
-			TARGET_H
-		fi
-
-		# If target is a fasta file, then we need to 
-		# build single sequence HMMs for all sequences in database. 
-		if [[ "$TARGET_TYPE" = "FASTA" ]]
-		then
-			TARGET_FASTA=$TARGET 
-		fi
-
-		# Final check if file is a valid file format.
-		if [[ "$TARGET_TYPE" != "HMM" ]]
-		then
-			echo "ERROR: Target is an unsupported type of '$TARGET_TYPE'."
-			exit 1
-		fi
-	}
-
-	# TARGET_MMSEQS file formatting
-	{
-		# if target mmseqs file is a msa file, then we need to
-		# convert it to mm_msa, then generate 
-		if [[ "$TARGET_MMSEQS_TYPE" == "MSA" ]]
-		then
-			TARGET_MMSEQS_MSA=$TARGET_MMSEQS
-
-			$MMSEQS 
-
-			TARGET_MMSEQS=$TARGET_MMSEQS_MM_MSA
-			TARGET_MMSEQS_TYPE="MM_MSA"
-		fi
-
-		# if target mmseqs file is a msa file, then we need to convert it to mm_msa
-		if [[ "$TARGET_MMSEQS_TYPE" == "MM_MSA" ]]
-			TARGET_MMSEQS_MM_MSA=$TARGET_MMSEQS
-
-
-		fi
-
-		# if target mmseqs file is a hhm, then we are ready.
-		if [[ "$TARGET_MMSEQS_TYPE" == "HHM" ]]
-			TARGET_MMSEQS_HHM=$TARGET_MMSEQS
-		fi
-
-		# Final check if file is a valid file format
-		if [ "$TARGET_MMSEQS_TYPE" != "MM_DB" ]
-			echo "ERROR: MMseqs target is an unsupported type of '$TARGET_MMSEQS_TYPE'."
-			exit 1
-		fi
-	}
-
-}
-

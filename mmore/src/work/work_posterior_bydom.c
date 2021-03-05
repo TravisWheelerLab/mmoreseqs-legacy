@@ -216,7 +216,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
          }
 
          /** TODO: Get optimal alignment */ 
-
+         
          
          /* add domain data */
          VECTOR_FLT_Pushback( dom_def->dom_fwdsc, fwd_sc );

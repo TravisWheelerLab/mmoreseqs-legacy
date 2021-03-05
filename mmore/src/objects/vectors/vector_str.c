@@ -326,7 +326,7 @@ VECTOR_STR_Push(  VECTOR_STR*   vec,
                   STR           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = STR_Create( val );
    vec->N++;
 }
 

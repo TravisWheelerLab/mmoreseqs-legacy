@@ -326,7 +326,7 @@ VECTOR_RANGE_Push(  VECTOR_RANGE*   vec,
                   RANGE           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = RANGE_Create( val );
    vec->N++;
 }
 

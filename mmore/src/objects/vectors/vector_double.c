@@ -326,7 +326,7 @@ VECTOR_DBL_Push(  VECTOR_DBL*   vec,
                   DBL           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = DBL_Create( val );
    vec->N++;
 }
 

@@ -42,6 +42,16 @@ FLT_Destroy( FLT   data )
    return data;
 }
 
+/*! FUNCTION:  FLT_Clear()
+ *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing. 
+ */
+inline
+FLT
+FLT_Clear( FLT   data )
+{
+   return data;
+}
+
 /*! FUNCTION:  FLT_To_String()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.

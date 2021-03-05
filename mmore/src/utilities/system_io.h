@@ -11,11 +11,11 @@
 
 #include "../objects/structs.h"
 
-/*! FUNCTION:  	SYSTEMIO_Exists()
+/*! FUNCTION:  	SYSTEMIO_FileExists()
  *  SYNOPSIS:  	Checks whether <filename> exists.
  */
 bool
-SYSTEMIO_Exists( const STR filename );
+SYSTEMIO_FileExists( const STR filename );
 
 /*! FUNCTION:  	SYSTEMIO_HasWritePermission()
  *  SYNOPSIS:  	Checks whether user has permission to write to <filename>.

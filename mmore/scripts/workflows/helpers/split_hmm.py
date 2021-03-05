@@ -1,11 +1,12 @@
 #!/usr/bin/env python
-
 ###############################################################################
 #    FILE: 	split_hmm.py
 #   BRIEF: 	Split .hmm by 
 #
 #  AUTHOR: 	Dave Rich
 ###############################################################################
+
+import os, sys
 
 # parse commandline args
 pwd = os.getcwd()
@@ -14,7 +15,7 @@ if len(sys.argv) == 2:
 	in_file = sys.argv[i]
 else:
    print("Usage: <hmm_file>")
-   sys.exit(EXIT_SUCCESS)
+   sys.exit(1)
 
 in_fp = open(in_file, "r")
 

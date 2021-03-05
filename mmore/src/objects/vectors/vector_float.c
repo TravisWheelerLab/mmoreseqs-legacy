@@ -326,7 +326,7 @@ VECTOR_FLT_Push(  VECTOR_FLT*   vec,
                   FLT           val )
 {
    /* NOTE: This push() creates another copy of the data to store in vector (in the case of dynamically allocated data) */
-   VEC_X( vec, vec->N ) = val;
+   VEC_X( vec, vec->N ) = FLT_Create( val );
    vec->N++;
 }
 

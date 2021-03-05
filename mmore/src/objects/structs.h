@@ -119,6 +119,12 @@ typedef struct {
    int      st;        /* state at index */
 } TRACE;
 
+/* simple string-to-integer map */
+typedef struct {
+   STR      s;
+   int      i;
+} STR_TO_INT;
+
 /* === VECTORS === */
 
 /* default size of vectors when created */
@@ -579,8 +585,10 @@ typedef struct {
 
 /* commandline parser */
 typedef struct {
+   int            cur_cmd;             /* current commandline entry */
    int            cur_opt;             /* current option */
    int            cur_arg;             /* current argument */
+   VECTOR_STR*    cmds;                /* all commandline entries */
    VECTOR_STR*    options;             /* commandline option flags */
    VECTOR_STR*    arguments;           /* commandline arguments for options */
    VECTOR_INT*    argument_opts;       /* associated option for argument */
@@ -595,13 +603,17 @@ typedef struct {
    char*    opts;                   /* all options from commandline */
 
    /* --- PIPELINE OPTIONS --- */
-   int      pipeline_mode;          /* which workflow pipeline to use */
+   // PIPELINE pipeline;               /* workflow pipeline */
+   STR      pipeline_name;          /* workflow pipeline */
+   int      pipeline_mode;          /* workflow pipeline enum */
    int      search_mode;            /* alignment search mode */
    int      verbose_level;          /* levels of verbosity */
-   char*    tmp_folderpath;         /* location to build a temporary work folder */
+   STR      tmp_folderpath;         /* location to build a temporary work folder */
    bool     tmp_remove;             /* should temp files/folders be removed at the end? */
 
    /* --- SEARCH/RANGE OPTIONS --- */
+   int      search_type;            /* enumerated search type */
+   STR      search_name;            /* search name [P2S, S2S] */
    /* type of searches */
    int      qt_search_space;        /* which queries vs which targets? */
    /* for specified range of targets/queries in file */
@@ -617,27 +629,42 @@ typedef struct {
    bool     enforce_warnings;       /* if error is caught, force close? */
    bool     adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
 
-   /* --- INPUT --- */
-   /* file paths */
+   /* --- INPUT FILES --- */
+   /* input files */
    char*          t_filepath;             /* target (fasta, hmm, or msa) file */
    char*          q_filepath;             /* query (fasta, hmm, or msa) file */
-   char*          t_mmseqs_p_filepath;    /* target for mmseqs profile (hhm, msa, mm_msa, mm_db, or fasta) file */
-   char*          t_mmseqs_s_filepath;    /* target for mmseqs sequence */
-   char*          q_mmseqs_filepath;      /* filepath to mmseqs query (hhm, msa, mm_msa, mm_db, or fasta) file */
-   /* target/query metadata */
+   char*          t_mmore_filepath;       /* target for mmore (hmm) file */
+   char*          q_mmore_filepath;       /* query for mmore (fasta) file */
+   char*          t_mmseqs_p_filepath;    /* target for mmseqs profile (pmmdb) file */
+   char*          t_mmseqs_s_filepath;    /* target for mmseqs sequence (smmdb) file */
+   char*          q_mmseqs_filepath;      /* filepath to mmseqs query (smmdb) file */
+   /* input filetypes */
    bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
-   FILE_TYPE      t_filetype;             /* enumerated FILETYPE of target file */
-   FILE_TYPE      q_filetype;             /* enumerated FILETYPE of query file */
-   FILE_TYPE      t_mmseqs_p_filetype;    /* enumerated FILETYPE of mmseqs target file */
-   FILE_TYPE      t_mmseqs_s_filetype;    /* enumerated FILETYPE of mmseqs target file */
-   FILE_TYPE      q_mmseqs_filetype;      /* enumerated FILETYPE of mmseqs query file */
-   /* index paths */
+   FILETYPE       t_filetype;             /* FILETYPE of target file */
+   FILETYPE       q_filetype;             /* FILETYPE of query file */
+   FILETYPE       t_mmore_filetype;       /* FILETYPE of mmore target file */
+   FILETYPE       q_mmore_filetype;       /* FILETYPE of mmore target file */
+   FILETYPE       t_mmseqs_p_filetype;    /* FILETYPE of mmseqs target file */
+   FILETYPE       t_mmseqs_s_filetype;    /* FILETYPE of mmseqs target file */
+   FILETYPE       q_mmseqs_filetype;      /* FILETYPE of mmseqs query file */
+   /* input indexes */
    bool           is_indexpath;           /* is an index file supplied? */
    char*          t_indexpath;            /* index filepath for quick access of target (hmm) file */
    char*          q_indexpath;            /* index filepath for quick access of query (fasta) file */
+   
+   /* --- INPUT DATA --- */
    /* database size */
    int            t_dbsize;               /* number of targets in database */
    int            q_dbsize;               /* number of queries in database */
+   int            prefilter_dbsize;       /* number of target/query pairs that made it through the prefilter */
+   int            mmseqs_dbsize;          /* number of target/query pairs that made it through mmseqs */     
+   /* times */
+   float          prep_time;              /* time spent preparing files */
+   float          mmseqs_time;            /* time spent running mmseqs (full) */
+   float          mmseqs_prefilter_time;  /* time spent running mmseqs prefilter */
+   float          mmseqs_p2s_time;        /* time spent running mmseqs prof-to-seq search */
+   float          mmseqs_s2s_time;        /* time spent running mmseqs seq-to-seq search */
+   float          mmseqs_convert_time;    /* time spent running mmseqs convertalis */
 
    /* --- OPTIONAL OUTPUT --- */
    /* simple hitlist (input) */
@@ -645,14 +672,12 @@ typedef struct {
 
    /* --- PREPARATION OUTPUT --- */
    /* root prep folder */
-   bool           is_run_prep;            /* Should run prep before main pipeline? */
-   bool           is_prep_copy;           /* Should prep folder make copies or soft link input files? */
-   char*          prep_folder;            /* location to find prep folder */
+   char*          prep_folderpath;        /* location to find prep folder */
    /* prep-able files */
    char*          target_prep;            /* target file to be prepped (either FASTA or MSA) */
    char*          query_prep;             /* query file to be prepped (either FASTA or MSA) */
-   FILE_TYPE      target_prep_type;       /* filetype of target prep file */
-   FILE_TYPE      query_prep_type;        /* filetype of target prep file */
+   FILETYPE       target_prep_type;       /* filetype of target prep file */
+   FILETYPE       query_prep_type;        /* filetype of target prep file */
 
    /* --- INTERRIM OUTPUT --- */
    /* hmm file (if fasta file is given as input, a single sequence hmm file) */
@@ -666,41 +691,43 @@ typedef struct {
    char*    hhmout_filepath;        /* filepath to output .hhm file to */
 
    /* --- PIPELINE INTERRIM OUTPUT --- */
-   /* mmseqs-plus search */
+   /* mmseqs search output */
    bool     is_mmseqs_m8out;        /* output .m8out results file? */    
    char*    mmseqs_m8_filepath;     /* filepath to mmseqs .m8 results file */
-   /* optional output */
+   /* mmseqs profile-to-seq output */
    bool     is_mmseqs_p2sout;       /* output profile-to-sequence mmseqs results? */
    char*    mmseqs_p2s_filepath;    /* filepath to output results; if NULL, doesn't output */
-
-   bool     is_mmseqs_s2sout;       /* output profile-to-sequence mmseqs results? */
+   /* mmseqs seq-to-seq output */
+   bool     is_mmseqs_s2sout;       /* output sequence-to-sequence mmseqs results? */
    char*    mmseqs_s2s_filepath;    /* filepath to output results; if NULL, doesn't output */
 
    /* --- OUTPUT --- */
-   /* standard output path */
+   /* default outputs */
    bool     is_redirect_stdout;     /* are we redirecting stdout? */
-   char*    output_filepath;        /* filepath to output results to; "!stdout" => stdout */
-    /* standard error path */
+   char*    stdout_fileout;         /* filepath to output results to; "!stdout" => stdout */
    bool     is_redirect_stderr;     /* are we redirecting stdout? */
-   char*    error_filepath;         /* filepath to output results to; "!stdout" => stdout */
-   /* tblout option/path (modeled after HMMER --tblout) */
+   char*    stderr_fileout;         /* filepath to output results to; "!stdout" => stdout */
+   /* special outputs */
+   bool     is_allout;              /* report all special output? */
+   char*    allout_fileout;         /* base name for outputs */
+   /* tblout option/path (modeled after HMMER domtblout --tblout) */
    bool     is_tblout;              /* report tblout table? */
-   char*    tblout_filepath;        /* filepath to output results; if NULL, doesn't output */
+   char*    tblout_fileout;         /* filepath to output results; if NULL, doesn't output */
    /* m8out option/path (modeled after MMseqs) */
    bool     is_m8out;               /* report m8out table? */
-   char*    m8out_filepath;         /* filepath to output results; if NULL, doesn't output */
+   char*    m8out_fileout;          /* filepath to output results; if NULL, doesn't output */
    /* myout option/path (my custom output) */
    bool     is_myout;               /* report myout table? */
-   char*    myout_filepath;         /* filepath to output results; if NULL, doesn't output */
+   char*    myout_fileout;          /* filepath to output results; if NULL, doesn't output */
    /* mydomout option/path (my custom output for domains) */
-   bool     is_mydomout;            /* report mydomout table? */
-   char*    mydomout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   bool     is_mydom;               /* report mydomout table? */
+   char*    mydom_fileout;          /* filepath to output results; if NULL, doesn't output */
    /* mytimeout option/path (my custom output for times) */
-   bool     is_mytimeout;            /* report mytimeout table? */
-   char*    mytimeout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   bool     is_mytimeout;           /* report mytimeout table? */
+   char*    mytime_fileout;         /* filepath to output results; if NULL, doesn't output */
    /* mythreshout option/path (my custom output for times) */
-   bool     is_mythreshout;            /* report mythreshout table? */
-   char*    mythreshout_filepath;      /* filepath to output results; if NULL, doesn't output */
+   bool     is_mythreshout;         /* report mythreshout table? */
+   char*    mythresh_fileout;       /* filepath to output results; if NULL, doesn't output */
    
    /* customized output */
    bool     is_customout;           /* report myout table? */
@@ -708,10 +735,15 @@ typedef struct {
    bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
   
    /* --- TASK OPTIONS --- */
-   bool     is_run_pruned;          /* should run pruned forward backward? */
-   bool     is_run_full;            /* should run full forward backward? */
-   bool     is_run_domains;         /* should run domain search? */
-   bool     is_run_bias;            /* should composition bias filter be applied? */
+   bool     is_run_prep;               /* Should run prep before main pipeline? */
+   bool     is_prep_copy;              /* Should prep folder make copies or soft link input files? */
+   bool     is_run_pruned;             /* should run pruned forward backward? */
+   bool     is_run_full;               /* should run full forward backward? */
+   bool     is_run_domains;            /* should run domain search? */
+   bool     is_run_bias;               /* should composition bias filter be applied? */
+   bool     is_run_mmseqsaln;          /* perform mmseqs alignment? */
+   bool     is_run_vitaln;             /* perform viterbi alignment? */
+   bool     is_run_postaln;            /* perform posterior alignment? */
 
    /* --- MMSEQS --- */
    int      mmseqs_hits_per_search;    /* maximum number of alignments allowed to be reported per target/query search */ 
@@ -789,6 +821,17 @@ typedef struct {
 
 /* times for subroutines during program lifetime */
 typedef struct {
+   /* PREP */
+   float    prep;                /* runtime of full prep */
+
+   /* MMSEQS */
+   float    mmseqs;              /* runtime of full mmseqs */
+   float    mmseqs_prefilter;    /* prefilter */
+   float    mmseqs_p2s;          /* profile-to-sequence search */
+   float    mmseqs_s2s;          /* sequence-to-sequence search */
+   float    mmseqs_convertalis;  /* convert alignments */
+
+   /* MMORE */
    /* --- overall --- */
    float    program_start;       /* start time of program */
    float    program_end;         /* end time of program */
@@ -1444,6 +1487,7 @@ typedef struct {
 
 /* pipeline descriptors */
 typedef struct {
+   // int            enum_type;                                /* enum type of pipeline */
    char*          name;                                     /* name of pipeline */
    STATUS_FLAG    (*pipeline_main)                               
                   (WORKER* worker);                         /* pointer to main pipeline function */
@@ -1468,9 +1512,12 @@ extern char*         STATE_FULL_NAMES[];
 extern char*         STATE_CHARS[];
 extern char          STATE_CHAR[];
 /* input file types and extensions */
-extern char*         FILE_TYPE_EXTS[];
-extern char*         FILE_TYPE_NAMES[];
-extern int           FILE_TYPE_MAP[];
+extern STR_TO_INT    FILETYPE_EXTS[];
+extern const int     NUM_FILETYPE_EXTS;
+int                  FILETYPE_EXT_Get( STR   filetype_ext );
+extern STR_TO_INT    FILETYPE_NAMES[];
+extern const int     NUM_FILETYPE_NAMES;
+STR                  FILETYPE_NAME_Get( FILETYPE   filetype_id );
 /* alphabetically-ordered amino lookup and reverse lookup tables */
 extern char          ALPH_AMINO_CHARS[];
 extern char          AA[];
@@ -1496,5 +1543,6 @@ extern char*         MMORE_BIN;
 
 /* debugging data */
 extern DEBUG_KIT*    debugger;
+extern int           VERBOSE;
 
 #endif /* _STRUCTS_H */
