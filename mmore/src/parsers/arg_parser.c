@@ -37,10 +37,11 @@ ARGS_MainArg_Parser(    ARGS*          args,
  *  SYNOPSIS:  Parses Arguments from the command line.
  */
 void   
-ARGS_Parse(    ARGS*       args,
-               int         argc, 
-               char*       argv[],
-               ARG_OPTS*   arg_opts )
+ARGS_Parse(    ARGS*          args,
+               int            argc, 
+               char*          argv[],
+               COMMANDLINE*   cmd,
+               ARG_OPTS*      arg_opts )
 {
    int   num_main_args     = 2; 
    char* flag              = NULL;
@@ -126,7 +127,7 @@ ARGS_Parse(    ARGS*       args,
       args->t_filetype = FILE_HMM;
       args->q_filetype = FILE_FASTA;
    }
-   elif ( STR_Equals( args->pipeline_name, "prep" ) )
+   elif ( STR_Equals( args->pipeline_name, "mmore-prep" ) )
    {
       args->target_prep       = STR_Set( args->target_prep,       argv[2] );
       args->query_prep        = STR_Set( args->query_prep,        argv[3] );
@@ -136,21 +137,25 @@ ARGS_Parse(    ARGS*       args,
       args->target_prep_type  = FILE_MSA;
       args->query_prep_type   = FILE_FASTA;
    }
-   elif ( STR_Equals( args->pipeline_name, "search" ) )
+   elif ( STR_Equals( args->pipeline_name, "mmore-prepsearch" ) )
    {
-      args->t_filepath           = STR_Set( args->t_filepath, argv[2] );
-      args->q_filepath           = STR_Set( args->q_filepath, argv[3] );
-      args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath, argv[4] );
-      args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath, argv[5] );
-      args->q_mmseqs_filepath    = STR_Set( args->q_mmseqs_filepath, argv[6] );
+      args->prep_folderpath   = STR_Set( args->prep_folderpath,   argv[2] );
+   } 
+   elif ( STR_Equals( args->pipeline_name, "mmore-search" ) )
+   {
+      args->t_mmore_filepath     = STR_Set( args->t_mmore_filepath,     argv[2] );
+      args->q_mmore_filepath     = STR_Set( args->q_mmore_filepath,     argv[3] );
+      args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath,  argv[4] );
+      args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath,  argv[5] );
+      args->q_mmseqs_filepath    = STR_Set( args->q_mmseqs_filepath,    argv[6] );
 
-      args->t_filetype           = FILE_HMM;
+      args->t_mmore_p_filetype   = FILE_HMM;
       args->q_filetype           = FILE_FASTA;
       args->t_mmseqs_p_filetype  = FILE_MMDB_P;
       args->t_mmseqs_s_filetype  = FILE_MMDB_S;
       args->q_mmseqs_filetype    = FILE_MMDB_S;
    }
-   elif ( STR_Equals( args->pipeline_name, "easy-search" ) )
+   elif ( STR_Equals( args->pipeline_name, "mmore-easysearch" ) )
    {
       args->target_prep       = STR_Set( args->target_prep,       argv[2] );
       args->query_prep        = STR_Set( args->query_prep,        argv[3] );
@@ -328,7 +333,6 @@ ARGS_Parse(    ARGS*       args,
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-m8") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
-
                i++;
                args->mmseqs_m8_filepath = STR_Set( args->mmseqs_m8_filepath, argv[i] );
             } else {
@@ -337,7 +341,18 @@ ARGS_Parse(    ARGS*       args,
             }
          }
          /* === INPUT DATA === */
-
+         else if ( STR_Compare( argv[i], (flag = "--dbsizes") ) == 0 ) {
+            req_args = 2;
+            if (i+req_args < argc) {
+               i++;
+               args->q_dbsize = atoi(argv[i]);
+               i++;
+               args->t_dbsize = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: '%s' flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === MMORE PARAMETERS === */
          else if ( STR_Compare( argv[i], (flag = "--alpha") ) == 0 ) {
             req_args = 1;
@@ -430,7 +445,7 @@ ARGS_Parse(    ARGS*       args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--run-vitaln") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--run-postaln") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -713,6 +728,9 @@ ARGS_Parse(    ARGS*       args,
          ERRORCHECK_exit(EXIT_FAILURE);
       }
    }
+
+   /* print commandline input */
+   
 }
 
 /*! FUNCTION:  ARGS_MainArg_Parser()

@@ -599,51 +599,62 @@ typedef struct {
 typedef struct {
    /* --- FULL CMD LINE --- */
    /* all commandline and opts */
-   char*    cmdline;                /* full commandline */                  
-   char*    opts;                   /* all options from commandline */
+   char*          cmdline;                /* full commandline */                  
+   char*          opts;                   /* all options from commandline */
 
    /* --- PIPELINE OPTIONS --- */
    // PIPELINE pipeline;               /* workflow pipeline */
-   STR      pipeline_name;          /* workflow pipeline */
-   int      pipeline_mode;          /* workflow pipeline enum */
-   int      search_mode;            /* alignment search mode */
-   int      verbose_level;          /* levels of verbosity */
-   STR      tmp_folderpath;         /* location to build a temporary work folder */
-   bool     tmp_remove;             /* should temp files/folders be removed at the end? */
+   STR            pipeline_name;          /* workflow pipeline */
+   int            pipeline_mode;          /* workflow pipeline enum */
+   int            search_mode;            /* alignment search mode */
+   int            verbose_level;          /* levels of verbosity */
+   STR            tmp_folderpath;         /* location to build a temporary work folder */
+   bool           tmp_remove;             /* should temp files/folders be removed at the end? */
 
    /* --- SEARCH/RANGE OPTIONS --- */
-   int      search_type;            /* enumerated search type */
-   STR      search_name;            /* search name [P2S, S2S] */
+   int            search_type;            /* enumerated search type */
+   STR            search_name;            /* search name [P2S, S2S] */
    /* type of searches */
-   int      qt_search_space;        /* which queries vs which targets? */
+   int            qt_search_space;        /* which queries vs which targets? */
    /* for specified range of targets/queries in file */
-   RANGE    t_range;                /* start-end range of targets in file (inclusive) */
-   RANGE    q_range;                /* start-end range of queries in file (inclusive) */
-   RANGE    list_range;             /* start-end range of hitlist */
+   RANGE          t_range;                /* start-end range of targets in file (inclusive) */
+   RANGE          q_range;                /* start-end range of queries in file (inclusive) */
+   RANGE          list_range;             /* start-end range of hitlist */
 
    /* --- DEBUG OPTIONS --- */
-   bool     is_use_local_tools;     /* whether to system installed tools or local project tools */
-   bool     is_recycle_mx;          /* whether to recycle <fwd> and <bck> matrices for computing <post> and <optacc> */
-   bool     is_debug;               /* determines whether debug statements appear */
-   char*    dbg_folderpath;         /* location for debugging */
-   bool     enforce_warnings;       /* if error is caught, force close? */
-   bool     adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
+   bool           is_use_local_tools;     /* whether to system installed tools or local project tools */
+   bool           is_recycle_mx;          /* whether to recycle <fwd> and <bck> matrices for computing <post> and <optacc> */
+   bool           is_debug;               /* determines whether debug statements appear */
+   char*          dbg_folderpath;         /* location for debugging */
+   bool           enforce_warnings;       /* if error is caught, force close? */
+   bool           adjust_mmseqs_alns;     /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
 
    /* --- INPUT FILES --- */
-   /* input files */
+   /* main files */
    char*          t_filepath;             /* target (fasta, hmm, or msa) file */
    char*          q_filepath;             /* query (fasta, hmm, or msa) file */
+   /* mmore files */
    char*          t_mmore_filepath;       /* target for mmore (hmm) file */
+   char*          t_mmore_p_filepath;     /* target for mmore (hmm) file */
+   char*          t_mmore_s_filepath;     /* target for mmore (fasta) file */
    char*          q_mmore_filepath;       /* query for mmore (fasta) file */
+   /* mmseqs files */
+   char*          t_mmseqs_filepath;      /* target for mmseqs profile (pmmdb) file */
    char*          t_mmseqs_p_filepath;    /* target for mmseqs profile (pmmdb) file */
    char*          t_mmseqs_s_filepath;    /* target for mmseqs sequence (smmdb) file */
    char*          q_mmseqs_filepath;      /* filepath to mmseqs query (smmdb) file */
    /* input filetypes */
    bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
+   /* main files */
    FILETYPE       t_filetype;             /* FILETYPE of target file */
    FILETYPE       q_filetype;             /* FILETYPE of query file */
+   /* mmore files */
    FILETYPE       t_mmore_filetype;       /* FILETYPE of mmore target file */
+   FILETYPE       t_mmore_p_filetype;     /* FILETYPE of mmore target file */
+   FILETYPE       t_mmore_s_filetype;     /* FILETYPE of mmore target file */
    FILETYPE       q_mmore_filetype;       /* FILETYPE of mmore target file */
+   /* mmseqs files */
+   FILETYPE       t_mmseqs_filetype;      /* FILETYPE of mmseqs target file */
    FILETYPE       t_mmseqs_p_filetype;    /* FILETYPE of mmseqs target file */
    FILETYPE       t_mmseqs_s_filetype;    /* FILETYPE of mmseqs target file */
    FILETYPE       q_mmseqs_filetype;      /* FILETYPE of mmseqs query file */

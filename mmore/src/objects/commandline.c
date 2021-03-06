@@ -146,7 +146,7 @@ size_t
 COMMANDLINE_GetNumCmds( COMMANDLINE*   cmd )
 {
    size_t N;
-   N = VECTOR_STR_GetSize( cmd->options );
+   N = VECTOR_STR_GetSize( cmd->cmds );
    return N;
 }
 
@@ -245,3 +245,23 @@ COMMANDLINE_Dump( COMMANDLINE*  cmd,
    }
 }
 
+/*! FUNCTION:  COMMANDLINE_SimpleDump()
+ *  SYNOPSIS:  Output <cmd> to <fp>.
+ */
+void 
+COMMANDLINE_SimpleDump( COMMANDLINE*  cmd,
+                        FILE*         fp )
+{
+   int      N_cmds;
+   STR      my_cmd;
+
+   N_cmds = COMMANDLINE_GetNumCmds( cmd );
+   fprintf(fp, "# COMMAND: ");
+
+   for (int i = 0; i < N_cmds; i++) 
+   {
+      my_cmd = COMMANDLINE_Get( cmd, i );
+      printf("%s ", my_cmd);
+   }
+   printf("\n");
+}

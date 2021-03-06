@@ -61,4 +61,11 @@ void
 COMMANDLINE_Dump( COMMANDLINE*  cmd,
                   FILE*         fp );
 
+/*! FUNCTION:  COMMANDLINE_SimpleDump()
+ *  SYNOPSIS:  Output <cmd> to <fp>.
+ */
+void 
+COMMANDLINE_SimpleDump( COMMANDLINE*  cmd,
+                        FILE*         fp );
+
 #endif /* COMMANDLINE_H_ */

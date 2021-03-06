@@ -45,9 +45,14 @@ ARGS_Create()
    args->prep_folderpath         = NULL;
 
    args->t_filepath              = NULL;
-   args->q_filepath              = NULL; 
+   args->q_filepath              = NULL;
+
    args->t_mmore_filepath        = NULL;
+   args->t_mmore_p_filepath      = NULL;
+   args->t_mmore_s_filepath      = NULL;
    args->q_mmore_filepath        = NULL;
+
+   args->t_mmseqs_filepath       = NULL;
    args->t_mmseqs_p_filepath     = NULL;
    args->t_mmseqs_s_filepath     = NULL;
    args->q_mmseqs_filepath       = NULL;
@@ -95,8 +100,13 @@ ARGS_Destroy( ARGS* args )
 
    STR_Destroy( args->t_filepath );
    STR_Destroy( args->q_filepath );
+
    STR_Destroy( args->t_mmore_filepath );
+   STR_Destroy( args->t_mmore_p_filepath );
+   STR_Destroy( args->t_mmore_s_filepath );
    STR_Destroy( args->q_mmore_filepath );
+
+   STR_Destroy( args->t_mmseqs_filepath );
    STR_Destroy( args->t_mmseqs_p_filepath );
    STR_Destroy( args->t_mmseqs_s_filepath );
    STR_Destroy( args->q_mmseqs_filepath );

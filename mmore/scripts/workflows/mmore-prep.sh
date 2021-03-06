@@ -151,7 +151,7 @@
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORESEQS: PREP ==============="
+				echo "# 	============ MMORE: PREP ==============="
 				echo "#      TARGET_PREP:  $TARGET [$TARGET_TYPE]"
 				echo "#       QUERY_PREP:  $QUERY [$QUERY_TYPE]"
 				echo "#         PREP_DIR:  $TEMP_DIR"
@@ -163,35 +163,50 @@
 			# top-level temporary directory
 			TMP="${TEMP_DIR}/"
 			TMP_DB="${TMP}/db/"
+			TMP_OUT="${TMP}/out/"
 			# mmore folders
 			TMP_MMORE="${TMP}/mmore/"
 			TMP_MMORE_DB="${TMP_MMORE}/db/"
+			TMP_MMORE_OUT="${TMP_MMORE}/out/"
 			# mmseqs folders
 			TMP_MMSEQS="${TMP}/mmseqs/"
 			TMP_MMSEQS_DB="${TMP_MMSEQS}/db/"
+			TMP_MMSEQS_OUT="${TMP_MMSEQS}/out/"
 
 			# make tmp directories
 			MAKE_DIR $TMP
 			MAKE_DIR $TMP_DB 
+			MAKE_DIR $TMP_OUT
 			MAKE_DIR $TMP_MMORE
 			MAKE_DIR $TMP_MMORE_DB
+			MAKE_DIR $TMP_MMORE_OUT
 			MAKE_DIR $TMP_MMSEQS
 			MAKE_DIR $TMP_MMSEQS_DB
+			MAKE_DIR $TMP_MMSEQS_OUT
 
 			# list of temp folders 
 			TEMP_FOLDERS=""
 			TEMP_FOLDERS+="${TMP}" 
 			TEMP_FOLDERS+="${TMP_DB}"
+			TEMP_FOLDERS+="${TMP_OUT}"
 			TEMP_FOLDERS+="${TMP_MMORE}"
 			TEMP_FOLDERS+="${TMP_MMORE_DB}"
+			TEMP_FOLDERS+="${TMP_MMORE_OUT}"
 			TEMP_FOLDERS+="${TMP_MMSEQS}" 
 			TEMP_FOLDERS+="${TMP_MMSEQS_DB}"
+			TEMP_FOLDERS+="${TMP_MMSEQS_OUT}"
 		}
 	}
 
 	# === FILE FORMATTING === #
 	{
 		echo_v 2 "# (1/3) Importing files: ${TARGET} [${TARGET_TYPE}], ${QUERY} [${QUERY_TYPE}]..."
+		
+		# set whether to out
+		if (( $VERBOSE < 3 )); then
+			QUIET_OUT="/dev/null"
+		fi
+		
 		# destination locations 
 		{
 			# main db
@@ -274,9 +289,11 @@
 			# If target is a msa file 
 			if [ "$TARGET_TYPE" == "MSA" ]
 			then
+				# search type
+				SEARCH_TYPE="P2S"
+
 				# convert msa to hmm file 
-				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" 	\
-				> /dev/null
+				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" 		\
 
 				# convert hmm to fasta
 				$HMMEMIT -c "$TARGET_HMM" > "$TARGET_FASTA"	
@@ -289,28 +306,36 @@
 				# convert msa to mm_msa
 				$MMSEQS convertmsa								\
 				"$TARGET_MSA" "$TARGET_MM_MSA" 				\
-				# --identifier-field 	0 							\
-				> /dev/null
+				--identifier-field	0							\
+				-v 						$VERBOSE					\
 
 				# convert fasta to sequence mmdb 
 				$MMSEQS createdb 									\
 				"$TARGET_FASTA" 	"$TARGET_MMSEQS_S" 		\
-				> /dev/null
+				-v 						$VERBOSE 				\	
 
 				# convert mm_msa to profile mmdb
 				$MMSEQS msa2profile  							\
 				"$TARGET_MM_MSA" "$TARGET_MMSEQS_P" 		\
-				> /dev/null
+				-v 						$VERBOSE 				\
+
 			fi
 
 			# If target is a hmm file, then convert to consensus fasta file
 			if [ "$TARGET_TYPE" == "FASTA" ]
 			then
+				# search type
+				SEARCH_TYPE="S2S"
+
 				# convert fasta to hmm
-				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh "$TARGET_FASTA" "$TARGET_HMM" "tmp_split"
+				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh 	\
+				"$TARGET_FASTA" "$TARGET_HMM" "tmp_split" 		\
 
 				# convert fasta to sequence mmdb 
-				$MMSEQS createdb "$TARGET_FASTA" "$TARGET_MMSEQS_S" > /dev/null
+				$MMSEQS createdb  										\
+				"$TARGET_FASTA" "$TARGET_MMSEQS_S"  				\
+				-v 						$VERBOSE 						\
+
 			fi
 		}
 
@@ -323,7 +348,6 @@
 				# convert msa to hmm
 				$HMMBUILD  										\
 				"$QUERY_HMM" "$QUERY_MSA" 					\
-				> /dev/null
 
 				# convert hmm to fasta
 				$HMMEMIT -c "$QUERY_HMM" > "$QUERY_FASTA"	
@@ -336,7 +360,7 @@
 				# convert fasta to sequence mmdb 
 				$MMSEQS createdb  							\
 				"$QUERY_FASTA" "$QUERY_MMSEQS"  			\
-				> /dev/null
+
 			fi
 
 			# if query is a fasta file
@@ -349,8 +373,15 @@
 				# convert fasta to sequence mmdb
 				$MMSEQS createdb  							\
 				"$QUERY_FASTA" "$QUERY_MMSEQS" 			\
-				> /dev/null
+
 			fi
+		}
+
+		echo_v 2 "# (4/4) Cleanup"
+		# CLEANUP
+		{
+			SEARCH_FILE="${TMP}/search_type.txt"
+			echo "$SEARCH_TYPE" > $SEARCH_FILE
 		}
 	}
 }

@@ -143,7 +143,7 @@
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORESEQS: EASY-SEARCH ============"
+				echo "# 	============ MMORESEQS: EASYSEARCH ============"
 				echo "#           TARGET:  $TARGET"
 				echo "#            QUERY:  $QUERY"
 				echo "#      PREP_FOLDER:  $PREP_DIR"
@@ -158,7 +158,8 @@
 
 		LOAD_SOURCE "${SCRIPT_DIR}/mmore-prep.sh" 	\
 		"$TARGET" 	"$QUERY" 								\
-		"$PREP_DIR" 											
+		"$PREP_DIR" 											\
+
 	}
 
 	# Run MMORE-SEQS Search
@@ -168,8 +169,10 @@
 
 		# Call Bash Script
 		LOAD_SOURCE "${SCRIPT_DIR}/mmore-prepsearch.sh" 	\
-		"$TARGET_MMORE" 		"$QUERY_MMORE" 					\
+		"$TARGET_MMORE" 										 		\
+		"$QUERY_MMORE" 												\
 		"$TARGET_MMSEQS_P" 	"$TARGET_MMSEQS_S" 				\
-		"$QUERY_MMSEQS"
+		"$QUERY_MMSEQS"												\
+
 	}
 }

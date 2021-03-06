@@ -33,7 +33,7 @@
 STATUS_FLAG 
 mmore_easysearch_pipeline( WORKER* worker )
 {
-   printf("=== MMORE PIPELINE ===\n");
+   printf("=== MMORE: EASYSEARCH PIPELINE ===\n");
    
    ARGS*          args     = worker->args;
    TASKS*         tasks    = worker->tasks;

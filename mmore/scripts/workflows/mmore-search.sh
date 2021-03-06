@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 ###########################################################################
-#	NAME: 		mmore.sh	
+#	NAME: 		mmore-search.sh	
 #	AUTHOR:		David Rich
-#	DESC: 		Run full prep & search MMORE pipeline.
+#	DESC: 		Run full MMORE pipeline.
 ###########################################################################
 
 # PROGRAM:
@@ -13,15 +13,15 @@
 # (5) index mmore dbs
 # (5) run mmore search
 
-#set verbosity
-VERBOSE="${VERBOSE:-3}"
-if (( $VERBOSE > 3 )); then 
-	VERB_ARG="-v"
-fi
-
 # ##### FUNCTIONS ###### #
 # main script only contains the minimum functions needed to load helper function script
 {
+	#set verbosity
+	VERBOSE="${VERBOSE:-3}"
+	if (( $VERBOSE > 3 )); then 
+		VERB_ARG="-v"
+	fi
+
 	# only echoes if has higher verbosity level
 	function echo_v
 	{
@@ -97,163 +97,16 @@ fi
 
 # ##### MAIN ###### #
 {
-	echo_v 1 "Running Program: mmore-search.sh..."
+	echo_v 2 "Running Program: mmore.sh..."
 
-	# load functions
-	echo_v 3 "Importing 'mmore_functions.sh..."
-	LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_functions.sh"
-	# load tools 
-	echo_v 3 "Importing 'mmore_get-tools.sh'..."
-	LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_get-tools.sh"
-
-	# variable preprocessing 
+	# load script dependencies 
 	{
-		# process commandline variables
-		{
-			#verify proper number of variables
-			NUM_ARGS=$#
-			REQ_ARGS=3
-			if (( $NUM_ARGS < $REQ_ARGS )); then 
-				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
-				echo "Usage: <i:target> <i:query> <prep_folder> | <target_type> <query_type>"
-				echo "Accepted Filetypes: FASTA, MSA"
-				exit 1
-			fi
-
-			# main commandline args
-			ARG_TARGET=$1
-			ARG_QUERY=$2
-			ARG_PREP_DIR=$3
-			# optional args
-			ARG_TARGET_TYPE_S=$4
-			ARG_QUERY_TYPE=$5
-
-			# print command line arguments
-			echo_v 1 "./mmore.sh [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS [3]$ARG_QUERY_MMSEQS | [4]$ARG_TARGET_TYPE [5]$ARG_QUERY_TYPE [6]$ARG_TARGET_MMSEQS_TYPE [7]$ARG_QUERY_MMSEQS_TYPE"
-		}
-
-		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
-		{
-			# main args:
-			TARGET="${TARGET:-$ARG_TARGET}"
-			QUERY="${QUERY:-$ARG_QUERY}"
-			TEMP_DIR="${TEMP_DIR:-$ARG_TEMP_DIR}"
-			TARGET_TYPE=
-			# mmore args:
-			TARGET_MMORE="${TARGET_MMORE:-$ARG_TARGET_MMORE}"
-			QUERY_MMORE="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
-			TARGET_MMORE_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
-			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
-			# mmseqs args:
-			TARGET_MMSEQS_P="${TARGET_MMSEQS_P:-$ARG_TARGET_MMSEQS_P}"
-			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
-			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
-			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
-			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
-			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
-			# directories:
-			ROOT_DIR="${ROOT_DIR:-'/'}"
-			SCRIPT_DIR="${SCRIPT_DIR:-""}"
-			TEMP_DIR="${TEMP_DIR:-""}"
-			# pipeline options:
-			RM_TEMP="${RM_TEMP:-0}" 
-			DO_PREP="${DO_PREP:-0}"
-			DO_COPY="${DO_COPY:-1}"
-			DO_OVERWRITE="${DO_OVERWRITE:-1}"
-			DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
-			NUM_THREADS="${NUM_THREADS:-1}"
-			# mmseqs options:
-			KMER="${KMER:-7}"
-			K_SCORE="${K_SCORE:-80}"
-			MIN_UNGAPPED_SCORE="${UNGAPPEDVIT_THRESH:-15}"
-			PVAL_CUTOFF="${GAPPEDVIT_THRESH:-0.001}"
-			EVAL_CUTOFF="${EVAL_CUTOFF:-200}"
-			SENSITIVITY="${SENSITIVITY:-7.5}"
-			# mmore options:
-			ALPHA="${ALPHA:-12.0}"
-			BETA="${BETA:-16.0}"
-			GAMMA="${GAMMA:-5}"
-			VIT_THRESH="${VIT_THRESH:-1e-3}"
-			CLOUD_THRESH="${CLOUD_THRESH:-1e-5}"
-			FWD_THRESH="${FWD_THRESH:-1e-5}"
-			DO_FILTER="${DO_FILTER:-0}"
-			DO_BIAS="${DO_BIAS:-1}"
-			DO_DOMAIN="${DO_DOMAIN:-1}"
-			DO_FULL="${DO_FULL:-0}"
-			# interrim files:
-			TARGET_MMSEQS_DB="${TARGET_MMSEQS_DB:-""}"
-			QUERY_MMSEQS_DB="${QUERY_MMSEQS_DB:-""}"
-			TARGET_INDEX="${TARGET_INDEX:-""}"
-			QUERY_INDEX="${QUERY_INDEX:-""}"
-			MMSEQS_P2SOUT="${MMSEQS_P2SOUT:-""}"
-			MMSEQS_S2SOUT="${MMSEQS_S2SOUT:-""}"
-			MMSEQS_M8OUT="${MMSEQS_OUT:-""}"
-			# output files:
-			MMORE_STDOUT="${MMORE_STDOUT:-""}"
-			MMORE_M8OUT="${MMORE_M8OUT:-""}"
-			MMORE_MYOUT="${MMORE_MYOUT:-""}"
-			MMORE_TIMEOUT="${MMORE_TIMEOUT:-""}"
-		}
-
-		# list of all main arguments
-		{
-			declare -A MAIN_FILES
-			MAIN_FILES["TARGET"]="$TARGET"
-			MAIN_FILES["QUERY"]="$QUERY" 
-			MAIN_FILES["TARGET_MMSEQS_P"]="$TARGET_MMSEQS_P" 
-			MAIN_FILES["TARGET_MMSEQS_S"]="$TARGET_MMSEQS_S" 
-			MAIN_FILES["QUERY_MMSEQS"]="$QUERY_MMSEQS"
-
-			declare -A MAIN_TYPES
-			MAIN_TYPES["TARGET_TYPE"]="$TARGET_TYPE"
-			MAIN_TYPES["QUERY_TYPE"]="$QUERY_TYPE" 
-			MAIN_TYPES["TARGET_MMSEQS_P_TYPE"]="$TARGET_MMSEQS_P_TYPE" 
-			MAIN_TYPES["TARGET_MMSEQS_S_TYPE"]="$TARGET_MMSEQS_S_TYPE" 
-			MAIN_TYPES["QUERY_MMSEQS_TYPE"]="$QUERY_MMSEQS_TYPE"
-		}
-
-		# list of all optional arguments
-		{
-			declare -A ARG_OPT
-		}
-
-		# specify input files (will verify they exist during preprocessing)
-		{
-			declare -A INPUT_FILES
-		}
-
-		# specify temporary files (will delete during cleanup stage)
-		{
-			declare -A TEMP_FILES
-		}
-
-		# specify output files (will move/copy from temp folder during cleanup stage)
-		{
-			declare -A OUTPUT_FILES
-		}
-
-		# report variables
-		{
-			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORE-SEARCH ============"
-				echo "#           TARGET:  $TARGET [$TARGET_TYPE]"
-				echo "#            QUERY:  $QUERY [$QUERY_TYPE]"
-				echo "#      PREP_FOLDER:  $TARGET_MMSEQS_P"
-				echo "#  TARGET_MMSEQS_S:  $TARGET_MMSEQS_S"
-				echo "#     QUERY_MMSEQS:  $QUERY_MMSEQS"
-				echo "#          RESULTS:  $RESULTS"
-				echo ""
-				echo "#     FILTER_SCORE:  $K_SCORE"
-				echo "#      UNGAP_SCORE:  $MIN_UNGAPPED_SCORE"
-				echo "#      MMSEQS_EVAL:  $MMSEQS_EVAL"
-				echo "#       MMORE_EVAL:  $MMORE_EVAL"
-				echo ""
-				echo "#            ALPHA:  $ALPHA"
-				echo "#             BETA:  $BETA"
-				echo "#            GAMMA:  $GAMMA"
-				echo "#     REPORT_SCORE:  $EVALUE_REPORT"
-			fi
-		}
+		# load functions
+		echo_v 3 "Importing 'mmore_functions.sh..."
+		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_functions.sh"
+		# load tools 
+		echo_v 3 "Importing 'mmore_get-tools.sh'..."
+		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_get-tools.sh"
 	}
 
 	# variable preprocessing 
@@ -265,98 +118,59 @@ fi
 			REQ_ARGS=4
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
-				echo "Usage: <target_mmore> <query_mmore> <target_mmseqs_p> <target_mmseqs_s> <query_mmseqs> | <target_type> <query_type> <target_mmseqs_type> <query_mmseqs_type>"
+				echo "Usage: <target_mmore_p> <target_mmore_s> <query_mmore> <target_mmseqs_p> <target_mmseqs_s> <query_mmseqs> | <prep_dir>"
+				echo "./mmore.sh [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS_P [3]$ARG_TARGET_MMSEQS_P [4]$ARG_QUERY_MMSEQS | [5]$PREP_FILE"
 				echo "Accepted Filetypes: FASTA, HMM, HHM, MSA, MM_MSA, MMDB_S, MMDB_P"
 				echo ""
 				exit 1
 			fi
 
 			# main commandline args
-			ARG_TARGET=$1
-			ARG_QUERY=$2
+			ARG_TARGET_MMORE=$1
+			ARG_QUERY_MMORE=$2
 			ARG_TARGET_MMSEQS_P=$3
 			ARG_TARGET_MMSEQS_S=$4
 			ARG_QUERY_MMSEQS=$5
 			# optional commandline args
-			ARG_TARGET_TYPE=$5
-			ARG_QUERY_TYPE=$6
-			ARG_TARGET_MMSEQS_P_TYPE=$7
-			ARG_TARGET_MMSEQS_S_TYPE=$7
-			ARG_QUERY_MMSEQS_TYPE=$8
-
-			# print command line arguments
-			echo_v 1 "./mmore.sh [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS [3]$ARG_QUERY_MMSEQS | [4]$ARG_TARGET_TYPE [5]$ARG_QUERY_TYPE [6]$ARG_TARGET_MMSEQS_TYPE [7]$ARG_QUERY_MMSEQS_TYPE"
+			ARG_PREP_DIR=$7
+			ARG_TARGET_MMORE_TYPE=$8
+			ARG_QUERY_MMORE_TYPE=$9
+			ARG_TARGET_MMSEQS_P_TYPE=$10
+			ARG_TARGET_MMSEQS_S_TYPE=$11
+			ARG_QUERY_MMSEQS_TYPE=$12
 		}
 
 		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
 		{
-			# mmore args:
-			TARGET_MMORE="${TARGET_MMORE:-$ARG_TARGET_MMORE}"
-			TARGET_MMORE_TYPE="${TARGET_MMORE_TYPE:-$ARG_TARGET_MMORE_TYPE}"
+			# main args:
+			TARGET_MMORE_P="${TARGET_MMORE_P:-$ARG_TARGET_MMORE_P}"
+			TARGET_MMORE_S="${TARGET_MMORE_S:-$ARG_TARGET_MMORE_S}"
 			QUERY_MMORE="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
-			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
-			# mmseqs args:
 			TARGET_MMSEQS_P="${TARGET_MMSEQS_P:-$ARG_TARGET_MMSEQS_P}"
-			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
 			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
-			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
 			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
+			# main arg types:
+			PREP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
+			TARGET_MMORE_P_TYPE="${TARGET_MMORE_P_TYPE:-$ARG_TARGET_MMORE_P_TYPE}"
+			TARGET_MMORE_S_TYPE="${TARGET_MMORE_S_TYPE:-$ARG_TARGET_MMORE_S_TYPE}"
+			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
+			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
+			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
 			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
-			# prep args:
-			TARGET_PREP="${TARGET_PREP:-""}"
-			QUERY_PREP="${QUERY_PREP:-""}"
-			# options :
-			ROOT_DIR="${ROOT_DIR:-'/'}"
-			PREP_DIR="${PREP_DIR:-""}"
-			SCRIPT_DIR="${SCRIPT_DIR:-""}"
-			TEMP_DIR="${TEMP_DIR:-""}"
-			# pipeline options:
-			RM_TEMP="${RM_TEMP:-0}" 
-			DO_PREP="${DO_PREP:-0}"
-			DO_OVERWRITE="${DO_OVERWRITE:-1}"
-			DO_IGNORE_WARNINGS="${DO_IGNORE_WARNINGS:-1}"
-			NUM_THREADS="${NUM_THREADS:-1}"
-			# mmseqs parameters:
-			MMSEQS_KMER="${MMSEQS_KMER:-7}"
-			MMSEQS_KSCORE="${MMSEQS_KSCORE:-80}"
-			MMSEQS_VITSCORE="${MMSEQS_VITSCORE:-15}"
-			MMSEQS_EVAL="${MMSEQS_EVAL:-0.001}"
-			MMSEQS_SENS="${MMSEQS_SENS:-7.5}"
-			# mmore parameters:
-			ALPHA="${ALPHA:-12.0}"
-			BETA="${BETA:-16.0}"
-			GAMMA="${GAMMA:-5}"
-			VIT_THRESH="${VIT_THRESH:-1e-3}"
-			CLOUD_THRESH="${CLOUD_THRESH:-1e-5}"
-			FWD_THRESH="${FWD_THRESH:-1e-5}"
-			DO_FILTER="${DO_FILTER:-0}"
-			DO_BIAS="${DO_BIAS:-1}"
-			DO_DOMAIN="${DO_DOMAIN:-1}"
-			DO_FULL="${DO_FULL:-0}"
-			# interrim files:
-			TARGET_MMSEQS_DB="${TARGET_MMSEQS_DB:-""}"
-			QUERY_MMSEQS_DB="${QUERY_MMSEQS_DB:-""}"
-			TARGET_INDEX="${TARGET_INDEX:-""}"
-			QUERY_INDEX="${QUERY_INDEX:-""}"
-			MMSEQS_P2SOUT="${MMSEQS_P2SOUT:-""}"
-			MMSEQS_S2SOUT="${MMSEQS_S2SOUT:-""}"
-			MMSEQS_M8OUT="${MMSEQS_OUT:-""}"
-			# output files:
-			MMORE_STDOUT="${MMORE_STDOUT:-""}"
-			MMORE_M8OUT="${MMORE_M8OUT:-""}"
-			MMORE_MYOUT="${MMORE_MYOUT:-""}"
-			MMORE_TIMEOUT="${MMORE_TIMEOUT:-""}"
+			
+			SET_ENV_ARG_DEFAULTS
 		}
 
 		# list of all main arguments
 		{
+			# main files array
 			declare -A MAIN_FILES
-			MAIN_FILES["TARGET"]="$TARGET"
-			MAIN_FILES["QUERY"]="$QUERY" 
+			MAIN_FILES["TARGET_MMORE"]="$TARGET_MMORE"
+			MAIN_FILES["QUERY_MMORE"]="$QUERY_MMORE" 
 			MAIN_FILES["TARGET_MMSEQS_P"]="$TARGET_MMSEQS_P" 
 			MAIN_FILES["TARGET_MMSEQS_S"]="$TARGET_MMSEQS_S" 
 			MAIN_FILES["QUERY_MMSEQS"]="$QUERY_MMSEQS"
-
+			# main filetypes array
 			declare -A MAIN_TYPES
 			MAIN_TYPES["TARGET_TYPE"]="$TARGET_TYPE"
 			MAIN_TYPES["QUERY_TYPE"]="$QUERY_TYPE" 
@@ -387,32 +201,39 @@ fi
 
 		# report variables
 		{
-			if (( $VERBOSE >= 3 )); then
-				echo "#           TARGET: $TARGET"
-				echo "#            QUERY: $QUERY"
+			if (( $VERBOSE >= 3 )); 
+			then
+				echo "# ========== MMORE: SEARCH ==========="
+				echo "#     TARGET_MMORE: $TARGET_MMORE"
+				echo "#      QUERY_MMORE: $QUERY_MMORE"
 				echo "#  TARGET_MMSEQS_P: $TARGET_MMSEQS_P"
 				echo "#  TARGET_MMSEQS_S: $TARGET_MMSEQS_S"
 				echo "#     QUERY_MMSEQS: $QUERY_MMSEQS"
-				echo "#          RESULTS: $RESULTS"
 				echo ""
-				echo "#     FILTER_SCORE: $K_SCORE"
-				echo "#      UNGAP_SCORE: $MIN_UNGAPPED_SCORE"
-				echo "#        GAP_SCORE: $PVAL_CUTOFF => $EVAL_CUTOFF"
+				echo "#         TEMP_DIR: $TEMP_DIR"
+				echo "#         PREP_DIR: $PREP_DIR"
 				echo ""
-				echo "#            ALPHA: $ALPHA"
-				echo "#             BETA: $BETA"
-				echo "#            GAMMA: $GAMMA"
-				echo "#     REPORT_SCORE: $PVALUE_REPORT => $EVALUE_REPORT"
+				echo "#    MMSEQS_KSCORE: $MMSEQS_KSCORE"
+				echo "#  MMSEQS_UNGAPPED: $MMSEQS_UNGAPPED"
+				echo "#      MMSEQS_PVAL: $MMSEQS_PVAL"
+				echo "#      MMSEQS_EVAL: $MMSEQS_EVAL"
+				echo ""
+				echo "#      MMORE_ALPHA: $MMORE_ALPHA"
+				echo "#       MMORE_BETA: $MMORE_BETA"
+				echo "#      MMORE_GAMMA: $MMORE_GAMMA"
+				echo "#    MMORE_VITERBI: $MMORE_VITERBI"
+				echo "#      MMORE_CLOUD: $MMORE_CLOUD"
+				echo "#   MMORE_BOUNDFWD: $MMORE_BOUNDFWD"
+				echo "#     MMORE_FILTER: $MMORE_DO_FILTER"
 			fi
 		}
 	}
 
 	# === FILE PRE-PROCESSING === #
 	{
-		echo_v 0 "# (0/4) File formatting, verifying proper filetypes..."
-
 		# build temporary folders
 		{
+			# assign temporary file if none given
 			TEMP_DIR="${TEMP_DIR:-$(mktemp -d tmp-mmore-XXXX)}"
 			# top-level temporary directory
 			TMP=${TEMP_DIR}/
@@ -429,7 +250,7 @@ fi
 			TMP_MMSEQS_OUT=${TMP_MMSEQS}/out/
 
 			# make tmp directories
-			MAKE_DIR $TMP_ROOT
+			MAKE_DIR $TMP
 			MAKE_DIR $TMP_MMORE
 			MAKE_DIR $TMP_MMORE_DB
 			MAKE_DIR $TMP_MMORE_OUT
@@ -477,17 +298,26 @@ fi
 			# LOAD_SOURCE ${SCRIPT_DIR}/mmore-prep.sh $TARGET $QUERY $TARGET_MMSEQS $TARGET_TYPE $QUERY_TYPE $TARGET_MMSEQS_TYPE
 		fi
 
+		# verify that input files are proper type (TODO)
+		{
+			TARGET_TYPE="HMM"
+			QUERY_TYPE="FASTA"
+			TARGET_MMSEQS_P_TYPE="MMDB_P"
+			TARGET_MMSEQS_S_TYPE="MMDB_S"
+			QUERY_MMSEQS_TYPE="MMDB_S"
+		} 
+
 		# Verify that input files exist
 		{
-			FILE_EXISTS=$(CHECK_FILE_EXISTS $TARGET)
+			FILE_EXISTS=$(CHECK_FILE_EXISTS $TARGET_MMORE)
 			if [ -z $FILE_EXISTS ]; then 
 				ERROR="TARGET_BAD_INPUT"
-				echo_v 3 "ERROR: <TARGET> input '$TARGET' does not exist."
+				echo_v 3 "ERROR: <TARGET> input '$TARGET_MMORE' does not exist."
 			fi 
-			FILE_EXISTS=$(CHECK_FILE_EXISTS $QUERY)
+			FILE_EXISTS=$(CHECK_FILE_EXISTS $QUERY_MMORE)
 			if [ -z $FILE_EXISTS ]; then
 				ERROR="QUERY_BAD_INPUT"
-				echo_v 3 "ERROR: <QUERY> input '$QUERY' does not exist."
+				echo_v 3 "ERROR: <QUERY> input '$QUERY_MMORE' does not exist."
 			fi
 			FILE_EXISTS=$(CHECK_FILE_EXISTS $TARGET_MMSEQS_S)
 			if [ -z $FILE_EXISTS ]; then
@@ -504,10 +334,36 @@ fi
 				ERROR="QUERY_MMSEQS_BAD_INPUT"
 				echo_v 3 "ERROR: <QUERY_MMSEQS> input '$QUERY_MMSEQS' does not exist."
 			fi
-			# if [ -z $ERROR ] && (( $DO_IGNORE_WARNINGS != 1 )); then 
+			# if [ -z $ERROR ] && (( $DO_IGNORE_ERRORS != 1 )); then 
 			# 	echo "ERROR: Please check your filepaths."
 			# 	exit 1
 			# fi
+		}
+
+		# Interrim files 
+		{
+			MMSEQS_PREFILTER="${TMP_MMSEQS_WORKING}/prefilter_aln.mmdb"
+			MMSEQS_PREFILTER_STDOUT="${TMP}/mmseqs-prefilter.stdout"
+
+			MMSEQS_P2S="${TMP_MMSEQS_WORKING}/p2s_aln.mmdb" 
+			MMSEQS_P2S_STDOUT="${TMP_MMSEQS_OUT}/mmseqs-p2s.stdout" 
+
+			MMSEQS_DUMMY="${TMP_MMSEQS_WORKING}/dummy.mmdb"
+			MMSEQS_DUMMY_STDOUT="${TMP_MMSEQS_OUT}/dummy.stdout"
+
+			MMSEQS_S2S="${TMP_MMSEQS_WORKING}/s2s_aln.mmdb"
+			MMSEQS_S2S_STDOUT="${TMP_MMSEQS_OUT}/mmseqs-s2s.stdout"
+
+			MMSEQS_M8="${TMP_MMSEQS_OUT}/mmseqs.results.m8"
+			MMSEQS_CONVERT_STDOUT="${TMP_MMSEQS_OUT}/mmseqs-convertalis.stdout"
+
+			MMORE_STDOUT="${TMP_MMORE_OUT}/mmore.results.stdout"
+			MMORE_STDERR="${TMP_MMORE_OUT}/mmore.results.stderr"
+			MMORE_M8OUT="${TMP_MMORE_OUT}/mmore.results.m8out"
+			MMORE_MYOUT="${TMP_MMORE_OUT}/mmore.results.myout"
+			MMORE_MYDOMOUT="${TMP_MMORE_OUT}/mmore.results.mydomout"
+			MMORE_MYTIME="${TMP_MMORE_OUT}/mmore.results.mytimeout"
+			MMORE_MYTHRESH="${TMP_MMORE_OUT}/mmore.results.mythreshout"
 		}
 
 		# If overwriting is not permitted, check that destination files do not already exist
@@ -531,60 +387,31 @@ fi
 			fi 
 		}
 
-		# Determine type of search being run (Profile-to-Sequence or Sequence-to-Sequence)
-		{
-			# if mmseqs's main target database is  
-			if [[ $TARGET_MMSEQS_P_TYPE == "MMDB_P" ]] || [[ $TARGET_MMSEQS_P_TYPE == "HHM" ]]
-			then 
-				SEARCH_TYPE="P2S"
-			else
-				SEARCH_TYPE="S2S"
-			fi
-		}
-
 		# Soft link input files into temporary working folders 
 		{
 			:
 		}
 	}
 
-	# ==== MMORE INDEX ==== #
+	# ==== GET DATABASE SIZES === #
 	{
-		echo "# (1/4) Create MMORE index of database..."
-		# check if input files exist
-		# if [ -f $TARGET_INDEX ]; then
-		# 	# if so, move copy to temp folder
-		# 	FILENAME=$(GET_FILE_FROM_PATH $TARGET_INDEX)
-		# 	cp $TARGET_INDEX $TMP_MMORE/$FILENAME 
-		# else
-		# 	echo "build target index"
-		# 	# if not, build index now 
-		# 	$MMORE index $TARGET no-file --index $TARGET_INDEX no-file
-		# fi
+		# get target database size
+		TARGET_DBSIZE=$( grep "^HMMER" ${TARGET_MMORE} | wc -l )
+		echo_v 3 "TARGET_DBSIZE: $TARGET_DBSIZE"
 
-		# # check if input files exist
-		# if [ -f $QUERY_INDEX ]; then
-		# 	# if so, move copy to temp folder
-		# 	FILENAME=$(GET_FILE_FROM_PATH $QUERY_INDEX)
-		# 	cp $QUERY_INDEX $TMP_MMORE/$FILENAME 
-		# else
-		# 	echo "build query index"
-		# 	# if not, build index now 
-		# 	$MMORE index $TARGET no-file --index $TARGET_INDEX no-file
-		# fi
-		# TARGET_INDEX=$TMP_MMORE/target.idx 
-		# QUERY_INDEX=$TMP_MMORE/query.idx
+		# get query database size
+		QUERY_DBSIZE=$( grep "^>" ${QUERY_MMORE} | wc -l )
+		echo_v 3 "QUERY_DBSIZE: $QUERY_DBSIZE"
 
-		# $MMORE index $TARGET $QUERY
+		# get e-values from p-values 
+		MMSEQS_EVAL=$( python <<< "eval = ${MMSEQS_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
+		MMSEQS_P2S_EVAL=$( python <<< "eval = ${MMSEQS_P2S_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
+		MMSEQS_S2S_EVAL=$( python <<< "eval = ${MMSEQS_S2S_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
+		MMORE_VITERBI_EVAL=$( python <<< "eval = ${MMORE_VITERBI_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
+		MMORE_CLOUD_EVAL=$( python <<< "eval = ${MMORE_CLOUD_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
+		MMORE_BOUNDFWD_EVAL=$( python <<< "eval = ${MMORE_BOUNDFWD_PVAL} * ${QUERY_DBSIZE}; print(eval)" )
 
-		# mv $TARGET.idx $TARGET_INDEX 
-		# mv $QUERY.idx $QUERY_INDEX
-
-		# # capture database size
-		# NUM_TARGETS=$( grep "#" -v $TARGET_INDEX | wc -l )
-		# NUM_QUERIES=$( grep "#" -v $QUERY_INDEX | wc -l )
-		# DB_SIZE=$((NUM_TARGETS))
-		# echo "DB_SIZE: $DB_SIZE"
+		echo_v 3 "MMSEQS_EVAL: $MMSEQS_EVAL, MMSEQS_PVAL: $MMSEQS_PVAL"
 	}
 
 	# ==== MMSEQS SEARCH ======= #
@@ -612,59 +439,76 @@ fi
 
 		# Run MMSEQS prefilter
 		{
-			MMSEQS_PREFILTER_DB=${TMP_MMSEQS_WORKING}/prefilter_aln.mmdb
-			MMSEQS_PREFILTER_REPORT=${TMP}/mmseqs-prefilter.out 
+			echo_v 3 "# Running: MMSEQS Prefilter..." 
 
-			$MMSEQS prefilter 								\
-			$MMSEQS_TARGET_P_DB $MMSEQS_QUERY_DB		\
-			$MMSEQS_PREFILTER_DB 							\
-			-v 			$VERBOSE 							\
-			--k-score 	$K_SCORE 							\
-			# > $MMSEQS_PREFILTER_REPORT 					\
+			$MMSEQS prefilter 											\
+			$TARGET_MMSEQS_P $QUERY_MMSEQS							\
+			$MMSEQS_PREFILTER 											\
+			-v 							$VERBOSE 						\
+			-k 							$MMSEQS_KMER 					\
+			--k-score 					$MMSEQS_KSCORE 				\
+			--max-seqs					$MMSEQS_PREFILTER_MAXSEQS 	\
+			--min-ungapped-score 	$MMSEQS_UNGAPPED 				\
+			# > $MMSEQS_PREFILTER_STDOUT 								\
 
 			EXIT_CODE=$?
 		}
 
 		# Run MMSEQS Profile-to-Sequence alignment search
 		{
-			MMSEQS_P2S_DB=${TMP_MMSEQS_WORKING}/p2s_aln.mmdb 
+			echo_v 3 "# Running: MMSEQS Prof-to-Seq..."
+			
 
-			$MMSEQS align 										\
-			$MMSEQS_TARGET_P_DB  $MMSEQS_QUERY_DB 		\
-			$MMSEQS_PREFILTER_DB 							\
-			$MMSEQS_P2S_DB 									\
-			-v 			$VERBOSE 							\
+			if (( $MMORE_DO_MMSEQS_ALN == 1 )); then
+				MMSEQS_ALN="--"
+			fi
+
+			$MMSEQS align 											\
+			$TARGET_MMSEQS_P  $QUERY_MMSEQS 					\
+			$MMSEQS_PREFILTER 									\
+			$MMSEQS_P2S 											\
+			-v 						$VERBOSE 					\
+			-e 						$MMSEQS_P2S_EVAL 			\
+			--alt-ali 				$MMSEQS_P2S_MAXSEQS 		\
+			# > $MMSEQS_P2S_STDOUT								\
 
 			EXIT_CODE=$?
 		}
 
 		# Translate MMSEQS Profile IDs to MMSEQS Sequence IDs
 		{
-			echo "Running: translate_ids..."
-			bash ${SCRIPT_DIR}/helpers/translate_ids.sh $MMSEQS_TARGET_P_DB $MMSEQS_TARGET_S_DB $MMSEQS_P2S_DB $TMP_MMSEQS_WORKING/dummy.mmdb 0
+			echo_v 3 "# Running: translate_ids..."
+			TRANSLATE_VERBOSE="0"
+
+			bash ${SCRIPT_DIR}/helpers/translate_ids.sh  	\
+			$TARGET_MMSEQS_P 	$TARGET_MMSEQS_S 					\
+			$MMSEQS_P2S 												\
+			$MMSEQS_DUMMY 												\
+			$TRANSLATE_VERBOSE 										\
+
 		}
 
 		# Run MMSEQS Sequence-to-Sequence search
 		{
-			MMSEQS_S2S_DB=${TMP_MMSEQS_WORKING}/s2s_aln.mmdb
+			echo_v 3 "# Running: MMSEQS Seq-to-Seq..."
 
-			$MMSEQS align 										\
-			$MMSEQS_TARGET_S_DB $MMSEQS_QUERY_DB 		\
-			$MMSEQS_PREFILTER_DB 							\
-			$MMSEQS_S2S_DB 									\
-			-v 			$VERBOSE 							\
+			$MMSEQS align 											\
+			$TARGET_MMSEQS_S  $QUERY_MMSEQS 					\
+			$MMSEQS_PREFILTER 									\
+			$MMSEQS_S2S 											\
+			-v 						$VERBOSE 					\
+			# > $MMSEQS_S2S_REPORT
 
 			EXIT_CODE=$?
 		}
 
 		# Report results to m8 file
 		{
-			MMSEQS_M8="${TMP_MMSEQS_OUT}/mmseqs.results.m8"
-			echo "mmseqs_results: $MMSEQS_M8"
+			echo_v 3 "# Running: MMSEQS Convert Alignments..."
 
 			$MMSEQS convertalis 								\
-			$MMSEQS_TARGET_S_DB $MMSEQS_QUERY_DB 		\
-			$MMSEQS_S2S_DB 									\
+			$TARGET_MMSEQS_S  $QUERY_MMSEQS 				\
+			$MMSEQS_S2S 										\
 			$MMSEQS_M8 	 										\
 
 			EXIT_CODE=$?
@@ -673,21 +517,15 @@ fi
 		# FORMAT_OUTPUT="qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
 		# EVAL_CUTOFF=$(( PVAL_CUTOFF * DB_SIZE ))
 		# EVAL_REPORT=$(( PVAL_REPORT * DB_SIZE ))
+	}
 
-		# time $MMSEQS search 
-		# 	$QUERY_MMSEQS  			$TARGET_MMSEQS 						\
-		# 	$RESULT_MMSEQS  			$TMP_MMSEQS 							\
-		# 	-k 							$KMER 									\
-		# 	--min-ungapped-score 	$MIN_UNGAPPED_SCORE 					\
-		# 	-e 							$EVAL_CUTOFF 							\
-		# 	--k-score 					$K_SCORE 								\
-		# 	--remove-tmp-files  		0											\
+	# # ==== CONVERT MMSEQS OUTPUT -> MMORE INPUT === #
+	{
+		:
 	}
 
 	# # ==== MMORE SEARCH ==== #
 	{
-		:
-		echo "(7/7) Performing MMORE Search..."
 		# cloud search options:
 		# --alpha FLOAT 					alpha cloud tuning parameter
 		# --beta INT 						beta cloud tuning parameter
@@ -701,38 +539,28 @@ fi
 		TARGET_INDEX="${TMP_MMORE}/target.idx" 
 		QUERY_INDEX="${TMP_MMORE}/query.idx"
 
-		# Configure Options 
-		{
-			MMORE_OPTS=""
-
-			# check if output are set
-			if [ ! -z "$STDOUT" ]; then
-				MMORE_OPTS="--stdout $STDOUT"
-			fi
-			if [ ! -z "$MMORE_M8OUT" ]; then
-				M8_OUT=""
-			else
-				STDOUT="--m8-out $STDOUT"
-			fi
-		}
-
 		# Run Search
 		{
 			echo "$MMORE mmore_main $TARGET $QUERY"
-			MMORE_M8="${TMP_MMORE_OUT}/mmore.results.m8out"
-			MMORE_MYTIME="${TMP_MMORE_OUT}/mmore.results.mytimeout"
 
-			$MMORE mmore_main 											\
-			$TARGET $QUERY 												\
-			--mmseqs-m8 		$MMSEQS_M8	 							\
-			--alpha 				$ALPHA 									\
-			--beta 				$BETA 									\
-			--gamma 				$GAMMA 									\
+			$MMORE mmore-main 											\
+			$TARGET_MMORE 	$QUERY_MMORE 								\
+			$MMSEQS_M8	 													\
 																				\
-			--m8out 				$MMORE_M8 								\
-			--mytimeout 		$MMORE_MYTIME 							\
+			--alpha 				$MMORE_ALPHA 							\
+			--beta 				$MMORE_BETA 							\
+			--gamma 				$MMORE_GAMMA 							\
+																				\
+																				\
+			--m8out 				$MMORE_M8OUT 							\
+			--myout 				$MMORE_MYOUT							\
+			--mydomout 			$MMORE_MYDOMOUT						\
+			--mytimeout 		$MMORE_MYTIME							\
+			--mythreshout 		$MMORE_MYTHRESH						\
+																				\
+			--verbose 			$VERBOSE 								\
 
-
+			EXIT_CODE=$?
 		}
 
 		mv $RESULT_CLOUD $RESULTS

@@ -12,10 +12,11 @@
  *  SYNOPSIS:  Parses Arguments from the command line.
  */
 void   
-ARGS_Parse(    ARGS*       args,
-               int         argc, 
-               char*       argv[],
-               ARG_OPTS*   arg_opts );
+ARGS_Parse(    ARGS*          args,
+               int            argc, 
+               char*          argv[],
+               COMMANDLINE*   cmd,
+               ARG_OPTS*      arg_opts );
 
 /*! FUNCTION:  ARGS_SetDefaults()
  *  SYNOPSIS:  Set default arguments.

@@ -19,14 +19,7 @@
  *                Runs MMSEQS and MMORE stages. Uses Target and Query for MMORE and Target Profile, Target Sequence and Query db for MMSEQS as input.
  */
 STATUS_FLAG 
-mmore_pipeline( WORKER* worker );
-
-/*! FUNCTION:     prep_pipeline()
- *  SYNOPSIS:     Helper for overarching MMORE-SEQS pipeline. 
- *                Prepares files for use in the MMORE-SEQS Pipeline
- */
-STATUS_FLAG 
-prep_pipeline( WORKER* worker );
+mmore_search_pipeline( WORKER* worker );
 
 /*! FUNCTION:     mmore_prep_pipeline()
  *  SYNOPSIS:     Full Pipeline for MMORE-SEQS Search. 
@@ -35,6 +28,13 @@ prep_pipeline( WORKER* worker );
 STATUS_FLAG 
 mmore_prep_pipeline( WORKER* worker );
 
+/*! FUNCTION:  mmore_prepsearch_pipeline()
+ *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
+ *             Finds input files in prepfile.
+ */
+STATUS_FLAG 
+mmore_prepsearch_pipeline( WORKER* worker );
+
 /*! FUNCTION:     mmore_easysearch_pipeline()
  *  SYNOPSIS:     Full Pipeline for MMORE-SEQS Search.  
  *                Uses only Target (MSA), Query (FASTA), and Prep Folder location.
@@ -42,6 +42,13 @@ mmore_prep_pipeline( WORKER* worker );
  */
 STATUS_FLAG 
 mmore_easysearch_pipeline( WORKER* worker );
+
+/*! FUNCTION:  	mmore_main_pipeline()
+ *  SYNOPSIS:  	Internal pipeline for tail of MMore, post-MMseqs.
+ *                Runs Adaptive Banding / Cloud Search step of MMORE-SEQS pipeline.
+ */
+STATUS_FLAG 
+mmore_main_pipeline( WORKER* worker );
 
 /* === ALTERNATIVE SEARCH PIPELINES === */
 
@@ -60,13 +67,6 @@ STATUS_FLAG
 interactive_pipeline( WORKER* worker );
 
 /* === HELPER / INTERNAL PIPELINES === */
-
-/*! FUNCTION:  	mmore_main_pipeline()
- *  SYNOPSIS:  	Internal pipeline for tail of MMore, post-MMseqs.
- *                Runs Adaptive Banding / Cloud Search step of MMORE-SEQS pipeline.
- */
-STATUS_FLAG 
-mmore_main_pipeline( WORKER* worker );
 
 /*! FUNCTION:  	index_pipeline()
  *  SYNOPSIS:     Index Pipeline: Indexes FASTA or HMM files.

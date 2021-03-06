@@ -234,8 +234,6 @@ void REPORT_stdout_entry(  WORKER*  worker,
    for ( int i_domain = 0; i_domain < N_regions; i_domain++ ) 
    {
       /* Alignment Header */
-      fprintf( fp, "== %*s\n", 
-         0, "Alignment:");
       fprintf( fp, "==== %*s %d :: %s %3.2f %s | %s %-3.2e %s\n",
          0, "Domain",      i_domain,                        /* domain number */
          "Score:",         finalsc->seq_sc,     "bits",     /* bit-score */
@@ -243,7 +241,7 @@ void REPORT_stdout_entry(  WORKER*  worker,
       );
 
       /* MMSEQS-style Cigar Alignment */
-      if ( args->is_run_)
+      if ( is_run_aln == true )
       {
          fprintf( fp, "%*s\n", 
             0, "==== MMSEQS Cigar Alignment ===:" );
@@ -252,48 +250,52 @@ void REPORT_stdout_entry(  WORKER*  worker,
       }
 
       /* HMMER-style Pairwise Alignment */
-      int      offset   = 0; 
-      TRACE    tr_beg, tr_end;
+      if ( is_run_aln == true )
       {
-         printf( "target: %d, query: %d, center: %d\n", 
-            VECTOR_CHAR_GetSize( aln->target_aln ), VECTOR_CHAR_GetSize( aln->query_aln ), VECTOR_CHAR_GetSize( aln->center_aln ) );
-
-         fprintf( fp, "==== HMMER-Style Alignment === | Domain: %d\n",
-            i_domain );
-         /* create alignment rows */
-         for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+         int      offset   = 0; 
+         TRACE    tr_beg, tr_end;
          {
-            
-            /* if remaining alignment exceeds window size, constrain it */
-            aln_width = MIN( aln->end - aln->beg, def_width );
+            printf( "target: %d, query: %d, center: %d\n", 
+               VECTOR_CHAR_GetSize( aln->target_aln ), VECTOR_CHAR_GetSize( aln->query_aln ), VECTOR_CHAR_GetSize( aln->center_aln ) );
 
-            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-               name_width, name_width,                         /* padding */
-               t_name,                                         /* name */
-               VEC_X( aln->traces, i ).t_0,                    /* starting index */
-               aln_width,                                      /* number of residues per line */
-               &VEC_X( aln->target_aln, offset ),              /* alignment residues */
-               VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
-            );
-            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-               name_width, name_width,                         /* padding */
-               c_name,                                         /* name */
-               i,                                              /* starting index */
-               aln_width,                                      /* number of residues per line */
-               &VEC_X( aln->center_aln, offset ),              /* alignment residues */
-               i + aln_width - 1                               /* ending index */
-            );
-            fprintf( fp, "%*.*s %5d %.*s %-5d\n",
-               name_width, name_width,                         /* padding */
-               q_name,                                         /* name */
-               VEC_X( aln->traces, i ).q_0,                    /* starting index */
-               aln_width,                                      /* number of residues per line */
-               &VEC_X( aln->query_aln, offset ),               /* alignment residues */
-               VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
-            );
-            fprintf( fp, "\n" );
+            fprintf( fp, "==== HMMER-Style Alignment === | Domain: %d\n",
+               i_domain );
+            /* create alignment rows */
+            for ( int i = aln->beg; i <= aln->end; i += aln_width, offset += aln_width ) 
+            {
+               
+               /* if remaining alignment exceeds window size, constrain it */
+               aln_width = MIN( aln->end - aln->beg, def_width );
+
+               fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+                  name_width, name_width,                         /* padding */
+                  t_name,                                         /* name */
+                  VEC_X( aln->traces, i ).t_0,                    /* starting index */
+                  aln_width,                                      /* number of residues per line */
+                  &VEC_X( aln->target_aln, offset ),              /* alignment residues */
+                  VEC_X( aln->traces, i + aln_width - 1 ).t_0     /* ending index */
+               );
+               fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+                  name_width, name_width,                         /* padding */
+                  c_name,                                         /* name */
+                  i,                                              /* starting index */
+                  aln_width,                                      /* number of residues per line */
+                  &VEC_X( aln->center_aln, offset ),              /* alignment residues */
+                  i + aln_width - 1                               /* ending index */
+               );
+               fprintf( fp, "%*.*s %5d %.*s %-5d\n",
+                  name_width, name_width,                         /* padding */
+                  q_name,                                         /* name */
+                  VEC_X( aln->traces, i ).q_0,                    /* starting index */
+                  aln_width,                                      /* number of residues per line */
+                  &VEC_X( aln->query_aln, offset ),               /* alignment residues */
+                  VEC_X( aln->traces, i + aln_width - 1 ).q_0     /* ending index */
+               );
+               fprintf( fp, "\n" );
+            }
          }
       }
+      
    }
 
    REPORT_horizontal_rule( fp );

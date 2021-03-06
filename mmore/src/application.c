@@ -62,10 +62,10 @@ main ( int argc, char *argv[] )
 
    /* create commandline object */
    COMMANDLINE_Load( worker->cmd, argc, argv );
-   // COMMANDLINE_Dump( worker->cmd, stdout );
+   COMMANDLINE_SimpleDump( worker->cmd, stdout );
 
    /* parse command line arguments */
-   ARGS_Parse( worker->args, argc, argv, worker->arg_opts );
+   ARGS_Parse( worker->args, argc, argv, worker->cmd, worker->arg_opts );
 
    /* output arguments */
    ARGS_Dump( worker->args, stdout );

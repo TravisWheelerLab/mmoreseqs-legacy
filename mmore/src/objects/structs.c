@@ -101,18 +101,18 @@ double BG_MODEL_log[] = {
 const int num_pipelines = 8;
 PIPELINE PIPELINES[] = {
    /* mmore-seqs pipelines */
-   { "search",       mmore_pipeline,            5,    NULL },
-   { "mmore-main",   mmore_main_pipeline,       3,    NULL },
-   { "prep",         prep_pipeline,             3,    NULL },
-   { "mmore-prep",   mmore_prep_pipeline,       1,    NULL },
-   { "easy-search",  mmore_easysearch_pipeline, 3,    NULL },
+   { "mmore-search",       mmore_search_pipeline,        5,    NULL },
+   { "mmore-main",         mmore_main_pipeline,          3,    NULL },
+   { "mmore-prep",         mmore_prep_pipeline,          3,    NULL },
+   { "mmore-prepsearch",   mmore_prepsearch_pipeline,    1,    NULL },
+   { "mmore-easysearch",   mmore_easysearch_pipeline,    3,    NULL },
    /* helper pipelines */
-   { "index",        index_pipeline,            2,    NULL },  
-   { "hmmbuild",     hmmbuild_pipeline,         1,    NULL },
-   { "interactive",  interactive_pipeline,      0,    NULL },
+   { "index",              index_pipeline,               2,    NULL },  
+   { "hmmbuild",           hmmbuild_pipeline,            1,    NULL },
+   { "interactive",        interactive_pipeline,         0,    NULL },
    /* alternative search pipelines */
-   { "null",         null_pipeline,             0,    NULL },
-   { "generic",      generic_pipeline,          2,    NULL },
+   { "null",               null_pipeline,                0,    NULL },
+   { "generic",            generic_pipeline,             2,    NULL },
 };
 
 /* full names of the all states */

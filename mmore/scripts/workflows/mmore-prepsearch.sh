@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ###########################################################################
-#	NAME: 		mmore-prep_search.sh	
+#	NAME: 		mmore-prepsearch.sh	
 #	AUTHOR:		David Rich
 #	DESC: 		Run search with prepped file as input.
 ###########################################################################
@@ -127,9 +127,12 @@
 		{
 			# main args:
 			PREP_DIR="${PREP_DIR:-ARG_PREP_DIR}"
+			TEMP_DIR="${PREP_DIR:-ARG_PREP_DIR}"
 
 			# extract files from prep directory
 			TARGET_MMORE="${PREP_DIR}/mmore/db/target.hmm"
+			TARGET_MMORE_P="${PREP_DIR}/mmore/db/target.hmm"
+			TARGET_MMORE_S="${PREP_DIR}/mmore/db/target.fasta"
 			QUERY_MMORE="${PREP_DIR}/mmore/db/query.fasta"
 			TARGET_MMSEQS_P="${PREP_DIR}/mmseqs/db/target.pmmdb"
 			TARGET_MMSEQS_S="${PREP_DIR}/mmseqs/db/target.smmdb"
@@ -147,8 +150,8 @@
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORESEQS: PREP-SEARCH ============"
-				echo "#      PREP_FOLDER:  $TARGET_MMSEQS_P"
+				echo "# 	============ MMORE: PREPSEARCH ============"
+				echo "#      PREP_FOLDER:  $PREP_DIR"
 			fi
 		}
 	}
@@ -156,12 +159,13 @@
 	# Run MMORE-SEQS Search
 	{
 		# Call C Program
-		# $MMORE mmore $
+		# $MMORE mmore-search 									\
 
 		# Call Bash Script
-		LOAD_SOURCE "${SCRIPT_DIR}/mmore.sh" 				\
-		"$TARGET_MMORE" 		"$QUERY_MMORE" 				\
-		"$TARGET_MMSEQS_P" 	"$TARGET_MMSEQS_S" 			\
+		LOAD_SOURCE "${SCRIPT_DIR}/mmore-search.sh" 		\
+		"$TARGET_MMORE" 											\
+		"$QUERY_MMORE" 											\
+		"$TARGET_MMSEQS_P"  "$TARGET_MMSEQS_S" 			\
 		"$QUERY_MMSEQS" 											\
 		"$PREP_DIR" 												\
 
