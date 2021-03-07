@@ -34,6 +34,7 @@ ARGS_MainArg_Parser(    ARGS*          args,
 /*! FUNCTION:  ARGS_ArgOpt_Parser()
  *  SYNOPSIS:  Set default arguments.
  */
+void
 ARGS_ArgOpt_Parser(  ARGS*          args, 
                      COMMANDLINE*   cmd, 
                      STR            opt,

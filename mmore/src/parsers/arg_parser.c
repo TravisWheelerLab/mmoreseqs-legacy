@@ -29,9 +29,17 @@
 #include "arg_parser.h"
 
 /* private functions */
+
 void
 ARGS_MainArg_Parser(    ARGS*          args,
                         COMMANDLINE*   cmd );
+
+void
+ARGS_ArgOpt_Parser(  ARGS*          args, 
+                     COMMANDLINE*   cmd, 
+                     STR            opt,
+                     DATATYPE       dtype );
+
 
 /*! FUNCTION:  ARGS_Parse()
  *  SYNOPSIS:  Parses Arguments from the command line.
@@ -797,6 +805,7 @@ ARGS_Parse(    ARGS*          args,
 /*! FUNCTION:  ARGS_ArgOpt_Parser()
  *  SYNOPSIS:  Set default arguments.
  */
+void
 ARGS_ArgOpt_Parser(  ARGS*          args, 
                      COMMANDLINE*   cmd, 
                      STR            opt,
