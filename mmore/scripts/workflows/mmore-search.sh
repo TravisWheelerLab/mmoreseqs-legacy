@@ -98,6 +98,7 @@
 # ##### MAIN ###### #
 {
 	echo_v 2 "Running Program: mmore.sh..."
+	PROGRAM+="> mmore-search.sh >"
 
 	# load script dependencies 
 	{
@@ -340,7 +341,7 @@
 			# fi
 		}
 
-		# Interrim files 
+		# Interrim output files 
 		{
 			MMSEQS_PREFILTER="${TMP_MMSEQS_WORKING}/prefilter_aln.mmdb"
 			MMSEQS_PREFILTER_STDOUT="${TMP}/mmseqs-prefilter.stdout"
@@ -432,9 +433,6 @@
 			# --k-score INT                	k-mer threshold for generating similar k-mer lists [2147483647]
 			# --max-rejected INT           	Maximum rejected alignments before alignment calculation for a query is stopped [2147483647]
 			# --max-accept INT             	Maximum accepted alignments before alignment calculation for a query is stopped [2147483647]
-			# --local-tmp STR               	Path where some of the temporary files will be created []
-			# --remove-tmp-files BOOL       	Delete temporary files [1]
-			# --e-profile FLOAT             	Include sequences matches with < e-value thr. into the profile (>=0.0) [0.001]
 		}
 
 		# Run MMSEQS prefilter
@@ -451,13 +449,12 @@
 			--min-ungapped-score 	$MMSEQS_UNGAPPED 				\
 			# > $MMSEQS_PREFILTER_STDOUT 								\
 
-			EXIT_CODE=$?
+			CHECK_ERROR_CODE "PREFILTER"
 		}
 
 		# Run MMSEQS Profile-to-Sequence alignment search
 		{
 			echo_v 3 "# Running: MMSEQS Prof-to-Seq..."
-			
 
 			if (( $MMORE_DO_MMSEQS_ALN == 1 )); then
 				MMSEQS_ALN="--"
@@ -472,7 +469,7 @@
 			--alt-ali 				$MMSEQS_P2S_MAXSEQS 		\
 			# > $MMSEQS_P2S_STDOUT								\
 
-			EXIT_CODE=$?
+			CHECK_ERROR_CODE "P2S_ALIGN"
 		}
 
 		# Translate MMSEQS Profile IDs to MMSEQS Sequence IDs
@@ -486,6 +483,7 @@
 			$MMSEQS_DUMMY 												\
 			$TRANSLATE_VERBOSE 										\
 
+			CHECK_ERROR_CODE "TRANSLATE_IDS"
 		}
 
 		# Run MMSEQS Sequence-to-Sequence search
@@ -499,7 +497,7 @@
 			-v 						$VERBOSE 					\
 			# > $MMSEQS_S2S_REPORT
 
-			EXIT_CODE=$?
+			CHECK_ERROR_CODE "S2S_ALIGN"
 		}
 
 		# Report results to m8 file
@@ -511,12 +509,10 @@
 			$MMSEQS_S2S 										\
 			$MMSEQS_M8 	 										\
 
-			EXIT_CODE=$?
+			CHECK_ERROR_CODE "CONVERT_ALIS"
 		}
 		
 		# FORMAT_OUTPUT="qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
-		# EVAL_CUTOFF=$(( PVAL_CUTOFF * DB_SIZE ))
-		# EVAL_REPORT=$(( PVAL_REPORT * DB_SIZE ))
 	}
 
 	# # ==== CONVERT MMSEQS OUTPUT -> MMORE INPUT === #
@@ -543,26 +539,37 @@
 		{
 			echo "$MMORE mmore_main $TARGET $QUERY"
 
-			$MMORE mmore-main 											\
-			$TARGET_MMORE 	$QUERY_MMORE 								\
-			$MMSEQS_M8	 													\
-																				\
-			--alpha 				$MMORE_ALPHA 							\
-			--beta 				$MMORE_BETA 							\
-			--gamma 				$MMORE_GAMMA 							\
-																				\
-			--m8out 				$MMORE_M8OUT 							\
-			--myout 				$MMORE_MYOUT							\
-			--mydomout 			$MMORE_MYDOMOUT						\
-			--mytimeout 		$MMORE_MYTIME							\
-			--mythreshout 		$MMORE_MYTHRESH						\
-																				\
-			--verbose 			$VERBOSE 								\
+			$MMORE mmore-main 													\
+			$TARGET_MMORE 	$QUERY_MMORE 										\
+			$MMSEQS_M8	 															\
+																						\
+			--verbose 					$VERBOSE 								\
+			--run-full 					$MMORE_DO_FULL 						\
+			--run-bias 					$MMORE_DO_DOMAIN 						\
+			--run-mmseqsaln 			$MMORE_DO_MMSEQS_ALN 				\
+			--run-vitaln 				$MMORE_DO_VIT_ALN 					\
+			--run-postaln 				$MMORE_DO_POST_ALN 					\
+																						\
+			--dbsizes 					$TARGET_DBSIZE $QUERY_DBSIZE 		\
+																						\
+			--alpha 						$MMORE_ALPHA 							\
+			--beta 						$MMORE_BETA 							\
+			--gamma 						$MMORE_GAMMA 							\
+																						\
+			--run-filter 				$MMORE_DO_FILTER 						\
+			--mmore-viterbi-pval		$MMORE_VITERBI_PVAL 					\
+			--mmore-cloud-pval 		$MMORE_CLOUD_PVAL 					\
+			--mmore-boundfwd-pval 	$MMORE_BOUNDFWD_PVAL 				\
+																						\
+			--m8out 						$MMORE_M8OUT 							\
+			--myout 						$MMORE_MYOUT							\
+			--mydomout 					$MMORE_MYDOMOUT						\
+			--mytimeout 				$MMORE_MYTIME							\
+			--mythreshout 				$MMORE_MYTHRESH						\
 
-			EXIT_CODE=$?
+			CHECK_ERROR_CODE "MMORE_MAIN"
 		}
 
-		mv $RESULT_CLOUD $RESULTS
 	}
 
 	# # === CLEAN UP === #

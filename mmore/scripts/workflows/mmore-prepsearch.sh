@@ -94,6 +94,7 @@
 # ##### MAIN ###### #
 {
 	echo_v 2 "Running Program: mmore-prepsearch.sh..."
+	PROGRAM+="> mmore-prepsearch.sh >"
 
 	# load script dependencies 
 	{
@@ -169,5 +170,6 @@
 		"$QUERY_MMSEQS" 											\
 		"$PREP_DIR" 												\
 
+		CHECK_ERROR_CODE "MMORE_SEARCH"
 	}
 }

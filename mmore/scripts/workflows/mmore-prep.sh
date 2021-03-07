@@ -99,6 +99,7 @@
 # ##### MAIN ###### #
 {
 	echo_v 2 "# Running Program: mmore-prep.sh..."
+	PROGRAM="mmore-prep.sh"
 
 	# load script dependencies 
 	{
@@ -293,28 +294,34 @@
 				SEARCH_TYPE="P2S"
 
 				# convert msa to hmm file 
+				echo_v 3 "# TARGET: MSA => HMM"
 				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" 		\
 
 				# convert hmm to fasta
+				echo_v 3 "# TARGET: HMM => FASTA"
 				$HMMEMIT -c "$TARGET_HMM" > "$TARGET_FASTA"	
 				sed -i 's/-consensus//g' "$TARGET_FASTA"
 
 				# link hmm to mmore
+				echo_v 3 "# TARGET: HMM => MMORE"
 				# $LINK $TARGET_HMM $TARGET_MMORE
 				$COPY $TARGET_HMM $TARGET_MMORE
 
 				# convert msa to mm_msa
+				echo_v 3 "# TARGET: MSA => MM_MSA"
 				$MMSEQS convertmsa								\
 				"$TARGET_MSA" "$TARGET_MM_MSA" 				\
 				--identifier-field	0							\
 				-v 						$VERBOSE					\
 
 				# convert fasta to sequence mmdb 
+				echo_v 3 "# TARGET: FASTA => MMSEQS_S"
 				$MMSEQS createdb 									\
 				"$TARGET_FASTA" 	"$TARGET_MMSEQS_S" 		\
-				-v 						$VERBOSE 				\	
+				-v 						$VERBOSE 				\
 
 				# convert mm_msa to profile mmdb
+				echo_v 3 "# TARGET: MM_MSA => MMSEQS_P"
 				$MMSEQS msa2profile  							\
 				"$TARGET_MM_MSA" "$TARGET_MMSEQS_P" 		\
 				-v 						$VERBOSE 				\
@@ -328,10 +335,12 @@
 				SEARCH_TYPE="S2S"
 
 				# convert fasta to hmm
+				echo_v 3 "# TARGET: FASTA => HMM"
 				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh 	\
 				"$TARGET_FASTA" "$TARGET_HMM" "tmp_split" 		\
 
 				# convert fasta to sequence mmdb 
+				echo_v 3
 				$MMSEQS createdb  										\
 				"$TARGET_FASTA" "$TARGET_MMSEQS_S"  				\
 				-v 						$VERBOSE 						\

@@ -51,7 +51,7 @@ WORK_thresholds_pval_to_eval(   WORKER*  worker )
    args->threshold_bound_fwd  = STATS_Pval_to_Eval( args->threshold_bound_fwd, db_size );
    args->threshold_fwd        = STATS_Pval_to_Eval( args->threshold_fwd, db_size );
 
-   printf("THRESHOLDS -> EVALS: %f => %f => %f\n", 
+   fprintf(stdout, "THRESHOLDS -> EVALS: %f => %f => %f\n", 
       args->threshold_vit, args->threshold_cloud, args->threshold_fwd );
 }
 

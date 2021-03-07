@@ -94,6 +94,7 @@
 # ##### MAIN ###### #
 {
 	echo_v 2 "Running Program: mmore-easysearch.sh..."
+	PROGRAM+="> mmore-easysearch.sh >"
 
 	# load script dependencies 
 	{

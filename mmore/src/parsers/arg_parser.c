@@ -203,6 +203,20 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--enforce-errors") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               if ( atoi(argv[i]) == 0 ) {
+                  args->enforce_warnings = false;
+               } else if ( atoi(argv[i]) == 1 ) {
+                  args->enforce_warnings = true;
+               }
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          else if ( STR_Compare( argv[i], (flag = "--enforce-warnings") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -391,6 +405,46 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-viterbi-pval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->threshold_vit = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-cloud-pval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->threshold_cloud = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-boundfwd-pval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->threshold_bound_fwd = atof(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--mmore-fwd-pval") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->threshold_fwd = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          else if ( STR_Compare( argv[i], (flag = "--eval") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -402,6 +456,16 @@ ARGS_Parse(    ARGS*          args,
             }
          }
          /* ==== MMORE OPTIONS === */
+         else if ( STR_Compare( argv[i], (flag = "--run-filter") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->is_run_filter = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          else if ( STR_Compare( argv[i], (flag = "--run-bias") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -549,16 +613,6 @@ ARGS_Parse(    ARGS*          args,
                   args->search_mode = MAX( args->search_mode, 0 );
                   args->search_mode = MIN( args->search_mode, NUM_SELECT_SEARCHES-1 );
                } 
-            } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               ERRORCHECK_exit(EXIT_FAILURE);
-            }
-         }
-         else if ( STR_Compare( argv[i], (flag = "--run-filter") ) == 0 ) {
-            req_args = 1;
-            if (i+req_args < argc) {
-               i++;
-               args->is_run_filter = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -737,6 +791,17 @@ ARGS_Parse(    ARGS*          args,
    }
 
    /* print commandline input */
+   
+}
+
+/*! FUNCTION:  ARGS_ArgOpt_Parser()
+ *  SYNOPSIS:  Set default arguments.
+ */
+ARGS_ArgOpt_Parser(  ARGS*          args, 
+                     COMMANDLINE*   cmd, 
+                     STR            opt,
+                     DATATYPE       dtype )
+{
    
 }
 

@@ -172,6 +172,22 @@ function COPY_FILE
 	$COPY "$SRC" "$DEST"
 }
 
+# 
+function CHECK_ERROR_CODE
+{
+	local ERROR_CODE="${EXIT_CODE:-"$?"}"
+	local FUNCTION="${FUNCTION:-"$1"}"
+
+	if (( EXIT_CODE != 0 ))
+	then
+		echo "ERROR: Executed ${FUNCTION} in ${PROGRAM} in unsuccessfully with ERROR_CODE:(${EXIT_CODE})."
+		if (( DO_IGNORE_ERRORS == 0 )) 
+		then 
+			exit $EXIT_CODE
+		fi
+	fi 
+}
+
 # set default parameters for uninitialized environmental variables
 function SET_ENV_ARG_DEFAULTS
 {
