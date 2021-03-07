@@ -53,7 +53,7 @@ CHAR_Clear( CHAR   data )
    return data;
 }
 
-/*! FUNCTION:  CHAR_To_String()
+/*! FUNCTION:  CHAR_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -61,11 +61,25 @@ CHAR_Clear( CHAR   data )
  */
 inline
 char* 
-CHAR_To_String( 	const CHAR   	d,
+CHAR_ToString( 	const CHAR   	data,
                   char*       	buf )
 {
-   sprintf( buf, "%d", d );
+   sprintf( buf, "%d", data );
    return buf;
+}
+
+/*! FUNCTION:  CHAR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+CHAR
+CHAR_FromString(  char*   str )
+{
+   CHAR data;
+   data = str[0];
+   return data; 
 }
 
 /*! FUNCTION:  CHAR_Compare()

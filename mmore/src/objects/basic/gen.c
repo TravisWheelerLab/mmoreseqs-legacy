@@ -6,7 +6,7 @@
  *  BUG:       
  *    - None.
  *  TODO:
- *    - Could create an faster (though unsafe) To_String() function.
+ *    - Could create an faster (though unsafe) ToString() function.
  *    - Add support for int RANGE type.
  *    - Need to implement Compare().
  *******************************************************************************/
@@ -48,7 +48,7 @@ GEN_Destroy( GEN   data )
    return data;
 }
 
-/*! FUNCTION:  GEN_To_String()
+/*! FUNCTION:  GEN_ToString()
  *  SYNOPSIS:  Create a string representation of <data>.
  *             If it is of float-like type, formats with <sig_digits> as number of significant digits.
  *             Stores it in a char* buffer <buf>. Caller must have preallocated buffer. 
@@ -57,7 +57,7 @@ GEN_Destroy( GEN   data )
  */
 inline
 char* 
-GEN_To_String( 	const GEN      data,
+GEN_ToString( 	const GEN      data,
                   char*          buf,
                   const int      buf_size,
                   const int      sig_digits )
@@ -104,13 +104,25 @@ GEN_To_String( 	const GEN      data,
    }
 }
 
+/*! FUNCTION:  GEN_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+GEN
+GEN_FromString(  char*   str )
+{
+   GEN data;
+   return data; 
+}
+
 /* WIP: Currently not supported */
 /*! FUNCTION:  GEN_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *             Sort first according to type, then by value.
- *    RETURN:  Positive if (a > b), 
- *             Zero if equal, 
- *             Negative if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 inline
 int 
@@ -122,9 +134,9 @@ GEN_Compare(   const GEN   a,
 
 /*! FUNCTION:  GEN_CompareTo()
  *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 inline
 int 

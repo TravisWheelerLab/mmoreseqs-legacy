@@ -573,7 +573,7 @@ VECTOR_STR_Sort( VECTOR_STR*    vec )
          int cmp = STR_Compare( cur, nxt );
          if ( (cmp <= 0) == false ) {
             fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
-               cmp, i, i+1, STR_To_String(cur, s_cur), STR_To_String(nxt, s_nxt) );
+               cmp, i, i+1, STR_ToString(cur, s_cur), STR_ToString(nxt, s_nxt) );
             ERRORCHECK_exit(EXIT_FAILURE);
          }
       }
@@ -790,10 +790,10 @@ VECTOR_STR_Dump_byOpt(  VECTOR_STR*    vec,
    fprintf(fp, "%s: ", header);
    fprintf(fp, "[ ");
    for ( int i = 0; i < vec->N; i++ ) {
-      fprintf(fp, "%s%s%s", STR_To_String(vec->data[i], s), delim, pad );
+      fprintf(fp, "%s%s%s", STR_ToString(vec->data[i], s), delim, pad );
    }
    if ( vec->N >= 1 ) {
-      fprintf(fp, "%s%s", STR_To_String(vec->data[vec->N-1], s), pad );
+      fprintf(fp, "%s%s", STR_ToString(vec->data[vec->N-1], s), pad );
    }
    fprintf(fp, "]\n" );
 }

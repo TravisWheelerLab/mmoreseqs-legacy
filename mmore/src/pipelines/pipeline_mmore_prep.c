@@ -77,7 +77,7 @@ mmore_prep_pipeline( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DIR",         mmore_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",         hmmer_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",        mmseqs_path ); 
-   SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_To_String( args->is_use_local_tools, buffer ) ); 
+   SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_ToString( args->is_use_local_tools, buffer ) ); 
    /* ENVIRONMENTAL ARGS */
    WORK_load_script_env_args( worker );
 

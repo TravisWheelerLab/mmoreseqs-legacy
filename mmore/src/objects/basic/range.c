@@ -53,7 +53,7 @@ RANGE_Clear( RANGE   data )
    return data;
 }
 
-/*! FUNCTION:  RANGE_To_String()
+/*! FUNCTION:  RANGE_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -61,11 +61,24 @@ RANGE_Clear( RANGE   data )
  */
 inline
 char* 
-RANGE_To_String(  const RANGE   	d,
+RANGE_ToString(   const RANGE   	data,
                   char*       	buf )
 {
-   sprintf( buf, "(%d,%d)", d.beg, d.end );
+   sprintf( buf, "(%d,%d)", data.beg, data.end );
    return buf;
+}
+
+/*! FUNCTION:  RANGE_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+RANGE
+RANGE_FromString(  char*   str )
+{
+   RANGE data;
+   return data; 
 }
 
 /*! FUNCTION:  RANGE_Compare()

@@ -26,14 +26,22 @@ INT_Destroy( INT   data );
 INT
 INT_Clear( INT   data );
 
-/*! FUNCTION:  INT_To_String()
+/*! FUNCTION:  INT_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *    RETURN:  Pointer to <buf>
  */
 char* 
-INT_To_String( const INT   d,
+INT_ToString(  const INT   data,
                char*       buf );
+
+/*! FUNCTION:  INT_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+INT
+INT_FromString(  char*   str );
 
 /*! FUNCTION:  INT_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

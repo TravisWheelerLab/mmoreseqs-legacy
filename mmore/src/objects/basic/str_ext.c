@@ -413,4 +413,3 @@ STR_EndsWith(  STR      str,
    is_endswith = strncmp( str, suffix, P );
    return is_endswith;
 }
-

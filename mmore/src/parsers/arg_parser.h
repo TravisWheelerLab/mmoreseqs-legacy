@@ -31,15 +31,6 @@ void
 ARGS_MainArg_Parser(    ARGS*          args,
                         COMMANDLINE*   cmd );
 
-/*! FUNCTION:  ARGS_ArgOpt_Parser()
- *  SYNOPSIS:  Set default arguments.
- */
-void
-ARGS_ArgOpt_Parser(  ARGS*          args, 
-                     COMMANDLINE*   cmd, 
-                     STR            opt,
-                     DATATYPE       dtype );
-
 /*! FUNCTION:  ARGS_SetDefaults()
  *  SYNOPSIS:  Output arguments to <fp>.
  */

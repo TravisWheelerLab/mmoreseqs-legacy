@@ -26,22 +26,30 @@ TRACE_Destroy( TRACE   data );
 TRACE
 TRACE_Clear( TRACE   data );
 
-/*! FUNCTION:  TRACE_To_String()
+/*! FUNCTION:  TRACE_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-TRACE_To_String(  const TRACE   	d,
+TRACE_ToString(   const TRACE   	data,
                   char*       	buf );
+
+/*! FUNCTION:  TRACE_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+TRACE
+TRACE_FromString(  char*   str );
 
 /*! FUNCTION:  TRACE_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
- *    RETURN:  pos if (a > b), 
+ *    RETURN:  POS if (a > b), 
  *             0 if equal, 
- *             neg if (a < b)
+ *             NEG if (a < b)
  */
 int 
 TRACE_Compare( const TRACE  a, 

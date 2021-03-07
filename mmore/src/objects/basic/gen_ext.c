@@ -7,7 +7,7 @@
  *  BUG:       
  *    - None.
  *  TODO:
- *    - Could create an faster (though unsafe) To_String() function.
+ *    - Could create an faster (though unsafe) ToString() function.
  *    - Add support for int RANGE type.
  *    - Need to implement Compare().
  *******************************************************************************/

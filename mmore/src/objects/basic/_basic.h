@@ -13,8 +13,8 @@
  *                int      XXX_Compare( XXX a, XXX b )
  *                bool     XXX_Equals( XXX a, XXX b )
  *                void     XXX_Swap( XXX* a, XXX* b )
- *                STR      XXX_To_String( XXX data, STR buffer ) 
- *                -  NOTE: Need to add a size parameter to _To_String(), so buffer doesn't overflows.
+ *                STR      XXX_ToString( XXX data, STR buffer ) 
+ *                -  NOTE: Need to add a size parameter to _ToString(), so buffer doesn't overflows.
  *
  *             Files with "xxx_ext.h" stores functions outside core API (may be moved to objects/ later).
  *
@@ -25,7 +25,7 @@
 #ifndef _BASIC_H
 #define _BASIC_H
 
-/* special case: because _To_String() requires knowledge of STR, that goes first */
+/* special case: because _ToString() requires knowledge of STR, that goes first */
 #include "str.h"
 
 /* this is just used for generating the other basic datatype files */

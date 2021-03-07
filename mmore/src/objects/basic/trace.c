@@ -52,7 +52,7 @@ TRACE_Clear( TRACE   data )
    return data;
 }
 
-/*! FUNCTION:  TRACE_To_String()
+/*! FUNCTION:  TRACE_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -60,19 +60,32 @@ TRACE_Clear( TRACE   data )
  */
 inline
 char* 
-TRACE_To_String(  const TRACE   	d,
+TRACE_ToString(  const TRACE   	data,
                   char*       	buf )
 {
-   sprintf( buf, "{ [%d] (%d,%d) }", d.st, d.q_0, d.t_0 );
+   sprintf( buf, "{ [%d] (%d,%d) }", data.st, data.q_0, data.t_0 );
    return buf;
+}
+
+/*! FUNCTION:  TRACE_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+TRACE
+TRACE_FromString(  char*   str )
+{
+   TRACE data;
+   return data; 
 }
 
 /*! FUNCTION:  TRACE_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
- *    RETURN:  pos if (a > b), 
+ *    RETURN:  POS if (a > b), 
  *             0 if equal, 
- *             neg if (a < b)
+ *             NEG if (a < b)
  */
 inline
 int 

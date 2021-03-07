@@ -53,7 +53,7 @@ DBL_Clear( DBL   data )
    return data;
 }
 
-/*! FUNCTION:  DBL_To_String()
+/*! FUNCTION:  DBL_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -61,11 +61,25 @@ DBL_Clear( DBL   data )
  */
 inline
 char* 
-DBL_To_String( const DBL   data,
+DBL_ToString(  const DBL   data,
                char*       buf )
 {
    sprintf( buf, "%.3f", data );
    return buf;
+}
+
+/*! FUNCTION:  DBL_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+DBL
+DBL_FromString(  char*   str )
+{
+   DBL data;
+   data = atof( str );
+   return data; 
 }
 
 /*! FUNCTION:  DBL_Compare()

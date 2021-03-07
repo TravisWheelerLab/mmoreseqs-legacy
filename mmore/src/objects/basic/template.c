@@ -57,37 +57,6 @@ XXX_Clear( XXX   data )
    return data;
 }
 
-/*! FUNCTION:  XXX_Compare()
- *  SYNOPSIS:  Compare <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
- */
-inline
-int 
-XXX_Compare(   const XXX   a, 
-               const XXX   b )
-{
-   return (a - b);
-}
-
-/*! FUNCTION:  XXX_CompareTo()
- *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
- */
-inline
-int 
-XXX_CompareTo(    const void*   a, 
-                  const void*   b )
-{
-   XXX* x = (XXX*)a;
-   XXX* y = (XXX*)b;
-
-   return XXX_Compare( *x, *y );
-}
-
 /*! FUNCTION:  XXX_Swap()
  *  SYNOPSIS:  Swap values of <a> and <b>.
  */
@@ -102,16 +71,75 @@ XXX_Swap(   XXX*    a,
    *b    = tmp;
 }
 
-/*! FUNCTION:  XXX_To_String()
+/*! FUNCTION:  XXX_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.
  *    RETURN:  Pointer to <buf>.
  */
 inline
 char* 
-XXX_To_String(    const XXX   data,
+XXX_ToString(    const XXX   data,
                   char*       buf )
 {
    sprintf( buf, "%d", data );
    return buf;
+}
+
+/*! FUNCTION:  XXX_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+XXX
+XXX_FromString(  char*   str )
+{
+   XXX data;
+   data = atoi( str );
+   return data; 
+}
+
+/*! FUNCTION:  XXX_Compare()
+ *  SYNOPSIS:  Compare <a> and <b>.
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
+ */
+inline
+int 
+XXX_Compare(   const XXX   a, 
+               const XXX   b )
+{
+   return (a - b);
+}
+
+/*! FUNCTION:  XXX_CompareTo()
+ *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
+ */
+inline
+int 
+XXX_CompareTo(    const void*   a, 
+                  const void*   b )
+{
+   XXX* x = (XXX*)a;
+   XXX* y = (XXX*)b;
+
+   return XXX_Compare( *x, *y );
+}
+
+/*! FUNCTION:  XXX_Equals()
+ *  SYNOPSIS:  Checks if <a> and <b> are equal.
+ *    RETURN:  TRUE if equal, FALSE otherwise
+ */
+inline
+bool 
+XXX_Equals(    const XXX   a, 
+               const XXX   b )
+{
+   bool equals;
+   equals = ( XXX_Compare(a,b) == 0 );
+   return equals;
 }

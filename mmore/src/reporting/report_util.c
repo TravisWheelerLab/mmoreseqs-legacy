@@ -136,7 +136,7 @@ REPORT_entry_multiline(    FILE*             fp,
 
    /* data array */
    for (int i = 0; i < num_fields; i++) {
-      GEN_To_String( data[i], str_buf, buf_size, sig_digits );
+      GEN_ToString( data[i], str_buf, buf_size, sig_digits );
       fprintf( fp, "%*s:\t%s\n", pad, headers[i], str_buf );
    }
    fprintf( fp, "\n"); 
@@ -156,7 +156,7 @@ REPORT_data(   FILE*             fp,
    char     str_buf[128];
    size_t   buf_size = 128;
 
-   GEN_To_String( data, str_buf, buf_size, sig_digits );
+   GEN_ToString( data, str_buf, buf_size, sig_digits );
    fprintf( fp, "%s", str_buf);
 
    return STATUS_SUCCESS;

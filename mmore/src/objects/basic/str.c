@@ -62,14 +62,14 @@ STR_Clear( STR   data )
    return NULL;
 }
 
-/*! FUNCTION:  STR_To_String()
+/*! FUNCTION:  STR_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *    RETURN:  Pointer to <buf>
  */
 inline
 char* 
-STR_To_String( const STR   data,
+STR_ToString( const STR   data,
                char*       buf )
 {
    if ( data == NULL ) {
@@ -80,6 +80,20 @@ STR_To_String( const STR   data,
    }
 
    return buf;
+}
+
+/*! FUNCTION:  STR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+STR
+STR_FromString(  char*   str )
+{
+   STR data;
+   data = STR_Create( str );
+   return data; 
 }
 
 /*! FUNCTION:  STR_Compare()

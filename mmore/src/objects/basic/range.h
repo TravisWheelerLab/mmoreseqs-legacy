@@ -26,15 +26,23 @@ RANGE_Destroy( RANGE   data );
 RANGE
 RANGE_Clear( RANGE   data );
 
-/*! FUNCTION:  RANGE_To_String()
+/*! FUNCTION:  RANGE_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-RANGE_To_String(  const RANGE   	d,
+RANGE_ToString(   const RANGE   	data,
                   char*       	buf );
+
+/*! FUNCTION:  RANGE_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+RANGE
+RANGE_FromString(  char*   str );
 
 /*! FUNCTION:  RANGE_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

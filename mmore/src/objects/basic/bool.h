@@ -26,14 +26,22 @@ BOOL_Destroy( BOOL   data );
 BOOL
 BOOL_Clear( BOOL   data );
 
-/*! FUNCTION:  BOOL_To_String()
+/*! FUNCTION:  BOOL_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *    RETURN:  Pointer to <buf>
  */
 char* 
-BOOL_To_String( const BOOL   data,
-                char*        buf );
+BOOL_ToString( const BOOL   data,
+               char*        buf );
+
+/*! FUNCTION:  BOOL_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+BOOL
+BOOL_FromString(  char*   str );
 
 /*! FUNCTION:  BOOL_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

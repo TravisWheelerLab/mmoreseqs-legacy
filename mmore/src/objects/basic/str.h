@@ -26,14 +26,22 @@ STR_Destroy( STR   str );
 STR
 STR_Clear( STR   data );
 
-/*! FUNCTION:  STR_To_String()
+/*! FUNCTION:  STR_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *    RETURN:  Pointer to <buf>
  */
 char* 
-STR_To_String( const STR   data,
+STR_ToString(  const STR   data,
                char*       buf );
+
+/*! FUNCTION:  STR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+STR
+STR_FromString(  char*   str );
 
 /*! FUNCTION:  STR_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

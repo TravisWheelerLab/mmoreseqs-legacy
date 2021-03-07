@@ -22,7 +22,7 @@ GEN_Create( const GEN   data );
 GEN
 GEN_Destroy( GEN   data );
 
-/*! FUNCTION:  GEN_To_String()
+/*! FUNCTION:  GEN_ToString()
  *  SYNOPSIS:  Create a string representation of <data>.
  *             If it is of float-like type, formats with <sig_digits> as number of significant digits.
  *             Stores it in a char* buffer <buf>. Caller must have preallocated buffer. 
@@ -30,17 +30,23 @@ GEN_Destroy( GEN   data );
  *    RETURN:  Pointer to <buf>.
  */
 char* 
-GEN_To_String( 	const GEN      data,
-                  char*          buf,
-                  const int      buf_size,
-                  const int      sig_digits );
+GEN_ToString( 	const GEN      data,
+               char*          buf,
+               const int      buf_size,
+               const int      sig_digits );
+
+/*! FUNCTION:  GEN_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *    RETURN:  Pointer to <buf>
+ */
+GEN
+GEN_FromString(  char*   str );
 
 /*! FUNCTION:  BOUND_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
- *
- *    RETURN:  pos if (a > b), 
- *             0 if equal, 
- *             neg if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 int 
 GEN_Compare(   const GEN   a, 
@@ -48,9 +54,9 @@ GEN_Compare(   const GEN   a,
 
 /*! FUNCTION:  GEN_CompareTo()
  *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 int 
 GEN_CompareTo(    const void*   a, 

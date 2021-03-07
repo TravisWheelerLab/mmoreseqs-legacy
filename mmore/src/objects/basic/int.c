@@ -52,7 +52,7 @@ INT_Clear( INT   data )
    return data;
 }
 
-/*! FUNCTION:  INT_To_String()
+/*! FUNCTION:  INT_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -60,19 +60,33 @@ INT_Clear( INT   data )
  */
 inline
 char* 
-INT_To_String( const INT   d,
+INT_ToString(  const INT   data,
                char*       buf )
 {
-   sprintf( buf, "%d", d );
+   sprintf( buf, "%d", data );
    return buf;
+}
+
+/*! FUNCTION:  INT_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+INT
+INT_FromString(  char*   str )
+{
+   INT data;
+   data = atoi( str );
+   return data; 
 }
 
 /*! FUNCTION:  INT_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *
- *    RETURN:  pos if (a > b), 
- *             0 if equal, 
- *             neg if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 inline
 int 
@@ -84,9 +98,9 @@ INT_Compare(   const INT   a,
 
 /*! FUNCTION:  INT_CompareTo()
  *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 inline
 int 

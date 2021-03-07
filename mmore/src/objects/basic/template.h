@@ -29,29 +29,28 @@ XXX_Destroy( XXX   data );
 XXX
 XXX_Clear( XXX   data );
 
-/*! FUNCTION:  XXX_To_String()
+/*! FUNCTION:  XXX_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.
  *    RETURN:  Pointer to <buf>.
  */
 char* 
-XXX_To_String(    const XXX   data,
+XXX_ToString(    const XXX   data,
                   char*       buf );
 
-/*! FUNCTION:  XXX_From_String()
- *  SYNOPSIS:  Interpret string representation in char* buffer <buf>.
- *             Stores result in <data>.
- *    RETURN:  <STATUS_SUCCESS> if no errors.
+/*! FUNCTION:  XXX_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
  */
-int 
-XXX_From_String(  const char*    buf,
-                  XXX            data );
+XXX
+XXX_FromString(  char*   str );
 
 /*! FUNCTION:  XXX_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
- *    RETURN:  pos if (a > b), 
- *             0 if equal, 
- *             neg if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 int 
 XXX_Compare(   const XXX   a, 
@@ -59,13 +58,21 @@ XXX_Compare(   const XXX   a,
 
 /*! FUNCTION:  XXX_CompareTo()
  *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b), 
- *             0 if equal, 
- *             NEG if (a < b)
+ *    RETURN:  POSITIVE if (a > b), 
+ *             ZERO if equal, 
+ *             NEGATIVE if (a < b)
  */
 int 
 XXX_CompareTo(    const void*   a, 
                   const void*   b );
+
+/*! FUNCTION:  XXX_Equals()
+ *  SYNOPSIS:  Checks if <a> and <b> are equal.
+ *    RETURN:  TRUE if equal, FALSE otherwise
+ */
+bool 
+XXX_Equals(    const XXX   a, 
+               const XXX   b );
 
 /*! FUNCTION:  XXX_Swap()
  *  SYNOPSIS:  Swap values of <a> and <b>

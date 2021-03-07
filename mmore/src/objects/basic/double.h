@@ -26,15 +26,23 @@ DBL_Destroy( DBL   data );
 DBL
 DBL_Clear( DBL   data );
 
-/*! FUNCTION:  DBL_To_String()
+/*! FUNCTION:  DBL_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-DBL_To_String( const DBL   d,
+DBL_ToString(  const DBL   data,
                char*       buf );
+
+/*! FUNCTION:  DBL_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+DBL
+DBL_FromString(  char*   str );
 
 /*! FUNCTION:  DBL_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

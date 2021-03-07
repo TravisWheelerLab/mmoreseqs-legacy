@@ -26,15 +26,23 @@ CHAR_Destroy( CHAR   data );
 CHAR
 CHAR_Clear( CHAR   data );
 
-/*! FUNCTION:  CHAR_To_String()
+/*! FUNCTION:  CHAR_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-CHAR_To_String( 	const CHAR   	d,
+CHAR_ToString( 	const CHAR   	data,
 						char*       	buf );
+
+/*! FUNCTION:  CHAR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+CHAR
+CHAR_FromString(  char*   str );
 
 /*! FUNCTION:  CHAR_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

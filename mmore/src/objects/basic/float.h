@@ -26,15 +26,23 @@ FLT_Destroy( FLT   data );
 FLT
 FLT_Clear( FLT   data );
 
-/*! FUNCTION:  FLT_To_String()
+/*! FUNCTION:  FLT_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-FLT_To_String( 	const FLT   	d,
-						char*       	buf );
+FLT_ToString( 	const FLT   	data,
+					char*       	buf );
+
+/*! FUNCTION:  FLT_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+FLT
+FLT_FromString(  char*   str );
 
 /*! FUNCTION:  FLT_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

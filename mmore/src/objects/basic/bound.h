@@ -30,15 +30,23 @@ BOUND_Destroy( BOUND   data );
 BOUND
 BOUND_Clear( BOUND   data );
 
-/*! FUNCTION:  BOUND_To_String()
+/*! FUNCTION:  BOUND_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 char* 
-BOUND_To_String(  const BOUND    d,
+BOUND_ToString(  const BOUND    d,
                   char*          buf );
+
+/*! FUNCTION:  BOUND_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+BOUND
+BOUND_FromString(  char*   str );
 
 /*! FUNCTION:  BOUND_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

@@ -34,12 +34,6 @@ void
 ARGS_MainArg_Parser(    ARGS*          args,
                         COMMANDLINE*   cmd );
 
-void
-ARGS_ArgOpt_Parser(  ARGS*          args, 
-                     COMMANDLINE*   cmd, 
-                     STR            opt,
-                     DATATYPE       dtype );
-
 
 /*! FUNCTION:  ARGS_Parse()
  *  SYNOPSIS:  Parses Arguments from the command line.
@@ -808,10 +802,13 @@ ARGS_Parse(    ARGS*          args,
 void
 ARGS_ArgOpt_Parser(  ARGS*          args, 
                      COMMANDLINE*   cmd, 
+                     STR            cmd_i,
                      STR            opt,
-                     DATATYPE       dtype )
+                     DATATYPE       dtype,
+                     int            num_optargs,
+                     int*           rem_args_in )
 {
-   
+   int rem_args = *rem_args_in;
 }
 
 /*! FUNCTION:  ARGS_MainArg_Parser()

@@ -53,19 +53,33 @@ BOOL_Clear( BOOL   data )
    return data;
 }
 
-/*! FUNCTION:  BOOL_To_String()
- *  SYNOPSIS:  Create a string representation of data <d>.
+/*! FUNCTION:  BOOL_ToString()
+ *  SYNOPSIS:  Create a string representation of <data>.
  *             Stores it in a char* buffer <buf>.
  *
  *    RETURN:  Pointer to <buf>
  */
 inline
 char* 
-BOOL_To_String( const BOOL   data,
-               char*       buf )
+BOOL_ToString( const BOOL     data,
+               char*          buf )
 {
    sprintf( buf, "%s", data ? "T" : "F" );
    return buf;
+}
+
+/*! FUNCTION:  BOOL_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+BOOL
+BOOL_FromString(  char*   str )
+{
+   BOOL data;
+   data = atoi( str );
+   return data; 
 }
 
 /*! FUNCTION:  BOOL_Compare()
@@ -77,8 +91,8 @@ BOOL_To_String( const BOOL   data,
  */
 inline
 int 
-BOOL_Compare(   const BOOL   a, 
-               const BOOL   b )
+BOOL_Compare(     const BOOL   a, 
+                  const BOOL   b )
 {
    return (a - b);
 }

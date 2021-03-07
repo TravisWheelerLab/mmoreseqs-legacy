@@ -30,23 +30,22 @@ PTR_Destroy( PTR   data );
 PTR
 PTR_Clear( PTR   data );
 
-/*! FUNCTION:  PTR_To_String()
+/*! FUNCTION:  PTR_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.
  *    RETURN:  Pointer to <buf>.
  */
 char* 
-PTR_To_String(    const PTR   data,
-                  char*       buf );
+PTR_ToString(  const PTR   data,
+               char*       buf );
 
-/*! FUNCTION:  PTR_From_String()
- *  SYNOPSIS:  Interpret string representation in char* buffer <buf>.
- *             Stores result in <data>.
- *    RETURN:  <STATUS_SUCCESS> if no errors.
+/*! FUNCTION:  PTR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
  */
-int 
-PTR_From_String(  const char*    buf,
-                  PTR            data );
+PTR
+PTR_FromString(  char*   str );
 
 /*! FUNCTION:  PTR_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.

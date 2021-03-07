@@ -305,12 +305,12 @@ EDGEBOUND_ROWS_Pushback(   EDGEBOUND_ROWS*   edg,
       {
          char s[100];
          fprintf(stderr, "BOUND ATTEMPTING TO INSERT:\n");
-         fprintf(stderr, "%s\n", BOUND_To_String( bnd, s ) );
+         fprintf(stderr, "%s\n", BOUND_ToString( bnd, s ) );
          fprintf(stderr, "BOUND LIST AT ROW_ID:\n");
          for ( int i = 0; i < edg->rows_N[qx0]; i++ ) 
          {
             fprintf(stderr, "{%d}:\t", i );
-            fprintf(stderr, "%s,\n", BOUND_To_String( edg->rows[i], s ) );
+            fprintf(stderr, "%s,\n", BOUND_ToString( edg->rows[i], s ) );
          }
       }
       #endif

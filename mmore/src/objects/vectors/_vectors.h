@@ -10,7 +10,7 @@
  *                VEC_XXX*    VEC_XXX_Destroy( VEC_XXX vec )
  *                size_t      VEC_XXX_Sizeof( VEC_XXX vec )
  *                int         VEC_XXX_Compare( VEC_XXX a, VEC_XXX b )
- *                int         VEC_XXX_To_String( VEC_XXX, STR buffer )
+ *                int         VEC_XXX_ToString( VEC_XXX, STR buffer )
  * 
  *                VEC_XXX*    VEC_XXX_Create_by_Size( size_t size )
  *                VEC_XXX*    VEC_XXX_WrapArray( XXX* array, size_t size )

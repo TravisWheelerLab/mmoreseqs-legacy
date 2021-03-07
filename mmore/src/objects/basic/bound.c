@@ -53,7 +53,7 @@ BOUND_Clear( BOUND   data )
    return data;
 }
 
-/*! FUNCTION:  BOUND_To_String()
+/*! FUNCTION:  BOUND_ToString()
  *  SYNOPSIS:  Create a string representation of data <d>.
  *             Stores it in a char* buffer <buf>.
  *
@@ -61,11 +61,24 @@ BOUND_Clear( BOUND   data )
  */
 inline
 char* 
-BOUND_To_String( 	const BOUND    data,
+BOUND_ToString( 	const BOUND    data,
                   char*          buf )
 {
    sprintf( buf, "{ [%d] (%d,%d) }", data.id, data.lb, data.rb );
    return buf;
+}
+
+/*! FUNCTION:  BOUND_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+BOUND
+BOUND_FromString(  char*   str )
+{
+   BOUND data;
+   return data; 
 }
 
 /*! FUNCTION:  BOUND_Compare()

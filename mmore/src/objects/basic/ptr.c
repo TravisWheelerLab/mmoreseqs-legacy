@@ -55,6 +55,33 @@ PTR_Clear( PTR   data )
    return NULL;
 }
 
+/*! FUNCTION:  PTR_ToString()
+ *  SYNOPSIS:  Create a string representation of data <d>.
+ *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.
+ *    RETURN:  Pointer to <buf>.
+ */
+inline
+char* 
+PTR_ToString(  const PTR   data,
+               char*       buf )
+{
+   sprintf( buf, "%p", data );
+   return buf;
+}
+
+/*! FUNCTION:  PTR_FromString()
+ *  SYNOPSIS:  Extracts data from string.
+ *
+ *    RETURN:  Pointer to <buf>
+ */
+inline
+PTR
+PTR_FromString(  char*   str )
+{
+   PTR data;
+   return data; 
+}
+
 /*! FUNCTION:  PTR_Compare()
  *  SYNOPSIS:  Compare <a> and <b>.
  *    RETURN:  POS if (a > b), 
@@ -100,16 +127,3 @@ PTR_Swap(   PTR*    a,
    *b    = tmp;
 }
 
-/*! FUNCTION:  PTR_To_String()
- *  SYNOPSIS:  Create a string representation of data <d>.
- *             Stores it in a preallocated char* buffer <buf> of length <buf_size>.
- *    RETURN:  Pointer to <buf>.
- */
-inline
-char* 
-PTR_To_String(    const PTR   data,
-                  char*       buf )
-{
-   sprintf( buf, "%p", data );
-   return buf;
-}
