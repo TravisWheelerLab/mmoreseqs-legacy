@@ -221,8 +221,15 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               if ( STR_Equals( argv[i], "P2S" ) || STR_Equals( argv[i], "S2S") ) {
-                  args->search_name = STR_Set( args->search_name, argv[i] );
+               if   ( STR_Equals( argv[i], "P2S" ) == true ) {
+                  args->search_name       = STR_Set( args->search_name, argv[i] );
+                  args->target_prep_type  = FILE_MSA; 
+                  args->query_prep_type   = FILE_FASTA;
+               }
+               elif ( STR_Equals( argv[i], "S2S" ) == true ) {
+                  args->search_name       = STR_Set( args->search_name, argv[i] );
+                  args->target_prep_type  = FILE_FASTA;
+                  args->query_prep_type   = FILE_FASTA;
                } 
                else {
                   fprintf(stderr, "ERROR: '%s' is not a valid argument for --search-type.\n", argv[i] );

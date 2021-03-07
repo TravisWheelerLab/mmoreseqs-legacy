@@ -551,7 +551,6 @@
 			--beta 				$MMORE_BETA 							\
 			--gamma 				$MMORE_GAMMA 							\
 																				\
-																				\
 			--m8out 				$MMORE_M8OUT 							\
 			--myout 				$MMORE_MYOUT							\
 			--mydomout 			$MMORE_MYDOMOUT						\
