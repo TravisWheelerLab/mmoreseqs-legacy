@@ -398,5 +398,5 @@
 
 	END_TOTAL=$(GET_TIME)
 	TIME_PREP=$(GET_DURATION $BEG_TOTAL $END_TOTAL)
-	printf "# PREP_TIME: %.3f sec\n" $TIME_PREP
+	printf "# TIME_PREP: %.3f sec\n" $TIME_PREP
 }
