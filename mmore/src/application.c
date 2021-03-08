@@ -68,8 +68,10 @@ main ( int argc, char *argv[] )
    ARGS_Parse( worker->args, argc, argv, worker->cmd, worker->arg_opts );
 
    /* output arguments */
-   ARGS_Dump( worker->args, stdout );
-   
+   if ( worker->args->verbose_level >= VERBOSE_LOW ) {
+      ARGS_Dump( worker->args, stdout );
+   }
+
    /* Run pipeline determined by args */
    PIPELINES[ worker->args->pipeline_mode ].pipeline_main( worker );
 

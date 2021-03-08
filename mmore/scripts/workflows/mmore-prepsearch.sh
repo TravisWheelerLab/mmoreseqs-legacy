@@ -151,8 +151,8 @@
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORE: PREPSEARCH ============"
-				echo "#      PREP_FOLDER:  $PREP_DIR"
+				echo "# ============ MMORE: PREPSEARCH ============"
+				echo "# PREP_FOLDER:  $PREP_DIR"
 			fi
 		}
 	}

@@ -94,12 +94,6 @@
 
 		exit $EXIT_CODE
 	}
-}
-
-# ##### MAIN ###### #
-{
-	echo_v 2 "# Running Program: mmore-prep.sh..."
-	PROGRAM="mmore-prep.sh"
 
 	# load script dependencies 
 	{
@@ -110,6 +104,14 @@
 		echo_v 3 "Importing 'mmore_get-tools.sh'..."
 		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_get-tools.sh"
 	}
+}
+
+# ##### MAIN ###### #
+{
+	echo_v 2 "# Running Program: mmore-prep.sh..."
+	PROGRAM+="> mmore-prep.sh >"
+
+	BEG_TOTAL=$(GET_TIME)
 
 	# variable preprocessing 
 	{
@@ -152,10 +154,11 @@
 		# report variables
 		{
 			if (( $VERBOSE >= 3 )); then
-				echo "# 	============ MMORE: PREP ==============="
+				echo "# ========== MMORE: PREP ===================="
 				echo "#      TARGET_PREP:  $TARGET [$TARGET_TYPE]"
 				echo "#       QUERY_PREP:  $QUERY [$QUERY_TYPE]"
 				echo "#         PREP_DIR:  $TEMP_DIR"
+				echo "# ==========================================="
 			fi
 		}
 
@@ -199,10 +202,8 @@
 		}
 	}
 
-	# === FILE FORMATTING === #
+	# file formatting
 	{
-		echo_v 2 "# (1/3) Importing files: ${TARGET} [${TARGET_TYPE}], ${QUERY} [${QUERY_TYPE}]..."
-		
 		# set whether to out
 		if (( $VERBOSE < 3 )); then
 			QUIET_OUT="/dev/null"
@@ -277,7 +278,8 @@
 			fi
 		}
 
-		# IMPORT other files (MM_MSA, MMDB, HMM) 
+		echo_v 2 "# (1/3) Importing files: ${TARGET} [${TARGET_TYPE}], ${QUERY} [${QUERY_TYPE}]..."
+		# === IMPORT FILES === #
 		{
 			:
 		}
@@ -393,4 +395,8 @@
 			echo "$SEARCH_TYPE" > "$SEARCH_FILE"
 		}
 	}
+
+	END_TOTAL=$(GET_TIME)
+	TIME_PREP=$(GET_DURATION $BEG_TOTAL $END_TOTAL)
+	printf "# PREP_TIME: %.3f sec\n" $TIME_PREP
 }

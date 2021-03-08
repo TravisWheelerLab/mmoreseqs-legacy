@@ -952,57 +952,53 @@ void
 ARGS_Dump(     ARGS*    args,
                FILE*    fp )
 {
-   int      pad               = 30;
-   bool     align             = 1;     /* -1 for right alignment, 1 for left alignment */
+   int      pad               = 20;
+   bool     align             = -1;     /* -1 for right alignment, 1 for left alignment */
 
-   fprintf( fp, "=== MMORE-SEQS SETTINGS =====================\n");
+   fprintf( fp, "# === MMORE OPTIONS =======================\n");
    /* --- PIPELINE --- */
-   fprintf( fp, "=== PIPELINE:\n");
-   fprintf( fp, "%*s:\t%s [%d]\n",    align * pad,  "PIPELINE",           PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
-   fprintf( fp, "%*s:\t%s [%d]\n",    align * pad,  "VERBOSITY_MODE",     VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
-   fprintf( fp, "=== PIPELINE OPTIONS:\n");
-   fprintf( fp, "\n" );
+   fprintf( fp, "# === PIPELINE ===\n");
+   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "PIPELINE",           PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
+   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "VERBOSITY_MODE",     VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
    /* --- INPUT --- */
-   fprintf( fp, "=== INPUT:\n");
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "TARGET",             args->t_filepath,             FILETYPE_NAME_Get( args->t_filetype ) );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "QUERY",              args->q_filepath,             FILETYPE_NAME_Get( args->q_filetype ) );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "TARGET_MMORE",       args->t_mmore_filepath,       FILETYPE_NAME_Get( args->t_mmore_filetype ) );
-   
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_P",    args->t_mmseqs_p_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_S",    args->t_mmseqs_s_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "QUERY_MMSEQS",       args->q_mmseqs_filepath,      FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "T_INDEX_PATH",       args->t_indexpath );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "Q_INDEX_PATH",       args->q_indexpath );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "MMSEQS_M8",          args->mmseqs_m8_filepath );
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "TMP_FOLDER",         args->tmp_folderpath ); 
-   fprintf( fp, "%*s:\t%s [%s]\n",     align * pad,  "PREP_FOLDER",        args->prep_folderpath ); 
-   fprintf( fp, "\n" );
+   fprintf( fp, "# === INPUT ===\n");
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET",                args->t_filepath,             FILETYPE_NAME_Get( args->t_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY",                 args->q_filepath,             FILETYPE_NAME_Get( args->q_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMORE",          args->t_mmore_filepath,       FILETYPE_NAME_Get( args->t_mmore_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMORE",           args->q_mmore_filepath,       FILETYPE_NAME_Get( args->q_mmore_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_P",       args->t_mmseqs_p_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_S",       args->t_mmseqs_s_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMSEQS",          args->q_mmseqs_filepath,      FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "T_INDEX_PATH",          args->t_indexpath );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",          args->q_indexpath );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "MMSEQS_M8",             args->mmseqs_m8_filepath );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "TMP_FOLDER",            args->tmp_folderpath ); 
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "PREP_FOLDER",           args->prep_folderpath ); 
+   fprintf( fp, "# \n" );
    /* --- MMSEQS --- */
-   fprintf( fp, "=== MMSEQS:\n");
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_KMER",        args->mmseqs_kmer );
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_KSCORE",      args->mmseqs_prefilter );
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMSEQS_UNGAPPED",    args->mmseqs_ungapped_vit );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMSEQS_P2S_PVAL",    args->threshold_p2s );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMSEQS_S2S_PVAL",    args->threshold_s2s ); 
+   fprintf( fp, "# === MMSEQS ===\n");
+   fprintf( fp, "# %*s:\t%d\n",          align * pad,  "MMSEQS_KMER",           args->mmseqs_kmer );
+   fprintf( fp, "# %*s:\t%d\n",          align * pad,  "MMSEQS_KSCORE",         args->mmseqs_prefilter );
+   fprintf( fp, "# %*s:\t%d\n",          align * pad,  "MMSEQS_UNGAPPED",       args->mmseqs_ungapped_vit );
+   fprintf( fp, "# %*s:\t%.2e\n",        align * pad,  "MMSEQS_P2S_PVAL",       args->threshold_p2s );
+   fprintf( fp, "# %*s:\t%.2e\n",        align * pad,  "MMSEQS_S2S_PVAL",       args->threshold_s2s ); 
    /* --- MMORE / FB-PRUNER --- */ 
-   fprintf( fp, "=== MMORE:\n");
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMORE_ALPHA",           args->alpha );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMORE_BETA",            args->beta );
-   fprintf( fp, "%*s:\t%d\n",          align * pad,  "MMORE_GAMMA",           args->gamma );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMORE_VITERBI_PVAL",    args->threshold_vit );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMORE_CLOUD_PVAL",      args->threshold_cloud );
-   fprintf( fp, "%*s:\t%.3g\n",        align * pad,  "MMORE_BOUNDFWD_PVAL",   args->threshold_boundfwd );
-   fprintf( fp, "\n" );
+   fprintf( fp, "# === MMORE ===\n");
+   fprintf( fp, "# %*s:\t%.2f\n",        align * pad,  "MMORE_ALPHA",           args->alpha );
+   fprintf( fp, "# %*s:\t%.2f\n",        align * pad,  "MMORE_BETA",            args->beta );
+   fprintf( fp, "# %*s:\t%d\n",          align * pad,  "MMORE_GAMMA",           args->gamma );
+   fprintf( fp, "# %*s:\t%.2e\n",        align * pad,  "MMORE_VITERBI_PVAL",    args->threshold_vit );
+   fprintf( fp, "# %*s:\t%.2e\n",        align * pad,  "MMORE_CLOUD_PVAL",      args->threshold_cloud );
+   fprintf( fp, "# %*s:\t%.2e\n",        align * pad,  "MMORE_BOUNDFWD_PVAL",   args->threshold_boundfwd );
+   fprintf( fp, "# \n" );
    /* --- OUTPUT --- */
-   fprintf( fp, "=== OUTPUT:\n");
-                           fprintf( fp,   "%*s:\t%s\n",        align * pad,  "OUTPUT_FILEPATH",    args->stdout_fileout );
-   if (args->is_tblout)    fprintf( fp,   "%*s:\t%s\n",        align * pad,  "TBLOUT_FILEPATH",    args->tblout_fileout );
-   if (args->is_m8out)     fprintf( fp,   "%*s:\t%s\n",        align * pad,  "M8OUT_FILEPATH",     args->m8out_fileout );
-   if (args->is_myout)     fprintf( fp,   "%*s:\t%s\n",        align * pad,  "MYOUT_FILEPATH",     args->myout_fileout );
-   if (args->is_mydom)     fprintf( fp,   "%*s:\t%s\n",        align * pad,  "MYDOMOUT_FILEPATH",  args->mydom_fileout );
-   // if (args->is_customout) fprintf( fp, "%*s:\t%s\n",          align * pad,  "CUSTOMOUT_FILEPATH", args->customout_filepath );
-   
-   fprintf( fp, "=============================\n\n");
+   fprintf( fp, "# === OUTPUT ===\n");
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "OUTPUT_FILEPATH",       args->stdout_fileout );
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "TBLOUT_FILEPATH",       args->tblout_fileout );
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "M8OUT_FILEPATH",        args->m8out_fileout );
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "MYOUT_FILEPATH",        args->myout_fileout );
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "MYDOMOUT_FILEPATH",     args->mydom_fileout );   
+   fprintf( fp, "# ==============================================\n\n");
 }
 
 /*! FUNCTION:  ARGS_FindFiletype()

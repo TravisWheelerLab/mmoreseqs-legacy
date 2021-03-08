@@ -100,6 +100,8 @@
 	echo_v 2 "Running Program: mmore.sh..."
 	PROGRAM+="> mmore-search.sh >"
 
+	BEG_TOTAL=$(GET_TIME)
+
 	# load script dependencies 
 	{
 		# load functions
@@ -210,15 +212,15 @@
 				echo "#  TARGET_MMSEQS_P: $TARGET_MMSEQS_P"
 				echo "#  TARGET_MMSEQS_S: $TARGET_MMSEQS_S"
 				echo "#     QUERY_MMSEQS: $QUERY_MMSEQS"
-				echo ""
+				echo "#"
 				echo "#         TEMP_DIR: $TEMP_DIR"
 				echo "#         PREP_DIR: $PREP_DIR"
-				echo ""
+				echo "#"
 				echo "#    MMSEQS_KSCORE: $MMSEQS_KSCORE"
 				echo "#  MMSEQS_UNGAPPED: $MMSEQS_UNGAPPED"
 				echo "#      MMSEQS_PVAL: $MMSEQS_PVAL"
 				echo "#      MMSEQS_EVAL: $MMSEQS_EVAL"
-				echo ""
+				echo "#"
 				echo "#      MMORE_ALPHA: $MMORE_ALPHA"
 				echo "#       MMORE_BETA: $MMORE_BETA"
 				echo "#      MMORE_GAMMA: $MMORE_GAMMA"
@@ -226,6 +228,7 @@
 				echo "#      MMORE_CLOUD: $MMORE_CLOUD"
 				echo "#   MMORE_BOUNDFWD: $MMORE_BOUNDFWD"
 				echo "#     MMORE_FILTER: $MMORE_DO_FILTER"
+				echo "# ===================================="
 			fi
 		}
 	}
@@ -266,30 +269,6 @@
 			TEMP_FOLDERS+="${TMP_MMSEQS}" 
 			TEMP_FOLDERS+="${TMP_MMORE}"
 			TEMP_FOLDERS+="${TMP_MMSEQS_DB}"
-		}
-
-		# if type is not given, try to infer type based on file extension
-		{
-			if [ -z $TARGET_TYPE ]; then 
-				TARGET_TYPE=$(INFER_FILETYPE )
-				echo_v 3 "<TARGET_TYPE> inferred: $TARGET_TYPE"
-			fi 
-			if [ -z $QUERY_TYPE ]; then
-				QUERY_TYPE=$(INFER_FILETYPE $QUERY)
-				echo_v 3 "<QUERY_TYPE> inferred: $QUERY_TYPE"
-			fi
-			if [ -z $TARGET_MMSEQS_P_TYPE ]; then 
-				TARGET_MMSEQS_P_TYPE=$(INFER_FILETYPE $TARGET_MMSEQS_P)
-				echo_v 3 "<TARGET_MMSEQS_P_TYPE> inferred: $TARGET_MMSEQS_P_TYPE"
-			fi 
-			if [ -z $TARGET_MMSEQS_S_TYPE ]; then 
-				TARGET_MMSEQS_TYPE_S=$(INFER_FILETYPE $TARGET_MMSEQS_S)
-				echo_v 3 "<TARGET_MMSEQS_TYPE_S> inferred: $TARGET_MMSEQS_S_TYPE"
-			fi 
-			if [ -z $QUERY_MMSEQS_TYPE ]; then 
-				QUERY_MMSEQS_TYPE=$(INFER_FILETYPE $QUERY_MMSEQS)
-				echo_v 3 "<QUERY_MMSEQS_TYPE> inferred: $QUERY_MMSEQS_TYPE"
-			fi 
 		}
 
 		# if prep is allowed, now converts target, query, and target_mmseqs to suitable filetypes
@@ -394,7 +373,7 @@
 		}
 	}
 
-	# ==== GET DATABASE SIZES === #
+	# === GET DATABASE SIZES === #
 	{
 		# get target database size
 		TARGET_DBSIZE=$( grep "^HMMER" ${TARGET_MMORE} | wc -l )
@@ -415,7 +394,7 @@
 		echo_v 3 "MMSEQS_EVAL: $MMSEQS_EVAL, MMSEQS_PVAL: $MMSEQS_PVAL"
 	}
 
-	# ==== MMSEQS SEARCH ======= #
+	# === MMSEQS SEARCH === #
 	{
 		# Configure MMSEQS Options
 		{
@@ -444,6 +423,7 @@
 		# Run MMSEQS prefilter
 		{
 			echo_v 3 "# Running: MMSEQS Prefilter..." 
+			BEG_TIME=$(GET_TIME)
 
 			$MMSEQS prefilter 											\
 			$TARGET_MMSEQS_P $QUERY_MMSEQS							\
@@ -456,6 +436,10 @@
 
 			CHECK_ERROR_CODE "PREFILTER"
 			MMSEQS_PRV=$MMSEQS_PREFILTER
+
+			END_TIME=$(GET_TIME)
+			TIME_MMSEQS_PREFILTER=$(GET_DURATION $BEG_TIME $END_TIME)
+			printf "# TIME_MMSEQS_PREFILTER: %.3f sec\n" $TIME_MMSEQS_PREFILTER
 		}
 
 		# If doing stats, find number of results
@@ -469,6 +453,8 @@
 				DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
 				PREFILTER_DBSIZE=$(( ${PREFILTER_DBSIZE} + ${DBSIZE} ))
 			done	
+
+			echo "# PREFILTER_DBSIZE: $PREFILTER_DBSIZE"
 		}
 		fi
 
@@ -479,6 +465,7 @@
 			# Run MMSEQS Profile-to-Sequence alignment search
 			{
 				echo_v 3 "# Running: MMSEQS Prof-to-Seq..."
+				BEG_TIME=$(GET_TIME)
 
 				$MMSEQS align 											\
 				$TARGET_MMSEQS_P  $QUERY_MMSEQS 					\
@@ -490,6 +477,10 @@
 
 				CHECK_ERROR_CODE "P2S_ALIGN"
 				MMSEQS_PRV=$MMSEQS_P2S
+
+				END_TIME=$(GET_TIME)
+				TIME_MMSEQS_P2S=$(GET_DURATION $BEG_TIME $END_TIME)
+				printf "# TIME_MMSEQS_P2S: %.3f sec\n" $TIME_MMSEQS_P2S
 			}
 
 			# If doing stats, find number of results
@@ -501,11 +492,14 @@
 					DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
 					P2S_DBSIZE=$(( ${P2S_DBSIZE} + ${DBSIZE} ))
 				done	
+
+				echo "# P2S_DBSIZE: $P2S_DBSIZE"
 			}
 
 			# Translate MMSEQS Profile IDs to MMSEQS Sequence IDs
 			{
 				echo_v 3 "# Running: translate_ids..."
+				BEG_TIME=$(GET_TIME)
 				TRANSLATE_VERBOSE="0"
 
 				bash ${SCRIPT_DIR}/helpers/translate_ids.sh  	\
@@ -515,6 +509,10 @@
 				$TRANSLATE_VERBOSE 										\
 
 				CHECK_ERROR_CODE "TRANSLATE_IDS"
+
+				END_TIME=$(GET_TIME)
+				TIME_MMSEQS_IDS=$(GET_DURATION $BEG_TIME $END_TIME)
+				printf "# TIME_MMSEQS_IDS: %.3f sec\n" $TIME_MMSEQS_IDS
 			}
 		}
 		fi
@@ -522,6 +520,7 @@
 		# Run MMSEQS Sequence-to-Sequence search
 		{
 			echo_v 3 "# Running: MMSEQS Seq-to-Seq..."
+			BEG_TIME=$(GET_TIME)
 
 			$MMSEQS align 											\
 			$TARGET_MMSEQS_S  $QUERY_MMSEQS 					\
@@ -534,6 +533,10 @@
 			# > $MMSEQS_S2S_REPORT 								\
 
 			CHECK_ERROR_CODE "S2S_ALIGN"
+
+			END_TIME=$(GET_TIME)
+			TIME_MMSEQS_S2S=$(GET_DURATION $BEG_TIME $END_TIME)
+			printf "# TIME_MMSEQS_S2S: %.3f sec\n" $TIME_MMSEQS_S2S
 		}
 
 		# If doing stats, find number of results
@@ -545,11 +548,14 @@
 				DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
 				S2S_DBSIZE=$(( ${S2S_DBSIZE} + ${DBSIZE} ))
 			done	
+
+			printf "# S2S_DBSIZE: $S2S_DBSIZE"
 		}
 
 		# Report results to m8 file
 		{
 			echo_v 3 "# Running: MMSEQS Convert Alignments..."
+			BEG_TIME=$(GET_TIME)
 
 			$MMSEQS convertalis 								\
 			$TARGET_MMSEQS_S  $QUERY_MMSEQS 				\
@@ -557,17 +563,21 @@
 			$MMSEQS_M8 	 										\
 
 			CHECK_ERROR_CODE "CONVERT_ALIGN"
+
+			END_TIME=$(GET_TIME)
+			TIME_MMSEQS_CONVERTALIS=$(GET_DURATION $BEG_TIME $END_TIME)
+			printf "# TIME_CONVERTALIS: %.3f sec\n" $TIME_MMSEQS_CONVERTALIS
 		}
 		
 		# FORMAT_OUTPUT="qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
 	}
 
-	# # ==== CONVERT MMSEQS OUTPUT -> MMORE INPUT === #
+	# === CONVERT MMSEQS OUTPUT -> MMORE INPUT === #
 	{
 		:
 	}
 
-	# # ==== MMORE SEARCH ==== #
+	# === MMORE SEARCH === #
 	{
 		# cloud search options:
 		# --alpha FLOAT 					alpha cloud tuning parameter
@@ -637,4 +647,8 @@
 	# 		fi
 	# 	}
 	# }
+
+	END_TOTAL=$(GET_TIME)
+	TIME_PREP=$(GET_DURATION $BEG_TOTAL $END_TOTAL)
+	printf "# SEARCH_TIME: %.3f sec\n" $TIME_PREP
 }

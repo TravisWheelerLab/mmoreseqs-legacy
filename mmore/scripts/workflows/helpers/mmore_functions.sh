@@ -52,7 +52,7 @@ function GET_SCRIPT_DIR_FULL
 # get time in seconds (with millisecond precision)
 function GET_TIME
 {
-	echo date +%s.%N
+	echo $( date +%s.%N )
 }
 
 # get duration in seconds (with millisecond precision)
@@ -60,7 +60,10 @@ function GET_DURATION
 {
 	local BEG_TIME=$1
 	local END_TIME=$2
-	echo $( echo "${END_TIME} - ${BEGIN_TIME}" | bc -l )
+	local DUR_TIME="0"
+	# DUR_TIME=$( echo "${END_TIME} - ${BEGIN_TIME}" | bc -l )
+	DUR_TIME=$( python <<< "duration = ${END_TIME} - ${BEG_TIME}; print(duration)" ) 
+	echo $DUR_TIME
 }
 
 # make directory safely
@@ -177,6 +180,7 @@ function CHECK_ERROR_CODE
 {
 	local ERROR_CODE="${EXIT_CODE:-"$?"}"
 	local FUNCTION="${FUNCTION:-"$1"}"
+	echo_v 3 "# ERROR_CODE: $ERROR_CODE"
 
 	if (( EXIT_CODE != 0 ))
 	then
@@ -225,13 +229,14 @@ function SET_ENV_ARG_DEFAULTS
 		S2S_DBSIZE="${S2S_DBSIZE:-""}"
 		MMORE_DBSIZE="${MMORE_DBSIZE:-""}"
 		# time input:
-		TIME_PREP="${TIME_PREP:-""}"
-		TIME_MMSEQS="${TIME_MMSEQS:-""}"
-		TIME_MMSEQS_PREFILTER="${TIME_MMSEQS_PREFILTER:-""}"
-		TIME_MMSEQS_P2S="${TIME_MMSEQS_P2S:-""}"
-		TIME_MMSEQS_S2S="${TIME_MMSEQS_S2S:-""}"
-		TIME_MMORE="${TIME_MMORE:-""}"
-
+		TIME_PREP="${TIME_PREP:-"0"}"
+		TIME_MMSEQS="${TIME_MMSEQS:-"0"}"
+		TIME_MMSEQS_PREFILTER="${TIME_MMSEQS_PREFILTER:-"0"}"
+		TIME_MMSEQS_P2S="${TIME_MMSEQS_P2S:-"0"}"
+		TIME_MMSEQS_IDS="${TIME_MMSEQS_IDS:-"0"}"
+		TIME_MMSEQS_S2S="${TIME_MMSEQS_S2S:-"0"}"
+		TIME_MMSEQS_CONVERTALIS="${TIME_MMSEQS_CONVERTALIS:-"0"}"
+		TIME_MMORE="${TIME_MMORE:-"0"}"
 		# directories:
 		ROOT_DIR="${ROOT_DIR:-"/"}"
 		SCRIPT_DIR="${SCRIPT_DIR:-""}"
