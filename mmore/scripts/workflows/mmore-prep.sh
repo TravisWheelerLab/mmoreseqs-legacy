@@ -175,15 +175,15 @@
 			TMP_MMSEQS_OUT="${TMP_MMSEQS}/out/"
 
 			# make tmp directories
-			MAKE_DIR $TMP
-			MAKE_DIR $TMP_DB 
-			MAKE_DIR $TMP_OUT
-			MAKE_DIR $TMP_MMORE
-			MAKE_DIR $TMP_MMORE_DB
-			MAKE_DIR $TMP_MMORE_OUT
-			MAKE_DIR $TMP_MMSEQS
-			MAKE_DIR $TMP_MMSEQS_DB
-			MAKE_DIR $TMP_MMSEQS_OUT
+			MAKE_DIR "$TMP"
+			MAKE_DIR "$TMP_DB"
+			MAKE_DIR "$TMP_OUT"
+			MAKE_DIR "$TMP_MMORE"
+			MAKE_DIR "$TMP_MMORE_DB"
+			MAKE_DIR "$TMP_MMORE_OUT"
+			MAKE_DIR "$TMP_MMSEQS"
+			MAKE_DIR "$TMP_MMSEQS_DB"
+			MAKE_DIR "$TMP_MMSEQS_OUT"
 
 			# list of temp folders 
 			TEMP_FOLDERS=""
@@ -305,7 +305,7 @@
 				# link hmm to mmore
 				echo_v 3 "# TARGET: HMM => MMORE"
 				# $LINK $TARGET_HMM $TARGET_MMORE
-				$COPY $TARGET_HMM $TARGET_MMORE
+				$COPY "$TARGET_HMM" "$TARGET_MMORE"
 
 				# convert msa to mm_msa
 				echo_v 3 "# TARGET: MSA => MM_MSA"
@@ -390,7 +390,7 @@
 		# CLEANUP
 		{
 			SEARCH_FILE="${TMP}/search_type.txt"
-			echo "$SEARCH_TYPE" > $SEARCH_FILE
+			echo "$SEARCH_TYPE" > "$SEARCH_FILE"
 		}
 	}
 }

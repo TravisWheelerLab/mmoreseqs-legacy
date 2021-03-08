@@ -777,13 +777,15 @@ typedef struct {
    float    mmore_evalue;           /* e-value mmore / fb-pruner */
    float    mmore_pvalue;           /* p-value mmore / fb-pruner */
 
-   /* --- THRESHOLDS --- */
+   /* --- THRESHOLDS (P_VALUE) --- */
    bool     is_run_filter;          /* filter thresholds on mmore enforced, or let all through? */
-   float    threshold_pre;          /* threshold for prefilter score */
+   float    threshold_pre;          /* threshold for mmseqs prefilter score */
+   float    threshold_p2s;          /* threshold for mmseqs p2s score */
+   float    threshold_s2s;          /* threshold for mmseqs s2s score */
    float    threshold_vit;          /* threshold for viterbi score */
    float    threshold_fwd;          /* threshold for forward score */
    float    threshold_cloud;        /* threshold for cloud search score */
-   float    threshold_bound_fwd;    /* threshold for bound forward score */
+   float    threshold_boundfwd;     /* threshold for bound forward score */
    float    threshold_mmore;        /* threshold for mmore score */
 } ARGS;
 

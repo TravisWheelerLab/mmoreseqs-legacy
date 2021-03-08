@@ -83,7 +83,7 @@ WORK_load_script_env_args( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_GAMMA",          INT_ToString( args->gamma,                  buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_VITERBI",        FLT_ToString( args->threshold_vit,          buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_CLOUD",          FLT_ToString( args->threshold_cloud,        buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_BOUNDFWD",       FLT_ToString( args->threshold_bound_fwd,    buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_BOUNDFWD",       FLT_ToString( args->threshold_boundfwd,    buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_FWDBACK",        FLT_ToString( args->threshold_fwd,          buffer ) );
    /* MMORE OPTIONS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DO_FILTER",      INT_ToString( args->is_run_filter,          buffer ) );

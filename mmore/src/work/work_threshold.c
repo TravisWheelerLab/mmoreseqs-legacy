@@ -48,7 +48,7 @@ WORK_thresholds_pval_to_eval(   WORKER*  worker )
 
    args->threshold_vit        = STATS_Pval_to_Eval( args->threshold_vit, db_size );
    args->threshold_cloud      = STATS_Pval_to_Eval( args->threshold_cloud, db_size );
-   args->threshold_bound_fwd  = STATS_Pval_to_Eval( args->threshold_bound_fwd, db_size );
+   args->threshold_boundfwd  = STATS_Pval_to_Eval( args->threshold_boundfwd, db_size );
    args->threshold_fwd        = STATS_Pval_to_Eval( args->threshold_fwd, db_size );
 
    fprintf(stdout, "THRESHOLDS -> EVALS: %f => %f => %f\n", 
@@ -217,7 +217,7 @@ WORK_bound_fwdback_test_threshold( WORKER* worker )
    STATS*         stats    = worker->stats;
 
    bool     is_passed;
-   float    fwdback_threshold  = args->threshold_bound_fwd;
+   float    fwdback_threshold  = args->threshold_boundfwd;
    float    fwdback_eval       = finalsc->fwdback_eval;
    
    is_passed = ( fwdback_eval < fwdback_threshold );

@@ -237,28 +237,28 @@
 			# assign temporary file if none given
 			TEMP_DIR="${TEMP_DIR:-$(mktemp -d tmp-mmore-XXXX)}"
 			# top-level temporary directory
-			TMP=${TEMP_DIR}/
-			TMP_QUERY=${TMP}/query/
-			TMP_TARGET=${TMP}/target/
+			TMP="${TEMP_DIR}/"
+			TMP_QUERY="${TMP}/query/"
+			TMP_TARGET="${TMP}/target/"
 			# temporary subdirectory for mmore
-			TMP_MMORE=${TMP}/mmore/
-			TMP_MMORE_DB=${TMP_MMORE}/db/
-			TMP_MMORE_OUT=${TMP_MMORE}/out/
+			TMP_MMORE="${TMP}/mmore/"
+			TMP_MMORE_DB="${TMP_MMORE}/db/"
+			TMP_MMORE_OUT="${TMP_MMORE}/out/"
 			# temporary subdirectory for mmseqs
-			TMP_MMSEQS=${TMP}/mmseqs/
-			TMP_MMSEQS_DB=${TMP_MMSEQS}/db/
-			TMP_MMSEQS_WORKING=${TMP_MMSEQS}/working/
-			TMP_MMSEQS_OUT=${TMP_MMSEQS}/out/
+			TMP_MMSEQS="${TMP}/mmseqs/"
+			TMP_MMSEQS_DB="${TMP_MMSEQS}/db/"
+			TMP_MMSEQS_WORKING="${TMP_MMSEQS}/working/"
+			TMP_MMSEQS_OUT="${TMP_MMSEQS}/out/"
 
 			# make tmp directories
-			MAKE_DIR $TMP
-			MAKE_DIR $TMP_MMORE
-			MAKE_DIR $TMP_MMORE_DB
-			MAKE_DIR $TMP_MMORE_OUT
-			MAKE_DIR $TMP_MMSEQS
-			MAKE_DIR $TMP_MMSEQS_DB
-			MAKE_DIR $TMP_MMSEQS_WORKING
-			MAKE_DIR $TMP_MMSEQS_OUT
+			MAKE_DIR "$TMP"
+			MAKE_DIR "$TMP_MMORE"
+			MAKE_DIR "$TMP_MMORE_DB"
+			MAKE_DIR "$TMP_MMORE_OUT"
+			MAKE_DIR "$TMP_MMSEQS"
+			MAKE_DIR "$TMP_MMSEQS_DB"
+			MAKE_DIR "$TMP_MMSEQS_WORKING"
+			MAKE_DIR "$TMP_MMSEQS_OUT"
 
 			# list of temp folders 
 			TEMP_FOLDERS=""
@@ -419,6 +419,12 @@
 	{
 		# Configure MMSEQS Options
 		{
+			if (( $MMORE_DO_MMSEQS_ALN == 1 )); then
+				MMSEQS_ALN="-a"
+			else 
+				MMSEQS_ALN=""
+			fi
+
 			PREFILTER_OPTS=""
 
 			P2S_OPTIONS=""
@@ -445,46 +451,73 @@
 			-v 							$VERBOSE 						\
 			-k 							$MMSEQS_KMER 					\
 			--k-score 					$MMSEQS_KSCORE 				\
-			--max-seqs					$MMSEQS_PREFILTER_MAXSEQS 	\
 			--min-ungapped-score 	$MMSEQS_UNGAPPED 				\
 			# > $MMSEQS_PREFILTER_STDOUT 								\
 
 			CHECK_ERROR_CODE "PREFILTER"
+			MMSEQS_PRV=$MMSEQS_PREFILTER
 		}
 
-		# Run MMSEQS Profile-to-Sequence alignment search
+		# If doing stats, find number of results
+		if [[ $DO_STATS == "1" ]]
+		then
 		{
-			echo_v 3 "# Running: MMSEQS Prof-to-Seq..."
-
-			if (( $MMORE_DO_MMSEQS_ALN == 1 )); then
-				MMSEQS_ALN="--"
-			fi
-
-			$MMSEQS align 											\
-			$TARGET_MMSEQS_P  $QUERY_MMSEQS 					\
-			$MMSEQS_PREFILTER 									\
-			$MMSEQS_P2S 											\
-			-v 						$VERBOSE 					\
-			-e 						$MMSEQS_P2S_EVAL 			\
-			--alt-ali 				$MMSEQS_P2S_MAXSEQS 		\
-			# > $MMSEQS_P2S_STDOUT								\
-
-			CHECK_ERROR_CODE "P2S_ALIGN"
+			PREFILTER_DBSIZE="0"
+			DB_FILES=$( ls ${MMSEQS_PREFILTER}.[1-9]* )
+			for FILE in $DB_FILES
+			do
+				DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
+				PREFILTER_DBSIZE=$(( ${PREFILTER_DBSIZE} + ${DBSIZE} ))
+			done	
 		}
+		fi
 
-		# Translate MMSEQS Profile IDs to MMSEQS Sequence IDs
+		# If Profile-to-Sequence search
+		if [[ $SEARCH_TYPE == "P2S" ]]
+		then 
 		{
-			echo_v 3 "# Running: translate_ids..."
-			TRANSLATE_VERBOSE="0"
+			# Run MMSEQS Profile-to-Sequence alignment search
+			{
+				echo_v 3 "# Running: MMSEQS Prof-to-Seq..."
 
-			bash ${SCRIPT_DIR}/helpers/translate_ids.sh  	\
-			$TARGET_MMSEQS_P 	$TARGET_MMSEQS_S 					\
-			$MMSEQS_P2S 												\
-			$MMSEQS_DUMMY 												\
-			$TRANSLATE_VERBOSE 										\
+				$MMSEQS align 											\
+				$TARGET_MMSEQS_P  $QUERY_MMSEQS 					\
+				$MMSEQS_PRV 											\
+				$MMSEQS_P2S 											\
+				-v 							$VERBOSE 				\
+				-e 							$MMSEQS_P2S_EVAL 		\
+				# > $MMSEQS_P2S_STDOUT								\
 
-			CHECK_ERROR_CODE "TRANSLATE_IDS"
+				CHECK_ERROR_CODE "P2S_ALIGN"
+				MMSEQS_PRV=$MMSEQS_P2S
+			}
+
+			# If doing stats, find number of results
+			{
+				P2S_DBSIZE="0"
+				DB_FILES=$( ls ${MMSEQS_P2S}.[1-9]* )
+				for FILE in $DB_FILES
+				do
+					DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
+					P2S_DBSIZE=$(( ${P2S_DBSIZE} + ${DBSIZE} ))
+				done	
+			}
+
+			# Translate MMSEQS Profile IDs to MMSEQS Sequence IDs
+			{
+				echo_v 3 "# Running: translate_ids..."
+				TRANSLATE_VERBOSE="0"
+
+				bash ${SCRIPT_DIR}/helpers/translate_ids.sh  	\
+				$TARGET_MMSEQS_P 	$TARGET_MMSEQS_S 					\
+				$MMSEQS_P2S 												\
+				$MMSEQS_DUMMY 												\
+				$TRANSLATE_VERBOSE 										\
+
+				CHECK_ERROR_CODE "TRANSLATE_IDS"
+			}
 		}
+		fi
 
 		# Run MMSEQS Sequence-to-Sequence search
 		{
@@ -492,12 +525,26 @@
 
 			$MMSEQS align 											\
 			$TARGET_MMSEQS_S  $QUERY_MMSEQS 					\
-			$MMSEQS_PREFILTER 									\
+			$MMSEQS_PRV 											\
 			$MMSEQS_S2S 											\
 			-v 						$VERBOSE 					\
-			# > $MMSEQS_S2S_REPORT
+			-e 						$MMSEQS_S2S_EVAL 			\
+			--alt-ali 				$MMSEQS_P2S_ALTALIS 		\
+
+			# > $MMSEQS_S2S_REPORT 								\
 
 			CHECK_ERROR_CODE "S2S_ALIGN"
+		}
+
+		# If doing stats, find number of results
+		{
+			S2S_DBSIZE="0"
+			DB_FILES=$( ls ${MMSEQS_S2S}.[1-9]* )
+			for FILE in $DB_FILES
+			do
+				DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
+				S2S_DBSIZE=$(( ${S2S_DBSIZE} + ${DBSIZE} ))
+			done	
 		}
 
 		# Report results to m8 file
@@ -509,7 +556,7 @@
 			$MMSEQS_S2S 										\
 			$MMSEQS_M8 	 										\
 
-			CHECK_ERROR_CODE "CONVERT_ALIS"
+			CHECK_ERROR_CODE "CONVERT_ALIGN"
 		}
 		
 		# FORMAT_OUTPUT="qsetid,tsetid,qset,tset,query,target,qheader,theader,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits"
