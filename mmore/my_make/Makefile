@@ -238,7 +238,7 @@ submodules:
 
 load-submodules:
 	@echo '*** MAKE SUBMODULE ***'
-	git submodule update --recursive
+	git submodule update --init --recursive
 
 # install easel
 easel:
