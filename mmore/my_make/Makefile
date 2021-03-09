@@ -162,7 +162,7 @@ ifndef V
 endif
 
 # RECIPES
-.PHONY: all install user-install submodules easel mmseqs hmmer uninstall clean
+.PHONY: all install user-install submodules submodules-load easel mmseqs hmmer uninstall clean
 
 # Build
 all: $(BUILD_PROGRAMS) 
@@ -237,35 +237,40 @@ submodules:
 	make hmmer
 
 submodules-load:
-	@echo '*** MAKE SUBMODULE ***'
+	@echo '*** MAKE SUBMODULE-LOAD ***'
 	git submodule update --init --recursive
 
 # install easel
 easel:
 	@echo "*** MAKE EASEL ***"
-	$(CD) $(ROOT_DIR)
-	$(CD) $(EASEL_DIR)
-	autoreconf
-	./configure
-	make -C $(EASEL_DIR)
+	$(CD) $(ROOT_DIR)/$(EASEL_DIR);
+	autoreconf;
+	./configure;
+	make -C $(ROOT_DIR)/$(EASEL_DIR) --quiet;
 	$(CD) $(ROOT_DIR)
 
 # install mmseqs 
 mmseqs:
 	@echo "*** MAKE MMSEQS ***"
+	$(CD) $(ROOT_DIR);
+	$(MKDIR_P) $(ROOT_DIR)/$(MMSEQS_BIN);
+	$(CD) $(MMSEQS_DIR);	 														\
+	pwd; 																				\
+	cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. .; 	\
+	make -C $(ROOT_DIR)/$(MMSEQS_DIR) --quiet; 							\
+	make install -C $(ROOT_DIR)/$(MMSEQS_DIR) --quiet; 					
 	$(CD) $(ROOT_DIR)
-	$(CD) $(MMSEQS_DIR)
-	$(MKDIR_P) build 
-	$(CD) build 
-	cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. ..
-	make 
-	make install
 
 # install hmmer 
 hmmer:
 	@echo "*** MAKE HMMER ***"
 	$(CD) $(ROOT_DIR)
+	$(MKDIR) $(HMMER_BIN)
 	$(CD) $(HMMER_DIR)
+	./configure --prefix=$(ROOT_DIR)/$(HMMER_BIN)
+	make -C $(ROOT_DIR)/$(HMMER_DIR) --quiet
+	make install -C $(ROOT_DIR)/$(HMMER_DIR) --quiet
+	$(CD) $(ROOT_DIR)
 
 # remove build
 clean: 
