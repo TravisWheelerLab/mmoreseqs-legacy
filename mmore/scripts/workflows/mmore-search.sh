@@ -206,7 +206,7 @@
 		{
 			if (( $VERBOSE >= 3 )); 
 			then
-				echo "# ========== MMORE: SEARCH ==========="
+				echo "# ========== MMORE: SEARCH ================="
 				echo "#     TARGET_MMORE: $TARGET_MMORE"
 				echo "#      QUERY_MMORE: $QUERY_MMORE"
 				echo "#  TARGET_MMSEQS_P: $TARGET_MMSEQS_P"
@@ -219,16 +219,15 @@
 				echo "#    MMSEQS_KSCORE: $MMSEQS_KSCORE"
 				echo "#  MMSEQS_UNGAPPED: $MMSEQS_UNGAPPED"
 				echo "#      MMSEQS_PVAL: $MMSEQS_PVAL"
-				echo "#      MMSEQS_EVAL: $MMSEQS_EVAL"
 				echo "#"
 				echo "#      MMORE_ALPHA: $MMORE_ALPHA"
 				echo "#       MMORE_BETA: $MMORE_BETA"
 				echo "#      MMORE_GAMMA: $MMORE_GAMMA"
+				echo "#     MMORE_FILTER: $MMORE_DO_FILTER"
 				echo "#    MMORE_VITERBI: $MMORE_VITERBI"
 				echo "#      MMORE_CLOUD: $MMORE_CLOUD"
 				echo "#   MMORE_BOUNDFWD: $MMORE_BOUNDFWD"
-				echo "#     MMORE_FILTER: $MMORE_DO_FILTER"
-				echo "# ===================================="
+				echo "# =========================================="
 			fi
 		}
 	}
