@@ -1546,9 +1546,10 @@ extern SCORE_MATRIX* bld;
 /* root directory */
 extern char*         ROOT_DIR;
 /* script locations */
-extern char*         MMSEQS_PLUS_SCRIPT;
-extern char*         MMSEQS_PLUS_EASY_SCRIPT;
-extern char*         FASTA_TO_HMM_SCRIPT;
+extern char*         PREP_SCRIPT;
+extern char*         PREPSEARCH_SCRIPT;
+extern char*         SEARCH_SCRIPT;
+extern char*         EASYSEARCH_SCRIPT ;
 /* other tool binary locations */
 extern char*         MMSEQS_BIN;
 extern char*         HMMER_BIN;

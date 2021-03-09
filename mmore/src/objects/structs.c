@@ -264,16 +264,13 @@ DEBUG_KIT*  debugger;
 SCORE_MATRIX* bld = NULL;
 
 /* --- EXTERNAL EXECUTABLE/SCRIPT LOCATIONS --- */
-char* ROOT_DIR                = MACRO_XSTR(PROJECT_LOC);
-/* mmore-seqs script location */
-char* MMSEQS_PLUS_SCRIPT      = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/mmseqs_plus.sh";
-/* mmore-seqs script location */
-char* MMSEQS_PLUS_EASY_SCRIPT = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/mmseqs_plus_easy.sh";
-/* fasta-to-hmm converter script location */
-char* FASTA_TO_HMM_SCRIPT     = MACRO_XSTR(PROJECT_LOC) "/scripts/workflows/convert_fasta_to_hmm.sh";
-/* mmseqs binary location */
-char* MMSEQS_BIN              = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMSEQS_BIN_LOC);
-/* hmmer 'hmmbuild' binary location */
-char* HMMER_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(HMMER_BIN_LOC);
-/* hmmer 'mmore' binary location */
-char* MMORE_BIN               = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
+char*    ROOT_DIR       = MACRO_XSTR(PROJECT_LOC);
+/* --- TOOL BINARIES --- */
+char*    MMSEQS_BIN     = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMSEQS_BIN_LOC);
+char*    HMMER_BIN      = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(HMMER_BIN_LOC);
+char*    MMORE_BIN      = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
+/* --- SCRIPTS --- */
+char*    PREP_SCRIPT          = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-prep.sh";
+char*    PREPSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-prepsearch.sh";
+char*    SEARCH_SCRIPT        = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-search.sh";
+char*    EASYSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-easysearch.sh";

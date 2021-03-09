@@ -590,7 +590,16 @@ ARGS_Parse(    ARGS*          args,
             }
          }
          /* === MMSEQS DATA === */
-         
+         else if ( STR_Compare( argv[i], (flag = "--mmseqs-times") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->mmseqs_hits_per_search = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === SEARCH/RANGE OPTIONS === */
          else if ( STR_Compare( argv[i], (flag = "--range") ) == 0 ) {
             req_args = 2;
@@ -829,7 +838,7 @@ ARGS_SetDefaults( ARGS*    args )
 {
    /* --- COMMANDLINE --- */
 
-   /* --- PIPELINE OPTIONS --- */
+   /* --- PIPELINE MODE --- */
    args->pipeline_mode           = PIPELINE_TEST;
    args->pipeline_name           = NULL;
    args->verbose_level           = VERBOSE_LOW;
@@ -841,6 +850,7 @@ ARGS_SetDefaults( ARGS*    args )
    /* --- PREPARATION OPTIONS --- */
    /* files/folders */
    args->is_run_prep             = true;
+   args->is_prep_copy            = true;
    args->prep_folderpath         = NULL;
    args->target_prep             = NULL;
    args->query_prep              = NULL;
@@ -958,12 +968,21 @@ ARGS_Dump(     ARGS*    args,
    fprintf( fp, "# === MMORE OPTIONS =======================\n");
    /* --- PIPELINE --- */
    fprintf( fp, "# === PIPELINE ===\n");
-   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "PIPELINE",           PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
-   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "VERBOSITY_MODE",     VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
+   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "PIPELINE",               PIPELINES[args->pipeline_mode].name,   args->pipeline_mode );
+   fprintf( fp, "# %*s:\t%s [%d]\n",    align * pad,  "VERBOSITY_MODE",         VERBOSITY_NAMES[args->verbose_level],  args->verbose_level );
+   fprintf( fp, "# === SCRIPTS ===\n");
+   fprintf( fp, "# %*s:\t%s\n",         align * pad,  "PREP_SCRIPT",            PREP_SCRIPT );
+   fprintf( fp, "# %*s:\t%s\n",         align * pad,  "PREPSEARCH_SCRIPT",      PREPSEARCH_SCRIPT );
+   fprintf( fp, "# %*s:\t%s\n",         align * pad,  "SEARCH_SCRIPT",          SEARCH_SCRIPT );
+   fprintf( fp, "# %*s:\t%s\n",         align * pad,  "EASYSEARCH_SCRIPT",      EASYSEARCH_SCRIPT );
+   fprintf( fp, "# === PIPELINE OPTIONS ===\n");
+
    /* --- INPUT --- */
    fprintf( fp, "# === INPUT ===\n");
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET",                args->t_filepath,             FILETYPE_NAME_Get( args->t_filetype ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY",                 args->q_filepath,             FILETYPE_NAME_Get( args->q_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_PREP",           args->target_prep,            FILETYPE_NAME_Get( args->target_prep_type ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_PREP",            args->query_prep,             FILETYPE_NAME_Get( args->query_prep_type ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMORE",          args->t_mmore_filepath,       FILETYPE_NAME_Get( args->t_mmore_filetype ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMORE",           args->q_mmore_filepath,       FILETYPE_NAME_Get( args->q_mmore_filetype ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_P",       args->t_mmseqs_p_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );

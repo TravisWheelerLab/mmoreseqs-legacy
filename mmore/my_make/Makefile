@@ -19,7 +19,7 @@ RMDIR 	:= rmdir
 
 # ROOT FOLDER:
 ROOT_DIR ?= $(shell pwd)
-$(info **** ROOT_DIR = $(ROOT_DIR) **** )
+# $(info **** ROOT_DIR = $(ROOT_DIR) **** )
 
 # PACKAGE/BUILD INFORMATION:
 PACKAGE 				= FB-PRUNER 
@@ -56,9 +56,11 @@ TOOLS 			:= $(shell find $(TOOL_DIR) -name hmmbuild -or -name hmmsearch -or -nam
 
 # OUTPUT DIRECTORIES:
 BUILD_DIR 		?= build/
-MMORE_BIN 		?= $(BUILD_DIR)
 INSTALL_DIR 	?= bin/
+USER_INSTALL_DIR ?= /usr/bin/
+MMORE_BIN 		?= $(BUILD_DIR)
 # OUTPUT SUBDIRECTORIES
+MMORE_BIN 		?= $(BUILD_DIR)
 BUILD_DIRS 		:= $(SRC_DIRS:%=$(BUILD_DIR)/%)
 
 # OUTPUT FILES:
@@ -74,12 +76,14 @@ INC_DIRS 		:= $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS 		:= $(addprefix -I,$(INC_DIRS))
 INC_LIBS 		:= $(addprefix -I,$(EASEL_DIR))
 # Macro Variables:
-INC_DEFS 		:= PROJECT_LOC=$(BUILD_DIR) 			\
+INC_DEFS 		:= PROJECT_LOC=$(ROOT_DIR) 			\
 						SCRIPT_LOC=$(SCRIPT_DIR) 			\
 						MMSEQS_BIN_LOC=$(MMSEQS_BIN) 		\
 						HMMER_BIN_LOC=$(HMMER_BIN) 		\
 						MMORE_BIN_LOC=$(MMORE_BIN) 		
+# INC_DEFS 		:= $(PROGRAMS:%=$(ROOT_DIR)/$(BUILD_DIR)/%)
 INC_DEFS 		:= $(addprefix -D,$(INC_DEFS))
+# $(info INC_DEFS $(INC_DEFS))
 
 # LINKED LIBRARIES:
 CLIBS 			:= -lm -L${EASEL_DIR} -leasel
@@ -133,11 +137,13 @@ $(info *** BUILD-TYPE: $(TYPE) *** )
 
 # PROGRAMS
 PROGRAMS = 				\
-	mmore 				\
+	$(MAIN_EXEC) 		\
 	$(TARGET_EXEC) 	
 # OUTPUT PROGRAMS
 BUILD_PROGRAMS 	:= $(PROGRAMS:%=$(BUILD_DIR)/%)
 INSTALL_PROGRAMS	:= $(PROGRAMS:%=$(INSTALL_DIR)/%)
+USER_INSTALL_PROGRAMS := $(PROGRAMS:%=$(USER_INSTALL_DIR)/%)
+$(info USER_INSTALL: $(USER_INSTALL_PROGRAMS))
 
 # $(info *** PROGRAMS: ${PROGRAMS} *** )
 # $(info *** CFLAGS: ${CFLAGS} *** )
@@ -156,20 +162,25 @@ ifndef V
 endif
 
 # RECIPES
-.PHONY: all install submodules easel mmseqs hmmer uninstall clean
+.PHONY: all install user-install submodules easel mmseqs hmmer uninstall clean
 
-# build
-all: $(BUILD_PROGRAMS) $(BUILD_SCRIPTS) $(BUILD_TOOLS)
+# Build
+all: $(BUILD_PROGRAMS) 
 	@echo "*** MAKE ALL ***"
 
-# Program install
-$(INSTALL_PROGRAMS): $(BUILD_OBJS)
-	$(info INSTALL $(@:$(INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@))
+# Program install local file
+$(INSTALL_PROGRAMS): $(BUILD_PROGRAMS)
+	$(info INSTALL $(@))
 	@$(MKDIR_P) $(INSTALL_DIR)
 	@$(CP) $(@:$(INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
 
+# Program install local file
+$(USER_INSTALL_PROGRAMS): $(BUILD_OBJS)
+	$(info USER_INSTALL $(@))
+	@$(CP) $(@:$(USER_INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
+
 # Program build
-$(BUILD_PROGRAMS): $(BUILD_OBJS)
+$(BUILD_PROGRAMS): $(BUILD_SCRIPTS) $(BUILD_OBJS) 
 	$(info PROGRAM $@)
 	@$(MKDIR_P) $(@D)
 	@$(CC) $(BUILD_OBJS) -o $(@)  $(CFLAGS) $(LDFLAGS) $(CLIBS)
@@ -188,27 +199,46 @@ $(BUILD_DIR)/%.cpp.o: %.cpp
 
 # Scripts
 $(BUILD_SCRIPTS): $(SCRIPTS)
-	$(info SCRIPT $(@:$(BUILD_DIR)/%=%) $(@))
+	$(info SCRIPT $(@))
 	@$(MKDIR_P) $(@D)
 	@$(CP) $(@:$(BUILD_DIR)/%=%) $(@)
 
 # Tools 
 $(BUILD_TOOLS): $(TOOLS)
-	$(info TOOLS $(@:$(BUILD_DIR)/%=%) $(@))
+	$(info TOOLS $(@))
 	@$(MKDIR_P) $(@D)
 	@$(CP) $(@:$(BUILD_DIR)/%=%) $(@)
 
-# install
+# install to binary file
 install: $(INSTALL_PROGRAMS)
 	@echo "*** MAKE INSTALL ***"
+
+# uninstall program
+uninstall:
+	@echo "*** MAKE UNINSTALL ***"
+	$(info UNINSTALL $(INSTALL_PROGRAMS))
+	$(RM) $(INSTALL_PROGRAMS)
+
+# TODO:
+# user-install: $(USER_INSTALL_PROGRAMS)
+# 	@echo "*** MAKE USER-INSTALL ***"
+
+# user-uninstall: 
+# 	@echo "*** MAKE USER-UNINSTALL ***"
+# 	$(info UNINSTALL $(USER_INSTALL_PROGRAMS))
+# 	$(RM) $(USER_GLOBAL_PROGRAMS)
 
 # install submodules and make them
 submodules:
 	@echo '*** MAKE SUBMODULE ***'
-	git submodule update --recursive
+	make load-submodules
 	make easel 
 	make mmseqs
 	make hmmer
+
+load-submodules:
+	@echo '*** MAKE SUBMODULE ***'
+	git submodule update --recursive
 
 # install easel
 easel:
@@ -218,13 +248,14 @@ easel:
 	autoconf
 	./configure
 	$(MAKE) -C $(EASEL_DIR)
+	$(CD) $(ROOT_DIR)
 
 # install mmseqs 
 mmseqs:
 	@echo "*** MAKE MMSEQS ***"
 	$(CD) $(ROOT_DIR)
 	$(CD) $(MMSEQS_DIR)
-	$(MKDIR) build 
+	$(MKDIR_P) build 
 	$(CD) build 
 	cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. ..
 	make 
@@ -236,21 +267,16 @@ hmmer:
 	$(CD) $(ROOT_DIR)
 	$(CD) $(HMMER_DIR)
 
-# uninstall program
-uninstall:
-	@echo "*** MAKE UNINSTALL ***"
-	$(info UNINSTALL $(INSTALL_PROGRAMS))
-	$(RM) $(INSTALL_PROGRAMS)
-
 # remove build
 clean: 
 	@echo "*** MAKE CLEAN ***"
 	$(info CLEAN $(BUILD_PROGRAMS))
-	$(RM) make_out.txt gmon.out
-	$(RM) $(BUILD_PROGRAMS)
-	$(RM) $(BUILD_OBJS) 
-	$(RM) $(BUILD_DEPS)
-	$(RM) $(BUILD_SCRIPTS)
-	$(RMDIR) $(BUILD_DIRS)
-	$(RMDIR) $(BUILD_DIR)
+	rm -r $(BUILD_DIR)
+	# @$(RM) make_out.txt gmon.out
+	# @$(RM) $(BUILD_PROGRAMS)
+	# @$(RM) $(BUILD_OBJS) 
+	# @$(RM) $(BUILD_DEPS)
+	# @$(RM) $(BUILD_SCRIPTS)
+	# @$(RMDIR) $(BUILD_DIRS)
+	# @$(RMDIR) $(BUILD_DIR)
 

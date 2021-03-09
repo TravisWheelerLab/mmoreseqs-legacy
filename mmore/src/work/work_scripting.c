@@ -68,8 +68,8 @@ WORK_load_script_env_args( WORKER* worker )
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS",   INT_ToString( args->is_ignore_warnings,     buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "NUM_THREADS",          INT_ToString( args->num_threads,            buffer ) );
    /* SEARCH OPTIONS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_NAME",          args->search_name );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_COPY",              INT_ToString( args->search_type,            buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          args->search_name );
+   // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );
    /* MMSEQS PARAMETERS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_MAX_HITS",      INT_ToString( args->mmseqs_hits_per_search, buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_KMER",          INT_ToString( args->mmseqs_kmer,            buffer ) );

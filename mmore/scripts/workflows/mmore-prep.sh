@@ -236,8 +236,8 @@
 		{
 			# import input files using copy or symbolic links
 			{
-				LINK="ln -nfs"
-				COPY="cp"
+				LINK="ln -nfs -v"
+				COPY="cp -v"
 
 				if [ "$DO_COPY" == "0" ]
 				then
@@ -253,13 +253,20 @@
 				echo "ERROR: TARGET_TYPE '${TARGET_TYPE}' is not a valid file type."
 				exit 1
 			fi 
+
+			# verify files exist 
+			CHECK=$(CHECK_FILE_EXISTS ${TARGET})
+			echo "CHECK: $TARGET $CHECK." 
+			CHECK=$(CHECK_FILE_EXISTS ${QUERY})
+			echo "CHECK: $QUERY $CHECK." 
 			
 			# import target file 
+			echo "IMPORT: $IMPORT ${TARGET} $DO_COPY"
 			TARGET_IN_TYPE="$TARGET_TYPE"
 			if [ "$TARGET_TYPE" == "MSA" ]; then
 				$IMPORT "${TARGET}" "${TARGET_MSA}"
 			elif [ "$TARGET_TYPE" == "FASTA" ]; then
-				$IMPORT "${TARGET}" "${TARGET_FASTA}"
+				$IMPORT "${TARGET}" "${TARGET_FASTA}" 
 			fi 
 
 			# verify valid query formats 
