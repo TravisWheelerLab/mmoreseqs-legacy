@@ -1,25 +1,20 @@
 #################################################################################
-#		  NAME: MMORE MAKEFILE
+#		  NAME: TEMPLATE MAKEFILE
 # 		AUTHOR: David Rich 
 #
 #		SOURCE: https://spin.atomicobject.com/2016/08/26/makefile-c-projects/
 #################################################################################
 
-# COMPILERS TOOLS:
-SHELL 	:= /bin/sh
-CC 		:= gcc
-CXX 		:= g++
-CP 		:= cp 
-# COMMANDLINE COMMANDS 
-CD 		:= cd 
-MKDIR 	:= mkdir
-MKDIR_P 	:= $(MKDIR) -p
-RM 		:= rm
-RMDIR 	:= rmdir
+# COMPILER TOOLS:
+SHELL 	= /bin/sh
+CC 		= gcc
+CXX 		= g++
+# OTHER TOOLS:
+CP 		= cp
 
 # ROOT FOLDER:
 ROOT_DIR ?= $(shell pwd)
-$(info **** ROOT_DIR = $(ROOT_DIR) **** )
+# $(info **** ROOT_DIR = $(ROOT_DIR) **** )
 
 # PACKAGE/BUILD INFORMATION:
 PACKAGE 				= FB-PRUNER 
@@ -34,7 +29,7 @@ MAIN_EXEC 		?= mmore
 LIB_DIR 			?= ./lib
 EASEL_DIR 		?= $(LIB_DIR)/easel
 
-# MAIN DIRECTORY:
+# main tool directory (need this for scripts)
 MMORE_BIN 		?= build/
 
 # TOOL DIRECTORIES:
@@ -44,40 +39,44 @@ MMSEQS_BIN 		?= $(MMSEQS_DIR)/bin
 HMMER_DIR 		?= $(TOOL_DIR)/hmmer
 HMMER_BIN 		?= $(HMMER_DIR)/bin
 
-# INPUT DIRECTORIES:
+# INPUT/OUTPUT DIRECTORIES:
+INSTALL_DIR 	?= bin/
+BUILD_DIR 		?= build/
 SRC_DIRS 		?= src/
 SCRIPT_DIRS 	?= scripts/
 
-# INPUT FILES:
+# SOURCES:
+# get all source code from source directory
 SRCS 				:= $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
-HEADERS 			:= $(shell find $(SRC_DIRS) -name *.h)
-SCRIPTS 			:= $(shell find $(SCRIPT_DIRS) -name *.py -or -name *.sh)
-TOOLS 			:= $(shell find $(TOOLS_DIR) -name hmmbuild -or -name hmmsearch -or -name -mmseqs)
-
-# OUTPUT FILES:
-BUILD_OBJS 			:= $(SRCS:%=$(BUILD_DIR)/%.o)
-BUILD_DEPS 			:= $(SRCS:%=$(BUILD_DIR)/%.o.d)
-BUILD_SCRIPTS 		:= $(SCRIPTS:%=$(BUILD_DIR)/%)
-BUILD_TOOLS 		:= $(TOOLS:%=$(BUILD_DIR)/%)
-BUILD_PROGRAMS 	:= $(PROGRAMS:%=$(BUILD_DIR)/%)
-INSTALL_PROGRAMS	:= $(PROGRAMS:%=$(INSTALL_DIR)/%)
+# get all scripts from script directory
+SCRIPTS 			:= $(shell find $())
+# for each source file, create an object (.o)
+OBJS 				:= $(SRCS:%=$(BUILD_DIR)/%.o)
+# for each object file create a dependency file (.d)
+DEPS 				:= $(OBJS:.o=.d)
 
 # INCLUDED DIRECTORIES:
 INC_DIRS 		:= $(shell find $(SRC_DIRS) -type d)
+# Include flags:
 INC_FLAGS 		:= $(addprefix -I,$(INC_DIRS))
-INC_LIBS 		:= $(addprefix -I,$(EASEL_DIR))
+
+# Include library archives
+INC_LIBS 		:= -I$(EASEL_DIR)
 # Macro Variables:
-INC_DEFS 		:= PROJECT_LOC=$(BUILD_DIR) 			\
-						SCRIPT_LOC=$(SCRIPT_DIR) 			\
-						MMSEQS_BIN_LOC=$(MMSEQS_BIN) 		\
-						HMMER_BIN_LOC=$(HMMER_BIN) 		\
-						MMORE_BIN_LOC=$(MMORE_BIN) 		
-INC_DEFS 		:= $(addprefix -D,$(INC_DEFS))
+INC_VARS 		:= -DPROJECT_LOC=$(ROOT_DIR) 			\
+						-DMMSEQS_BIN_LOC=$(MMSEQS_BIN) 	\
+						-DHMMER_BIN_LOC=$(HMMER_BIN) 		\
+						-DMMORE_BIN_LOC=$(MMORE_BIN) 
 
 # LINKED LIBRARIES:
+# suggested flags: -lm -L(easel library location) -leasel
 CLIBS 		:= -lm -L${EASEL_DIR} -leasel
-CFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_DEFS)
-CXXFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_DEFS)
+# standard C compiler flags to be run (non-build-specific)
+# suggested flags: -std=gnu99 -g -DROOT_DIR=$(ROOT_DIR)
+CFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_VARS)
+# standard C pre-processor compiler flags to be run (project currently contains no current c++ files)
+# suggested flags: -MMD -MP -O3
+CXXFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_VARS)
 
 # BUILD-SPECIFIC FLAGS: 
 # -g (DEBUGGING INFO FOR VALGRIND)
@@ -125,12 +124,8 @@ endif
 $(info *** BUILD-TYPE: ${TYPE} *** )
 
 # PROGRAMS
-PROGRAMS = 				\
-	mmore 				\
-	$(TARGET_EXEC) 	\
-# OUTPUT PROGRAMS
-BUILD_PROGRAMS 	:= $(PROGRAMS:%=$(BUILD_DIR)/%)
-INSTALL_PROGRAMS	:= $(PROGRAMS:%=$(INSTALL_DIR)/%)
+PROGRAMS = \
+	${BUILD_DIR}/${TARGET_EXEC} \
 
 # $(info *** PROGRAMS: ${PROGRAMS} *** )
 # $(info *** CFLAGS: ${CFLAGS} *** )
@@ -148,39 +143,27 @@ ifndef V
 		        		echo '${MAKE} -s -C $$subdir'
 endif
 
-# RECIPES
-.PHONY: all force install uninstall clean
+.PHONY: all force install clean
 
 # full install
-all: $(BUILD_PROGRAMS) $(BUILD_SCRIPTS) $(BUILD_TOOLS)
+all: ${PROGRAMS}
 
 # C executable
-$(BUILD_PROGRAMS): $(BUILD_OBJS)
-	$(info PROGRAM $@)
-	@$(CC) $(OBJS) -o $(@)  $(CFLAGS) $(LDFLAGS) $(CLIBS)
+${PROGRAMS}: $(OBJS)
+	$(info CC $@)
+	@$(CC) $(OBJS) -o $@  $(CFLAGS) $(LDFLAGS) $(CLIBS)
 
 # C source
 $(BUILD_DIR)/%.c.o: %.c
 	$(info CC $@)
 	@$(MKDIR_P) $(dir $@)
-	@$(CC) $(CFLAGS) -c $< -o $(@) $(CLIBS) 
+	@$(CC) $(CFLAGS) -c $< -o $@ $(CLIBS) 
 
 # C++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(info CXX $@)
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) $(CXXFLAGS) -c $< -o $(@)
-
-# Scripts
-$(BUILD_SCRIPTS): $(SCRIPTS)
-	$(info SCRIPT $(@:$(BUILD_DIR)/%=%) $(@))
-	@$(MKDIR_P) $(@D)
-	@$(CP) $(@:$(BUILD_DIR)/%=%) $(@)
-
-# Tools 
-$(BUILD_TOOLS): $(TOOLS)
-	$(info TOOLS $(@:$(BUILD_DIR)/%=%) $(@))
-	@$(CP) $(@:$(BUILD_DIR)/%=%) $(@)
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # force remake
 force:
@@ -192,40 +175,33 @@ submodules:
 	git submodule update --recursive
 	make easel 
 	make mmseqs
-	make hmmer
 
 # install easel
 easel:
-	$(CD) $(ROOT_DIR)
-	$(CD) $(EASEL_DIR)
+	cd $(ROOT_DIR)
+	cd $(EASEL_DIR)
 	autoconf
 	./configure
 	$(MAKE) -C $(EASEL_DIR)
 
 # install mmseqs 
 mmseqs:
-	$(CD) $(ROOT_DIR)
-	$(CD) $(MMSEQS_DIR)
-	$(MKDIR) build 
-	$(CD) build 
-	cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. ..
-	make 
-	make install
-
-# install hmmer 
-hmmer:
-
+	cd $(ROOT_DIR)
+	cd $(MMSEQS_DIR)
+	cmake
 
 # remove build
-clean: 
-	$(info $(BUILD_DIR)/$(PROGRAMS))
-	# $(RM) make_out.txt gmon.out
-	# $(RM) $(BUILD_DIR)/$(PROGRAMS)
-	# $(RM) $(OBJS) $(DEPS)
-	# $(RM) $(BUILD_DIR)/$(SCRIPTS)
-	# $(RM) -r $(BUILD_DIR) make_out.txt gmon.out
+clean:
+	$(RM) -r $(BUILD_DIR) make_out.txt gmon.out
+
+-include $(DEPS)
+
+MKDIR_P ?= mkdir -p
 
 install:
 	# mkdir $(INSTALL_DIR)
-	# cp -f $(BUILD_DIR)/$(TARGET_EXEC) $(BUILD_DIR)/$(MAIN_EXEC)
+	cp -f $(BUILD_DIR)/$(TARGET_EXEC) $(BUILD_DIR)/$(MAIN_EXEC)
 	# cp -f $(BUILD_DIR)/$(TARGET_EXEC) $(INSTALL_DIR)/
+
+uninstall:
+	rm 
