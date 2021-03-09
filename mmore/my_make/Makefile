@@ -231,12 +231,12 @@ uninstall:
 # install submodules and make them
 submodules:
 	@echo '*** MAKE SUBMODULE ***'
-	make load-submodules
+	make submodules-load
 	make easel 
 	make mmseqs
 	make hmmer
 
-load-submodules:
+submodules-load:
 	@echo '*** MAKE SUBMODULE ***'
 	git submodule update --init --recursive
 
