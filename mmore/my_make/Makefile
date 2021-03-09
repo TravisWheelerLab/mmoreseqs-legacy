@@ -34,25 +34,32 @@ MAIN_EXEC 		?= mmore
 LIB_DIR 			?= ./lib
 EASEL_DIR 		?= $(LIB_DIR)/easel
 
-# MAIN DIRECTORY:
-MMORE_BIN 		?= build/
+# INPUT DIRECTORIES:
+SRC_DIR 			?= src/
+SCRIPT_DIR 		?= scripts/
+TOOL_DIR 		?= tools/
+# INPUT SUBDIRECTORIES
+SRC_DIRS 		:= $(shell find $(SRC_DIR) -type d)
+SCRIPT_DIRS 	:= $(shell find $(SCRIPT_DIR) -type d)
 
 # TOOL DIRECTORIES:
-TOOL_DIR 		?= tools/
-MMSEQS_DIR 		?= $(TOOL_DIR)/MMseqs2
-MMSEQS_BIN 		?= $(MMSEQS_DIR)/bin
-HMMER_DIR 		?= $(TOOL_DIR)/hmmer
-HMMER_BIN 		?= $(HMMER_DIR)/bin
-
-# INPUT DIRECTORIES:
-SRC_DIRS 		?= src/
-SCRIPT_DIRS 	?= scripts/
+MMSEQS_DIR 		:= $(TOOL_DIR)/MMseqs2/
+MMSEQS_BIN 		:= $(MMSEQS_DIR)/bin/
+HMMER_DIR 		:= $(TOOL_DIR)/hmmer/
+HMMER_BIN 		:= $(HMMER_DIR)/bin/
 
 # INPUT FILES:
-SRCS 				:= $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
-HEADERS 			:= $(shell find $(SRC_DIRS) -name *.h)
-SCRIPTS 			:= $(shell find $(SCRIPT_DIRS) -name *.py -or -name *.sh)
-TOOLS 			:= $(shell find $(TOOLS_DIR) -name hmmbuild -or -name hmmsearch -or -name -mmseqs)
+SRCS 				:= $(shell find $(SRC_DIR) -name *.cpp -or -name *.c -or -name *.s)
+HEADERS 			:= $(shell find $(SRC_DIR) -name *.h)
+SCRIPTS 			:= $(shell find $(SCRIPT_DIR) -name *.py -or -name *.sh)
+TOOLS 			:= $(shell find $(TOOL_DIR) -name hmmbuild -or -name hmmsearch -or -name -mmseqs)
+
+# OUTPUT DIRECTORIES:
+BUILD_DIR 		?= build/
+MMORE_BIN 		?= $(BUILD_DIR)
+INSTALL_DIR 	?= bin/
+# OUTPUT SUBDIRECTORIES
+BUILD_DIRS 		:= $(SRC_DIRS:%=$(BUILD_DIR)/%)
 
 # OUTPUT FILES:
 BUILD_OBJS 			:= $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -75,9 +82,9 @@ INC_DEFS 		:= PROJECT_LOC=$(BUILD_DIR) 			\
 INC_DEFS 		:= $(addprefix -D,$(INC_DEFS))
 
 # LINKED LIBRARIES:
-CLIBS 		:= -lm -L${EASEL_DIR} -leasel
-CFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_DEFS)
-CXXFLAGS 	:= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_DEFS)
+CLIBS 			:= -lm -L${EASEL_DIR} -leasel
+CFLAGS 			:= $(INC_FLAGS) $(INC_LIBS) -std=gnu99 $(INC_DEFS)
+CXXFLAGS 		:= $(INC_FLAGS) $(INC_LIBS) -MMD -MP $(INC_DEFS)
 
 # BUILD-SPECIFIC FLAGS: 
 # -g (DEBUGGING INFO FOR VALGRIND)
@@ -122,12 +129,12 @@ ifeq ($(BUILD), RELEASE)
 	TARGET_EXEC	=	mmore-RELEASE
 endif
 # build type
-$(info *** BUILD-TYPE: ${TYPE} *** )
+$(info *** BUILD-TYPE: $(TYPE) *** )
 
 # PROGRAMS
 PROGRAMS = 				\
 	mmore 				\
-	$(TARGET_EXEC) 	\
+	$(TARGET_EXEC) 	
 # OUTPUT PROGRAMS
 BUILD_PROGRAMS 	:= $(PROGRAMS:%=$(BUILD_DIR)/%)
 INSTALL_PROGRAMS	:= $(PROGRAMS:%=$(INSTALL_DIR)/%)
@@ -149,26 +156,34 @@ ifndef V
 endif
 
 # RECIPES
-.PHONY: all force install uninstall clean
+.PHONY: all install submodules easel mmseqs hmmer uninstall clean
 
-# full install
+# build
 all: $(BUILD_PROGRAMS) $(BUILD_SCRIPTS) $(BUILD_TOOLS)
+	@echo "*** MAKE ALL ***"
 
-# C executable
+# Program install
+$(INSTALL_PROGRAMS): $(BUILD_OBJS)
+	$(info INSTALL $(@:$(INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@))
+	@$(MKDIR_P) $(INSTALL_DIR)
+	@$(CP) $(@:$(INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
+
+# Program build
 $(BUILD_PROGRAMS): $(BUILD_OBJS)
 	$(info PROGRAM $@)
-	@$(CC) $(OBJS) -o $(@)  $(CFLAGS) $(LDFLAGS) $(CLIBS)
+	@$(MKDIR_P) $(@D)
+	@$(CC) $(BUILD_OBJS) -o $(@)  $(CFLAGS) $(LDFLAGS) $(CLIBS)
 
 # C source
 $(BUILD_DIR)/%.c.o: %.c
 	$(info CC $@)
-	@$(MKDIR_P) $(dir $@)
+	@$(MKDIR_P) $(@D)
 	@$(CC) $(CFLAGS) -c $< -o $(@) $(CLIBS) 
 
 # C++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
 	$(info CXX $@)
-	@$(MKDIR_P) $(dir $@)
+	@$(MKDIR_P) $(@D)
 	@$(CXX) $(CXXFLAGS) -c $< -o $(@)
 
 # Scripts
@@ -180,15 +195,16 @@ $(BUILD_SCRIPTS): $(SCRIPTS)
 # Tools 
 $(BUILD_TOOLS): $(TOOLS)
 	$(info TOOLS $(@:$(BUILD_DIR)/%=%) $(@))
+	@$(MKDIR_P) $(@D)
 	@$(CP) $(@:$(BUILD_DIR)/%=%) $(@)
 
-# force remake
-force:
-	echo '*** MAKE FORCE-ALL ***'
+# install
+install: $(INSTALL_PROGRAMS)
+	@echo "*** MAKE INSTALL ***"
 
 # install submodules and make them
 submodules:
-	echo '*** MAKE SUBMODULE ***'
+	@echo '*** MAKE SUBMODULE ***'
 	git submodule update --recursive
 	make easel 
 	make mmseqs
@@ -196,6 +212,7 @@ submodules:
 
 # install easel
 easel:
+	@echo "*** MAKE EASEL ***"
 	$(CD) $(ROOT_DIR)
 	$(CD) $(EASEL_DIR)
 	autoconf
@@ -204,6 +221,7 @@ easel:
 
 # install mmseqs 
 mmseqs:
+	@echo "*** MAKE MMSEQS ***"
 	$(CD) $(ROOT_DIR)
 	$(CD) $(MMSEQS_DIR)
 	$(MKDIR) build 
@@ -214,18 +232,25 @@ mmseqs:
 
 # install hmmer 
 hmmer:
+	@echo "*** MAKE HMMER ***"
+	$(CD) $(ROOT_DIR)
+	$(CD) $(HMMER_DIR)
 
+# uninstall program
+uninstall:
+	@echo "*** MAKE UNINSTALL ***"
+	$(info UNINSTALL $(INSTALL_PROGRAMS))
+	$(RM) $(INSTALL_PROGRAMS)
 
 # remove build
 clean: 
-	$(info $(BUILD_DIR)/$(PROGRAMS))
-	# $(RM) make_out.txt gmon.out
-	# $(RM) $(BUILD_DIR)/$(PROGRAMS)
-	# $(RM) $(OBJS) $(DEPS)
-	# $(RM) $(BUILD_DIR)/$(SCRIPTS)
-	# $(RM) -r $(BUILD_DIR) make_out.txt gmon.out
+	@echo "*** MAKE CLEAN ***"
+	$(info CLEAN $(BUILD_PROGRAMS))
+	$(RM) make_out.txt gmon.out
+	$(RM) $(BUILD_PROGRAMS)
+	$(RM) $(BUILD_OBJS) 
+	$(RM) $(BUILD_DEPS)
+	$(RM) $(BUILD_SCRIPTS)
+	$(RMDIR) $(BUILD_DIRS)
+	$(RMDIR) $(BUILD_DIR)
 
-install:
-	# mkdir $(INSTALL_DIR)
-	# cp -f $(BUILD_DIR)/$(TARGET_EXEC) $(BUILD_DIR)/$(MAIN_EXEC)
-	# cp -f $(BUILD_DIR)/$(TARGET_EXEC) $(INSTALL_DIR)/
