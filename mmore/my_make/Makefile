@@ -245,9 +245,9 @@ easel:
 	@echo "*** MAKE EASEL ***"
 	$(CD) $(ROOT_DIR)
 	$(CD) $(EASEL_DIR)
-	autoconf
+	autoreconf
 	./configure
-	$(MAKE) -C $(EASEL_DIR)
+	make -C $(EASEL_DIR)
 	$(CD) $(ROOT_DIR)
 
 # install mmseqs 
