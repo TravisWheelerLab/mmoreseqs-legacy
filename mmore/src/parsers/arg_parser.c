@@ -183,7 +183,7 @@ ARGS_Parse(    ARGS*          args,
    for (int i = arg_cur; i < argc; ++i)
    {
       /* if long flag */
-      if ( STR_Compare_Prefix(argv[i], "--", 2) == 0 ) 
+      if ( STR_ComparePrefix( argv[i], "--", 2 ) == 0 ) 
       {
          /* === PIPELINE OPTIONS === */
          if      ( STR_Compare( argv[i], (flag = "--help") ) == 0 ) {
@@ -199,6 +199,22 @@ ARGS_Parse(    ARGS*          args,
                      args->verbose_level, 0, NUM_VERBOSITY_MODES - 1 );
                   args->verbose_level = MAX( args->verbose_level, 0 );
                   args->verbose_level = MIN( args->verbose_level, NUM_VERBOSITY_MODES-1 );
+               } 
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
+         else if ( STR_Compare( argv[i], (flag = "--verbose") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->num_threads = atoi(argv[i]);
+               if ( args->num_threads < 1 ) {
+                  fprintf(stderr, "ERROR: Number of Threads (%d) is outside acceptable range (%d,%d).\n", 
+                     args->num_threads, 1, 16 );
+                  args->num_threads = MAX( args->num_threads, 1 );
+                  args->num_threads = MIN( args->num_threads, 16 );
                } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -279,7 +295,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--guess-type") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--guess-ftype") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -338,16 +354,6 @@ ARGS_Parse(    ARGS*          args,
             if (i+req_args < argc) {
                i++;
                args->tmp_folderpath = STR_Set( args->prep_folderpath, argv[i] );
-            } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               ERRORCHECK_exit(EXIT_FAILURE);
-            }
-         }
-         else if ( STR_Compare( argv[i], (flag = "--run-prep") ) == 0 ) {
-            req_args = 1;
-            if (i+req_args < argc) {
-               i++;
-               args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -458,6 +464,16 @@ ARGS_Parse(    ARGS*          args,
             }
          }
          /* ==== MMORE OPTIONS === */
+         else if ( STR_Compare( argv[i], (flag = "--run-prep") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->tmp_folderpath = STR_Set( args->tmp_folderpath, argv[i] );
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          else if ( STR_Compare( argv[i], (flag = "--run-filter") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
@@ -867,6 +883,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_run_mmseqsaln        = false;
    args->is_run_vitaln           = true;
    args->is_run_postaln          = false;
+   args->num_threads             = 1;
 
    /* --- DEBUG OPTIONS --- */
    args->is_use_local_tools      = false;

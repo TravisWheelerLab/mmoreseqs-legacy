@@ -61,12 +61,12 @@ WORK_load_script_env_args( WORKER* worker )
    /* OTHER ARGS */
    /* PIPELINE OPTIONS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "VERBOSE",              INT_ToString( args->verbose_level,          buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "NUM_THREADS",          INT_ToString( args->num_threads,            buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "DO_RM_TEMP",           INT_ToString( args->tmp_remove,             buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "DO_PREP",              INT_ToString( args->is_run_prep,            buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "DO_COPY",              INT_ToString( args->is_prep_copy,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_OVERWRITE",         INT_ToString( args->is_overwrite,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS",   INT_ToString( args->is_ignore_warnings,     buffer ) );
-   // SCRIPTRUNNER_Add_Env_Variable( runner, "NUM_THREADS",          INT_ToString( args->num_threads,            buffer ) );
    /* SEARCH OPTIONS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          args->search_name );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );

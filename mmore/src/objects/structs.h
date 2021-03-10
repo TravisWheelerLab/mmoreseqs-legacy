@@ -606,12 +606,13 @@ typedef struct {
    // PIPELINE pipeline;               /* workflow pipeline */
    STR            pipeline_name;          /* workflow pipeline */
    int            pipeline_mode;          /* workflow pipeline enum */
-   int            search_mode;            /* alignment search mode */
    int            verbose_level;          /* levels of verbosity */
+   int            num_threads;            /* number of threads */
    STR            tmp_folderpath;         /* location to build a temporary work folder */
    bool           tmp_remove;             /* should temp files/folders be removed at the end? */
 
    /* --- SEARCH/RANGE OPTIONS --- */
+   int            search_mode;            /* alignment search mode */
    int            search_type;            /* enumerated search type */
    STR            search_name;            /* search name [P2S, S2S] */
    /* type of searches */

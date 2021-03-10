@@ -318,14 +318,14 @@ STR_Replace_Substring(     STR     str,
    return str;
 }
 
-/*! FUNCTION:  STR_Compare_Prefix()
+/*! FUNCTION:  STR_ComparePrefix()
  *  SYNOPSIS:  Compare first <L> characters of <a> and <b>.
  *    RETURN:  POS if (a > b), 
  *             0 if equal, 
  *             NEG if (a < b)
  */
 int 
-STR_Compare_Prefix(  const STR      a, 
+STR_ComparePrefix(   const STR      a, 
                      const STR      b,
                      const size_t   L )
 {

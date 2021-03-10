@@ -78,13 +78,13 @@ F_INDEX* F_INDEX_Hmm_Build(   F_INDEX*       f_index,
       if (line_buf[0] == '#') continue;
 
       /* if starts new header, add to index */
-      if ( STR_Compare_Prefix(line_buf, "HMMER", 5)  == 0 ) 
+      if ( STR_ComparePrefix(line_buf, "HMMER", 5)  == 0 ) 
       {
          cur_offset = prv_offset;
 
          while ( (line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0 )
          {
-            if ( STR_Compare_Prefix(line_buf, "NAME", 4) == 0 ) 
+            if ( STR_ComparePrefix(line_buf, "NAME", 4) == 0 ) 
             {
                int i = 0;
                for ( i = 4; line_buf[i] != ' '; i++) {}  /* skip whitespace after NAME */

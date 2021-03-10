@@ -174,10 +174,10 @@ $(INSTALL_PROGRAMS): $(BUILD_PROGRAMS)
 	@$(MKDIR_P) $(INSTALL_DIR)
 	@$(CP) $(@:$(INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
 
-# Program install local file
-$(USER_INSTALL_PROGRAMS): $(BUILD_OBJS)
-	$(info USER_INSTALL $(@))
-	@$(CP) $(@:$(USER_INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
+# # Program install local file
+# $(USER_INSTALL_PROGRAMS): $(BUILD_OBJS)
+# 	$(info USER_INSTALL $(@))
+# 	@$(CP) $(@:$(USER_INSTALL_DIR)/%=$(BUILD_DIR)/%) $(@)
 
 # Program build
 $(BUILD_PROGRAMS): $(BUILD_SCRIPTS) $(BUILD_OBJS) 
