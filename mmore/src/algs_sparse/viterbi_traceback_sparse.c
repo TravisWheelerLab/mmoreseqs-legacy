@@ -508,7 +508,7 @@ run_Viterbi_Traceback_Sparse(    const SEQUENCE*               query,         /*
          }
       }
 
-      #if DEBUG || TRUE
+      #if DEBUG
       {
          printf("ADDED: {%s, (%d, %d)}\n", STATE_NAMES[st_cur], q_0, t_0);
       }
