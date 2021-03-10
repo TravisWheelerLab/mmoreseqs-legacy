@@ -718,7 +718,7 @@ ARGS_Parse(    ARGS*          args,
                args->myout_fileout = STR_Concat(argv[i], ".myout");
                args->is_myout = true;
                STR_Destroy(args->mydom_fileout);
-               args->mydom_fileout = STR_Concat(argv[i], ".myout");
+               args->mydom_fileout = STR_Concat(argv[i], ".mydomout");
                args->is_mydom = true;
                STR_Destroy(args->mytime_fileout);
                args->mytime_fileout = STR_Concat(argv[i], ".mytimeout");
