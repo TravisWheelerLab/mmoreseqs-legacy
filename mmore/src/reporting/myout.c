@@ -107,12 +107,25 @@ void REPORT_myout_entry(   WORKER*  worker,
    TIMES*         times    = worker->times;
    HMM_PROFILE*   t_prof   = worker->t_prof;
    SEQUENCE*      q_seq    = worker->q_seq;
-   ALIGNMENT*     aln      = worker->trace_vit;
+   ALIGNMENT*     aln;
+   ALIGNMENT*     aln_mm;
+   ALIGNMENT*     aln_vit  = worker->trace_vit;
+   ALIGNMENT*     aln_fwd  = worker->trace_post;
    DOMAIN_DEF*    dom_def  = worker->dom_def;
    ALL_SCORES*    scores   = &result->scores;
    SCORES*        final    = &result->final_scores;
 
-   int aln_len = aln->end - aln->beg + 1;
+   if ( aln_fwd->is_hmmer_aln == true ) {
+      aln = aln_fwd;
+   }
+   elif ( aln_vit->is_hmmer_aln == true ) {
+      aln = aln_vit;
+   }
+   else {
+      aln = aln_vit;
+   }
+   
+   int   aln_len  = aln->end - aln->beg + 1;
    TRACE aln_beg  = VEC_X( aln->traces, aln->beg );
    TRACE aln_end  = VEC_X( aln->traces, aln->end );
 

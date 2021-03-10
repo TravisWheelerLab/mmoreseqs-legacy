@@ -152,7 +152,9 @@ void REPORT_stdout_entry(  WORKER*  worker,
 {
    ARGS*          args           = worker->args;
    BUFFER*        buffer         = worker->buffer;
-   ALIGNMENT*     aln            = worker->trace_vit;
+   ALIGNMENT*     aln;
+   ALIGNMENT*     aln_vit        = worker->trace_vit;
+   ALIGNMENT*     aln_post       = worker->trace_post;
    HMM_PROFILE*   t_prof         = worker->t_prof;
    SEQUENCE*      q_seq          = worker->q_seq;
    ALL_SCORES*    scores         = &result->scores;
@@ -202,13 +204,13 @@ void REPORT_stdout_entry(  WORKER*  worker,
 
    /* if alignemnt strings have not been produced yet, do it now */
    if ( aln->is_cigar_aln == false ) {
-      ALIGNMENT_Build_MMSEQS_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      ALIGNMENT_Build_MMSEQS_Style( aln, worker->q_seq, worker->t_prof );
    }
    cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
    cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
 
    if ( aln->is_hmmer_aln == false ) {
-      ALIGNMENT_Build_HMMER_Style( worker->trace_vit, worker->q_seq, worker->t_prof );
+      ALIGNMENT_Build_HMMER_Style( aln, worker->q_seq, worker->t_prof );
    }
    target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
    query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
