@@ -121,7 +121,7 @@ typedef enum {
    PIPELINE_GENERIC,
    PIPELINE_PREP
 } PIPELINE_MODE;
-#define NUM_PIPELINE_MODES 8 
+#define NUM_PIPELINE_MODES 11
 
 /* Verbosity Modes (how much output does user want) */
 typedef enum {

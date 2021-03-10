@@ -593,8 +593,10 @@
 		QUERY_INDEX="${TMP_MMORE}/query.idx"
 
 		# Run Search
+		if [[ "MMORE_DO_MMORE" != "0" ]]
+		then
 		{
-			echo "$MMORE mmore_main $TARGET $QUERY"
+			echo "$MMORE mmore_mmoresearch $TARGET $QUERY"
 
 			$MMORE mmore-mmoresearch 											\
 			$TARGET_MMORE 	$QUERY_MMORE 										\
@@ -627,6 +629,7 @@
 
 			CHECK_ERROR_CODE "MMORE_MAIN"
 		}
+		fi
 
 	}
 

@@ -98,7 +98,7 @@ double BG_MODEL_log[] = {
 };
 
 /* descriptors of all pipelines */
-const int num_pipelines = 8;
+const int num_pipelines = 11;
 PIPELINE PIPELINES[] = {
    /* mmore-seqs pipelines */
    { "mmore-search",       mmore_search_pipeline,        5,    NULL },

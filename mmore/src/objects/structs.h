@@ -757,6 +757,7 @@ typedef struct {
    bool     is_run_vitaln;             /* perform viterbi alignment? */
    bool     is_run_postaln;            /* perform posterior alignment? */
    bool     is_run_mmseqs_ungapped;    /* perform mmseqs ungapped alignment? */
+   bool     is_run_mmore;              /* perform mmore step of search? */
 
    /* --- MMSEQS --- */
    int      mmseqs_maxhits;            /* maximum number of query hits per target search */

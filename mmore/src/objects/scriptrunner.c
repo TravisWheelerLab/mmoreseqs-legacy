@@ -214,6 +214,7 @@ SCRIPTRUNNER_Execute(    SCRIPTRUNNER*     runner )
    VECTOR_STR_Pushback( runner->command, NULL );
 
    /* extract array from vector */
+   // VECTOR_STR_Dump( runner->command, stdout );
    STR* command_array = VECTOR_STR_GetArray( runner->command );
    int ERRORCHECK_exit_code = execvp( command_array[0], command_array );
 

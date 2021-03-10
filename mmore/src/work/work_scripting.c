@@ -67,10 +67,12 @@ WORK_load_script_env_args( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "DO_COPY",              INT_ToString( args->is_prep_copy,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_OVERWRITE",         INT_ToString( args->is_overwrite,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS",   INT_ToString( args->is_ignore_warnings,     buffer ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_MMSEQS_UNGAPPED",   INT_ToString( args->is_run_mmseqs_ungapped, buffer ) );
    /* SEARCH OPTIONS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          args->search_name );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );
+   
+   /* MMSEQS OPTIONS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DO_UNGAPPED",   INT_ToString( args->is_run_mmseqs_ungapped, buffer ) );
    /* MMSEQS PARAMETERS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_MAXSEQS",       INT_ToString( args->mmseqs_maxhits,         buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_ALTALIS",       INT_ToString( args->mmseqs_altalis,         buffer ) );
@@ -88,6 +90,7 @@ WORK_load_script_env_args( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_BOUNDFWD",       FLT_ToString( args->threshold_boundfwd,    buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_FWDBACK",        FLT_ToString( args->threshold_fwd,          buffer ) );
    /* MMORE OPTIONS */
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DO_MMORE",       INT_ToString( args->is_run_mmore,           buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DO_FILTER",      INT_ToString( args->is_run_filter,          buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DO_BIAS",        INT_ToString( args->is_run_bias,            buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DO_DOMAIN",      INT_ToString( args->is_run_domains,         buffer ) );

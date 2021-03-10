@@ -129,7 +129,7 @@ ARGS_Parse(    ARGS*          args,
       args->t_filetype = FILE_HMM;
       args->q_filetype = FILE_FASTA;
    }
-   if   ( STR_Equals( args->pipeline_name, "mmore-mmseqssearch" ) )
+   elif ( STR_Equals( args->pipeline_name, "mmore-mmseqssearch" ) )
    {
       args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath,  argv[2] );
       args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath,  argv[3] );
@@ -151,7 +151,9 @@ ARGS_Parse(    ARGS*          args,
    }
    elif ( STR_Equals( args->pipeline_name, "mmore-prepsearch" ) )
    {
+      
       args->prep_folderpath   = STR_Set( args->prep_folderpath,   argv[2] );
+      args->tmp_folderpath    = STR_Set( args->tmp_folderpath,    argv[2] );
    } 
    elif ( STR_Equals( args->pipeline_name, "mmore-search" ) )
    {
@@ -183,7 +185,7 @@ ARGS_Parse(    ARGS*          args,
       // args->t_indexout     = STR_Set( args->t_indexout,     argv[3] );
    }
    else {
-      fprintf(stderr, "ERROR: Pipeline option is currently not supported.\n");
+      fprintf(stderr, "ERROR: Pipeline option '%s' is currently not supported.\n", args->pipeline_name);
       ERRORCHECK_exit(EXIT_FAILURE);
    }
    args_rem    -= num_main_args;
@@ -566,6 +568,16 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--run-mmore") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->is_run_mmore = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === MMSEQS PARAMETERS === */
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-split") ) == 0 ) {
             req_args = 1;
@@ -907,6 +919,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_run_vitaln           = true;
    args->is_run_postaln          = false;
    args->is_run_mmseqs_ungapped  = false;
+   args->is_run_mmore            = true;
 
    /* --- DEBUG OPTIONS --- */
    args->is_use_local_tools      = false;
