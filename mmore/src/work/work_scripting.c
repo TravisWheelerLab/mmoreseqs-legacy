@@ -67,6 +67,7 @@ WORK_load_script_env_args( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "DO_COPY",              INT_ToString( args->is_prep_copy,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_OVERWRITE",         INT_ToString( args->is_overwrite,           buffer ) );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS",   INT_ToString( args->is_ignore_warnings,     buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "DO_MMSEQS_UNGAPPED",   INT_ToString( args->is_run_mmseqs_ungapped, buffer ) );
    /* SEARCH OPTIONS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          args->search_name );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );

@@ -121,7 +121,7 @@
 			REQ_ARGS=5
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
-				echo "Usage: <target_mmore_p> <target_mmore_s> <query_mmore> <target_mmseqs_p> <target_mmseqs_s> <query_mmseqs> | <prep_dir>"
+				echo "Usage: <i:target_mmore_p> <i:target_mmore_s> <i:query_mmore> <i:target_mmseqs_p> <i:target_mmseqs_s> <i:query_mmseqs> | <i:prep_dir>"
 				echo "./mmore.sh [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS_P [3]$ARG_TARGET_MMSEQS_P [4]$ARG_QUERY_MMSEQS | [5]$PREP_FILE"
 				echo "Accepted Filetypes: FASTA, HMM, HHM, MSA, MM_MSA, MMDB_S, MMDB_P"
 				echo ""
@@ -136,11 +136,6 @@
 			ARG_QUERY_MMSEQS=$5
 			# optional commandline args
 			ARG_PREP_DIR=$7
-			ARG_TARGET_MMORE_TYPE=$8
-			ARG_QUERY_MMORE_TYPE=$9
-			ARG_TARGET_MMSEQS_P_TYPE=$10
-			ARG_TARGET_MMSEQS_S_TYPE=$11
-			ARG_QUERY_MMSEQS_TYPE=$12
 		}
 
 		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
@@ -601,7 +596,7 @@
 		{
 			echo "$MMORE mmore_main $TARGET $QUERY"
 
-			$MMORE mmore-main 													\
+			$MMORE mmore-mmoresearch 											\
 			$TARGET_MMORE 	$QUERY_MMORE 										\
 			$MMSEQS_M8	 															\
 																						\

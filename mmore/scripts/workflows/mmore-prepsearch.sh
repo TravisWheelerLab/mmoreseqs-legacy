@@ -157,7 +157,7 @@
 		}
 	}
 
-	# Run MMORE-SEQS Search
+	# Run MMORESEQS Search
 	{
 		# Call C Program
 		# $MMORE mmore-search 									\

@@ -742,7 +742,7 @@ typedef struct {
    char*    mythresh_fileout;       /* filepath to output results; if NULL, doesn't output */
    
    /* customized output */
-   bool     is_customout;           /* report myout table? */
+   bool     is_customout;           /* report custom table? */
    char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
    bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
   
@@ -756,6 +756,7 @@ typedef struct {
    bool     is_run_mmseqsaln;          /* perform mmseqs alignment? */
    bool     is_run_vitaln;             /* perform viterbi alignment? */
    bool     is_run_postaln;            /* perform posterior alignment? */
+   bool     is_run_mmseqs_ungapped;    /* perform mmseqs ungapped alignment? */
 
    /* --- MMSEQS --- */
    int      mmseqs_maxhits;            /* maximum number of query hits per target search */

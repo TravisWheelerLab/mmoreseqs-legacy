@@ -556,6 +556,16 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--run-mmseqs-ungapped") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args < argc) {
+               i++;
+               args->is_run_mmseqs_ungapped = atoi(argv[i]);
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === MMSEQS PARAMETERS === */
          else if ( STR_Compare( argv[i], (flag = "--mmseqs-split") ) == 0 ) {
             req_args = 1;
@@ -896,6 +906,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_run_mmseqsaln        = false;
    args->is_run_vitaln           = true;
    args->is_run_postaln          = false;
+   args->is_run_mmseqs_ungapped  = false;
 
    /* --- DEBUG OPTIONS --- */
    args->is_use_local_tools      = false;

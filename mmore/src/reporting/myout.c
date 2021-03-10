@@ -83,11 +83,14 @@ void REPORT_myout_header(  WORKER*  worker,
       "total-cells",
       "MMORE-cells",
       "perc-cells",
-      "q-bounds",
+      "t-len",
+      "q-len",
       "t-bounds",
-      "q-aln",
+      "q-bounds",
       "t-aln",
-      "time"
+      "q-aln",
+      "time",
+      "time-noload"
    };
 
    REPORT_header(fp, headers, num_fields);
@@ -115,14 +118,18 @@ void REPORT_myout_entry(   WORKER*  worker,
 
    RANGE q_bounds, t_bounds;
 
+   float time_noload = times->loop - times->load_query - times->load_target;
+
    if (result->target_range.end - result->target_range.beg <= 0) {
       EDGEBOUNDS_Find_BoundingBox( worker->edg_row, &q_bounds, &t_bounds );
    }
 
-   fprintf( fp, "%d\t%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%d-%d\t%d-%d\t%.5f\n", 
+   fprintf( fp, "%d\t%s\t%s\t%d\t%d\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%d-%d\t%d-%d\t%.5f\t%.5f\n", 
       worker->mmseqs_id,                     /* id index in mmseqs list */
       t_prof->name,                          /* target name */
       q_seq->name,                           /* query name */
+      worker->t_prof->N,                     /* target length */
+      worker->q_seq->N,                      /* query length */
       final->eval,                           /* evalue */
       final->pre_sc,                         /* seq scores before bias correction (in bits) */
       final->null2_seq_bias_bitsc,           /* seq bias (in bits) */
@@ -132,11 +139,12 @@ void REPORT_myout_entry(   WORKER*  worker,
       result->total_cells,                   /* total number of cells computed by full viterbi */
       result->cloud_cells,                   /* total number of cells computed by mmore */
       result->perc_cells,                    /* percent of total cells computed by mmore */
-      t_bounds.beg, t_bounds.end,            /* target bounds */
-      q_bounds.beg, q_bounds.end,            /* query bounds */
+      t_bounds.beg, t_bounds.end,            /* target bounds of search area */
+      q_bounds.beg, q_bounds.end,            /* query bounds of search area */
       aln_beg.t_0, aln_end.t_0,              /* target alignment range */
       aln_beg.q_0, aln_end.q_0,              /* query alignment range */
-      times->loop                            /* time for entire iteration */
+      times->loop,                           /* time for entire iteration */
+      time_noload                            /* time with load times */
    );
 
    /* TODO: WIP */
