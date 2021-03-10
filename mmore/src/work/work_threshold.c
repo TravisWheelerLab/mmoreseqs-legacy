@@ -112,7 +112,10 @@ WORK_viterbi_test_threshold( WORKER*  worker )
       stats->n_passed_viterbi    += 1;
    }
 
-   return result->is_passed_viterbi;
+   // return result->is_passed_viterbi;
+
+   /*! TODO: Temporary bypass of Viterbi filter */
+   return true;
 }
 
 /*! FUNCTION:  	WORK_cloud_natsc_to_eval()

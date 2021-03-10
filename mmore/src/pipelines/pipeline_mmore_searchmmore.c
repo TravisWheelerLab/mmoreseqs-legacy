@@ -91,8 +91,6 @@ mmore_searchmmore_pipeline( WORKER* worker )
 
       /* evaluate mmseqs viterbi scoring filter */
       passed[0] = WORK_viterbi_test_threshold( worker );
-      /*! TODO: temp override - need to add option to 
-      passed[0] = true;
 
       /* check if mmseqs viterbi passes threshold */
       if ( passed[0] == true ) 
