@@ -43,7 +43,7 @@ SRC_DIRS 		:= $(shell find $(SRC_DIR) -type d)
 SCRIPT_DIRS 	:= $(shell find $(SCRIPT_DIR) -type d)
 
 # TOOL DIRECTORIES:
-MMSEQS_DIR 		:= $(TOOL_DIR)/MMseqs2/
+MMSEQS_DIR 		:= $(TOOL_DIR)/mmseqs/
 MMSEQS_BIN 		:= $(MMSEQS_DIR)/bin/
 HMMER_DIR 		:= $(TOOL_DIR)/hmmer/
 HMMER_BIN 		:= $(HMMER_DIR)/bin/
@@ -243,8 +243,9 @@ submodules-load:
 # install easel
 easel:
 	@echo "*** MAKE EASEL ***"
-	$(CD) $(ROOT_DIR)/$(EASEL_DIR);
-	autoreconf;
+	git submodule update $(ROOT_DIR)/$(EASEL_DIR)
+	$(CD) $(ROOT_DIR)/$(EASEL_DIR);  	\
+	autoreconf; 								\
 	./configure;
 	make -C $(ROOT_DIR)/$(EASEL_DIR) --quiet;
 	$(CD) $(ROOT_DIR)
@@ -252,10 +253,10 @@ easel:
 # install mmseqs 
 mmseqs:
 	@echo "*** MAKE MMSEQS ***"
+	git submodule update $(ROOT_DIR)/$(MMSEQS_DIR)
 	$(CD) $(ROOT_DIR);
 	$(MKDIR_P) $(ROOT_DIR)/$(MMSEQS_BIN);
 	$(CD) $(MMSEQS_DIR);	 														\
-	pwd; 																				\
 	cmake -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=. .; 	\
 	make -C $(ROOT_DIR)/$(MMSEQS_DIR) --quiet; 							\
 	make install -C $(ROOT_DIR)/$(MMSEQS_DIR) --quiet; 					
@@ -264,6 +265,7 @@ mmseqs:
 # install hmmer 
 hmmer:
 	@echo "*** MAKE HMMER ***"
+	git submodule update $(ROOT_DIR)/$(HMMER_DIR)
 	$(CD) $(ROOT_DIR)
 	$(MKDIR) $(HMMER_BIN)
 	$(CD) $(HMMER_DIR)
