@@ -236,6 +236,7 @@ submodules:
 	make mmseqs
 	make hmmer
 
+# load all submodules
 submodules-load:
 	@echo '*** MAKE SUBMODULE-LOAD ***'
 	git submodule update --init --recursive
@@ -243,7 +244,7 @@ submodules-load:
 # install easel
 easel:
 	@echo "*** MAKE EASEL ***"
-	git submodule update $(ROOT_DIR)/$(EASEL_DIR)
+	git submodule update --init $(ROOT_DIR)/$(EASEL_DIR)
 	$(CD) $(ROOT_DIR)/$(EASEL_DIR);  	\
 	autoreconf; 								\
 	./configure;
@@ -253,7 +254,7 @@ easel:
 # install mmseqs 
 mmseqs:
 	@echo "*** MAKE MMSEQS ***"
-	git submodule update $(ROOT_DIR)/$(MMSEQS_DIR)
+	git submodule update --init $(ROOT_DIR)/$(MMSEQS_DIR)
 	$(CD) $(ROOT_DIR);
 	$(MKDIR_P) $(ROOT_DIR)/$(MMSEQS_BIN);
 	$(CD) $(MMSEQS_DIR);	 														\
@@ -265,7 +266,7 @@ mmseqs:
 # install hmmer 
 hmmer:
 	@echo "*** MAKE HMMER ***"
-	git submodule update $(ROOT_DIR)/$(HMMER_DIR)
+	git submodule update --init $(ROOT_DIR)/$(HMMER_DIR)
 	$(CD) $(ROOT_DIR)
 	$(MKDIR) $(HMMER_BIN)
 	$(CD) $(HMMER_DIR)
