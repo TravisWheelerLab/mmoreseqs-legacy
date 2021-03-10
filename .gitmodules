@@ -1,12 +1,3 @@
-[submodule "mmore/lib/easel"]
-	path = mmore/lib/easel
-	url = https://github.com/EddyRivasLab/easel.git
-[submodule "mmore/lib/MMseqs2"]
-	path = mmore/tools/MMseqs2
-	url = https://github.com/soedinglab/MMseqs2.git
-[submodule "mmore/lib/hmmer"]
-	path = mmore/tools/hmmer
-	url = https://github.com/TravisWheelerLab/hmmer.git
 [submodule "mmore/tools/mmseqs"]
 	path = mmore/tools/mmseqs
 	url = https://github.com/soedinglab/MMseqs2.git
