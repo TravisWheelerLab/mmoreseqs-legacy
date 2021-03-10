@@ -4,3 +4,6 @@
 [submodule "mmore/tools/hmmer"]
 	path = mmore/tools/hmmer
 	url = https://github.com/TravisWheelerLab/hmmer.git
+[submodule "mmore/lib/easel"]
+	path = mmore/lib/easel
+	url = https://github.com/TravisWheelerLab/easel.git
