@@ -758,7 +758,8 @@ typedef struct {
    bool     is_run_postaln;            /* perform posterior alignment? */
 
    /* --- MMSEQS --- */
-   int      mmseqs_hits_per_search;    /* maximum number of alignments allowed to be reported per target/query search */ 
+   int      mmseqs_maxhits;            /* maximum number of query hits per target search */
+   int      mmseqs_altalis;            /* maximum number of alternate alignments allowed to be reported per target/query search */ 
    int      mmseqs_kmer;               /* kmer length */
    int      mmseqs_split;              /* database split size */
    int      mmseqs_prefilter;          /* double-kmer prefilter kscore */

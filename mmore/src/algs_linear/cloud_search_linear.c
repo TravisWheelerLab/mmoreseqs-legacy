@@ -10,7 +10,7 @@
 WRITE of size 4 at 0x60c000003fe0 thread T0
     #0 0x56500ca90ba8 in run_Cloud_Forward_Linear src/algs_linear/cloud_search_linear.c:373
     #1 0x56500c9d13a6 in WORK_cloud_search_linear src/work/work_cloud_search.c:86
-    #2 0x56500ca497ae in mmore_main_pipeline src/pipelines/pipeline_mmore_main.c:107
+    #2 0x56500ca497ae in mmore_searchmmore_pipeline src/pipelines/pipeline_mmore_main.c:107
     #3 0x56500c9e43d4 in main src/application.c:74
     #4 0x7fa683d950b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
     #5 0x56500c97a08d in _start (/home/devreckas/Google-Drive/Wheeler-Labs/personal-work/fbpruner-project/mmore/build/mmore-DEBUG+0x2208d)

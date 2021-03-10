@@ -71,7 +71,8 @@ WORK_load_script_env_args( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          args->search_name );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );
    /* MMSEQS PARAMETERS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_MAX_HITS",      INT_ToString( args->mmseqs_hits_per_search, buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_MAXSEQS",       INT_ToString( args->mmseqs_maxhits,         buffer ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_ALTALIS",       INT_ToString( args->mmseqs_altalis,         buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_KMER",          INT_ToString( args->mmseqs_kmer,            buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_KSCORE",        INT_ToString( args->mmseqs_prefilter,       buffer ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_UNGAPPED",      INT_ToString( args->mmseqs_ungapped_vit,    buffer ) );

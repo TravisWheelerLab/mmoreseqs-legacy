@@ -35,14 +35,14 @@ mmore_main_SetDefault_Args( ARGS* args );
 STATUS_FLAG
 mmore_main_SetDefault_Tasks( TASKS* tasks );
 
-/*! FUNCTION:  	mmore_main_pipeline()
+/*! FUNCTION:  	mmore_searchmmore_pipeline()
  *  SYNOPSIS:  	Pipeline for tail of MMore, post-MMseqs.
  *                Runs Adaptive Banding / Cloud Search step of MMORE pipeline.
  */
 STATUS_FLAG 
-mmore_main_pipeline( WORKER* worker )
+mmore_searchmmore_pipeline( WORKER* worker )
 {
-   printf("=== MMORE (MAIN) PIPELINE ===\n");
+   printf("=== MMORE: MMORE SEARCH PIPELINE ===\n");
    ARGS* args = worker->args;
 
    /* initialize pipeline-specific worker data structures */
@@ -169,7 +169,7 @@ mmore_main_pipeline( WORKER* worker )
    WORK_cleanup( worker );
 }
 
-/*! FUNCTION:  	mmore_main_pipeline()
+/*! FUNCTION:  	mmore_searchmmore_pipeline()
  *  SYNOPSIS:  	Pipeline for tail of MMore, post-MMseqs.
  *                Runs Adaptive Banding / Cloud Search step of MMORE pipeline.
  */

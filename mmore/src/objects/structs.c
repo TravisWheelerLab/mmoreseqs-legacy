@@ -102,7 +102,8 @@ const int num_pipelines = 8;
 PIPELINE PIPELINES[] = {
    /* mmore-seqs pipelines */
    { "mmore-search",       mmore_search_pipeline,        5,    NULL },
-   { "mmore-main",         mmore_main_pipeline,          3,    NULL },
+   { "mmore-mmoresearch",  mmore_searchmmore_pipeline,   3,    NULL },
+   { "mmore-mmseqssearch", mmore_searchmmore_pipeline,   3,    NULL },
    { "mmore-prep",         mmore_prep_pipeline,          3,    NULL },
    { "mmore-prepsearch",   mmore_prepsearch_pipeline,    1,    NULL },
    { "mmore-easysearch",   mmore_easysearch_pipeline,    3,    NULL },

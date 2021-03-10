@@ -118,7 +118,7 @@
 		{
 			#verify proper number of variables
 			NUM_ARGS=$#
-			REQ_ARGS=4
+			REQ_ARGS=5
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
 				echo "Usage: <target_mmore_p> <target_mmore_s> <query_mmore> <target_mmseqs_p> <target_mmseqs_s> <query_mmseqs> | <prep_dir>"
@@ -428,6 +428,8 @@
 			$TARGET_MMSEQS_P $QUERY_MMSEQS							\
 			$MMSEQS_PREFILTER 											\
 			-v 							$VERBOSE 						\
+																				\
+			--max-seqs 					$MMSEQS_MAXSEQS 				\
 			-k 							$MMSEQS_KMER 					\
 			--k-score 					$MMSEQS_KSCORE 				\
 			--min-ungapped-score 	$MMSEQS_UNGAPPED 				\
@@ -471,6 +473,8 @@
 				$MMSEQS_PRV 											\
 				$MMSEQS_P2S 											\
 				-v 							$VERBOSE 				\
+				--threads 					$NUM_THREADS 			\
+																			\
 				-e 							$MMSEQS_P2S_EVAL 		\
 				# > $MMSEQS_P2S_STDOUT								\
 
@@ -526,6 +530,8 @@
 			$MMSEQS_PRV 											\
 			$MMSEQS_S2S 											\
 			-v 						$VERBOSE 					\
+			--threads 				$NUM_THREADS 				\
+																		\
 			-e 						$MMSEQS_S2S_EVAL 			\
 			--alt-ali 				$MMSEQS_P2S_ALTALIS 		\
 
@@ -600,6 +606,7 @@
 			$MMSEQS_M8	 															\
 																						\
 			--verbose 					$VERBOSE 								\
+			--num-threads 				$NUM_THREADS 							\
 			--run-full 					$MMORE_DO_FULL 						\
 			--run-bias 					$MMORE_DO_DOMAIN 						\
 			--run-mmseqsaln 			$MMORE_DO_MMSEQS_ALN 				\

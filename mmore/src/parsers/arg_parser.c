@@ -120,7 +120,7 @@ ARGS_Parse(    ARGS*          args,
    }
 
    /* parse main commands */
-   if   ( STR_Equals( args->pipeline_name, "mmore-main" ) )
+   if   ( STR_Equals( args->pipeline_name, "mmore-mmoresearch" ) )
    {
       args->t_filepath           = STR_Set( args->t_filepath,           argv[2] );
       args->q_filepath           = STR_Set( args->q_filepath,           argv[3] );
@@ -128,6 +128,16 @@ ARGS_Parse(    ARGS*          args,
 
       args->t_filetype = FILE_HMM;
       args->q_filetype = FILE_FASTA;
+   }
+   if   ( STR_Equals( args->pipeline_name, "mmore-mmseqssearch" ) )
+   {
+      args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath,  argv[2] );
+      args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath,  argv[3] );
+      args->q_mmseqs_filepath    = STR_Set( args->q_mmseqs_filepath,    argv[4] );
+
+      args->t_mmseqs_p_filetype  = FILE_MMDB_P;
+      args->t_mmseqs_s_filetype  = FILE_MMDB_S;
+      args->q_mmseqs_filetype    = FILE_MMDB_S;
    }
    elif ( STR_Equals( args->pipeline_name, "mmore-prep" ) )
    {
@@ -195,17 +205,18 @@ ARGS_Parse(    ARGS*          args,
                i++;
                args->verbose_level = atoi(argv[i]);
                if ( args->verbose_level < 0 || args->verbose_level > NUM_VERBOSITY_MODES - 1 ) {
-                  fprintf(stderr, "ERROR: Verbose level (%d) is outside acceptable range (%d,%d).\n", 
+                  fprintf(stderr, "ERROR: Verbose Level (%d) is outside acceptable range (%d,%d).\n", 
                      args->verbose_level, 0, NUM_VERBOSITY_MODES - 1 );
                   args->verbose_level = MAX( args->verbose_level, 0 );
                   args->verbose_level = MIN( args->verbose_level, NUM_VERBOSITY_MODES-1 );
+                  fprintf(stderr, "WARNING: Verbose Level set to: %d.\n", args->verbose_level );
                } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--verbose") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--num-threads") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -215,6 +226,7 @@ ARGS_Parse(    ARGS*          args,
                      args->num_threads, 1, 16 );
                   args->num_threads = MAX( args->num_threads, 1 );
                   args->num_threads = MIN( args->num_threads, 16 );
+                  fprintf(stderr, "WARNING: Number of Threads set to: %d.\n", args->num_threads );
                } 
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -599,7 +611,7 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->mmseqs_hits_per_search = atoi(argv[i]);
+               args->mmseqs_maxhits = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -610,7 +622,7 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->mmseqs_hits_per_search = atoi(argv[i]);
+               args->mmseqs_maxhits = atoi(argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -858,6 +870,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->pipeline_mode           = PIPELINE_TEST;
    args->pipeline_name           = NULL;
    args->verbose_level           = VERBOSE_LOW;
+   args->num_threads             = 1;
    args->search_mode             = MODE_UNILOCAL;
    args->qt_search_space         = SELECT_ALL_V_ALL;
    args->tmp_folderpath          = NULL;
@@ -883,7 +896,6 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_run_mmseqsaln        = false;
    args->is_run_vitaln           = true;
    args->is_run_postaln          = false;
-   args->num_threads             = 1;
 
    /* --- DEBUG OPTIONS --- */
    args->is_use_local_tools      = false;
@@ -953,17 +965,18 @@ ARGS_SetDefaults( ARGS*    args )
    args->mmore_pvalue            = 1e-5f;
 
    /* --- MMSEQS --- */
-   args->mmseqs_hits_per_search  = 5;
+   args->mmseqs_maxhits          = 1000;
+   args->mmseqs_altalis          = 5;
    args->mmseqs_kmer             = 7;
    args->mmseqs_prefilter        = 80;
-   args->mmseqs_ungapped_vit     = 15;
+   args->mmseqs_ungapped_vit     = 0;
    args->mmseqs_evalue           = 1000.0;
    args->mmseqs_pvalue           = 1e-3f;
 
    /* --- SCORE FILTERS (P_VALUES) --- */
    args->is_run_filter           = false;
    args->threshold_pre           = 80;
-   args->threshold_ungapped      = 15;
+   args->threshold_ungapped      = 0;
    args->threshold_p2s           = 1e-3f;
    args->threshold_s2s           = 1e-1f;
    args->threshold_vit           = 1e-3f;

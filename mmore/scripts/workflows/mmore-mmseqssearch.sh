@@ -118,7 +118,7 @@
 		{
 			#verify proper number of variables
 			NUM_ARGS=$#
-			REQ_ARGS=4
+			REQ_ARGS=5
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
 				echo "Usage: <target_mmore_p> <target_mmore_s> <query_mmore> <target_mmseqs_p> <target_mmseqs_s> <query_mmseqs> | <prep_dir>"
@@ -146,17 +146,11 @@
 		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
 		{
 			# main args:
-			TARGET_MMORE_P="${TARGET_MMORE_P:-$ARG_TARGET_MMORE_P}"
-			TARGET_MMORE_S="${TARGET_MMORE_S:-$ARG_TARGET_MMORE_S}"
-			QUERY_MMORE="${QUERY_MMORE:-$ARG_QUERY_MMORE}"
 			TARGET_MMSEQS_P="${TARGET_MMSEQS_P:-$ARG_TARGET_MMSEQS_P}"
 			TARGET_MMSEQS_S="${TARGET_MMSEQS_S:-$ARG_TARGET_MMSEQS_S}"
 			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
 			# main arg types:
 			PREP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
-			TARGET_MMORE_P_TYPE="${TARGET_MMORE_P_TYPE:-$ARG_TARGET_MMORE_P_TYPE}"
-			TARGET_MMORE_S_TYPE="${TARGET_MMORE_S_TYPE:-$ARG_TARGET_MMORE_S_TYPE}"
-			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
 			TARGET_MMSEQS_P_TYPE="${TARGET_MMSEQS_P_TYPE:-$ARG_TARGET_MMSEQS_P_TYPE}"
 			TARGET_MMSEQS_S_TYPE="${TARGET_MMSEQS_S_TYPE:-$ARG_TARGET_MMSEQS_S_TYPE}"
 			QUERY_MMSEQS_TYPE="${QUERY_MMSEQS_TYPE:-$ARG_QUERY_MMSEQS_TYPE}"
