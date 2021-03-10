@@ -26,10 +26,22 @@ autoreconf -i
 make
 ```
 
-This will produce a binary called `mmore_seqs`.
+New Install Pipeline:
+
+```
+cd {project_directory}/mmore/
+make -f my_make/Makefile libs
+make -f my_make/Makefile tools 
+# (tools only necessary if hmmer and mmseqs are not installed on your system)
+make -f my_make/Makefile 
+make -f my_make/Makefile install INSTALL_DIR={install_directory} 
+# (install_directory defaults to /bin/ in current directory)
+```
+
+This will produce a binary called `mmore`.
 
 ### Usage
 
 ```
-mmore_seqs
+mmore 
 ```

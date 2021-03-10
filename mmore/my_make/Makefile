@@ -229,12 +229,22 @@ uninstall:
 # 	$(RM) $(USER_GLOBAL_PROGRAMS)
 
 # install submodules and make them
-submodules:
+submodules: 
 	@echo '*** MAKE SUBMODULE ***'
-	make submodules-load
 	make easel 
 	make mmseqs
 	make hmmer
+
+# install tools
+tools: 
+	@echo '*** MAKE TOOLS ***'
+	make mmseqs 
+	make hmmer
+
+# install libraries 
+libs:
+	@echo '*** MAKE TOOLS ***'
+	make easel
 
 # load all submodules
 submodules-load:

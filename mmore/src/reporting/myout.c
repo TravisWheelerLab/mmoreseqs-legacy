@@ -69,8 +69,9 @@
 void REPORT_myout_header(  WORKER*  worker,
                            FILE*    fp )
 {
-   const int num_fields = 14;
+   const int num_fields = 15;
    const char* headers[] = {
+      "result-id"
       "target-hmm",
       "query-seq",
       "evalue",
@@ -82,8 +83,10 @@ void REPORT_myout_header(  WORKER*  worker,
       "total-cells",
       "MMORE-cells",
       "perc-cells",
-      "q-range",
-      "t-range",
+      "q-bounds",
+      "t-bounds",
+      "q-aln",
+      "t-aln",
       "time"
    };
 
@@ -107,10 +110,17 @@ void REPORT_myout_entry(   WORKER*  worker,
    SCORES*        final    = &result->final_scores;
 
    int aln_len = aln->end - aln->beg + 1;
-   TRACE* beg  = &VEC_X( aln->traces, aln->beg );
-   TRACE* end  = &VEC_X( aln->traces, aln->end );
+   TRACE aln_beg  = VEC_X( aln->traces, aln->beg );
+   TRACE aln_end  = VEC_X( aln->traces, aln->end );
 
-   fprintf( fp, "%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%.5f\n", 
+   RANGE q_bounds, t_bounds;
+
+   if (result->target_range.end - result->target_range.beg <= 0) {
+      EDGEBOUNDS_Find_BoundingBox( worker->edg_row, &q_bounds, &t_bounds );
+   }
+
+   fprintf( fp, "%d\t%s\t%s\t%.3g\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%d\t%d\t%.5f\t%d-%d\t%d-%d\t%d-%d\t%d-%d\t%.5f\n", 
+      worker->mmseqs_id,                     /* id index in mmseqs list */
       t_prof->name,                          /* target name */
       q_seq->name,                           /* query name */
       final->eval,                           /* evalue */
@@ -122,10 +132,10 @@ void REPORT_myout_entry(   WORKER*  worker,
       result->total_cells,                   /* total number of cells computed by full viterbi */
       result->cloud_cells,                   /* total number of cells computed by mmore */
       result->perc_cells,                    /* percent of total cells computed by mmore */
-      result->target_range.beg,              /* start of target range */
-      result->target_range.end,              /* end of target range */
-      result->query_range.beg,               /* start of query range */
-      result->query_range.end,               /* end of query range */
+      t_bounds.beg, t_bounds.end,            /* target bounds */
+      q_bounds.beg, q_bounds.end,            /* query bounds */
+      aln_beg.t_0, aln_end.t_0,              /* target alignment range */
+      aln_beg.q_0, aln_end.q_0,              /* query alignment range */
       times->loop                            /* time for entire iteration */
    );
 
