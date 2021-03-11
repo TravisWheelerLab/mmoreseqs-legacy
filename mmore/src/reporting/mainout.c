@@ -202,21 +202,24 @@ void REPORT_stdout_entry(  WORKER*  worker,
       is_run_aln = false;
    }
 
-   /* if alignemnt strings have not been produced yet, do it now */
-   if ( aln->is_cigar_aln == false ) {
-      ALIGNMENT_Build_MMSEQS_Style( aln, worker->q_seq, worker->t_prof );
-   }
-   cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
-   cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
+   if ( is_run_aln == true )
+   {
+      /* if alignemnt strings have not been produced yet, do it now */
+      if ( aln->is_cigar_aln == false ) {
+         ALIGNMENT_Build_MMSEQS_Style( aln, worker->q_seq, worker->t_prof );
+      }
+      cigar_aln = VECTOR_CHAR_GetArray( aln->cigar_aln );
+      cigar_aln = ( STR_GetLength(cigar_aln) > 0 ? cigar_aln : "--" );
 
-   if ( aln->is_hmmer_aln == false ) {
-      ALIGNMENT_Build_HMMER_Style( aln, worker->q_seq, worker->t_prof );
+      if ( aln->is_hmmer_aln == false ) {
+         ALIGNMENT_Build_HMMER_Style( aln, worker->q_seq, worker->t_prof );
+      }
+      target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
+      query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
+      center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
+      state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
    }
-   target_aln  = VECTOR_CHAR_GetArray( aln->target_aln );
-   query_aln   = VECTOR_CHAR_GetArray( aln->query_aln );
-   center_aln  = VECTOR_CHAR_GetArray( aln->center_aln );
-   state_aln   = VECTOR_CHAR_GetArray( aln->state_aln );
-
+   
    /* Meta Data */
    REPORT_horizontal_rule( fp );
    fprintf( fp, "%*s %s [L=%d]\n", 
