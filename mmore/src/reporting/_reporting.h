@@ -11,8 +11,10 @@
 
 /* utility functions used by all formats */
 #include "report_util.h"
-/* HMMER-style output formats */
+/* Main output */
 #include "mainout.h"
+/* HMMER-style output formats */
+#include "hmmerout.h"
 #include "domtblout.h"
 /* BLAST / MMSEQS-style output formats */
 #include "m8out.h"

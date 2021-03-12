@@ -26,14 +26,14 @@
 /* header */
 #include "_pipelines.h"
 
-/*! FUNCTION:  mmore_easysearch_pipeline()
+/*! FUNCTION:  mmore_search_pipeline()
  *  SYNOPSIS:  Overarching MMORE pipeline. 
- *             This pipeline runs the full pipeline with only MSA and FASTA files as arguments.
+ *             This pipeline runs the full search.
  */
 STATUS_FLAG 
-mmore_easysearch_pipeline( WORKER* worker )
+mmoreseqs_search_pipeline( WORKER* worker )
 {
-   printf("=== MMORE: EASYSEARCH PIPELINE ===\n");
+   printf("=== MMORE: SEARCH PIPELINE ===\n");
    
    ARGS*          args     = worker->args;
    TASKS*         tasks    = worker->tasks;
@@ -48,7 +48,7 @@ mmore_easysearch_pipeline( WORKER* worker )
    // printf("# HMMER_LOCATION: %s\n", mmseqs_path );
    STR mmore_path       = MMORE_BIN;
    // printf("# MMORE_LOCATION: %s\n", mmore_path );
-   STR script_relpath   = "/scripts/workflows/mmore-easysearch.sh";
+   STR script_relpath   = "/scripts/workflows/mmoreseqs-search.sh";
    STR script_path      = STR_Concat( project_path, script_relpath );
    // printf("# SCRIPT_LOCATION: %s\n\n", script_path );
 
@@ -58,10 +58,10 @@ mmore_easysearch_pipeline( WORKER* worker )
 
    /* SCRIPT */
    SCRIPTRUNNER_SetScript( runner, script_path );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->target_prep );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->query_prep );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->prep_folderpath );
-
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_filein );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_filein );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_mmseqs_p_filein );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_mmseqs_filein );
    /* TOOLS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "ROOT_DIR",          project_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DIR",         mmore_path );
@@ -71,10 +71,16 @@ mmore_easysearch_pipeline( WORKER* worker )
    
    /* MAIN COMMANDLINE ARGS */
    /* pass main args with type appended */
-   str = STR_Concat( "TARGET_PREP_", FILETYPE_NAME_Get( args->target_prep_type ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->target_prep );
-   str = STR_Concat( "QUERY_PREP_", FILETYPE_NAME_Get( args->query_prep_type ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->query_prep );
+   str = STR_Concat( "TARGET_MMORE_", FILETYPE_NAME_Get( args->t_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_filein );
+   str = STR_Concat( "QUERY_MMORE_", FILETYPE_NAME_Get( args->q_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_filein );
+   str = STR_Concat( "TARGET_MMSEQS_P_", FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_p_filein );
+   str = STR_Concat( "TARGET_MMSEQS_S_", FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_s_filein );
+   str = STR_Concat( "QUERY_MMSEQS_", FILETYPE_NAME_Get( args->q_mmseqs_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_mmseqs_filein );
 
    /* ENVIRONMENTAL ARGS */
    WORK_load_script_env_args( worker );

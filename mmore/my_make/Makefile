@@ -27,8 +27,8 @@ PACKAGE_VERSION 	= 0.1A
 PACKAGE_TARNAME 	= mmore
 
 # FINAL EXECUTABLE:
-TARGET_EXEC 	?= mmore
-MAIN_EXEC 		?= mmore
+TARGET_EXEC 	?= mmoreseqs
+MAIN_EXEC 		?= mmoreseqs
 
 # LIBRARY DIRECTORIES: 
 LIB_DIR 			?= ./lib
@@ -55,10 +55,10 @@ SCRIPTS 			:= $(shell find $(SCRIPT_DIR) -name *.py -or -name *.sh)
 TOOLS 			:= $(shell find $(TOOL_DIR) -name hmmbuild -or -name hmmsearch -or -name -mmseqs)
 
 # OUTPUT DIRECTORIES:
-BUILD_DIR 		?= build/
-INSTALL_DIR 	?= bin/
-USER_INSTALL_DIR ?= /usr/bin/
-MMORE_BIN 		?= $(BUILD_DIR)
+BUILD_DIR 			?= build/
+INSTALL_DIR 		?= bin/
+USER_INSTALL_DIR 	?= /usr/bin/
+MMORE_BIN 			?= $(BUILD_DIR)
 # OUTPUT SUBDIRECTORIES
 MMORE_BIN 		?= $(BUILD_DIR)
 BUILD_DIRS 		:= $(SRC_DIRS:%=$(BUILD_DIR)/%)
@@ -108,21 +108,21 @@ ifeq ($(BUILD), DEBUG)
 	TYPE			=  DEBUG
 	CFLAGS		+= $(DEBUGFLAGS)
 	CPPFLAGS		+=	$(DEBUGFLAGS)
-	TARGET_EXEC	=	mmore-DEBUG
+	TARGET_EXEC	=	mmoreseqs-DEBUG
 endif
 # special flags for ALPHA 
 ifeq ($(BUILD), ALPHA)
 	TYPE			=	ALPHA
 	CFLAGS		+=	$(ALPHAFLAGS)
 	CPPFLAGS		+=	$(ALPHAFLAGS)
-	TARGET_EXEC	=	mmore-ALPHA
+	TARGET_EXEC	=	mmoreseqs-ALPHA
 endif
 # special flags for ALPHA 
 ifeq ($(BUILD), VALGRIND)
 	TYPE			=	VALGRIND
 	CFLAGS		+=	$(VALFLAGS)
 	CPPFLAGS		+=	$(VALFLAGS)
-	TARGET_EXEC	= 	mmore-VALGRIND
+	TARGET_EXEC	= 	mmoreseqs-VALGRIND
 endif
 # special flags for RELEASE 
 BUILD ?= RELEASE
@@ -130,7 +130,7 @@ ifeq ($(BUILD), RELEASE)
 	TYPE			=	RELEASE
 	CFLAGS		+=	$(RELEASEFLAGS)
 	CPPFLAGS		+=	$(RELEASEFLAGS)
-	TARGET_EXEC	=	mmore-RELEASE
+	TARGET_EXEC	=	mmoreseqs-RELEASE
 endif
 # build type
 $(info *** BUILD-TYPE: $(TYPE) *** )
@@ -140,9 +140,9 @@ PROGRAMS = 				\
 	$(MAIN_EXEC) 		\
 	$(TARGET_EXEC) 	
 # OUTPUT PROGRAMS
-BUILD_PROGRAMS 	:= $(PROGRAMS:%=$(BUILD_DIR)/%)
-INSTALL_PROGRAMS	:= $(PROGRAMS:%=$(INSTALL_DIR)/%)
-USER_INSTALL_PROGRAMS := $(PROGRAMS:%=$(USER_INSTALL_DIR)/%)
+BUILD_PROGRAMS 			= $(PROGRAMS:%=$(BUILD_DIR)/%)
+INSTALL_PROGRAMS			= $(PROGRAMS:%=$(INSTALL_DIR)/%)
+USER_INSTALL_PROGRAMS 	= $(PROGRAMS:%=$(USER_INSTALL_DIR)/%)
 $(info USER_INSTALL: $(USER_INSTALL_PROGRAMS))
 
 # $(info *** PROGRAMS: ${PROGRAMS} *** )
@@ -162,7 +162,12 @@ ifndef V
 endif
 
 # RECIPES
-.PHONY: all install user-install submodules submodules-load easel mmseqs hmmer uninstall clean
+.PHONY: all 						\
+ install user-install 			\
+ submodules submodules-load 	\
+ libs easel 						\
+ tools mmseqs hmmer 				\
+ uninstall clean 					\
 
 # Build
 all: $(BUILD_PROGRAMS) 

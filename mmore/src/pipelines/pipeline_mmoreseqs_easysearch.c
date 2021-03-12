@@ -1,7 +1,6 @@
 /*******************************************************************************
- *  FILE:      pipeline_prep.c
+ *  FILE:      pipeline_mmore.c
  *  PURPOSE:   Cloud Search Pipeline for MMORE pipeline.
- *             Preparation pipeline, converts files to formats to be used by 
  *             Set arguments and issues command to bash script.
  *
  *  AUTHOR:    Dave Rich
@@ -19,22 +18,19 @@
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 #include "../parsers/_parsers.h"
-#include "../algs_linear/_algs_linear.h"
-#include "../algs_quad/_algs_quad.h"
-#include "../algs_naive/_algs_naive.h"
 #include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
-/*! FUNCTION:  mmore_prepsearch_pipeline()
- *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
- *             Prepares files for use in the MMORE-SEQS Pipeline. 
+/*! FUNCTION:  mmore_easysearch_pipeline()
+ *  SYNOPSIS:  Overarching MMORE pipeline. 
+ *             This pipeline runs the full pipeline with only MSA and FASTA files as arguments.
  */
 STATUS_FLAG 
-mmore_prepsearch_pipeline( WORKER* worker )
+mmoreseqs_easysearch_pipeline( WORKER* worker )
 {
-   printf("=== MMORE: PREPSEARCH PIPELINE ===\n");
+   printf("=== MMORE: EASYSEARCH PIPELINE ===\n");
    
    ARGS*          args     = worker->args;
    TASKS*         tasks    = worker->tasks;
@@ -49,7 +45,7 @@ mmore_prepsearch_pipeline( WORKER* worker )
    // printf("# HMMER_LOCATION: %s\n", mmseqs_path );
    STR mmore_path       = MMORE_BIN;
    // printf("# MMORE_LOCATION: %s\n", mmore_path );
-   STR script_relpath   = "/scripts/workflows/mmore-prepsearch.sh";
+   STR script_relpath   = "/scripts/workflows/mmoreseqs-easysearch.sh";
    STR script_path      = STR_Concat( project_path, script_relpath );
    // printf("# SCRIPT_LOCATION: %s\n\n", script_path );
 
@@ -57,11 +53,11 @@ mmore_prepsearch_pipeline( WORKER* worker )
    STR   str = NULL;
    char  buffer[256];
 
-   /* COMMANDLINE ARGS */
+   /* SCRIPT */
    SCRIPTRUNNER_SetScript( runner, script_path );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->target_prep );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->query_prep );
    SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->prep_folderpath );
-   
-   /* COMMANDLINE ENVIRONMENTAL VARIABLES */
 
    /* TOOLS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "ROOT_DIR",          project_path );
@@ -69,6 +65,14 @@ mmore_prepsearch_pipeline( WORKER* worker )
    SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",         hmmer_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",        mmseqs_path ); 
    SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_ToString( args->is_use_local_tools, buffer ) ); 
+   
+   /* MAIN COMMANDLINE ARGS */
+   /* pass main args with type appended */
+   str = STR_Concat( "TARGET_PREP_", FILETYPE_NAME_Get( args->target_prep_type ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->target_prep );
+   str = STR_Concat( "QUERY_PREP_", FILETYPE_NAME_Get( args->query_prep_type ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->query_prep );
+
    /* ENVIRONMENTAL ARGS */
    WORK_load_script_env_args( worker );
 

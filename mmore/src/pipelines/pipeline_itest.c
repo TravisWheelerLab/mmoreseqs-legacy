@@ -72,8 +72,8 @@ itest_pipeline( WORKER* worker )
    // float             beta           = args->beta;
    // int               gamma          = args->gamma;
 
-   // char*             t_filepath     = args->t_filepath;
-   // char*             q_filepath     = args->q_filepath;
+   // char*             t_filein     = args->t_filein;
+   // char*             q_filein     = args->q_filein;
 
    // int               t_filetype     = args->t_filetype;
    // int               q_filetype     = args->q_filetype;
@@ -140,8 +140,8 @@ itest_pipeline( WORKER* worker )
    // /* PRINT ARGS */
    // int pad = 20;
    // printf("%*s: %s\n",     pad, "MODE",               MODE_NAMES[mode]);
-   // printf("%*s: %s\n",     pad, "HMM_FILENAME",       t_filepath);
-   // printf("%*s: %s\n",     pad, "FASTA_FILENAME",     q_filepath);
+   // printf("%*s: %s\n",     pad, "HMM_FILENAME",       t_filein);
+   // printf("%*s: %s\n",     pad, "FASTA_FILENAME",     q_filein);
    // printf("%*s: %.3f\n",   pad, "ALPHA",              cloud_params->alpha);
    // printf("%*s: %.3f\n",   pad, "BETA",               cloud_params->beta);
    // printf("%*s: %d\n",     pad, "GAMMA",              cloud_params->gamma);
@@ -153,7 +153,7 @@ itest_pipeline( WORKER* worker )
    // printf("loading query...\n");
    // if ( q_filetype == FILE_FASTA ) 
    // {
-   //    SEQUENCE_Fasta_Parse( q_seq, q_filepath, 0 );
+   //    SEQUENCE_Fasta_Parse( q_seq, q_filein, 0 );
    // }
    // else 
    // {
@@ -166,7 +166,7 @@ itest_pipeline( WORKER* worker )
    // printf("loading target...\n");
    // if ( t_filetype == FILE_HMM || true ) 
    // {
-   //    HMM_PROFILE_Parse( t_prof, t_filepath, 0 );
+   //    HMM_PROFILE_Parse( t_prof, t_filein, 0 );
    //    HMM_PROFILE_Convert_NegLog_To_Real( t_prof );
    //    HMM_PROFILE_Config( t_prof, mode );
    //    HMM_PROFILE_Dump( t_prof, stdout );
@@ -174,7 +174,7 @@ itest_pipeline( WORKER* worker )
    // }
    // else if ( t_filetype == FILE_FASTA )
    // {
-   //    SEQUENCE_Fasta_Parse( t_seq, t_filepath, 0 );
+   //    SEQUENCE_Fasta_Parse( t_seq, t_filein, 0 );
    //    SEQUENCE_to_HMM_PROFILE( t_seq, t_prof );
    // }
    // else
@@ -897,8 +897,8 @@ itest_pipeline( WORKER* worker )
    // // printf("Writing results to: '%s'\n", output_file);
    // // fp = fopen(output_file, "a+");
 
-   // // fprintf(fp, "%s\t", t_filepath);
-   // // fprintf(fp, "%s\t", q_filepath);
+   // // fprintf(fp, "%s\t", t_filein);
+   // // fprintf(fp, "%s\t", q_filein);
    // // fprintf(fp, "%f\t", scores->quad_vit);
    // // fprintf(fp, "%f\t", scores->quad_fwd);
    // // fprintf(fp, "%f\t", scores->quad_bck);

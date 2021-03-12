@@ -603,7 +603,7 @@ typedef struct {
    char*          opts;                   /* all options from commandline */
 
    /* --- PIPELINE OPTIONS --- */
-   // PIPELINE pipeline;               /* workflow pipeline */
+   // PIPELINE pipeline;                  /* workflow pipeline */
    STR            pipeline_name;          /* workflow pipeline */
    int            pipeline_mode;          /* workflow pipeline enum */
    int            verbose_level;          /* levels of verbosity */
@@ -632,18 +632,19 @@ typedef struct {
 
    /* --- INPUT FILES --- */
    /* main files */
-   char*          t_filepath;             /* target (fasta, hmm, or msa) file */
-   char*          q_filepath;             /* query (fasta, hmm, or msa) file */
+   char*          t_filein;               /* target (fasta, hmm, or msa) file */
+   char*          q_filein;               /* query (fasta, hmm, or msa) file */
    /* mmore files */
-   char*          t_mmore_filepath;       /* target for mmore (hmm) file */
-   char*          t_mmore_p_filepath;     /* target for mmore (hmm) file */
-   char*          t_mmore_s_filepath;     /* target for mmore (fasta) file */
-   char*          q_mmore_filepath;       /* query for mmore (fasta) file */
+   char*          t_mmore_filein;         /* target for mmore (hmm) file */
+   char*          t_mmore_p_filein;       /* target for mmore (hmm) file */
+   char*          t_mmore_s_filein;       /* target for mmore (fasta) file */
+   char*          q_mmore_filein;         /* query for mmore (fasta) file */
+   char*          mmseqs_m8_filein;       /* mmseqs_m8 results (m8) file */
    /* mmseqs files */
-   char*          t_mmseqs_filepath;      /* target for mmseqs profile (pmmdb) file */
-   char*          t_mmseqs_p_filepath;    /* target for mmseqs profile (pmmdb) file */
-   char*          t_mmseqs_s_filepath;    /* target for mmseqs sequence (smmdb) file */
-   char*          q_mmseqs_filepath;      /* filepath to mmseqs query (smmdb) file */
+   char*          t_mmseqs_filein;        /* target for mmseqs profile (pmmdb) file */
+   char*          t_mmseqs_p_filein;      /* target for mmseqs profile (pmmdb) file */
+   char*          t_mmseqs_s_filein;      /* target for mmseqs sequence (smmdb) file */
+   char*          q_mmseqs_filein;        /* filepath to mmseqs query (smmdb) file */
    /* input filetypes */
    bool           is_guess_filetype;      /* whether to use guessing tool to find file type */
    /* main files */
@@ -661,8 +662,8 @@ typedef struct {
    FILETYPE       q_mmseqs_filetype;      /* FILETYPE of mmseqs query file */
    /* input indexes */
    bool           is_indexpath;           /* is an index file supplied? */
-   char*          t_indexpath;            /* index filepath for quick access of target (hmm) file */
-   char*          q_indexpath;            /* index filepath for quick access of query (fasta) file */
+   char*          t_index_filein;         /* index filepath for quick access of target (hmm) file */
+   char*          q_index_filein;         /* index filepath for quick access of query (fasta) file */
    
    /* --- INPUT DATA --- */
    /* database size */
@@ -680,7 +681,7 @@ typedef struct {
 
    /* --- OPTIONAL OUTPUT --- */
    /* simple hitlist (input) */
-   char*          hitlist_filepath;       /* filepath to simple hitlist */
+   char*          hitlist_filein;         /* filepath to simple hitlist */
 
    /* --- PREPARATION OUTPUT --- */
    /* root prep folder */
@@ -691,106 +692,111 @@ typedef struct {
    FILETYPE       target_prep_type;       /* filetype of target prep file */
    FILETYPE       query_prep_type;        /* filetype of target prep file */
 
+   /* --- INTERRIM INPUT --- */
+   /* hmm file (if fasta file is given as input, a single sequence hmm file) */
+   bool     is_hmm_in;                    /* output .hmm file? */
+   char*    hmm_filein;                   /* filepath to output .hmm file to */
+   /* mm_msa file (mmseqs-style msa) */
+   bool     is_mm_msa_in;                 /* output .mm_msa file? */
+   char*    mm_msa_filein;                /* filepath to output .mm_msa file to */
+   /* hhm file (mmseqs-style hmm) */
+   bool     is_hhm_in;                    /* output .hhm file? */
+   char*    hhmout_filein;                /* filepath to output .hhm file to */
+
    /* --- INTERRIM OUTPUT --- */
    /* hmm file (if fasta file is given as input, a single sequence hmm file) */
-   bool     is_hmmout;              /* output .hmm file? */
-   char*    hmmout_filepath;        /* filepath to output .hmm file to */
+   bool     is_hmm_out;                   /* output .hmm file? */
+   char*    hmmout_fileout;               /* filepath to output .hmm file to */
    /* mm_msa file (mmseqs-style msa) */
-   bool     is_mm_msaout;           /* output .mm_msa file? */
-   char*    mm_msa_filepath;        /* filepath to output .mm_msa file to */
+   bool     is_mm_msa_out;                /* output .mm_msa file? */
+   char*    mm_msa_fileout;               /* filepath to output .mm_msa file to */
    /* hhm file (mmseqs-style hmm) */
-   bool     is_hhmout;              /* output .hhm file? */
-   char*    hhmout_filepath;        /* filepath to output .hhm file to */
+   bool     is_hhm_out;                   /* output .hhm file? */
+   char*    hhm_fileout;                  /* filepath to output .hhm file to */
 
    /* --- PIPELINE INTERRIM OUTPUT --- */
    /* mmseqs search output */
-   bool     is_mmseqs_m8out;        /* output .m8out results file? */    
-   char*    mmseqs_m8_filepath;     /* filepath to mmseqs .m8 results file */
+   bool     is_mmseqs_m8out;              /* output .m8out results file? */    
+   char*    mmseqs_m8_fileout;             /* filepath to mmseqs .m8 results file */
    /* mmseqs profile-to-seq output */
-   bool     is_mmseqs_p2sout;       /* output profile-to-sequence mmseqs results? */
-   char*    mmseqs_p2s_filepath;    /* filepath to output results; if NULL, doesn't output */
+   bool     is_mmseqs_p2s_out;            /* output profile-to-sequence mmseqs results? */
+   char*    mmseqs_p2s_fileout;           /* filepath to output results; if NULL, doesn't output */
    /* mmseqs seq-to-seq output */
-   bool     is_mmseqs_s2sout;       /* output sequence-to-sequence mmseqs results? */
-   char*    mmseqs_s2s_filepath;    /* filepath to output results; if NULL, doesn't output */
+   bool     is_mmseqs_s2s_out;            /* output sequence-to-sequence mmseqs results? */
+   char*    mmseqs_s2s_fileout;           /* filepath to output results; if NULL, doesn't output */
 
    /* --- OUTPUT --- */
    /* default outputs */
-   bool     is_redirect_stdout;     /* are we redirecting stdout? */
-   char*    stdout_fileout;         /* filepath to output results to; "!stdout" => stdout */
-   bool     is_redirect_stderr;     /* are we redirecting stdout? */
-   char*    stderr_fileout;         /* filepath to output results to; "!stdout" => stdout */
-   /* special outputs */
-   bool     is_allout;              /* report all special output? */
-   char*    allout_fileout;         /* base name for outputs */
-   /* tblout option/path (modeled after HMMER domtblout --tblout) */
-   bool     is_tblout;              /* report tblout table? */
-   char*    tblout_fileout;         /* filepath to output results; if NULL, doesn't output */
-   /* m8out option/path (modeled after MMseqs) */
-   bool     is_m8out;               /* report m8out table? */
-   char*    m8out_fileout;          /* filepath to output results; if NULL, doesn't output */
-   /* myout option/path (my custom output) */
-   bool     is_myout;               /* report myout table? */
-   char*    myout_fileout;          /* filepath to output results; if NULL, doesn't output */
-   /* mydomout option/path (my custom output for domains) */
-   bool     is_mydom;               /* report mydomout table? */
-   char*    mydom_fileout;          /* filepath to output results; if NULL, doesn't output */
-   /* mytimeout option/path (my custom output for times) */
-   bool     is_mytimeout;           /* report mytimeout table? */
-   char*    mytime_fileout;         /* filepath to output results; if NULL, doesn't output */
-   /* mythreshout option/path (my custom output for times) */
-   bool     is_mythreshout;         /* report mythreshout table? */
-   char*    mythresh_fileout;       /* filepath to output results; if NULL, doesn't output */
-   
-   /* customized output */
-   bool     is_customout;           /* report custom table? */
-   char*    customout_filepath;     /* filepath to output results; if NULL, doesn't output */
-   bool     custom_fields[15];      /* boolean list of which fields should be reported */ 
+   bool     is_redirect_stdout;           /* redirecting stdout? */
+   char*    stdout_fileout;               /* filepath to output results to; "!stdout" => stdout */
+   bool     is_redirect_stderr;           /* redirecting stderr? */
+   char*    stderr_fileout;               /* filepath to output results to; "!stdout" => stdout */
+   /* all output formats */
+   bool     is_allout;                    /* report all outputs? */
+   char*    allout_fileout;               /* base name for generating reports of all types */
+   /* output formats */
+   bool     is_hmmerout;                  /* report hmmerout table? */
+   char*    hmmerout_fileout;             /* hmmerout: HMMER-style output */
+   bool     is_m8out;                     /* report m8out table? */
+   char*    m8out_fileout;                /* m8: BLAST/MMSEQS-style tab-delimited table output */
+   bool     is_myout;                     /* report myout table? */
+   char*    myout_fileout;                /* myout: tab-delimited table output of special test outputs */
+   bool     is_mydom;                     /* report mydomout table? */
+   char*    mydom_fileout;                /* mydom: tab-delimited table output of domains */
+   bool     is_mytimeout;                 /* report mytimeout table? */
+   char*    mytime_fileout;               /* mytime: tab-delimited table output of runtimes */
+   bool     is_mythreshout;               /* report mythreshout table? */
+   char*    mythresh_fileout;             /* mythresh: tab-delimited table output of threshold scores */
+      /* customized output */
+   bool     is_customout;                 /* report custom table? */
+   char*    customout_fileout;            /* customout: user-selected fields for tab-delimited table output */
+   bool     custom_fields[15];            /* boolean list of which fields should be reported */ 
   
    /* --- TASK OPTIONS --- */
-   bool     is_run_prep;               /* Should run prep before main pipeline? */
-   bool     is_prep_copy;              /* Should prep folder make copies or soft link input files? */
-   bool     is_run_pruned;             /* should run pruned forward backward? */
-   bool     is_run_full;               /* should run full forward backward? */
-   bool     is_run_domains;            /* should run domain search? */
-   bool     is_run_bias;               /* should composition bias filter be applied? */
-   bool     is_run_mmseqsaln;          /* perform mmseqs alignment? */
-   bool     is_run_vitaln;             /* perform viterbi alignment? */
-   bool     is_run_postaln;            /* perform posterior alignment? */
-   bool     is_run_mmseqs_ungapped;    /* perform mmseqs ungapped alignment? */
-   bool     is_run_mmore;              /* perform mmore step of search? */
+   bool     is_run_prep;                  /* Should run prep before main pipeline? */
+   bool     is_prep_copy;                 /* Should prep folder make copies or soft link input files? */
+   bool     is_run_pruned;                /* should run pruned forward backward? */
+   bool     is_run_full;                  /* should run full forward backward? */
+   bool     is_run_domains;               /* should run domain search? */
+   bool     is_run_bias;                  /* should composition bias filter be applied? */
+   bool     is_run_mmseqsaln;             /* perform mmseqs alignment? */
+   bool     is_run_vitaln;                /* perform viterbi alignment? */
+   bool     is_run_postaln;               /* perform posterior alignment? */
+   bool     is_run_mmseqs_ungapped;       /* perform mmseqs ungapped alignment? */
+   bool     is_run_mmore;                 /* perform mmore step of search? */
 
    /* --- MMSEQS --- */
-   int      mmseqs_maxhits;            /* maximum number of query hits per target search */
-   int      mmseqs_altalis;            /* maximum number of alternate alignments allowed to be reported per target/query search */ 
-   int      mmseqs_kmer;               /* kmer length */
-   int      mmseqs_split;              /* database split size */
-   int      mmseqs_prefilter;          /* double-kmer prefilter kscore */
-   int      mmseqs_ungapped_vit;       /* ungapped viterbi */
-   float    mmseqs_evalue;             /* e-value gapped viterbi */
-   float    mmseqs_pvalue;             /* p-value gapped viterbi */
+   int      mmseqs_maxhits;               /* maximum number of query hits per target search */
+   int      mmseqs_altalis;               /* maximum number of alternate alignments allowed to be reported per target/query search */ 
+   int      mmseqs_kmer;                  /* kmer length */
+   int      mmseqs_split;                 /* database split size */
+   int      mmseqs_prefilter;             /* double-kmer prefilter kscore */
+   int      mmseqs_ungapped_vit;          /* ungapped viterbi */
+   float    mmseqs_evalue;                /* e-value gapped viterbi */
+   float    mmseqs_pvalue;                /* p-value gapped viterbi */
 
    /* --- MMORE / FB-PRUNER --- */
    /* if viterbi is precomputed, gives starting and ending coords (single result) */
-   COORDS   beg;                    /* beginning coordinates of viterbi alignment */
-   COORDS   end;                    /* ending coordinates of viterbi alignment */
+   COORDS   beg;                          /* beginning coordinates of viterbi alignment */
+   COORDS   end;                          /* ending coordinates of viterbi alignment */
 
    /* cloud search tuning parameters */
-   float    alpha;                  /* cloud search: x-drop pruning ratio */
-   float    beta;                   /* cloud search: x-drop maximum drop before termination */
-   int      gamma;                  /* cloud search: number of antidiag passes before pruning  */
-   float    mmore_evalue;           /* e-value mmore / fb-pruner */
-   float    mmore_pvalue;           /* p-value mmore / fb-pruner */
+   float    alpha;                        /* cloud search: x-drop pruning ratio */
+   float    beta;                         /* cloud search: x-drop maximum drop before termination */
+   int      gamma;                        /* cloud search: number of antidiag passes before pruning  */
+   float    mmore_evalue;                 /* e-value mmore / fb-pruner */
+   float    mmore_pvalue;                 /* p-value mmore / fb-pruner */
 
    /* --- THRESHOLDS (P_VALUE) --- */
-   bool     is_run_filter;          /* filter thresholds on mmore enforced, or let all through? */
-   float    threshold_pre;          /* threshold for mmseqs prefilter score */
-   float    threshold_ungapped;     /* threshold for mmseqs ungapped viterbi score */
-   float    threshold_p2s;          /* threshold for mmseqs p2s score */
-   float    threshold_s2s;          /* threshold for mmseqs s2s score */
-   float    threshold_vit;          /* threshold for mmore viterbi score */
-   float    threshold_fwd;          /* threshold for mmore forward score */
-   float    threshold_cloud;        /* threshold for mmore cloud search score */
-   float    threshold_boundfwd;     /* threshold for mmore bound forward score */
+   bool     is_run_filter;                /* filter thresholds on mmore enforced, or let all through? */
+   float    threshold_pre;                /* threshold for mmseqs prefilter score */
+   float    threshold_ungapped;           /* threshold for mmseqs ungapped viterbi score */
+   float    threshold_p2s;                /* threshold for mmseqs p2s score */
+   float    threshold_s2s;                /* threshold for mmseqs s2s score */
+   float    threshold_vit;                /* threshold for mmore viterbi score */
+   float    threshold_fwd;                /* threshold for mmore forward score */
+   float    threshold_cloud;              /* threshold for mmore cloud search score */
+   float    threshold_boundfwd;           /* threshold for mmore bound forward score */
 } ARGS;
 
 /* scores */

@@ -54,7 +54,7 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
  *  SYNOPSIS:  Update f_index using mmseqs lookup table 
  */
 void F_INDEX_Lookup_Update( F_INDEX*   f_index, 
-                            char*      _lookup_filepath_ );
+                            char*      _lookup_filein_ );
 
 /*  FUNCTION:  F_INDEX_Load()
  *  SYNOPSIS:  Load F_INDEX object from .idx file.

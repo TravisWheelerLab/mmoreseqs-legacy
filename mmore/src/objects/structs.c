@@ -100,20 +100,20 @@ double BG_MODEL_log[] = {
 /* descriptors of all pipelines */
 const int num_pipelines = 11;
 PIPELINE PIPELINES[] = {
-   /* mmore-seqs pipelines */
-   { "mmore-search",       mmore_search_pipeline,        5,    NULL },
-   { "mmore-mmoresearch",  mmore_searchmmore_pipeline,   3,    NULL },
-   { "mmore-mmseqssearch", mmore_searchmmore_pipeline,   3,    NULL },
-   { "mmore-prep",         mmore_prep_pipeline,          3,    NULL },
-   { "mmore-prepsearch",   mmore_prepsearch_pipeline,    1,    NULL },
-   { "mmore-easysearch",   mmore_easysearch_pipeline,    3,    NULL },
+   /* mmoreseqs-seqs pipelines */
+   { "search",             mmoreseqs_search_pipeline,       5,    NULL },
+   { "mmore-search",       mmoreseqs_mmore_pipeline,        3,    NULL },
+   { "mmseqs-search",      mmoreseqs_mmseqs_pipeline,       3,    NULL },
+   { "prep",               mmoreseqs_prep_pipeline,         3,    NULL },
+   { "prep-search",        mmoreseqs_prepsearch_pipeline,   1,    NULL },
+   { "easy-search",        mmoreseqs_easysearch_pipeline,   3,    NULL },
    /* helper pipelines */
-   { "index",              index_pipeline,               2,    NULL },  
-   { "hmmbuild",           hmmbuild_pipeline,            1,    NULL },
-   { "interactive",        interactive_pipeline,         0,    NULL },
+   { "index",              index_pipeline,                  2,    NULL },  
+   { "hmmbuild",           hmmbuild_pipeline,               1,    NULL },
+   { "interactive",        interactive_pipeline,            0,    NULL },
    /* alternative search pipelines */
-   { "null",               null_pipeline,                0,    NULL },
-   { "generic",            generic_pipeline,             2,    NULL },
+   { "null",               null_pipeline,                   0,    NULL },
+   { "generic",            generic_pipeline,                2,    NULL },
 };
 
 /* full names of the all states */
@@ -271,7 +271,7 @@ char*    MMSEQS_BIN     = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMSEQS_BIN_LOC)
 char*    HMMER_BIN      = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(HMMER_BIN_LOC);
 char*    MMORE_BIN      = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
 /* --- SCRIPTS --- */
-char*    PREP_SCRIPT          = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-prep.sh";
-char*    PREPSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-prepsearch.sh";
-char*    SEARCH_SCRIPT        = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-search.sh";
-char*    EASYSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmore-easysearch.sh";
+char*    PREP_SCRIPT          = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmoreseqs-prep.sh";
+char*    PREPSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmoreseqs-prepsearch.sh";
+char*    SEARCH_SCRIPT        = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmoreseqs-search.sh";
+char*    EASYSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC) "/scripts/workflows/mmoreseqs-easysearch.sh";

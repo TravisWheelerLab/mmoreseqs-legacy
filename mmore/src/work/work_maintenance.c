@@ -49,19 +49,19 @@ WORK_init( WORKER* worker )
    STR write_mode    = "w";
    STR append_mode   = "a";
    /* input files */
-   worker->q_seq_file         = FILER_Create( args->q_filepath, read_mode );
-   worker->t_prof_file        = FILER_Create( args->t_filepath, read_mode );
-   worker->q_index_file       = FILER_Create( args->q_indexpath, read_mode );
-   worker->t_index_file       = FILER_Create( args->t_indexpath, read_mode );
-   worker->mmseqs_file        = FILER_Create( args->mmseqs_m8_filepath, read_mode );
-   // worker->hitlist_file       = FILER_Create( args->hitlist_filepath, read_mode );
+   worker->q_seq_file         = FILER_Create( args->q_filein, read_mode );
+   worker->t_prof_file        = FILER_Create( args->t_filein, read_mode );
+   worker->q_index_file       = FILER_Create( args->q_index_filein, read_mode );
+   worker->t_index_file       = FILER_Create( args->t_index_filein, read_mode );
+   worker->mmseqs_file        = FILER_Create( args->mmseqs_m8_filein, read_mode );
+   // worker->hitlist_file       = FILER_Create( args->hitlist_filein, read_mode );
    /* output files */
    worker->output_file        = FILER_Create( args->stdout_fileout, write_mode );
    if ( args->is_redirect_stdout == false ) {
       worker->output_file->fp = stdout;
    }
-   if ( args->tblout_fileout != NULL ) {
-      worker->tblout_file        = FILER_Create( args->tblout_fileout, write_mode );
+   if ( args->hmmerout_fileout != NULL ) {
+      worker->tblout_file        = FILER_Create( args->hmmerout_fileout, write_mode );
    }
    if ( args->m8out_fileout != NULL ) {
       worker->m8out_file         = FILER_Create( args->m8out_fileout, write_mode );

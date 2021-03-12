@@ -2,7 +2,7 @@
 
 Pruned Forward-Backward implementation of profile HMM alignment
 
-## Development
+## Installation / Getting Started
 
 ### Setup
 
@@ -40,8 +40,13 @@ make -f my_make/Makefile install INSTALL_DIR={install_directory}
 
 This will produce a binary called `mmore`.
 
-### Usage
+## Usage
 
 ```
 mmore 
 ```
+
+## Development
+
+
+

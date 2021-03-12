@@ -299,7 +299,7 @@ F_INDEX* F_INDEX_Load( F_INDEX*     f_index,
  *  SYNOPSIS:  Update f_index using mmseqs lookup table 
  */
 void F_INDEX_Lookup_Update( F_INDEX*   f_index, 
-                            char*      _lookup_filepath_ ) 
+                            char*      _lookup_filein_ ) 
 {
    FILE*          fp             = NULL;
    F_INDEX_NODE*  node;
@@ -319,12 +319,12 @@ void F_INDEX_Lookup_Update( F_INDEX*   f_index,
    int            mmseqs_id      = -1;
 
    /* add meta data */
-   f_index->lookup_path = STR_Create( _lookup_filepath_ );
+   f_index->lookup_path = STR_Create( _lookup_filein_ );
 
    /* open file */
-   fp = fopen( _lookup_filepath_, "r" );
+   fp = fopen( _lookup_filein_, "r" );
    if (fp == NULL) {
-      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _lookup_filepath_ );
+      fprintf(stderr, "ERROR: Unable to Open File => %s\n", _lookup_filein_ );
       ERRORCHECK_exit(EXIT_FAILURE);
    }
 

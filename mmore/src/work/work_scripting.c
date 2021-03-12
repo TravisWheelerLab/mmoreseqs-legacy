@@ -41,14 +41,14 @@ WORK_load_script_env_args( WORKER* worker )
 
    /* --- ENVIRONMENTAL ARGS --- */
    /* MMORE ARGS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMORE",         args->t_filepath );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMORE",          args->q_filepath );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMORE",         args->t_filein );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMORE",          args->q_filein );
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMORE_TYPE",    FILETYPE_NAME_Get( args->t_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMORE_TYPE",     FILETYPE_NAME_Get( args->q_filetype ) );
    /* MMSEQS ARGS */
-   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_P",      args->t_mmseqs_p_filepath );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_S",      args->t_mmseqs_s_filepath );
-   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS",         args->q_mmseqs_filepath );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_P",      args->t_mmseqs_p_filein );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_S",      args->t_mmseqs_s_filein );
+   SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS",         args->q_mmseqs_filein );
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_P_TYPE", FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_S_TYPE", FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
    SCRIPTRUNNER_Add_Env_Variable( runner, "QUERY_MMSEQS_TYPE",    FILETYPE_NAME_Get( args->q_mmseqs_filetype ) );
@@ -101,9 +101,7 @@ WORK_load_script_env_args( WORKER* worker )
    // SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_P_OUT",             args->t_mmseqs_s_fileout );
    /* OUTPUT FILES */
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDOUT_OUT",        args->stdout_fileout,            args->is_redirect_stdout );
-   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDOUT_OUT",        args->stdout_fileout,            args->is_redirect_stdout );
-   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDERR_OUT",        args->stdout_fileout,            args->is_redirect_stderr );
-   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_ALLOUT_OUT",        args->allout_fileout,            args->is_allout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDERR_OUT",        args->stderr_fileout,            args->is_redirect_stderr );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_M8OUT_OUT",         args->m8out_fileout,             args->is_m8out );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_MYOUT_OUT",         args->myout_fileout,             args->is_myout );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_MYDOM_OUT",         args->mydom_fileout,             args->is_mydom );

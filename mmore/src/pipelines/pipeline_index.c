@@ -52,21 +52,21 @@ index_pipeline( WORKER* worker )
 
    /* building, sorting, and outputting target index */
    printf_vlo("# building target index from:\t%s\n", 
-      args->t_filepath );
+      args->t_filein );
    WORK_build_target_index( worker );
    F_INDEX_Sort_by_Id( worker->t_index );
    WORK_output_target_index( worker );
    printf_vlo("# outputting target index to:\t%s\n",
-      args->t_indexpath );
+      args->t_index_filein );
 
    /* building, sorting, and outputting target index */
    printf_vlo("# building query index from:\t%s\n", 
-      args->q_filepath );
+      args->q_filein );
    WORK_build_query_index( worker );
    F_INDEX_Sort_by_Id( worker->q_index );
    WORK_output_query_index( worker );
    printf_vlo("# outputting query index to:\t%s\n",
-      args->q_indexpath );
+      args->q_index_filein );
    
    /* clean up worker data structs */
    WORK_close( worker );

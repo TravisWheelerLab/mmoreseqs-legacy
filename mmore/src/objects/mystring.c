@@ -123,9 +123,9 @@ STRING_EndsWith(  const char*    str1,
 
 /* returns filename of full filepath */
 char* 
-STRING_GetFileFromPath( const char* in_filepath ) 
+STRING_GetFileFromPath( const char* in_filein ) 
 {
-   char*    filepath    = strdup( in_filepath );
+   char*    filepath    = strdup( in_filein );
    char*    token       = NULL;
    char*    prv_token   = NULL;
    char*    delim       = "/";

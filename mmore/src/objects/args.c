@@ -31,49 +31,47 @@ ARGS_Create()
    ARGS* args = NULL;
    args = ERROR_malloc( sizeof(ARGS) );
 
+   /* commandline */
    args->cmdline                 = NULL;
    args->opts                    = NULL;
-
-   // args->pipeline                = NULL;
+   /* pipeline */
    args->pipeline_mode           = -1;
    args->pipeline_name           = NULL;
-
    args->search_name             = NULL;
-
+   /* folders */
    args->tmp_folderpath          = NULL;
    args->dbg_folderpath          = NULL;
    args->prep_folderpath         = NULL;
-
-   args->t_filepath              = NULL;
-   args->q_filepath              = NULL;
-
-   args->t_mmore_filepath        = NULL;
-   args->t_mmore_p_filepath      = NULL;
-   args->t_mmore_s_filepath      = NULL;
-   args->q_mmore_filepath        = NULL;
-
-   args->t_mmseqs_filepath       = NULL;
-   args->t_mmseqs_p_filepath     = NULL;
-   args->t_mmseqs_s_filepath     = NULL;
-   args->q_mmseqs_filepath       = NULL;
-
-   args->t_indexpath             = NULL;  
-   args->q_indexpath             = NULL;
-
-   args->mmseqs_m8_filepath      = NULL;
-   args->hitlist_filepath        = NULL;
-
-   args->allout_fileout          = NULL;
-   args->stdout_fileout          = NULL; 
-   args->tblout_fileout          = NULL;
+   /* input */
+   args->t_filein                = NULL;
+   args->q_filein                = NULL;
+   /* mmore input */
+   args->t_mmore_filein          = NULL;
+   args->t_mmore_p_filein        = NULL;
+   args->t_mmore_s_filein        = NULL;
+   args->q_mmore_filein          = NULL;
+   /* mmseqs input */
+   args->t_mmseqs_filein         = NULL;
+   args->t_mmseqs_p_filein       = NULL;
+   args->t_mmseqs_s_filein       = NULL;
+   args->q_mmseqs_filein         = NULL;
+   /* index input */
+   args->t_index_filein          = NULL;  
+   args->q_index_filein          = NULL;
+   /* results input */
+   args->mmseqs_m8_filein        = NULL;
+   args->hitlist_filein          = NULL;
+   /* output */
+   args->stdout_fileout          = NULL;
+   args->stderr_fileout          = NULL;
+   args->allout_fileout          = NULL; 
+   args->hmmerout_fileout        = NULL;
    args->m8out_fileout           = NULL;
    args->myout_fileout           = NULL;
    args->mydom_fileout           = NULL;
    args->mytime_fileout          = NULL;
    args->mythresh_fileout        = NULL;
-   args->customout_filepath      = NULL;
-
-   args->alpha                   = 12.0f;
+   args->customout_fileout       = NULL;
 
    return args;
 }
@@ -84,49 +82,49 @@ ARGS_Create()
 ARGS* 
 ARGS_Destroy( ARGS* args )
 {
-   if (args == NULL) return NULL;
+   if (args == NULL) return args;
    
-   /* free all strings */
+   /* commandline */
    STR_Destroy( args->cmdline );
    STR_Destroy( args->opts );
-
+   /* pipeline */
    STR_Destroy( args->pipeline_name );
-
    STR_Destroy( args->search_name );
-
+   /* folders */
    STR_Destroy( args->tmp_folderpath );
    STR_Destroy( args->dbg_folderpath );
    STR_Destroy( args->prep_folderpath );
-
-   STR_Destroy( args->t_filepath );
-   STR_Destroy( args->q_filepath );
-
-   STR_Destroy( args->t_mmore_filepath );
-   STR_Destroy( args->t_mmore_p_filepath );
-   STR_Destroy( args->t_mmore_s_filepath );
-   STR_Destroy( args->q_mmore_filepath );
-
-   STR_Destroy( args->t_mmseqs_filepath );
-   STR_Destroy( args->t_mmseqs_p_filepath );
-   STR_Destroy( args->t_mmseqs_s_filepath );
-   STR_Destroy( args->q_mmseqs_filepath );
-
-   STR_Destroy( args->t_indexpath );
-   STR_Destroy( args->q_indexpath );
-
-   STR_Destroy( args->mmseqs_m8_filepath );
-   STR_Destroy( args->hitlist_filepath );
-
+   /* input file */
+   STR_Destroy( args->t_filein );
+   STR_Destroy( args->q_filein );
+   /* mmore input */
+   STR_Destroy( args->t_mmore_filein );
+   STR_Destroy( args->t_mmore_p_filein );
+   STR_Destroy( args->t_mmore_s_filein );
+   STR_Destroy( args->q_mmore_filein );
+   /* mmseqs input */
+   STR_Destroy( args->t_mmseqs_filein );
+   STR_Destroy( args->t_mmseqs_p_filein );
+   STR_Destroy( args->t_mmseqs_s_filein );
+   STR_Destroy( args->q_mmseqs_filein );
+   /* index input */
+   STR_Destroy( args->t_index_filein );
+   STR_Destroy( args->q_index_filein );
+   /* results input */
+   STR_Destroy( args->mmseqs_m8_filein );
+   STR_Destroy( args->hitlist_filein );
+   /* output file */
    STR_Destroy( args->stdout_fileout );
-   STR_Destroy( args->tblout_fileout );
+   STR_Destroy( args->stderr_fileout );
+   STR_Destroy( args->allout_fileout );
+   STR_Destroy( args->hmmerout_fileout );
    STR_Destroy( args->m8out_fileout );
    STR_Destroy( args->myout_fileout );
    STR_Destroy( args->mydom_fileout );
    STR_Destroy( args->mytime_fileout );
    STR_Destroy( args->mythresh_fileout );
-   STR_Destroy( args->customout_filepath );
+   STR_Destroy( args->customout_fileout );
 
-   ERROR_free( args );
-   args = NULL;
-   return NULL;
+   args = ERROR_free( args );
+   return args;
 }

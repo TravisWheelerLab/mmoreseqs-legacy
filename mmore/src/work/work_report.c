@@ -44,7 +44,7 @@ WORK_open( WORKER* worker )
    if ( args->is_redirect_stdout ) {
       FILER_Open( worker->output_file );
    }
-   if ( worker->tblout_file != NULL && args->is_tblout ) {
+   if ( worker->tblout_file != NULL && args->is_hmmerout ) {
       FILER_Open( worker->tblout_file );
    }
    if ( worker->m8out_file != NULL && args->is_m8out ) {
@@ -76,7 +76,7 @@ WORK_close( WORKER* worker )
    if ( args->is_redirect_stdout ) {
       FILER_Close( worker->output_file );
    }
-   if ( args->is_tblout ) {
+   if ( args->is_hmmerout ) {
       FILER_Close( worker->tblout_file );
    }
    if ( args->is_m8out ) {
@@ -107,7 +107,7 @@ WORK_report_header( WORKER*    worker )
    /* print footers to all open pointers */
    REPORT_stdout_header( worker, worker->output_file->fp );
 
-   if ( args->is_tblout ) {
+   if ( args->is_hmmerout ) {
       REPORT_domtblout_header( worker, worker->tblout_file->fp );
    }
    if ( args->is_m8out ) {
@@ -141,7 +141,7 @@ WORK_report_result_current( WORKER*  worker )
    {
       REPORT_stdout_entry( worker, worker->result, worker->output_file->fp );
 
-      if ( args->is_tblout ) {
+      if ( args->is_hmmerout ) {
          REPORT_domtblout_entry( worker, worker->result, worker->tblout_file->fp );
       }
       if ( args->is_m8out ) {
@@ -183,7 +183,7 @@ WORK_report_footer( WORKER*    worker )
    /* print footers to all open pointers */
    REPORT_stdout_footer( worker, worker->output_file->fp );
 
-   if ( args->is_tblout ) {
+   if ( args->is_hmmerout ) {
       REPORT_domtblout_footer( worker, worker->tblout_file->fp );
    }
    if ( args->is_m8out ) {

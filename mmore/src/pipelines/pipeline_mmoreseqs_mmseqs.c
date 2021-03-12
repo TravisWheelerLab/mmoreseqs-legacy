@@ -1,11 +1,10 @@
 /*******************************************************************************
- *  FILE:      pipeline_prep.c
+ *  FILE:      pipeline_mmore.c
  *  PURPOSE:   Cloud Search Pipeline for MMORE pipeline.
- *             Preparation pipeline, converts files to formats to be used by 
  *             Set arguments and issues command to bash script.
  *
  *  AUTHOR:    Dave Rich
- *  BUG:       
+ *  BUG:       Lots.
  *******************************************************************************/
 
 /* imports */
@@ -27,15 +26,13 @@
 /* header */
 #include "_pipelines.h"
 
-/*! FUNCTION:  prep_pipeline()
- *  SYNOPSIS:  Helper for overarching MMORE-SEQS pipeline. 
- *             Prepares files for use in the MMORE-SEQS Pipeline
+/*! FUNCTION:  mmoreseqs_mmseqs_pipeline()
+ *  SYNOPSIS:  MMSEQS Step of the MMORESEQS.
  */
 STATUS_FLAG 
-mmore_prep_pipeline( WORKER* worker )
+mmoreseqs_mmseqs_pipeline( WORKER* worker )
 {
-   printf("=== MMORE: PREP PIPELINE ===\n");
-   
+   printf("=== MMORE: MMSEQS SEARCH PIPELINE ===\n");
    ARGS*          args     = worker->args;
    TASKS*         tasks    = worker->tasks;
    SCRIPTRUNNER*  runner   = worker->runner;
@@ -49,7 +46,7 @@ mmore_prep_pipeline( WORKER* worker )
    // printf("# HMMER_LOCATION: %s\n", mmseqs_path );
    STR mmore_path       = MMORE_BIN;
    // printf("# MMORE_LOCATION: %s\n", mmore_path );
-   STR script_relpath   = "/scripts/workflows/mmore-prep.sh";
+   STR script_relpath   = "/scripts/workflows/mmoreseqs-mmseqssearch.sh";
    STR script_path      = STR_Concat( project_path, script_relpath );
    // printf("# SCRIPT_LOCATION: %s\n\n", script_path );
 
@@ -57,27 +54,27 @@ mmore_prep_pipeline( WORKER* worker )
    STR   str = NULL;
    char  buffer[256];
 
-   /* COMMANDLINE ARGS */
+   /* SCRIPT */
    SCRIPTRUNNER_SetScript( runner, script_path );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->target_prep );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->query_prep );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->prep_folderpath );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILETYPE_NAME_Get( args->target_prep_type ) );
-   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, FILETYPE_NAME_Get( args->query_prep_type ) );
-   
-   /* COMMANDLINE ENVIRONMENTAL VARIABLES */
-   /* pass main args with type appended */
-   str = STR_Concat( "TARGET_PREP_", FILETYPE_NAME_Get( args->target_prep_type ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->target_prep );
-   str = STR_Concat( "QUERY_PREP_", FILETYPE_NAME_Get( args->query_prep_type ) );
-   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->query_prep );
-
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_mmseqs_p_filein );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->t_mmseqs_p_filein );
+   SCRIPTRUNNER_Add_Script_Argument( runner, NULL, args->q_mmseqs_filein );
    /* TOOLS */
    SCRIPTRUNNER_Add_Env_Variable( runner, "ROOT_DIR",          project_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMORE_DIR",         mmore_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "HMMER_DIR",         hmmer_path );
    SCRIPTRUNNER_Add_Env_Variable( runner, "MMSEQS_DIR",        mmseqs_path ); 
    SCRIPTRUNNER_Add_Env_Variable( runner, "USE_LOCAL_TOOLS",   INT_ToString( args->is_use_local_tools, buffer ) ); 
+   
+   /* MAIN COMMANDLINE ARGS */
+   /* pass main args with type appended */
+   str = STR_Concat( "TARGET_MMSEQS_P_", FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_p_filein );
+   str = STR_Concat( "TARGET_MMSEQS_S_", FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->t_mmseqs_s_filein );
+   str = STR_Concat( "QUERY_MMSEQS_", FILETYPE_NAME_Get( args->q_mmseqs_filetype ) );
+   SCRIPTRUNNER_Add_Env_Variable( runner,    str,     args->q_mmseqs_filein );
+
    /* ENVIRONMENTAL ARGS */
    WORK_load_script_env_args( worker );
 

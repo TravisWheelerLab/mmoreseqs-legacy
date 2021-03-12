@@ -53,7 +53,7 @@ WORK_load_args( WORKER* worker )
 }
 
 /*! FUNCTION:  	WORK_load_mmseqs_file()
- *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_m8_filepath>.
+ *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_m8_filein>.
  *                Verifies that search index range does not exceed bounds of list.
  */
 void 
@@ -70,7 +70,7 @@ WORK_load_mmseqs_file( WORKER* worker )
 
    /* load .m8 file from index range (list_range.beg, list_range.end) */
    RESULTS_M8_Parse( 
-      worker->mmseqs_data, args->mmseqs_m8_filepath, args->list_range.beg, args->list_range.end );
+      worker->mmseqs_data, args->mmseqs_m8_filein, args->list_range.beg, args->list_range.end );
    /* this is a fix because query and target are cross-labeled between MMSEQS and MMORE */
    M8_RESULTS_Swap_Target_and_Query( worker->mmseqs_data );
 
@@ -287,13 +287,13 @@ WORK_load_target_by_findex_id(   WORKER*     worker,
    switch ( args->t_filetype )
    {
       case FILE_HMM: {
-         HMM_PROFILE_Parse( worker->t_prof, args->t_filepath, my_idx->offset ); 
+         HMM_PROFILE_Parse( worker->t_prof, args->t_filein, my_idx->offset ); 
          HMM_PROFILE_Convert_NegLog_To_Real( worker->t_prof );
          HMM_PROFILE_Config( worker->t_prof, args->search_mode );
          // HMM_PROFILE_Dump( worker->t_prof, stdout );
       } break;
       case FILE_FASTA: {
-         SEQUENCE_Fasta_Parse( worker->t_seq, args->t_filepath, my_idx->offset );
+         SEQUENCE_Fasta_Parse( worker->t_seq, args->t_filein, my_idx->offset );
          SEQUENCE_to_HMM_PROFILE( worker->t_seq, worker->t_prof );
          HMM_PROFILE_Dump( worker->t_prof, stdout );
          ERRORCHECK_exit(EXIT_SUCCESS);
@@ -327,7 +327,7 @@ WORK_load_query_by_findex_id(    WORKER*     worker,
    {
       /* fasta only supported file type */
       case FILE_FASTA: {
-         SEQUENCE_Fasta_Parse( worker->q_seq, args->q_filepath, my_idx->offset );
+         SEQUENCE_Fasta_Parse( worker->q_seq, args->q_filein, my_idx->offset );
          // SEQUENCE_Dump( worker->q_seq, stdout );
       } break;
       case FILE_HMM: {

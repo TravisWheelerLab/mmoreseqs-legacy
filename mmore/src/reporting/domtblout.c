@@ -10,20 +10,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <time.h>
 
 /* local imports */
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "../parsers/_parsers.h"
-#include "../algs_linear/_algs_linear.h"
-#include "../algs_quad/_algs_quad.h"
-#include "../algs_naive/_algs_naive.h"
 
 /* header */
 #include "_reporting.h"
@@ -197,8 +188,8 @@ REPORT_domtblout_footer(   WORKER*  worker,
    fprintf( fp, "# %*s %s\n",       left_pad,   "Program:",          BUILD_PROGRAM);
    fprintf( fp, "# %*s %s (%s)\n",  left_pad,   "Version:",          BUILD_VERSION, BUILD_DATE );
    fprintf( fp, "# %*s %s\n",       left_pad,   "Pipeline mode:",    PIPELINES[args->pipeline_mode].name );
-   fprintf( fp, "# %*s %s\n",       left_pad,   "Query file:",       args->q_filepath );
-   fprintf( fp, "# %*s %s\n",       left_pad,   "Target file:",      args->t_filepath );
+   fprintf( fp, "# %*s %s\n",       left_pad,   "Query file:",       args->q_filein );
+   fprintf( fp, "# %*s %s\n",       left_pad,   "Target file:",      args->t_filein );
    fprintf( fp, "# %*s %s\n",       left_pad,   "Option settings:",  "" );
    if (cwd) {
    fprintf( fp, "# %*s %s\n",       left_pad,   "Current dir:",      cwd );

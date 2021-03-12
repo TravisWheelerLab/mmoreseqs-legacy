@@ -38,7 +38,7 @@ STRING_EndsWith( 	const char*    str1,
 
 /* returns filename of full filepath */
 char* 
-STRING_GetFileFromPath( const char* in_filepath );
+STRING_GetFileFromPath( const char* in_filein );
 
 /* returns location of search_string in string. */
 int 

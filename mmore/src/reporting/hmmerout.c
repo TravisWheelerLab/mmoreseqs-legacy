@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  FILE:      mainout.c
- *  PURPOSE:   Reporting for standard output for main pipeline.
+ *  FILE:      hmmerout.c
+ *  PURPOSE:   Reporting HMMER-style output.
  *
  *  AUTHOR:    Dave Rich
  *  BUG:       - 
@@ -22,14 +22,10 @@
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "../parsers/_parsers.h"
-#include "../algs_linear/_algs_linear.h"
-#include "../algs_quad/_algs_quad.h"
-#include "../algs_naive/_algs_naive.h"
 
 /* header */
 #include "_reporting.h"
-#include "mainout.h"
+#include "hmmerout.h"
 
 /* === STDOUT OUTPUT === */
 /* EXAMPLE:
@@ -98,12 +94,12 @@
  *
  */
 
-/* FUNCTION:   REPORT_stdout_header()
+/* FUNCTION:   REPORT_hmmerout_header()
  * SYNOPSIS:   Print Header to Output <fp>.
  *             (modeled after HMMER, see example)
  */
-void REPORT_stdout_header(    WORKER*     worker,
-                              FILE*       fp )
+void REPORT_hmmerout_header(     WORKER*     worker,
+                                 FILE*       fp )
 {
    ARGS* args     = worker->args;
    int   left_pad = 30;
@@ -142,13 +138,13 @@ void REPORT_stdout_header(    WORKER*     worker,
    fprintf( fp, "\n");
 }
 
-/*    FUNCTION:   REPORT_stdout_entry()
+/*    FUNCTION:   REPORT_hmmerout_entry()
  *    SYNOPSIS:   Print all alignment data for current search
  *                (modeled after HMMER, see example)
  */
-void REPORT_stdout_entry(  WORKER*  worker,
-                           RESULT*  result,
-                           FILE*    fp )
+void REPORT_hmmerout_entry(   WORKER*  worker,
+                              RESULT*  result,
+                              FILE*    fp )
 {
    ARGS*          args           = worker->args;
    BUFFER*        buffer         = worker->buffer;
@@ -307,51 +303,51 @@ void REPORT_stdout_entry(  WORKER*  worker,
    fprintf( fp, "\n");
 }
 
-/*!  FUNCTION:   REPORT_stdout_align()
+/*!  FUNCTION:   REPORT_hmmerout_align()
  *   SYNOPSIS:   Print <i>th alignment.
  */
 void 
-REPORT_stdout_domtbl(   WORKER*  worker,
-                        RESULT*  result,
-                        int      i_domain,
-                        FILE*    fp )
+REPORT_hmmerout_domtbl(    WORKER*  worker,
+                           RESULT*  result,
+                           int      i_domain,
+                           FILE*    fp )
 {
    
 }
 
-/*!  FUNCTION:   REPORT_stdout_align()
+/*!  FUNCTION:   REPORT_hmmerout_align()
  *   SYNOPSIS:   Print <i>th alignment.
  */
 void 
-REPORT_stdout_hmmer_align(    WORKER*  worker,
-                              int      i_domain,
-                              FILE*    fp )
+REPORT_hmmerout_hmmer_align(     WORKER*  worker,
+                                 int      i_domain,
+                                 FILE*    fp )
 {
 
 }
 
-/*!  FUNCTION:   REPORT_stdout_footer()
+/*!  FUNCTION:   REPORT_hmmerout_footer()
  *   SYNOPSIS:   Print Summary Statistics after all searches completed.
  *                (modeled after HMMER, see example)
  */
 void 
-REPORT_stdout_footer(   WORKER*  worker,
-                        FILE*    fp )
+REPORT_hmmerout_footer(    WORKER*  worker,
+                           FILE*    fp )
 {
-   REPORT_stdout_footer_search_summary( worker, fp );
-   REPORT_stdout_footer_time_summary( worker, fp );
+   REPORT_hmmerout_footer_search_summary( worker, fp );
+   REPORT_hmmerout_footer_time_summary( worker, fp );
 
    /* success */
    fprintf( fp, "\n# [ok.]\n" );
 }
 
-/*!  FUNCTION:   REPORT_stdout_footer_search_summary()
+/*!  FUNCTION:   REPORT_hmmerout_footer_search_summary()
  *   SYNOPSIS:   Print Summary Statistics after all searches completed.
  *                (modeled after HMMER, see example)
  */
 void 
-REPORT_stdout_footer_search_summary(   WORKER*  worker,
-                                       FILE*    fp )
+REPORT_hmmerout_footer_search_summary(    WORKER*  worker,
+                                          FILE*    fp )
 {
    STATS*   stats    = worker->stats;
 
@@ -394,11 +390,11 @@ REPORT_stdout_footer_search_summary(   WORKER*  worker,
    fprintf( fp, "\n" );
 }
 
-/*!  FUNCTION:   REPORT_stdout_footer_time_summary()
+/*!  FUNCTION:   REPORT_hmmerout_footer_time_summary()
  *   SYNOPSIS:   Print Runtime Summary.
  */
 void 
-REPORT_stdout_footer_time_summary(     WORKER*  worker,
+REPORT_hmmerout_footer_time_summary(   WORKER*  worker,
                                        FILE*    fp )
 {
    TIMES*   t_times  = worker->times_totals;

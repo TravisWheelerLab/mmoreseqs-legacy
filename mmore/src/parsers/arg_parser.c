@@ -120,26 +120,40 @@ ARGS_Parse(    ARGS*          args,
    }
 
    /* parse main commands */
-   if   ( STR_Equals( args->pipeline_name, "mmore-mmoresearch" ) )
+   if   ( STR_Equals( args->pipeline_name, "search" ) )
    {
-      args->t_filepath           = STR_Set( args->t_filepath,           argv[2] );
-      args->q_filepath           = STR_Set( args->q_filepath,           argv[3] );
-      args->mmseqs_m8_filepath   = STR_Set( args->mmseqs_m8_filepath,   argv[4] );
+      args->t_mmore_filein     = STR_Set( args->t_mmore_filein,     argv[2] );
+      args->q_mmore_filein     = STR_Set( args->q_mmore_filein,     argv[3] );
+      args->t_mmseqs_p_filein  = STR_Set( args->t_mmseqs_p_filein,  argv[4] );
+      args->t_mmseqs_s_filein  = STR_Set( args->t_mmseqs_s_filein,  argv[5] );
+      args->q_mmseqs_filein    = STR_Set( args->q_mmseqs_filein,    argv[6] );
+
+      args->t_mmore_p_filetype   = FILE_HMM;
+      args->q_filetype           = FILE_FASTA;
+      args->t_mmseqs_p_filetype  = FILE_MMDB_P;
+      args->t_mmseqs_s_filetype  = FILE_MMDB_S;
+      args->q_mmseqs_filetype    = FILE_MMDB_S;
+   }
+   elif ( STR_Equals( args->pipeline_name, "mmore-search" ) )
+   {
+      args->t_filein           = STR_Set( args->t_filein,           argv[2] );
+      args->q_filein           = STR_Set( args->q_filein,           argv[3] );
+      args->mmseqs_m8_filein   = STR_Set( args->mmseqs_m8_filein,   argv[4] );
 
       args->t_filetype = FILE_HMM;
       args->q_filetype = FILE_FASTA;
    }
-   elif ( STR_Equals( args->pipeline_name, "mmore-mmseqssearch" ) )
+   elif ( STR_Equals( args->pipeline_name, "mmseqs-search" ) )
    {
-      args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath,  argv[2] );
-      args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath,  argv[3] );
-      args->q_mmseqs_filepath    = STR_Set( args->q_mmseqs_filepath,    argv[4] );
+      args->t_mmseqs_p_filein  = STR_Set( args->t_mmseqs_p_filein,  argv[2] );
+      args->t_mmseqs_s_filein  = STR_Set( args->t_mmseqs_s_filein,  argv[3] );
+      args->q_mmseqs_filein    = STR_Set( args->q_mmseqs_filein,    argv[4] );
 
       args->t_mmseqs_p_filetype  = FILE_MMDB_P;
       args->t_mmseqs_s_filetype  = FILE_MMDB_S;
       args->q_mmseqs_filetype    = FILE_MMDB_S;
    }
-   elif ( STR_Equals( args->pipeline_name, "mmore-prep" ) )
+   elif ( STR_Equals( args->pipeline_name, "prep" ) )
    {
       args->target_prep       = STR_Set( args->target_prep,       argv[2] );
       args->query_prep        = STR_Set( args->query_prep,        argv[3] );
@@ -149,27 +163,13 @@ ARGS_Parse(    ARGS*          args,
       args->target_prep_type  = FILE_MSA;
       args->query_prep_type   = FILE_FASTA;
    }
-   elif ( STR_Equals( args->pipeline_name, "mmore-prepsearch" ) )
+   elif ( STR_Equals( args->pipeline_name, "prep-search" ) )
    {
       
       args->prep_folderpath   = STR_Set( args->prep_folderpath,   argv[2] );
       args->tmp_folderpath    = STR_Set( args->tmp_folderpath,    argv[2] );
    } 
-   elif ( STR_Equals( args->pipeline_name, "mmore-search" ) )
-   {
-      args->t_mmore_filepath     = STR_Set( args->t_mmore_filepath,     argv[2] );
-      args->q_mmore_filepath     = STR_Set( args->q_mmore_filepath,     argv[3] );
-      args->t_mmseqs_p_filepath  = STR_Set( args->t_mmseqs_p_filepath,  argv[4] );
-      args->t_mmseqs_s_filepath  = STR_Set( args->t_mmseqs_s_filepath,  argv[5] );
-      args->q_mmseqs_filepath    = STR_Set( args->q_mmseqs_filepath,    argv[6] );
-
-      args->t_mmore_p_filetype   = FILE_HMM;
-      args->q_filetype           = FILE_FASTA;
-      args->t_mmseqs_p_filetype  = FILE_MMDB_P;
-      args->t_mmseqs_s_filetype  = FILE_MMDB_S;
-      args->q_mmseqs_filetype    = FILE_MMDB_S;
-   }
-   elif ( STR_Equals( args->pipeline_name, "mmore-easysearch" ) )
+   elif ( STR_Equals( args->pipeline_name, "easy-search" ) )
    {
       args->target_prep       = STR_Set( args->target_prep,       argv[2] );
       args->query_prep        = STR_Set( args->query_prep,        argv[3] );
@@ -181,7 +181,7 @@ ARGS_Parse(    ARGS*          args,
    }
    elif ( STR_Equals( args->pipeline_name, "index" ) )
    {
-      args->t_indexpath    = STR_Set( args->t_indexpath,    argv[2] );
+      args->t_index_filein    = STR_Set( args->t_index_filein,    argv[2] );
       // args->t_indexout     = STR_Set( args->t_indexout,     argv[3] );
    }
    else {
@@ -291,9 +291,9 @@ ARGS_Parse(    ARGS*          args,
             req_args = 2;
             if (i+req_args < argc) {
                i++;
-               args->t_indexpath = STR_Set( args->t_indexpath, argv[i] );
+               args->t_index_filein = STR_Set( args->t_index_filein, argv[i] );
                i++;
-               args->q_indexpath = STR_Set( args->q_indexpath, argv[i]);
+               args->q_index_filein = STR_Set( args->q_index_filein, argv[i]);
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument=.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -319,7 +319,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-ftype") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-ftype") ) == 0 ) {
             req_args = 5;
             if (i+req_args < argc) {
                i++;
@@ -339,7 +339,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-main-ftype") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-main-ftype") ) == 0 ) {
             req_args = 2;
             if (i+req_args < argc) {
                i++;
@@ -377,7 +377,7 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args < argc) {
                i++;
-               args->mmseqs_m8_filepath = STR_Set( args->mmseqs_m8_filepath, argv[i] );
+               args->mmseqs_m8_filein = STR_Set( args->mmseqs_m8_filein, argv[i] );
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -427,7 +427,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-viterbi-pval") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-viterbi-pval") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -437,7 +437,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-cloud-pval") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-cloud-pval") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -447,7 +447,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-boundfwd-pval") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-boundfwd-pval") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -457,7 +457,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mmore-fwd-pval") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mmoreseqs-fwd-pval") ) == 0 ) {
             req_args = 1;
             if (i+req_args < argc) {
                i++;
@@ -680,7 +680,18 @@ ARGS_Parse(    ARGS*          args,
             }
          }
          /* === INTERRIM OUTPUT === */
-
+         else if ( STR_Compare( argv[i], (flag = "--mmseqs-p2sout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               free(args->stdout_fileout);
+               args->stdout_fileout = STR_Create(argv[i]);
+               args->is_redirect_stdout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          /* === OUTPUT === */
          else if ( STR_Compare( argv[i], (flag = "--stderr") ) == 0 ) {
             req_args = 1;
@@ -711,6 +722,8 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
+               STR_Destroy( args->hmmerout_fileout );
+               args->hmmerout_fileout = STR_Concat(argv[i], ".hmmerout");
                STR_Destroy( args->m8out_fileout );
                args->m8out_fileout = STR_Concat(argv[i], ".m8out");
                args->is_m8out = true;
@@ -735,9 +748,9 @@ ARGS_Parse(    ARGS*          args,
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
-               ERROR_free(args->tblout_fileout);
-               args->tblout_fileout = STR_Create(argv[i]);
-               args->is_tblout = true;
+               ERROR_free(args->hmmerout_fileout);
+               args->hmmerout_fileout = STR_Create(argv[i]);
+               args->is_hmmerout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -767,7 +780,7 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
-         else if ( STR_Compare( argv[i], (flag = "--mydomout") ) == 0 ) {
+         else if ( STR_Compare( argv[i], (flag = "--mydomtblout") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
                i++;
@@ -814,6 +827,18 @@ ARGS_Parse(    ARGS*          args,
                ERRORCHECK_exit(EXIT_FAILURE);
             }
          }
+         else if ( STR_Compare( argv[i], (flag = "--customout") ) == 0 ) {
+            req_args = 1;
+            if (i+req_args <= argc) {
+               i++;
+               ERROR_free(args->hmmerout_fileout);
+               args->hmmerout_fileout = STR_Create(argv[i]);
+               args->is_hmmerout = true;
+            } else {
+               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+               ERRORCHECK_exit(EXIT_FAILURE);
+            }
+         }
          else if ( STR_Compare( argv[i], (flag = "--debugout") ) == 0 ) {
             req_args = 1;
             if (i+req_args <= argc) {
@@ -821,18 +846,6 @@ ARGS_Parse(    ARGS*          args,
                ERROR_free(args->dbg_folderpath);
                args->dbg_folderpath = STR_Create(argv[i]);
                args->is_debug = true;
-            } else {
-               fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-               ERRORCHECK_exit(EXIT_FAILURE);
-            }
-         }
-         else if ( STR_Compare( argv[i], (flag = "--customout") ) == 0 ) {
-            req_args = 1;
-            if (i+req_args <= argc) {
-               i++;
-               ERROR_free(args->tblout_fileout);
-               args->tblout_fileout = STR_Create(argv[i]);
-               args->is_tblout = true;
             } else {
                fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
                ERRORCHECK_exit(EXIT_FAILURE);
@@ -861,13 +874,9 @@ ARGS_Parse(    ARGS*          args,
 void
 ARGS_ArgOpt_Parser(  ARGS*          args, 
                      COMMANDLINE*   cmd, 
-                     STR            cmd_i,
-                     STR            opt,
-                     DATATYPE       dtype,
-                     int            num_optargs,
-                     int*           rem_args_in )
+                     ARG_OPTS*      argopt )
 {
-   int rem_args = *rem_args_in;
+
 }
 
 /*! FUNCTION:  ARGS_MainArg_Parser()
@@ -929,13 +938,13 @@ ARGS_SetDefaults( ARGS*    args )
 
    /* --- INPUT --- */
    /* filepath */
-   args->t_filepath              = NULL;
-   args->q_filepath              = NULL;
-   args->t_mmore_filepath        = NULL;
-   args->q_mmore_filepath        = NULL;
-   args->t_mmseqs_p_filepath     = NULL;
-   args->t_mmseqs_s_filepath     = NULL;
-   args->q_mmseqs_filepath       = NULL;
+   args->t_filein              = NULL;
+   args->q_filein              = NULL;
+   args->t_mmore_filein        = NULL;
+   args->q_mmore_filein        = NULL;
+   args->t_mmseqs_p_filein     = NULL;
+   args->t_mmseqs_s_filein     = NULL;
+   args->q_mmseqs_filein       = NULL;
    /* filetype */
    args->is_guess_filetype       = true;
    args->t_filetype              = FILE_HMM;
@@ -946,11 +955,11 @@ ARGS_SetDefaults( ARGS*    args )
    args->t_mmseqs_s_filetype     = FILE_MMDB_S;
    args->q_mmseqs_filetype       = FILE_MMDB_S;
    /* indexes */
-   args->t_indexpath             = NULL;
-   args->q_indexpath             = NULL;
+   args->t_index_filein             = NULL;
+   args->q_index_filein             = NULL;
 
    /* --- INTERRIM OUTPUT --- */
-   args->mmseqs_m8_filepath     = STR_Create("mmseqs.results.m8out");
+   args->mmseqs_m8_filein     = STR_Create("mmseqs.results.m8out");
 
    /* --- OUTPUT --- */
    /* default outputs */
@@ -961,8 +970,8 @@ ARGS_SetDefaults( ARGS*    args )
    /* special outputs */
    args->is_allout               = false;
    args->allout_fileout          = STR_Create("mmore.results");
-   args->is_tblout               = false;
-   args->tblout_fileout          = STR_Create("mmore.results.tblout");
+   args->is_hmmerout               = false;
+   args->hmmerout_fileout          = STR_Create("mmore.results.tblout");
    args->is_m8out                = true;
    args->m8out_fileout           = STR_Create("mmore.results.m8");
    args->is_myout                = false;
@@ -974,7 +983,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_mythreshout          = false;
    args->mythresh_fileout        = STR_Create("mmore.results.mythreshout");
    // args->is_customout            = false;
-   // args->customout_filepath      = STR_Create("results.customout");
+   // args->customout_fileout      = STR_Create("results.customout");
 
    /* --- RANGE OPTIONS --- */
    args->t_range                 = (RANGE) { -1, -1 };    
@@ -1033,18 +1042,18 @@ ARGS_Dump(     ARGS*    args,
 
    /* --- INPUT --- */
    fprintf( fp, "# === INPUT ===\n");
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET",                args->t_filepath,             FILETYPE_NAME_Get( args->t_filetype ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY",                 args->q_filepath,             FILETYPE_NAME_Get( args->q_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET",                args->t_filein,             FILETYPE_NAME_Get( args->t_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY",                 args->q_filein,             FILETYPE_NAME_Get( args->q_filetype ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_PREP",           args->target_prep,            FILETYPE_NAME_Get( args->target_prep_type ) );
    fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_PREP",            args->query_prep,             FILETYPE_NAME_Get( args->query_prep_type ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMORE",          args->t_mmore_filepath,       FILETYPE_NAME_Get( args->t_mmore_filetype ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMORE",           args->q_mmore_filepath,       FILETYPE_NAME_Get( args->q_mmore_filetype ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_P",       args->t_mmseqs_p_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_S",       args->t_mmseqs_s_filepath,    FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
-   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMSEQS",          args->q_mmseqs_filepath,      FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
-   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "T_INDEX_PATH",          args->t_indexpath );
-   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",          args->q_indexpath );
-   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "MMSEQS_M8",             args->mmseqs_m8_filepath );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMORE",          args->t_mmore_filein,       FILETYPE_NAME_Get( args->t_mmore_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMORE",           args->q_mmore_filein,       FILETYPE_NAME_Get( args->q_mmore_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_P",       args->t_mmseqs_p_filein,    FILETYPE_NAME_Get( args->t_mmseqs_p_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "TARGET_MMSEQS_S",       args->t_mmseqs_s_filein,    FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   fprintf( fp, "# %*s:\t%s [%s]\n",     align * pad,  "QUERY_MMSEQS",          args->q_mmseqs_filein,      FILETYPE_NAME_Get( args->t_mmseqs_s_filetype ) );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "T_INDEX_PATH",          args->t_index_filein );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",          args->q_index_filein );
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "MMSEQS_M8",             args->mmseqs_m8_filein );
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "TMP_FOLDER",            args->tmp_folderpath ); 
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "PREP_FOLDER",           args->prep_folderpath ); 
    fprintf( fp, "# \n" );
@@ -1067,7 +1076,7 @@ ARGS_Dump(     ARGS*    args,
    /* --- OUTPUT --- */
    fprintf( fp, "# === OUTPUT ===\n");
    fprintf( fp, "# %*s:\t%s\n",        align * pad,  "OUTPUT_FILEPATH",       args->stdout_fileout );
-   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "TBLOUT_FILEPATH",       args->tblout_fileout );
+   fprintf( fp, "# %*s:\t%s\n",        align * pad,  "TBLOUT_FILEPATH",       args->hmmerout_fileout );
    fprintf( fp, "# %*s:\t%s\n",        align * pad,  "M8OUT_FILEPATH",        args->m8out_fileout );
    fprintf( fp, "# %*s:\t%s\n",        align * pad,  "MYOUT_FILEPATH",        args->myout_fileout );
    fprintf( fp, "# %*s:\t%s\n",        align * pad,  "MYDOMOUT_FILEPATH",     args->mydom_fileout );   
@@ -1149,7 +1158,7 @@ ARGS_SetOptions(  ARGS*       args,
                   ARG_OPTS*   arg_opts )
 {
    /* add all commandline options */
-   PTR   arg_locs[]     = { &args->t_indexpath, &args->q_indexpath };
+   PTR   arg_locs[]     = { &args->t_index_filein, &args->q_index_filein };
    INT   arg_dtypes[]   = { DATATYPE_STRING,    DATATYPE_STRING };
 
    {  ARG_OPTS_AddOption( arg_opts, "VERBOSE", 
@@ -1158,6 +1167,14 @@ ARGS_SetOptions(  ARGS*       args,
          "--verbose", "-v",
          1,
          (PTR[]){ &args->verbose_level },
+         (INT[]){ DATATYPE_INT } ); 
+   }
+   {  ARG_OPTS_AddOption( arg_opts, "NUM_THREADS", 
+         "Number of Threads.",
+         "Level of Output: [0] Minimal Output [1] Errors [2] Errors+Warnings [3] Maximal Output. ( Default: [1] )",
+         "--num-threads", NULL,
+         1,
+         (PTR[]){ &args->num_threads },
          (INT[]){ DATATYPE_INT } ); 
    }
    {  ARG_OPTS_AddOption( arg_opts, "ENFORCE WARNINGS", 
@@ -1172,7 +1189,7 @@ ARGS_SetOptions(  ARGS*       args,
          "Index file location [query_index, target_index].  ( Default: NULL )",
          "--index", NULL,
          2,
-         (PTR[]){ &args->t_indexpath, &args->q_indexpath },
+         (PTR[]){ &args->t_index_filein, &args->q_index_filein },
          (INT[]){ DATATYPE_STRING, DATATYPE_STRING } ); }
    {  ARG_OPTS_AddOption( arg_opts, "USE LOCAL TOOLS", 
          "Should local or system tools be used?",

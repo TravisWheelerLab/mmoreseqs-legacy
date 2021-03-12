@@ -55,13 +55,13 @@ void
 WORK_load_query_index( WORKER* worker );
 
 /*! FUNCTION:  	WORK_output_target_index()
- *  SYNOPSIS:  	Write target index out to <t_indexpath>.
+ *  SYNOPSIS:  	Write target index out to <t_index_filein>.
  */
 void 
 WORK_output_target_index( WORKER* worker );
 
 /*! FUNCTION:  	WORK_output_target_index()
- *  SYNOPSIS:  	Write query index out to <q_indexpath>.
+ *  SYNOPSIS:  	Write query index out to <q_index_filein>.
  */
 void 
 WORK_output_query_index( WORKER* worker );
