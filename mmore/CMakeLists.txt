@@ -26,7 +26,7 @@ ExternalProject_Add(
         PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib/easel
         BUILD_IN_SOURCE 1
         CONFIGURE_COMMAND autoconf
-        COMMAND ./configure
+        COMMAND ./configure --prefix=${SOURCE_DIR}
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         TEST_COMMAND ""
