@@ -16,8 +16,8 @@
 #include <math.h>
 
 /* local imports */
-#include "structs.h"
-#include "../utilities/_utilities.h"
+#include "../structs.h"
+#include "../../utilities/_utilities.h"
 #include "../_objects.h"
 
 /* header */

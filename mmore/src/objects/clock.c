@@ -27,7 +27,7 @@
 #include <sys/times.h>
 
 /* easel imports */
-#include "../../lib/easel/esl_stopwatch.h"
+#include "esl_stopwatch.h"
 
 /* local imports */
 #include "structs.h"

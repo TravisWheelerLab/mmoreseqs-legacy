@@ -20,8 +20,8 @@
 #include "esl_gumbel.h"
 
 /* local imports */
-#include "structs.h"
-#include "_objects.h"
+#include "../objects/structs.h"
+#include "../objects/_objects.h"
 
 /* header */
 #include "_utilities.h"

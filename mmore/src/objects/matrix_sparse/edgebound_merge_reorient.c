@@ -19,9 +19,9 @@
 #include <math.h>
 
 /* local imports */
-#include "../objects/structs.h"
-#include "../utilities/_utilities.h"
-#include "../objects/_objects.h"
+#include "../structs.h"
+#include "../../utilities/_utilities.h"
+#include "../_objects.h"
 
 /* header */
 #include "_matrix_sparse.h"
