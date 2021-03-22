@@ -100,8 +100,8 @@ WORK_load_script_env_args( WORKER* worker )
    // SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_S_OUT",             args->t_mmseqs_s_fileout );
    // SCRIPTRUNNER_Add_Env_Variable( runner, "TARGET_MMSEQS_P_OUT",             args->t_mmseqs_s_fileout );
    /* OUTPUT FILES */
-   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDOUT_OUT",        args->stdout_fileout,            args->is_redirect_stdout );
-   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_STDERR_OUT",        args->stderr_fileout,            args->is_redirect_stderr );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_SD2DOUT_OUT",        args->stdout_fileout,            args->is_redirect_stdout );
+   SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_SD2DERR_OUT",        args->stderr_fileout,            args->is_redirect_stderr );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_M8OUT_OUT",         args->m8out_fileout,             args->is_m8out );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_MYOUT_OUT",         args->myout_fileout,             args->is_myout );
    SCRIPTRUNNER_If_Add_Env_Variable( runner, "MMORE_MYDOM_OUT",         args->mydom_fileout,             args->is_mydom );

@@ -8,7 +8,7 @@
 #ifndef _STRUCTS_H
 #define _STRUCTS_H
 
-/* === STDLIB DATA TYPES === */
+/* === SD2DLIB DATA TYPES === */
 #include <stdbool.h>
 #include <time.h>
 #include <sys/types.h>

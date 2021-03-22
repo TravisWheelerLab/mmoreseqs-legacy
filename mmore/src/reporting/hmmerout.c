@@ -27,7 +27,7 @@
 #include "_reporting.h"
 #include "hmmerout.h"
 
-/* === STDOUT OUTPUT === */
+/* === SD2DOUT OUTPUT === */
 /* EXAMPLE:
  *
    [header/]
@@ -49,12 +49,12 @@
       --- full sequence ---   --- best 1 domain ---    -#dom-
        E-value  score  bias    E-value  score  bias    exp  N  Sequence                 Description
        ------- ------ -----    ------- ------ -----   ---- --  --------                 -----------
-       3.2e-12   34.5   0.0    1.5e-08   22.6   0.0    2.5  2  3-PAP/16/510-647/718-827  domains: MTMRA_DANRE/548-685 C3Z9W9
-       2.7e-11   31.5   0.0    3.9e-10   27.7   0.0    2.4  2  3-PAP/13/1-136/374-513    domains: MTMRB_MOUSE/553-688 B7Q8P0
-       1.1e-07   19.9   0.0    2.1e-07   18.9   0.0    1.5  1  3-PAP/14/86-218/365-501   domains: MTMRC_PONAB/559-691 A4HUS9
+       3.2e-12   34.5   0.0    1.5e-08   22.6   0.0    2.5  2  3-PAP/16/510-647/718-827  domains: MD2MRA_DANRE/548-685 C3Z9W9
+       2.7e-11   31.5   0.0    3.9e-10   27.7   0.0    2.4  2  3-PAP/13/1-136/374-513    domains: MD2MRB_MOUSE/553-688 B7Q8P0
+       1.1e-07   19.9   0.0    2.1e-07   18.9   0.0    1.5  1  3-PAP/14/86-218/365-501   domains: MD2MRC_PONAB/559-691 A4HUS9
 
    Domain annotation for each sequence (and alignments):
-   >> 3-PAP/16/510-647/718-827  domains: MTMRA_DANRE/548-685 C3Z9W9_BRAFL/506-615
+   >> 3-PAP/16/510-647/718-827  domains: MD2MRA_DANRE/548-685 C3Z9W9_BRAFL/506-615
       #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
     ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
       1 !    9.1   0.0   0.00022   0.00022      68     106 ..     582     618 ..     557     637 .. 0.78

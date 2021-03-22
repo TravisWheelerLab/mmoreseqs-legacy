@@ -101,15 +101,15 @@ void HMM_PROFILE_From_Seq( HMM_PROFILE*   prof,
       TSC_X( prof, i, M2D ) = popen;
       TSC_X( prof, i, I2M ) = 1.0 - pextend;
       TSC_X( prof, i, I2I ) = pextend;
-      TSC_X( prof, i, TM ) = 1.0 - pextend;
-      TSC_X( prof, i, TD ) = pextend;
+      TSC_X( prof, i, D2M ) = 1.0 - pextend;
+      TSC_X( prof, i, D2D ) = pextend;
    }
 
    /* final node transitions */
    TSC_X( prof, N, M2M ) = 1.0 - popen;
    TSC_X( prof, N, M2D ) = 0.0;
-   TSC_X( prof, N, TM ) = 1.0;
-   TSC_X( prof, N, TD ) = 0.0;
+   TSC_X( prof, N, D2M ) = 1.0;
+   TSC_X( prof, N, D2D ) = 0.0;
 
    /* update bg data to reflect insert and transition (same as all but first and last node) */
    for ( int j = 0; j < NUM_AMINO; j++ ) {

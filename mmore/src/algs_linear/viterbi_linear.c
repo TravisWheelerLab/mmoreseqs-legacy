@@ -168,7 +168,7 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX3(qx1, t_1) + TSC(t_1, M2M);
          prv_I = IMX3(qx1, t_1) + TSC(t_1, I2M);
-         prv_D = DMX3(qx1, t_1) + TSC(t_1, TM);
+         prv_D = DMX3(qx1, t_1) + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
          prv_best = MATH_Max( 
@@ -187,7 +187,7 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
          /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+         prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
          /* best-to-delete */
          prv_best = MATH_Max(prv_M, prv_D);
          DMX3(qx0, t_0) = prv_best;
@@ -217,7 +217,7 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
       /* best previous state transition (match takes the diag element of each prev state) */
       prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
       prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-      prv_D = DMX3(qx1, t_1)  + TSC(t_1, TM);
+      prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
       prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
       /* best-to-match */
       prv_best = MATH_Max(
@@ -228,7 +228,7 @@ int run_Viterbi_Linear(     const SEQUENCE*    query,
       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
       /* previous states (match takes the left element of each state) */
       prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-      prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+      prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
       /* best-to-delete */
       prv_best = MATH_Max( prv_M, prv_D );
       DMX3(qx0, t_0) = prv_best;

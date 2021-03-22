@@ -304,7 +304,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
                      MSMX(qx1, tx1);
             prv_I =  TSC_DELTA(t_1, I2M) *
                      ISMX(qx1, tx1);
-            prv_D =  TSC_DELTA(t_1, TM) *
+            prv_D =  TSC_DELTA(t_1, D2M) *
                      DSMX(qx1, tx1);
             prv_B =  TSC_DELTA(t_1, B2M) *
                      XMX(SP_B, q_1);
@@ -346,7 +346,7 @@ run_Posterior_Optimal_Traceback_Sparse(     const SEQUENCE*         query,      
             /* possible previous states */
             prv_M =  TSC_DELTA(t_1, M2D) *
                      MSMX(qx0, tx1);
-            prv_D =  TSC_DELTA(t_1, TD) * 
+            prv_D =  TSC_DELTA(t_1, D2D) * 
                      DSMX(qx0, tx1);
 
             /* find maximum next state score */            
@@ -813,7 +813,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                         (MSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_I =  TSC_DELTA(t_1, I2M) * 
                         (ISMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
-               prv_D =  TSC_DELTA(t_1, TM) * 
+               prv_D =  TSC_DELTA(t_1, D2M) * 
                         (DSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_B =  TSC_DELTA(t_1, B2M) * 
                         (XMX_X(sp_MX_opt, B2M, q_1) + MSMX_X(st_SMX_post, qx0, tx0));
@@ -824,7 +824,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
 
                // if (q_0 < 10 && t_0 < 10) {
                //    printf("(%d,%d)TSC:: M= %.3f, I= %.3f, D= %.3f, B= %.3f => M= %.3f\n",
-               //       q_0, t_0, TSC_DELTA(t_1, M2M), TSC_DELTA(t_1, I2M), TSC_DELTA(t_1, TM), TSC_DELTA(t_1, B2M), prv_max );
+               //       q_0, t_0, TSC_DELTA(t_1, M2M), TSC_DELTA(t_1, I2M), TSC_DELTA(t_1, D2M), TSC_DELTA(t_1, B2M), prv_max );
                //    printf("(%d,%d)SC:: M= %.3f %.3f, I= %.3f %.3f, D= %.3f %.3f, B= %.3f %.3f => M= %.3f\n",
                //       q_0, t_0, 
                //       MSMX_X(st_SMX_opt, qx1, tx1), MSMX_X(st_SMX_post, qx0, tx0), 
@@ -850,7 +850,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                /* previous states (match takes the previous column (left) of each state) */
                prv_M =  TSC_DELTA(t_0, M2D) * 
                         (MSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
-               prv_D =  TSC_DELTA(t_0, TD) * 
+               prv_D =  TSC_DELTA(t_0, D2D) * 
                         (DSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
                /* best-to-delete */
                prv_max = MAX( prv_M, prv_D );
@@ -888,7 +888,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                         (MSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_I =  TSC_DELTA(t_1, I2M) * 
                         (ISMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
-               prv_D =  TSC_DELTA(t_1, TM) * 
+               prv_D =  TSC_DELTA(t_1, D2M) * 
                         (DSMX_X(st_SMX_opt, qx1, tx1) + MSMX_X(st_SMX_post, qx0, tx0));
                prv_B =  TSC_DELTA(t_1, B2M) * 
                         ( XMX_X(sp_MX_opt,  B2M, q_1) + MSMX_X(st_SMX_post, qx0, tx0));
@@ -905,7 +905,7 @@ run_Posterior_Optimal_Accuracy_Sparse(    const SEQUENCE*      query,         /*
                /* previous states (match takes the previous column (left) of each state) */
                prv_M =  TSC_DELTA(t_0, M2D) * 
                         (MSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
-               prv_M =  TSC_DELTA(t_0, TD) * 
+               prv_M =  TSC_DELTA(t_0, D2D) * 
                         (DSMX_X(st_SMX_opt, qx0, tx1) + DSMX_X(st_SMX_post, qx0, tx0));
                /* best-to-delete */
                prv_max = MAX( prv_M, prv_D );

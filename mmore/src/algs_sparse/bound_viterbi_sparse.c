@@ -344,7 +344,7 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*               query,         /* query
                /* best previous state transition (match takes the diag element of each prev state) */
                prv_M    = MY_Prod( MSMX(qx1, tx1), TSC(t_1, M2M) );
                prv_I    = MY_Prod( ISMX(qx1, tx1), TSC(t_1, I2M) );
-               prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, TM) );
+               prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, D2M) );
                prv_B    = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) ); /* from begin match state (new alignment) */
                /* best-to-match */
                prv_sum  = MY_Max( MY_Max( prv_M, prv_I ),
@@ -362,7 +362,7 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*               query,         /* query
                /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
                /* previous states (match takes the previous column (left) of each state) */
                prv_M    = MY_Prod( MSMX(qx0, tx1), TSC(t_1, M2D) );
-               prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, TD) );
+               prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, D2D) );
                /* best-to-delete */
                prv_sum  = MY_Max( prv_M, prv_D );
                DSMX(qx0, tx0) = prv_sum;
@@ -398,7 +398,7 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*               query,         /* query
                /* best previous state transition (match takes the diag element of each prev state) */
                prv_M    = MY_Prod( MSMX(qx1, tx1), TSC(t_1, M2M) );
                prv_I    = MY_Prod( ISMX(qx1, tx1), TSC(t_1, I2M) );
-               prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, TM) );
+               prv_D    = MY_Prod( DSMX(qx1, tx1), TSC(t_1, D2M) );
                prv_B    = MY_Prod( XMX(SP_B, q_1), TSC(t_1, B2M) );    /* from begin match state (new alignment) */
                /* sum-to-match */
                prv_sum  = MY_Max( MY_Max( prv_M, prv_I ),
@@ -411,7 +411,7 @@ run_Bound_Viterbi_Sparse(  const SEQUENCE*               query,         /* query
                /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
                /* previous states (match takes the left element of each state) */
                prv_M    = MY_Prod( MSMX(qx0, tx1), TSC(t_1, M2D) );
-               prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, TD) );
+               prv_D    = MY_Prod( DSMX(qx0, tx1), TSC(t_1, D2D) );
                /* sum-to-delete */
                prv_sum  = MY_Max( prv_M, prv_D );
                DSMX(qx0, tx0) = prv_sum;

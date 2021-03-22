@@ -255,7 +255,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M) + MSC(t_0, A);
             prv_M = MMX3(qx1, tx1) + TSC(t_1, M2M) + MSC(t_0, A);
             prv_I = IMX3(qx1, tx1) + TSC(t_1, I2M) + MSC(t_0, A);
-            prv_D = DMX3(qx1, tx1) + TSC(t_1, TM) + MSC(t_0, A);
+            prv_D = DMX3(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A);
 
             /* find state which could have produced current score */
             if ( CMP_TOL( cur, prv_B ) ) {
@@ -272,7 +272,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MMX3(q_0, t_0), MMX3(q_1, t_1) + TSC(t_1, TM) + MSC(t_0, A) );
+               fprintf( stderr, "TOL: %f vs %f\n", MMX3(q_0, t_0), MMX3(q_1, t_1) + TSC(t_1, D2M) + MSC(t_0, A) );
                ERRORCHECK_exit(EXIT_FAILURE);
             }
 
@@ -294,7 +294,7 @@ int run_Traceback_Linear_via_cmp(   const SEQUENCE*     query,       /* query se
 
             /* possible previous states */
             prv_M = MMX3(qx0, tx1) + TSC(t_1, M2D);
-            prv_D = DMX3(qx0, tx1) + TSC(t_1, TD);
+            prv_D = DMX3(qx0, tx1) + TSC(t_1, D2D);
 
             /* find state which could have produced current score */
             if ( CMP_TOL( cur, prv_M ) ) {

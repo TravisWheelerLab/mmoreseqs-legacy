@@ -57,17 +57,28 @@ WORK_construct_scores( WORKER* worker )
    DOMAIN_DEF*    dom_def        = worker->dom_def;
    STATS*         stats          = worker->stats;
    /* working vars */
-   float          natsc          = finalsc->bound_fwdback_natsc;
-   float          null_omega     = finalsc->null_omega_natsc;
-   float          null1_hmm_bias = finalsc->null1_hmm_bias_natsc;
-   float          null2_seq_bias = finalsc->null2_seq_bias_natsc;
+   float          natsc;
+   float          null_omega;
+   float          null1_hmm_bias;
+   float          null2_seq_bias;
    float          presc;
    float          seqsc;
    float          pval;
    float          eval;
 
+   /* old assignments */
+   natsc             = scores->sparse_bound_fwd;
+   null_omega        = scores->null_omega;
+   null1_hmm_bias    = scores->null1_hmm_bias;
+   null2_seq_bias    = scores->null2_seq_bias;
+   /* TODO: new assignments */
+   // natsc             = finalsc->bound_fwdback_natsc;
+   // null_omega        = finalsc->null_omega_natsc;
+   // null1_hmm_bias    = finalsc->null1_hmm_bias_natsc;
+   // null2_seq_bias    = finalsc->null2_seq_bias_natsc;
+
    /* TODO: Fix issue with null1 bias computation */
-   null1_hmm_bias = 0.0f;
+   // null1_hmm_bias = 0.0f;
 
    /* add prior probability to bias correction */
    null2_seq_bias = MATH_Sum(0.0f, null2_seq_bias + null_omega );

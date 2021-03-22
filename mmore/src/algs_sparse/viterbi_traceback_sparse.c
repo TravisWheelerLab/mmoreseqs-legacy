@@ -330,7 +330,7 @@ run_Viterbi_Traceback_Sparse(    const SEQUENCE*               query,         /*
             prv_I  = MY_Prod( ISMX(qx1, tx1), 
                      MY_Prod( TSC(t_1, I2M), MSC(t_0, A) ) );
             prv_D  = MY_Prod( DSMX(qx1, tx1), 
-                     MY_Prod( TSC(t_1, TM), MSC(t_0, A) ) );
+                     MY_Prod( TSC(t_1, D2M), MSC(t_0, A) ) );
 
             // printf("B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",  
             //    XMX(SP_B, q_1), MSMX(qx1, tx1), ISMX(qx1, tx1), DSMX(qx1, tx1) );
@@ -356,7 +356,7 @@ run_Viterbi_Traceback_Sparse(    const SEQUENCE*               query,         /*
             }
             else {
                fprintf( stderr, "ERROR: Failed to trace from M_ST at (%d,%d)\n", t_0, q_0);
-               fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, TM) + MSC(t_0, A) );
+               fprintf( stderr, "TOL: %f vs %f\n", MSMX(qx0, tx0), MSMX(qx1, tx1) + TSC(t_1, D2M) + MSC(t_0, A) );
                ERRORCHECK_exit(EXIT_FAILURE);
             }
 
@@ -378,7 +378,7 @@ run_Viterbi_Traceback_Sparse(    const SEQUENCE*               query,         /*
 
             /* possible previous states */
             prv_M = MY_Prod( MSMX(qx0, tx1), TSC(t_1, M2D) );
-            prv_D = MY_Prod( DSMX(qx0, tx1), TSC(t_1, TD) );
+            prv_D = MY_Prod( DSMX(qx0, tx1), TSC(t_1, D2D) );
 
             /* verifies if scores agree with true previous state in alignment */
             if ( CMP_TOL( sc_cur, prv_M ) ) {

@@ -159,7 +159,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,        /* query sequence */
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX(qx1, t_1) + TSC(t_1, M2M);
          prv_I = IMX(qx1, t_1) + TSC(t_1, I2M);
-         prv_D = DMX(qx1, t_1) + TSC(t_1, TM);
+         prv_D = DMX(qx1, t_1) + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
          prv_best = MATH_Max( 
@@ -178,7 +178,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,        /* query sequence */
          /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
+         prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
          /* best-to-delete */
          prv_best = MATH_Max(prv_M, prv_D);
          DMX(qx0, t_0) = prv_best;
@@ -208,7 +208,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,        /* query sequence */
       /* best previous state transition (match takes the diag element of each prev state) */
       prv_M = MMX(qx1, t_1)  + TSC(t_1, M2M);
       prv_I = IMX(qx1, t_1)  + TSC(t_1, I2M);
-      prv_D = DMX(qx1, t_1)  + TSC(t_1, TM);
+      prv_D = DMX(qx1, t_1)  + TSC(t_1, D2M);
       prv_B = XMX(SP_B, q_1) + TSC(t_1, B2M); /* from begin match state (new alignment) */
       /* best-to-match */
       prv_best = MATH_Max(
@@ -219,7 +219,7 @@ int run_Viterbi_Quad(   const SEQUENCE*    query,        /* query sequence */
       /* FIND BEST PATH TO DELETE STATE (FOMR MATCH OR DELETE) */
       /* previous states (match takes the left element of each state) */
       prv_M = MMX(qx0, t_1) + TSC(t_1, M2D);
-      prv_D = DMX(qx0, t_1) + TSC(t_1, TD);
+      prv_D = DMX(qx0, t_1) + TSC(t_1, D2D);
       /* best-to-delete */
       prv_best = MATH_Max( prv_M, prv_D );
       DMX(qx0, t_0) = prv_best;
@@ -399,7 +399,7 @@ int run_Viterbi_Reverse_Quad(    const SEQUENCE*    query,        /* query seque
       MMX(qx0, t_0) = MATH_Max( prv_E, prv_D );
 
       prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX(qx0, t_1)  + TSC(t_0, TD);
+      prv_D = DMX(qx0, t_1)  + TSC(t_0, D2D);
       DMX(qx0, t_0) = MATH_Max( prv_E, prv_D );
 
       IMX(qx0, t_0) = -INF;
@@ -490,8 +490,8 @@ int run_Viterbi_Reverse_Quad(    const SEQUENCE*    query,        /* query seque
          IMX(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prv_M = MMX(qx1, t_1) + TSC(t_0, TM) + MSC(t_1, A);
-         prv_D = DMX(qx0, t_1) + TSC(t_0, TD);
+         prv_M = MMX(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
+         prv_D = DMX(qx0, t_1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
          prv_sum = MATH_Max( prv_M, 

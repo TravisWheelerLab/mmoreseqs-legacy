@@ -336,7 +336,7 @@ run_Backward_Vectorized(   const SEQUENCE*      query,
       MMX3(qx0, t_0) = MATH_Sum( prv_E, prv_D );
 
       prv_E = XMX(SP_E, Q) + sc_E;
-      prv_D = DMX3(qx0, t_1)  + TSC(t_0, TD);
+      prv_D = DMX3(qx0, t_1)  + TSC(t_0, D2D);
       DMX3(qx0, t_0) = MATH_Sum( prv_E, prv_D );
 
       IMX3(qx0, t_0) = -INF;
@@ -427,8 +427,8 @@ run_Backward_Vectorized(   const SEQUENCE*      query,
          IMX3(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prv_M = MMX3(qx1, t_1) + TSC(t_0, TM) + MSC(t_1, A);
-         prv_D = DMX3(qx0, t_1) + TSC(t_0, TD);
+         prv_M = MMX3(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
+         prv_D = DMX3(qx0, t_1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
          prv_sum = MATH_Sum( prv_M, 

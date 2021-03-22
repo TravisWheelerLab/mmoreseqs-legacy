@@ -382,7 +382,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
             /* best previous state transition (match takes the diag element of each prev state) */
             prv_M = MMX(q_1, t_1) + TSC(t_1, M2M);
             prv_I = IMX(q_1, t_1) + TSC(t_1, I2M);
-            prv_D = DMX(q_1, t_1) + TSC(t_1, TM);
+            prv_D = DMX(q_1, t_1) + TSC(t_1, D2M);
             /* free to begin match state (new alignment) */
             // prv_B = 0; /* assigned once at start */
             /* best-to-match */
@@ -402,7 +402,7 @@ int run_Cloud_Forward_Quad(   const SEQUENCE*      query,         /* query seque
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             prv_M = MMX(q_0, t_1) + TSC(t_1, M2D);
-            prv_D = DMX(q_0, t_1) + TSC(t_1, TD);
+            prv_D = DMX(q_0, t_1) + TSC(t_1, D2D);
             /* best-to-delete */
             prv_sum = MATH_Sum( prv_M, prv_D );
             DMX(q_0, t_0) = prv_sum;
@@ -790,8 +790,8 @@ int run_Cloud_Backward_Quad(  const SEQUENCE*      query,         /* query seque
             IMX(q_0, t_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prv_M = MMX(q_1, t_1) + TSC(t_0, TM) + sc_M;
-            prv_D = DMX(q_0, t_1) + TSC(t_0, TD);
+            prv_M = MMX(q_1, t_1) + TSC(t_0, D2M) + sc_M;
+            prv_D = DMX(q_0, t_1) + TSC(t_0, D2D);
             /* best-to-delete */
             prv_sum = MATH_Sum( prv_M, prv_D );
             prv_sum = MATH_Sum( prv_sum, prv_E );

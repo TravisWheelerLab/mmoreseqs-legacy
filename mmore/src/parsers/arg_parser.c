@@ -1054,7 +1054,7 @@ ARGS_Dump(     ARGS*    args,
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "T_INDEX_PATH",          args->t_index_filein );
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "Q_INDEX_PATH",          args->q_index_filein );
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "MMSEQS_M8",             args->mmseqs_m8_filein );
-   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "TMP_FOLDER",            args->tmp_folderpath ); 
+   fprintf( fp, "# %*s:\t%s\n",          align * pad,  "D2MP_FOLDER",            args->tmp_folderpath ); 
    fprintf( fp, "# %*s:\t%s\n",          align * pad,  "PREP_FOLDER",           args->prep_folderpath ); 
    fprintf( fp, "# \n" );
    /* --- MMSEQS --- */

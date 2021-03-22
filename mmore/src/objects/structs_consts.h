@@ -25,8 +25,8 @@
 #define NULL_CHAR       '\0'                    /* null string terminator character */
 
 /* === OUTPUT PIPES === */
-#define STDOUT          "/dev/stdout"
-#define STDERR          "/dev/stderr"
+#define SD2DOUT          "/dev/stdout"
+#define SD2DERR          "/dev/stderr"
 #define DEVNULL         "/dev/null"
 #define DEBUGOUT        "DEBUG.log"
 #define DEBUG_VIZ       "DEBUG.viz"
@@ -241,8 +241,8 @@ typedef enum {
    M2D = 2,       /* Match to Delete */
    I2M = 3,       /* Insert to Match */
    I2I = 4,       /* Insert to Insert */
-   TM = 5,        /* to Match */
-   TD = 6,        /* to Delete */
+   D2M = 5,       /* Delete to Match */
+   D2D = 6,       /* Delete to Delete */
    B2M = 7        /* Begin to Match */
 } TRANS_STATES;
 #define NUM_TRANS_STATES 8

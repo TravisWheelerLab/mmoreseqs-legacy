@@ -182,7 +182,7 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
          prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-         prv_D = DMX3(qx1, t_1)  + TSC(t_1, TM);
+         prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M); /* from begin match state (new alignment) */
          /* best-to-match */
          prv_sum = MATH_Sum( MATH_Sum( prv_M, prv_I ),
@@ -200,7 +200,7 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) */
          /* previous states (match takes the previous column (left) of each state) */
          prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+         prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
          /* best-to-delete */
          prv_sum = MATH_Sum( prv_M, prv_D );
          DMX3(qx0, t_0) = prv_sum;
@@ -233,7 +233,7 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          /* best previous state transition (match takes the diag element of each prev state) */
          prv_M = MMX3(qx1, t_1)  + TSC(t_1, M2M);
          prv_I = IMX3(qx1, t_1)  + TSC(t_1, I2M);
-         prv_D = DMX3(qx1, t_1)  + TSC(t_1, TM);
+         prv_D = DMX3(qx1, t_1)  + TSC(t_1, D2M);
          prv_B = XMX(SP_B, q_1)  + TSC(t_1, B2M);    /* from begin match state (new alignment) */
          /* sum-to-match */
          prv_sum = MATH_Sum( MATH_Sum( prv_M, prv_I ),
@@ -246,7 +246,7 @@ int run_Forward_Linear(    const SEQUENCE*   query,
          /* FIND SUM OF PATHS TO DELETE STATE (FROM MATCH OR DELETE) (unrolled) */
          /* previous states (match takes the left element of each state) */
          prv_M = MMX3(qx0, t_1) + TSC(t_1, M2D);
-         prv_D = DMX3(qx0, t_1) + TSC(t_1, TD);
+         prv_D = DMX3(qx0, t_1) + TSC(t_1, D2D);
          /* sum-to-delete */
          prv_sum = MATH_Sum( prv_M, prv_D );
          DMX3(qx0, t_0) = prv_sum;
@@ -446,7 +446,7 @@ int run_Backward_Linear(   const SEQUENCE*    query,
          MMX3(qx0, t_0) = MATH_Sum( prv_E, prv_D );
 
          prv_E = XMX(SP_E, Q) + sc_E;
-         prv_D = DMX3(qx0, t_1)  + TSC(t_0, TD);
+         prv_D = DMX3(qx0, t_1)  + TSC(t_0, D2D);
          DMX3(qx0, t_0) = MATH_Sum( prv_E, prv_D );
 
          IMX3(qx0, t_0) = -INF;
@@ -539,8 +539,8 @@ int run_Backward_Linear(   const SEQUENCE*    query,
          IMX3(qx0, t_0) = prv_sum;
 
          /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-         prv_M = MMX3(qx1, t_1) + TSC(t_0, TM) + MSC(t_1, A);
-         prv_D = DMX3(qx0, t_1) + TSC(t_0, TD);
+         prv_M = MMX3(qx1, t_1) + TSC(t_0, D2M) + MSC(t_1, A);
+         prv_D = DMX3(qx0, t_1) + TSC(t_0, D2D);
          prv_E = XMX(SP_E, q_0) + sc_E;
          /* best-to-delete */
          prv_sum = MATH_Sum( prv_M, 

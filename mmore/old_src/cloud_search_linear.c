@@ -5,19 +5,7 @@
  *
  *    AUTHOR:     Dave Rich
  *    BUGS:       
- *       - Intermittant Bug
-==1889360==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60c000003fe0 at pc 0x56500ca90ba9 bp 0x7fff9d366fd0 sp 0x7fff9d366fc0
-WRITE of size 4 at 0x60c000003fe0 thread T0
-    #0 0x56500ca90ba8 in run_Cloud_Forward_Linear src/algs_linear/cloud_search_linear.c:373
-    #1 0x56500c9d13a6 in WORK_cloud_search_linear src/work/work_cloud_search.c:86
-    #2 0x56500ca497ae in mmore_searchmmore_pipeline src/pipelines/pipeline_mmore_main.c:107
-    #3 0x56500c9e43d4 in main src/application.c:74
-    #4 0x7fa683d950b2 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x270b2)
-    #5 0x56500c97a08d in _start (/home/devreckas/Google-Drive/Wheeler-Labs/personal-work/fbpruner-project/mmore/build/mmoreseqs-DEBUG+0x2208d)
-
-Address 0x60c000003fe0 is a wild pointer.
-SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_linear.c:373 in run_Cloud_Forward_Linear
-
+ *       - None known.
  *    TODO:       
  *       - lb_vec and rb_vec should be created in main routine so we don't need to create/destroy every routine. 
  *******************************************************************************/
@@ -42,14 +30,14 @@ SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_lin
 #include "_algs_linear.h"
 #include "cloud_search_linear.h"
 
-/**
+/*
  *      NOTE: HOW TO CONVERT row-coords to diag-coords
  *       MMX3(q_1, t_1) => MMX3(d_2, k_1)
  *       MMX3(q_0, t_1) => MMX3(d_1, k_0)
  *       MMX3(q_1, t_0) => MMX3(d_1, k_1)
  */
 
-/**
+/* 
  *       NOTE: CONVERSION - row-coords => diag-coords
  *       MX_M(i-1, j-1) => MX3_M(d_2, k-1)
  *       MX_M(i  , j-1) => MX3_M(d_1, k  ) 
@@ -59,24 +47,6 @@ SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_lin
  *       MX_M(i  , j+1) => MX3_M(d_1, k  )
  *       MX_M(i+1, j  ) => MX3_M(d_1, k+1)
  */
-
-/* private functions */
-static inline 
-float 
-MY_Sum( const float x, const float y );
-
-static inline 
-float 
-MY_Prod( const float x, const float y );
-
-static inline 
-float 
-MY_Zero();
-
-static inline 
-float 
-MY_One();
-
 
 /*! FUNCTION: run_Cloud_Forward_Linear()
  *  SYNOPSIS: Perform Forward part of Cloud Search Algorithm.
@@ -103,6 +73,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
                            float*               inner_sc,     /* OUTPUT: maximum score inside viterbi bounds */
                            float*               max_sc )      /* OUTPUT: highest score found during search */
 {
+
+
    /* vars for accessing query/target data structs */
    char     a;                               /* store current character in sequence */
    int      A;                               /* store int value of character */
@@ -226,7 +198,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    seq         = query->seq;
    /* local or global alignments? */
    is_local    = target->isLocal;
-   sc_E        = (is_local) ? MY_One() : MY_Zero();
+   sc_E        = (is_local) ? 0 : -INF;
 
    /* get start and end points of viterbi alignment */
    beg = &(tr->traces->data[tr->beg]);
@@ -249,6 +221,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    rb_0 = rb_1 = rb_2 = 0;
 
    /* set edgebound dimensions and orientation */
+   EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0,Q} );
    EDGEBOUNDS_Reuse( edg, Q, T );
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
@@ -256,7 +229,6 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -327,8 +299,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
 
    /* keeps largest number seen on current diagonal */
    is_term_flag   = false;
-   diag_max       = MY_Zero();
-   total_max      = MY_Zero();
+   diag_max       = -INF;
+   total_max      = -INF;
    /* number of passes through antidiags */
    d_cnt = 0;
 
@@ -375,8 +347,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       {
          /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, 
-            &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -401,8 +372,8 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          rb_0 = MIN(rb_0, re_0);
 
          /* Update changes to list */
-         VEC_X( lb_vec[0], i ) = lb_0;
-         VEC_X( rb_vec[0], i ) = rb_0;
+         VEC_X( lb_vec[0], b ) = lb_0;
+         VEC_X( rb_vec[0], b ) = rb_0;
 
          /* Bound to be added */
          bnd_new = (BOUND){d_0, lb_0, rb_0};
@@ -417,12 +388,12 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          #elif ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_IntegrateDiag_Fwd( rows, &bnd_new );
+            EDGEBOUND_ROWS_Integrate_Antidiag_Fwd( rows, &bnd_new );
 
             /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
             #if DEBUG
             {
-               EDGEBOUNDS_Pushback( test_edg, bnd_new );
+               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
             }
             #endif
          }
@@ -458,33 +429,33 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
             /* FIND SUM OF PATHS TO MATCH STATE (FROM MATCH, INSERT, DELETE, OR BEGIN) */
             /* best previous state transition (match takes the diag element of each prev state) */
             /* NOTE: Convert (q-1,t-1) <=> (d-2,k-1) */ 
-            prv_M = MY_Prod( MMX3(dx2, k_1), TSC(t_1, M2M) );
-            prv_I = MY_Prod( IMX3(dx2, k_1), TSC(t_1, I2M) );
-            prv_D = MY_Prod( DMX3(dx2, k_1), TSC(t_1, D2M) );
+            prv_M = MMX3(dx2, k_1)  + TSC(t_1, M2M);
+            prv_I = IMX3(dx2, k_1)  + TSC(t_1, I2M);
+            prv_D = DMX3(dx2, k_1)  + TSC(t_1, D2M);
             /* Free to begin match state (new alignment) */
             /* NOTE: only allow begin transition at start of viterbi alignment */
             // prv_B only assigned once at start */
             /* best-to-match */
-            prv_sum = MY_Sum( MY_Sum( prv_M, prv_I ),
-                              MY_Sum( prv_D, prv_B ) );
+            prv_sum = MATH_LogSum( MATH_LogSum( prv_M, prv_I ),
+                              MATH_LogSum( prv_D, prv_B ) );
             MMX3(dx0, k_0) = prv_sum + MSC(t_0, A);
 
             /* FIND SUM OF PATHS TO INSERT STATE (FROM MATCH OR INSERT) */
             /* previous states (match takes the left element of each state) */
             /* NOTE: Convert (q-1,t) <=> (d-1,k-1) */
-            prv_M = MY_Prod( MMX3(dx1, k_1), TSC(t_0, M2I) );
-            prv_I = MY_Prod( IMX3(dx1, k_1), TSC(t_0, I2I) );
+            prv_M = MMX3(dx1, k_1) + TSC(t_0, M2I);
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I);
             /* best-to-insert */
-            prv_sum = MY_Sum( prv_M, prv_I );
-            IMX3(dx0, k_0) = MY_Prod( prv_sum, ISC(t_0, A) );
+            prv_sum = MATH_LogSum( prv_M, prv_I );
+            IMX3(dx0, k_0) = prv_sum + ISC(t_0, A);
 
             /* FIND SUM OF PATHS TO DELETE STATE (FOMR MATCH OR DELETE) */
             /* previous states (match takes the left element of each state) */
             /* NOTE: Convert (q,t-1) <=> (d-1, k) */
-            prv_M = MY_Prod( MMX3(dx1, k_0), TSC(t_1, M2D) );
-            prv_D = MY_Prod( DMX3(dx1, k_0), TSC(t_1, D2D) );
+            prv_M = MMX3(dx1, k_0) + TSC(t_1, M2D);
+            prv_D = DMX3(dx1, k_0) + TSC(t_1, D2D);
             /* best-to-delete */
-            prv_sum = MY_Sum( prv_M, prv_D );
+            prv_sum = MATH_LogSum( prv_M, prv_D );
             DMX3(dx0, k_0) = prv_sum;
 
             /* embed cell data in quadratic matrix */
@@ -511,9 +482,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          {
             q_0 = k_0;
             t_0 = d_2 - k_0;
-            MMX3(dx2, k_0) = MY_Zero();
-            IMX3(dx2, k_0) = MY_Zero();
-            DMX3(dx2, k_0) = MY_Zero();
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             #if DEBUG 
             {
                MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
@@ -587,10 +556,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          {
             q_0 = k_0;
             t_0 = d_2 - k_0;
-            MMX3(dx2, k_0) = MY_Zero(); 
-            IMX3(dx2, k_0) = MY_Zero();
-            DMX3(dx2, k_0) = MY_Zero();
-
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
             #if DEBUG
             {
                MX_2D( cloud_MX, q_0, t_0 ) += 2.0;
@@ -696,24 +662,24 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
          /* N loop */
          presc += XSC(SP_N, SP_LOOP);
       }
-      t_1         = beg->t_0 - 1; 
-      presc       += TSC(t_1, B2M);
-      total_max   += presc;
-      inner_max   += presc;
+      t_1 = beg->t_0 - 1; 
+      presc += TSC(t_1, B2M);
+      total_max += presc;
+      inner_max += presc;
 
-      /* since total and inner ERRORCHECK_exit core model at different points, we compute their post-core corrections separately */
+      /* since total and inner exit core model at different points, we compute their post-core corrections separately */
       /* post-core model: M)->E->C->...->C->T */
-      postsc      = 0.0f;
-      postsc      += XSC(SP_E, SP_MOVE);
+      postsc = 0.0f;
+      postsc += XSC(SP_E, SP_MOVE);
       for (int q_0 = coords_max.q_0; q_0 <= Q; q_0++) {
          postsc += XSC(SP_C, SP_LOOP);
       }
-      postsc      += XSC(SP_C, SP_MOVE);
-      total_max   += postsc;
+      postsc += XSC(SP_C, SP_MOVE);
+      total_max += postsc;
 
       /* post-core model: M)->E->C->...->C->T */
-      postsc      = 0.0f;
-      postsc      += XSC(SP_E, SP_MOVE);
+      postsc = 0.0f;
+      postsc += XSC(SP_E, SP_MOVE);
       for (int q_0 = coords_innermax.q_0; q_0 <= Q; q_0++) {
          postsc += XSC(SP_C, SP_LOOP);
       }
@@ -900,6 +866,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    rb_0 = rb_1 = rb_2 = 0;
 
    /* set edgebound dimensions and orientation */
+   EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0,Q} );
    EDGEBOUNDS_Reuse( edg, Q, T );
    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    {
@@ -907,7 +874,6 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    }
    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    {
-      EDGEBOUND_ROWS_Reuse( rows, Q, T, (RANGE){0, Q} );
       edg->edg_mode  = EDG_ROW;
    }
    #endif
@@ -947,10 +913,10 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    }
 
    /* TODO: initialize previous start state */
-   q_0   = end->q_0;
-   q_1   = q_0 + 1;
-   t_0   = end->t_0;
-   t_1   = t_0 + 1;
+   q_0 = end->q_0;
+   q_1 = q_0 + 1;
+   t_0 = end->t_0;
+   t_1 = t_0 + 1;
 
    /* dimension of submatrix */
    dim_TOT  = Q + T;
@@ -963,7 +929,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
    /* diag index of different start points, creating submatrix */
    // d_st = beg->q_0 + beg->t_0;
-   d_end    = end->q_0 + end->t_0;
+   d_end = end->q_0 + end->t_0;
 
    /* diag index where num cells reaches highest point and begins diminishing */
    dim_min  = MIN(dim_T, dim_Q);
@@ -1024,10 +990,9 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
       }
       #elif ( PRUNER == PRUNER_DBL_XDROP_EDGETRIM_OR_DIE )
       {
-         /* prune bounds using both local and global x-drop, edgetrimming or terminating search */
+         /* prune bounds using local and global x-drop, edgetrimming or terminating search */
          PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 
-            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, 
-            &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
+            st_MX3, sp_MX, alpha, beta, gamma, vit_range, d_1, d_0, dx1, dx0, d_cnt, le_0, re_0, &total_max, &coords_max, &is_term_flag, lb_vec, rb_vec );
       }
       #endif
 
@@ -1070,12 +1035,12 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
          #if ( CLOUD_METHOD == CLOUD_ROWS )
          {
             /* reorient new bounds from antidiag-wise to row-wise and integrate it into row-wise edgebound list */
-            EDGEBOUND_ROWS_IntegrateDiag_Bck( rows, &bnd_new );
+            EDGEBOUND_ROWS_Integrate_Antidiag_Bck( rows, &bnd_new );
 
             #if DEBUG
             {
                /* add new bounds to edgebounds as antidiag-wise (for comparative testing) */
-               EDGEBOUNDS_Pushback( test_edg, bnd_new );
+               EDGEBOUNDS_Pushback( test_edg, &bnd_new );
             }
             #endif
          }
@@ -1124,34 +1089,30 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
             sc_I = ISC(t_1, A);
 
             /* FIND SUM OF PATHS FROM MATCH, INSERT, DELETE, OR END STATE (TO PREVIOUS MATCH) */
-            prv_M =  MY_Prod( MMX3(dx2, k_1), 
-                     MY_Prod( TSC(t_0, M2M), sc_M ) );
-            prv_I =  MY_Prod( IMX3(dx1, k_1),
-                     MY_Prod( TSC(t_0, M2I), sc_I ) );
-            prv_D =  MY_Prod( DMX3(dx1, k_0), TSC(t_0, M2D) );
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, M2M) + sc_M;
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, M2I) + sc_I;
+            prv_D = DMX3(dx1, k_0) + TSC(t_0, M2D);
             // prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
             // prv_E = sc_E;
             /* best-to-match */
-            prv_sum = MY_Sum( MY_Sum( prv_M, prv_I ),
-                                MY_Sum( prv_D, prv_E ) );
+            prv_sum = MATH_LogSum( 
+                           MATH_LogSum( prv_M, prv_I ),
+                           MATH_LogSum( prv_D, prv_E ) );
             MMX3(dx0, k_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-            prv_M =  MY_Prod( MMX3(dx2, k_1),
-                     MY_Prod( TSC(t_0, I2M), sc_M ) );
-            prv_I =  MY_Prod( IMX3(dx1, k_1), 
-                     MY_Prod( TSC(t_0, I2I), sc_I ) );
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, I2M) + sc_M;
+            prv_I = IMX3(dx1, k_1) + TSC(t_0, I2I) + sc_I;
             /* best-to-insert */
-            prv_sum = MY_Sum( prv_M, prv_I );
+            prv_sum = MATH_LogSum( prv_M, prv_I );
             IMX3(dx0, k_0) = prv_sum;
 
             /* FIND SUM OF PATHS FROM MATCH OR DELETE STATE (FROM PREVIOUS DELETE) */
-            prv_M =  MY_Prod( MMX3(dx2, k_1),
-                     MY_Prod( TSC(t_0, D2M), sc_M ) );
-            prv_D =  MY_Prod( DMX3(dx1, k_0), TSC(t_0, D2D) );
+            prv_M = MMX3(dx2, k_1) + TSC(t_0, D2M) + sc_M;
+            prv_D = DMX3(dx1, k_0) + TSC(t_0, D2D);
             /* best-to-delete */
-            prv_sum = MY_Sum( prv_M, prv_D );
-            prv_sum = MY_Sum( prv_sum, prv_E );
+            prv_sum = MATH_LogSum( prv_M, prv_D );
+            prv_sum = MATH_LogSum( prv_sum, prv_E );
             DMX3(dx0, k_0) = prv_sum;
 
             /* embed cell data in quadratic matrix */
@@ -1226,8 +1187,8 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
       VECTOR_INT_Reuse( rb_vec[0] );
 
       /* disallow starting new alignments after first pass */
-      // prv_B = MY_Zero();
-      prv_E = MY_Zero();
+      // prv_B = -INF;
+      prv_E = -INF;
 
       /* if termination flag is set, break out of loop */
       if ( is_term_flag == true ) {
@@ -1257,9 +1218,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
             q_0 = k_0;
             t_0 = d_2 - q_0;
 
-            MMX3(dx2, k_0) = MY_Zero();
-            IMX3(dx2, k_0) = MY_Zero();
-            DMX3(dx2, k_0) = MY_Zero();
+            MMX3(dx2, k_0) = IMX3(dx2, k_0) = DMX3(dx2, k_0) = -INF;
 
             #if DEBUG 
             {
@@ -1407,41 +1366,5 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
    *inner_sc   = inner_max;
 
    return STATUS_SUCCESS;
-}
-
-/* MATH RULES: These determine how probilities are summed and certain identities */
-
-static 
-inline 
-float
-MY_Sum(  const float    x,
-         const float    y )
-{
-   return MATH_LogSum( x, y );
-}
-
-static 
-inline
-float
-MY_Prod( const float    x,
-         const float    y )
-{
-   return MATH_LogProd( x, y );
-}
-
-static 
-inline
-float
-MY_Zero()
-{
-   return MATH_LogZero();
-}
-
-static 
-inline
-float 
-MY_One()
-{
-   return MATH_LogOne();
 }
 
