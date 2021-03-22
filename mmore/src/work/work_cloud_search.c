@@ -88,6 +88,7 @@ WORK_cloud_search_linear( WORKER*  worker )
       CLOCK_Stop( worker->timer );
       times->lin_cloud_fwd = CLOCK_Duration( worker->timer );
       scores->lin_cloud_fwd = max_fwdsc;
+      printf("CLD FWD SCORES:: inner_max = %f, outer_max = %f\n", inner_fwdsc, max_fwdsc );
       #if DEBUG
       {
          DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_fwd.lin.mx");
@@ -103,6 +104,7 @@ WORK_cloud_search_linear( WORKER*  worker )
       CLOCK_Stop( worker->timer );
       times->lin_cloud_bck = CLOCK_Duration( worker->timer );
       scores->lin_cloud_bck = max_bcksc;
+      printf("CLD BCK SCORES:: inner_max = %f, outer_max = %f\n", inner_bcksc, max_bcksc );
       #if DEBUG
       {
          DP_MATRIX_Save( Q, T, debugger->test_MX, sp_MX, "test_output/my.cloud_bck.lin.mx" );

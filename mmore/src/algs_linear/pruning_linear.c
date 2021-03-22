@@ -313,33 +313,42 @@ PRUNER_via_dbl_xdrop_edgetrim_or_die_Linear( 	MATRIX_3D* 		st_MX3,			/* normal s
 	float 	diag_limit 	= -INF;			/* pruning threshold based on global max */
 	float 	total_limit = -INF; 		   /* termination threshold based on antidiag max */
 	bool 		is_d_0_in_viterbi; 			/* checks if we have gone past the seed viterbi alignment */
+	float 	prv_max; 						/* lookup previous maximum to check for updates */
+	COORDS 	coords_diagmax; 				/* q_0 of antidiag maximum */
 
 	/* clear data int vectors (which will be used to create edgebounds) */
 	VECTOR_INT_Reuse( lb_vec[0] );
 	VECTOR_INT_Reuse( rb_vec[0] );
 
 	/* (1) update maximum score using antidiagonal */
+	diag_max = -INF;
 	for ( i = 0; i < lb_vec[1]->N; i++ ) {
 		lb_1 = VEC_X( lb_vec[1], i );
 		rb_1 = VEC_X( rb_vec[1], i );
 
-		diag_max = -INF;
 		for ( k_0 = lb_1; k_0 < rb_1; k_0++ )
 		{
 			q_0 = k_0;
-			t_0 = d_1 - k_0;
+			t_0 = d_1 - k_0;    /* looking back one diag */
+			// /* NOTE: Can we presume the only max we care about is in the MATCH state? */
+			diag_max = MATH_Max( MATH_Max( diag_max,        MMX3(dx1, k_0) ),
+			                     MATH_Max( IMX3(dx1, k_0),  DMX3(dx1, k_0) ) );
+			// diag_max = calc_Max( diag_max, MMX3(dx1, k_0) );
 			
-			cell_max = MATH_Max( MMX3(dx1, k_0),
-			           MATH_Max( IMX3(dx1, k_0), DMX3(dx1, k_0) ) );
-
-			/* update diag max */
-			if ( cell_max > diag_max ) {
-				diag_max = cell_max;
+			/* if maximum has increased, then update cell (we really only care about q_0) */
+			if ( diag_max > prv_max ) {
+				coords_diagmax.q_0 = q_0;
+				// coords_diagmax.t_0 = t_0;
 			}
+			/* look back one cell */
+			prv_max = diag_max;
 		}
+	}
 
-		/* Total max records largest cell score seen so far */
-		*total_max = MAX( *total_max, diag_max );
+	/* Update <total_max> if new maximum found */
+	if ( *total_max < diag_max ) {
+		*total_max = diag_max;
+		*coords_max = coords_diagmax;
 	}
 
 	/* Set score limit for terminating search */

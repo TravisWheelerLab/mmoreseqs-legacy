@@ -720,7 +720,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
       postsc += XSC(SP_C, SP_MOVE);
       inner_max += postsc;
    }
-   
+
    /* highest score found in cloud search */
    *max_sc     = total_max;
    *inner_sc   = inner_max;
@@ -1355,7 +1355,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
    st_MX3->clean = true;
 
-   // printf("PRECORRECTION: %f, %f\n", total_max, inner_max);
+   printf("PRECORRECTION: %f, %f\n", total_max, inner_max);
 
    bool is_score_correction = true;
    /* score correction: we need B to simulate proper model states */
@@ -1399,8 +1399,8 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
       total_max += postsc;
       inner_max += postsc;
    }
-
-   // printf("POSTCORRECTION: %f, %f\n", total_max, inner_max);
+   
+   printf("POSTCORRECTION: %f, %f\n", total_max, inner_max);
    
    /* highest score found in cloud search */
    *max_sc     = total_max;
