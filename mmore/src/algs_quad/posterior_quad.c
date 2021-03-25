@@ -172,8 +172,8 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
       {
          fprintf(stdout, "# fwd score: (full) %7.3f\n", sc_fwd_full);
          fprintf(stdout, "# bck score: (full) %7.3f\n", sc_bck_full);
-         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, "test_output/my.full_fwd.mx");
-         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, "test_output/my.full_bck.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, DEBUG_FOLDER "/my.full_fwd.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, DEBUG_FOLDER "/my.full_bck.mx");
       }
       #endif
 
@@ -184,7 +184,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
 
       #if DEBUG
       {
-         fp = fopen("test_output/my.full_post.mx", "w+");
+         fp = fopen(DEBUG_FOLDER "/my.full_post.mx", "w+");
          DP_MATRIX_Log_Dump(Q_size, T_size, st_MX_post, sp_MX_post, fp);
          fclose(fp);
       }
@@ -231,8 +231,8 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
       {
          fprintf(stdout, "# fwd score: (con) %7.3f\n", sc_fwd_con);
          fprintf(stdout, "# bck score: (con) %7.3f\n", sc_bck_con);
-         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, "test_output/my.constrained_fwd.mx");
-         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, "test_output/my.constrained_bck.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, DEBUG_FOLDER "/my.constrained_fwd.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, DEBUG_FOLDER "/my.constrained_bck.mx");
       }
       #endif
 
@@ -243,7 +243,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
 
       #if DEBUG
       {
-         fp = fopen("test_output/my.constrained_post.mx", "w+");
+         fp = fopen(DEBUG_FOLDER "/my.constrained_post.mx", "w+");
          DP_MATRIX_Log_Dump(Q_size, T_size, st_MX_post, sp_MX_post, fp);
          fclose(fp);
       }
@@ -279,8 +279,8 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
       {
          fprintf(stdout, "# fwd score: (rng) %7.3f\n", sc_fwd_rng);
          fprintf(stdout, "# bck score: (rng) %7.3f\n", sc_bck_rng);
-         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, "test_output/my.ranged_fwd.mx");
-         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, "test_output/my.ranged_bck.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_fwd, sp_MX_fwd, DEBUG_FOLDER "/my.ranged_fwd.mx");
+         DP_MATRIX_Save(Q_size, T_size, st_MX_bck, sp_MX_bck, DEBUG_FOLDER "/my.ranged_bck.mx");
       }
       #endif
 
@@ -291,7 +291,7 @@ run_Posterior_Quad(  SEQUENCE*      q_seq,            /* query sequence */
 
       #if DEBUG
       {
-         fp = fopen("test_output/my.ranged_post.mx", "w+");
+         fp = fopen(DEBUG_FOLDER "/my.ranged_post.mx", "w+");
          DP_MATRIX_Log_Dump(Q_size, T_size, st_MX_post, sp_MX_post, fp);
          fclose(fp);
       }
@@ -613,7 +613,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.2.quad.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.2.quad.csv", "w+");
       fprintf(fp, "<2>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (int t_0 = T_beg; t_0 < T_end; t_0++) {
@@ -648,7 +648,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.3.quad.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.3.quad.csv", "w+");
       fprintf(fp, "<3>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (int t_0 = T_beg; t_0 < T_end; t_0++) {
@@ -687,7 +687,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.4.quad.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.4.quad.csv", "w+");
       fprintf(fp, "<4>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (int t_0 = T_beg; t_0 < T_end; t_0++) {
@@ -753,7 +753,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
    #if DEBUG
    {
       // fp = stdout;
-      fp = fopen("test_output/my.null2.quad.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.null2.quad.csv", "w+");
       fprintf(fp, "==> NULL2 (pre) <=\n");
       for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
          fprintf(fp, "%d %c %.7f\n", k_0, AA[k_0], VEC_X( dom_def->null2_sc, k_0) );
@@ -818,7 +818,7 @@ run_Null2_ByExpectation_Quad(    SEQUENCE*         query,            /* query se
    #if DEBUG
    {
       // fp = stdout;
-      fp = fopen("test_output/my.null2sc.quad.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.null2sc.quad.csv", "w+");
       fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
       for (int k_0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++) {
          fprintf(fp, "%d %c %.9f\n", k_0, AA[k_0], VEC_X( dom_def->null2_sc, k_0 ));

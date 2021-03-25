@@ -43,7 +43,7 @@ main ( int argc, char *argv[] )
    {
       printf("===> IN DEBUG MODE <===\n");
 
-      debugger = DEBUGGER_Create("test-output");
+      debugger = DEBUGGER_Create(DEBUG_FOLDER "");
       /* debugging options */
       debugger->is_embed   = true;
       debugger->is_viz     = true;

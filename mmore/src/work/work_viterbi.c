@@ -70,7 +70,7 @@ WORK_viterbi_and_traceback( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing viterbi linear...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.vit.lin.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.vit.lin.mx");
       }
       #endif
    }
@@ -84,7 +84,7 @@ WORK_viterbi_and_traceback( WORKER*  worker )
       #if DEBUG 
       {
          printf("# printing viterbi quad...\n");
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.vit.quad.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.vit.quad.mx");
       }
       #endif
    }
@@ -150,7 +150,7 @@ WORK_viterbi_sparse( WORKER*  worker )
    fprintf(stdout, "# ==> Viterbi (full cloud): %11.4f\n", sc);
    #if DEBUG 
    {
-      fp = fopen("test_output/my.sparse_vit.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.sparse_vit.mx", "w+");
       MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_vit, debugger->test_MX);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_vit, fp);
       fclose(fp);
@@ -202,7 +202,7 @@ WORK_viterbi_traceback_sparse( WORKER*  worker )
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.viterbi_traceback.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.viterbi_traceback.mx", "w+");
       ALIGNMENT_Dump( aln, fp );
       fclose(fp);
    }

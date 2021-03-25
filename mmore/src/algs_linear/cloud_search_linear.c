@@ -684,6 +684,7 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
    /* after search, all cells are set to -INF */
    st_MX3->clean = true;
 
+   printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max );
    bool is_score_correction = true;
    /* score correction: we need B to simulate proper model states */
    if ( is_score_correction == true )
@@ -692,34 +693,35 @@ run_Cloud_Forward_Linear(  const SEQUENCE*      query,        /* query sequence 
 
       /* pre-core model: S->N->...->N->B->(M */
       presc = 0.0f;
-      for (int q_0 = 1; q_0 < beg->q_0; q_0++) {
+      for ( q_0 = 1; q_0 < beg->q_0; q_0++ ) {
          /* N loop */
          presc += XSC(SP_N, SP_LOOP);
       }
       t_1         = beg->t_0 - 1; 
-      presc       += TSC(t_1, B2M);
-      total_max   += presc;
-      inner_max   += presc;
+      presc       = MY_Prod( presc, TSC(t_1, B2M) );
+      total_max   = MY_Prod( total_max, presc );
+      inner_max   = MY_Prod( inner_max, presc );
 
       /* since total and inner ERRORCHECK_exit core model at different points, we compute their post-core corrections separately */
       /* post-core model: M)->E->C->...->C->T */
       postsc      = 0.0f;
-      postsc      += XSC(SP_E, SP_MOVE);
-      for (int q_0 = coords_max.q_0; q_0 <= Q; q_0++) {
-         postsc += XSC(SP_C, SP_LOOP);
+      postsc      = MY_Prod( postsc, XSC(SP_E, SP_MOVE) );
+      for ( q_0 = coords_max.q_0; q_0 <= Q; q_0++ ) {
+         postsc   = MY_Prod( postsc, XSC(SP_C, SP_LOOP) );
       }
-      postsc      += XSC(SP_C, SP_MOVE);
-      total_max   += postsc;
+      postsc      = MY_Prod( postsc, XSC(SP_C, SP_MOVE) );
+      total_max   = MY_Prod( total_max, postsc );
 
       /* post-core model: M)->E->C->...->C->T */
       postsc      = 0.0f;
-      postsc      += XSC(SP_E, SP_MOVE);
-      for (int q_0 = coords_innermax.q_0; q_0 <= Q; q_0++) {
-         postsc += XSC(SP_C, SP_LOOP);
+      postsc      = MY_Prod( postsc, XSC(SP_E, SP_MOVE) );
+      for ( q_0 = coords_innermax.q_0; q_0 <= Q; q_0++ ) {
+         postsc   = MY_Prod( postsc, XSC(SP_C, SP_LOOP) );
       }
-      postsc += XSC(SP_C, SP_MOVE);
-      inner_max += postsc;
+      postsc      = MY_Prod( postsc, XSC(SP_C, SP_MOVE) );
+      inner_max   = MY_Prod( inner_max, postsc );
    }
+   printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max );
 
    /* highest score found in cloud search */
    *max_sc     = total_max;
@@ -1133,8 +1135,11 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
             // prv_E = sc_E;
             /* best-to-match */
             prv_sum = MY_Sum( MY_Sum( prv_M, prv_I ),
-                                MY_Sum( prv_D, prv_E ) );
+                              MY_Sum( prv_D, prv_E ) );
             MMX3(dx0, k_0) = prv_sum;
+
+            // printf("(q_0,t_0)=%d,%d => a=%c, A=%d, tsc=%f, msc=%f mmx=%f\n",
+            //    q_0, t_0, a, A, TSC(t_1, M2M), MSC(t_0, A), MMX3(dx0, k_0) );
 
             /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
             prv_M =  MY_Prod( MMX3(dx2, k_1),
@@ -1355,8 +1360,7 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
    st_MX3->clean = true;
 
-   printf("PRECORRECTION: %f, %f\n", total_max, inner_max);
-
+   printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max );
    bool is_score_correction = true;
    /* score correction: we need B to simulate proper model states */
    if ( is_score_correction == true )
@@ -1365,42 +1369,42 @@ run_Cloud_Backward_Linear(    const SEQUENCE*      query,        /* query sequen
 
       /* since total and inner enter the core model at different points, compute them separately */
       /* pre-core model: S->N->...->N->B->(M */
-      presc = 0.0f;
-      for (int q_0 = 1; q_0 < coords_max.q_0; q_0++) {
+      presc    = 0.0f;
+      for ( q_0 = 1; q_0 < coords_max.q_0; q_0++ ) {
          /* N loop */
-         presc += XSC(SP_N, SP_LOOP);
+         presc = MY_Prod( presc, XSC(SP_N, SP_LOOP) );
       }
       t_1 = beg->t_0 - 1; 
       /* N->B->M */
-      presc += TSC(t_1, B2M);
-      total_max += presc;
+      presc       = MY_Prod( presc, TSC(t_1, B2M) );
+      total_max   = MY_Prod( total_max, presc );
 
       /* pre-core model: S->N->...->N->B->(M */
       presc = 0.0f;
-      for (int q_0 = 1; q_0 < coords_max.q_0; q_0++) {
+      for ( q_0 = 1; q_0 < coords_innermax.q_0; q_0++ ) {
          /* N loop */
-         presc += XSC(SP_N, SP_LOOP);
+         presc = MY_Prod( presc, XSC(SP_N, SP_LOOP) );
       }
       t_1 = beg->t_0 - 1;
       /* N->B->M */
-      presc += TSC(t_1, B2M);
-      inner_max += presc;
+      presc       = MY_Prod( presc, TSC(t_1, B2M) );
+      inner_max   = MY_Prod( inner_max, presc );
 
+      /* since total and inner exit at the same point, compute them together */
       /* post-core model: M)->E->C->...->C->T */
       postsc = 0.0f;
       /* M->E->C */
-      postsc += XSC(SP_E, SP_MOVE);
-      for (int q_0 = end->q_0; q_0 <= Q; q_0++) {
+      postsc = MY_Prod( postsc, XSC(SP_E, SP_MOVE) );
+      for ( q_0 = end->q_0; q_0 <= Q; q_0++ ) {
          /* C loop */
-         postsc += XSC(SP_C, SP_LOOP);
+         postsc = MY_Prod( postsc, XSC(SP_C, SP_LOOP) );
       }
       /* C->T */
-      postsc += XSC(SP_C, SP_MOVE);
-      total_max += postsc;
-      inner_max += postsc;
+      postsc      = MY_Prod( postsc, XSC(SP_C, SP_MOVE) );
+      total_max   = MY_Prod( total_max, postsc );
+      inner_max   = MY_Prod( inner_max, postsc );
    }
-   
-   printf("POSTCORRECTION: %f, %f\n", total_max, inner_max);
+   printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max );
    
    /* highest score found in cloud search */
    *max_sc     = total_max;

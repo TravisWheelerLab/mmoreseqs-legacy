@@ -287,7 +287,7 @@ EDGEBOUNDS_Create_Padded_Edgebounds_Naive(   EDGEBOUNDS*    edg_inner,     /* ED
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.outer_premerge.edg", "w");
+      fp = fopen(DEBUG_FOLDER "/my.outer_premerge.edg", "w");
       EDGEBOUNDS_Dump( edg_outer, fp );
       fclose(fp);
    }

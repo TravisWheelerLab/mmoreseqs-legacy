@@ -71,7 +71,7 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
       times->lin_merge = CLOCK_Duration( worker->timer );
       #if DEBUG
       {
-         EDGEBOUNDS_Save( edg_diag, "test_output/my.cloud.diags.edg");
+         EDGEBOUNDS_Save( edg_diag, DEBUG_FOLDER "/my.cloud.diags.edg");
          int pre_diag      = EDGEBOUNDS_Count( edg_diag );
          int pre_row       = EDGEBOUNDS_Count( edg_row );
          int pre_diag_brt  = EDGEBOUNDS_BruteCount( edg_diag );
@@ -102,7 +102,7 @@ WORK_cloud_merge_and_reorient( WORKER*  worker )
          int post_row_brt     = EDGEBOUNDS_BruteCount( edg_row );
          /* correctness check */
          printf("POST-REORIENT CELL_COUNTS: %d, %d => %d, %d\n", post_diag, post_row, post_diag_brt, post_row_brt );
-         EDGEBOUNDS_Save( edg_row, "test_output/my.cloud.rows.edg");
+         EDGEBOUNDS_Save( edg_row, DEBUG_FOLDER "/my.cloud.rows.edg");
       }
       #endif
    }

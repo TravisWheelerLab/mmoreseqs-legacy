@@ -934,7 +934,7 @@ ARGS_SetDefaults( ARGS*    args )
    args->is_use_local_tools      = false;
    args->is_recycle_mx           = false;
    args->is_debug                = true;
-   args->dbg_folderpath          = STR_Create("test_output/");
+   args->dbg_folderpath          = STR_Create(DEBUG_FOLDER "/");
 
    /* --- INPUT --- */
    /* filepath */

@@ -261,7 +261,7 @@ run_Bound_Forward_Linear(     const SEQUENCE*            query,         /* query
          lb_0  = MAX(bnd.lb - 1, T_range.beg);     /* can't overflow the left edge */
          rb_0  = MIN(bnd.rb, T_range.end);         /* can't overflow the right edge */
 
-         /* FOR every position in TARGET profile */
+         /* FOR first position in EDGEBOUND profile */
          t_0 = lb_0;
          {
             t_1 = t_0 - 1;
@@ -339,10 +339,9 @@ run_Bound_Forward_Linear(     const SEQUENCE*            query,         /* query
          }
 
          /* UNROLLED FINAL LOOP ITERATION */
-         t_0 = rb_0;
          if ( rb_0 - lb_0 > 1 )
          {
-            t_0   = T;
+            t_0   = rb_0 - 1;
             t_1   = t_0 - 1;
             tx0   = t_0;
             tx1   = tx0 - 1;

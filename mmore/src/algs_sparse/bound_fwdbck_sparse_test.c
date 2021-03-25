@@ -598,7 +598,7 @@ run_Bound_Forward_Sparse_TEST(   const SEQUENCE*               query,         /*
       // subtot = non + missed + hit + doublehit;
       // printf("TRAVIS_COUNTS: hit= %d, non= %d, missed= %d, double= %d, bad= %d, totals= %d ? %d\n", 
       //    hit, non, missed, doublehit, badhit, subtot, truetot );
-      // MATRIX_2D_Save( cloud_MX, "test_output/traviscount_fwd.mx");
+      // MATRIX_2D_Save( cloud_MX, DEBUG_FOLDER "/traviscount_fwd.mx");
    }
    #endif
 

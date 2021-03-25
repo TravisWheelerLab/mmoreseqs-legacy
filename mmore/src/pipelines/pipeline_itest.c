@@ -265,8 +265,8 @@ itest_pipeline( WORKER* worker )
    // {
    //    MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX, full_cloud_edg );
    //    // EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
-   //    EDGEBOUNDS_Save( st_SMX->edg_outer, "test_output/my.fwd.full.sparse.outer.edg" );
-   //    EDGEBOUNDS_Save( st_SMX->edg_inner, "test_output/my.fwd.full.sparse.inner.edg" );
+   //    EDGEBOUNDS_Save( st_SMX->edg_outer, DEBUG_FOLDER "/my.fwd.full.sparse.outer.edg" );
+   //    EDGEBOUNDS_Save( st_SMX->edg_inner, DEBUG_FOLDER "/my.fwd.full.sparse.inner.edg" );
    // }
 
    // /* run viterbi algorithm */
@@ -277,14 +277,14 @@ itest_pipeline( WORKER* worker )
    //    run_Viterbi_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
    //    printf("Viterbi Score (quad):\t%f\n", sc);
    //    scores->quad_vit = sc;
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.viterbi.quad.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.viterbi.quad.mx");
    //    /* ==> viterbi (linear) */
    //    printf("==> viterbi linear\n");
    //    run_Viterbi_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
    //    printf("Viterbi Score (lin):\t%f\n", sc);
    //    scores->quad_vit = sc;
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.viterbi.lin.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.viterbi.lin.mx");
    //    /* ==> viterbi (comparison) */
    //    printf("==> viterbi comparison: linear v. quadratic\n");
    //    dp_cmp  = DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin );
@@ -308,12 +308,12 @@ itest_pipeline( WORKER* worker )
    //    printf("==> traceback quadratic (via HMMER)\n");
    //    ALIGNMENT_Reuse(tr_quad, Q, T);
    //    run_Traceback_Quad_via_hmmer(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad);
-   //    ALIGNMENT_Save(tr_quad, "test_output/my.traceback.quad.hmmer.tsv");
+   //    ALIGNMENT_Save(tr_quad, DEBUG_FOLDER "/my.traceback.quad.hmmer.tsv");
    //    /* ==> traceback (quadratic via compare) */
    //    printf("==> traceback quadratic (via compare)\n");
    //    ALIGNMENT_Reuse(tr_quad_2, Q, T);
    //    run_Traceback_Quad_via_cmp(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_2);
-   //    ALIGNMENT_Save(tr_quad_2, "test_output/my.traceback.quad.cmp.tsv");
+   //    ALIGNMENT_Save(tr_quad_2, DEBUG_FOLDER "/my.traceback.quad.cmp.tsv");
    //    /* ==> traceback comparison */
    //    cmp = ( ALIGNMENT_Compare( tr_quad, tr_quad_2 ) == 0 ) ? true : false;
    //    printf("ALIGNMENTS (HMMER vs Compare)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
@@ -327,7 +327,7 @@ itest_pipeline( WORKER* worker )
    //    printf("==> traceback quadratic (via max)\n");
    //    ALIGNMENT_Reuse(tr_quad_3, Q, T);
    //    run_Traceback_Quad_via_max(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, tr_quad_3);
-   //    ALIGNMENT_Save(tr_quad_3, "test_output/my.traceback.quad.max.tsv");
+   //    ALIGNMENT_Save(tr_quad_3, DEBUG_FOLDER "/my.traceback.quad.max.tsv");
    //    /* ==> traceback comparison */
    //    cmp = ( ALIGNMENT_Compare( tr_quad, tr_quad_3 ) == 0 ) ? true : false;
    //    printf("ALIGNMENTS (HMMER vs Max)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
@@ -359,7 +359,7 @@ itest_pipeline( WORKER* worker )
    //    printf("Bound Viterbi Score (sparse):\t%f\n", sc);
    //    scores->quad_bound_fwd = sc;
    //    MATRIX_3D_Copy( st_MX_sparse, debugger->test_MX );
-   //    DP_MATRIX_Save(Q, T, st_MX_sparse, sp_MX_sparse, "test_output/my.vit.full.sparse.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_sparse, sp_MX_sparse, DEBUG_FOLDER "/my.vit.full.sparse.mx");
    //    /* ==> forward (comparison) */
    //    printf("==> bound forward comparison: sparse v. normal matrix\n");
    //    dp_cmp = 0;
@@ -382,7 +382,7 @@ itest_pipeline( WORKER* worker )
    //    printf("==> traceback sparse\n");
    //    ALIGNMENT_Reuse(tr_quad, Q, T);
    //    run_Posterior_Traceback_Sparse(q_seq, t_prof, Q, T, st_SMX, sp_MX_sparse, st_SMX->edg_inner, tr_sparse);
-   //    ALIGNMENT_Save(tr_sparse, "test_output/my.traceback.sparse.tsv");
+   //    ALIGNMENT_Save(tr_sparse, DEBUG_FOLDER "/my.traceback.sparse.tsv");
    //    cmp = ( ALIGNMENT_Compare( tr_quad, tr_sparse ) == 0 ) ? true : false;
    //    printf("ALIGNMENTS (quad vs sparse)?\t\t%s\n", cmp ? "PASS" : "FAIL" );
    //    if ( cmp == false ) {
@@ -406,14 +406,14 @@ itest_pipeline( WORKER* worker )
    //    run_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
    //    printf("Forward Score (quad):\t%f\n", sc);
    //    scores->quad_fwd = sc;
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.fwd.quad.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.fwd.quad.mx");
    //    /* ==> forward (linear) */
    //    printf("==> forward linear\n");
    //    run_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
    //    printf("Forward Score  (lin):\t%f\n", sc);
    //    scores->lin_fwd = sc;  
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX ); 
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.fwd.lin.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.fwd.lin.mx");
    //    /* ==> forward (comparison) */
    //    printf("==> forward comparison: quadratic v. linear\n");
    //    dp_cmp  = DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin );
@@ -439,7 +439,7 @@ itest_pipeline( WORKER* worker )
    //    run_Bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, full_cloud_edg, &sc);
    //    printf("Bound Forward Score (quad):\t%f\n", sc);
    //    scores->quad_bound_fwd = sc;
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.fwd.full.cloud.quad.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.fwd.full.cloud.quad.mx");
    //    /* ==> forward (linear) */
    //    printf("==> bound forward linear\n");
    //    DP_MATRIX_Clean(Q, T, st_MX3_lin, sp_MX_lin);
@@ -447,7 +447,7 @@ itest_pipeline( WORKER* worker )
    //    printf("Bound Forward Score  (lin):\t%f\n", sc);
    //    scores->lin_bound_fwd = sc;  
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX ); 
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.fwd.full.cloud.lin.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.fwd.full.cloud.lin.mx");
    //    /* ==> forward (comparison) */
    //    printf("==> bound forward comparison: quadratic v. linear\n");
    //    dp_cmp = 0;
@@ -475,7 +475,7 @@ itest_pipeline( WORKER* worker )
    //    printf("Bound Forward Score (sparse):\t%f\n", sc);
    //    scores->quad_bound_fwd = sc;
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.fwd.full.sparse.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.fwd.full.sparse.mx");
    //    /* ==> forward (comparison) */
    //    printf("==> bound forward comparison: sparse v. normal matrix\n");
    //    dp_cmp = 0;
@@ -499,14 +499,14 @@ itest_pipeline( WORKER* worker )
    //    run_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, &sc);
    //    printf("Backward Score (quad):\t%f\n", sc);
    //    scores->quad_bck = sc;
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.bck.quad.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.bck.quad.mx");
    //    /* ==> backward (linear) */
    //    printf("==> backward linear\n");
    //    run_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, &sc);
    //    printf("Backward Score  (lin):\t%f\n", sc);
    //    scores->lin_bck = sc;
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.bck.lin.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.bck.lin.mx");
    //    /* ==> abackward (comparison) */
    //    printf("==> backward comparison: quadratic v. linear\n");
    //    dp_cmp  = DP_MATRIX_Compare( st_MX_quad, sp_MX_quad, st_MX_lin, sp_MX_lin );
@@ -530,7 +530,7 @@ itest_pipeline( WORKER* worker )
    //    run_Bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, full_cloud_edg, &sc);
    //    printf("Bound Backward Score (quad):\t%f\n", sc);
    //    scores->quad_bound_fwd = sc;
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.bck.cloud.quad.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.bck.cloud.quad.mx");
    //    /* ==> backward (linear) */
    //    printf("==> bound forward linear\n");
    //    DP_MATRIX_Clean(Q, T, st_MX3_lin, sp_MX_lin);
@@ -538,7 +538,7 @@ itest_pipeline( WORKER* worker )
    //    printf("Bound Backward Score  (lin):\t%f\n", sc);
    //    scores->lin_bound_fwd = sc;  
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX ); 
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.bck.cloud.lin.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.bck.cloud.lin.mx");
    //    /* ==> backward (comparison) */
    //    printf("==> bound backward comparison: quadratic v. linear\n");
    //    dp_cmp = 0;
@@ -563,7 +563,7 @@ itest_pipeline( WORKER* worker )
    //    printf("Bound Backward Score (sparse):\t%f\n", sc);
    //    scores->quad_bound_fwd = sc;
    //    MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.bck.full.sparse.mx");
+   //    DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.bck.full.sparse.mx");
    //    /* ==> forward (comparison) */
    //    printf("==> bound backward comparison: sparse v. normal matrix\n");
    //    dp_cmp = 0;
@@ -593,8 +593,8 @@ itest_pipeline( WORKER* worker )
    //       MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
    //       DP_MATRIX_VIZ_Dump( cloud_MX_quad, stdout );
    //    }
-   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, "test_output/my.cloud_fwd.quad.mx");
-   //    EDGEBOUNDS_Save(edg_fwd_quad, "test_output/my.cloud_fwd.quad.diags.edg");
+   //    DP_MATRIX_Save(Q, T, st_MX_quad, sp_MX_quad, DEBUG_FOLDER "/my.cloud_fwd.quad.mx");
+   //    EDGEBOUNDS_Save(edg_fwd_quad, DEBUG_FOLDER "/my.cloud_fwd.quad.diags.edg");
    //    /* cloud forward (linear) */
    //    printf("==> cloud forward linear\n");
    //    run_Cloud_Forward_Linear(
@@ -606,13 +606,13 @@ itest_pipeline( WORKER* worker )
    //    }
    //    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    //    {
-   //       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.cloud_fwd.lin.diags.mx");
-   //       EDGEBOUNDS_Save(edg_bck_lin, "test_output/my.cloud_fwd.lin.diags.edg");
+   //       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.cloud_fwd.lin.diags.mx");
+   //       EDGEBOUNDS_Save(edg_bck_lin, DEBUG_FOLDER "/my.cloud_fwd.lin.diags.edg");
    //    }
    //    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    //    {
-   //       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, "test_output/my.cloud_fwd.lin.rows.mx");
-   //       EDGEBOUNDS_Save(edg_bck_lin, "test_output/my.cloud_fwd.lin.rows.edg");
+   //       DP_MATRIX_Save(Q, T, st_MX_lin, sp_MX_lin, DEBUG_FOLDER "/my.cloud_fwd.lin.rows.mx");
+   //       EDGEBOUNDS_Save(edg_bck_lin, DEBUG_FOLDER "/my.cloud_fwd.lin.rows.edg");
    //    }
    //    #endif
    //    /* cloud forward (comparison) */
@@ -630,7 +630,7 @@ itest_pipeline( WORKER* worker )
    //    printf("CLOUD SHAPE?\t\t%s\n", ( cmp == true ) ? "PASS" : "FAIL" );
    //    if ( cmp == false ) {
    //       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_fwd_lin, edg_fwd_quad );
-   //       FILE* fp = fopen( "test_output/my.quadvlin.cloud_fwd.viz", "w+" );
+   //       FILE* fp = fopen( DEBUG_FOLDER "/my.quadvlin.cloud_fwd.viz", "w+" );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, fp );
    //       fclose(fp);
    //    }
@@ -660,8 +660,8 @@ itest_pipeline( WORKER* worker )
    //       MATRIX_2D_Copy( cloud_MX_quad, debugger->cloud_MX );
    //       DP_MATRIX_VIZ_Dump( cloud_MX_quad, stdout );
    //    }
-   //    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.cloud_bck.quad.mx");
-   //    EDGEBOUNDS_Save(edg_bck_quad, "test_output/my.cloud_bck.quad.diags.edg");
+   //    DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, DEBUG_FOLDER "/my.cloud_bck.quad.mx");
+   //    EDGEBOUNDS_Save(edg_bck_quad, DEBUG_FOLDER "/my.cloud_bck.quad.diags.edg");
    //    /* cloud backward (linear) */
    //    printf("==> cloud backward linear\n");
    //    run_Cloud_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, tr, edg_row_tmp, edg_bck_lin, cloud_params );
@@ -672,13 +672,13 @@ itest_pipeline( WORKER* worker )
    //    }
    //    #if ( CLOUD_METHOD == CLOUD_DIAGS )
    //    {
-   //       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.cloud_bck.lin.diags.mx");
-   //       EDGEBOUNDS_Save(edg_bck_lin, "test_output/my.cloud_bck.lin.diags.edg");
+   //       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, DEBUG_FOLDER "/my.cloud_bck.lin.diags.mx");
+   //       EDGEBOUNDS_Save(edg_bck_lin, DEBUG_FOLDER "/my.cloud_bck.lin.diags.edg");
    //    }
    //    #elif ( CLOUD_METHOD == CLOUD_ROWS )
    //    {
-   //       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.cloud_bck.lin.rows.mx");
-   //       EDGEBOUNDS_Save(edg_bck_lin, "test_output/my.cloud_bck.lin.rows.edg");
+   //       DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, DEBUG_FOLDER "/my.cloud_bck.lin.rows.mx");
+   //       EDGEBOUNDS_Save(edg_bck_lin, DEBUG_FOLDER "/my.cloud_bck.lin.rows.edg");
    //    }
    //    #endif
 
@@ -698,7 +698,7 @@ itest_pipeline( WORKER* worker )
    //    printf("CLOUD SHAPE?\t\t%s\n", ( cmp == true ) ? "PASS" : "FAIL" );
    //    if ( ( cmp == false ) ) {
    //       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_bck_lin, edg_bck_quad );
-   //       FILE* fp = fopen( "test_output/my.cloud_bck.quadvlin.viz", "w+" );
+   //       FILE* fp = fopen( DEBUG_FOLDER "/my.cloud_bck.quadvlin.viz", "w+" );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, fp );
    //       fclose(fp);
    //    }
@@ -722,7 +722,7 @@ itest_pipeline( WORKER* worker )
    //    DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_fwd_lin, edg_bck_quad );
    //    DP_MATRIX_VIZ_Trace( cloud_MX_diff, tr );
    //    // DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, stdout );
-   //    FILE* fp = fopen( "test_output/my.fwdbck_cloud.viz", "w+" );
+   //    FILE* fp = fopen( DEBUG_FOLDER "/my.fwdbck_cloud.viz", "w+" );
    //    DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, fp );
    //    fclose(fp);
    // }
@@ -733,16 +733,16 @@ itest_pipeline( WORKER* worker )
    //   /* merge and reorient (naive) */
    //    printf("==> merge & reorient (naive)\n");
    //    EDGEBOUNDS_Merge_Reorient_Naive(Q, T, edg_fwd_quad, edg_bck_quad, edg_diag_quad, edg_row_quad, cloud_MX_quad);
-   //    EDGEBOUNDS_Save(edg_diag_quad, "test_output/my.cloud.quad.diags.edg");
-   //    EDGEBOUNDS_Save(edg_row_quad, "test_output/my.cloud.quad.rows.edg");
+   //    EDGEBOUNDS_Save(edg_diag_quad, DEBUG_FOLDER "/my.cloud.quad.diags.edg");
+   //    EDGEBOUNDS_Save(edg_row_quad, DEBUG_FOLDER "/my.cloud.quad.rows.edg");
    //    cmp = ( EDGEBOUNDS_Compare_by_Cloud( edg_diag_quad, cloud_MX_quad, edg_row_quad, cloud_MX_diff ) == 0 );
    //    printf("Rows vs Diags:\tEDGES?\t\t%s\n", ( cmp == true ) ? "PASS" : "FAIL" );
    //   /* merge and reorient (naive) */
    //    printf("==> merge & reorient (naive)\n");
    //    EDGEBOUNDS_Merge_Together(Q, T, edg_fwd_lin, edg_bck_lin, edg_diag_lin);
    //    EDGEBOUNDS_ReorientToRow(Q, T, edg_diag_lin, edg_row_lin);
-   //    EDGEBOUNDS_Save(edg_diag_lin, "test_output/my.cloud.lin.diags.edg");
-   //    EDGEBOUNDS_Save(edg_row_lin, "test_output/my.cloud.lin.rows.edg");
+   //    EDGEBOUNDS_Save(edg_diag_lin, DEBUG_FOLDER "/my.cloud.lin.diags.edg");
+   //    EDGEBOUNDS_Save(edg_row_lin, DEBUG_FOLDER "/my.cloud.lin.rows.edg");
    //    cmp = ( EDGEBOUNDS_Compare_by_Cloud( edg_diag_lin, cloud_MX_lin, edg_row_lin, cloud_MX_diff ) == 0 );
    //    printf("Rows vs Diags:\tEDGES?\t\t%s\n", ( cmp == true ) ? "PASS" : "FAIL" );
    //    /* test post-merge */
@@ -754,7 +754,7 @@ itest_pipeline( WORKER* worker )
    //       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_diag_lin, edg_diag_quad );
    //       DP_MATRIX_VIZ_Trace( cloud_MX_diff, tr );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, stdout );
-   //       FILE* fp = fopen( "test_output/my.quadvlin.diag.viz", "w+" );
+   //       FILE* fp = fopen( DEBUG_FOLDER "/my.quadvlin.diag.viz", "w+" );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, fp );
    //       fclose(fp);
    //    } 
@@ -766,7 +766,7 @@ itest_pipeline( WORKER* worker )
    //       DP_MATRIX_VIZ_Compare( cloud_MX_diff, edg_row_lin, edg_row_quad );
    //       DP_MATRIX_VIZ_Trace( cloud_MX_diff, tr );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, stdout );
-   //       FILE* fp = fopen( "test_output/my.quadvlin.diag.viz", "w+" );
+   //       FILE* fp = fopen( DEBUG_FOLDER "/my.quadvlin.diag.viz", "w+" );
    //       DP_MATRIX_VIZ_Color_Dump( cloud_MX_diff, fp );
    //       fclose(fp);
    //    } 
@@ -789,8 +789,8 @@ itest_pipeline( WORKER* worker )
    //    MATRIX_3D_SPARSE_Reuse( st_SMX );
    //    MATRIX_3D_SPARSE_Shape_Like_Edgebounds( st_SMX, edg_row_lin );
    //    // EDGEBOUNDS_Dump( st_SMX->edg_outer, stdout );
-   //    EDGEBOUNDS_Save( st_SMX->edg_outer, "test_output/my.sparse.outer.edg" );
-   //    EDGEBOUNDS_Save( st_SMX->edg_inner, "test_output/my.sparse.inner.edg" );
+   //    EDGEBOUNDS_Save( st_SMX->edg_outer, DEBUG_FOLDER "/my.sparse.outer.edg" );
+   //    EDGEBOUNDS_Save( st_SMX->edg_inner, DEBUG_FOLDER "/my.sparse.inner.edg" );
    // }
 
    // // /* stats */
@@ -818,20 +818,20 @@ itest_pipeline( WORKER* worker )
    // run_Bound_Forward_Naive(q_seq, t_prof, Q, T, st_MX_naive, sp_MX_naive, cloud_MX_naive, &sc);
    // printf("Bounded Forward Score (naive):\t%f\n", sc);
    // scores->naive_bound_fwd = sc;
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_fwd.naive.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, DEBUG_FOLDER "/my.bound_fwd.naive.mx");
    // /* bounded forward (quadratic) */
    // printf("==> bound forward (quad)\n");
    // run_Bound_Forward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
    // printf("Bound Forward Score  (quad):\t%f\n", sc);
    // scores->quad_bound_fwd = sc;
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_fwd.quad.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, DEBUG_FOLDER "/my.bound_fwd.quad.mx");
    // /* bounded forward (linear) */
    // printf("==> bound forward (lin)\n");
    // run_Bound_Forward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
    // printf("Bound Forward Score   (lin):\t%f\n", sc);
    // scores->lin_bound_fwd = sc;
    // MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_fwd.lin.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, DEBUG_FOLDER "/my.bound_fwd.lin.mx");
    // /* bounded forward (comparison) */
    // printf("==> bound forward comparison: naive vs. quad vs. lin\n");
    // cmp = ( MATH_CmpTol_byTol( scores->naive_bound_fwd, scores->quad_bound_fwd, 1e-3 ) && 
@@ -859,21 +859,21 @@ itest_pipeline( WORKER* worker )
    // printf("Bound Backward Score (naive):\t%f\n", sc);
    // scores->naive_bound_bck = sc;
    // // MATRIX_3D_Copy( st_MX_naive, debugger->test_MX );
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, "test_output/my.bound_bck.naive.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_naive, sp_MX_naive, tr, DEBUG_FOLDER "/my.bound_bck.naive.mx");
    // /* bounded backward (quadratic) */
    // printf("==> bound backward (quad)\n");
    // run_Bound_Backward_Quad(q_seq, t_prof, Q, T, st_MX_quad, sp_MX_quad, edg_row_lin, &sc);
    // printf("Bound Backward Score  (quad):\t%f\n", sc);
    // scores->quad_bound_fwd = sc;
    // // MATRIX_3D_Copy( st_MX_quad, debugger->test_MX );
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, "test_output/my.bound_bck.quad.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_quad, sp_MX_quad, tr, DEBUG_FOLDER "/my.bound_bck.quad.mx");
    // /* bounded backward (linear) */
    // printf("==> bound backward (lin)\n");
    // run_Bound_Backward_Linear(q_seq, t_prof, Q, T, st_MX3_lin, sp_MX_lin, edg_row_lin, &sc);
    // printf("Bound Backward Score   (lin):\t%f\n", sc);
    // scores->lin_bound_fwd = sc;
    // MATRIX_3D_Copy( st_MX_lin, debugger->test_MX );
-   // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, "test_output/my.bound_bck.lin.mx");
+   // DP_MATRIX_Trace_Save(Q, T, st_MX_lin, sp_MX_lin, tr, DEBUG_FOLDER "/my.bound_bck.lin.mx");
    // /* bounded backward (comparison) */
    // printf("==> bound backward comparison: naive vs. quad vs. lin\n");
    // #if DEBUG

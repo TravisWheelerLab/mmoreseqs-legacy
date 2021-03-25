@@ -73,8 +73,8 @@ WORK_forward_backward( WORKER*  worker )
       {
          printf("# printing forward linear...\n");
          printf("# lin forward score: %f\n", scores->lin_fwd);
-         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, tr, "test_output/my.fwd.lin.viz.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, DEBUG_FOLDER "/my.fwd.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, tr, DEBUG_FOLDER "/my.fwd.lin.viz.mx");
       }
       #endif
    } 
@@ -90,7 +90,7 @@ WORK_forward_backward( WORKER*  worker )
       {
          printf("# printing forward quadratic...\n");
          printf("# quad forward score: %f\n", scores->quad_fwd);
-         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, "test_output/my.fwd.quad.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_fwd, DEBUG_FOLDER "/my.fwd.quad.mx");
       }
       #endif
    }
@@ -108,8 +108,8 @@ WORK_forward_backward( WORKER*  worker )
       {
          printf("# printing backward linear...\n");
          printf("# lin backward score: %f\n", scores->lin_bck);
-         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.lin.mx");
-         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, tr, "test_output/my.bck.lin.viz.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, DEBUG_FOLDER "/my.bck.lin.mx");
+         DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, tr, DEBUG_FOLDER "/my.bck.lin.viz.mx");
       }
       #endif
    }
@@ -125,7 +125,7 @@ WORK_forward_backward( WORKER*  worker )
       {
          printf("# printing backward quadratic...\n");
          printf("# quad backward score: %f\n", scores->quad_bck);
-         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, "test_output/my.bck.quad.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, worker->sp_MX_bck, DEBUG_FOLDER "/my.bck.quad.mx");
       }
       #endif
    }

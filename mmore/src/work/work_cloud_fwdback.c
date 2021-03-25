@@ -93,8 +93,8 @@ WORK_bound_fwdback_linear( WORKER* worker )
       {
          printf("# printing linear bound forward...\n");
          printf("# lin bound forward: %f\n", scores->lin_bound_fwd );
-         // DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, "test_output/my.bound_fwd.lin.mx");
-         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, "test_output/my.bound_fwd.lin.viz.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.bound_fwd.lin.mx");
+         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX_fwd, tr, DEBUG_FOLDER "/my.bound_fwd.lin.viz.mx");
       }
       #endif
    }
@@ -112,8 +112,8 @@ WORK_bound_fwdback_linear( WORKER* worker )
       {
          printf_vall("# printing linear bound backward...\n");
          printf("# lin bound backward: %f\n", scores->lin_bound_bck );
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.lin.mx");
-         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, "test_output/my.bound_bck.lin.viz.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, DEBUG_FOLDER "/my.bound_bck.lin.mx");
+         // DP_MATRIX_Trace_Save(Q, T, debugger->test_MX, sp_MX, tr, DEBUG_FOLDER "/my.bound_bck.lin.viz.mx");
       }
       #endif
    }
@@ -231,7 +231,7 @@ WORK_bound_fwdback_sparse( WORKER* worker )
          printf("# sparse bound forward: %f\n", scores->sparse_bound_fwd );
          
          MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_fwd, debugger->test_MX );
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, "test_output/my.bound_fwd.sp.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_fwd, DEBUG_FOLDER "/my.bound_fwd.sp.mx");
       }
       #endif
    }
@@ -250,7 +250,7 @@ WORK_bound_fwdback_sparse( WORKER* worker )
          printf_vall("# printing sparse bound backward...\n");
          printf("# sparse bound backward: %f\n", scores->sparse_bound_bck );
          MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX );
-         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, "test_output/my.bound_bck.sp.mx");
+         DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX_bck, DEBUG_FOLDER "/my.bound_bck.sp.mx");
       }
       #endif
    }

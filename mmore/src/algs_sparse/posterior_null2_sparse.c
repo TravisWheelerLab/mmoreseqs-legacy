@@ -162,7 +162,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.2.sparse.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.2.sparse.csv", "w+");
       fprintf(fp, "<2>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (t_0 = T_range.beg; t_0 < T_range.end; t_0++) {
@@ -197,7 +197,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.3.sparse.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.3.sparse.csv", "w+");
       fprintf(fp, "<3>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (int t_0 = T_range.beg; t_0 < T_range.end; t_0++) {
@@ -244,7 +244,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.post_vec.4.sparse.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.post_vec.4.sparse.csv", "w+");
       fprintf(fp, "<4>\n");
       fprintf(fp, "==> NORMAL STATES (st_freq) <=\n");
       for (int t_0 = T_range.beg; t_0 < T_range.end; t_0++) {
@@ -310,7 +310,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    #if DEBUG
    {
       // fp = stdout;
-      fp = fopen("test_output/my.null2.sparse.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.null2.sparse.csv", "w+");
       fprintf(fp, "==> NULL2 (pre) <=\n");
       for ( k_0 = 0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++ ) {
          fprintf(fp, "%d %c %.7f\n", k_0, AA[k_0], VEC_X( dom_def->null2_sc, k_0) );
@@ -379,7 +379,7 @@ run_Null2_ByExpectation_Sparse(  SEQUENCE*            query,            /* query
    #if DEBUG
    {
       // fp = stdout;
-      fp = fopen("test_output/my.null2sc.sparse.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.null2sc.sparse.csv", "w+");
       fprintf(fp, "# === NULL2SC (Expectation by Amino) ===\n");
       for (int k_0; k_0 < NUM_AMINO_PLUS_SPEC; k_0++) {
          fprintf(fp, "%d %c %.9f\n", k_0, AA[k_0], VEC_X( dom_def->null2_sc, k_0 ));

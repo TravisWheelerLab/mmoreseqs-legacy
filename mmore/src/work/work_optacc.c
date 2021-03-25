@@ -81,7 +81,7 @@ WORK_optimal_accuracy( WORKER* worker )
    fprintf(stdout, "# ==> Optimal Accuracy (full cloud): %11.4f\n", opt_sc);
    #if DEBUG 
    {
-      fp = fopen("test_output/my.sparse_opt.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.sparse_opt.mx", "w+");
       MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_opt, debugger->test_MX);
       // MATRIX_2D_Log(sp_MX_opt);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_opt, fp);
@@ -138,7 +138,7 @@ WORK_optacc_traceback( WORKER* worker )
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.posterior_traceback.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.posterior_traceback.mx", "w+");
       ALIGNMENT_Dump( aln, fp );
       fclose(fp);
    }

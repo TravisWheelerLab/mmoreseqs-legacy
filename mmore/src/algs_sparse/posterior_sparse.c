@@ -259,7 +259,7 @@ run_Decode_Posterior_Sparse(  SEQUENCE*            q_seq,            /* query se
 
    #if DEBUG
    {
-      fp = fopen("test_output/my.raw_post.exp.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.raw_post.exp.mx", "w+");
       MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
       fclose(fp); 
@@ -524,7 +524,7 @@ run_Decode_Domains(     SEQUENCE*               q_seq,            /* query seque
          VEC_X( idx, q_0 ) = q_0;
       } 
 
-      fp = fopen("test_output/my.njcp.exp.csv", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.njcp.exp.csv", "w+");
       VECTOR_FLT_Dump( idx, fp );
       VECTOR_FLT_Dump( dom_def->b_tot, fp );
       VECTOR_FLT_Dump( dom_def->e_tot, fp );

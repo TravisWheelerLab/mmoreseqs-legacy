@@ -61,6 +61,7 @@
 #ifndef DEBUG
 #define DEBUG 		FALSE
 #endif
+#define DEBUG_FOLDER 		"test-output"
 /* set visualization build (subset of debug build) */
 #ifndef VIZ
 #define VIZ 		DEBUG

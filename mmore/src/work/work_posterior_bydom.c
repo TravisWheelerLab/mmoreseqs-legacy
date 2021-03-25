@@ -150,7 +150,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
          }
          #if DEBUG 
          {
-            fp = fopen("test_output/my.sparse_fwd.dom.mx", "w+");
+            fp = fopen(DEBUG_FOLDER "/my.sparse_fwd.dom.mx", "w+");
             MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_fwd, debugger->test_MX);
             DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_fwd, fp);
             fclose(fp);
@@ -171,7 +171,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
          }
          #if DEBUG 
          {
-            fp = fopen("test_output/my.sparse_bck.dom.mx", "w+");
+            fp = fopen(DEBUG_FOLDER "/my.sparse_bck.dom.mx", "w+");
             MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_bck, debugger->test_MX);
             DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_bck, fp);
             fclose(fp);
@@ -193,7 +193,7 @@ WORK_posterior_sparse_bydom( WORKER* worker )
          }
          #if DEBUG 
          {
-            fp = fopen("test_output/my.sparse_post.dom.mx", "w+");
+            fp = fopen(DEBUG_FOLDER "/my.sparse_post.dom.mx", "w+");
             MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
             MATRIX_2D_Log(sp_MX_post);
             DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
@@ -311,7 +311,7 @@ WORK_bound_fwdback_sparse_bydom( WORKER* worker )
    }
    #if DEBUG 
    {
-      fp = fopen("test_output/my.sparse_fwd.dom.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.sparse_fwd.dom.mx", "w+");
       MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_fwd, debugger->test_MX);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_fwd, fp);
       fclose(fp);
@@ -403,7 +403,7 @@ WORK_decode_posterior_bydom( WORKER* worker )
    fprintf(stdout, "# ==> Posterior (full cloud)\n");
    #if DEBUG 
    {
-      fp = fopen("test_output/my.sparse_post.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.sparse_post.mx", "w+");
       MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
       MATRIX_2D_Log(sp_MX_post);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);

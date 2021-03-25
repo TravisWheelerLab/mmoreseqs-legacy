@@ -227,14 +227,14 @@ WORK_decode_posterior( WORKER* worker )
    fprintf(stdout, "# ==> Posterior (full cloud)\n");
    #if DEBUG 
    {
-      fp = fopen("test_output/my.posterior.sp.log.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.posterior.sp.log.mx", "w+");
       MATRIX_3D_SPARSE_Log_Embed(Q, T, st_SMX_post, debugger->test_MX);
       MATRIX_2D_Log(sp_MX_post);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
       MATRIX_2D_Exp(sp_MX_post);
       fclose(fp);
 
-      fp = fopen("test_output/my.posterior.sp.exp.mx", "w+");
+      fp = fopen(DEBUG_FOLDER "/my.posterior.sp.exp.mx", "w+");
       MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
       DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
       fclose(fp);

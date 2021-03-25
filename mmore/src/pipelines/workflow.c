@@ -83,7 +83,7 @@ WORK_capture_alignment( WORKER* worker )
    //    MATRIX_2D_Fill( debugger->cloud_MX, 0.0 );
    //    MATRIX_2D_Cloud_Fill( debugger->cloud_MX, worker->st_SMX_fwd->edg_outer, 1.0 );
    //    MATRIX_2D_Cloud_Fill( debugger->cloud_MX, worker->st_SMX_fwd->edg_inner, 0.1 );
-   //    fp = fopen("test_output/sparse_mx.mx", "w");
+   //    fp = fopen(DEBUG_FOLDER "/sparse_mx.mx", "w");
    //    MATRIX_2D_Dump( debugger->cloud_MX, fp );
    //    fclose(fp);
    // }
