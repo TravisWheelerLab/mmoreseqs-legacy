@@ -24,4 +24,7 @@ mmoreseqs
 ## Development
 
 
+## Authors
+
+See AUTHORS
 
