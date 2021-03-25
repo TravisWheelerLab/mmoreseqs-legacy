@@ -1,8 +1,0 @@
-{
-    "files.associations": {
-        "*.tcc": "cpp",
-        "random": "cpp",
-        "cstdio": "c"
-    },
-    "C_Cpp.intelliSenseEngineFallback": "Enabled"
-}
