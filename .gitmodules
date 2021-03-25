@@ -1,9 +1,0 @@
-[submodule "mmore/tools/mmseqs"]
-	path = mmore/tools/mmseqs
-	url = https://github.com/soedinglab/MMseqs2.git
-[submodule "mmore/tools/hmmer"]
-	path = mmore/tools/hmmer
-	url = https://github.com/TravisWheelerLab/hmmer.git
-[submodule "mmore/lib/easel"]
-	path = mmore/lib/easel
-	url = https://github.com/TravisWheelerLab/easel.git

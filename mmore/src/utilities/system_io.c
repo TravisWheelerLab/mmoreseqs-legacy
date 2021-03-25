@@ -15,8 +15,8 @@
 #include <limits.h>
 
 /* local imports */
-#include "structs.h"
-#include "_objects.h"
+#include "../objects/structs.h"
+#include "../objects/_objects.h"
 
 /* header */
 #include "_utilities.h"
