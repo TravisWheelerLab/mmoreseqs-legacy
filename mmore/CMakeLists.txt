@@ -151,3 +151,7 @@ ExternalProject_Get_property(easel SOURCE_DIR)
 target_include_directories(mmoreseqs PRIVATE ${SOURCE_DIR})
 target_link_libraries(mmoreseqs ${SOURCE_DIR}/libeasel.a)
 add_dependencies(mmoreseqs easel)
+
+# Add math dependency
+target_link_libraries(mmoreseqs m)
+
