@@ -185,6 +185,9 @@ set(SCRIPTS
         scripts/workflows/mmoreseqs-search.sh       
 )
 
+set(TESTS_SOURCES 
+        src/unity_test.c)
+
 # -------
 # Scripts
 # -------
@@ -196,21 +199,23 @@ file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 # Executables
 # -----------
 
-set(TARGET_OUT  
-        mmoreseqs)
-set(TARGET_IN   
-        src/application.c )
+add_executable(
+        mmoreseqs 
+        src/application.c 
+
+        ${SOURCES}
+)
 
 add_executable(
-        ${TARGET_OUT}
-        ${TARGET_IN}
-        ${SOURCES}
+        mmoreseqs_test
+        src/unity_test.c
 )
 
 # ------------
 # Dependencies
 # ------------
 
+# Easel
 ExternalProject_Add(
         easel
         URL https://github.com/EddyRivasLab/easel/archive/Bio-Easel-0.14.tar.gz
@@ -226,6 +231,22 @@ ExternalProject_Get_property(easel SOURCE_DIR)
 target_include_directories(mmoreseqs PRIVATE ${SOURCE_DIR})
 target_link_libraries(mmoreseqs ${SOURCE_DIR}/libeasel.a)
 add_dependencies(mmoreseqs easel)
+
+# Unity
+ExternalProject_Add(
+  unity
+  GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
+  GIT_TAG origin/master
+  PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib/Unity
+  BUILD_IN_SOURCE 1
+  INSTALL_COMMAND ""
+)
+ExternalProject_Get_property(unity SOURCE_DIR)
+ExternalProject_Get_property(unity BINARY_DIR)
+message(STATUS "UNITY SRC: ${SOURCE_DIR}, BIN: ${BINARY_DIR}")
+target_include_directories(mmoreseqs_test PRIVATE ${SOURCE_DIR}/src)
+target_link_libraries(mmoreseqs_test ${BINARY_DIR}/libunity.a)
+add_dependencies(mmoreseqs_test unity)
 
 # Add math dependency
 target_link_libraries(mmoreseqs m)
@@ -251,5 +272,5 @@ add_compile_definitions("MMORE_BIN_LOC=${CMAKE_CURRENT_BINARY_DIR}/bin/")
 
 # C compiler flags
 # set(CMAKE_C_FLAGS_RELEASE "-O3")
-# set(CMAKE_C_FLAGS_DEBUG "-O3")
+set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=addres")
