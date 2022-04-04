@@ -4,7 +4,7 @@ Pruned Forward-Backward implementation of profile HMM alignment.
 
 ## Installation / Getting Started
 
-### Build from Source
+### Build from Source ()
 
 We use a "git flow" workflow. We have one active branch:
 * **master** will be the stable fb-pruner release branch.  
@@ -12,14 +12,14 @@ We use a "git flow" workflow. We have one active branch:
 To clone your own copy of the fb-pruner repository for the first time:
 
 ```bash
-   $ git clone https://github.com/TravisWheelerLab/fb-pruner mmoreseqs
+   $ git clone https://github.com/TravisWheelerLab/mmoreseqs mmoreseqs
    $ cd mmoreseqs
    $ cmake . -DCMAKE_BUILD_TYPE=RELEASE
    $ make
 ```
 
 For more information about gitflow, see the
-[mmoreseqs wiki](https://github.com/TravisWheelerLab/fb-pruner/wiki)
+[mmoreseqs wiki](https://github.com/TravisWheelerLab/mmoreseqs/wiki)
 
 The executable, called `mmoreseqs` will end up in the `build/` subdirectory.
 Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) will
@@ -101,7 +101,7 @@ Build-Time Dependencies:
 
 Run-Time Dependencies:
 
-- HMMER (v3.3.2)
-- MMseqs2 (https://github.com/soedinglab/MMseqs2.git) 
+- HMMER (v3.3.2) (http://hmmer.org/download.html)
+- MMseqs2 (https://github.com/soedinglab/MMseqs2.git)
    - commit hash: fa4cd2a7ab15a2636b5c1615859a2491d6888300  
 - Python (v2.7)

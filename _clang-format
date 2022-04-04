@@ -1,0 +1,51 @@
+# clang-format
+# Made by: Ingmar Delsink
+# idelsink.com
+# See http://clang.llvm.org/docs/ClangFormatStyleOptions.html
+# Tested with: clang-format version 3.7.1
+
+# General
+#########
+
+# The style used for all options not specifically set in the configuration.
+# This option is supported only in the clang-format configuration (both within -style='{...}' and the .clang-format file).
+# Possible values:
+#   LLVM A style complying with the LLVM coding standards
+#   Google A style complying with Google’s C++ style guide
+#   Chromium A style complying with Chromium’s style guide
+#   Mozilla A style complying with Mozilla’s style guide
+#   WebKit A style complying with WebKit’s style guide
+BasedOnStyle: Chromium
+
+# TabWidth (unsigned)
+# The number of columns used for tab stops.
+TabWidth: 2
+
+# IndentWidth (unsigned)
+# The number of columns to use for indentation.
+IndentWidth: 2
+
+# UseTab (UseTabStyle)
+# The way to use tab characters in the resulting file.
+# Possible values:
+#   UT_Never (in configuration: Never) Never use tab.
+#   UT_ForIndentation (in configuration: ForIndentation) Use tabs only for indentation.
+#   UT_Always (in configuration: Always) Use tabs whenever we need to fill whitespace that spans at least from one tab stop to the next one.
+UseTab: Never
+
+# C++
+#####
+
+# Language (LanguageKind)
+# Language, this format style is targeted at.
+# Possible values:
+#   LK_None (in configuration: None) Do not use.
+#   LK_Cpp (in configuration: Cpp) Should be used for C, C++, ObjectiveC, ObjectiveC++.
+#   LK_Java (in configuration: Java) Should be used for Java.
+#   LK_JavaScript (in configuration: JavaScript) Should be used for JavaScript.
+#   LK_Proto (in configuration: Proto) Should be used for Protocol Buffers (https://developers.google.com/protocol-buffers/).
+#   LK_TableGen (in configuration: TableGen) Should be used for TableGen code.
+Language: Cpp
+
+SortIncludes: false
+ColumnLimit: 0

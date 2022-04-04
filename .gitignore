@@ -1,0 +1,109 @@
+# IDE files
+.vscode
+
+# macOS files
+*.DS_Store
+
+# project files
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# temporary working folders
+*/test_output/*
+*/output/*
+*/test-db/*
+*/testing/*
+*/testing/*
+*/tmp/*
+
+# binary folders
+more-tools/hmmer-test/easel/
+fb-pruner/build/
+fb-pruner/bin/
+fb-pruner/test-mmseqs/
+more-tools/hmmer-test/build/
+more-tools/mmseqs-test/build/
+more-tools/mmseqs-pruner-plus/build/
+build/
+build-debug/
+lib/
+tools/
+my_build/
+bin/
+
+# Example files
+examples/tmp-mmoreseqs
+examples/debugout-mmore
+examples/*.out
+examples/*.txt
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.c.d
+
+# Compiled Dynamic libraries
+*.so.*
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# debug
+*.dSYM
+.DS_Store
+*.swp
+*.gmon
+*/test_output/
+
+# programs
+*.depend
+*.swp
+
+# Autotools
+.deps/
+.dirstamp
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+compile
+config.log
+config.status
+configure
+depcomp
+fbpruner
+install-sh
+missing
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+**/*.cbp
+DartConfiguration.tcl
+
+# Exceptions
+!my_make/Makefile
+!my_make/Makefile.am
+!my_make/Makefile.in
