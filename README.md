@@ -12,14 +12,14 @@ We use a "git flow" workflow. We have one active branch:
 To clone your own copy of the fb-pruner repository for the first time:
 
 ```bash
-   $ git clone https://github.com/TravisWheelerLab/fb-pruner mmoreseqs
+   $ git clone https://github.com/TravisWheelerLab/MMOREseqs mmoreseqs
    $ cd mmoreseqs
    $ cmake . -DCMAKE_BUILD_TYPE=RELEASE
    $ make
 ```
 
 For more information about gitflow, see the
-[mmoreseqs wiki](https://github.com/TravisWheelerLab/fb-pruner/wiki)
+[mmoreseqs wiki](https://github.com/TravisWheelerLab/MMOREseqs/wiki)
 
 The executable, called `mmoreseqs` will end up in the `build/` subdirectory.
 Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) will
