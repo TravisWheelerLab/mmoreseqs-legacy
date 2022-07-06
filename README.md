@@ -7,9 +7,9 @@ Pruned Forward-Backward implementation of profile HMM alignment.
 ### Build from Source
 
 We use a "git flow" workflow. We have one active branch:
-* **master** will be the stable fb-pruner release branch.  
+* **master** will be the stable mmoreseqs release branch.  
 
-To clone your own copy of the fb-pruner repository for the first time:
+To clone your own copy of the mmoreseqs repository for the first time:
 
 ```bash
    $ git clone https://github.com/TravisWheelerLab/MMOREseqs mmoreseqs
