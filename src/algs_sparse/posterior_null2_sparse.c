@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      posterior_null2_sparse.c
- *  - DESC:    Computer the Null2 Composition Bias of the Posterior Probability.
+ *  - FILE:  posterior_null2_sparse.c
+ *  - DESC:  Computer the Null2 Composition Bias of the Posterior Probability.
  *******************************************************************************/
 
 /* imports */
@@ -36,7 +36,6 @@ run_Null2_ByExpectation_Sparse(SEQUENCE* query,               /* query sequence 
                                DOMAIN_DEF* dom_def,           /* OUTPUT: domain def's null2_sc vector */
                                float* compo_bias)             /* OUTPUT: Null2 composition bias */
 {
-  printf("=== run_Null2_ByExpectation_Sparse() [BEGIN] ===\n");
   FILE* fp;
 
   float bias;

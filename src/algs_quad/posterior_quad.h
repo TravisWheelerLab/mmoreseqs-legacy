@@ -1,6 +1,6 @@
 /*******************************************************************************
- *     - FILE:   posterior_quad.h
- *  - DESC:    The Posterior Probability and Optimal Alignment.
+ *  - FILE:  posterior_quad.h
+ *  - DESC:  The Posterior Probability and Optimal Alignment.
  *******************************************************************************/
 
 #ifndef _POSTERIOR_QUAD_H

@@ -1,6 +1,6 @@
 /*******************************************************************************
- *    - FILE:       traceback_quad.h
- *    - DESC:     Traceback for Viterbi Algorithm.
+ *  - FILE:  traceback_quad.h
+ *  - DESC:  Traceback for Viterbi Algorithm.
  *******************************************************************************/
 
 #ifndef _TRACEBACK_QUAD_H

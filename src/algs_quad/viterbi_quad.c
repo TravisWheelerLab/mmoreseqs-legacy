@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      viterbi_quad.c
- *  - DESC:    The Viterbi Algorithm and Traceback for Sequence Alignment Search.
+ *  - FILE:  viterbi_quad.c
+ *  - DESC:  The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *******************************************************************************/
 
 /* imports */

@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      posterior_sparse.h
- *  - DESC:    The Maximum Posterior Probability and Optimal Alignment.
- *  NOTES:
+ *  - FILE:  posterior_sparse.h
+ *  - DESC:  The Maximum Posterior Probability and Optimal Alignment.
+ *  - NOTES:
  *    - There are a few suboptimal arrangements I have to clarify the posterior process.
  *    - Currently, posterior_decoding converts from log to normal space in a separate middle step.
  *      This could be integrated into the first pass through the matrix and reduce passes.

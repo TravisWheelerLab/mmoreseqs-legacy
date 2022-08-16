@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      posterior_traceback_sparse.h
- *  - DESC:    The Maximum Posterior Probability and Optimal Alignment.
+ *  - FILE:  posterior_traceback_sparse.h
+ *  - DESC:  The Maximum Posterior Probability and Optimal Alignment.
  *******************************************************************************/
 
 /* imports */

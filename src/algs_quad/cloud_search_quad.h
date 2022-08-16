@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:       cloud_search_quad.c
- *  - DESC:     Cloud Search for Forward-Backward Pruning Alg. (Quadratic Space)
+ *  - FILE:  cloud_search_quad.c
+ *  - DESC:  Cloud Search for Forward-Backward Pruning Alg. (Quadratic Space)
  *******************************************************************************/
 
 #ifndef _CLOUD_SEARCH_QUAD_H

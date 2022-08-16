@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      fwdback_linear.c
- *  - DESC:    The Forward-Backward Algorithm for Sequence Alignment Search.
- *             (Linear Space)
+ *  - FILE:  fwdback_linear.c
+ *  - DESC:  The Forward-Backward Algorithm for Sequence Alignment Search.
+ *           (Linear Space)
  *******************************************************************************/
 
 #ifndef _FWDBACK_LIN_H

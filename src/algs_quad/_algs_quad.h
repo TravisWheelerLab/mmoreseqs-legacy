@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      algs_quad.h
- *  - DESC:    /algs_quad/ folder collective header
+ *  - FILE:  algs_quad.h
+ *  - DESC:  /algs_quad/ folder collective header
  *******************************************************************************/
 
 #ifndef _ALGS_QUAD_H

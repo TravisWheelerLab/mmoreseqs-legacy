@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:       cloud_search_quad.c
- *  - DESC:     Cloud Search for Forward-Backward Pruning Algorithms with Quadratic Space.
+ *  - FILE:  cloud_search_quad.c
+ *  - DESC:  Cloud Search for Forward-Backward Pruning Algorithms with Quadratic Space.
  *  NOTES:
  *    - Bitrot
  *    - This quadratic implementation was originally intended to mirror run_Cloud_*_Linear().

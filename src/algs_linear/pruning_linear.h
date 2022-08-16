@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      pruning_linear.c
- *  - DESC:    Pruning methods for Cloud Search.
+ *  - FILE:  pruning_linear.c
+ *  - DESC:  Pruning methods for Cloud Search.
  *******************************************************************************/
 
 #ifndef _PRUNING_LINEAR_H

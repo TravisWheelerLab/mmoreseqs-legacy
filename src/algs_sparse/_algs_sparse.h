@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      _algs_sparse.h
- *  - DESC:    /algs_sparse/ folder collective header.
- *             All genomic search algorithms utilizing sparse matrices.
+ *  - FILE:  _algs_sparse.h
+ *  - DESC:  /algs_sparse/ folder collective header.
+ *           All genomic search algorithms utilizing sparse matrices.
  *******************************************************************************/
 
 #ifndef _ALGS_SPARSE_H

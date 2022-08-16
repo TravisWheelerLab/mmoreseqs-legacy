@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:     bound_fwdbck_naive.c
- *  - DESC:   Bounded Forward-Backward Algorithm for Cloud Search (Naive).
+ *  - FILE:  bound_fwdbck_naive.c
+ *  - DESC:  Bounded Forward-Backward Algorithm for Cloud Search (Naive).
  *******************************************************************************/
 
 /* imports */

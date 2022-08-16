@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:       fwdback_vectorized.c
- *  SYNOPSIS:   The Forward-Backward Algorithm for Sequence Alignment Search.
- *              (Linear O(Q), SIMD Vectorized)
+ *  - FILE:  fwdback_vectorized.c
+ *  - DESC:  The Forward-Backward Algorithm for Sequence Alignment Search.
+ *           (Linear O(Q), SIMD Vectorized)
  *  NOTES:
  *******************************************************************************/
 

@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      bounded_viterbi_sparse.c
- *  - DESC:    Bounded Viterbi Algorithm
- *             (Sparse Matrix)
+ *  - FILE:  bounded_viterbi_sparse.c
+ *  - DESC:  Bounded Viterbi Algorithm
+ *           (Sparse Matrix)
  *******************************************************************************/
 
 #ifndef _BOUND_VITERBI_SPARSE_H
@@ -27,9 +27,8 @@ run_Bound_Viterbi_Sparse(
     const int Q,               /* query length */
     const int T,               /* target length */
     const EDGEBOUNDS* edg,     /* edgebounds */
-    const RANGE*
-        dom_range,                         /* (OPTIONAL) domain range for computing fwd/bck on specific
-                      domain. If NULL, computes complete fwd/bck. */
+    const RANGE* dom_range,    /* (OPTIONAL) domain range for computing fwd/bck on specific
+                                  domain. If NULL, computes complete fwd/bck. */
     MATRIX_3D_SPARSE* restrict st_SMX_vit, /* normal state matrix */
     MATRIX_2D* restrict sp_MX_vit,         /* special state matrix */
     float* sc_final);                      /* (OUTPUT) final score */

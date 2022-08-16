@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:   posterior_sparse.h
- *  - DESC:    The Posterior Probability and Optimal Alignment.
+ *  - FILE:  posterior_sparse.h
+ *  - DESC:  The Posterior Probability and Optimal Alignment.
  *******************************************************************************/
 
 #ifndef _POSTERIOR_SPARSE_H

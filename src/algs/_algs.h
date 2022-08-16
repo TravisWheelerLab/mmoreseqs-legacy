@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      _algs.h
- *  - DESC:    /algs/ folder collective header
+ *  - FILE:  _algs.h
+ *  - DESC:  /algs/ folder collective header
  *******************************************************************************/
 
 #ifndef _ALGS_H

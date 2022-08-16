@@ -1,6 +1,6 @@
 /*******************************************************************************
- *    - FILE:       traceback_sparse.c
- *    - DESC:     Traceback for Viterbi Algorithm for Sparse Matrices.
+ *  - FILE:  traceback_sparse.c
+ *  - DESC:  Traceback for Viterbi Algorithm for Sparse Matrices.
  *******************************************************************************/
 
 /* imports */

@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      algs_naive.h
- *  - DESC:    /algs_naive/ folder collective header
+ *  - FILE:  algs_naive.h
+ *  - DESC:  /algs_naive/ folder collective header
  *******************************************************************************/
 
 #ifndef _ALGS_NAIVE_H
