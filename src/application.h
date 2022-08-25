@@ -8,10 +8,10 @@
 
 #include "objects/structs.h"
 
-/*! FUNCTION:  	run_application()
+/*! FUNCTION:  	APPLICATION_Run()
  *  SYNOPSIS:  	Main entry point into application.
  */
 STATUS_FLAG
-run_application(int argc, char* argv[]);
+APPLICATION_Run(int argc, char* argv[]);
 
 #endif /* _APPLICATION_H */

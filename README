@@ -4,19 +4,20 @@ Pruned Forward-Backward implementation of profile HMM alignment.
 
 ## Installation / Getting Started
 
-### Build from Source ()
+### Build from Source
 
 We use a "git flow" workflow. We have one active branch:
-* **master** will be the stable fb-pruner release branch.  
+* **master** will be the stable MMOREseqs release branch.  
 
-To clone your own copy of the fb-pruner repository for the first time:
+To clone your own copy of the MMOREseqs repository for the first time:
 
 ```bash
    $ git clone https://github.com/TravisWheelerLab/mmoreseqs mmoreseqs
    $ cd mmoreseqs
-   $ cmake . -DCMAKE_BUILD_TYPE=RELEASE
    $ make
 ```
+
+Make will build an executable binary and a python module in the `mmoreseqs/build\bin` directory.  
 
 For more information about gitflow, see the
 [mmoreseqs wiki](https://github.com/TravisWheelerLab/mmoreseqs/wiki)
@@ -25,15 +26,19 @@ The executable, called `mmoreseqs` will end up in the `build/` subdirectory.
 Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) will
 be fetched automatically at the correct versions.
 
+## Example 
+
+For a quick example database to learn the workflow and check the correct behavior.  This test is contained in `mmoreseqs/
+
 ## Usage
 
-MMORE-SEQS Workflow:  
-The MMORE-SEQS takes in three primary inputs:
+MMOREseqs Workflow:  
+The MMOREseqs takes in three primary inputs:
 
 - QUERY: a multiple sequence alignment (MSA) database file.  
 - TARGET: a sequence (FASTA) database file that the query will search against.
 
-There are a few ways to execute the MMORE-SEQS Pipeline.  
+There are a few ways to execute the MMOREseqs Pipeline.  
 
 (1) Simplest method: `mmoreseqs easy-search`
 Easy-search handles all the input files through the entire search pipeline in a single command.  

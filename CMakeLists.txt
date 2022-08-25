@@ -163,6 +163,10 @@ set(SOURCES
   src/utilities/statistics.c
 )
 
+set(TEST_FOLDER test)
+set(TEST_SOURCES
+  test/unity_test.c)
+
 set(SCRIPT_FOLDER scripts)
 set(SCRIPTS
   scripts/workflows/mmoreseqs-prep.sh
@@ -190,15 +194,18 @@ set(SCRIPTS
   scripts/workflows/mmoreseqs-search.sh
 )
 
-set(TEST_SOURCES
-  test/unity_test.c)
+set(APP_FOLDER app)
+set(APP_SOURCES
+  app/application.py)
 
 # -------
 # Scripts
 # -------
-
-# add_subdirectory(scripts)
+add_subdirectory(${SCRIPT_FOLDER})
 file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
+add_subdirectory(${APP_FOLDER})
+file(COPY ${APP_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # ------------
 # Dependencies
@@ -325,15 +332,16 @@ set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
 # ---------------------
 # Install python modules
 # ---------------------
-# file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/py)
-# set(MMORESEQS_BINARY_DIR ${PROJECT_BINARY_DIR})
-# configure_file(setup.py.in
-# ${PROJECT_BINARY_DIR}/setup.py @ONLY
-# )
-# configure_file(__init__.py.in
-# ${PROJECT_BINARY_DIR}/py/__init__.py @ONLY
-# )
 
-# add_custom_target(pip ALL
-# COMMAND ln -sf ${PROJECT_BINARY_DIR}/$<TARGET_FILE_NAME:mmoreseqs_pylib> ${PROJECT_BINARY_DIR}/py/__init__.so
-# )
+# mmoreseqs_pylib
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/py)
+set(MMORESEQS_BINARY_DIR ${PROJECT_BINARY_DIR})
+configure_file(setup.py.in
+  ${PROJECT_BINARY_DIR}/setup.py @ONLY
+)
+configure_file(__init__.py.in
+  ${PROJECT_BINARY_DIR}/py/__init__.py @ONLY
+)
+add_custom_target(pip ALL
+  COMMAND ln -sf ${PROJECT_BINARY_DIR}/$<TARGET_FILE_NAME:mmoreseqs_pylib> ${PROJECT_BINARY_DIR}/py/__init__.so
+)

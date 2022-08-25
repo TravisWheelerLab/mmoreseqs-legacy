@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  - FILE:  py_mmoreseqs.cpp
+ *  - FILE:  mmoreseqs_pylib.cpp
  *  - DESC:  Python bindings via pybind11 for MMOREseqs
  *******************************************************************************/
 
@@ -9,43 +9,36 @@
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
 
-// #include "pybind_classes.hpp"
-// #include "easel.h"
+#include "easel.h"
+#include "pybind_classes.hpp"
 
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-int add(int i, int j) {
-  return i + j;
-}
-
 namespace py = pybind11;
 
-PYBIND11_MODULE(py_mmoreseqs, m) {
+PYBIND11_MODULE(mmoreseqs_pylib, m) {
   m.doc() = R"pbdoc(
         MMOREseqs 
         -----------------------
         .. currentmodule:: mmoreseqs
         .. autosummary::
            :toctree: _generate
-           add
-           subtract
+           run
     )pbdoc";
 
-  m.def("add", &add, R"pbdoc(
-        Add two numbers
-        Some other explanation about the add function.
-    )pbdoc");
-
   m.def(
-      "subtract", [](int i, int j) { return i - j; }, R"pbdoc(
-        Subtract two numbers
-        Some other explanation about the subtract function.
-    )pbdoc");
+      "run", [](py::object& pyargv11) {
+        PipelineCpp::RunAppFromCommandLine(pyargv11);
+      },
+      R"pbdoc(
+          Parses commandline and runs pipeline with respect to arguments.
+      )pbdoc");
 
-  // py::class_<ArgsCpp> args(m, "ARGS", "List of pipeline arguments.");
+  // py::class_<ArgsCpp>
+  //     args(m, "ARGS", "List of arguments for determining pipline..");
 
-  // py::class_<WorkerCpp> worker(m, "WORKER", "Worker object to be processed by pipeline.");
+  // py::class_<WorkerCpp> worker(m, "WORKER", "Worker object to for data to be modified by pipeline.");
 
   // py::class_<PipelineCpp> pipeline(m, "PIPELINE", "Pipeline object for conducting searches and other routines.");
 

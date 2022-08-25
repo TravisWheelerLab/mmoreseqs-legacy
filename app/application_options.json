@@ -4,18 +4,18 @@
       "arguments": {
         "target_filepath": {
           "type": "str",
-          "help": "Path to target database. Accepted types: "
+          "help": "Path to target database. Accepted types: FASTA"
         },
         "query_filepath": {
           "type": "str",
-          "help": "Path to query database. Accepted types: "
+          "help": "Path to query database. Accepted types: HMM"
         },
         "temp_filepath": {
           "type": "str",
           "help": "Path to working directory for performing search."
         }
       },
-      "help": "Prepare files for performing MMORESEQS search via prep-search. Takes "
+      "help": "Prepare files for performing MMORESEQS search via prep-search. Takes as arguments: [0] search target filepath, [1] search query filepath, and [2] temporary working directory path. Target filepath types: HMM. Query filepath types: HMM, FASTA."
     },
     "prep-search": {
       "arguments": {
@@ -23,7 +23,7 @@
           "type": "str"
         }
       },
-      "help": "Runs full MMORESEQS search on prepared file directory."
+      "help": "Runs full MMORESEQS search on prepared file directory.  Takes as arguments: [0] temporary working directory path."
     },
     "mmseqs-search": {
       "arguments": {
@@ -34,7 +34,7 @@
           "type": "str"
         }
       },
-      "help": "Runs MMSEQS stage of MMORESEQS search on target and query databases."
+      "help": "Runs MMSEQS stage of MMORESEQS search on target and query databases. Takes as arguments: [0] search target filepath, and [1] search query filepath.  Target filepath types: MMDB.  Query filepath types: MMDB."
     },
     "mmore-search": {
       "arguments": {
@@ -48,7 +48,7 @@
           "type": "str"
         }
       },
-      "help": "Runs MMORE stage of MMORESEQS search on target and query databases, using results from MMSEQS stage."
+      "help": "Runs MMORE stage of MMORESEQS search on target and query databases, using results from MMSEQS stage. Takes as arguments: [0] search target filepath, [1] search query filepath, and [2] temporary working directory path. Target filepath types: HMM. Query filepath types: FASTA."
     },
     "easy-search": {
       "arguments": {
@@ -62,7 +62,7 @@
           "type": "str"
         }
       },
-      "help": "Prepares file and completes full search on target and query databases."
+      "help": "Prepares file and completes full search on target and query databases. Takes as arguments: [0] search target filepath, [1] search query filepath, and [2] temporary working directory path. Target filepath types: HMM. Query filepath types: HMM, FASTA."
     },
     "version": {
       "arguments": {},
@@ -129,7 +129,7 @@
         "int"
       ],
       "default": [
-        1
+        "1"
       ],
       "help": "Number of parallel threads.",
       "hidden": false,

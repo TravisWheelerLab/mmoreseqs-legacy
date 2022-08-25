@@ -51,16 +51,16 @@ VALGRIND_C_FLAGS 	:= -g -O0
 default:
 	$(MAKE) build-release
 
-build-cli:
-	@echo "*** BUILD CLI ***"
-	
-
 build-release:
 	@echo "*** BUILD RELEASE ***"
 	@mkdir -p $(BUILD_RELEASE_DIR)
 	@cmake -S . -B $(BUILD_RELEASE_DIR) -DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH)
 	@cd $(BUILD_RELEASE_DIR) && \
 		make CFLAGS="$(RELEASE_C_FLAGS)" CXXFLAGS="$(RELEASE_C_FLAGS)"
+	# @cd $(BUILD_RELEASE_DIR) && \
+	# 	pip install .
+	@cd $(BUILD_RELEASE_DIR) && \
+		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/ 
 
 build-debug:
 	@echo "*** BUILD DEBUG ***"
@@ -79,7 +79,6 @@ build-valgrind:
 build-test:
 	@echo '*** BUILD-TEST ***'
 	$(MAKE) build-release 
-	@echo ''
 	$(MAKE) test
 
 test:

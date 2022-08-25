@@ -30,7 +30,7 @@
 #include "application.h"
 
 STATUS_FLAG
-run_application(int argc, char* argv[]) {
+APPLICATION_Run(int argc, char* argv[]) {
   /* full program runtimes */
   float program_start, program_end, program_runtime;
 

@@ -5,8 +5,10 @@ from distutils.core import setup
 setup(
     name='mmoreseqs_pylib',
     version='@MMORESEQS_VERSION@',
-    author='David Rich'
-    author_email='david.rich27@gmail.com'
+    author='Wheeler Labs, David Rich.',
+    author_email='david.rich27@gmail.com',
+    url='git@github.com:TravisWheelerLab/MMOREseqs.git',
+    description='MMOREseqs, an accelerated forward-backward pipeline for profile HMM sequence alignment search.',
     packages=['mmoreseqs_pylib'],
     package_dir={'mmoreseqs_pylib': '@MMORESEQS_BINARY_DIR@/'},
     package_data={'mmoreseqs_pylib': ['@MMORESEQS_BINARY_DIR@/*']},

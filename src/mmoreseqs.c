@@ -32,7 +32,7 @@
 /* === MAIN ENTRY-POINT TO PROGRAM === */
 STATUS_FLAG
 main(int argc, char* argv[]) {
-  STATUS_FLAG return_status = run_application(argc, argv);
+  STATUS_FLAG return_status = APPLICATION_Run(argc, argv);
   printf("# Completed Successfully.\n");
   ERRORCHECK_exit(return_status);
 }

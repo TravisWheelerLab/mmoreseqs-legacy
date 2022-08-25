@@ -7,33 +7,41 @@ Pruned Forward-Backward implementation of profile HMM alignment.
 ### Build from Source
 
 We use a "git flow" workflow. We have one active branch:
-* **master** will be the stable mmoreseqs release branch.  
+* **master** will be the stable MMOREseqs release branch.  
 
-To clone your own copy of the mmoreseqs repository for the first time:
+To clone your own copy of the MMOREseqs repository for the first time:
 
 ```bash
-   $ git clone https://github.com/TravisWheelerLab/MMOREseqs mmoreseqs
+   $ git clone https://github.com/TravisWheelerLab/mmoreseqs mmoreseqs
    $ cd mmoreseqs
-   $ cmake . -DCMAKE_BUILD_TYPE=RELEASE
    $ make
 ```
 
+Make will build an executable binary and a python module in the `mmoreseqs/build\bin` directory.  
+
 For more information about gitflow, see the
-[mmoreseqs wiki](https://github.com/TravisWheelerLab/MMOREseqs/wiki)
+[mmoreseqs wiki](https://github.com/TravisWheelerLab/mmoreseqs/wiki)
 
 The executable, called `mmoreseqs` will end up in the `build/` subdirectory.
 Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) will
 be fetched automatically at the correct versions.
 
+## Example 
+
+For a quick example database to learn the workflow and check the correct behavior.  This test is contained in `mmoreseqs/example`.  In this file, we have a collection of shell scripts and small target and query databases  in `example/db`.  There are a few workflow examples shown: 
+- (1) The first, `easysearch-example.sh`.  Using easy-search allows the user to search the databases with one single command, just specify the target and query, as well as the temporary working directory to use.
+- (2a) The second, `prepsearch-example-1.sh` and `prepsearch-example-2.sh`.  Using this workflow splits the preparation step from the search step.  This can bypass alot of unneccessary overhead, especially when performing multiple searches against a particular database under different parameters.
+- (2b) The third breaks down `prepsearch-example-2.sh` further breaks the search down into `prepsearch-example-2-mmseqs.sh`, the first MMseqs2 search phase and `prepsearch-example-2-mmore.sh`, the second MMORE search phase.  All of these methods use the same parameters and will generate the same results.
+
 ## Usage
 
-MMORE-SEQS Workflow:  
-The MMORE-SEQS takes in three primary inputs:
+MMOREseqs Workflow:  
+The MMOREseqs takes in three primary inputs:
 
 - QUERY: a multiple sequence alignment (MSA) database file.  
 - TARGET: a sequence (FASTA) database file that the query will search against.
 
-There are a few ways to execute the MMORE-SEQS Pipeline.  
+There are a few ways to execute the MMOREseqs Pipeline.  
 
 (1) Simplest method: `mmoreseqs easy-search`
 Easy-search handles all the input files through the entire search pipeline in a single command.  
@@ -101,7 +109,7 @@ Build-Time Dependencies:
 
 Run-Time Dependencies:
 
-- HMMER (v3.3.2)
-- MMseqs2 (https://github.com/soedinglab/MMseqs2.git) 
+- HMMER (v3.3.2) (http://hmmer.org/download.html)
+- MMseqs2 (https://github.com/soedinglab/MMseqs2.git)
    - commit hash: fa4cd2a7ab15a2636b5c1615859a2491d6888300  
 - Python (v2.7)
