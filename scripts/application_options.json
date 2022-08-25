@@ -1,0 +1,996 @@
+{
+  "commands": {
+    "prep": {
+      "arguments": {
+        "target_filepath": {
+          "type": "str",
+          "help": "Path to target database. Accepted types: "
+        },
+        "query_filepath": {
+          "type": "str",
+          "help": "Path to query database. Accepted types: "
+        },
+        "temp_filepath": {
+          "type": "str",
+          "help": "Path to working directory for performing search."
+        }
+      },
+      "help": "Prepare files for performing MMORESEQS search via prep-search. Takes "
+    },
+    "prep-search": {
+      "arguments": {
+        "temp_filepath": {
+          "type": "str"
+        }
+      },
+      "help": "Runs full MMORESEQS search on prepared file directory."
+    },
+    "mmseqs-search": {
+      "arguments": {
+        "target_filepath": {
+          "type": "str"
+        },
+        "query_filepath": {
+          "type": "str"
+        }
+      },
+      "help": "Runs MMSEQS stage of MMORESEQS search on target and query databases."
+    },
+    "mmore-search": {
+      "arguments": {
+        "target_filepath": {
+          "type": "str"
+        },
+        "query_filepath": {
+          "type": "str"
+        },
+        "mmseqs_m8_filepath": {
+          "type": "str"
+        }
+      },
+      "help": "Runs MMORE stage of MMORESEQS search on target and query databases, using results from MMSEQS stage."
+    },
+    "easy-search": {
+      "arguments": {
+        "target_filepath": {
+          "type": "str"
+        },
+        "query_filepath": {
+          "type": "str"
+        },
+        "temp_filepath": {
+          "type": "str"
+        }
+      },
+      "help": "Prepares file and completes full search on target and query databases."
+    },
+    "version": {
+      "arguments": {},
+      "help": "Get version of MMOREseqs."
+    }
+  },
+  "options": {
+    "// DEBUG_OPTIONS": {},
+    "--dbg": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Outputs debugger info.",
+      "hidden": true,
+      "commands": [
+        "all"
+      ]
+    },
+    "--dbg-viz": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Outputs visualization debugger info.",
+      "hidden": true,
+      "commands": [
+        "all"
+      ]
+    },
+    "--debugout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output debugger info.",
+      "hidden": true,
+      "commands": [
+        "all"
+      ]
+    },
+    "// MAIN_OPTIONS": {},
+    "--verbose": {
+      "type": [
+        "int"
+      ],
+      "default": [
+        "3"
+      ],
+      "help": "Amount of output: 0=quiet, 1=errors, 2=warnings, 3=info",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--num-threads": {
+      "type": [
+        "int"
+      ],
+      "default": [
+        1
+      ],
+      "help": "Number of parallel threads.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--search-type": {
+      "type": [
+        "str"
+      ],
+      "default": [
+        "P2S"
+      ],
+      "help": "Set type of search: P2S=profile-to-sequence, S2S=sequence-to-sequence",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "// TASK_OPTIONS": {},
+    "--run-mmseqs": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Run MMSEQS stage of MMORESEQS pipeline.",
+      "hidden": false,
+      "commands": [
+        "prep-search"
+      ]
+    },
+    "--run-mmseqs-pref": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Run MMSEQS prefilter for MMSEQS stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "prep-search"
+      ]
+    },
+    "--run-mmseqs-align": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Run Viterbi alignment for MMSEQS stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "prep-search"
+      ]
+    },
+    "--run-convert": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Convert results from MMSEQS to a format that can be interpreted by MMORE.",
+      "hidden": false,
+      "commands": [
+        "prep-search"
+      ]
+    },
+    "--run-mmore": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Run MMORE stage of the MMORESEQS pipeline.",
+      "hidden": false,
+      "commands": [
+        "prep-search"
+      ]
+    },
+    "--use-pvals": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        false
+      ],
+      "help": "Use P-values (as opposed to default E-values) for reporting and scoring thresholds.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--eval": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Set E-value filter threshold cutoff score for reporting.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "// INPUT_PROGRAMS": {},
+    "--program-mmseqs": {
+      "type": [
+        "str"
+      ],
+      "default": [
+        null
+      ],
+      "help": "Specify location of MMSEQS program.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--program-hmmer": {
+      "type": [
+        "str"
+      ],
+      "default": [
+        null
+      ],
+      "help": "Specify location of HMMER program.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--program-mmoreseqs": {
+      "type": [
+        "str"
+      ],
+      "default": [
+        null
+      ],
+      "help": "Specify location of MMORESEQS program.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--script-dir": {
+      "type": [
+        "str"
+      ],
+      "default": [
+        null
+      ],
+      "help": "Specify location of MMORESEQS scripts directory.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "// INPUT FILES": {},
+    "--index": {
+      "type": [
+        "str",
+        "str"
+      ],
+      "default": [
+        null,
+        null
+      ],
+      "help": "Specify location of [0] target and [1] query index files.",
+      "hidden": false,
+      "commands": [
+        "prep-search",
+        "mmseqs-search",
+        "mmore-search"
+      ]
+    },
+    "--local-tools": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        false
+      ],
+      "help": "Specify whether to use locally tools or globally installed tools.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--guess-ftype": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        true
+      ],
+      "help": "Specify whether to infer filetype of target and query input. Options: HMM, FASTA, MSA, MM_MSA, HHM, MMDB, MMDB_S, MMDB_P.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--mmoreseqs-ftype": {
+      "type": [
+        "str",
+        "str",
+        "str",
+        "str"
+      ],
+      "default": [
+        null,
+        null,
+        null,
+        null
+      ],
+      "help": "Specify filetype of [0] target, [1] query, [2] MMSEQS target, [3] MMSEQS query.  Options: HMM, FASTA, MSA, MM_MSA, HHM, MMDB, MMDB_S, MMDB_P.",
+      "hidden": false,
+      "commands": [
+        "all"
+      ]
+    },
+    "--mmoreseqs-main-ftype": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify filetype of [0] target and [1] query input.",
+      "hidden": false,
+      "commands": [
+        "mmseqs-search",
+        "mmore-search"
+      ]
+    },
+    "--temp": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify temporary working folder location.",
+      "hidden": false,
+      "commands": [
+        "mmseqs-search",
+        "mmore-search"
+      ]
+    },
+    "--mmseqs-m8": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify location of input MMSEQS .m8 results file.",
+      "hidden": false,
+      "commands": [
+        "mmseqs-search",
+        "mmore-search"
+      ]
+    },
+    "--dbsizes": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify size of [0] target and [1] query databases.",
+      "hidden": false,
+      "commands": [
+        "mmseqs-search",
+        "mmore-search"
+      ]
+    },
+    "// MMORE_PARAMETERS": {},
+    "--alpha": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMORE alpha parameter. Determines X-drop below current anti-diagonal max score accepted.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--beta": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMORE beta parameter. Determines X-drop below global max score accepted.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--gamma": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMORE gamma parameter. Determines X-drop below global max score before ending search.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--hard-limit": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMORE hard limit parameter. Determines lowest permissable score before ending search.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "// MMORE_OPTIONS": {},
+    "--run-prep": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run file preparation for the MMORE stage of pipeline",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-bias": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Use null bias during the MMORE stage of pipeline",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-full": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run full quadratic search during the MMORE stage of pipeline. Overrides alpha/beta/gamma parameters.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-domains": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run over all domains found by MMSEQS for all target-query pairs during MMORE stage of pipeline. Alternatively, only uses the searches the top domain.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-vit-mmore": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run full viterbi during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-vit": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run viterbi during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-post": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run posterior during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--range": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify [0] start and [1] stop range of targets to search against the query database.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--search-mode": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify mode of search. By default, searches entire query db against entire target db.",
+      "hidden": false,
+      "commands": []
+    },
+    "// MMORE_FILTERS": {},
+    "--run-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run all filters during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-vit-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run viterbi filter during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-cld-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run cloud filter during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--run-fwd-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Run forward filter during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--vit-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set viterbi filter threshold cutoff score.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--cld-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set cloud filter threshold cutoff score.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "--fwd-filter": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set forward filter threshold cutoff score.",
+      "hidden": false,
+      "commands": [
+        "easy-search",
+        "prep-search",
+        "mmore-search"
+      ]
+    },
+    "// MMSEQS_PARAMETERS": {},
+    "--mmseqs-split": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS split size to number of files to break database into.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-kmer": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS kmer search length.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-kscore": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS k-score filter threshold score.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-sens": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS sensitivity filter threshold scpre. Overrides k-score filter.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-ungapped-vit": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS ungapped viterbi filter threshold.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-eval": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS E-value filter threshold.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-pval": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Set MMSEQS P-value filter threshold. Overrides E-value.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-hits-per-search": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Sets max number of separate alignments to pass filter for each target/query pair.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-altalis": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Report alternate alignments during the MMSEQS stage of pipeline.",
+      "hidden": false,
+      "commands": []
+    },
+    "// SEARCH_METADATA": {},
+    "--mmseqs-times": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify MMSEQS runtime.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-dbsizes": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify MMSEQS [0] target and [1] query database sizes.",
+      "hidden": false,
+      "commands": []
+    },
+    "// ALIGNMENT_REPORTING": {},
+    "--run-mmseqsaln": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Recover and report alignments during the MMSEQS stage of pipeline.",
+      "hidden": false,
+      "commands": []
+    },
+    "--run-vitaln": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Recover the report the viterbi alignments during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": []
+    },
+    "--run-postaln": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Recover and report the posterior alignments during the MMORE stage of pipeline.",
+      "hidden": false,
+      "commands": []
+    },
+    "// OUTPUT": {},
+    "--stderr": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to redirect standard error output.",
+      "hidden": false,
+      "commands": []
+    },
+    "--stdout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to redirect standard output",
+      "hidden": false,
+      "commands": []
+    },
+    "--mmseqs-m8out": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMSEQS results to .m8 format tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--allout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS results to exhaustive tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--domtblout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS results to HMMER-style domain table tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--m8out": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS results to .m8 format tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--myout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS results to custom tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mydomtblout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS results to custom domain table tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mytimeout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS runtimes to tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--mythreshout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS threshold scores to tsv file.",
+      "hidden": false,
+      "commands": []
+    },
+    "--customout": {
+      "type": [
+        "bool"
+      ],
+      "default": [
+        "True"
+      ],
+      "help": "Specify path to output MMORESEQS custom output to file.",
+      "hidden": false,
+      "commands": []
+    }
+  }
+}

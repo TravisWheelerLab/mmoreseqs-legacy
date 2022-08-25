@@ -14,15 +14,17 @@ import json
 import typing
 import functools
 
+include("")
+
 # Include mmoreseqs module path
 py_mmoreseqs_module_path = os.getcwd() + "/../build"
 sys.path.append(py_mmoreseqs_module_path)
 
 # Try to import mmoreseqs
 try:
-    import mmoreseqs_pylib
+    import py_mmoreseqs
     try:
-        ans = mmoreseqs_pylib.add(3, 4)
+        ans = py_mmoreseqs.add(3, 4)
     except Exception as err:
         print(err)
 except Exception as err:

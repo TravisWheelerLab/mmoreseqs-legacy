@@ -190,8 +190,8 @@ set(SCRIPTS
   scripts/workflows/mmoreseqs-search.sh
 )
 
-set(TEST_SOURCES
-  test/unity_test.c)
+set(TESTS_SOURCES
+  src/unity_test.c)
 
 # -------
 # Scripts
@@ -204,7 +204,7 @@ file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 # Dependencies
 # ------------
 
-# Easel library
+# Easel
 ExternalProject_Add(
   easel
   URL https://github.com/EddyRivasLab/easel/archive/Bio-Easel-0.14.tar.gz
@@ -216,11 +216,8 @@ ExternalProject_Add(
   INSTALL_COMMAND ""
   TEST_COMMAND ""
 )
-ExternalProject_Get_property(easel SOURCE_DIR)
-include_directories(BEFORE ${SOURCE_DIR})
-link_libraries(${SOURCE_DIR}/libeasel.a)
 
-# Unity library
+# Unity
 ExternalProject_Add(
   unity
   GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
@@ -229,12 +226,8 @@ ExternalProject_Add(
   BUILD_IN_SOURCE 1
   INSTALL_COMMAND ""
 )
-ExternalProject_Get_property(unity SOURCE_DIR)
-ExternalProject_Get_property(unity BINARY_DIR)
-include_directories(BEFORE ${SOURCE_DIR}/src)
-link_libraries(${BINARY_DIR}/libunity.a)
 
-# Pybind library
+# # Pybind
 ExternalProject_Add(
   pybind11
   GIT_REPOSITORY https://github.com/pybind/pybind11.git
@@ -245,57 +238,59 @@ ExternalProject_Add(
 )
 add_subdirectory(lib/pybind11/src/pybind11)
 
-# Math library
-link_libraries(m)
-
-# ---------
+# ------------
 # Libraries
-# ---------
-
-# mmoreseqs library
-add_library(
-  mmoreseqs_lib
-  STATIC
-  ${SOURCES}
-)
-add_dependencies(mmoreseqs_lib easel)
-
-# mmoreseqs_pylib library
+# ------------
 pybind11_add_module(
-  mmoreseqs_pylib
+  py_mmoreseqs
   MODULE
-  src/mmoreseqs_pylib.cpp
+  src/py_mmoreseqs.cpp
 )
-add_dependencies(mmoreseqs_pylib mmoreseqs_lib)
+
+# add_library(
+# mmoreseqs_lib
+# STATIC
+# ${SOURCES}
+# )
+# add_dependencies(mmoreseqs mmoreseqs_lib)
+# add_dependencies(mmoreseqs_test mmoreseqs_lib)
+# target_include_directories(mmoreseqs_lib PRIVATE ${SOURCE_DIR})
+# target_link_libraries(mmoreseqs_lib ${SOURCE_DIR}/libeasel.a)
+# add_dependencies(mmoreseqs_lib easel)
+# add_dependencies(py_mmoreseqs mmoreseqs_lib)
 
 # -----------
 # Executables
 # -----------
-
 # mmoreseqs
 add_executable(
   mmoreseqs
-  src/mmoreseqs.c
+  src/application.c
+
   ${SOURCES}
 )
+ExternalProject_Get_property(easel SOURCE_DIR)
+target_include_directories(mmoreseqs PRIVATE ${SOURCE_DIR})
+target_link_libraries(mmoreseqs ${SOURCE_DIR}/libeasel.a)
 add_dependencies(mmoreseqs easel)
-add_dependencies(mmoreseqs mmoreseqs_lib)
+target_link_libraries(mmoreseqs m)
 
 # mmoreseqs_test
 add_executable(
   mmoreseqs_test
   test/unity_test.c
-  ${TEST_SOURCES}
+
   ${SOURCES}
 )
+ExternalProject_Get_property(easel SOURCE_DIR)
+target_include_directories(mmoreseqs_test PRIVATE ${SOURCE_DIR})
+target_link_libraries(mmoreseqs_test ${SOURCE_DIR}/libeasel.a)
 add_dependencies(mmoreseqs_test easel)
-add_dependencies(mmoreseqs_test mmoreseqs_lib)
+ExternalProject_Get_property(unity SOURCE_DIR)
+ExternalProject_Get_property(unity BINARY_DIR)
+target_include_directories(mmoreseqs_test PRIVATE ${SOURCE_DIR}/src)
+target_link_libraries(mmoreseqs_test ${BINARY_DIR}/libunity.a)
 add_dependencies(mmoreseqs_test unity)
-
-# mmoreseqs click interface
-# project(mmoreseqs_cli)
-# find_package(Python COMPONENTS Interpreter Development)
-# add_dependencies(mmoreseqs_cli mmoreseqs_pylib)
 
 # --------------------
 # Build Configurations
@@ -318,22 +313,6 @@ add_compile_definitions("SCRIPT_LOC=${CMAKE_CURRENT_BINARY_DIR}/scripts/")
 add_compile_definitions("MMORE_BIN_LOC=${CMAKE_CURRENT_BINARY_DIR}/bin/")
 
 # C compiler flags
-set(CMAKE_C_FLAGS_RELEASE "-O3")
+# set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_C_FLAGS_DEBUG "-g")
-set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
-
-# ---------------------
-# Install python modules
-# ---------------------
-# file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/py)
-# set(MMORESEQS_BINARY_DIR ${PROJECT_BINARY_DIR})
-# configure_file(setup.py.in
-# ${PROJECT_BINARY_DIR}/setup.py @ONLY
-# )
-# configure_file(__init__.py.in
-# ${PROJECT_BINARY_DIR}/py/__init__.py @ONLY
-# )
-
-# add_custom_target(pip ALL
-# COMMAND ln -sf ${PROJECT_BINARY_DIR}/$<TARGET_FILE_NAME:mmoreseqs_pylib> ${PROJECT_BINARY_DIR}/py/__init__.so
-# )
+set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=addres")

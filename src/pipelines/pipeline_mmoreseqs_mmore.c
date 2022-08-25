@@ -93,19 +93,15 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
     /* check if mmseqs viterbi passes threshold */
     if (passed[0] == true) {
       fprintf_vhi(stdout, ":: VITERBI PASSED ::\n");
-      fprintf_vhi(stdout, ":: TEST TEST ::\n");
       /* load target hmm profile from file */
       WORK_load_target(worker);
-      fprintf_vhi(stdout, ":: TEST TEST ::\n");
       /* load query sequence from file */
       WORK_load_query(worker);
-      fprintf_vhi(stdout, ":: TEST TEST ::\n");
       /* clear old data and update data structs for problem size */
       WORK_reuse(worker);
       /* get viterbi alignment bounds from mmseqs entry */
       WORK_load_mmseqs_alignment(worker);
     }
-    fprintf_vhi(stdout, "END_VIT_TEST\n");
 
     /* check if mmseqs viterbi passes threshold */
     if (passed[0] == true) {
@@ -116,7 +112,6 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
       passed[1] = WORK_cloud_test_threshold(worker);
     }
-    fprintf_vhi(stdout, "END_CLOUD_TEST\n");
 
     /* extra work */
     if (args->is_run_vit_mmore == true) {
@@ -125,7 +120,6 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
       /* evaluate viterbi */
       WORK_viterbi_mmore_natsc_to_eval(worker);
     }
-    fprintf_vhi(stdout, "END_VIT_MMORE_TEST\n");
 
     /* check if cloud search composite score passes threshold */
     if (passed[0] == true && passed[1] == true) {
@@ -154,6 +148,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
     }
 
     /* print thresholds which passed */
+    if (worker->args->verbose_level >= VERBOSE_HIGH)
     {
       printf_vhi("THRESHOLDS PASSED: %d => %d => %d => %d\n",
                  passed[0], passed[1], passed[2], passed[3]);

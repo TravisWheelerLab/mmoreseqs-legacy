@@ -26,11 +26,11 @@
 #include "pipelines/_pipelines.h"
 #include "objects/_objects.h"
 
-/* === HEADER === */
+/* header */
+#include "application.h"
 
-/* === MAIN ENTRY-POINT TO PROGRAM === */
 STATUS_FLAG
-main(int argc, char* argv[]) {
+run_application(int argc, char* argv[]) {
   /* full program runtimes */
   float program_start, program_end, program_runtime;
 
@@ -86,6 +86,6 @@ main(int argc, char* argv[]) {
   WORKER_Destroy(worker);
 
   printf("# Program_Runtime: %f\n", program_runtime);
-  printf("# Completed Successfully.\n");
-  ERRORCHECK_exit(EXIT_SUCCESS);
+
+  return STATUS_SUCCESS;
 }

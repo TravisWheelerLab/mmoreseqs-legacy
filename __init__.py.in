@@ -1,0 +1,4 @@
+import os
+import site
+
+os.environ['LD_LIBRARY_PATH'] = ".:" + site.getusersitepackages() + "/mmoreseqs_pylib:" + ':'.join(site.getsitepackages()) + "/mmoreseqs_pylib" 

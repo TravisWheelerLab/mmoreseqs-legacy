@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+from distutils.core import setup
+
+setup(
+    name='mmoreseqs_pylib',
+    version='@MMORESEQS_VERSION@',
+    author='David Rich'
+    author_email='david.rich27@gmail.com'
+    packages=['mmoreseqs_pylib'],
+    package_dir={'mmoreseqs_pylib': '@MMORESEQS_BINARY_DIR@/'},
+    package_data={'mmoreseqs_pylib': ['@MMORESEQS_BINARY_DIR@/*']},
+)

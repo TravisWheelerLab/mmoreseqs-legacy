@@ -507,7 +507,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      /* === INPUT DATA === */
+      /* === MMORE METADATA === */
       elif (STR_Compare(argv[i], (flag = "--dbsizes")) == 0) {
         req_args = 2;
         if (i + req_args < argc) {
@@ -850,18 +850,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      /* === CONVERT === */
-      elif (STR_Compare(argv[i], (flag = "--run-convert")) == 0) {
-        req_args = 1;
-        if (i + req_args < argc) {
-          i++;
-          args->is_run_convert = atoi(argv[i]);
-        } else {
-          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-          ERRORCHECK_exit(EXIT_FAILURE);
-        }
-      }
-      /* === MMSEQS DATA === */
+      /* === MMSEQS METADATA === */
       elif (STR_Compare(argv[i], (flag = "--mmseqs-times")) == 0) {
         req_args = 5;
         if (i + req_args < argc) {
@@ -1053,17 +1042,6 @@ void ARGS_Parse(ARGS* args,
           ERROR_free(args->mythresh_fileout);
           args->mythresh_fileout = STR_Create(argv[i]);
           args->is_mythreshout = true;
-        } else {
-          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-          ERRORCHECK_exit(EXIT_FAILURE);
-        }
-      }
-      elif (STR_Compare(argv[i], (flag = "--output")) == 0) {
-        req_args = 1;
-        if (i + req_args <= argc) {
-          i++;
-          args->stdout_fileout = STR_Create(argv[i]);
-          args->is_redirect_stdout = true;
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
           ERRORCHECK_exit(EXIT_FAILURE);

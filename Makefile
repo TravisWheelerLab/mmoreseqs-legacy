@@ -46,10 +46,14 @@ DEBUG_C_FLAGS 		:= -g -O1 -pg -fsanitize=address
 VALGRIND_C_FLAGS 	:= -g -O0 
 
 # RECIPES
-.PHONY: all build-release build-debug build-valgrind build-test test format clean
+.PHONY: all build-release build-debug build-valgrind build-test test format clean clean-release clean-debug
 
 default:
 	$(MAKE) build-release
+
+build-cli:
+	@echo "*** BUILD CLI ***"
+	
 
 build-release:
 	@echo "*** BUILD RELEASE ***"
@@ -94,9 +98,13 @@ format: $(SOURCES)
 
 clean: 
 	@echo "*** CLEAN ***"
+	$(MAKE) clean-release 
+	$(MAKE) clean-debug
+
+clean-release: 
+	@echo "*** CLEAN-RELEASE ***"
 	@cd $(BUILD_RELEASE_DIR) && \
 		make clean 
-
 
 clean-debug:
 	@echo "*** CLEAN-DEBUG ***"

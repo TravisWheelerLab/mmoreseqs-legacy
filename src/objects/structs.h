@@ -769,7 +769,7 @@ typedef struct {
   bool is_run_vit_mmore;       /* compute viterbi matrix (MMORE)? */
   bool is_run_vitaln;          /* perform viterbi alignment traceback? */
   bool is_run_optacc;          /* compute posterior (optimal accuracy) matrix? (DEBUG) */
-  bool is_run_post;            /*  */
+  bool is_run_post;            /* perform posterior */
   bool is_run_postaln;         /* perform posterior alignment traceback? */
   bool is_run_mmseqs_ungapped; /* perform mmseqs ungapped viterbi alignment? */
   bool is_run_mmseqs_sens;     /* Use sensitivity parameter in prefilter? */
