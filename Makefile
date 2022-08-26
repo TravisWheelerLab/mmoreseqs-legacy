@@ -39,14 +39,14 @@ BUILD_DEBUG_DIR 		:= build-debug
 # -g (Debugging symbols)
 # -pg (Profiling info)
 # flags for release version
-RELEASE_C_FLAGS 	:= -O3 -Wall
+RELEASE_C_FLAGS 	:= -O3 -Wall -fPIC
 # suggested flags: -g (line numbers) -pg (gprof) -DDEBUG=1 -fsanitize=address
-DEBUG_C_FLAGS 		:= -g -O1 -pg -fsanitize=address
+DEBUG_C_FLAGS 		:= -g -O1 -pg -fsanitize=address -fPIC
 # flags for alpha version
-VALGRIND_C_FLAGS 	:= -g -O0 
+VALGRIND_C_FLAGS 	:= -g -O0 -fPIC
 
 # RECIPES
-.PHONY: all build-release build-debug build-valgrind build-test test format clean clean-release clean-debug
+.PHONY: all build-release build-debug build-valgrind build-test cli-release cli-debug test format clean clean-release clean-debug
 
 default:
 	$(MAKE) build-release
@@ -57,10 +57,6 @@ build-release:
 	@cmake -S . -B $(BUILD_RELEASE_DIR) -DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH)
 	@cd $(BUILD_RELEASE_DIR) && \
 		make CFLAGS="$(RELEASE_C_FLAGS)" CXXFLAGS="$(RELEASE_C_FLAGS)"
-	# @cd $(BUILD_RELEASE_DIR) && \
-	# 	pip install .
-	@cd $(BUILD_RELEASE_DIR) && \
-		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/ 
 
 build-debug:
 	@echo "*** BUILD DEBUG ***"
@@ -81,6 +77,18 @@ build-test:
 	$(MAKE) build-release 
 	$(MAKE) test
 
+cli-release:
+	@cd $(BUILD_RELEASE_DIR) && \
+		pip install .
+	@cd $(BUILD_RELEASE_DIR) && \
+		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
+
+cli-debug:
+	@cd $(BUILD_DEBUG_DIR) && \
+		pip install .
+	@cd $(BUILD_DEBUG_DIR) && \
+		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
+
 test:
 	@echo '*** TEST ***'
 	./$(BUILD_RELEASE_DIR)/bin/mmoreseqs_test
@@ -91,9 +99,14 @@ get-submodules:
 	git submodule update --init --recursive 
 
 # code formatting 
-format: $(SOURCES)
+format:
 	@echo '*** FORMAT ***'
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
+	# black $(SCRIPTS)
+
+create-env:
+	@echo '*** CREATE ENVIRONMENT ***'
+	conda env create --file environment.yml
 
 clean: 
 	@echo "*** CLEAN ***"

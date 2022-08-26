@@ -14,12 +14,10 @@
 #include <math.h>
 #include <ctype.h>
 #include <time.h>
-
 /* local imports */
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-
 /* header */
 #include "_parsers.h"
 #include "arg_parser.h"

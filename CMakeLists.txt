@@ -5,16 +5,20 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
   message(FATAL_ERROR "ERROR: Cmake build directory cannot be the same as root source directory. Hint: Can build with `make`.")
 endif()
 
+# set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+# set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 project(mmoreseqs VERSION "1.0.0")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 include(ExternalProject)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # -----------
 # Input Files
 # -----------
+set(SOURCE_FOLDER src)
 set(SOURCES
   src/objects/sequence.c
   src/objects/mystring.c
@@ -198,9 +202,12 @@ set(APP_FOLDER app)
 set(APP_SOURCES
   app/application.py)
 
-# -------
-# Scripts
-# -------
+# ----------
+# Copy Files
+# ----------
+add_subdirectory(${SOURCE_FOLDER})
+file(COPY ${SOURCE_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+
 add_subdirectory(${SCRIPT_FOLDER})
 file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -221,7 +228,6 @@ ExternalProject_Add(
   COMMAND ./configure --prefix=${SOURCE_DIR}
   BUILD_COMMAND "make"
   INSTALL_COMMAND ""
-  TEST_COMMAND ""
 )
 ExternalProject_Get_property(easel SOURCE_DIR)
 include_directories(BEFORE ${SOURCE_DIR})
@@ -266,14 +272,16 @@ add_library(
   ${SOURCES}
 )
 add_dependencies(mmoreseqs_lib easel)
+link_libraries(${CMAKE_CURRENT_BINARY_DIR}/libmmoreseqs_lib.a)
 
-# mmoreseqs_pylib library
+# mmoreseqs_pylib library via pybind11
 pybind11_add_module(
   mmoreseqs_pylib
   MODULE
   src/mmoreseqs_pylib.cpp
 )
 add_dependencies(mmoreseqs_pylib mmoreseqs_lib)
+add_dependencies(mmoreseqs_pylib easel)
 
 # -----------
 # Executables
@@ -285,8 +293,8 @@ add_executable(
   src/mmoreseqs.c
   ${SOURCES}
 )
-add_dependencies(mmoreseqs easel)
 add_dependencies(mmoreseqs mmoreseqs_lib)
+add_dependencies(mmoreseqs easel)
 
 # mmoreseqs_test
 add_executable(
@@ -295,14 +303,9 @@ add_executable(
   ${TEST_SOURCES}
   ${SOURCES}
 )
-add_dependencies(mmoreseqs_test easel)
 add_dependencies(mmoreseqs_test mmoreseqs_lib)
+add_dependencies(mmoreseqs_test easel)
 add_dependencies(mmoreseqs_test unity)
-
-# mmoreseqs click interface
-# project(mmoreseqs_cli)
-# find_package(Python COMPONENTS Interpreter Development)
-# add_dependencies(mmoreseqs_cli mmoreseqs_pylib)
 
 # --------------------
 # Build Configurations
@@ -325,9 +328,13 @@ add_compile_definitions("SCRIPT_LOC=${CMAKE_CURRENT_BINARY_DIR}/scripts/")
 add_compile_definitions("MMORE_BIN_LOC=${CMAKE_CURRENT_BINARY_DIR}/bin/")
 
 # C compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
 set(CMAKE_C_FLAGS_DEBUG "-g")
 set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
+
+# CPP compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 # ---------------------
 # Install python modules

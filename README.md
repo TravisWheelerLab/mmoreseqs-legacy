@@ -56,11 +56,11 @@ mmoreseqs easy-search <i:query_msa> <i:target_fasta> <i:temp_dir>
 ```
 
 - Arguments:
-  - `query_msa`
+  - `<query_msa>`
     - Query multiple sequence alignment (MSA) database.  
-  - `target_fasta`
+  - `<target_fasta>`
     - Target sequence (FASTA) database to be searched against.  
-  - `temp_dir`
+  - `<temp_dir>`
     - A temporary working directory. Pipeline will create this directory so long as its parent directory exists.  
   
 
@@ -73,11 +73,11 @@ mmoreseqs prep-search <i:db_dir>
 ```
 
 - Arguments:
-  - `query_msa`
+  - `<query_msa>`
     - Query multiple sequence alignment (MSA) database.  
-  - `target_fasta`
+  - `<target_fasta>`
     - Target sequence (FASTA) database to be searched against.  
-  - `temp_dir`
+  - `<temp_dir>`
     - A temporary working directory. Pipeline will create this directory so long as its parent directory exists.  
 
 
@@ -90,15 +90,15 @@ mmoreseqs search <i:query_mmore_hmm> <i:target_mmore_fasta> \
 ```
 
 - Arguments:
-  - `query_mmore_hmm`
+  - `<query_mmore_hmm>`
     - Query Hidden Markov Model (HMM) database file. HMMER format.  
-  - `target_mmore_fasta`
+  - `<target_mmore_fasta>`
     - Target sequence (FASTA) database file.  
-  - `query_mmseqs_smmdb`
+  - `<query_mmseqs_smmdb>`
     - Query sequence (SMMDB) database file. MMSEQS format.  
-  - `query_mmseqs_pmmdb`
+  - `<query_mmseqs_pmmdb>`
     - Query profile (PMMDB) database file. MMSEQS format.  
-  - `target_mmseqs_smmdb`
+  - `<target_mmseqs_smmdb>`
     - Target sequence (SMMDB) database file. MMSEQS format.  
 
 
@@ -110,11 +110,11 @@ mmoreseqs mmseqs-search <i:query_mmseqs_pmmdb> <i:query_mmseqs_smmdb> <i:target_
 ```
 
 - Arguments:
-  - `query_mmseqs_smmdb`
+  - `<query_mmseqs_smmdb>`
     - Query profile (PMMDB) database file. MMSEQS format.  
-  - `query_mmseqs_pmmdb`
+  - `<query_mmseqs_pmmdb>`
     - Query sequence (SMMDB) database file. MMSEQS format.  
-  - `target_mmseqs_smmdb`
+  - `<target_mmseqs_smmdb>`
     - Target sequence (SMMDB) database file. MMSEQS format. 
 
 ```
@@ -122,9 +122,12 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
 ```
 
 - Arguments:
-  - `query_mmore_hmm`: Query profile (HMM) database file. HMMER format.
-  - `target_mmore_fasta`: Target sequence (FASTA) database file.
-  - `results_mmseqs_m8`: Results file (.m8) outputted from MMseqs stage of pipeline.
+  - `<query_mmore_hmm>`
+    - Query profile (HMM) database file. HMMER format.
+  - `<target_mmore_fasta>`
+    - Target sequence (FASTA) database file.
+  - `<results_mmseqs_m8>`
+    - Results file (.m8) outputted from MMseqs stage of pipeline.
 
 ### Workflow Options
 
@@ -138,7 +141,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
   - `--use-pvals BOOL`
     - Whether to use P-value (as opposed to using the default E-value) for assessing reporting and filtering thresholds. Uses value stored in `--eval` for reporting threshold.
 
-- Pipeline Options (Primary used with `mmoreseqs search`.):
+- Pipeline Options (Used with `mmoreseqs search`.):
    `--run-prep BOOL`
     - Run file preparation stage of pipeline.
   - `--run-mmseqs BOOL`
@@ -263,13 +266,19 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
     - Outputs a runtime tsv file.
   - `--mythreshout TEXT`
     - Outputs a threshold score tsv file.
-
+  - `--myhmmerout TEXT`
+    - Outputs a HMMER-style file.
+  - `--debugout TEXT`
+    - Output debugger information to file.
 
 ## Development
+
+Python dependencies can be installed in virtual environment with `% make create-env`.
 
 Build-Time Dependencies:
 
 - easel (https://github.com/EddyRivasLab/easel)
+- pybind11 (v2.8.1)
 
 Run-Time Dependencies:
 
