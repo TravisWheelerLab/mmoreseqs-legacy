@@ -2,53 +2,85 @@
   "commands": {
     "prep": {
       "arguments": {
-        "target_filepath": {
-          "type": "str",
-          "help": "Path to target database. Accepted types: FASTA"
+        "query_msa": {
+          "type": "str"
         },
-        "query_filepath": {
-          "type": "str",
-          "help": "Path to query database. Accepted types: HMM"
+        "target_fasta": {
+          "type": "str"
         },
-        "temp_filepath": {
-          "type": "str",
-          "help": "Path to working directory for performing search."
+        "temp_dir": {
+          "type": "str"
         }
       },
-      "help": "Prepare files for performing MMORESEQS search via prep-search. Takes as arguments: [0] search target filepath, [1] search query filepath, and [2] temporary working directory path. Target filepath types: HMM. Query filepath types: HMM, FASTA."
+      "help": "Prepare files for performing MMORESEQS search via prep-search. Takes as arguments: [0] search query filepath, [1] search target filepath, and [2] temporary working directory path. Query filepath types: MSA. Target filepath types: FASTA."
     },
     "prep-search": {
       "arguments": {
-        "temp_filepath": {
+        "temp_dir": {
           "type": "str"
         }
       },
       "help": "Runs full MMORESEQS search on prepared file directory.  Takes as arguments: [0] temporary working directory path."
     },
-    "mmseqs-search": {
+    "search": {
       "arguments": {
-        "target_filepath": {
+        "query_mmore_hmm": {
           "type": "str"
         },
-        "query_filepath": {
+        "target_mmore_fasta": {
+          "type": "str"
+        },
+        "query_mmseqs_smmdb": {
+          "type": "str"
+        },
+        "query_mmseqs_pmmdb": {
+          "type": "str"
+        },
+        "target_mmseqs_smmdb": {
           "type": "str"
         }
       },
-      "help": "Runs MMSEQS stage of MMORESEQS search on target and query databases. Takes as arguments: [0] search target filepath, and [1] search query filepath.  Target filepath types: MMDB.  Query filepath types: MMDB."
+      "help": "Optionally runs MMseqs and/or MMORE stage of MMOREseqs search on target and query databases. Takes as arguments: [0] MMORE query, [1] MMORE target, [2] MMseqs sequence query, [3] MMseqs profile query, [4] MMseqs target seq-MMDB.  MMORE (profile) query types: HMM. MMORE (sequence) target types: FASTA. MMseqs (sequence) query types: SMMDB. MMseqs (profile) query type: PMMDB. MMseqs (sequence) target types: SMMDB."
+    },
+    "mmseqs-search": {
+      "arguments": {
+        "query_mmore_hmm": {
+          "type": "str"
+        },
+        "target_mmore_fasta": {
+          "type": "str"
+        },
+        "query_mmseqs_smmdb": {
+          "type": "str"
+        },
+        "query_mmseqs_pmmdb": {
+          "type": "str"
+        },
+        "target_mmseqs_smmdb": {
+          "type": "str"
+        }
+      },
+      "help": "Runs MMseqs stage of MMOREseqs search on target and query databases. Takes as arguments: [0] MMORE query, [1] MMORE target, [2] MMseqs sequence query, [3] MMseqs profile query, [4] MMseqs target seq-MMDB.  MMORE (profile) query types: HMM. MMORE (sequence) target types: FASTA. MMseqs (sequence) query types: SMMDB. MMseqs (profile) query type: PMMDB. MMseqs (sequence) target types: SMMDB."
     },
     "mmore-search": {
       "arguments": {
-        "target_filepath": {
+        "query_mmore_hmm": {
           "type": "str"
         },
-        "query_filepath": {
+        "target_mmore_fasta": {
           "type": "str"
         },
-        "mmseqs_m8_filepath": {
+        "query_mmseqs_smmdb": {
+          "type": "str"
+        },
+        "query_mmseqs_pmmdb": {
+          "type": "str"
+        },
+        "target_mmseqs_smmdb": {
           "type": "str"
         }
       },
-      "help": "Runs MMORE stage of MMORESEQS search on target and query databases, using results from MMSEQS stage. Takes as arguments: [0] search target filepath, [1] search query filepath, and [2] temporary working directory path. Target filepath types: HMM. Query filepath types: FASTA."
+      "help": "Runs MMORE stage of MMOREseqs search on target and query databases. Takes as arguments: [0] MMORE query, [1] MMORE target, [2] MMseqs sequence query, [3] MMseqs profile query, [4] MMseqs target seq-MMDB.  MMORE (profile) query types: HMM. MMORE (sequence) target types: FASTA. MMseqs (sequence) query types: SMMDB. MMseqs (profile) query type: PMMDB. MMseqs (sequence) target types: SMMDB."
     },
     "easy-search": {
       "arguments": {
@@ -417,7 +449,7 @@
     "// MMORE_PARAMETERS": {},
     "--alpha": {
       "type": [
-        "bool"
+        ""
       ],
       "default": [
         "True"
@@ -432,7 +464,7 @@
     },
     "--beta": {
       "type": [
-        "bool"
+        ""
       ],
       "default": [
         "True"
@@ -447,10 +479,10 @@
     },
     "--gamma": {
       "type": [
-        "bool"
+        "double"
       ],
       "default": [
-        "True"
+        ""
       ],
       "help": "Set MMORE gamma parameter. Determines X-drop below global max score before ending search.",
       "hidden": false,
@@ -462,10 +494,10 @@
     },
     "--hard-limit": {
       "type": [
-        "bool"
+        "double"
       ],
       "default": [
-        "True"
+        ""
       ],
       "help": "Set MMORE hard limit parameter. Determines lowest permissable score before ending search.",
       "hidden": false,
@@ -873,7 +905,7 @@
     "// OUTPUT": {},
     "--stderr": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -884,7 +916,7 @@
     },
     "--stdout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -895,7 +927,7 @@
     },
     "--mmseqs-m8out": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -906,7 +938,7 @@
     },
     "--allout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -917,7 +949,7 @@
     },
     "--domtblout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -928,7 +960,7 @@
     },
     "--m8out": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -939,7 +971,7 @@
     },
     "--myout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -950,7 +982,7 @@
     },
     "--mydomtblout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -961,7 +993,7 @@
     },
     "--mytimeout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -972,7 +1004,7 @@
     },
     "--mythreshout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"
@@ -983,7 +1015,7 @@
     },
     "--customout": {
       "type": [
-        "bool"
+        "str"
       ],
       "default": [
         "True"

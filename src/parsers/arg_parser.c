@@ -209,16 +209,6 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--dbg-viz")) == 0) {
-        req_args = 1;
-        if (i + req_args < argc) {
-          i++;
-          debugger->is_viz = atoi(argv[i]);
-        } else {
-          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
-          ERRORCHECK_exit(EXIT_FAILURE);
-        }
-      }
       /* === PIPELINE OPTIONS === */
       elif (STR_Compare(argv[i], (flag = "--verbose")) == 0) {
         req_args = 1;
@@ -1200,13 +1190,13 @@ void ARGS_SetDefaults(ARGS* args) {
   args->mytime_fileout = STR_Create("mmore.results.mytimeout");
   args->is_mythreshout = false;
   args->mythresh_fileout = STR_Create("mmore.results.mythreshout");
-  // args->is_customout            = false;
-  // args->customout_fileout      = STR_Create("results.customout");
+  // args->is_customout = false;
+  // args->customout_fileout = STR_Create("results.customout");
 
   /* --- RANGE OPTIONS --- */
   args->t_range = (RANGE){-1, -1};
   args->q_range = (RANGE){-1, -1};
-  // args->use_range               = false;
+  // args->use_range = false;
   args->list_range = (RANGE){-1, -1};
 
   /* --- MMORE / FB-PRUNER --- */
