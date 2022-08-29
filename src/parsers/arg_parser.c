@@ -76,7 +76,7 @@ void ARGS_Parse(ARGS* args,
 
   /* check that valid pipeline mode was entered */
   if (found_pipeline == false || (args->pipeline_mode < 0) || (args->pipeline_mode >= NUM_PIPELINE_MODES)) {
-    fprintf(stderr, "ERROR: invalid pipeline/command was given: (%s, %d).\n", argv[1], args->pipeline_mode);
+    fprintf(stderr, "ERROR: Invalid pipeline/command was given: (%s, %d).\n", argv[1], args->pipeline_mode);
     fprintf(stderr, "VALID PIPELINE/COMMANDS OPTS: [ ");
     for (int i = 0; i < NUM_PIPELINE_MODES; i++)
       fprintf(stderr, "%s, ", PIPELINES[i].name);
@@ -90,7 +90,8 @@ void ARGS_Parse(ARGS* args,
   num_main_args = PIPELINES[args->pipeline_mode].num_main_args;
   /* check proper number of main args remain */
   if (args_rem < num_main_args) {
-    fprintf(stderr, "ERROR: Improper number of main args. [required: %d/%d]\n", args_rem, num_main_args);
+    fprintf(stderr, "ERROR: Improper number of main arguments. [required: %d/%d]\n", args_rem, num_main_args);
+    ARGS_Command_Help_Info(args);
 #if DEBUG
     printf("Using DEFAULT arguments...\n\n");
     return;
@@ -102,7 +103,8 @@ void ARGS_Parse(ARGS* args,
   /* check if proper number of args */
   for (int i = 0; i < num_main_args; i++) {
     if (STR_StartsWith(argv[i + 1], "--") == 0) {
-      fprintf(stderr, "ERROR: Improper number of main arguments.\n");
+      fprintf(stderr, "ERROR: Improper number of main arguments. [required: %d/%d]\n", i, num_main_args);
+      ARGS_Command_Help_Info(args);
       ERRORCHECK_exit(EXIT_FAILURE);
     }
   }
@@ -176,18 +178,18 @@ void ARGS_Parse(ARGS* args,
     /* if long flag */
     if (STR_ComparePrefix(argv[i], "--", 2) == 0) {
       /* === HELP OPTIONS === */
-      if (STR_Compare(argv[i], (flag = "--help")) == 0) {
-        ARGS_Help_Info();
+      if (STR_Equals(argv[i], (flag = "--help"))) {
+        ARGS_Command_Help_Info(args);
         ERRORCHECK_exit(EXIT_SUCCESS);
       }
-      elif (STR_Compare(argv[i], (flag = "--info")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--info"))) {
         ARGS_Version_Info();
       }
-      elif (STR_Compare(argv[i], (flag = "--version")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--version"))) {
         ARGS_Version_Info();
       }
       /* === DEBUG OPTIONS (should only affect debug builds) === */
-      elif (STR_Compare(argv[i], (flag = "--dbg")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--dbg"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -197,7 +199,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--dbg-viz")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--dbg-viz"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -208,7 +210,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === PIPELINE OPTIONS === */
-      elif (STR_Compare(argv[i], (flag = "--verbose")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--verbose"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -225,7 +227,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--num-threads")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--num-threads"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -243,11 +245,11 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--enforce-errors")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--enforce-errors"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
-          if (atoi(argv[i]) == 0) {
+          if (atoi(argv[i])) {
             args->enforce_warnings = false;
           }
           elif (atoi(argv[i]) == 1) {
@@ -258,11 +260,11 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--enforce-warnings")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--enforce-warnings"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
-          if (atoi(argv[i]) == 0) {
+          if (atoi(argv[i])) {
             args->enforce_warnings = false;
           }
           elif (atoi(argv[i]) == 1) {
@@ -273,7 +275,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--search-type")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--search-type"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -297,7 +299,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === TASKS === */
-      elif (STR_Compare(argv[i], (flag = "--run-mmseqs")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-mmseqs"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -307,7 +309,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-mmseqs-pref")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-mmseqs-pref"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -317,7 +319,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-mmseqs-align")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-mmseqs-align"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -327,7 +329,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-convert")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-convert"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -337,7 +339,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-mmore")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-mmore"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -347,7 +349,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--use-pvals")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--use-pvals"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -358,7 +360,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === INPUT PROGRAMS === */
-      elif (STR_Compare(argv[i], (flag = "--program-mmseqs")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--program-mmseqs"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -368,7 +370,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--program-hmmer")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--program-hmmer"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -378,7 +380,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--program-mmoreseqs")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--program-mmoreseqs"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -388,7 +390,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--script-dir")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--script-dir"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -399,7 +401,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === INPUT FILES === */
-      elif (STR_Compare(argv[i], (flag = "--index")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--index"))) {
         req_args = 2;
         if (i + req_args < argc) {
           i++;
@@ -411,7 +413,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--local-tools")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--local-tools"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -421,7 +423,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--guess-ftype")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--guess-ftype"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -431,7 +433,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmoreseqs-ftype")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmoreseqs-ftype"))) {
         req_args = 5;
         if (i + req_args < argc) {
           i++;
@@ -451,7 +453,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmoreseqs-main-ftype")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmoreseqs-main-ftype"))) {
         req_args = 2;
         if (i + req_args < argc) {
           i++;
@@ -465,7 +467,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--tmp")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--tmp"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -475,7 +477,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--prep")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--prep"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -485,7 +487,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-m8")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-m8"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -495,8 +497,49 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
+      /* === PREP FILES === */
+      elif (STR_Equals(argv[i], (flag = "--prep-link-target-mmore"))) {
+        req_args = 1;
+        if (i + req_args < argc) {
+          i++;
+          args->link_target_mmore_prep = STR_Set(args->link_target_mmore_prep, argv[i]);
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
+      elif (STR_Equals(argv[i], (flag = "--prep-link-query-mmore"))) {
+        req_args = 1;
+        if (i + req_args < argc) {
+          i++;
+          args->link_query_mmore_prep = STR_Set(args->link_query_mmore_prep, argv[i]);
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
+      elif (STR_Equals(argv[i], (flag = "--prep-link-target-mmseqs"))) {
+        req_args = 1;
+        if (i + req_args < argc) {
+          i++;
+          args->link_target_mmseqs_prep = STR_Set(args->link_target_mmseqs_prep, argv[i]);
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
+      elif (STR_Equals(argv[i], (flag = "--prep-link-query-mmseqs"))) {
+        req_args = 1;
+        if (i + req_args < argc) {
+          i++;
+          args->link_query_mmseqs_prep = STR_Set(args->link_query_mmseqs_prep, argv[i]);
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
       /* === MMORE METADATA === */
-      elif (STR_Compare(argv[i], (flag = "--dbsizes")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--dbsizes"))) {
         req_args = 2;
         if (i + req_args < argc) {
           i++;
@@ -509,7 +552,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === MMORE PARAMETERS === */
-      elif (STR_Compare(argv[i], (flag = "--alpha")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--alpha"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -519,7 +562,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--beta")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--beta"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -529,7 +572,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--gamma")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--gamma"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -539,7 +582,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--hard-limit")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--hard-limit"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -550,7 +593,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* ==== MMORE OPTIONS === */
-      elif (STR_Compare(argv[i], (flag = "--run-prep")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-prep"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -560,7 +603,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-bias")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-bias"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -570,7 +613,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-full")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-full"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -580,7 +623,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-domains")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-domains"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -590,7 +633,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-vit-mmore")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-vit-mmore"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -600,7 +643,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-mmseqsaln")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-mmseqsaln"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -610,7 +653,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-vitaln")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-vitaln"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -621,7 +664,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-vit")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-vit"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -631,7 +674,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-postaln")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-postaln"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -642,7 +685,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-post")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-post"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -653,7 +696,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === MMORE FILTERS === */
-      elif (STR_Compare(argv[i], (flag = "--run-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -668,7 +711,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-vit-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-vit-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -678,7 +721,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-cld-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-cld-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -688,7 +731,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--run-fwd-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--run-fwd-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -699,7 +742,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--vit-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--vit-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -710,7 +753,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--cld-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--cld-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -721,7 +764,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--fwd-filter")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--fwd-filter"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -734,7 +777,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--eval")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--eval"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -746,7 +789,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === MMSEQS PARAMETERS === */
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-split")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-split"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -756,7 +799,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-kmer")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-kmer"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -766,7 +809,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-kscore")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-kscore"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -776,7 +819,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-sens")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-sens"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -787,7 +830,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-ungapped-vit")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-ungapped-vit"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -797,7 +840,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-eval")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-eval"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -807,7 +850,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-pval")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-pval"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -818,7 +861,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-hits-per-search")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-hits-per-search"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -828,7 +871,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-altalis")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-altalis"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -839,7 +882,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === MMSEQS METADATA === */
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-times")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-times"))) {
         req_args = 5;
         if (i + req_args < argc) {
           i++;
@@ -857,7 +900,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-dbsizes")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-dbsizes"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -870,7 +913,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === SEARCH/RANGE OPTIONS === */
-      elif (STR_Compare(argv[i], (flag = "--range")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--range"))) {
         req_args = 2;
         if (i + req_args < argc) {
           i++;
@@ -882,7 +925,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--search-mode")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--search-mode"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -899,7 +942,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === INTERRIM OUTPUT === */
-      elif (STR_Compare(argv[i], (flag = "--mmseqs-m8out")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-m8out"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -912,7 +955,7 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === OUTPUT === */
-      elif (STR_Compare(argv[i], (flag = "--stderr")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--stderr"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -925,7 +968,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--stdout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--stdout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -937,7 +980,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--allout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--allout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -963,7 +1006,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--domtblout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--domtblout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -975,7 +1018,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--m8out")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--m8out"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -987,7 +1030,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--myout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--myout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -999,7 +1042,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mydomtblout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mydomtblout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -1011,7 +1054,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mytimeout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mytimeout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -1023,7 +1066,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--mythreshout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--mythreshout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -1035,7 +1078,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--customout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--customout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -1047,7 +1090,7 @@ void ARGS_Parse(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Compare(argv[i], (flag = "--debugout")) == 0) {
+      elif (STR_Equals(argv[i], (flag = "--debugout"))) {
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
@@ -1075,9 +1118,27 @@ void ARGS_MainArg_Parser(ARGS* args,
                          COMMANDLINE* cmd) {
 }
 
-void ARGS_OptArg_Parser(ARGS* args,
-                        COMMANDLINE* cmd,
-                        ARG_OPTS* argopt) {
+bool ARGS_OptArg_Parser(ARGS* args,
+                        char* argv[],
+                        int argc,
+                        void* arg_opts[],
+                        char* in_flag,
+                        char* flag,
+                        int arg_req,
+                        int arg_cur) {
+  if (STR_Equals(in_flag, flag)) {
+    if (arg_cur + arg_req < argc) {
+      for (int i = 0; i < arg_req; i++) {
+        arg_cur++;
+        arg_opts[i] = STR_Set(arg_opts[i], argv[arg_cur]);
+      }
+    } else {
+      fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, arg_req);
+      ERRORCHECK_exit(EXIT_FAILURE);
+    }
+    return true;
+  }
+  return false;
 }
 
 void ARGS_SetDefaults(ARGS* args) {
@@ -1316,8 +1377,7 @@ void ARGS_Dump(ARGS* args,
   fprintf(fp, "# ==============================================\n\n");
 }
 
-FILETYPE
-ARGS_FindFiletype(STR filename) {
+FILETYPE ARGS_FindFiletype(STR filename) {
   for (int i = 0; i < NUM_FILETYPE_EXTS; i++) {
     char* ext_name = FILETYPE_EXTS[i].s;
     int ext_type = FILETYPE_EXTS[i].i;
@@ -1364,6 +1424,10 @@ void ARGS_Help_Info() {
   // printf("\n");
 }
 
+void ARGS_Command_Help_Info(ARGS* args) {
+  fprintf(stdout, "USAGE: %s\n", PIPELINES_ARG_HELP[args->pipeline_mode]);
+}
+
 void ARGS_Version_Info() {
   fprintf(stdout, "MMORESEQS VERSION: v%s\n", BUILD_VERSION);
   fprintf(stdout, "BUILD_TYPE: %s\n", BUILD_TYPE);
@@ -1372,9 +1436,8 @@ void ARGS_Version_Info() {
   ERRORCHECK_exit(EXIT_SUCCESS);
 }
 
-STATUS_FLAG
-ARGS_SetOptions(ARGS* args,
-                ARG_OPTS* arg_opts) {
+STATUS_FLAG ARGS_SetOptions(ARGS* args,
+                            ARG_OPTS* arg_opts) {
   /* add all commandline options */
   PTR arg_locs[] = {&args->t_index_filein, &args->q_index_filein};
   INT arg_dtypes[] = {DATATYPE_STRING, DATATYPE_STRING};

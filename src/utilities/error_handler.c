@@ -251,12 +251,15 @@ void ERRORCHECK_exit(int exit_flag) {
     fprintf(stderr, "# PROGRAM terminated successfully.\n");
     exit(exit_flag);
   } else {
-    // ERRORCHECK_stacktrace();
-    fprintf(stderr, "ERROR: EXIT REACHED with code: %d\n", exit_flag);
-    // exit(exit_flag);
+    if (DEBUG) {
+      // ERRORCHECK_stacktrace();
+      fprintf(stderr, "ERROR: EXIT REACHED with code: %d\n", exit_flag);
+      // exit(exit_flag);
 
-    /* force address sanitizer to do stacktrace */
-    int test_arr[1];
-    test_arr[2] = 42;
+      /* force address sanitizer to do stacktrace */
+      int test_arr[1];
+      test_arr[2] = 42;
+    }
+    exit(exit_flag);
   }
 }

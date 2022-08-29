@@ -28,7 +28,14 @@ void ARGS_MainArg_Parser(ARGS* args, COMMANDLINE* cmd);
 /*! FUNCTION:  ARGS_MainArg_Parser()
  *  SYNOPSIS:  Set default arguments.
  */
-void ARGS_OptArg_Parser(ARGS* args, COMMANDLINE* cmd, ARG_OPTS* argopt);
+bool ARGS_OptArg_Parser(ARGS* args,
+                        char* argv[],
+                        int argc,
+                        void* arg_opts[],
+                        char* in_flag,
+                        char* flag,
+                        int arg_req,
+                        int arg_cur);
 
 /*! FUNCTION:  ARGS_SetDefaults()
  *  SYNOPSIS:  Output arguments to <fp>.
@@ -46,6 +53,11 @@ ARGS_FindFiletype(STR filename);
  *  SYNOPSIS:  Output help info.
  */
 void ARGS_Help_Info();
+
+/*! FUNCTION:  ARGS_Command_Help_Info()
+ *  SYNOPSIS:  Output command help info.
+ */
+void ARGS_Command_Help_Info(ARGS* args);
 
 /*! FUNCTION:  ARGS_Version_Info()
  *  SYNOPSIS:  Output version info.

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		easysearch-example.sh	
-#	- DESC:  		Run easy-search pipeline examples for verify.
+#	- FILE:  easysearch-example.sh	
+# - DESC:  Run easy-search pipeline examples.
 ###########################################################################
 
 
@@ -17,22 +17,22 @@ PREP_DIR=${BENCH_DIR}/tmp-mmoreseqs/
 
 function ECHO_AND_RUN
 {
-   echo "# COMMAND: ${@}"
-   echo "#"
-   "${@}"
+  echo "# COMMAND: ${@}"
+  echo "#"
+  "${@}"
 }
 
 # easy search
-ECHO_AND_RUN                              \
-${MMORESEQS} easy-search       				  	\
-	${QUERY} ${TARGET}  	   	      		  	\
-  ${PREP_DIR}                   			  	\
-  --mmseqs-kmer 	  6              		  	\
-  --run-vitaln 	    0 								    \
-	--run-postaln 	  0 								    \
-	--m8out	 		      ${OUTPUT}.m8out 			\
-  --myout     	    ${OUTPUT}.myout 			\
-  --mythreshout	    ${OUTPUT}.mythreshout	\
-	--mytimeout 	    ${OUTPUT}.mytimeout 	\
-  --verbose 		    3 								    \
+ECHO_AND_RUN \
+${MMORESEQS} easy-search \
+  ${QUERY} ${TARGET} \
+  ${PREP_DIR} \
+  --mmseqs-kmer 6 \
+  --run-vitaln 0 \
+  --run-postaln 0 \
+  --m8out ${OUTPUT}.m8out \
+  --myout ${OUTPUT}.myout \
+  --mythreshout ${OUTPUT}.mythreshout	\
+  --mytimeout ${OUTPUT}.mytimeout \
+  --verbose 3 \
 

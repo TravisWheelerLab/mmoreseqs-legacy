@@ -691,11 +691,14 @@ typedef struct {
   /* --- PREPARATION OUTPUT --- */
   /* root prep folder */
   char* prep_folderpath; /* location to find prep folder */
-  /* prep-able files */
   char* target_prep;         /* target file to be prepped (either FASTA or MSA) */
   char* query_prep;          /* query file to be prepped (either FASTA or MSA) */
   FILETYPE target_prep_type; /* filetype of target prep file */
   FILETYPE query_prep_type;  /* filetype of target prep file */
+  char* link_target_mmore_prep;   /* symbolic link to target for MMORE stage */
+  char* link_query_mmore_prep;    /* symbolic link to query for MMORE stage */
+  char* link_target_mmseqs_prep;  /* symbolic link to target for MMseqs stage */
+  char* link_query_mmseqs_prep;   /* symbolic link to query for MMseqs stage */
 
   /* --- INTERRIM INPUT --- */
   /* hmm file (if fasta file is given as input, a single sequence hmm file) */
@@ -1567,6 +1570,7 @@ typedef struct {
 /* === GLOBAL VARIABLES === */
 /* pipeline */
 extern PIPELINE PIPELINES[];
+extern char* PIPELINES_ARG_HELP[];
 extern char* MODE_NAMES[];
 extern char* VERBOSITY_NAMES[];
 extern char* ALPHABET_NAMES[];

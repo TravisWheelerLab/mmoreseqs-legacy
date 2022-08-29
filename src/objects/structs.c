@@ -1,6 +1,6 @@
 /*******************************************************************************
- *     - FILE:   structs.c
- *  - DESC:    All Data Structures and Global Static Structs used by Cloud Search.
+ * - FILE:  structs.c
+ * - DESC:  All Data Structures and Global Static Structs used by Cloud Search.
  *******************************************************************************/
 
 /* imports */
@@ -109,6 +109,21 @@ PIPELINE PIPELINES[] = {
     /* alternative search pipelines */
     {"null", null_pipeline, 0, NULL},
     {"generic", generic_pipeline, 2, NULL},
+};
+
+/* help output strings for pipeline */
+char* PIPELINES_ARG_HELP[] = {
+    "mmoreseqs search <QUERY_HMM> <TARGET_FASTA> <QUERY_P_MMDB> <QUERY_S_MMDB> <TARGET_S_MMDB>",
+    "mmoreseqs mmore-search <QUERY_HMM> <TARGET_FASTA> <MMSEQS_M8_RESULTS>",
+    "mmoreseqs mmseqs-search <QUERY_P_MMDB> <QUERY_S_MMDB> <TARGET_S_MMDB>",
+    "mmoreseqs prep <QUERY_MSA> <TARGET_FASTA> <PREP_DIR>",
+    "mmoreseqs prep-search <PREP_DIR>",
+    "mmoreseqs easy-search <QUERY_MSA> <TARGET_FASTA> <PREP_DIR>",
+    "mmoreseqs index <QUERY_HMM> <TARGET_FASTA>",
+    "mmoreseqs hmmbuild <QUERY_MSA>",
+    "mmoreseqs interactive",
+    "mmoreseqs null",
+    "mmoreseqs generic <QUERY_HMM> <TARGET_FASTA>"
 };
 
 /* full names of the all states */

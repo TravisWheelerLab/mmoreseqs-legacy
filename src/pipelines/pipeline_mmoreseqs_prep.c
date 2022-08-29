@@ -74,6 +74,11 @@ mmoreseqs_prep_pipeline(WORKER* worker) {
   SCRIPTRUNNER_Add_Env_Variable(runner, "HMMER_DIR", hmmer_path);
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DIR", mmseqs_path);
   SCRIPTRUNNER_Add_Env_Variable(runner, "USE_LOCAL_TOOLS", INT_ToString(args->is_use_local_tools, buffer));
+  SCRIPTRUNNER_Add_Env_Variable(runner, "LINK_QUERY_MMORE", args->link_query_mmore_prep);
+  SCRIPTRUNNER_Add_Env_Variable(runner, "LINK_TARGET_MMORE", args->link_target_mmore_prep);
+  SCRIPTRUNNER_Add_Env_Variable(runner, "LINK_QUERY_MMSEQS", args->link_query_mmseqs_prep);
+  SCRIPTRUNNER_Add_Env_Variable(runner, "LINK_TARGET_MMSEQS", args->link_target_mmseqs_prep);
+
   /* ENVIRONMENTAL ARGS */
   WORK_load_script_env_args(worker);
   SCRIPTRUNNER_Add_Env_Variable(runner, "VERBOSE", INT_ToString(args->verbose_level, buffer));
