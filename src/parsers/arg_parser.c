@@ -498,6 +498,16 @@ void ARGS_Parse(ARGS* args,
         }
       }
       /* === PREP FILES === */
+      elif (STR_Equals(argv[i], (flag = "--prep-copy"))) {
+        req_args = 1;
+        if (i + req_args < argc) {
+          i++;
+          args->is_prep_copy = atoi(argv[i]);
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
       elif (STR_Equals(argv[i], (flag = "--prep-link-target-mmore"))) {
         req_args = 1;
         if (i + req_args < argc) {

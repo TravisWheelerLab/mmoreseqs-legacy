@@ -136,7 +136,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
     - The amount of output: 0=quiet, 1=errors, 2=warnings, 3=info
   - `--num-threads INT`
     - The number of parallel threads to run.  Does not currently work with all workflows. 
-  - `--eval BOOL`
+  - `--eval DOUBLE`
     - Set E-value filter threshold cutoff score for reporting.
   - `--use-pvals BOOL`
     - Whether to use P-value (as opposed to using the default E-value) for assessing reporting and filtering thresholds. Uses value stored in `--eval` for reporting threshold.
@@ -155,9 +155,9 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
   - `--run-mmore BOOL`
   - - Run MMORE stage of the pipeline.
   - `--run-vit BOOL`
-    - Run viterbi during the MMORE stage of pipeline. Bypasses viterbi computation.
+    - Run viterbi during the MMORE stage of pipeline. Otherwise bypasses viterbi computation.
   - `--run-post BOOL`
-    - Run posterior during the MMORE stage of pipeline. Bypasses posterior computation.
+    - Run posterior during the MMORE stage of pipeline. Otherwise bypasses posterior computation.
 
 - Input File Options:
   - `--tmp/--prep`

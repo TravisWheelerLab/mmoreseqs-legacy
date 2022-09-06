@@ -49,8 +49,8 @@ class CommandLineArgsCpp {
     }
 
     if (!argv_) {
-      //fprintf(stderr,  "argument is not a sequence of strings\n");
-      //return;
+      // fprintf(stderr,  "argument is not a sequence of strings\n");
+      // return;
       if (!PyErr_Occurred()) {
         PyErr_SetString(PyExc_TypeError, "could not convert input to argv");
       }

@@ -22,13 +22,13 @@
  */
 STATUS_FLAG
 run_Bound_Viterbi_Sparse(
-    const SEQUENCE* query,     /* query sequence */
-    const HMM_PROFILE* target, /* target HMM model */
-    const int Q,               /* query length */
-    const int T,               /* target length */
-    const EDGEBOUNDS* edg,     /* edgebounds */
-    const RANGE* dom_range,    /* (OPTIONAL) domain range for computing fwd/bck on specific
-                                  domain. If NULL, computes complete fwd/bck. */
+    const SEQUENCE* query,                 /* query sequence */
+    const HMM_PROFILE* target,             /* target HMM model */
+    const int Q,                           /* query length */
+    const int T,                           /* target length */
+    const EDGEBOUNDS* edg,                 /* edgebounds */
+    const RANGE* dom_range,                /* (OPTIONAL) domain range for computing fwd/bck on specific
+                                              domain. If NULL, computes complete fwd/bck. */
     MATRIX_3D_SPARSE* restrict st_SMX_vit, /* normal state matrix */
     MATRIX_2D* restrict sp_MX_vit,         /* special state matrix */
     float* sc_final);                      /* (OUTPUT) final score */

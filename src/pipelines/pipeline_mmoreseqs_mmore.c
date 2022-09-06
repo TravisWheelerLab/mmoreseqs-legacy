@@ -148,8 +148,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
     }
 
     /* print thresholds which passed */
-    if (worker->args->verbose_level >= VERBOSE_HIGH)
-    {
+    if (worker->args->verbose_level >= VERBOSE_HIGH) {
       printf_vhi("THRESHOLDS PASSED: %d => %d => %d => %d\n",
                  passed[0], passed[1], passed[2], passed[3]);
     }

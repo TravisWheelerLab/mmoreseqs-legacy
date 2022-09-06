@@ -23,11 +23,11 @@ function ECHO_AND_RUN
 }
 
 # prepare data files
-#ECHO_AND_RUN                     \
+#ECHO_AND_RUN \
 ${MMORESEQS} prep \
   ${QUERY} ${TARGET} \
   ${PREP_DIR} \
   --verbose 3 \
   --mmseqs-kmer 6 \
-
+  --prep-copy 0 \
 

@@ -123,8 +123,7 @@ char* PIPELINES_ARG_HELP[] = {
     "mmoreseqs hmmbuild <QUERY_MSA>",
     "mmoreseqs interactive",
     "mmoreseqs null",
-    "mmoreseqs generic <QUERY_HMM> <TARGET_FASTA>"
-};
+    "mmoreseqs generic <QUERY_HMM> <TARGET_FASTA>"};
 
 /* full names of the all states */
 char* STATE_FULL_NAMES[] = {
