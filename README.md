@@ -181,7 +181,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
   - `--mmseqs-pval FLOAT`
     - Sets filter P-value of MMseqs for (gapped) viterbi step of MMseqs stage. Overrides E-value score.
   - `--mmseqs-altalis INT=0`
-    - Sets number of alternate alignments that can be found per 
+    - Sets number of additional alternate alignments that can be found per target-query pair. Zero results in a single alignment.
   - `--mmseqs-split INT`
     - When building MMseqs databases determines the number of independent files to store databases across. Larger number keeps file size smaller.
 
