@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      report.c
- *  - DESC:    Reporting Subroutines for generating output.
+ *  - FILE:  report.c
+ *  - DESC:  Reporting Subroutines for generating output.
  *******************************************************************************/
 
 /* imports */

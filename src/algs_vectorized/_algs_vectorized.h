@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      _algs_vectorized.h
- *  - DESC:    /_algs_vectorized/ folder packaging header
+ *  - FILE:  _algs_vectorized.h
+ *  - DESC:  /_algs_vectorized/ folder packaging header
  *******************************************************************************/
 
 #ifndef _ALGS_VECTORIZED_H

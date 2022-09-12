@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      merge_reorient_quad.c
- *  - DESC:    Functions for merging multiple EDGEBOUND objects.
- *             Reorients from antidiagonal-wise to row-wise.
+ *  - FILE:  merge_reorient_quad.c
+ *  - DESC:  Functions for merging multiple EDGEBOUND objects.
+ *           Reorients from antidiagonal-wise to row-wise.
  *******************************************************************************/
 
 /* imports */

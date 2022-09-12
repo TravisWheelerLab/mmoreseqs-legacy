@@ -58,6 +58,13 @@ ARGS* ARGS_Create() {
   /* results input */
   args->mmseqs_m8_filein = NULL;
   args->hitlist_filein = NULL;
+  /* prep-able files */
+  args->target_prep = NULL;
+  args->query_prep = NULL;
+  args->link_target_mmore_prep = NULL;
+  args->link_query_mmore_prep = NULL;
+  args->link_target_mmseqs_prep = NULL;
+  args->link_query_mmseqs_prep = NULL;
   /* output */
   args->stdout_fileout = NULL;
   args->stderr_fileout = NULL;
@@ -116,6 +123,13 @@ ARGS* ARGS_Destroy(ARGS* args) {
   /* results input */
   STR_Destroy(args->mmseqs_m8_filein);
   STR_Destroy(args->hitlist_filein);
+  /* prep-able files */
+  STR_Destroy(args->target_prep);
+  STR_Destroy(args->query_prep);
+  STR_Destroy(args->link_target_mmore_prep);
+  STR_Destroy(args->link_query_mmore_prep);
+  STR_Destroy(args->link_target_mmseqs_prep);
+  STR_Destroy(args->link_query_mmseqs_prep);
   /* output file */
   STR_Destroy(args->stdout_fileout);
   STR_Destroy(args->stderr_fileout);

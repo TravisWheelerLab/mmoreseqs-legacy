@@ -1,6 +1,6 @@
 /*******************************************************************************
- *      - FILE:   bound_posterior_quad.c
- *   - DESC:    Bounded Forward-Backward Algorithm (Quadratic Space)
+ *  - FILE:  bound_posterior_quad.c
+ *  - DESC:  Bounded Forward-Backward Algorithm (Quadratic Space)
  *******************************************************************************/
 
 #ifndef _BOUND_POSTERIOR_QUAD_H

@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:    	viterbi_linear.h
- *  - DESC:  	The Viterbi Algorithm and Traceback for Sequence Alignment Search.
+ *  - FILE:  viterbi_linear.h
+ *  - DESC:  The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *******************************************************************************/
 
 #ifndef _VITERBI_LINEAR_H

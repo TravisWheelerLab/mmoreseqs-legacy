@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      pruning_quad.c
- *  - DESC:    Pruning methods for Cloud Search.
+ *  - FILE:  pruning_quad.c
+ *  - DESC:  Pruning methods for Cloud Search.
  *******************************************************************************/
 
 #ifndef _PRUNING_QUAD_H

@@ -1,7 +1,8 @@
 /*******************************************************************************
- *  - FILE:     traceback_lin.c
- *  - DESC:   Traceback for Viterbi Algorithm (Linear Space).
- *  NOTES:    Implementation not completed.
+ *  - FILE:  traceback_lin.c
+ *  - DESC:  Traceback for Viterbi Algorithm (Linear Space).
+ *  NOTES:
+ *           - Implementation not completed.
  *******************************************************************************/
 
 /* imports */

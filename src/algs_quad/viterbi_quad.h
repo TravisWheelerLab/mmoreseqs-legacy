@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  - FILE:    viterbi_quad.h
+ *  - FILE:  viterbi_quad.h
  *  - DESC:  The Viterbi Algorithm and Traceback for Sequence Alignment Search.
  *******************************************************************************/
 

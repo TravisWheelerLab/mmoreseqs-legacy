@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      bounded_fwdbck_quad.c
- *  - DESC:    Bounded Forward-Backward Algorithm (Quadratic Space)
+ *  - FILE:  bounded_fwdbck_quad.c
+ *  - DESC:  Bounded Forward-Backward Algorithm (Quadratic Space)
  *******************************************************************************/
 
 #ifndef _BOUNDED_VITERBI_QUAD_H

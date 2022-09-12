@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      mydomout.h
- *  - DESC:    Reporting Subroutines for generating mydomout.
+ *  - FILE:  mydomout.h
+ *  - DESC:  Reporting Subroutines for generating mydomout.
  *******************************************************************************/
 
 #ifndef _MYDOMOUT_H

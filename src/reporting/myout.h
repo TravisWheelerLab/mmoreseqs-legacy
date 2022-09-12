@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      myout.h
- *  - DESC:    Reporting for generating myout format output.
+ *  - FILE:  myout.h
+ *  - DESC:  Reporting for generating myout format output.
  *******************************************************************************/
 
 #ifndef _MYOUT_H

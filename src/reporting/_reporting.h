@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      _reporting.h
- *  - DESC:    Tools for generating and outputting reports.
+ *  - FILE:  _reporting.h
+ *  - DESC:  Tools for generating and outputting reports.
  *******************************************************************************/
 
 #ifndef _REPORTING_H

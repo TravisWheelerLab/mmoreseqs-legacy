@@ -311,7 +311,7 @@ function PREP_PREPARE
 
 				# convert msa to hmm file 
 				echo_v 3 "# TARGET: MSA => HMM"
-				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" 		\
+				$HMMBUILD "$TARGET_HMM" "$TARGET_MSA" \
 
 				# convert hmm to fasta
 				echo_v 3 "# TARGET: HMM => FASTA"
@@ -320,27 +320,28 @@ function PREP_PREPARE
 
 				# link hmm to mmore
 				echo_v 3 "# TARGET: HMM => MMORE"
-				# $LINK $TARGET_HMM $TARGET_MMORE
-				$COPY "$TARGET_HMM" "$TARGET_MMORE"
+				$LINK $TARGET_HMM $TARGET_MMORE
+				# $COPY "$TARGET_HMM" "$TARGET_MMORE"
+				# $IMPORT "$TARGET_HMM" "$TARGET_MMORE"
 
 				# convert msa to mm_msa
 				echo_v 3 "# TARGET: MSA => MM_MSA"
-				$MMSEQS convertmsa								\
-				"$TARGET_MSA" "$TARGET_MM_MSA" 				\
-				--identifier-field	0							\
-				-v 						$VERBOSE					\
+				$MMSEQS convertmsa \
+				"$TARGET_MSA" "$TARGET_MM_MSA" \
+				--identifier-field 0 \
+				-v $VERBOSE \
 
 				# convert fasta to sequence mmdb 
 				echo_v 3 "# TARGET: FASTA => MMSEQS_S"
-				$MMSEQS createdb 									\
-				"$TARGET_FASTA" 	"$TARGET_MMSEQS_S" 		\
-				-v 						$VERBOSE 				\
+				$MMSEQS createdb \
+				"$TARGET_FASTA" "$TARGET_MMSEQS_S" \
+				-v $VERBOSE \
 
 				# convert mm_msa to profile mmdb
 				echo_v 3 "# TARGET: MM_MSA => MMSEQS_P"
-				$MMSEQS msa2profile  							\
-				"$TARGET_MM_MSA" "$TARGET_MMSEQS_P" 		\
-				-v 						$VERBOSE 				\
+				$MMSEQS msa2profile \
+				"$TARGET_MM_MSA" "$TARGET_MMSEQS_P" \
+				-v $VERBOSE \
 
 			fi
 
@@ -352,39 +353,42 @@ function PREP_PREPARE
 
 				# convert fasta to hmm
 				echo_v 3 "# TARGET: FASTA => HMM"
-				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh 	\
-				"$TARGET_FASTA" "$TARGET_HMM" "tmp_split" 		\
+				${SCRIPT_DIR}/helpers/convert_fasta-to-hmm.sh \
+				"$TARGET_FASTA" "$TARGET_HMM" "tmp_split" \
 
 				# convert fasta to sequence mmdb 
-				echo_v 3
-				$MMSEQS createdb  										\
-				"$TARGET_FASTA" "$TARGET_MMSEQS_S"  				\
-				-v 						$VERBOSE 						\
+				echo_v 3 "# TARGET: FASTA => S_MMDB"
+				$MMSEQS createdb \
+				"$TARGET_FASTA" "$TARGET_MMSEQS_S" \
+				-v $VERBOSE \
 
 			fi
+
+
 		}
 
-		echo_v 2 "# (3/3) Formatting QUERY [${QUERY_TYPE}] files..."
+		echo_v 3 "# (3/3) Formatting QUERY [${QUERY_TYPE}] files..."
 		# QUERY file formatting
 		{
 			# If query is a msa file
 			if [ "$QUERY_IN_TYPE" == "MSA" ]
 			then
 				# convert msa to hmm
-				$HMMBUILD  										\
-				"$QUERY_HMM" "$QUERY_MSA" 					\
+				$HMMBUILD \
+				"$QUERY_HMM" "$QUERY_MSA" \
 
 				# convert hmm to fasta
 				$HMMEMIT -c "$QUERY_HMM" > "$QUERY_FASTA"	
 				sed -i 's/-consensus//g' "$QUERY_FASTA"
 
 				# link fasta to mmore
-				# $LINK "$QUERY_FASTA" "$QUERY_MMORE"
-				$COPY "$QUERY_FASTA" "$QUERY_MMORE"
+				$LINK "$QUERY_FASTA" "$QUERY_MMORE"
+				# $COPY "$QUERY_FASTA" "$QUERY_MMORE"
+				# $IMPORT "$QUERY_FASTA" "$QUERY_MMORE"
 
 				# convert fasta to sequence mmdb 
-				$MMSEQS createdb  							\
-				"$QUERY_FASTA" "$QUERY_MMSEQS"  			\
+				$MMSEQS createdb \
+				"$QUERY_FASTA" "$QUERY_MMSEQS" \
 
 			fi
 
@@ -392,14 +396,23 @@ function PREP_PREPARE
 			if [ "$QUERY_IN_TYPE" == "FASTA" ]
 			then
 				# link fasta to mmore
-				# $LINK "$QUERY_FASTA" "$QUERY_MMORE"
-				$COPY "$QUERY_FASTA" "$QUERY_MMORE"
+				$LINK "$QUERY_FASTA" "$QUERY_MMORE"
+				# $COPY "$QUERY_FASTA" "$QUERY_MMORE"
+				# $IMPORT "$QUERY_FASTA" "$QUERY_MMORE"
 
 				# convert fasta to sequence mmdb
-				$MMSEQS createdb  							\
-				"$QUERY_FASTA" "$QUERY_MMSEQS" 			\
+				$MMSEQS createdb \
+				"$QUERY_FASTA" "$QUERY_MMSEQS" \
 
 			fi
+    }
+
+    echo_v 2 "# (3.5/4) Indexing files for MMORE..."
+		# INDEX FILES
+		{
+			$MMORESEQS index \
+      "$TARGET_MMORE" "$QUERY_MMORE" \
+      "${TARGET_MMORE}.idx" "${QUERY_MMORE}.idx" 
 		}
 
 		echo_v 2 "# (4/4) Cleanup"

@@ -66,6 +66,7 @@ WORKER_Create() {
   worker->mydomout_file = NULL;
   worker->mytimeout_file = NULL;
   worker->mythreshout_file = NULL;
+  worker->hmmerout_file = NULL;
 
   /* --- input data --- */
   /* m8 results from mmseqs */

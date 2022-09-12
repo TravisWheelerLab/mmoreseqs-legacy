@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  - FILE:    traceback_quad.c
+ *  - FILE:  traceback_quad.c
  *  - DESC:  Traceback for Viterbi Algorithm (Quadratic Space).
  *******************************************************************************/
 

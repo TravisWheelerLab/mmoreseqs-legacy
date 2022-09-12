@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  - FILE:      work_cloud.c
+ *  - FILE:    work_cloud.c
  *  - DESC:    Pipelines Workflow Subroutines.
  *             WORK interfaces between pipeline WORKER object and various
  *functions. Subroutines for cloud search / pruned / adaptive-banding

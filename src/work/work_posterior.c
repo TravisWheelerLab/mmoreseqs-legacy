@@ -63,19 +63,16 @@ void WORK_posterior_sparse(WORKER* worker) {
 
   /* compute posterior alignment */
   if (args->is_run_postaln == true || args->is_run_optacc == true) {
-    printf_vhi("POSTERIOR!!! %d\n", args->is_run_postaln);
     /* compute optimal accuracy from posterior */
     WORK_optimal_accuracy(worker);
-
+    /* backtrace optimal accuracy for posterior alignment */
     if (args->is_run_postaln == true) {
-      /* backtrace optimal accuracy for posterior alignment */
       WORK_optacc_traceback(worker);
     }
   }
 
   /* compute viterbi alignment */
   if (args->is_run_vitaln == true) {
-    printf_vhi("VITERBI!!! %d\n", args->is_run_vitaln);
     /* compute viterbi */
     WORK_viterbi_sparse(worker);
     /* backtrace viterbi */
@@ -214,7 +211,7 @@ void WORK_decode_posterior(WORKER* worker) {
   CLOCK_Stop(timer);
   times->sp_posterior = CLOCK_Duration(timer);
 
-  fprintf(stdout, "# ==> Posterior (full cloud)\n");
+  // fprintf(stdout, "# ==> Posterior (full cloud)\n");
 #if DEBUG
   {
     fp = fopen(DEBUG_FOLDER "/my.posterior.sp.log.000.mx", "w+");

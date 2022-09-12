@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:     forward_backward.h
- *  - DESC:   Function prototypes for the Forward-Backward algorithm.
+ *  - FILE:  forward_backward.h
+ *  - DESC:  Function prototypes for the Forward-Backward algorithm.
  *******************************************************************************/
 
 #ifndef _BOUNDED_FWDBCK_NAIVE_H

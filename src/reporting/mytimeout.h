@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      mytimeout.h
- *  - DESC:    Reporting Subroutines for generating mytimeout.
+ *  - FILE:  mytimeout.h
+ *  - DESC:  Reporting Subroutines for generating mytimeout.
  *******************************************************************************/
 
 #ifndef _MYTIMEOUT_H

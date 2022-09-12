@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      m8out.h
- *  - DESC:    Methods for generating BLAST-style .m8 output.
+ *  - FILE:  m8out.h
+ *  - DESC:  Methods for generating BLAST-style .m8 output.
  *******************************************************************************/
 
 #ifndef _M8OUT_H

@@ -60,8 +60,6 @@ void HMM_PROFILE_Parse(HMM_PROFILE* prof,
   /* reset the HMM_PROFILE fields for reuse */
   HMM_PROFILE_Reuse(prof);
 
-  printf("BEGIN OF FILE\n");
-
   /* PARSE FILE HEADER FIELDS */
   /* read file line-by-line */
   while ((line_size = getline(&line_buf, &line_buf_size, fp)), line_size != -1 && is_InHeader) /* read a line */
@@ -252,8 +250,6 @@ void HMM_PROFILE_Parse(HMM_PROFILE* prof,
   // {
   //    curr_node->match[i] = 0.0f;
   // }
-
-  printf("END OF FILE\n");
 
   /* free line buffer */
   free(line_buf);

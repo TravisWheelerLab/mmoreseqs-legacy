@@ -56,12 +56,12 @@ void WORK_viterbi_mmore(WORKER* worker) {
   float sc;
 
   /* Viterbi */
-  printf_vall("# ==> viterbi (linear)...\n");
+  // printf_vall("# ==> viterbi (linear)...\n");
   CLOCK_Start(timer);
   run_Viterbi_Linear(q_seq, t_prof, Q, T, st_MX3, sp_MX, &sc);
   CLOCK_Stop(timer);
 
-  printf_vall("VITERBI_MMORE_SCORES: %.3f\n", sc);
+  // printf_vall("VITERBI_MMORE_SCORES: %.3f\n", sc);
 
   times->lin_vit = CLOCK_Duration(timer);
   scores->lin_vit = sc;
@@ -69,7 +69,7 @@ void WORK_viterbi_mmore(WORKER* worker) {
 
 #if DEBUG
   {
-    printf("# printing viterbi linear...\n");
+    // printf("# printing viterbi linear...\n");
     DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.vit.lin.000.mx");
   }
 #endif
@@ -102,7 +102,7 @@ void WORK_viterbi_and_traceback(WORKER* worker) {
 
   /* Viterbi */
   if (tasks->lin_vit) {
-    printf_vall("# ==> viterbi (linear)...\n");
+    // printf_vall("# ==> viterbi (linear)...\n");
     CLOCK_Start(timer);
     run_Viterbi_Linear(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
     CLOCK_Stop(timer);
@@ -110,13 +110,13 @@ void WORK_viterbi_and_traceback(WORKER* worker) {
     scores->lin_vit = sc;
 #if DEBUG
     {
-      printf("# printing viterbi linear...\n");
+      // printf("# printing viterbi linear...\n");
       DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.vit.lin.000.mx");
     }
 #endif
   }
   if (tasks->quad_vit) {
-    printf_vall("# ==> viterbi (quadratic)...\n");
+    // printf_vall("# ==> viterbi (quadratic)...\n");
     CLOCK_Start(timer);
     run_Viterbi_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, &sc);
     CLOCK_Stop(timer);
@@ -124,7 +124,7 @@ void WORK_viterbi_and_traceback(WORKER* worker) {
     scores->quad_vit = sc;
 #if DEBUG
     {
-      printf("# printing viterbi quad...\n");
+      // printf("# printing viterbi quad...\n");
       DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.vit.quad.000.mx");
     }
 #endif
@@ -142,7 +142,7 @@ void WORK_viterbi_and_traceback(WORKER* worker) {
     // times->lin_trace = CLOCK_Duration(timer);
   }
   if (tasks->quad_trace) {
-    printf_vall("# ==> traceback (quadratic)...\n");
+    // printf_vall("# ==> traceback (quadratic)...\n");
     CLOCK_Start(timer);
     run_Traceback_Quad(q_seq, t_prof, Q, T, st_MX, sp_MX, tr);
     CLOCK_Stop(timer);
@@ -187,7 +187,7 @@ void WORK_viterbi_sparse(WORKER* worker) {
   scores->sparse_vit = sc;
   finalsc->viterbi_natsc = sc;
 
-  fprintf(stdout, "# ==> Viterbi (full cloud): %11.4f\n", sc);
+  // fprintf(stdout, "# ==> Viterbi (full cloud): %11.4f\n", sc);
 #if DEBUG
   {
     fp = fopen(DEBUG_FOLDER "/my.vit.sparse.000.mx", "w+");
@@ -198,9 +198,9 @@ void WORK_viterbi_sparse(WORKER* worker) {
 #endif
 }
 
-/*! FUNCTION:  	WORK_viterbi_traceback_sparse()
- *  SYNOPSIS:  	Run Viterbi Traceback algorithm.
- *                Depends on <task> settings in <worker>.
+/*! FUNCTION:  WORK_viterbi_traceback_sparse()
+ *  SYNOPSIS:  Run Viterbi Traceback algorithm.
+ *             Depends on <task> settings in <worker>.
  */
 void WORK_viterbi_traceback_sparse(WORKER* worker) {
   FILE* fp = NULL;

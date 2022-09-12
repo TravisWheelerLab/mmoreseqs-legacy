@@ -82,8 +82,13 @@ void WORK_construct_scores(WORKER* worker) {
   STATS_Fwdback_Nats_to_Eval(natsc, &presc, &seqsc, &pval, &eval,
                              t_prof->forward_dist, db_size, null1_hmm_bias, null2_seq_bias);
 
-  printf("presc: %f, null2: %f, seqsc: %f, eval: %e\n",
-         presc, null2_seq_bias, seqsc, eval);
+#if DEBUG
+  {
+    printf("presc: %f, null2: %f, seqsc: %f, eval: %e\n",
+    presc, null2_seq_bias, seqsc, eval);
+  }
+#endif
+  
 
   /* capture results */
   finalsc->null2_seq_bias_natsc = null2_seq_bias;

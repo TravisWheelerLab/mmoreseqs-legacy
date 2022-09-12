@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      _algs_linear.h
- *  - DESC:    /algs_linear/ folder collective header
+ *  - FILE:  _algs_linear.h
+ *  - DESC:  /algs_linear/ folder collective header
  *******************************************************************************/
 
 #ifndef _ALGS_LINEAR_H

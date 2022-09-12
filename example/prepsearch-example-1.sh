@@ -1,9 +1,8 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		prepsearch-example-1.sh	
-#	- DESC:  		Run step #1 of prep-search pipeline example.
+#	- FILE:  prepsearch-example-1.sh	
+#	- DESC:  Run step #1 of prep-search pipeline example.
 ###########################################################################
-
 
 # input locations
 BENCH_DIR=$(pwd)
@@ -17,17 +16,17 @@ PREP_DIR=${BENCH_DIR}/tmp-mmoreseqs/
 
 function ECHO_AND_RUN
 {
-   echo "# COMMAND: ${@}"
-   echo "#"
-   "${@}"
+  echo "# COMMAND: ${@}"
+  echo "#"
+  "${@}"
 }
 
 # prepare data files
-#ECHO_AND_RUN                     \
-${MMORESEQS} prep                \
-   ${QUERY} ${TARGET}   		   \
-   ${PREP_DIR}               		\
-	--verbose 		3 					\
-	--mmseqs-kmer 	6              \
-
+#ECHO_AND_RUN \
+${MMORESEQS} prep \
+  ${QUERY} ${TARGET} \
+  ${PREP_DIR} \
+  --verbose 3 \
+  --mmseqs-kmer 6 \
+  --prep-copy 0 \
 

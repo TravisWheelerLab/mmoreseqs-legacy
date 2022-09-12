@@ -1,6 +1,6 @@
 /*******************************************************************************
- *    - FILE:       traceback_sparse.c
- *    - DESC:     Traceback for Viterbi Algorithm for Sparse Matrices.
+ *  - FILE:  traceback_sparse.c
+ *  - DESC:  Traceback for Viterbi Algorithm for Sparse Matrices.
  *******************************************************************************/
 
 /* imports */
@@ -50,9 +50,6 @@ run_Viterbi_Traceback_Sparse(const SEQUENCE* query,                 /* query seq
                              MATRIX_2D* restrict sp_MX_vit,         /* Special State (J,N,B,C,E) Matrix */
                              ALIGNMENT* aln)                        /* OUTPUT: Traceback Alignment */
 {
-  printf("=== run_Viterbi_Traceback_Sparse() [BEGIN] ===\n");
-  // exit(0);
-
   /* output file pointer */
   FILE* fp;
 
@@ -350,14 +347,14 @@ run_Viterbi_Traceback_Sparse(const SEQUENCE* query,                 /* query seq
 
 #if DEBUG
         {
-          // printf("(t_0,q_0)=%d,%d | msc(t_0=%d,A=%d): %.3f\n",
-          //    t_0, q_0, t_0, A, MSC(t_0, A));
-          // printf("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
-          //    sc_cur, XMX(SP_B, q_1), MSMX(qx1, tx1), ISMX(qx1, tx1), DSMX(qx1, tx1) );
-          // printf("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
-          //    sc_cur, prv_B, prv_M, prv_I, prv_D );
-          // printf("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
-          //    ABS( sc_cur - sc_cur ), ABS( sc_cur - prv_B), ABS( sc_cur - prv_M ), ABS( sc_cur - prv_I ), ABS( sc_cur - prv_D ) );
+          DBG_PRINTF("(t_0,q_0)=%d,%d | msc(t_0=%d,A=%d): %.3f\n",
+             t_0, q_0, t_0, A, MSC(t_0, A));
+          DBG_PRINTF("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
+             sc_cur, XMX(SP_B, q_1), MSMX(qx1, tx1), ISMX(qx1, tx1), DSMX(qx1, tx1) );
+          DBG_PRINTF("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
+             sc_cur, prv_B, prv_M, prv_I, prv_D );
+          DBG_PRINTF("CUR_M: %.3f, B: %.3f, M: %.3f, I: %.3f, D: %.3f\n",
+             ABS( sc_cur - sc_cur ), ABS( sc_cur - prv_B), ABS( sc_cur - prv_M ), ABS( sc_cur - prv_I ), ABS( sc_cur - prv_D ) );
         }
 #endif
 
@@ -568,12 +565,6 @@ run_Viterbi_Traceback_Sparse(const SEQUENCE* query,                 /* query seq
       }
     }
 
-#if DEBUG
-    {
-      // printf("ADDED: {%s, (%d, %d)}\n", STATE_NAMES[st_cur], q_0, t_0);
-    }
-#endif
-
     /* push new trace onto the alignment */
     ALIGNMENT_AppendScore(aln, sc_cur);
     ALIGNMENT_AppendTrace(aln, st_cur, q_0, t_0);
@@ -583,8 +574,12 @@ run_Viterbi_Traceback_Sparse(const SEQUENCE* query,                 /* query seq
       q_0--;
     }
 
-    fprintf(stderr, "{%s,(%d,%d)} -> {%s,(%d,%d)}\n",
-            STATE_NAMES[st_prv], q_prv, t_prv, STATE_NAMES[st_cur], q_0, t_0);
+#if DEBUG
+    {
+      DBG_PRINTF(stderr, "{%s,(%d,%d)} -> {%s,(%d,%d)}\n",
+               STATE_NAMES[st_prv], q_prv, t_prv, STATE_NAMES[st_cur], q_0, t_0);
+    }
+#endif
 
     /* Update previous state */
     st_prv = st_cur;
@@ -598,19 +593,12 @@ run_Viterbi_Traceback_Sparse(const SEQUENCE* query,                 /* query seq
   ALIGNMENT_FindRegions(aln);
   ALIGNMENT_ScoreRegions(aln);
 
-  /* find end and begin alignment points (first and last match state) */
-  N = aln->traces->N;
-  tr = aln->traces->data;
-  for (i = 0; i < N; i++) {
-    if (tr[i].st == B_ST) {
-      VECTOR_INT_Pushback(aln->tr_beg, i + 1);
-    }
-    if (tr[i].st == E_ST) {
-      VECTOR_INT_Pushback(aln->tr_end, i - 1);
-    }
+  int N_1 = VECTOR_FLT_GetSize(aln->tr_score);
+  for (int i = 0; i < N_1; i++) {
+    int beg_idx = VECTOR_INT_Get(aln->tr_beg, i);
+    int end_idx = VECTOR_INT_Get(aln->tr_end, i);
+    float sc = VECTOR_FLT_Get(aln->tr_score, i);
   }
-  aln->beg = aln->tr_beg->data[0];
-  aln->end = aln->tr_end->data[0];
 
 #if DEBUG
   {

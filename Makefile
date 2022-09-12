@@ -30,6 +30,7 @@ TOOLS 					:= $(shell find $(TOOL_DIR) -name hmmbuild -or -name hmmsearch -or -n
 
 # get commit hash of this build.
 BUILD_HASH 			:= $(shell git rev-parse HEAD)
+BUILD_VERSION 	:= $(shell cat VERSION)
 
 # Build directories
 BUILD_RELEASE_DIR 	:= build
@@ -39,14 +40,14 @@ BUILD_DEBUG_DIR 		:= build-debug
 # -g (Debugging symbols)
 # -pg (Profiling info)
 # flags for release version
-RELEASE_C_FLAGS 	:= -O3 -Wall
+RELEASE_C_FLAGS 	:= -O3 -Wall -fPIC
 # suggested flags: -g (line numbers) -pg (gprof) -DDEBUG=1 -fsanitize=address
-DEBUG_C_FLAGS 		:= -g -O1 -pg -fsanitize=address
+DEBUG_C_FLAGS 		:= -g -O1 -pg -fsanitize=address -fPIC
 # flags for alpha version
-VALGRIND_C_FLAGS 	:= -g -O0 
+VALGRIND_C_FLAGS 	:= -g -O0 -fPIC
 
 # RECIPES
-.PHONY: all build-release build-debug build-valgrind build-test test format clean
+.PHONY: all build-release build-debug build-valgrind build-test cli-release cli-debug test format clean clean-release clean-debug
 
 default:
 	$(MAKE) build-release
@@ -54,29 +55,43 @@ default:
 build-release:
 	@echo "*** BUILD RELEASE ***"
 	@mkdir -p $(BUILD_RELEASE_DIR)
-	@cmake -S . -B $(BUILD_RELEASE_DIR) -DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_RELEASE_DIR) \
+		-DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_RELEASE_DIR) && \
 		make CFLAGS="$(RELEASE_C_FLAGS)" CXXFLAGS="$(RELEASE_C_FLAGS)"
 
 build-debug:
 	@echo "*** BUILD DEBUG ***"
 	@mkdir -p $(BUILD_DEBUG_DIR)
-	@cmake -S . -B $(BUILD_DEBUG_DIR) -DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_DEBUG_DIR) \
+		-DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_DEBUG_DIR) && \
 		make CFLAGS="$(DEBUG_C_FLAGS)" CXXFLAGS="$(DEBUG_C_FLAGS)" 
 
 build-valgrind:
 	@echo "*** BUILD VALGRIND ***"
 	@mkdir -p $(BUILD_DEBUG_DIR) 
-	@cmake -S . -B $(BUILD_DEBUG_DIR) -DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_DEBUG_DIR) \
+		-DCMAKE_BUILD_TYPE=VALGRIND -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_DEBUG_DIR) && \
 		make CFLAGS="$(VALGRIND_C_FLAGS)" CXXFLAGS="$(VALGRIND_C_FLAGS)"
 
 build-test:
 	@echo '*** BUILD-TEST ***'
 	$(MAKE) build-release 
-	@echo ''
 	$(MAKE) test
+
+cli-release:
+	@cd $(BUILD_RELEASE_DIR) && \
+		pip install .
+	@cd $(BUILD_RELEASE_DIR) && \
+		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
+
+cli-debug:
+	@cd $(BUILD_DEBUG_DIR) && \
+		pip install .
+	@cd $(BUILD_DEBUG_DIR) && \
+		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
 
 test:
 	@echo '*** TEST ***'
@@ -88,15 +103,24 @@ get-submodules:
 	git submodule update --init --recursive 
 
 # code formatting 
-format: $(SOURCES)
+format:
 	@echo '*** FORMAT ***'
 	clang-format -i -style=file $(SOURCES) $(HEADERS)
+	# black $(SCRIPTS)
+
+create-env:
+	@echo '*** CREATE ENVIRONMENT ***'
+	conda env create --file environment.yml
 
 clean: 
 	@echo "*** CLEAN ***"
+	$(MAKE) clean-release 
+	$(MAKE) clean-debug
+
+clean-release: 
+	@echo "*** CLEAN-RELEASE ***"
 	@cd $(BUILD_RELEASE_DIR) && \
 		make clean 
-
 
 clean-debug:
 	@echo "*** CLEAN-DEBUG ***"

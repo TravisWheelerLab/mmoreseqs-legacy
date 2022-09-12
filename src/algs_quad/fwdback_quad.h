@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      fwdback_quad.h
- *  - DESC:    The Forward-Backward Algorithm for Sequence Alignment Search.
- *             (Quadratic Space Alg)
+ *  - FILE:  fwdback_quad.h
+ *  - DESC:  The Forward-Backward Algorithm for Sequence Alignment Search.
+ *           (Quadratic Space Alg)
  *******************************************************************************/
 
 #ifndef _FWDBACK_QUAD_H

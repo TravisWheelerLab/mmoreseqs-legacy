@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      myout.c
- *  - DESC:    Reporting functions for generating mytimeout format output.
+ *  - FILE:  myout.c
+ *  - DESC:  Reporting functions for generating mytimeout format output.
  *******************************************************************************/
 
 /* imports */

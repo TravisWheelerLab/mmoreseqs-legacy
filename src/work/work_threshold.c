@@ -38,12 +38,10 @@ void WORK_thresholds_pval_to_eval(WORKER* worker) {
   STATS* stats = worker->stats;
   int db_size = stats->n_query_db;
 
-  fprintf(stdout, "DB_SIZE: %d\n", db_size);
-
   /* if thresholds given as p-values (default) */
   if (args->use_pvals == true) {
-    fprintf(stdout, "THRESHOLDS -> PVALS: %.3e => %.3e => %.3e => %.3e\n",
-            args->threshold_vit, args->threshold_cloud, args->threshold_boundfwd, args->threshold_fwd);
+    // fprintf(stdout, "THRESHOLDS -> PVALS: %.3e => %.3e => %.3e => %.3e\n",
+    //         args->threshold_vit, args->threshold_cloud, args->threshold_boundfwd, args->threshold_fwd);
 
     args->threshold_vit = STATS_Pval_to_Eval(args->threshold_vit, db_size);
     args->threshold_cloud = STATS_Pval_to_Eval(args->threshold_cloud, db_size);
@@ -55,8 +53,8 @@ void WORK_thresholds_pval_to_eval(WORKER* worker) {
     fprintf(stdout, "WARNING: THRESHOLDS ALREADY GIVEN AS E-VALUES.\n");
   }
 
-  fprintf(stdout, "THRESHOLDS -> EVALS: %.3e => %.3e => %.3e => %.3e\n",
-          args->threshold_vit, args->threshold_cloud, args->threshold_boundfwd, args->threshold_fwd);
+  // fprintf(stdout, "THRESHOLDS -> EVALS: %.3e => %.3e => %.3e => %.3e\n",
+  //         args->threshold_vit, args->threshold_cloud, args->threshold_boundfwd, args->threshold_fwd);
 }
 
 /*! FUNCTION:  	WORK_viterbi_natsc_to_eval()
@@ -80,8 +78,8 @@ void WORK_viterbi_mmore_natsc_to_eval(WORKER* worker) {
       natsc, &bitsc, NULL, &pval, &eval,
       t_prof->viterbi_dist, db_size, 0.0f, 0.0f);
 
-  printf_vhi("VITERBI_MMORE SCORES: %.3f %.3f %.3e %.3e\n",
-             natsc, bitsc, pval, eval);
+  // printf_vhi("VITERBI_MMORE SCORES: %.3f %.3f %.3e %.3e\n",
+  //            natsc, bitsc, pval, eval);
 
   finalsc->viterbi_mmore_bitsc = bitsc;
   finalsc->viterbi_mmore_eval = eval;
@@ -108,8 +106,8 @@ void WORK_viterbi_natsc_to_eval(WORKER* worker) {
       finalsc->viterbi_natsc, &bitsc, NULL, &pval, &eval,
       t_prof->viterbi_dist, db_size, 0.0f, 0.0f);
 
-  printf_vhi("VITERBI SCORES: %.3f %.3f %.3e %.3e\n",
-             natsc, bitsc, pval, eval);
+  // printf_vhi("VITERBI SCORES: %.3f %.3f %.3e %.3e\n",
+  //            natsc, bitsc, pval, eval);
 
   finalsc->viterbi_bitsc = bitsc;
   finalsc->viterbi_eval = eval;
@@ -133,8 +131,8 @@ bool WORK_viterbi_test_threshold(WORKER* worker) {
 
   /* check if passes */
   is_passed = (vit_eval < vit_threshold);
-  printf_vhi("VITERBI THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
-             (args->is_run_viterbi_filter ? "ON" : "OFF"), vit_eval, vit_threshold, (is_passed ? "PASS" : "FAIL"));
+  // printf_vhi("VITERBI THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
+  //            (args->is_run_viterbi_filter ? "ON" : "OFF"), vit_eval, vit_threshold, (is_passed ? "PASS" : "FAIL"));
 
   /* if filter is off, immediately passes */
   if (args->is_run_viterbi_filter == false) {
@@ -176,8 +174,8 @@ void WORK_cloud_natsc_to_eval(WORKER* worker) {
       natsc, &bitsc, NULL, &pval, &eval,
       t_prof->forward_dist, db_size, 0.0f, 0.0f);
 
-  printf_vhi("CLOUD SCORES: %.3f %.3f %.3e %.3e\n",
-             finalsc->cloud_natsc, bitsc, pval, eval);
+  // printf_vhi("CLOUD SCORES: %.3f %.3f %.3e %.3e\n",
+  //            finalsc->cloud_natsc, bitsc, pval, eval);
 
   finalsc->cloud_bitsc = bitsc;
   finalsc->cloud_eval = eval;
@@ -200,8 +198,8 @@ bool WORK_cloud_test_threshold(WORKER* worker) {
   float cloud_eval = finalsc->cloud_eval;
 
   is_passed = (cloud_eval < cloud_threshold);
-  printf_vhi("CLOUD THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
-             (args->is_run_cloud_filter ? "ON" : "OFF"), cloud_eval, cloud_threshold, (is_passed ? "PASS" : "FAIL"));
+  // printf_vhi("CLOUD THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
+  //            (args->is_run_cloud_filter ? "ON" : "OFF"), cloud_eval, cloud_threshold, (is_passed ? "PASS" : "FAIL"));
 
   /* if filter is off, immediately passes */
   if (args->is_run_cloud_filter == false) {
@@ -240,8 +238,8 @@ void WORK_bound_fwdback_natsc_to_eval(WORKER* worker) {
       natsc, &bitsc, NULL, &pval, &eval,
       t_prof->forward_dist, db_size, 0.0f, 0.0f);
 
-  printf_vhi("FWDBACK SCORES: %.3f %.3f %.3e %.3e\n",
-             finalsc->fwdback_natsc, bitsc, pval, eval);
+  // printf_vhi("FWDBACK SCORES: %.3f %.3f %.3e %.3e\n",
+  //            finalsc->fwdback_natsc, bitsc, pval, eval);
 
   finalsc->fwdback_bitsc = bitsc;
   finalsc->fwdback_eval = eval;
@@ -264,8 +262,8 @@ bool WORK_bound_fwdback_test_threshold(WORKER* worker) {
   float fwdback_eval = finalsc->fwdback_eval;
 
   is_passed = (fwdback_eval < fwdback_threshold);
-  printf_vhi("FWDBACK THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
-             (args->is_run_boundfwd_filter ? "ON" : "OFF"), fwdback_eval, fwdback_threshold, (is_passed ? "PASS" : "FAIL"));
+  // printf_vhi("FWDBACK THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
+  //            (args->is_run_boundfwd_filter ? "ON" : "OFF"), fwdback_eval, fwdback_threshold, (is_passed ? "PASS" : "FAIL"));
 
   /* if filter is off, immediately passes */
   if (args->is_run_boundfwd_filter == false) {
@@ -300,8 +298,8 @@ bool WORK_report_test_threshold(WORKER* worker) {
   float report_eval = finalsc->eval;
 
   is_passed = (report_eval < report_threshold);
-  printf_vhi("REPORT THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
-             (args->is_run_report_filter ? "ON" : "OFF"), report_eval, report_threshold, (is_passed ? "PASS" : "FAIL"));
+  // printf_vhi("REPORT THRESHOLD (%s):  score = %.4e vs threshold = %.4e => %s\n",
+  //            (args->is_run_report_filter ? "ON" : "OFF"), report_eval, report_threshold, (is_passed ? "PASS" : "FAIL"));
 
   /* if filter is off, immediately passes */
   if (args->is_run_report_filter == false) {

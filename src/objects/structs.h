@@ -633,6 +633,7 @@ typedef struct {
   char* dbg_folderpath;    /* location for debugging */
   bool enforce_warnings;   /* if error is caught, force close? */
   bool adjust_mmseqs_alns; /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
+  bool dbg_arg_dump;       /* dump arguments to stdout and close */
 
   /* --- INPUT FILES --- */
   /* main files */
@@ -690,12 +691,15 @@ typedef struct {
 
   /* --- PREPARATION OUTPUT --- */
   /* root prep folder */
-  char* prep_folderpath; /* location to find prep folder */
-  /* prep-able files */
-  char* target_prep;         /* target file to be prepped (either FASTA or MSA) */
-  char* query_prep;          /* query file to be prepped (either FASTA or MSA) */
-  FILETYPE target_prep_type; /* filetype of target prep file */
-  FILETYPE query_prep_type;  /* filetype of target prep file */
+  char* prep_folderpath;         /* location to find prep folder */
+  char* target_prep;             /* target file to be prepped (either FASTA or MSA) */
+  char* query_prep;              /* query file to be prepped (either FASTA or MSA) */
+  FILETYPE target_prep_type;     /* filetype of target prep file */
+  FILETYPE query_prep_type;      /* filetype of target prep file */
+  char* link_target_mmore_prep;  /* symbolic link to target for MMORE stage */
+  char* link_query_mmore_prep;   /* symbolic link to query for MMORE stage */
+  char* link_target_mmseqs_prep; /* symbolic link to target for MMseqs stage */
+  char* link_query_mmseqs_prep;  /* symbolic link to query for MMseqs stage */
 
   /* --- INTERRIM INPUT --- */
   /* hmm file (if fasta file is given as input, a single sequence hmm file) */
@@ -769,7 +773,7 @@ typedef struct {
   bool is_run_vit_mmore;       /* compute viterbi matrix (MMORE)? */
   bool is_run_vitaln;          /* perform viterbi alignment traceback? */
   bool is_run_optacc;          /* compute posterior (optimal accuracy) matrix? (DEBUG) */
-  bool is_run_post;            /*  */
+  bool is_run_post;            /* perform posterior */
   bool is_run_postaln;         /* perform posterior alignment traceback? */
   bool is_run_mmseqs_ungapped; /* perform mmseqs ungapped viterbi alignment? */
   bool is_run_mmseqs_sens;     /* Use sensitivity parameter in prefilter? */
@@ -1055,6 +1059,14 @@ typedef struct {
   VECTOR_PTR* arg_loc;  /* pointer to the location in ARGS to store option argument */
   VECTOR_INT* arg_id;   /* associates argument to option */
 } ARG_OPTS;
+
+typedef struct {
+  STR name;
+  STR flag;
+  DATATYPE arg_type;
+  int n_args;
+  PTR arg_loc;
+} ARG_OPT;
 
 /* TODO: formatted data */
 /* descriptor for data field */
@@ -1439,6 +1451,7 @@ typedef struct {
   FILER* mydomout_file;    /* Custom per-domain tsv output */
   FILER* mytimeout_file;   /* Runtime summary output */
   FILER* mythreshout_file; /* Threshold passage output */
+  FILER* hmmerout_file;    /* HMMER-style output */
 
   /* --- input data --- */
   /* m8 results from mmseqs */
@@ -1567,6 +1580,8 @@ typedef struct {
 /* === GLOBAL VARIABLES === */
 /* pipeline */
 extern PIPELINE PIPELINES[];
+extern const int NUM_PIPELINES;
+extern char* PIPELINES_ARG_HELP[];
 extern char* MODE_NAMES[];
 extern char* VERBOSITY_NAMES[];
 extern char* ALPHABET_NAMES[];

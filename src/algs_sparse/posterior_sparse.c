@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      posterior_sparse.h
- *  - DESC:    The Maximum Posterior Probability and Optimal Alignment.
- *  NOTES:
+ *  - FILE:  posterior_sparse.h
+ *  - DESC:  The Maximum Posterior Probability and Optimal Alignment.
+ *  - NOTES:
  *    - There are a few suboptimal arrangements I have to clarify the posterior process.
  *    - Currently, posterior_decoding converts from log to normal space in a separate middle step.
  *      This could be integrated into the first pass through the matrix and reduce passes.
@@ -43,7 +43,6 @@ run_Decode_Posterior_Sparse(SEQUENCE* q_seq,               /* query sequence */
                             MATRIX_3D_SPARSE* st_SMX_post, /* OUTPUT: normal state matrix for posterior */
                             MATRIX_2D* sp_MX_post)         /* OUTPUT: normal state matrix for posterior */
 {
-  printf("=== run_Decode_Posterior_Sparse ===\n");
   FILE* fp = NULL;
 
   /* query index */
@@ -82,8 +81,8 @@ run_Decode_Posterior_Sparse(SEQUENCE* q_seq,               /* query sequence */
   overall_sc = XMX_X(sp_MX_fwd, SP_C, Q) +
                XSC_X(t_prof, SP_C, SP_MOVE);
 
-  printf("overall_sc: %f %f ==> %f\n",
-         XMX_X(sp_MX_fwd, SP_C, Q), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
+  // printf("overall_sc: %f %f ==> %f\n",
+  //        XMX_X(sp_MX_fwd, SP_C, Q), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
 
   /* domain range (query sequence) */
   if (dom_range == NULL) {
@@ -568,7 +567,7 @@ run_Decode_Domains(SEQUENCE* q_seq,      /* query sequence */
   if (false) {
     VECTOR_RANGE_Reuse(dom_def->dom_ranges);
 
-    printf("==> DOMAIN SEARCH (best)\n");
+    // printf("==> DOMAIN SEARCH (best)\n");
     /* flag to check if we are in a current domain */
     is_in_domain = FALSE;
     t_beg = -1;
@@ -614,7 +613,7 @@ run_Decode_Domains(SEQUENCE* q_seq,      /* query sequence */
         rt2_ehit = true;
       }
     }
-    printf("BEST REGION: (%d,%d)\n", q_beg, q_end);
+    // printf("BEST REGION: (%d,%d)\n", q_beg, q_end);
     VECTOR_RANGE_Pushback(dom_def->dom_ranges, (RANGE){q_beg, q_end});
   }
 

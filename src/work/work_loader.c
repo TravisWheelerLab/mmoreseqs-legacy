@@ -153,8 +153,6 @@ void WORK_load_target(WORKER* worker) {
   worker->t_name_prv = worker->t_name;
   worker->t_name = worker->mmseqs_cur->target_name;
   /* if current and previous mmseqs entry targets are not the same, then load new target */
-  printf("t_name: %s\n", worker->t_name);
-  printf("t_name_prv: %s\n", worker->t_name_prv);
   if (STRING_Equal(worker->t_name, worker->t_name_prv) == false) {
     /* load new target */
     WORK_load_target_by_name(worker, worker->t_name);
@@ -264,9 +262,7 @@ void WORK_load_target_by_findex_id(WORKER* worker,
   /* load target profile by file type */
   switch (args->t_filetype) {
     case FILE_HMM: {
-      printf("inner inner test\n");
       HMM_PROFILE_Parse(worker->t_prof, args->t_filein, my_idx->offset);
-      printf("inner inner test\n");
       HMM_PROFILE_Convert_NegLog_To_Real(worker->t_prof);
       HMM_PROFILE_Config(worker->t_prof, args->search_mode);
       // HMM_PROFILE_Dump( worker->t_prof, stdout );

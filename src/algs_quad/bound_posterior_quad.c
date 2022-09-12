@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      bound_fwdbck_quad.c
- *  - DESC:    Bounded Forward-Backward Algorithm (Quadratic Space)
- *  NOTES:
+ *  - FILE:  bound_fwdbck_quad.c
+ *  - DESC:  Bounded Forward-Backward Algorithm (Quadratic Space)
+ *  - NOTES:
  *******************************************************************************/
 
 /* imports */

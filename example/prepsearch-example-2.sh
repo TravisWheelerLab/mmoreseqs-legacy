@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		prepsearch-example.sh	
-#	- DESC:  		Run prep-search pipeline examples.
+# - FILE:  prepsearch-example.sh	
+# - DESC:  Run prep-search pipeline examples.
 ###########################################################################
 
 
@@ -17,20 +17,20 @@ PREP_DIR=${BENCH_DIR}/tmp-mmoreseqs/
 
 function ECHO_AND_RUN
 {
-   echo "# COMMAND: ${@}"
+  echo "# COMMAND: ${@}"
 	echo "#"
-   "${@}"
+  "${@}"
 }
 
 # search based on prepared files
-#ECHO_AND_RUN              		          \
-${MMORESEQS} prep-search	            	\
-  ${PREP_DIR}       	          				\
-	--verbose 			3								      \
-  --mmseqs-kmer 		6              			\
-	--run-vitaln 		0 								    \
-	--run-postaln 		0								    \
-	--m8out 				${OUTPUT}.m8out			  \
-	--myout 				${OUTPUT}.myout 			\
-	--mythreshout		${OUTPUT}.mythreshout	\
-
+#ECHO_AND_RUN \
+${MMORESEQS} prep-search \
+  ${PREP_DIR} \
+  --verbose 1 \
+  \
+  --mmseqs-kmer 6 \
+  --run-vitaln 1 \
+  --m8out ${OUTPUT}.m8out \
+  --myout ${OUTPUT}.myout \
+  --mythreshout ${OUTPUT}.mythreshout \
+  --hmmerout ${OUTPUT}.hmmerout

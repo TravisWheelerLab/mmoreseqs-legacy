@@ -1,7 +1,7 @@
 /*******************************************************************************
- *     - FILE:  bounded_fwdbck_sparse.c
- *  - DESC:   Bounded Forward/Backward Algorithm
- *            (Sparse Space)
+ *  - FILE:  bounded_fwdbck_sparse.c
+ *  - DESC:  Bounded Forward/Backward Algorithm
+ *           (Sparse Space)
  *******************************************************************************/
 
 /* imports */
