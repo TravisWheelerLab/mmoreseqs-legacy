@@ -153,8 +153,6 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
   - - Run MMORE stage of the pipeline.
   - `--run-vit BOOL`
     - Run viterbi during the MMORE stage of pipeline. Otherwise bypasses viterbi computation.
-  - `--run-post BOOL`
-    - Run posterior during the MMORE stage of pipeline. Otherwise bypasses posterior computation.
 
 - Input File Options:
   - `--tmp`
