@@ -397,34 +397,34 @@
 		{
 			echo "$MMORE mmore-search $TARGET $QUERY"
 
-			time $MMORE mmore-search 											\
-			$TARGET_MMORE 	$QUERY_MMORE 										\
-			$MMSEQS_M8	 															\
-																						\
-			--verbose 					$VERBOSE 								\
-			--run-mmore 				$MMORE_DO_MMORE 						\
-			--run-full 					$MMORE_DO_FULL 						\
-			--run-bias 					$MMORE_DO_DOMAIN 						\
-			--run-mmseqsaln 			$MMORE_DO_MMSEQS_ALN 				\
-			--run-vitaln 				$MMORE_DO_VIT_ALN 					\
-			--run-postaln 				$MMORE_DO_POST_ALN 					\
-																						\
-			--dbsizes 					$TARGET_DBSIZE $QUERY_DBSIZE 		\
-																						\
-			--alpha 						$MMORE_ALPHA 							\
-			--beta 						$MMORE_BETA 							\
-			--gamma 						$MMORE_GAMMA 							\
-																						\
-			--run-filter 				$MMORE_DO_FILTER 						\
-			--mmore-viterbi-pval		$MMORE_VITERBI_PVAL 					\
-			--mmore-cloud-pval 		$MMORE_CLOUD_PVAL 					\
-			--mmore-boundfwd-pval 	$MMORE_BOUNDFWD_PVAL 				\
-																						\
-			--m8out 						$MMORE_M8OUT 							\
-			--myout 						$MMORE_MYOUT							\
-			--mydomout 					$MMORE_MYDOMOUT						\
-			--mytimeout 				$MMORE_MYTIME							\
-			--mythreshout 				$MMORE_MYTHRESH						\
+			time $MMORE mmore-search \
+			$TARGET_MMORE $QUERY_MMORE \
+			$MMSEQS_M8 \
+			\
+			--verbose $VERBOSE \
+			--run-mmore $MMORE_DO_MMORE \
+			--run-full $MMORE_DO_FULL \
+			--run-bias $MMORE_DO_DOMAIN \
+			--run-mmseqsaln $MMORE_DO_MMSEQS_ALN \
+			--run-vitaln $MMORE_DO_VIT_ALN \
+			--run-postaln $MMORE_DO_POST_ALN \
+			\
+			--dbsizes $TARGET_DBSIZE $QUERY_DBSIZE \
+			\
+			--alpha $MMORE_ALPHA \
+			--beta $MMORE_BETA \
+			--gamma $MMORE_GAMMA \
+			\
+			--run-filter $MMORE_DO_FILTER \
+			--mmore-viterbi-pval $MMORE_VITERBI_PVAL \
+			--mmore-cloud-pval $MMORE_CLOUD_PVAL \
+			--mmore-boundfwd-pval $MMORE_BOUNDFWD_PVAL \
+			\
+			--m8out $MMORE_M8OUT \
+			--myout $MMORE_MYOUT \
+			--mydomout $MMORE_MYDOMOUT \
+			--mytimeout $MMORE_MYTIME \
+			--mythreshout $MMORE_MYTHRESH \
 
 			CHECK_ERROR_CODE "MMORE_MAIN"
 		}

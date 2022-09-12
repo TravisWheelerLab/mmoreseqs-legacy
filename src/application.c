@@ -72,7 +72,7 @@ APPLICATION_Run(int argc, char* argv[]) {
   /* Run pipeline determined by args */
   PIPELINES[worker->args->pipeline_mode].pipeline_main(worker);
 
-/* free debugging toolkit */
+/* cleanup debugging toolkit */
 #if DEBUG
   {
     DEBUGGER_Destroy(debugger);

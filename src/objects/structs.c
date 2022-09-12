@@ -101,7 +101,7 @@ PIPELINE PIPELINES[] = {
     {"prep", mmoreseqs_prep_pipeline, 3, NULL},
     {"prep-search", mmoreseqs_prepsearch_pipeline, 1, NULL},
     {"easy-search", mmoreseqs_easysearch_pipeline, 3, NULL},
-    {"index", index_pipeline, 2, NULL}
+    {"index", index_pipeline, 4, NULL}
 };
 
 /* help output strings for pipeline */
@@ -112,7 +112,7 @@ char* PIPELINES_ARG_HELP[] = {
     "mmoreseqs prep <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
     "mmoreseqs prep-search <i:PREP_DIR>",
     "mmoreseqs easy-search <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
-    "mmoreseqs index <i:QUERY_HMM> <i:TARGET_FASTA>"
+    "mmoreseqs index <i:QUERY_HMM> <i:TARGET_FASTA> <o:QUERY_INDEX> <o:TARGET_INDEX>"
 };
 
 /* full names of the all states */

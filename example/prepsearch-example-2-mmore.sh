@@ -30,7 +30,7 @@ ${MMORESEQS} prep-search \
   \
   --mmseqs-kmer 6 \
   --run-mmseqsaln 0 \
-  --run-vitaln 1 \
+  --run-vitaln 0 \
   --run-postaln 0 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \

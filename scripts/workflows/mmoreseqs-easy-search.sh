@@ -154,25 +154,20 @@
 	# Prep Files
 	{
 		# Call C Program
-		# $MMORE prep
-		LOAD_SOURCE "${SCRIPT_DIR}/mmoreseqs-prep-prepare.sh" 	\
-		"$TARGET" 	"$QUERY" 												\
-		"$PREP_DIR" 															\
+		LOAD_SOURCE "${SCRIPT_DIR}/mmoreseqs-prep-prepare.sh" \
+		"$TARGET" "$QUERY" \
+		"$PREP_DIR" \
 
 	}
 
 	# Run MMORE-SEQS Search
 	{
 		# Call C Program
-		# $MMORE mmore $
-
-		# Call Bash Script
-		
-		LOAD_SOURCE "${SCRIPT_DIR}/mmoreseqs-prep-search.sh" 		\
-		"$TARGET_MMORE" 										 				\
-		"$QUERY_MMORE" 														\
-		"$TARGET_MMSEQS_P" 	"$TARGET_MMSEQS_S" 						\
-		"$QUERY_MMSEQS"														\
+		LOAD_SOURCE "${SCRIPT_DIR}/mmoreseqs-prep-search.sh" \
+		"$TARGET_MMORE" \
+		"$QUERY_MMORE" \
+		"$TARGET_MMSEQS_P" "$TARGET_MMSEQS_S" \
+		"$QUERY_MMSEQS" \
 
 	}
 }

@@ -7,14 +7,6 @@
 *.sublime-workspace
 *.code-workspace
 
-# temporary working folders
-*/test_output/*
-*/output/*
-*/test-db/*
-*/testing/*
-*/testing/*
-*/tmp/*
-
 # binary folders
 build/
 build-debug/
@@ -22,10 +14,10 @@ lib/
 tools/
 
 # Example files
-examples/tmp-mmoreseqs
-examples/debugout-mmore
-examples/*.out
-examples/*.txt
+example/*
+!example/db
+!example/*.sh
+!example/tmp-mmoreseqs-golden
 
 # Compiled Object files
 *.slo

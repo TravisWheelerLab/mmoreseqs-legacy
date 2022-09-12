@@ -463,16 +463,24 @@ STATUS_FLAG ARGS_ParseCommand(ARGS* args,
 
   /* set number of main arguments based on given pipeline */
   int num_main_args = PIPELINES[args->pipeline_mode].num_main_args;
+
+  /* check for help flag */
+  if (argc >= 3 && (STR_Equals(argv[2], "-h") || STR_Equals(argv[2], "--help"))) {
+    ARGS_CommandHelpInfo(args);
+    exit(EXIT_SUCCESS);
+  }
+
   /* check proper number of main args remain */
   if (args_rem < num_main_args) {
     fprintf(stderr, "ERROR: Improper number of main arguments. [required: %d/%d]\n", args_rem, num_main_args);
     ARGS_CommandHelpInfo(args);
+    ERRORCHECK_exit(EXIT_FAILURE);
   }
 
   /* check if proper number of args */
   for (int i = 0; i < num_main_args; i++) {
     if (STR_StartsWith(argv[i + 1], "--") == 0) {
-      fprintf(stderr, "ERROR: Improper number of main arguments. [required: %d/%d]\n", i, num_main_args);
+      fprintf(stderr, "ERROR: Improper number of main arguments (must preceed options). [required: %d/%d]\n", i, num_main_args);
       ARGS_CommandHelpInfo(args);
       ERRORCHECK_exit(EXIT_FAILURE);
     }
@@ -532,8 +540,10 @@ STATUS_FLAG ARGS_ParseCommand(ARGS* args,
     args->query_prep_type = FILE_FASTA;
   }
   elif (STR_Equals(args->pipeline_name, "index")) {
-    args->t_index_filein = STR_Set(args->t_index_filein, argv[2]);
-    // args->t_indexout     = STR_Set( args->t_indexout,     argv[3] );
+    args->t_filein = STR_Set(args->t_filein, argv[2]);
+    args->q_filein = STR_Set(args->q_filein, argv[3]);
+    args->t_index_filein = STR_Set(args->t_index_filein, argv[4]);
+    args->q_index_filein = STR_Set(args->q_index_filein, argv[5]);
   }
   else {
     fprintf(stderr, "ERROR: Command '%s' is currently not supported.\n", args->pipeline_name);
@@ -1625,7 +1635,6 @@ parse_opt(int key, char *arg, struct argp_state *state) {
   ARGS* args;
   int req_args;
 
-switchStart:
   switch(key) {
     /* General options */
     case VERBOSE_KEY:
