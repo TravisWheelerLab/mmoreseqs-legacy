@@ -97,10 +97,10 @@ void ARGS_SetDefaults(ARGS* args) {
   args->is_run_full = false; /* DEBUG */
   args->is_run_domains = true;
   args->is_run_mmseqsaln = false;
-  args->is_run_vit_mmore = false; /* DEBUG */
-  args->is_run_vit = false;       /* DEBUG */
-  args->is_run_vitaln = false;    /* DEBUG */
-  args->is_run_optacc = false;    /* DEBUG */
+  args->is_run_vit_mmore = false; 
+  args->is_run_vit = false;  
+  args->is_run_vitaln = true;    
+  args->is_run_optacc = false;   
   args->is_run_post = false;
   args->is_run_postaln = false;
   args->is_run_mmseqs = true;
@@ -155,11 +155,11 @@ void ARGS_SetDefaults(ARGS* args) {
   args->stdout_fileout = STR_Create("mmore.results.stdout");
   args->is_redirect_stderr = false;
   args->stderr_fileout = STR_Create("mmore.results.stderr");
-  /* special outputs */
+  /* file outputs */
   args->is_allout = false;
   args->allout_fileout = STR_Create("mmore.results");
   args->is_hmmerout = false;
-  args->hmmerout_fileout = STR_Create("mmore.results.tblout");
+  args->hmmerout_fileout = STR_Create("mmore.results.hmmerout");
   args->is_m8out = false;
   args->m8out_fileout = STR_Create("mmore.results.m8");
   args->is_myout = false;
@@ -288,7 +288,7 @@ void ARGS_Dump(ARGS* args,
   /* --- OUTPUT --- */
   fprintf(fp, "# === OUTPUT ===\n");
   fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "OUTPUT_FILEPATH", args->stdout_fileout, args->is_redirect_stdout);
-  fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "TBLOUT_FILEPATH", args->hmmerout_fileout, args->is_hmmerout);
+  fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "HMMEROUT_FILEPATH", args->hmmerout_fileout, args->is_hmmerout);
   fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "M8OUT_FILEPATH", args->m8out_fileout, args->is_m8out);
   fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "MYOUT_FILEPATH", args->myout_fileout, args->is_myout);
   fprintf(fp, "# %*s:\t%s [%d]\n", align * pad, "MYDOMOUT_FILEPATH", args->mydom_fileout, args->is_mydom);
@@ -1424,6 +1424,18 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
           ERROR_free(args->mydom_fileout);
           args->mydom_fileout = STR_Create(argv[i]);
           args->is_mydom = true;
+        } else {
+          fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
+          ERRORCHECK_exit(EXIT_FAILURE);
+        }
+      }
+      elif (STR_Equals(argv[i], (flag = "--hmmerout"))) {
+        req_args = 1;
+        if (i + req_args <= argc) {
+          i++;
+          ERROR_free(args->hmmerout_fileout);
+          args->hmmerout_fileout = STR_Create(argv[i]);
+          args->is_hmmerout = true;
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
           ERRORCHECK_exit(EXIT_FAILURE);

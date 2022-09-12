@@ -1451,6 +1451,7 @@ typedef struct {
   FILER* mydomout_file;    /* Custom per-domain tsv output */
   FILER* mytimeout_file;   /* Runtime summary output */
   FILER* mythreshout_file; /* Threshold passage output */
+  FILER* hmmerout_file;    /* HMMER-style output */
 
   /* --- input data --- */
   /* m8 results from mmseqs */

@@ -110,8 +110,8 @@ void WORK_posterior_sparse_bydom(WORKER* worker) {
       dom_def->idx = i;
       D_range = VEC_X(dom_def->dom_ranges, i);
 
-      printf("Domain (%d of %d): {%d,%d}\n",
-             i + 1, dom_def->n_domains, D_range.beg, D_range.end);
+      // printf("Domain (%d of %d): {%d,%d}\n",
+      //        i + 1, dom_def->n_domains, D_range.beg, D_range.end);
 
       // /* Reparameterize sequence to only cover domain range. */
       D_size = D_range.end - D_range.beg + 1;
@@ -176,8 +176,8 @@ void WORK_posterior_sparse_bydom(WORKER* worker) {
       times->dom_posterior += CLOCK_Duration(timer);
 
       if (args->verbose_level >= VERBOSE_HIGH) {
-        fprintf(stdout, "# ==> Posterior (domain %d/%d)\n",
-                i + 1, dom_def->n_domains);
+        // fprintf(stdout, "# ==> Posterior (domain %d/%d)\n",
+        //         i + 1, dom_def->n_domains);
       }
 #if DEBUG
       {
@@ -374,7 +374,7 @@ void WORK_decode_posterior_bydom(WORKER* worker) {
   CLOCK_Stop(timer);
   times->sp_posterior = CLOCK_Duration(timer);
 
-  fprintf(stdout, "# ==> Posterior (full cloud)\n");
+  // fprintf(stdout, "# ==> Posterior (full cloud)\n");
 #if DEBUG
   {
     fp = fopen(DEBUG_FOLDER "/my.sparse_post.000.mx", "w+");

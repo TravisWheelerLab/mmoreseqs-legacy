@@ -314,8 +314,7 @@ int run_Decode_Posterior_Quad(SEQUENCE* q_seq,       /* query sequence */
                               MATRIX_3D* st_MX_post, /* OUTPUT: normal state matrix for posterior */
                               MATRIX_2D* sp_MX_post) /* OUTPUT: normal state matrix for posterior */
 {
-  printf("=== run_Decode_Posterior_Quad() ===\n");
-
+  // printf("=== run_Decode_Posterior_Quad() ===\n");
   /* query and target index */
   int q_0, q_1;
   int t_0, t_1;
@@ -334,8 +333,8 @@ int run_Decode_Posterior_Quad(SEQUENCE* q_seq,       /* query sequence */
 
   overall_sc = XMX_X(sp_MX_fwd, SP_C, Q) +
                XSC_X(t_prof, SP_C, SP_MOVE);
-  printf("overall_sc: %f %f ==> %f\n",
-         XMX_X(sp_MX_fwd, SP_C, Q), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
+  // printf("overall_sc: %f %f ==> %f\n",
+  //        XMX_X(sp_MX_fwd, SP_C, Q), XSC_X(t_prof, SP_C, SP_MOVE), overall_sc);
 
   /* init zero row in query */
   q_0 = 0;
@@ -467,7 +466,7 @@ int run_Decode_Special_Posterior_Quad(SEQUENCE* q_seq,       /* query sequence *
                                       MATRIX_2D* sp_MX_bck,  /* special state matrix for backward */
                                       MATRIX_2D* sp_MX_post) /* OUTPUT: special state matrix for posterior */
 {
-  printf("=== run_Decode_Special_Posterior_Quad ===\n");
+  // printf("=== run_Decode_Special_Posterior_Quad ===\n");
   /* query index */
   int q_0, q_1;
   /* target index */

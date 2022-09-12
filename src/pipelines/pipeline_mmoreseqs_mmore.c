@@ -38,8 +38,8 @@ mmore_main_SetDefault_Tasks(TASKS* tasks);
  */
 STATUS_FLAG
 mmoreseqs_mmore_pipeline(WORKER* worker) {
-  printf("=== MMORESEQS: MMORE SEARCH PIPELINE ===\n");
   ARGS* args = worker->args;
+  printf_vlo("=== MMORESEQS: MMORE SEARCH PIPELINE ===\n");
 
   /* initialize pipeline-specific worker data structures */
   WORK_init(worker);
@@ -67,7 +67,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
   int i_beg = args->list_range.beg;
   int i_end = args->list_range.end;
   int i_rng = i_end - i_beg;
-  printf_vlo("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
+  printf_vall("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
   /* threshold tests */
   bool passed[4];
@@ -75,7 +75,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
   /* === ITERATE OVER EACH RESULT === */
   /* Look through each input result (i = index in full list, i_cnt = index relative to search range) */
   for (int i = i_beg; i < i_end; i++, i_cnt++) {
-    printf_vlo("\n# (%d/%d): Running cloud search for result (%d of %d)...\n",
+    printf_vall("\n# (%d/%d): Running cloud search for result (%d of %d)...\n",
                i_cnt, i_rng, i + 1, i_end);
 
     passed[0] = false;
@@ -92,7 +92,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* check if mmseqs viterbi passes threshold */
     if (passed[0] == true) {
-      fprintf_vhi(stdout, ":: VITERBI PASSED ::\n");
+      fprintf_vall(stdout, ":: VITERBI PASSED ::\n");
       /* load target hmm profile from file */
       WORK_load_target(worker);
       /* load query sequence from file */
@@ -123,7 +123,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* check if cloud search composite score passes threshold */
     if (passed[0] == true && passed[1] == true) {
-      fprintf_vhi(stdout, ":: CLOUD PASSED ::\n");
+      fprintf_vall(stdout, ":: CLOUD PASSED ::\n");
       /* merge and reorient cloud */
       WORK_cloud_merge_and_reorient(worker);
       /* run bound forward */
@@ -136,7 +136,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* check if bound forward score passes threshold */
     if (passed[0] == true && passed[1] == true && passed[2] == true) {
-      fprintf_vhi(stdout, ":: FORWARD PASSED ::\n");
+      fprintf_vall(stdout, ":: FORWARD PASSED ::\n");
       /* compute posterior and bias, find domains, compute domain-specific posterior and bias */
       WORK_posterior(worker);
       /* run posterior for each found domain */
@@ -149,7 +149,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* print thresholds which passed */
     if (worker->args->verbose_level >= VERBOSE_HIGH) {
-      printf_vhi("THRESHOLDS PASSED: %d => %d => %d => %d\n",
+      printf_vall("THRESHOLDS PASSED: %d => %d => %d => %d\n",
                  passed[0], passed[1], passed[2], passed[3]);
     }
 
@@ -158,7 +158,7 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* only report if all thresholds passed */
     if ((passed[0] == true && passed[1] == true && passed[2] == true && passed[3] == true)) {
-      fprintf_vhi(stdout, ":: REPORT PASSED ::\n");
+      fprintf_vall(stdout, ":: REPORT PASSED ::\n");
       /* print results */
       WORK_report_result_current(worker);
     }

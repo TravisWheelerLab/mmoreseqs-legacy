@@ -6,7 +6,7 @@
 /* === BUILD VERSIONING === */
 /* Program Name */
 #ifndef BUILD_PROGRAM
-#define BUILD_PROGRAM "MMORESEQS"
+#define BUILD_PROGRAM "MMOREseqs"
 #endif
 /* Version Number */
 #ifndef BUILD_VERSION
@@ -18,7 +18,7 @@
 #endif
 /* Date of Build */
 #ifndef BUILD_DATE
-#define BUILD_DATE "March 2021"
+#define BUILD_DATE "September 2022"
 #endif
 /* Git Hash of Build */
 #ifndef BUILD_HASH

@@ -265,7 +265,7 @@ ALIGNMENT_AppendScore(ALIGNMENT* aln,    /* Traceback Alignment */
 }
 
 /*! FUNCTION:  ALIGNMENT_FindRegions()
- *  SYNOPSIS:  Scan full model alignment traceback for all alignement regions.
+ *  SYNOPSIS:  Scan full model alignment traceback for all alignment regions.
  *             These regions are those running through the core model, from a BEGIN to an END state.
  *             Stores each <beg> and <end> positions in the full alignment are pushed to alignment vectors <tr_beg> amd <tr_end>.
  *             Returns the number of alignment regions.
@@ -296,7 +296,7 @@ int ALIGNMENT_FindRegions(ALIGNMENT* aln) {
 }
 
 /*! FUNCTION:  ALIGNMENT_FindRegions()
- *  SYNOPSIS:  Scan <aln> for all alignments running talot hrough the core model (running from BEGIN to END state).
+ *  SYNOPSIS:  Scan <aln> for all alignments running through the core model (running from BEGIN to END state).
  *             Caller must run _AppendScore() for each trace.
  */
 float ALIGNMENT_ScoreRegions(ALIGNMENT* aln) {
@@ -305,14 +305,7 @@ float ALIGNMENT_ScoreRegions(ALIGNMENT* aln) {
   int b_idx, e_idx, max_idx;
   float tr_sc, b_sc, e_sc, max_sc;
 
-  N_traces = VECTOR_INT_GetSize(aln->tr_beg);
-  N_scores = VECTOR_FLT_GetSize(aln->tr_score);
-  if (N_traces != N_scores) {
-    fprintf(stderr, "ERROR: Not all scores have been appended. (TR = %d, SC = %d)\n", N_traces, N_scores);
-    ERRORCHECK_exit(EXIT_FAILURE);
-  }
-
-  N = N_traces;
+  N = VECTOR_INT_GetSize(aln->tr_beg);
   max_sc = -INF;
   /* scan traceback for all begin, end states */
   for (int i = 0; i < N; i++) {
@@ -331,15 +324,20 @@ float ALIGNMENT_ScoreRegions(ALIGNMENT* aln) {
     }
   }
 
-  /* set best alignment to maximum scoring */
-  for (int i = 0; i < N; i++) {
-    aln->beg = VECTOR_INT_Get(aln->tr_beg, max_idx);
-    aln->end = VECTOR_INT_Get(aln->tr_end, max_idx);
-    aln->aln_len = aln->end - aln->beg + 1;
+  N_traces = VECTOR_INT_GetSize(aln->tr_beg);
+  N_scores = VECTOR_FLT_GetSize(aln->tr_score);
+  if (N_traces != N_scores) {
+    fprintf(stderr, "ERROR: Not all scores have been appended. (TR = %d, SC = %d)\n", N_traces, N_scores);
+    ERRORCHECK_exit(EXIT_FAILURE);
   }
+
+  /* set best alignment to maximum scoring */
+  aln->beg = VECTOR_INT_Get(aln->tr_beg, max_idx);
+  aln->end = VECTOR_INT_Get(aln->tr_end, max_idx);
+  aln->aln_len = aln->end - aln->beg + 1;
 }
 
-/*! FUNCTION:  ALIGNMENT_AddAlign()
+/*! FUNCTION:  ALIGNMENT_AddRegion()
  *  SYNOPSIS:  Adds a distinct, discrete alignment region to list with <beg> and <end> points and <score> for region.
  */
 void ALIGNMENT_AddRegion(ALIGNMENT* aln,
@@ -433,10 +431,10 @@ void ALIGNMENT_Build_HMMER_Style(ALIGNMENT* aln,
   int match_streak = 0;
 
   /* allocate for entire string */
+  VECTOR_CHAR_SetSize(aln->state_aln, aln_len + 1);
   VECTOR_CHAR_SetSize(aln->target_aln, aln_len + 1);
   VECTOR_CHAR_SetSize(aln->query_aln, aln_len + 1);
   VECTOR_CHAR_SetSize(aln->center_aln, aln_len + 1);
-  VECTOR_CHAR_SetSize(aln->state_aln, aln_len + 1);
 
   /* find beginnings and ends of traces */
   if (aln->aln_len == -1) {
@@ -456,6 +454,7 @@ void ALIGNMENT_Build_HMMER_Style(ALIGNMENT* aln,
     /* center symbol depends upon state */
     if (tr->st == M_ST) {
       match_streak++;
+      VECTOR_CHAR_Set(aln->state_aln, pos, 'M');
       VECTOR_CHAR_Set(aln->target_aln, pos, t_ch);
       VECTOR_CHAR_Set(aln->query_aln, pos, q_ch);
 
@@ -496,6 +495,7 @@ void ALIGNMENT_Build_HMMER_Style(ALIGNMENT* aln,
       match_streak = 0;
       aln->num_misses++;
       /* insert corresponds to gap in target profile */
+      VECTOR_CHAR_Set(aln->state_aln, pos, 'I');
       VECTOR_CHAR_Set(aln->center_aln, pos, ins_ch);
       VECTOR_CHAR_Set(aln->target_aln, pos, gap_ch);
       VECTOR_CHAR_Set(aln->query_aln, pos, q_ch);
@@ -508,6 +508,7 @@ void ALIGNMENT_Build_HMMER_Style(ALIGNMENT* aln,
       match_streak = 0;
       aln->num_misses++;
       /* delete corresponds to gap in query sequence */
+      VECTOR_CHAR_Set(aln->state_aln, pos, 'D');
       VECTOR_CHAR_Set(aln->center_aln, pos, del_ch);
       VECTOR_CHAR_Set(aln->target_aln, pos, t_ch);
       VECTOR_CHAR_Set(aln->query_aln, pos, gap_ch);
@@ -524,7 +525,6 @@ void ALIGNMENT_Build_HMMER_Style(ALIGNMENT* aln,
 
   /* percent identity is percentage of alignment that is a direct match */
   aln->perc_id = (float)aln->num_matches / (float)aln->traces->N;
-
   aln->is_hmmer_aln = true;
 }
 
@@ -598,7 +598,6 @@ void ALIGNMENT_Dump(ALIGNMENT* aln,
     return;
   }
 
-  fprintf(fp, "# ALIGNMENT (length=%d)\n", N);
   for (unsigned int i = 0; i < N; ++i) {
     fprintf(fp, "[%d](%s,%d,%d)\n", i, STATE_NAMES[tr[i].st], tr[i].q_0, tr[i].t_0);
   }

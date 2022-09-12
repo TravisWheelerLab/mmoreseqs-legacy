@@ -30,11 +30,11 @@ ${MMORESEQS} prep-search \
   \
   --mmseqs-kmer 6 \
   --run-mmseqsaln 0 \
-  --run-vitaln 0 \
-  --run-postaln 0 \
+  --run-vitaln 1 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \
-  --mythreshout ${OUTPUT}.mythreshout	\
+  --mythreshout ${OUTPUT}.mythreshout \
+  --hmmerout ${OUTPUT}.hmmerout \
   \
   --run-mmseqs 0 \
   --run-mmore 1 \

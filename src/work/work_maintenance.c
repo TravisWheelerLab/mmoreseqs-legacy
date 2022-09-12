@@ -57,7 +57,7 @@ void WORK_init(WORKER* worker) {
     worker->output_file->fp = stdout;
   }
   if (args->hmmerout_fileout != NULL) {
-    worker->tblout_file = FILER_Create(args->hmmerout_fileout, write_mode);
+    worker->hmmerout_file = FILER_Create(args->hmmerout_fileout, write_mode);
   }
   if (args->m8out_fileout != NULL) {
     worker->m8out_file = FILER_Create(args->m8out_fileout, write_mode);
@@ -237,6 +237,7 @@ void WORK_cleanup(WORKER* worker) {
   worker->mydomout_file = FILER_Destroy(worker->mydomout_file);
   worker->mytimeout_file = FILER_Destroy(worker->mytimeout_file);
   worker->mythreshout_file = FILER_Destroy(worker->mythreshout_file);
+  worker->hmmerout_file = FILER_Destroy(worker->hmmerout_file);
 
   /* target and profile structures */
   worker->q_seq = SEQUENCE_Destroy(worker->q_seq);

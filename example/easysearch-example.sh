@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE:  easysearch-example.sh	
+# - FILE:  easysearch-example.sh	
 # - DESC:  Run easy-search pipeline examples.
 ###########################################################################
 
@@ -28,11 +28,10 @@ ${MMORESEQS} easy-search \
   ${QUERY} ${TARGET} \
   ${PREP_DIR} \
   --mmseqs-kmer 6 \
-  --run-vitaln 0 \
-  --run-postaln 0 \
+  --run-vitaln 1 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \
-  --mythreshout ${OUTPUT}.mythreshout	\
+  --mythreshout ${OUTPUT}.mythreshout \
   --mytimeout ${OUTPUT}.mytimeout \
   --verbose 3 \
 

@@ -26,11 +26,11 @@ function ECHO_AND_RUN
 #ECHO_AND_RUN \
 ${MMORESEQS} prep-search \
   ${PREP_DIR} \
-  --verbose 3 \
+  --verbose 1 \
   \
   --mmseqs-kmer 6 \
-  --run-vitaln 0 \
-  --run-postaln 0 \
+  --run-vitaln 1 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \
   --mythreshout ${OUTPUT}.mythreshout \
+  --hmmerout ${OUTPUT}.hmmerout

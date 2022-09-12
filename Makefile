@@ -30,6 +30,7 @@ TOOLS 					:= $(shell find $(TOOL_DIR) -name hmmbuild -or -name hmmsearch -or -n
 
 # get commit hash of this build.
 BUILD_HASH 			:= $(shell git rev-parse HEAD)
+BUILD_VERSION 	:= $(shell cat VERSION)
 
 # Build directories
 BUILD_RELEASE_DIR 	:= build
@@ -54,21 +55,24 @@ default:
 build-release:
 	@echo "*** BUILD RELEASE ***"
 	@mkdir -p $(BUILD_RELEASE_DIR)
-	@cmake -S . -B $(BUILD_RELEASE_DIR) -DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_RELEASE_DIR) \
+		-DCMAKE_BUILD_TYPE=RELEASE -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_RELEASE_DIR) && \
 		make CFLAGS="$(RELEASE_C_FLAGS)" CXXFLAGS="$(RELEASE_C_FLAGS)"
 
 build-debug:
 	@echo "*** BUILD DEBUG ***"
 	@mkdir -p $(BUILD_DEBUG_DIR)
-	@cmake -S . -B $(BUILD_DEBUG_DIR) -DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_DEBUG_DIR) \
+		-DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_DEBUG_DIR) && \
 		make CFLAGS="$(DEBUG_C_FLAGS)" CXXFLAGS="$(DEBUG_C_FLAGS)" 
 
 build-valgrind:
 	@echo "*** BUILD VALGRIND ***"
 	@mkdir -p $(BUILD_DEBUG_DIR) 
-	@cmake -S . -B $(BUILD_DEBUG_DIR) -DCMAKE_BUILD_TYPE=DEBUG -DSET_BUILD_HASH=$(BUILD_HASH)
+	@cmake -S . -B $(BUILD_DEBUG_DIR) \
+		-DCMAKE_BUILD_TYPE=VALGRIND -DSET_BUILD_HASH=$(BUILD_HASH) -DSET_BUILD_VERSION=$(BUILD_VERSION)
 	@cd $(BUILD_DEBUG_DIR) && \
 		make CFLAGS="$(VALGRIND_C_FLAGS)" CXXFLAGS="$(VALGRIND_C_FLAGS)"
 

@@ -40,8 +40,8 @@ void WORK_open(WORKER* worker) {
   if (args->is_redirect_stdout) {
     FILER_Open(worker->output_file);
   }
-  if (worker->tblout_file != NULL && args->is_hmmerout) {
-    FILER_Open(worker->tblout_file);
+  if (worker->hmmerout_file != NULL && args->is_hmmerout) {
+    FILER_Open(worker->hmmerout_file);
   }
   if (worker->m8out_file != NULL && args->is_m8out) {
     FILER_Open(worker->m8out_file);
@@ -71,7 +71,7 @@ void WORK_close(WORKER* worker) {
     FILER_Close(worker->output_file);
   }
   if (args->is_hmmerout) {
-    FILER_Close(worker->tblout_file);
+    FILER_Close(worker->hmmerout_file);
   }
   if (args->is_m8out) {
     FILER_Close(worker->m8out_file);
@@ -100,7 +100,7 @@ void WORK_report_header(WORKER* worker) {
   REPORT_stdout_header(worker, worker->output_file->fp);
 
   if (args->is_hmmerout) {
-    REPORT_domtblout_header(worker, worker->tblout_file->fp);
+    REPORT_hmmerout_header(worker, worker->hmmerout_file->fp);
   }
   if (args->is_m8out) {
     REPORT_m8out_header(worker, worker->m8out_file->fp);
@@ -115,7 +115,7 @@ void WORK_report_header(WORKER* worker) {
     REPORT_mythreshout_header(worker, worker->mythreshout_file->fp);
   }
   if (args->is_mydom && args->is_run_domains) {
-    REPORT_mydomout_header(worker, worker->mydomout_file->fp);
+    REPORT_domtblout_header(worker, worker->mydomout_file->fp);
   }
 }
 
@@ -131,7 +131,7 @@ void WORK_report_result_current(WORKER* worker) {
     REPORT_stdout_entry(worker, worker->result, worker->output_file->fp);
 
     if (args->is_hmmerout) {
-      REPORT_domtblout_entry(worker, worker->result, worker->tblout_file->fp);
+      REPORT_hmmerout_entry(worker, worker->result, worker->hmmerout_file->fp);
     }
     if (args->is_m8out) {
       REPORT_m8out_entry(worker, worker->result, worker->m8out_file->fp);
@@ -140,7 +140,7 @@ void WORK_report_result_current(WORKER* worker) {
       REPORT_myout_entry(worker, worker->result, worker->myout_file->fp);
     }
     if (args->is_mydom && args->is_run_domains) {
-      REPORT_mydomout_entry(worker, worker->result, worker->mydomout_file->fp);
+      REPORT_domtblout_entry(worker, worker->result, worker->mydomout_file->fp);
     }
   }
 
@@ -169,7 +169,7 @@ void WORK_report_footer(WORKER* worker) {
   REPORT_stdout_footer(worker, worker->output_file->fp);
 
   if (args->is_hmmerout) {
-    REPORT_domtblout_footer(worker, worker->tblout_file->fp);
+    REPORT_hmmerout_footer(worker, worker->hmmerout_file->fp);
   }
   if (args->is_m8out) {
     REPORT_m8out_footer(worker, worker->m8out_file->fp);
@@ -184,6 +184,6 @@ void WORK_report_footer(WORKER* worker) {
     REPORT_mythreshout_footer(worker, worker->mythreshout_file->fp);
   }
   if (args->is_mydom && args->is_run_domains) {
-    REPORT_myout_footer(worker, worker->mydomout_file->fp);
+    REPORT_domtblout_footer(worker, worker->mydomout_file->fp);
   }
 }

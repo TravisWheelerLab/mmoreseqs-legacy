@@ -259,7 +259,7 @@ run_OptimalAccuracy_Traceback_Sparse(const SEQUENCE* query,         /* query seq
                                      MATRIX_2D* sp_MX_opt,          /* optimal accuracy special matrix */
                                      ALIGNMENT* aln)                /* OUTPUT: optimal alignment */
 {
-  printf("=== run_Posterior_Traceback_Sparse() [BEGIN] ===\n");
+  /* output file pointer */
   FILE* fp;
 
   /* generic dp matrix pointers for macros */
@@ -748,8 +748,6 @@ run_OptimalAccuracy_Sparse(const SEQUENCE* query,         /* query sequence */
                            MATRIX_2D* sp_MX_opt,          /* OUTPUT: optimal special state matrix */
                            float* sc_final)               /* OUTPUT: final score */
 {
-  printf("=== run_Posterior_Optimal_Accuracy_Sparse() [BEGIN] ===\n");
-
   /* output file pointer */
   FILE* fp;
 

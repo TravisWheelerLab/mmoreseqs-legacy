@@ -23,8 +23,7 @@ For more information about gitflow, see the
 [mmoreseqs wiki](https://github.com/TravisWheelerLab/mmoreseqs/wiki)
 
 The executable, called `mmoreseqs` will end up in the `build/` subdirectory.
-Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) will
-be fetched automatically at the correct versions.
+Dependencies, specifically [Easel](https://github.com/EddyRivasLab/easel) and [MMseqs2](https://github.com/soedinglab/MMseqs2.git) must be installed.
 
 ### Example 
 
@@ -37,14 +36,12 @@ For a quick example database to learn the workflow and check the correct behavio
 
 ### Workflow Pipelines
 
-The MMOREseqs workflow takes in three primary inputs:
+The MMOREseqs workflow takes in two primary inputs:
 
 - `QUERY`
   - A multiple sequence alignment (MSA) database file.  
 - `TARGET`
   - A sequence (FASTA) database file that the query will search against.
-- `TEMP_DIR`
-  - A working directory for storing intermediate data during the search workflows. Can
 
 There are a few ways to execute the MMOREseqs Pipeline.  
 
@@ -111,11 +108,11 @@ mmoreseqs mmseqs-search <i:query_mmseqs_pmmdb> <i:query_mmseqs_smmdb> <i:target_
 
 - Arguments:
   - `<query_mmseqs_smmdb>`
-    - Query profile (PMMDB) database file. MMSEQS format.  
+    - Query profile (PMMDB) database file. MMseqs format.  
   - `<query_mmseqs_pmmdb>`
-    - Query sequence (SMMDB) database file. MMSEQS format.  
+    - Query sequence (SMMDB) database file. MMseqs format.  
   - `<target_mmseqs_smmdb>`
-    - Target sequence (SMMDB) database file. MMSEQS format. 
+    - Target sequence (SMMDB) database file. MMseqs format. 
 
 ```
 mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mmseqs_m8>

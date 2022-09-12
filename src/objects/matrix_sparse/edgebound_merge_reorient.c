@@ -650,7 +650,6 @@ EDGEBOUNDS_ReorientToRow_byDiag(const int Q,              /* query length */
   }
 
   /* set edgebound builder only to cover the rows that cloud touches */
-  printf("Q,T=(%d,%d), Q_range=(%d,%d)=>(%d)\n", Q, T, q_range.beg, q_range.end, q_range.end - q_range.beg);
   EDGEBOUND_ROWS_Reuse(edg_rows, Q, T, q_range);
 
   /* reuse edgebounds */
@@ -699,8 +698,14 @@ EDGEBOUNDS_ReorientToRow_byDiag(const int Q,              /* query length */
       }
     }
   }
+  
+#if DEBUG
+  {
+    printf("Q,T=(%d,%d), Q_range=(%d,%d)=>(%d)\n", Q, T, q_range.beg, q_range.end, q_range.end - q_range.beg);
+    printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q * T, (float)cell_count / (float)(Q * T));
+  }
+#endif  
 
-  printf("CELLS TOUCHED: %d %d %f\n", cell_count, Q * T, (float)cell_count / (float)(Q * T));
   /* push all rows in a traditional edgebounds object */
   EDGEBOUND_ROWS_Convert(edg_rows, edg_out);
   /* clean up temporary data */

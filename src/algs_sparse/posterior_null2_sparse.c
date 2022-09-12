@@ -235,7 +235,7 @@ run_Null2_ByExpectation_Sparse(SEQUENCE* query,               /* query sequence 
    *  Divide by Q to take the average per cell (or subtract by the log(Q) to compute in log space)
    */
   neglog_Q = -log((float)Q);
-  fprintf(stdout, "neglog_Q = %d %f\n", Q, neglog_Q);
+  // fprintf(stdout, "neglog_Q = %d %f\n", Q, neglog_Q);
   // neglog_Q = -log( (float)Q_len );
   // printf("neglog_Q = %d %f\n", Q_len, neglog_Q);
   // for ( t_0 = T_beg; t_0 < T_end; t_0++ ) {

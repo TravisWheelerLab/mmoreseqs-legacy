@@ -75,32 +75,32 @@ void WORK_cloud_search_linear(WORKER* worker) {
   /* if running linear cloud search  */
   if (tasks->lin_cloud_fwd || tasks->lin_cloud_bck) {
     /* cloud forward */
-    printf_vall("# ==> cloud forward (linear)...\n");
+    // printf_vall("# ==> cloud forward (linear)...\n");
     CLOCK_Start(worker->timer);
     run_Cloud_Forward_Linear(
         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params, &inner_fwdsc, &max_fwdsc);
     CLOCK_Stop(worker->timer);
     times->lin_cloud_fwd = CLOCK_Duration(worker->timer);
     scores->lin_cloud_fwd = max_fwdsc;
-    printf("CLD FWD SCORES:: inner_max = %f, outer_max = %f\n", inner_fwdsc, max_fwdsc);
 #if DEBUG
     {
+      printf("CLD FWD SCORES:: inner_max = %f, outer_max = %f\n", inner_fwdsc, max_fwdsc);
       DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.cloud_fwd.lin.000.mx");
       EDGEBOUNDS_Save(edg_fwd, DEBUG_FOLDER "/my.fwd.000.edg");
     }
 #endif
 
     /* cloud backward */
-    printf_vall("# ==> cloud backward (linear)...\n");
+    // printf_vall("# ==> cloud backward (linear)...\n");
     CLOCK_Start(worker->timer);
     run_Cloud_Backward_Linear(
         q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_bck, cloud_params, &inner_bcksc, &max_bcksc);
     CLOCK_Stop(worker->timer);
     times->lin_cloud_bck = CLOCK_Duration(worker->timer);
     scores->lin_cloud_bck = max_bcksc;
-    printf("CLD BCK SCORES:: inner_max = %f, outer_max = %f\n", inner_bcksc, max_bcksc);
 #if DEBUG
     {
+      printf("CLD BCK SCORES:: inner_max = %f, outer_max = %f\n", inner_bcksc, max_bcksc);
       DP_MATRIX_Save(Q, T, debugger->test_MX, sp_MX, DEBUG_FOLDER "/my.cloud_bck.lin.000.mx");
       EDGEBOUNDS_Save(edg_bck, DEBUG_FOLDER "/my.bck.000.edg");
     }
@@ -127,7 +127,12 @@ void WORK_cloud_search_linear(WORKER* worker) {
     compo_sc2 = MATH_Logsum_explicit(inner_maxsc,
                                      MATH_Logsum_explicit(outer_fwdsc, outer_bcksc));
 
-    printf("CLOUD SCORES: (compo1) %.3f (compo2) %.3f (max): %.3f (sum): %.3f\n", compo_sc1, compo_sc2, max_sc, sum_sc);
+#if DEBUG
+    {
+      printf("CLOUD SCORES: (compo1) %.3f (compo2) %.3f (max): %.3f (sum): %.3f\n", compo_sc1, compo_sc2, max_sc, sum_sc);
+    }
+#endif
+
     /* save thresholds */
     scores->threshold_cloud_max = max_sc;
     scores->threshold_cloud_compo = compo_sc2;
@@ -194,7 +199,11 @@ void WORK_cloud_search_quadratic(WORKER* worker) {
     outer_fwdsc = max_fwdsc - inner_fwdsc;
     outer_bcksc = max_bcksc - inner_bcksc;
     compo_sc = inner_maxsc + outer_fwdsc + outer_bcksc;
-    printf("CLOUD SCORES: %.3f %.3f\n", compo_sc, max_sc);
+#if DEBUG
+    {
+      printf("CLOUD SCORES: %.3f %.3f\n", compo_sc, max_sc);
+    }
+#endif
     /* save thresholds */
     scores->threshold_cloud_max = max_sc;
     scores->threshold_cloud_compo = compo_sc;

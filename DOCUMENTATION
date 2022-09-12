@@ -1,50 +1,10 @@
-# MMORE-SEQS: DOCUMENTATION
+# MMOREseqs: DOCUMENTATION
 
 ### USAGE
 
-MMORE-SEQS is a software for running profile-to-sequence protein searches.  It takes in *.hmm target file and *.fasta query file and uses MMseqs as a prefilter (with custom parameters), which are passed to a pruned forward-backward.
+MMOREseqs is a software for running profile-to-sequence protein searches.  It takes in *.msa target file and *.fasta query file and uses MMseqs as a prefilter (with custom parameters), which are passed to a pruned forward-backward.
 
-    -   PIPELINE: 
-        -   There are a few user pipelines options: prep, prep-search, mmore-search, test
-    
-        -   prep:  
-            -   This pipeline where input file 
-        -   prep-search:  
-            -   This is section
-        -   mmore-search:
-            -   This is the MMORE module that runs after MMSeqs2 module. 
-
-    -   Options:
-        -   --alpha <positive_float>
-            -   ALPHA parameter determines the amount of pruning on each antidiagonal of the cloud search (pruned forward-backward).  
-            -   Lower => more aggressive, faster, less sensitive 
-            -   Higher => more permissive, slower, more sensitive
-            -   Default: 12.0
-            -   Constraints: 0 < ALPHA < inf
-        -   --beta <positive_float>
-            -   BETA parameter determines when to terminating the cloud search (pruned forward-backward).
-            -   Lower => more aggressive, faster, less sensitive 
-            -   Higher => more permissive, slower, more sensitive
-            -   Default: 16.0
-            -   Constraints: 0 < BETA < inf
-        -   --gamma <positive_int>
-            -   GAMMA parameter determines the number of antidiagonals before beginning pruning of cloud search (pruned forward-backward).
-            -   Default: 5
-            -   Constraints: GAMMA > 0
-        -   --eval, -e <float>
-            -   E-value cutoff for reporting; all E-values <= parameter are reported. 
-            -   Default: 10.0
-        -   --verbose, -v <int>
-            -   Level of verbosity; amount of output
-            -   Settings: 0 => Only Errors, 1 => +Status, 2 =>
-            -   Default: 1
-        -   --run-bias <bool>
-            -   Toggles whether to include null2 sequence composition bias filter
-            -   Default: true
-        -   --mmseqs-range <int> <int>
-            -   Designates <BEGIN,END> range of MMSeqs2 result input to be run by MMORE Pruned Forward/Backward.
-        -   --mmseqs-tmp <string>
-            -   Designates location of temporary file.
+See README.
             
 ### DEVELOPMENT
 
@@ -52,27 +12,20 @@ Notes:
     -   All locations are relative to the repository root.
     -   All source code is located: mmore-seqs/src/
     -   All imported libraries are located: mmore-seqs/lib/
-    
+    -   All bash workflow scripts are located: mmore-seqs/scripts/
     
 #### Pipelines:
     -   Workflow pipelines are the what are called after from the entry point of the program after parsing the commandline.
     
     -   PIPELINES: 
-        -   There are a few pipelines options: mmseqs, main, [mmseqs-plus, index, itest, utest, time].
+        -   There are a few pipelines options: easy-search, prep, prep-search, search, mmseqs-search, mmore-search.
     
-        -   mmseqs:  
+        -   easy-search/prep/prep-search:  
             -   This is the primary usage case. This runs the entire MMORE-SEQS pipeline.  First it sets the commandline arguments to environmental variables, which then calls a workflow bash script.
-        -   main:  
-            -   This is the entirely internal workflow.  This skips the MMseqs prefilter and makes
-    
-        -   mmseqs-plus:    
-            -   Not designed to be used by end user.  This runs the pruned forward-backward algorith.  It is by the mmseqs pipeline after MMseqs prefilter has returned a *.m8 results list. 
+        -   search/mmseqs-search/mmore-search:    
+            -   Not designed to be used by end user.  This runs internal steps of the MMOREseqs algorithm.  It is by the MMseqs pipeline after MMseqs prefilter has returned a *.m8 results list. 
         -   index: 
             -   Not designed to be used by end user.  This generates a linear index of the given file, recording the offsets into the file for faster access.
-        -   itest/utest:    
-            -   Not designed to be used by end user.  Unit tests and integrated tests.
-        -   time:  
-            -   Not designed to be used by end user.  Timed tests.
 
     
 #### Codebase Organization:
@@ -161,8 +114,6 @@ Notes:
             -   Depending on flags set, runs any algorithms which has flags set to true (quad/linear/sparse viterbi, forward, pruned forward, etc).
             -   Scores are outputted (depending on the set ARGS flags, the file formats). Note: scores are currently outputted at the end of each loop.  May be more optimal to store scores and output in bulk?
             - Once all searches have been completed, pipeline-specific data is freed from WORKER.
-        -   Itest, Utest, Time Pipelines
-            -    These pipelines run a hard-coded set of tasks
     4. Cleanup: 
         -   Last of WORKER object freed.
         -   DEBUG object is freed.

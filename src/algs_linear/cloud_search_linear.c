@@ -651,6 +651,7 @@ run_Cloud_Forward_Linear(const SEQUENCE* query,     /* query sequence */
   {
     int cmp = MATRIX_3D_Check_Clean(st_MX3);
     printf("POST-CHECK CLEAN -> CLOUD FWD?\t%d\n", cmp);
+    printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
   }
 #endif
 
@@ -663,7 +664,6 @@ run_Cloud_Forward_Linear(const SEQUENCE* query,     /* query sequence */
   /* after search, all cells are set to -INF */
   st_MX3->clean = true;
 
-  printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
   bool is_score_correction = true;
   /* score correction: we need B to simulate proper model states */
   if (is_score_correction == true) {
@@ -699,7 +699,12 @@ run_Cloud_Forward_Linear(const SEQUENCE* query,     /* query sequence */
     postsc = MY_Prod(postsc, XSC(SP_C, SP_MOVE));
     inner_max = MY_Prod(inner_max, postsc);
   }
-  printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
+
+#if DEBUG
+  {
+    printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
+  }
+#endif
 
   /* highest score found in cloud search */
   *max_sc = total_max;
@@ -1313,12 +1318,12 @@ run_Cloud_Backward_Linear(const SEQUENCE* query,     /* query sequence */
   {
     int cmp = MATRIX_3D_Check_Clean(st_MX3);
     printf("POST-CHECK CLEAN -> CLOUD BCK?\t%d\n", cmp);
+    printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
   }
 #endif
 
   st_MX3->clean = true;
 
-  printf("PRESCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
   bool is_score_correction = true;
   /* score correction: we need B to simulate proper model states */
   if (is_score_correction == true) {
@@ -1361,7 +1366,12 @@ run_Cloud_Backward_Linear(const SEQUENCE* query,     /* query sequence */
     total_max = MY_Prod(total_max, postsc);
     inner_max = MY_Prod(inner_max, postsc);
   }
-  printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
+
+#if DEBUG
+  {
+    printf("POSTSCORES:: inner_max = %f, outer_max = %f\n", inner_max, total_max);
+  }
+#endif
 
   /* highest score found in cloud search */
   *max_sc = total_max;
