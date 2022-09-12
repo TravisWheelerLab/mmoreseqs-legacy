@@ -633,6 +633,7 @@ typedef struct {
   char* dbg_folderpath;    /* location for debugging */
   bool enforce_warnings;   /* if error is caught, force close? */
   bool adjust_mmseqs_alns; /* if mmseqs alignments are out-of-bounds, should we truncate alignment? */
+  bool dbg_arg_dump;       /* dump arguments to stdout and close */
 
   /* --- INPUT FILES --- */
   /* main files */
@@ -1058,6 +1059,14 @@ typedef struct {
   VECTOR_PTR* arg_loc;  /* pointer to the location in ARGS to store option argument */
   VECTOR_INT* arg_id;   /* associates argument to option */
 } ARG_OPTS;
+
+typedef struct {
+  STR name;
+  STR flag;
+  DATATYPE arg_type;
+  int n_args;
+  PTR arg_loc;
+} ARG_OPT;
 
 /* TODO: formatted data */
 /* descriptor for data field */
@@ -1570,6 +1579,7 @@ typedef struct {
 /* === GLOBAL VARIABLES === */
 /* pipeline */
 extern PIPELINE PIPELINES[];
+extern const int NUM_PIPELINES;
 extern char* PIPELINES_ARG_HELP[];
 extern char* MODE_NAMES[];
 extern char* VERBOSITY_NAMES[];

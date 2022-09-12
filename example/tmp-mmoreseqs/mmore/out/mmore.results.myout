@@ -1,0 +1,2 @@
+#result-id	target-hmm	query-seq	t-len	q-len	evalue	pre-sc	comp-bias	seq-sc	dom-sum-sc	mmseqs-vit-sc	mmore-vit-sc	total-cells	MMORE-cells	perc-cells	t-aln	q-aln	t-bounds	q-bounds	time	time-noload	
+#---------	----------	---------	-----	-----	------	------	---------	------	----------	-------------	------------	-----------	-----------	----------	-----	-----	--------	--------	----	-----------	

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		prepsearch-example.sh	
-#	- DESC:  		Run prep-search pipeline examples.
+# - FILE:  prepsearch-example.sh	
+# - DESC:  Run prep-search pipeline examples.
 ###########################################################################
 
 
@@ -29,7 +29,8 @@ ${MMORESEQS} prep-search \
   --verbose 3 \
   \
   --mmseqs-kmer 6 \
-  --run-vitaln 0 \
+  --run-mmseqsaln 0 \
+  --run-vitaln 1 \
   --run-postaln 0 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \

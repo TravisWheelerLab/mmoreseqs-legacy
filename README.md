@@ -133,7 +133,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
 
 - General Options:
   - `--verbose INT`
-    - The amount of output: 0=quiet, 1=errors, 2=warnings, 3=info
+    - The amount of output.
   - `--num-threads INT`
     - The number of parallel threads to run.  Does not currently work with all workflows. 
   - `--eval DOUBLE`
@@ -160,7 +160,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
     - Run posterior during the MMORE stage of pipeline. Otherwise bypasses posterior computation.
 
 - Input File Options:
-  - `--tmp/--prep`
+  - `--tmp`
     - Set temporary preparation working directory for pipeline interrim operations.
   - `--mmseqs-m8 TEXT`
     - Set output .m8 file from MMseqs search as input for MMORE search.
@@ -201,7 +201,7 @@ mmoreseqs mmore-search <i:query_mmore_hmm> <i:target_mmore_fasta> <i:results_mms
   - `--hard-limit FLOAT=(-12.0)`
     - Set MMORE hard limit parameter. Determines lowest permissable score before termination of search.
   - `--range INT INT` 
-    - Specify [0] start and [1] stop range of .m8 MMseqs results to search.
+    - Specify [0] start and [1] stop range of .m8 MMseqs results to search. By default, this searches entire .m8 file.
 
 - Output File Options (These specify types of output.):
   - `--stdout TEXT`

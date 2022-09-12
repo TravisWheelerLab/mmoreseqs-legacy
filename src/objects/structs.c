@@ -93,37 +93,27 @@ double BG_MODEL_log[] = {
 };
 
 /* descriptors of all pipelines */
-const int num_pipelines = 11;
+const int NUM_PIPELINES = 7;
 PIPELINE PIPELINES[] = {
-    /* mmoreseqs-seqs pipelines */
     {"search", mmoreseqs_search_pipeline, 5, NULL},
     {"mmore-search", mmoreseqs_mmore_pipeline, 3, NULL},
     {"mmseqs-search", mmoreseqs_mmseqs_pipeline, 3, NULL},
     {"prep", mmoreseqs_prep_pipeline, 3, NULL},
     {"prep-search", mmoreseqs_prepsearch_pipeline, 1, NULL},
     {"easy-search", mmoreseqs_easysearch_pipeline, 3, NULL},
-    /* helper pipelines */
-    {"index", index_pipeline, 2, NULL},
-    {"hmmbuild", hmmbuild_pipeline, 1, NULL},
-    {"interactive", interactive_pipeline, 0, NULL},
-    /* alternative search pipelines */
-    {"null", null_pipeline, 0, NULL},
-    {"generic", generic_pipeline, 2, NULL},
+    {"index", index_pipeline, 2, NULL}
 };
 
 /* help output strings for pipeline */
 char* PIPELINES_ARG_HELP[] = {
-    "mmoreseqs search <QUERY_HMM> <TARGET_FASTA> <QUERY_P_MMDB> <QUERY_S_MMDB> <TARGET_S_MMDB>",
-    "mmoreseqs mmore-search <QUERY_HMM> <TARGET_FASTA> <MMSEQS_M8_RESULTS>",
-    "mmoreseqs mmseqs-search <QUERY_P_MMDB> <QUERY_S_MMDB> <TARGET_S_MMDB>",
-    "mmoreseqs prep <QUERY_MSA> <TARGET_FASTA> <PREP_DIR>",
-    "mmoreseqs prep-search <PREP_DIR>",
-    "mmoreseqs easy-search <QUERY_MSA> <TARGET_FASTA> <PREP_DIR>",
-    "mmoreseqs index <QUERY_HMM> <TARGET_FASTA>",
-    "mmoreseqs hmmbuild <QUERY_MSA>",
-    "mmoreseqs interactive",
-    "mmoreseqs null",
-    "mmoreseqs generic <QUERY_HMM> <TARGET_FASTA>"};
+    "mmoreseqs search <i:QUERY_HMM> <i:TARGET_FASTA> <i:QUERY_P_MMDB> <i:QUERY_S_MMDB> <i:TARGET_S_MMDB>",
+    "mmoreseqs mmore-search <i:QUERY_HMM> <i:TARGET_FASTA> <i:MMSEQS_M8_RESULTS>",
+    "mmoreseqs mmseqs-search <i:QUERY_P_MMDB> <i:QUERY_S_MMDB> <i:TARGET_S_MMDB>",
+    "mmoreseqs prep <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
+    "mmoreseqs prep-search <i:PREP_DIR>",
+    "mmoreseqs easy-search <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
+    "mmoreseqs index <i:QUERY_HMM> <i:TARGET_FASTA>"
+};
 
 /* full names of the all states */
 char* STATE_FULL_NAMES[] = {
@@ -196,10 +186,10 @@ char* MODE_NAMES[] = {
 
 /* Verbosity Level Names */
 char* VERBOSITY_NAMES[] = {
-    "None",
-    "Low",
-    "High",
-    "All",
+    "Errors+",
+    "Warnings+",
+    "Info+",
+    "Debug+",
 };
 
 /* Alphabet Names (for hmm files) */

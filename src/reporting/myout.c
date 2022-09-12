@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      myout.c
- *  - DESC:    Reporting Subroutines for generating output.
+ *  - FILE:  myout.c
+ *  - DESC:  Reporting Subroutines for generating output.
  *******************************************************************************/
 
 /* imports */

@@ -1,9 +1,8 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		prepsearch-example-1.sh	
-#	- DESC:  		Run step #1 of prep-search pipeline example.
+#	- FILE:  prepsearch-example-1.sh	
+#	- DESC:  Run step #1 of prep-search pipeline example.
 ###########################################################################
-
 
 # input locations
 BENCH_DIR=$(pwd)

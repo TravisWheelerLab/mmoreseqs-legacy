@@ -1,0 +1,2 @@
+#target-hmm	query-seq	total	hmm-load	seq-load	cloud-fwd	cloud-bck	cloud-union	cloud-reorient	bound-fwd-lin	bound-bck-lin	build-mx-sp	bound-fwd-sp	bound-bck-sp	posterior-sp	decodedom-sp	biascorr-sp	optacc-sp	dom-total	bound-fwd-dom	bound-bck-dom	posterior-dom	biascorr-dom	
+#----------	---------	-----	--------	--------	---------	---------	-----------	--------------	-------------	-------------	-----------	------------	------------	------------	------------	-----------	---------	---------	-------------	-------------	-------------	------------	

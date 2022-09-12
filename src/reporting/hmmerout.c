@@ -1,7 +1,6 @@
 /*******************************************************************************
- *  - FILE:     hmmerout.c
- *  - DESC:   Reporting HMMER-style output.
- *  NOTES:    - Need to buffer output!
+ *  - FILE:  hmmerout.c
+ *  - DESC:  Reporting HMMER-style output.
  *******************************************************************************/
 
 /* imports */
@@ -122,11 +121,10 @@ void REPORT_hmmerout_header(WORKER* worker,
   fprintf(fp, "# %*s: %s\n",
           left_pad, "Query Index", args->q_index_filein);
 
-  if (args->pipeline_mode == PIPELINE_MMSEQS) {
+  if (args->is_run_mmseqs_align) {
     fprintf(fp, "# %*s: %s\n",
             left_pad, "MMSEQS RESULT file", args->mmseqs_m8_filein);
-  }
-  if (args->pipeline_mode == PIPELINE_MAIN) {
+  } else {
   }
 
   REPORT_horizontal_rule(fp);

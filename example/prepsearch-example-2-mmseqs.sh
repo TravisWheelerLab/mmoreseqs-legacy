@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 ###########################################################################
-#	- FILE: 		prepsearch-example.sh	
-#	- DESC:  		Run prep-search pipeline examples.
+# - FILE:  prepsearch-example.sh	
+# - DESC:  Run prep-search pipeline examples.
 ###########################################################################
 
 # input locations

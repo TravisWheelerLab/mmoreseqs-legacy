@@ -1,7 +1,6 @@
 /*******************************************************************************
- *  - FILE:     mainout.c
- *  - DESC:   Reporting for standard output for main pipeline.
- *  NOTES:    - Need to buffer output!
+ *  - FILE:  mainout.c
+ *  - DESC:  Reporting for standard output for main pipeline.
  *******************************************************************************/
 
 /* imports */
@@ -126,11 +125,10 @@ void REPORT_stdout_header(WORKER* worker,
   fprintf(fp, "# %*s: %s\n",
           left_pad, "Query Index", args->q_index_filein);
 
-  if (args->pipeline_mode == PIPELINE_MMSEQS) {
+  if (args->adjust_mmseqs_alns) {
     fprintf(fp, "# %*s: %s\n",
             left_pad, "MMSEQS RESULT file", args->mmseqs_m8_filein);
-  }
-  if (args->pipeline_mode == PIPELINE_MAIN) {
+  } else {
   }
 
   REPORT_horizontal_rule(fp);

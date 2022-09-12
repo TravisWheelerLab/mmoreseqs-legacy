@@ -59,22 +59,6 @@ mmoreseqs_mmore_pipeline(WORKER* worker);
 
 /* === ALTERNATIVE SEARCH PIPELINES === */
 
-/*! FUNCTION:  	generic_pipeline()
- *  SYNOPSIS:  	Generic pipeline.
- * 				   Can optionally run viterbi, forward-backward, and/or adaptive
- * forward-backward.
- */
-STATUS_FLAG
-generic_pipeline(WORKER* worker);
-
-/*! FUNCTION:  	interactive_pipeline()
- *  SYNOPSIS:  	Interactive, tutorialized pipeline.
- *                An interactive pipeline which shows users how to work with
- * tool and purpose of options.
- */
-STATUS_FLAG
-interactive_pipeline(WORKER* worker);
-
 /* === HELPER / INTERNAL PIPELINES === */
 
 /*! FUNCTION:  	index_pipeline()

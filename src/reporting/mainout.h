@@ -1,7 +1,7 @@
 /*******************************************************************************
- *  - FILE:      mainout.h
- *  - DESC:    Reporting Output for Main Pipeline output.
- *             Styled after HMMER output.
+ *  - FILE:  mainout.h
+ *  - DESC:  Reporting Output for Main Pipeline output.
+ *           Styled after HMMER output.
  *******************************************************************************/
 
 #ifndef _MAINOUT_H

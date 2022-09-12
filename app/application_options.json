@@ -876,7 +876,7 @@
       "default": [
         "True"
       ],
-      "help": "Recover and report alignments during the MMSEQS stage of pipeline.",
+      "help": "Recover and report the viterbi alignments during the MMSEQS stage of pipeline.",
       "hidden": false,
       "commands": []
     },

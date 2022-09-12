@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      hmmerout.h
- *  - DESC:    Reporting HMMER-style output.
+ *  - FILE:  hmmerout.h
+ *  - DESC:  Reporting HMMER-style output.
  *******************************************************************************/
 
 #ifndef _HMMEROUT_H

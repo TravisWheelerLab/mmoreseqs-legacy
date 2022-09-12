@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      mydomout.c
- *  - DESC:    Reporting Subroutines for generating mydomout.
+ *  - FILE:  mydomout.c
+ *  - DESC:  Reporting Subroutines for generating mydomout.
  *******************************************************************************/
 
 /* imports */

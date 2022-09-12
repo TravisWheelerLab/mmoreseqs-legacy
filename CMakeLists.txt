@@ -123,24 +123,18 @@ set(SOURCES
   src/algs_quad/bound_viterbi_quad.c
   src/algs_quad/bound_fwdbck_quad.c
   src/algs_quad/merge_reorient_quad.c
-
-  # src/algs_quad/posterior_null2_quad.c
   src/algs_quad/viterbi_quad.c
   src/algs_quad/fwdback_quad.c
   src/algs_quad/posterior_quad.c
   src/algs_quad/cloud_search_quad.c
   src/pipelines/workflow.c
-  src/pipelines/pipeline_generic.c
   src/pipelines/pipeline_mmoreseqs_mmore.c
   src/pipelines/pipeline_mmoreseqs_prepsearch.c
   src/pipelines/pipeline_mmoreseqs_easysearch.c
-  src/pipelines/pipeline_hmmbuild.c
   src/pipelines/pipeline_null.c
   src/pipelines/pipeline_mmoreseqs_mmseqs.c
   src/pipelines/pipeline_mmoreseqs_prep.c
   src/pipelines/pipeline_index.c
-  src/pipelines/pipeline_itest.c
-  src/pipelines/pipeline_interactive.c
   src/pipelines/pipeline_utest.c
   src/pipelines/pipeline_mmoreseqs_search.c
   src/algs_sparse/bound_fwdbck_sparse_test.c
@@ -150,8 +144,6 @@ set(SOURCES
   src/algs_sparse/posterior_traceback_sparse.c
   src/algs_sparse/posterior_null2_sparse.c
   src/algs_sparse/posterior_sparse.c
-
-  # src/algs_sparse/posterior_optacc_sparse.c
   src/algs_linear/bound_fwdbck_linear.c
   src/algs_linear/fwdback_linear.c
   src/algs_linear/viterbi_traceback_linear.c
@@ -177,23 +169,10 @@ set(SCRIPTS
   scripts/workflows/mmoreseqs-prep.sh
   scripts/workflows/mmoreseqs-prepsearch.sh
   scripts/workflows/mmoreseqs-mmseqssearch.sh
-
-  # scripts/workflows/test_workflow.sh
   scripts/workflows/mmoreseqs-mmoresearch.sh
   scripts/workflows/mmoreseqs-easysearch.sh
-
-  # scripts/workflows/helpers/split_fasta.py
-  # scripts/workflows/helpers/convert_hmm-to-fasta.sh
   scripts/workflows/helpers/translate_ids.sh
-
-  # scripts/workflows/helpers/mmore_set-defaults.sh
-  # scripts/workflows/helpers/mmore_get-tools.sh
-  # scripts/workflows/helpers/translate_ids/translate_mmdb_ids.py
-  # scripts/workflows/helpers/translate_ids/make_dummy_prefilter_mmdb.py
   scripts/workflows/helpers/translate_ids/make_dummy_align_mmdb.py
-
-  # scripts/workflows/helpers/translate_ids/test.py
-  # scripts/workflows/helpers/split_hmm.py
   scripts/workflows/helpers/mmore_functions.sh
   scripts/workflows/helpers/convert_fasta-to-hmm.sh
   scripts/workflows/mmoreseqs-search.sh
@@ -209,9 +188,6 @@ set(APP_SOURCES
 # Python and Bash workflow scripts
 add_subdirectory(${SCRIPT_FOLDER})
 file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-
-# add_subdirectory(${APP_FOLDER})
-# file(COPY ${APP_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
 
 # ------------
 # Dependencies
@@ -244,40 +220,19 @@ ExternalProject_Get_property(unity BINARY_DIR)
 include_directories(BEFORE ${SOURCE_DIR}/src)
 link_libraries(${BINARY_DIR}/libunity.a)
 
-# Pybind library
-ExternalProject_Add(pybind11
-  GIT_REPOSITORY https://github.com/pybind/pybind11.git
-  GIT_TAG origin/stable
-  PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib/pybind11
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ""
-)
-add_subdirectory(lib/pybind11/src/pybind11)
-
 # Math library
 link_libraries(m)
 
 # ---------
 # Libraries
 # ---------
-
 # mmoreseqs library
-# add_library(
-# mmoreseqs_lib
-# STATIC
-# ${SOURCES}
-# )
-# add_dependencies(mmoreseqs_lib easel)
-# link_libraries(${CMAKE_CURRENT_BINARY_DIR}/libmmoreseqs_lib.a)
-
-# mmoreseqs_pylib library via pybind11
-# pybind11_add_module(
-# mmoreseqs_pylib
-# MODULE
-# src/mmoreseqs_pylib.cpp
-# )
-# add_dependencies(mmoreseqs_pylib mmoreseqs_lib)
-# add_dependencies(mmoreseqs_pylib easel)
+add_library(
+  mmoreseqs_lib
+  SHARED
+  ${SOURCES}
+)
+add_dependencies(mmoreseqs_lib easel)
 
 # -----------
 # Executables
@@ -289,13 +244,7 @@ add_executable(mmoreseqs
   ${SOURCES}
 )
 add_dependencies(mmoreseqs easel)
-
-# mmoreseqs_cli
-add_executable(mmoreseqs_cli
-  src/cli_application.cpp
-  ${SOURCES}
-)
-add_dependencies(mmoreseqs easel)
+add_dependencies(mmoreseqs mmoreseqs_lib)
 
 # mmoreseqs_test
 add_executable(mmoreseqs_test
@@ -332,20 +281,3 @@ set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
 
 # CPP compiler flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-
-# ---------------------
-# Install python modules
-# ---------------------
-
-# # mmoreseqs_pylib
-# file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/py)
-# set(MMORESEQS_BINARY_DIR ${PROJECT_BINARY_DIR})
-# configure_file(setup.py.in
-# ${PROJECT_BINARY_DIR}/setup.py @ONLY
-# )
-# configure_file(__init__.py.in
-# ${PROJECT_BINARY_DIR}/py/__init__.py @ONLY
-# )
-# add_custom_target(pip ALL
-# COMMAND ln -sf ${PROJECT_BINARY_DIR}/$<TARGET_FILE_NAME:mmoreseqs_pylib> ${PROJECT_BINARY_DIR}/py/__init__.so
-# )

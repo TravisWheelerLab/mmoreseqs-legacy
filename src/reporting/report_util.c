@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      report_util.c
- *  - DESC:    Utility functions for generating reports.
+ *  - FILE:  report_util.c
+ *  - DESC:  Utility functions for generating reports.
  *******************************************************************************/
 
 /* imports */

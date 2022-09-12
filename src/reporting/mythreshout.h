@@ -1,6 +1,6 @@
 /*******************************************************************************
- *  - FILE:      mythreshout.h
- *  - DESC:    Reporting for generating mythreshout format output.
+ *  - FILE:  mythreshout.h
+ *  - DESC:  Reporting for generating mythreshout format output.
  *******************************************************************************/
 
 #ifndef _MYTHRESHOUT_H

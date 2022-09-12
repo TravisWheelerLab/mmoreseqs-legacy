@@ -1,9 +1,9 @@
 /*******************************************************************************
- *  - FILE:      arg_opts.c
- *  - DESC:    ARG_OPTS Object.
- *             Used for Listing, Selecting, and Parsing Commandline Arguments Options.
- *  NOTES:
- *    - WIP.
+ *  - FILE:  arg_opts.c
+ *  - DESC:  ARG_OPTS Object.
+ *           Used for Listing, Selecting, and Parsing Commandline Arguments Options.
+ *  - NOTES:
+ *    - WIP: Will be phased out by CLI11.
  *******************************************************************************/
 
 /* imports */
@@ -82,7 +82,7 @@ ARG_OPTS_Destroy(ARG_OPTS* arg_opts) {
 /*! FUNCTION:  ARG_OPTS_AddOption()
  *  SYNOPSIS:  Add option to <opt_args>.
  */
-void ARG_OPTS_AddOption(ARG_OPTS* arg_opts,
+void ARG_OPTS_AddOpt(ARG_OPTS* arg_opts,
                         STR name,
                         STR desc,
                         STR help,
@@ -119,6 +119,45 @@ void ARG_OPTS_AddOption(ARG_OPTS* arg_opts,
   arg_opts->N_opts += 1;
   arg_opts->N_args += n_args;
 }
+
+/*! FUNCTION:  ARG_OPTS_AddShOpt()
+ *  SYNOPSIS:  Add shorter abbreviated option to <opt_args>.
+ */
+void ARG_OPTS_AddShOption(ARG_OPTS* arg_opts,
+                          STR name,
+                          STR opt_long,
+                          int n_args,
+                          PTR* arg_locs,
+                          INT* arg_types) {
+  int opt_id;
+  int N_args;
+  PTR arg_loc;
+  INT arg_type;
+
+  opt_id = VECTOR_STR_GetSize(arg_opts->opt_names);
+
+  VECTOR_STR_Pushback(arg_opts->opt_names, name);
+  VECTOR_STR_Pushback(arg_opts->opt_desc, "");
+  VECTOR_STR_Pushback(arg_opts->opt_help, "");
+  VECTOR_STR_Pushback(arg_opts->opt_long, opt_long);
+  VECTOR_STR_Pushback(arg_opts->opt_short, "");
+  VECTOR_INT_Pushback(arg_opts->num_args, n_args);
+
+  for (int i = 0; i < n_args; i++) {
+    arg_loc = arg_locs[i];
+    arg_type = arg_types[i];
+    VECTOR_PTR_Pushback(arg_opts->arg_loc, arg_loc);
+    VECTOR_INT_Pushback(arg_opts->arg_type, arg_type);
+    VECTOR_INT_Pushback(arg_opts->arg_id, opt_id);
+  }
+
+  N_args = VECTOR_STR_GetSize(arg_opts->opt_names);
+  VECTOR_INT_Pushback(arg_opts->arg_index, N_args);
+
+  arg_opts->N_opts += 1;
+  arg_opts->N_args += n_args;
+}
+
 
 /*! FUNCTION:  ARG_OPTS_Index()
  *  SYNOPSIS:  Add option to <opt_args>.
