@@ -1,3 +1,7 @@
+Makefile
+.cmake/
+.idea/
+
 # operating system files
 *.DS_Store
 

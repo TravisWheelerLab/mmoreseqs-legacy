@@ -10,17 +10,6 @@
 #define TRUE 1
 #define FALSE 0
 
-#ifdef __aarch64__
-// include this for ARM platforms
-#include "../sse2neon.h"
-
-#else
-/* vectorization */
-#include <emmintrin.h> /* SSE2 */
-#include <xmmintrin.h> /* SSE  */
-
-#endif
-
 #define MACRO_XSTR(val) MACRO_STR(val)
 #define MACRO_STR(val) #val
 
@@ -302,9 +291,6 @@
 /* === SIMD VECTORIZATION FUNCTIONS === */
 #if (SIMD_METHOD == SIMD_SSE)
 #define VECTOR_WIDTH 128
-typedef __m128i __VECTOR_INT;
-typedef __m128 __VECTOR_FLT;
-typedef __m128d __VECTOR_DBL;
 #endif
 
 #define BITS_PER_BYTE 8
