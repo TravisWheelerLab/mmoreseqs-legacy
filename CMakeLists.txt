@@ -160,10 +160,6 @@ set(SOURCES
   src/utilities/statistics.c
 )
 
-set(TEST_FOLDER test)
-set(TEST_SOURCES
-  test/unity_test.c)
-
 set(SCRIPT_FOLDER scripts)
 set(SCRIPTS
   scripts/workflows/mmoreseqs-prep.sh
@@ -177,10 +173,6 @@ set(SCRIPTS
   scripts/workflows/helpers/convert_fasta-to-hmm.sh
   scripts/workflows/mmoreseqs-search.sh
 )
-
-set(APP_FOLDER app)
-set(APP_SOURCES
-  app/application.py)
 
 # ----------
 # Copy Files
@@ -207,19 +199,6 @@ ExternalProject_Get_property(easel SOURCE_DIR)
 include_directories(BEFORE ${SOURCE_DIR})
 link_libraries(${SOURCE_DIR}/libeasel.a)
 
-# Unity library
-ExternalProject_Add(unity
-  GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
-  GIT_TAG origin/master
-  PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib/Unity
-  BUILD_IN_SOURCE 1
-  INSTALL_COMMAND ""
-)
-ExternalProject_Get_property(unity SOURCE_DIR)
-ExternalProject_Get_property(unity BINARY_DIR)
-include_directories(BEFORE ${SOURCE_DIR}/src)
-link_libraries(${BINARY_DIR}/libunity.a)
-
 # Math library
 link_libraries(m)
 
@@ -244,16 +223,6 @@ add_executable(mmoreseqs
   ${SOURCES}
 )
 add_dependencies(mmoreseqs easel)
-add_dependencies(mmoreseqs mmoreseqs_lib)
-
-# mmoreseqs_test
-add_executable(mmoreseqs_test
-  test/unity_test.c
-  ${TEST_SOURCES}
-  ${SOURCES}
-)
-add_dependencies(mmoreseqs_test easel)
-add_dependencies(mmoreseqs_test unity)
 
 # --------------------
 # Build Configurations

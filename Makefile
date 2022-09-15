@@ -76,27 +76,6 @@ build-valgrind:
 	@cd $(BUILD_DEBUG_DIR) && \
 		make CFLAGS="$(VALGRIND_C_FLAGS)" CXXFLAGS="$(VALGRIND_C_FLAGS)"
 
-build-test:
-	@echo '*** BUILD-TEST ***'
-	$(MAKE) build-release 
-	$(MAKE) test
-
-cli-release:
-	@cd $(BUILD_RELEASE_DIR) && \
-		pip install .
-	@cd $(BUILD_RELEASE_DIR) && \
-		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
-
-cli-debug:
-	@cd $(BUILD_DEBUG_DIR) && \
-		pip install .
-	@cd $(BUILD_DEBUG_DIR) && \
-		pyinstaller app/application.py --name mmoreseqs_cli --collect-all mmoreseqs_pylib --onefile --distpath bin/
-
-test:
-	@echo '*** TEST ***'
-	./$(BUILD_RELEASE_DIR)/bin/mmoreseqs_test
-
 # retrieve all submodules
 get-submodules:
 	@echo '*** GET SUBMODULE ***'
