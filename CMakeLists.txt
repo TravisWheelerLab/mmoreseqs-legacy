@@ -1,16 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
-# disallow building in same directory as source.
-if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR})
-  message(FATAL_ERROR "ERROR: Cmake build directory cannot be the same as root source directory. Hint: Can build with `make`.")
-endif()
-
-# set(CMAKE_DISABLE_SOURCE_CHANGES ON)
-# set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
-project(mmoreseqs VERSION "1.0.0")
+project(mmoreseqs)
 
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+
+# C compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -I/opt/homebrew/include -L/opt/homebrew/lib -largp")
+# CPP compiler flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY build)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY build)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 
 include(ExternalProject)
@@ -200,18 +200,7 @@ include_directories(BEFORE ${SOURCE_DIR})
 link_libraries(${SOURCE_DIR}/libeasel.a)
 
 # Math library
-link_libraries(m)
-
-# ---------
-# Libraries
-# ---------
-# mmoreseqs library
-add_library(
-  mmoreseqs_lib
-  SHARED
-  ${SOURCES}
-)
-add_dependencies(mmoreseqs_lib easel)
+#link_libraries(m)
 
 # -----------
 # Executables
@@ -243,11 +232,3 @@ add_compile_definitions("PROJECT_LOC=${CMAKE_CURRENT_BINARY_DIR}")
 add_compile_definitions("SCRIPT_LOC=${CMAKE_CURRENT_BINARY_DIR}/scripts/")
 add_compile_definitions("MMORE_BIN_LOC=${CMAKE_CURRENT_BINARY_DIR}/bin/")
 
-# C compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_C_FLAGS_DEBUG "-g")
-set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
-
-# CPP compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
