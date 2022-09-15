@@ -50,14 +50,16 @@ mmoreseqs_search_pipeline(WORKER* worker) {
 
   /* buffer for converting args to string */
   STR str = NULL;
-  char buffer[256];
+  char buffer[1024];
 
   /* SCRIPT */
   SCRIPTRUNNER_SetScript(runner, script_path);
   SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->t_filein);
   SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->q_filein);
   SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->t_mmseqs_p_filein);
+  SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->t_mmseqs_s_filein);
   SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->q_mmseqs_filein);
+  SCRIPTRUNNER_Add_Script_Argument(runner, NULL, args->prep_folderpath);
   /* TOOLS */
   SCRIPTRUNNER_Add_Env_Variable(runner, "ROOT_DIR", project_path);
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_DIR", mmore_path);

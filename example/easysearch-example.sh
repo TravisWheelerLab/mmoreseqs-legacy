@@ -24,7 +24,7 @@ function ECHO_AND_RUN
 
 # easy search
 ECHO_AND_RUN \
-${MMORESEQS} easy-search \
+mmoreseqs easy-search \
   ${QUERY} ${TARGET} \
   ${PREP_DIR} \
   --mmseqs-kmer 6 \

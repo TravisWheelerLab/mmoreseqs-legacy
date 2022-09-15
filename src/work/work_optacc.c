@@ -67,6 +67,9 @@ void WORK_optimal_accuracy(WORKER* worker) {
   MATRIX_3D_SPARSE_Fill(st_SMX_opt, 0.0f);
   MATRIX_2D_Fill(sp_MX_opt, 0.0f);
 
+#if DEBUG
+{
+  printf("debug_folder: " DEBUG_FOLDER);
   fp = fopen(DEBUG_FOLDER "/my.optacc_postout.sp.000.mx", "w+");
   MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_post, debugger->test_MX);
   DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_post, fp);
@@ -76,6 +79,8 @@ void WORK_optimal_accuracy(WORKER* worker) {
   MATRIX_3D_SPARSE_Embed(Q, T, st_SMX_opt, debugger->test_MX);
   DP_MATRIX_Dump(Q, T, debugger->test_MX, sp_MX_opt, fp);
   fclose(fp);
+}
+#endif
 
   run_OptimalAccuracy_Sparse(
       q_seq, t_prof, Q, T, edg, NULL,

@@ -106,12 +106,9 @@
 		# load functions
 		echo_v 3 "Importing 'mmore_functions.sh..."
 		LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_functions.sh"
-		# load tools 
-		# echo_v 3 "Importing 'mmore_get-tools.sh'..."
-		# LOAD_SOURCE "${SCRIPT_DIR}/helpers/mmore_get-tools.sh"
 	}
 
-	local BEG_TOTAL=$(GET_TIME)
+	BEG_TOTAL=$(GET_TIME)
 
 	# variable preprocessing 
 	{
@@ -123,7 +120,7 @@
 			if (( $NUM_ARGS < $REQ_ARGS )); then 
 				echo "ERROR: Illegal number of main args: ($NUM_ARGS of $REQ_ARGS)"
 				echo "Usage: <i:target_mmore_p> <i:target_mmore_s> <i:query_mmore> <i:target_mmseqs_p> <i:target_mmseqs_s> <i:query_mmseqs> | <i:prep_dir>"
-				echo "./mmore.sh [0]$ARG_TARGET [1]$ARG_QUERY [2]$ARG_TARGET_MMSEQS_P [3]$ARG_TARGET_MMSEQS_P [4]$ARG_QUERY_MMSEQS | [5]$PREP_FILE"
+				echo "./mmoreseqs-search.sh [0]$1 [1]$2 [2]$3 [3]$4 [4]$5 | [5]$6"
 				echo "Accepted Filetypes: FASTA, HMM, HHM, MSA, MM_MSA, MMDB_S, MMDB_P"
 				echo ""
 				exit 1
@@ -136,7 +133,7 @@
 			ARG_TARGET_MMSEQS_S=$4
 			ARG_QUERY_MMSEQS=$5
 			# optional commandline args
-			ARG_PREP_DIR=$7
+			ARG_PREP_DIR=$6
 		}
 
 		# process environmental variables: if optional args not supplied by environment, falls back on these defaults
@@ -150,6 +147,7 @@
 			QUERY_MMSEQS="${QUERY_MMSEQS:-$ARG_QUERY_MMSEQS}"
 			# main arg types:
 			PREP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
+			TEMP_DIR="${PREP_DIR:-$ARG_PREP_DIR}"
 			TARGET_MMORE_P_TYPE="${TARGET_MMORE_P_TYPE:-$ARG_TARGET_MMORE_P_TYPE}"
 			TARGET_MMORE_S_TYPE="${TARGET_MMORE_S_TYPE:-$ARG_TARGET_MMORE_S_TYPE}"
 			QUERY_MMORE_TYPE="${QUERY_MMORE_TYPE:-$ARG_QUERY_MMORE_TYPE}"
@@ -390,6 +388,9 @@
 		QUERY_DBSIZE=$( grep "^>" ${QUERY_MMORE} | wc -l )
 		echo_v 3 "      QUERY_DBSIZE: $QUERY_DBSIZE"
 
+    # set getting database sizes to true for now.
+    DO_STATS=0
+
 		# get e-values from p-values 
 		MMSEQS_EVAL=$(          PVAL_TO_EVAL   ${MMSEQS_PVAL}          ${QUERY_DBSIZE} )
       # MMSEQS_M2S_EVAL=$(      PVAL_TO_EVAL   ${MMSEQS_M2S_PVAL}      ${QUERY_DBSIZE} )
@@ -407,7 +408,6 @@
 		# MMORE_BOUNDFWD_EVAL=$( python <<< "eval = ${MMORE_BOUNDFWD_PVAL} * ${QUERY_DBSIZE}; print('%.3e' % eval)" )
 
 		echo_v 3 "MMSEQS_EVAL: $MMSEQS_EVAL, MMSEQS_PVAL: $MMSEQS_PVAL"
-		# echo_v 3 "MMSEQS_M2S_EVAL: $MMSEQS_EVAL, MMSEQS_M2S_PVAL: $MMSEQS_PVAL"
 	}
 
 	# === MMSEQS SEARCH === #
@@ -415,7 +415,7 @@
 		if (( $MMSEQS_DO_MMSEQS != 0 ));
 		then
 		{
-         echo_v 3 "# Running: MMSEQS..."
+      echo_v 3 "# Running: MMSEQS..."
 
 			# Configure MMSEQS Options
 			{
@@ -438,20 +438,20 @@
 
 				# determine whether to use sensitivity or kscore search params
 				MMSEQS_DO_KSCORE=$(TOGGLE $MMSEQS_DO_SENS)
-				echo "# DO_SENSE: ${MMSEQS_DO_SENS}, DO_KSCORE: ${MMSEQS_DO_KSCORE}"
+				echo_v 3 "# DO_SENSE: ${MMSEQS_DO_SENS}, DO_KSCORE: ${MMSEQS_DO_KSCORE}"
 				
 				ECHO_AND_RUN 3 \
-				$MMSEQS prefilter 					   \
-				$TARGET_MMSEQS_P $QUERY_MMSEQS		\
-				$MMSEQS_M2S_PREF 					      \
-													         \
-				$(IF_SET_ARGOPT   1                       1 	-v 						   $VERBOSE) 				\
-				$(IF_SET_ARGOPT   1                       1 	--threads 				   $NUM_THREADS) 			\
-				$(IF_SET_ARGOPT   1                       1 	--max-seqs 				   $MMSEQS_MAXSEQS) 		\
-				$(IF_SET_ARGOPT   ${MMSEQS_DO_KSCORE}     1 	--k-score 				   $MMSEQS_KSCORE) 		\
-				$(IF_SET_ARGOPT   ${MMSEQS_DO_SENS}       1 	-s 						   $MMSEQS_SENS) 			\
-				$(IF_SET_ARGOPT   ${MMSEQS_DO_UNGAPPED}   1 	--min-ungapped-score 	$MMSEQS_UNGAPPED)    \
-				# > $MMSEQS_M2S_PREF_STDOUT 												\
+				$MMSEQS prefilter \
+				$TARGET_MMSEQS_P $QUERY_MMSEQS \
+				$MMSEQS_M2S_PREF \
+				$(IF_SET_ARGOPT 1 1 -v $VERBOSE) \
+				$(IF_SET_ARGOPT 1 1 --threads $NUM_THREADS) \
+				$(IF_SET_ARGOPT 1 1 --max-seqs $MMSEQS_MAXSEQS) \
+				$(IF_SET_ARGOPT 1 1 -k $MMSEQS_KMER) \
+				$(IF_SET_ARGOPT ${MMSEQS_DO_KSCORE} 1 --k-score $MMSEQS_KSCORE) \
+				$(IF_SET_ARGOPT ${MMSEQS_DO_SENS} 1 -s $MMSEQS_SENS) \
+				$(IF_SET_ARGOPT 1 1 --min-ungapped-score $MMSEQS_UNGAPPED) \
+				# > $MMSEQS_M2S_PREF_STDOUT \
 
 				CHECK_ERROR_CODE "PREFILTER"
 				MMSEQS_PRV=$MMSEQS_M2S_PREF
@@ -460,11 +460,11 @@
 				TIME_MMSEQS_M2S_PREF=$(GET_DURATION $BEG_TIME $END_TIME)
 				printf "# TIME_MMSEQS_M2S_PREFILTER: %.3f sec\n" $TIME_MMSEQS_M2S_PREF
 			}
-         else 
-         {
-            echo "# WARNING: MMSEQS PREFILTER flagged not to run [ --run-mmseqs-pref 0 ]"
-         }
-         fi
+      else 
+      {
+        echo "# WARNING: MMSEQS PREFILTER flagged not to run [ --run-mmseqs-pref 0 ]"
+      }
+      fi
 
 			# If doing stats, find number of results
 			if (( $DO_STATS == 1 ));
@@ -482,9 +482,6 @@
 			}
 			fi
 
-         echo "MMSEQS_M2S_PREF: $MMSEQS_M2S_PREF"
-         echo "MMSEQS_M2S_ALIGN: $MMSEQS_M2S_ALIGN"
-
 			# Run Profile-to-Sequence MMSEQS align
 			if (( $MMSEQS_DO_ALIGN != 0 ));
 			then 
@@ -495,17 +492,16 @@
 					BEG_TIME=$(GET_TIME)
 
 					ECHO_AND_RUN 3 \
-					$MMSEQS align 															      \
-					$TARGET_MMSEQS_P  $QUERY_MMSEQS 									      \
-					$MMSEQS_M2S_PREF 															   \
-					$MMSEQS_M2S_ALIGN 															\
-																								      \
-					$(IF_SET_ARGOPT   1 1 	-v 				$VERBOSE) 					\
-					$(IF_SET_ARGOPT   1 1 	--threads 		$NUM_THREADS) 				\
-					$(IF_SET_ARGOPT   1 1 	-e					$MMSEQS_EVAL) 				\
-               $(IF_SET_ARGOPT   1 1   --alt-ali      $MMSEQS_ALTALIS)        \
-					$(IF_SET_ARGOPT   1 1 	-a             $MMORE_DO_MMSEQS_ALN) 	\
-					# > $MMSEQS_M2S_STDOUT												      \
+					$MMSEQS align \
+					$TARGET_MMSEQS_P  $QUERY_MMSEQS \
+					$MMSEQS_M2S_PREF \
+					$MMSEQS_M2S_ALIGN \
+					$(IF_SET_ARGOPT 1 1 -v $VERBOSE) \
+					$(IF_SET_ARGOPT 1 1 --threads $NUM_THREADS) \
+					$(IF_SET_ARGOPT 1 1 -e $MMSEQS_EVAL) \
+          $(IF_SET_ARGOPT 1 1 --alt-ali $MMSEQS_ALTALIS) \
+					$(IF_SET_ARGOPT 1 1 -a $MMORE_DO_MMSEQS_ALN) \
+					# > $MMSEQS_M2S_STDOUT \
 
 					CHECK_ERROR_CODE "M2S_ALIGN"
 					MMSEQS_PRV=$MMSEQS_M2S
@@ -521,13 +517,12 @@
 					BEG_TIME=$(GET_TIME)
 
 					ECHO_AND_RUN 3 \
-					$MMSEQS convertalis 										      \
-					$TARGET_MMSEQS_P  $QUERY_MMSEQS 						      \
-					$MMSEQS_M2S_ALIGN 												\
-					$MMSEQS_M2S_M8 	 										      \
-																					      \
-					$(IF_SET_ARGOPT   1 1 	-v 				   $VERBOSE) 	\
-					$(IF_SET_ARGOPT   0 1 	--format-output 				   \
+					$MMSEQS convertalis \
+					$TARGET_MMSEQS_P  $QUERY_MMSEQS \
+					$MMSEQS_M2S_ALIGN \
+					$MMSEQS_M2S_M8 \
+					$(IF_SET_ARGOPT 1 1 -v $VERBOSE) \
+					$(IF_SET_ARGOPT 0 1 --format-output \
 						"query,target,pident,alnlen,mismatch,gapopen,qstart,qend,tstart,tend,evalue,bits,cigar") \
 					# > $MMSEQS_M2S_CONVERTALIS_REPORT					\
 
@@ -538,27 +533,27 @@
 					printf "# TIME_MMSEQS_M2S_CONVERTALIS: %.3f sec\n" $TIME_MMSEQS_CONVERTALIS
 				}
 			}
-         else 
-         {
-            echo "# WARNING: MMSEQS ALIGN flagged not to run [ --run-mmseqs-align 0 ]"
-         }
+      else 
+      {
+        echo "# WARNING: MMSEQS ALIGN flagged not to run [ --run-mmseqs-align 0 ]"
+      }
 			fi
 
-         # # If doing stats, find number of results
-         if (( $DO_STATS == 1 ));
-         then
-         {
-            P2S_DBSIZE="0"
-            DB_FILES=$( ls ${MMSEQS_M2S}* )
-            for FILE in $DB_FILES
-            do
-               DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
-               P2S_DBSIZE=$(( ${P2S_DBSIZE} + ${DBSIZE} ))
-            done	
+      # If doing stats, find number of results
+      if (( $DO_STATS == 1 ));
+      then
+      {
+        P2S_DBSIZE="0"
+        DB_FILES=$( ls ${MMSEQS_M2S}* )
+        for FILE in $DB_FILES
+        do
+            DBSIZE=$( wc -l ${FILE} | awk '{ print $1 }' )
+            P2S_DBSIZE=$(( ${P2S_DBSIZE} + ${DBSIZE} ))
+        done	
 
-            echo "# ALIGN_DBSIZE: $P2S_DBSIZE"
-         }
-         fi
+        echo "# ALIGN_DBSIZE: $P2S_DBSIZE"
+      }
+      fi
 
 			# Copy results out to output location
 			IF_THEN_COPY "${MMSEQS_M8}" "${MMSEQS_M8_OUT}" "${MMSEQS_M8_OUT}"
@@ -567,6 +562,7 @@
 		else 
 		{
 			echo "# WARNING: MMSEQS flagged not to run [ --run-mmseqs 0 ]"
+      DO_STATS=0
 		}
 		fi
 
@@ -587,52 +583,52 @@
 				
 				# translate MMSEQS Model to HMMER Model ids
 				ECHO_AND_RUN 3 \
-				bash ${SCRIPT_DIR}/helpers/translate_ids.sh  	\
-				$TARGET_MMSEQS_P 	$TARGET_MMSEQS_S 					\
-				$MMSEQS_M2S_ALIGN 									   \
-				$MMSEQS_DUMMY 												\
-				$MMSEQS_M2H_PREF 											\
-				"0"															\
-				$VERBOSE 													\
+				bash ${SCRIPT_DIR}/helpers/translate_ids.sh \
+				$TARGET_MMSEQS_P 	$TARGET_MMSEQS_S \
+				$MMSEQS_M2S_ALIGN \
+				$MMSEQS_DUMMY \
+				$MMSEQS_M2H_PREF \
+				"0" \
+				$VERBOSE \
 
 				CHECK_ERROR_CODE "TRANSLATE_IDS"
 
 				echo_v 3 "# Running: Align Model-to-Model..."
 				# run alignment search
 				ECHO_AND_RUN 3 \
-				$MMSEQS align 													\
-				$TARGET_MMSEQS_P  $TARGET_MMSEQS_S 						\
-				$MMSEQS_M2H_PREF 												\
-				$MMSEQS_M2H_ALIGN 											\
+				$MMSEQS align \
+				$TARGET_MMSEQS_P  $TARGET_MMSEQS_S \
+				$MMSEQS_M2H_PREF \
+				$MMSEQS_M2H_ALIGN \
 																					\
-				$(SET_ARGOPT 1 	"-v" 					$VERBOSE) 		\
-				$(SET_ARGOPT 1 	"--threads" 		$NUM_THREADS) 	\
-				$(SET_ARGOPT 1		"-a" 					"1")				\
-				$(SET_ARGOPT 1		"--seq-id-mode" 	"2") 				\
-				$(SET_ARGOPT 1		"-e" 					"inf") 			\
+				$(SET_ARGOPT 1 "-v" $VERBOSE) \
+				$(SET_ARGOPT 1 "--threads" $NUM_THREADS) \
+				$(SET_ARGOPT 1 "-a" "1") \
+				$(SET_ARGOPT 1 "--seq-id-mode" "2") \
+				$(SET_ARGOPT 1 "-e" "inf") \
 
 				CHECK_ERROR_CODE "TRANSLATE_MODELS"
 
 				echo_v 3 "# Running: Output Model-to-Model Alignments to M8..."
 				# output alignment
 				ECHO_AND_RUN 3 \
-				$MMSEQS convertalis 											\
-				$TARGET_MMSEQS_P  $TARGET_MMSEQS_S 						\
-				$MMSEQS_M2H_ALIGN 											\
-				$MMSEQS_M2H_M8 												\
+				$MMSEQS convertalis \
+				$TARGET_MMSEQS_P  $TARGET_MMSEQS_S \
+				$MMSEQS_M2H_ALIGN \
+				$MMSEQS_M2H_M8 \
 																					\
-				$(SET_ARGOPT 1 	"-v" 					$VERBOSE) 		\
-				$(SET_ARGOPT 1 	"--threads" 		$NUM_THREADS) 	\
-				$(SET_ARGOPT 1 	"--format-output" 					\
+				$(SET_ARGOPT 1 	"-v" $VERBOSE) 		\
+				$(SET_ARGOPT 1 	"--threads" $NUM_THREADS) \
+				$(SET_ARGOPT 1 	"--format-output" \
 					"query,target,qlen,qstart,qend,tlen,tstart,tend,alnlen,cigar") \
 
 
 				# translate model positions from MMSEQS to HMMER model
 				ECHO_AND_RUN 3 \
-				python ${SCRIPT_DIR}/helpers/translate_ids/translate_m8_positions.py  	\
-				$MMSEQS_M2S_M8 																			\
-				$MMSEQS_M2H_M8 																			\
-				$MMSEQS_H2S_M8 																			\
+				python ${SCRIPT_DIR}/helpers/translate_ids/translate_m8_positions.py \
+				$MMSEQS_M2S_M8 \
+				$MMSEQS_M2H_M8 \
+				$MMSEQS_H2S_M8 \
 
 				# set to input mmore
 				cp $MMSEQS_H2S_M8 $MMSEQS_M8
@@ -645,6 +641,7 @@
 		else 
 		{
 			echo "# WARNING: CONVERT flagged not to run [ --run-convert 0 ]"
+      DO_STATS=0
 		}
 		fi
 		
@@ -652,56 +649,49 @@
 	
 	# === MMORE SEARCH === #
 	{
-
 		echo_v 3 "# RUN_MMORE?: $MMORE_DO_MMORE"
 		# Run Search
 		if (( "MMORE_DO_MMORE" != "0" ))
 		then
 		{
-         TARGET_INDEX="${TMP_MMORE}/target.idx" 
-		   QUERY_INDEX="${TMP_MMORE}/query.idx"
+      TARGET_INDEX="${TMP_MMORE}/target.idx" 
+		  QUERY_INDEX="${TMP_MMORE}/query.idx"
          echo "MMORESEQS: $MMORESEQS"
 
 			ECHO_AND_RUN 3 \
-			$MMORESEQS  mmore-search 													         \
-			$TARGET_MMORE 	$QUERY_MMORE 												         \
-			$MMSEQS_M8	 																	         \
-																								         \
-			$(IF_SET_ARGOPT   1  1 	   --program-mmoreseqs 	$MMORESEQS) 				\
-			$(IF_SET_ARGOPT   1  1 	   --program-mmseqs 		$MMSEQS) 					\
-			$(IF_SET_ARGOPT   1  1 	   --program-hmmer 		$HMMBUILD) 					\
-											   													      \
-			$(IF_SET_ARGOPT   1  1 	   --verbose 				$VERBOSE) 					\
-			$(IF_SET_ARGOPT   1  1 	   --num-threads 			$NUM_THREADS) 				\
-																								         \
-			$(IF_SET_ARGOPT   1  1 	   --run-full 				$MMORE_DO_FULL) 			\
-			$(IF_SET_ARGOPT   1  1 	   --run-bias 				$MMORE_DO_BIAS) 		   \
-			$(IF_SET_ARGOPT   1  1 	   --run-vit-mmore 		$MMORE_DO_VIT_MMORE) 	\
-			$(IF_SET_ARGOPT   1  1 	   --run-mmseqsaln 		$MMORE_DO_MMSEQS_ALN) 	\
-			$(IF_SET_ARGOPT   1  1 	   --run-vitaln 			$MMORE_DO_VIT_ALN) 		\
-			$(IF_SET_ARGOPT   1  1     --run-postaln 			$MMORE_DO_POST_ALN) 		\
-			$(IF_SET_ARGOPT   1  1     --run-domains 			$MMORE_DO_DOMAIN) 		\
-																								         \
-			$(IF_SET_ARGOPT   1  2 	   --dbsizes 				$TARGET_DBSIZE   			\
-																         $QUERY_DBSIZE) 			\
-																								         \
-			$(IF_SET_ARGOPT   1  1 	   --alpha 					$MMORE_ALPHA) 				\
-			$(IF_SET_ARGOPT   1  1 	   --beta 					$MMORE_BETA) 				\
-			$(IF_SET_ARGOPT   1  1 	   --gamma 					$MMORE_GAMMA) 				\
-																								         \
-			$(IF_SET_ARGOPT   1  1 	   --run-filter 			$MMORE_DO_FILTER) 		\
-			$(IF_SET_ARGOPT   1  1 	   --run-vit-filter 		$MMORE_DO_VIT_FILTER) 	\
-			$(IF_SET_ARGOPT   1  1 	   --run-cld-filter 		$MMORE_DO_CLD_FILTER) 	\
-			$(IF_SET_ARGOPT   1  1 	   --run-fwd-filter 		$MMORE_DO_FWD_FILTER) 	\
-			$(IF_SET_ARGOPT   1  1 	   --vit-filter 			$MMORE_VITERBI_PVAL) 	\
-			$(IF_SET_ARGOPT   1  1 	   --cld-filter 			$MMORE_CLOUD_PVAL) 		\
-			$(IF_SET_ARGOPT   1  1 	   --fwd-filter 			$MMORE_FWDBACK_PVAL) 	\
-																								         \
-			$(IF_SET_ARGOPT   1  1 	   --m8out 					$MMORE_M8OUT)				\
-			$(IF_SET_ARGOPT   1  1 	   --myout 					$MMORE_MYOUT)				\
-			$(IF_SET_ARGOPT   1  1 	   --mydomtblout 			$MMORE_MYDOMOUT)			\
-			$(IF_SET_ARGOPT   1  1 	   --mytimeout 			$MMORE_MYTIME)				\
-			$(IF_SET_ARGOPT   1  1 	   --mythreshout 			$MMORE_MYTHRESH)			\
+			$MMORESEQS  mmore-search \
+			$TARGET_MMORE $QUERY_MMORE \
+			$MMSEQS_M8 \
+			$(IF_SET_ARGOPT 1 1 --program-mmoreseqs $MMORESEQS) \
+			$(IF_SET_ARGOPT 1 1 --program-mmseqs $MMSEQS) \
+			$(IF_SET_ARGOPT 1 1 --program-hmmer $HMMBUILD) \
+			$(IF_SET_ARGOPT 1 1 --verbose $VERBOSE) \
+			$(IF_SET_ARGOPT 1 1 --num-threads $NUM_THREADS) \
+			$(IF_SET_ARGOPT 1 1 --run-full $MMORE_DO_FULL) \
+			$(IF_SET_ARGOPT 1 1 --run-bias $MMORE_DO_BIAS) \
+			$(IF_SET_ARGOPT 1 1 --run-vit-mmore $MMORE_DO_VIT_MMORE) \
+			$(IF_SET_ARGOPT 1 1 --run-mmseqsaln $MMORE_DO_MMSEQS_ALN) \
+			$(IF_SET_ARGOPT 1 1 --run-vitaln $MMORE_DO_VIT_ALN) \
+			$(IF_SET_ARGOPT 1 1 --run-postaln $MMORE_DO_POST_ALN) \
+			$(IF_SET_ARGOPT 1 1 --run-domains $MMORE_DO_DOMAIN) \
+			$(IF_SET_ARGOPT 1 2 --dbsizes $TARGET_DBSIZE $QUERY_DBSIZE) \
+			$(IF_SET_ARGOPT $DO_STATS 2 --mmseqs-dbsizes $PREFILTER_DBSIZE $P2S_DBSIZE) \
+			$(IF_SET_ARGOPT 1 1 --alpha $MMORE_ALPHA) \
+			$(IF_SET_ARGOPT 1 1 --beta $MMORE_BETA) \
+			$(IF_SET_ARGOPT 1 1 --gamma $MMORE_GAMMA) \
+			$(IF_SET_ARGOPT 1 1 --eval $MMORE_EVAL) \
+			$(IF_SET_ARGOPT 1 1 --run-filter $MMORE_DO_FILTER) \
+			$(IF_SET_ARGOPT 1 1 --run-vit-filter $MMORE_DO_VIT_FILTER) \
+			$(IF_SET_ARGOPT 1 1 --run-cld-filter $MMORE_DO_CLD_FILTER) \
+			$(IF_SET_ARGOPT 1 1 --run-fwd-filter $MMORE_DO_FWD_FILTER) \
+			$(IF_SET_ARGOPT 1 1 --vit-filter $MMORE_VITERBI_PVAL) \
+			$(IF_SET_ARGOPT 1 1 --cld-filter $MMORE_CLOUD_PVAL) \
+			$(IF_SET_ARGOPT 1 1 --fwd-filter $MMORE_FWDBACK_PVAL) \
+			$(IF_SET_ARGOPT 1 1 --m8out $MMORE_M8OUT) \
+			$(IF_SET_ARGOPT 1 1 --myout $MMORE_MYOUT) \
+			$(IF_SET_ARGOPT 1 1 --mydomtblout $MMORE_MYDOMOUT) \
+			$(IF_SET_ARGOPT 1 1 --mytimeout $MMORE_MYTIME) \
+			$(IF_SET_ARGOPT 1 1 --mythreshout $MMORE_MYTHRESH) \
 
 			CHECK_ERROR_CODE "MMORE_MAIN"
 		}
@@ -734,7 +724,7 @@
 	# 	}
 	# }
 
-	local END_TOTAL=$(GET_TIME)
+	END_TOTAL=$(GET_TIME)
 	TIME_PREP=$(GET_DURATION $BEG_TOTAL $END_TOTAL)
 	printf "# SEARCH_TIME: %.3f sec\n" $TIME_PREP
 }

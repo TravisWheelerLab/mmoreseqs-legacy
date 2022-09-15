@@ -96,7 +96,7 @@
 #define PRUNER_DBL_XDROP_EDGETRIM_OR_DIE 3
 /* if bifurcation is allowed, set max limit on forking paths */
 #ifndef MAX_BOUNDS_PER_ROW
-#define MAX_BOUNDS_PER_ROW 10
+#define MAX_BOUNDS_PER_ROW 20
 #endif
 /* set default  of pruner method */
 /* PRUNER METHODS: PRUNER_DBL_XDROP_EDGETRIM_OR_DIE, PRUNER_XDROP_EDGETRIM  */

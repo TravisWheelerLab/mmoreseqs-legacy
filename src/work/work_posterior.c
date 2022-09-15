@@ -63,6 +63,7 @@ void WORK_posterior_sparse(WORKER* worker) {
 
   /* compute posterior alignment */
   if (args->is_run_postaln == true || args->is_run_optacc == true) {
+    printf_vhi("POSTERIOR ALIGNMENT!!!\n");
     /* compute optimal accuracy from posterior */
     WORK_optimal_accuracy(worker);
     /* backtrace optimal accuracy for posterior alignment */
@@ -73,6 +74,7 @@ void WORK_posterior_sparse(WORKER* worker) {
 
   /* compute viterbi alignment */
   if (args->is_run_vitaln == true) {
+    printf_vhi("VITERBI ALIGNMENT!!!\n");
     /* compute viterbi */
     WORK_viterbi_sparse(worker);
     /* backtrace viterbi */

@@ -24,13 +24,14 @@ function ECHO_AND_RUN
 
 # search based on prepared files
 #ECHO_AND_RUN \
-${MMORESEQS} prep-search \
+mmoreseqs prep-search \
   ${PREP_DIR} \
   --verbose 3 \
   \
   --mmseqs-kmer 6 \
   --run-mmseqsaln 0 \
-  --run-vitaln 1 \
+  --run-vitaln 0 \
+  --run-postaln 1 \
   --m8out ${OUTPUT}.m8out \
   --myout ${OUTPUT}.myout \
   --mythreshout ${OUTPUT}.mythreshout \

@@ -264,6 +264,7 @@ option(SET_BUILD_HASH "Set git commit hash of this build." "NO COMMIT HASH")
 option(SET_HMMER_BIN "Set location of HMMER binary to use." "hmmer")
 option(SET_MMSEQS_BIN "Set location of MMseqs binary to use." "mmseqs")
 option(SET_DEBUG_FOLDER "Folder to send debug output files." "debug_out")
+option(SET_DEBUG, "Set whether to output debug info." "0")
 
 # Set macros
 add_compile_definitions("BUILD_VERSION=\"${CMAKE_PROJECT_VERSION}\"")
@@ -277,7 +278,7 @@ add_compile_definitions("MMORE_BIN_LOC=${CMAKE_CURRENT_BINARY_DIR}/bin/")
 # C compiler flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 set(CMAKE_C_FLAGS_RELEASE "-O3")
-set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_DEBUG "-g -DDEBUG=1")
 set(CMAKE_C_FLAGS_ASAN "-g -pg -fsanitize=address")
 
 # CPP compiler flags

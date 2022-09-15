@@ -1,8 +1,8 @@
 /*******************************************************************************
- *  - FILE:      work_loop.c
- *  - DESC:    Pipelines Workflow Subroutines.
- *             WORK interfaces between pipeline WORKER object and various functions.
- *             Subroutines for inner search loop.
+ *  - FILE:  work_loop.c
+ *  - DESC:  Pipelines Workflow Subroutines.
+ *           WORK interfaces between pipeline WORKER object and various functions.
+ *           Subroutines for inner search loop.
  *******************************************************************************/
 
 /* imports */
@@ -66,17 +66,18 @@ void WORK_load_script_env_args(WORKER* worker) {
   SCRIPTRUNNER_Add_Env_Variable(runner, "DO_RM_TEMP", INT_ToString(args->tmp_remove, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "DO_PREP", INT_ToString(args->is_run_prep, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "DO_COPY", INT_ToString(args->is_prep_copy, buffer));
-  // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_OVERWRITE",         INT_ToString(     args->is_overwrite,           buffer ) );
-  // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS",   INT_ToString(     args->is_ignore_warnings,     buffer ) );
+  // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_OVERWRITE", INT_ToString(args->is_overwrite, buffer));
+  // SCRIPTRUNNER_Add_Env_Variable( runner, "DO_IGNORE_WARNINGS", INT_ToString(args->is_ignore_warnings, buffer ));
   /* SEARCH OPTIONS */
   SCRIPTRUNNER_Add_Env_Variable(runner, "SEARCH_TYPE", args->search_name);
-  // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE",          INT_ToString( args->search_type,            buffer ) );
+  // SCRIPTRUNNER_Add_Env_Variable( runner, "SEARCH_TYPE", INT_ToString(args->search_type, buffer));
   /* MMSEQS OPTIONS */
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_MMSEQS", INT_ToString(args->is_run_mmseqs, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_PREFILTER", INT_ToString(args->is_run_mmseqs_pref, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_ALIGN", INT_ToString(args->is_run_mmseqs_align, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_UNGAPPED", INT_ToString(args->is_run_mmseqs_ungapped, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_SENS", INT_ToString(args->is_run_mmseqs_sens, buffer));
+  SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_DO_KSCORE", INT_ToString(!args->is_run_mmseqs_sens, buffer));
   /* MMSEQS PARAMETERS */
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_MAXSEQS", INT_ToString(args->mmseqs_maxhits, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMSEQS_ALTALIS", INT_ToString(args->mmseqs_altalis, buffer));
@@ -98,6 +99,7 @@ void WORK_load_script_env_args(WORKER* worker) {
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_CLOUD_PVAL", FLT_ToExpString(args->threshold_cloud, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_BOUNDFWD_PVAL", FLT_ToExpString(args->threshold_boundfwd, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_FWDBACK_PVAL", FLT_ToExpString(args->threshold_fwd, buffer));
+  SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_EVAL", FLT_ToExpString(args->mmore_evalue, buffer));
   /* MMORE OPTIONS */
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_DO_MMORE", INT_ToString(args->is_run_mmore, buffer));
   SCRIPTRUNNER_Add_Env_Variable(runner, "MMORE_DO_FILTER", INT_ToString(args->is_run_filter, buffer));
@@ -123,6 +125,7 @@ void WORK_load_script_env_args(WORKER* worker) {
   SCRIPTRUNNER_If_Add_Env_Variable(runner, "MMORE_MYDOM_OUT", args->mydom_fileout, args->is_mydom);
   SCRIPTRUNNER_If_Add_Env_Variable(runner, "MMORE_MYTIME_OUT", args->mytime_fileout, args->is_mytimeout);
   SCRIPTRUNNER_If_Add_Env_Variable(runner, "MMORE_MYTHRESH_OUT", args->mythresh_fileout, args->is_mythreshout);
+  SCRIPTRUNNER_If_Add_Env_Variable(runner, "MMORE_HMMER_OUT", args->hmmerout_fileout, args->is_hmmerout);
 }
 
 /*! FUNCTION:  	WORK_load_script_tools()

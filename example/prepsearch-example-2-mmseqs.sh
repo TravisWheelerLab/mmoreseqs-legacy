@@ -23,7 +23,7 @@ function ECHO_AND_RUN
 
 # search based on prepared files
 #ECHO_AND_RUN \
-${MMORESEQS} prep-search \
+mmoreseqs prep-search \
   ${PREP_DIR} \
   --verbose 3 \
   \

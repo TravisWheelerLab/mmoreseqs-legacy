@@ -270,7 +270,7 @@ void EDGEBOUND_ROWS_Pushback(EDGEBOUND_ROWS* edg,
 
   /* if bound exceeds limit for bounds per row, throw flag */
   if (last_idx >= edg->row_max) {
-    fprintf(stderr, "ERROR: Number of edgebounds for given row (%d) has been exceeded to (%d).\n", q_0, edg->row_max);
+    fprintf(stderr, "ERROR: Number of edgebounds for given row (%d) has been exceeded to (%d). Resorting to unbroken spans.\n", q_0, edg->row_max);
     fprintf(stderr, "HELP: To increase the allowed number of edgebounds in row, increase value of compiler flag '%s'.\n", "MAX_BOUNDS_PER_ROW_SUPPORTED");
 
 #if DEBUG
@@ -286,8 +286,6 @@ void EDGEBOUND_ROWS_Pushback(EDGEBOUND_ROWS* edg,
     }
 #endif
 
-    /* Optionally, we could force user to recompile with larger edgebound lists */
-    // ERRORCHECK_exit(EXIT_FAILURE);
     /* Otherwise, we could just bridge the last two spans together, by updating right bound */
     last_idx -= edg->row_max - 1;
     edg_bnd = EDGEBOUND_ROWS_GetX_byRow(edg, q_0, last_idx);

@@ -159,7 +159,7 @@ run_OptimalAccuracy_Traceback_Sparse_OLD(const SEQUENCE* query,         /* query
                                          MATRIX_2D* sp_MX_opt,          /* optimal accuracy special matrix */
                                          ALIGNMENT* aln)                /* OUTPUT: optimal alignment */
 {
-  printf("=== run_Posterior_Traceback_Sparse() [BEGIN] ===\n");
+  printf("=== run_Posterior_Traceback_Sparse_OLD() [BEGIN] ===\n");
   FILE* fp;
 
   /* generic dp matrix pointers for macros */

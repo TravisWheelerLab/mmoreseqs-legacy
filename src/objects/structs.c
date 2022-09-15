@@ -278,9 +278,9 @@ char* SCRIPT_DIR = MACRO_XSTR(SCRIPT_LOC);
 // char*    EASYSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
 //                                  "/scripts/workflows/mmoreseqs-easy-search.sh";
 
-char* PREP_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-prepare.sh";
-char* PREPSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-search.sh";
-char* SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search.sh";
-char* MMORE_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search-mmore.sh";
-char* MMSEQS_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search-mmseqs.sh";
-char* EASYSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-easy-search.sh";
+char* PREP_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-prep-prepare.sh";
+char* PREPSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-prep-search.sh";
+char* SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-search.sh";
+char* MMORE_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-search-mmore.sh";
+char* MMSEQS_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-search-mmseqs.sh";
+char* EASYSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/workflows/mmoreseqs-easy-search.sh";

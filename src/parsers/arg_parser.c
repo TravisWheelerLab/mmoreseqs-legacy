@@ -191,7 +191,7 @@ void ARGS_SetDefaults(ARGS* args) {
   args->mmseqs_maxhits = 1000; /* mmseqs default: 300 */
   args->mmseqs_altalis = 0;
   args->mmseqs_kmer = 7;
-  args->mmseqs_kscore = 80;       /* mmseqs default: 95 */
+  args->mmseqs_kscore = 75;       /* mmseqs default: 95 */
   args->mmseqs_ungapped_vit = 0;  /* mmseqs default: 15 */
   args->mmseqs_sensitivity = 7.5; /* mmseqs default: 4 (overrides kscore) */
   args->mmseqs_p2s_pvalue = 1e-2f;
@@ -214,7 +214,7 @@ void ARGS_SetDefaults(ARGS* args) {
   args->threshold_cloud = 1e-3f;
   args->threshold_boundfwd = 1e-4f;
   args->threshold_fwd = 1e-4f;
-  args->threshold_report_eval = 10;
+  args->threshold_report_eval = 2e2f;
 }
 
 void ARGS_Dump(ARGS* args,
@@ -239,6 +239,7 @@ void ARGS_Dump(ARGS* args,
   fprintf(fp, "# === PIPELINE OPTIONS ===\n");
   fprintf(fp, "# %*s:\t[%d] : [%d] [%d]\n",
           align * pad, "RUN_MMSEQS", args->is_run_mmseqs, args->is_run_mmseqs_pref, args->is_run_mmseqs_align);
+  fprintf(fp, "# %*s:\t[%d]\n", align * pad, "RUN_CONVERT", args->is_run_convert);
   fprintf(fp, "# %*s:\t[%d]\n", align * pad, "RUN_MMORE", args->is_run_mmore);
   /* --- INPUT --- */
   fprintf(fp, "# === INPUT ===\n");
@@ -488,6 +489,8 @@ STATUS_FLAG ARGS_ParseCommand(ARGS* args,
 
   /* parse main commands */
   if (STR_Equals(args->pipeline_name, "search")) {
+    args->t_filein = STR_Set(args->t_filein, argv[2]);
+    args->q_filein = STR_Set(args->q_filein, argv[3]);
     args->t_mmore_filein = STR_Set(args->t_mmore_filein, argv[2]);
     args->q_mmore_filein = STR_Set(args->q_mmore_filein, argv[3]);
     args->t_mmseqs_p_filein = STR_Set(args->t_mmseqs_p_filein, argv[4]);
@@ -503,6 +506,8 @@ STATUS_FLAG ARGS_ParseCommand(ARGS* args,
   elif (STR_Equals(args->pipeline_name, "mmore-search")) {
     args->t_filein = STR_Set(args->t_filein, argv[2]);
     args->q_filein = STR_Set(args->q_filein, argv[3]);
+    args->t_mmore_filein = STR_Set(args->t_mmore_filein, argv[2]);
+    args->q_mmore_filein = STR_Set(args->q_mmore_filein, argv[3]);
     args->mmseqs_m8_filein = STR_Set(args->mmseqs_m8_filein, argv[4]);
 
     args->t_filetype = FILE_HMM;
@@ -873,6 +878,7 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
         if (i + req_args < argc) {
           i++;
           args->tmp_folderpath = STR_Set(args->tmp_folderpath, argv[i]);
+          args->prep_folderpath = STR_Set(args->prep_folderpath, argv[i]);
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
           ERRORCHECK_exit(EXIT_FAILURE);
@@ -882,7 +888,8 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
         req_args = 1;
         if (i + req_args < argc) {
           i++;
-          args->tmp_folderpath = STR_Set(args->prep_folderpath, argv[i]);
+          args->tmp_folderpath = STR_Set(args->tmp_folderpath, argv[i]);
+          args->prep_folderpath = STR_Set(args->prep_folderpath, argv[i]);
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
           ERRORCHECK_exit(EXIT_FAILURE);
@@ -1193,6 +1200,7 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
         if (i + req_args < argc) {
           i++;
           args->threshold_report_eval = atof(argv[i]);
+          args->mmore_evalue = atof(argv[i]);
           args->is_run_report_filter = true;
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);
@@ -1241,7 +1249,7 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Equals(argv[i], (flag = "--mmseqs-ungapped-vit"))) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-ungapped-score"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -1272,7 +1280,7 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
           ERRORCHECK_exit(EXIT_FAILURE);
         }
       }
-      elif (STR_Equals(argv[i], (flag = "--mmseqs-hits-per-search"))) {
+      elif (STR_Equals(argv[i], (flag = "--mmseqs-maxseqs"))) {
         req_args = 1;
         if (i + req_args < argc) {
           i++;
@@ -1357,8 +1365,8 @@ STATUS_FLAG ARGS_ParseOptions(ARGS* args,
         req_args = 1;
         if (i + req_args <= argc) {
           i++;
-          free(args->mmseqs_m8out);
-          args->mmseqs_m8out = STR_Create(argv[i]);
+          args->mmseqs_m8out = STR_Set(args->mmseqs_m8out, argv[i]);
+          // args->mmseqs_m8_filein = STR_Set(args->mmseqs_m8_filein, argv[i]);
           args->is_mmseqs_m8out = true;
         } else {
           fprintf(stderr, "ERROR: %s flag requires (%d) argument.\n", flag, req_args);

@@ -98,17 +98,17 @@ function LOAD_TOOLS
 			# which mmseqs
 			if [ -z "$MMSEQS_LOCAL" ]
 			then
-				echo_v 3 "MMSEQS is not installed locally."
+				echo_v 2 "MMSEQS is not installed locally."
 			fi
 			# which hmmbuild
 			if [ -z "$HMMER_LOCAL" ]
 			then
-				echo_v 3 "HMMER is not installed locally."
+				echo_v 2 "HMMER is not installed locally."
 			fi
 			# which mmore
 			if [ -z "$MMORESEQS_LOCAL" ]
 			then
-				echo_v 3 "MMORE is not installed locally."
+				echo_v 2 "MMORE is not installed locally."
 			fi
 		}
 

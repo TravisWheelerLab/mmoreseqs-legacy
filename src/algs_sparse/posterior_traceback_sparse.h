@@ -10,7 +10,8 @@
  *  SYNOPSIS:  Traceback of Posterior Probability matrix <...post>.
  *             As there is no transition probabilities, this simply backtraces
  *             by taking the greedy algorithm and choosing the maximal scoring
- * next state in the graph. RETURN:    Return <STATUS_SUCCESS> if no errors.
+ *             next state in the graph. 
+ *  RETURN:    Return <STATUS_SUCCESS> if no errors.
  */
 STATUS_FLAG
 run_OptimalAccuracy_Traceback_Sparse(
@@ -34,14 +35,13 @@ run_OptimalAccuracy_Traceback_Sparse(
  */
 STATUS_FLAG
 run_OptimalAccuracy_Sparse(
-    const SEQUENCE* query,     /* query sequence */
-    const HMM_PROFILE* target, /* target HMM model */
-    const int Q,               /* query length */
-    const int T,               /* target length */
-    EDGEBOUNDS* edg,           /* edgebounds */
-    RANGE*
-        in_dom_range,              /* OPTIONAL: domain range for computing fwd/bck on
-                         specific domain. If NULL, computes complete fwd/bck. */
+    const SEQUENCE* query,         /* query sequence */
+    const HMM_PROFILE* target,     /* target HMM model */
+    const int Q,                   /* query length */
+    const int T,                   /* target length */
+    EDGEBOUNDS* edg,               /* edgebounds */
+    RANGE* in_dom_range,           /* OPTIONAL: domain range for computing fwd/bck on
+                                      specific domain. If NULL, computes complete fwd/bck. */
     MATRIX_3D_SPARSE* st_SMX_post, /* posterior normal state matrix */
     MATRIX_2D* sp_MX_post,         /* posterior special state matrix */
     MATRIX_3D_SPARSE* st_SMX_opt,  /* OUTPUT: optimal normal state matrix */

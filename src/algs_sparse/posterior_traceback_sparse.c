@@ -259,7 +259,7 @@ run_OptimalAccuracy_Traceback_Sparse(const SEQUENCE* query,         /* query seq
                                      MATRIX_2D* sp_MX_opt,          /* optimal accuracy special matrix */
                                      ALIGNMENT* aln)                /* OUTPUT: optimal alignment */
 {
-  /* output file pointer */
+  printf("=== run_OptimalAccuracy_Trace_Sparse() [BEGIN] ===\n");
   FILE* fp;
 
   /* generic dp matrix pointers for macros */
@@ -732,6 +732,8 @@ run_OptimalAccuracy_Traceback_Sparse(const SEQUENCE* query,         /* query seq
   }
 #endif
 
+  printf("=== run_OptimalAccuracy_Trace_Sparse() [END] ===\n");
+
   return STATUS_SUCCESS;
 }
 
@@ -748,7 +750,7 @@ run_OptimalAccuracy_Sparse(const SEQUENCE* query,         /* query sequence */
                            MATRIX_2D* sp_MX_opt,          /* OUTPUT: optimal special state matrix */
                            float* sc_final)               /* OUTPUT: final score */
 {
-  /* output file pointer */
+  printf("=== run_OptimalAccuracy_Sparse() [BEGIN] ===\n");
   FILE* fp;
 
   /* vars for matrix access for macros */
@@ -1162,6 +1164,7 @@ run_OptimalAccuracy_Sparse(const SEQUENCE* query,         /* query sequence */
   sc_best = XMX_X(sp_MX_post, SP_C, Q);
   *sc_final = sc_best;
 
+  printf("=== run_OptimalAccuracy_Sparse() [END] ===\n");
   return STATUS_SUCCESS;
 }
 
