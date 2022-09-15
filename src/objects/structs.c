@@ -6,13 +6,9 @@
 /* imports */
 #include <time.h>
 #include <stdio.h>
-#include <stdbool.h>
 
 /* local imports */
-#include "../utilities/_utilities.h"
 #include "_objects.h"
-#include "../parsers/_parsers.h"
-#include "../pipelines/_pipelines.h"
 
 /* header import */
 #include "structs.h"
@@ -90,29 +86,6 @@ double BG_MODEL_log[] = {
     2.697975620542613, /* V */
     4.472958413679587, /* W */
     3.492875266245181, /* Y */
-};
-
-/* descriptors of all pipelines */
-const int NUM_PIPELINES = 7;
-PIPELINE PIPELINES[] = {
-    {"search", mmoreseqs_search_pipeline, 5, NULL},
-    {"mmore-search", mmoreseqs_mmore_pipeline, 3, NULL},
-    {"mmseqs-search", mmoreseqs_mmseqs_pipeline, 3, NULL},
-    {"prep", mmoreseqs_prep_pipeline, 3, NULL},
-    {"prep-search", mmoreseqs_prepsearch_pipeline, 1, NULL},
-    {"easy-search", mmoreseqs_easysearch_pipeline, 3, NULL},
-    {"index", index_pipeline, 4, NULL}
-};
-
-/* help output strings for pipeline */
-char* PIPELINES_ARG_HELP[] = {
-    "mmoreseqs search <i:QUERY_HMM> <i:TARGET_FASTA> <i:QUERY_P_MMDB> <i:QUERY_S_MMDB> <i:TARGET_S_MMDB>",
-    "mmoreseqs mmore-search <i:QUERY_HMM> <i:TARGET_FASTA> <i:MMSEQS_M8_RESULTS>",
-    "mmoreseqs mmseqs-search <i:QUERY_P_MMDB> <i:QUERY_S_MMDB> <i:TARGET_S_MMDB>",
-    "mmoreseqs prep <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
-    "mmoreseqs prep-search <i:PREP_DIR>",
-    "mmoreseqs easy-search <i:QUERY_MSA> <i:TARGET_FASTA> <i:PREP_DIR>",
-    "mmoreseqs index <i:QUERY_HMM> <i:TARGET_FASTA> <o:QUERY_INDEX> <o:TARGET_INDEX>"
 };
 
 /* full names of the all states */
@@ -265,18 +238,6 @@ char* MMORE_BIN = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
 /* --- SCRIPTS --- */
 // char*    SCRIPT_DIR           = MACRO_XSTR(SCRIPT_LOC);
 char* SCRIPT_DIR = MACRO_XSTR(SCRIPT_LOC);
-// char*    PREP_SCRIPT          = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-prep-prepare.sh";
-// char*    PREPSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-prep-search.sh";
-// char*    SEARCH_SCRIPT        = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-search.sh";
-// char*    MMORE_SEARCH_SCRIPT  = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-search-mmore.sh";
-// char*    MMSEQS_SEARCH_SCRIPT = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-search-mmseqs.sh";
-// char*    EASYSEARCH_SCRIPT    = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC)
-//                                  "/scripts/workflows/mmoreseqs-easy-search.sh";
 
 char* PREP_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-prepare.sh";
 char* PREPSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-search.sh";

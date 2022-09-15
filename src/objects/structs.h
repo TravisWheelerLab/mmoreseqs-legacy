@@ -44,28 +44,6 @@
 #define STR char*
 #define PTR void*
 /* datatype for matrices */
-#define DATA float
-
-/* tool for describing and interfacing with data */
-typedef struct {
-  /* meta data */
-  DATATYPE type;
-  STR name;
-  STR desc;
-  size_t size;
-
-  /* functions */
-  void* (*Create)(void* data);
-  void* (*Destroy)(void* data);
-  void* (*Set)(void* data);
-  size_t (*SizeOf)();
-  int (*Compare)(void* a, void* b);
-  void (*Swap)(void* a, void* b);
-  char* (*ToString)(void* data, char* buffer);
-} DATA_DESC;
-
-typedef struct {
-} VEC;
 
 /* generic datatype that can hold most basic datatypes */
 typedef union {
@@ -190,13 +168,6 @@ typedef struct {
   size_t N;      /* current length of array in use */
   size_t Nalloc; /* current length of array allocated */
 } VECTOR_TRACE;
-
-/* vector of data structs */
-typedef struct {
-  DATA* data;    /* array of data type */
-  size_t N;      /* current length of array in use */
-  size_t Nalloc; /* current length of array allocated */
-} VECTOR_DATA;
 
 /* vector of pointers */
 typedef struct {
@@ -1060,40 +1031,6 @@ typedef struct {
   VECTOR_INT* arg_id;   /* associates argument to option */
 } ARG_OPTS;
 
-typedef struct {
-  STR name;
-  STR flag;
-  DATATYPE arg_type;
-  int n_args;
-  PTR arg_loc;
-} ARG_OPT;
-
-/* TODO: formatted data */
-/* descriptor for data field */
-typedef struct {
-  STR name;       /* name of field */
-  STR desc;       /* description of field */
-  DATATYPE type;  /* datatype of field */
-  void* data_loc; /* data location in worker to retrieve */
-} DATA_FIELD;
-
-/* descriptor for data format */
-typedef struct {
-  STR name;               /* name of data format */
-  STR desc;               /* description of data format */
-  int num_fields;         /* number of fields in data format */
-  DATA_FIELD* field_desc; /* descriptor for all data fields */
-} DATA_FORMAT;
-
-/* formatted results */
-typedef struct {
-  DATA_FORMAT* format; /* description of data format */
-  int total;           /* total number of results processed */
-  int N_in_queue;      /* total number of results in queue */
-  int N_max_in_queue;  /* number of results allowed in queue before outputting */
-  DATA_FIELD* fields;  /* field data */
-} FORMATTED_RESULT;
-
 /* m8 result data entry */
 typedef struct {
   /* result unique id (for mmore pipeline, this is simply the position in mmseqs output) */
@@ -1394,7 +1331,7 @@ typedef struct {
   float rt3; /* default region threshold */
 } DOMAIN_DEF;
 
-/* tools for running script scripts */
+/* tools for running scripts */
 typedef struct {
   /* main script */
   STR tool;        /* script interpreter (e.g. "bash", "python", etc) */
@@ -1556,44 +1493,16 @@ typedef struct {
   WORKER_THREAD* threads; /* worker threads array */
 } WORKER;
 
-typedef struct {
-  size_t N;
-  size_t Nalloc;
-  WORKER* workers;
-} MASTER_WORKER;
-
-/* pipeline descriptors */
-typedef struct {
-  // int            enum_type;                                /* enum type of pipeline */
-  char* name; /* name of pipeline */
-  STATUS_FLAG(*pipeline_main)
-  (WORKER* worker);  /* pointer to main pipeline function */
-  int num_main_args; /* number of main args  */
-  STATUS_FLAG(*main_arg_parser)
-  (ARGS* args, char* argv[], int argc); /* pointer to main argument parser function */
-                                        // STATUS_FLAG    (*set_args)
-                                        //                (WORKER* worker);                         /* pointer to set default args function */
-                                        // STATUS_FLAG    (*set_tasks)
-                                        //                (WORKER* worker);                         /* pointer to set default tasks function */
-} PIPELINE;
 
 /* === GLOBAL VARIABLES === */
 /* pipeline */
-extern PIPELINE PIPELINES[];
-extern const int NUM_PIPELINES;
-extern char* PIPELINES_ARG_HELP[];
-extern char* MODE_NAMES[];
 extern char* VERBOSITY_NAMES[];
-extern char* ALPHABET_NAMES[];
-extern int ALPHABET_LENGTHS[];
 extern char* STATE_NAMES[];
-extern char* STATE_FULL_NAMES[];
 extern char* STATE_CHARS[];
 extern char STATE_CHAR[];
 /* input file types and extensions */
 extern STR_TO_INT FILETYPE_EXTS[];
 extern const int NUM_FILETYPE_EXTS;
-int FILETYPE_EXT_Get(STR filetype_ext);
 extern STR_TO_INT FILETYPE_NAMES[];
 extern const int NUM_FILETYPE_NAMES;
 STR FILETYPE_NAME_Get(FILETYPE filetype_id);
@@ -1604,26 +1513,18 @@ extern int AA_REV[];
 /* background frequencies of null model, normal and log space */
 extern double BG_MODEL[];
 extern double BG_MODEL_log[];
-/* commandline arg objects */
-extern char* DATATYPE_NAMES[];
 /* scoring matrix for converting sequences to hmm */
 extern SCORE_MATRIX* bld;
 
-/* root directory */
-extern char* ROOT_DIR;
 /* script locations */
 extern char* SCRIPT_DIR;
 extern char* PREP_SCRIPT;
 extern char* PREPSEARCH_SCRIPT;
 extern char* SEARCH_SCRIPT;
 extern char* EASYSEARCH_SCRIPT;
-/* other tool binary locations */
-extern char* MMSEQS_BIN;
-extern char* HMMER_BIN;
-extern char* MMORE_BIN;
+
 
 /* debugging data */
 extern DEBUG_KIT* debugger;
-extern int VERBOSE;
 
 #endif /* _STRUCTS_H */

@@ -166,7 +166,6 @@ SCRIPTRUNNER_Check(SCRIPTRUNNER* runner) {
 STATUS_FLAG
 SCRIPTRUNNER_Execute(SCRIPTRUNNER* runner) {
   int num_vars;
-
   VECTOR_STR_Reuse(runner->command);
 
   /* check if arguments are valid */
@@ -189,11 +188,17 @@ SCRIPTRUNNER_Execute(SCRIPTRUNNER* runner) {
 
   /* load arguments into command */
   num_vars = VECTOR_STR_GetSize(runner->arg_flags);
+
+  printf("num_vars: %i\n", num_vars);
   for (int i = 0; i < num_vars; i++) {
     STR arg_flag = VEC_X(runner->arg_flags, i);
     STR arg_val = VEC_X(runner->arg_values, i);
+    printf("%s\n", arg_flag);
     if (arg_flag != NULL) {
       VECTOR_STR_Pushback(runner->command, arg_flag);
+    }
+    else {
+      printf("%s null\n", arg_flag);
     }
     VECTOR_STR_Pushback(runner->command, arg_val);
   }
@@ -201,8 +206,12 @@ SCRIPTRUNNER_Execute(SCRIPTRUNNER* runner) {
   VECTOR_STR_Pushback(runner->command, NULL);
 
   /* extract array from vector */
-  // VECTOR_STR_Dump( runner->command, stdout );
+//   VECTOR_STR_Dump( runner->command, stdout );
+
   STR* command_array = VECTOR_STR_GetArray(runner->command);
+//  for (int i = 0; i < num_vars; i++) {
+//    printf("%s\n", command_array[i])
+//  }
   int ERRORCHECK_exit_code = execvp(command_array[0], command_array);
 
   /* program should not get here */

@@ -27,7 +27,6 @@
 #include "../reporting/_reporting.h"
 
 /* header */
-#include "_work.h"
 #include "work_index.h"
 
 /*! FUNCTION:  	WORK_load_indexes()
@@ -70,7 +69,6 @@ void WORK_load_indexes_by_id(WORKER* worker) {
  *                Then sorts index by name.
  */
 void WORK_load_indexes_by_name(WORKER* worker) {
-  ARGS* args = worker->args;
 
   /* load target index */
   CLOCK_Start(worker->timer);
@@ -78,12 +76,6 @@ void WORK_load_indexes_by_name(WORKER* worker) {
   F_INDEX_Sort_by_Name(worker->t_index);
   CLOCK_Stop(worker->timer);
   worker->times->load_target_index = CLOCK_Duration(worker->timer);
-  /* report index */
-  // if ( args->verbose_level >= VERBOSE_HIGH )
-  // {
-  //    printf("=== TARGET F_INDEX ===\n");
-  //    F_INDEX_Dump( worker->t_index, stdout );
-  // }
 
   /* load query index */
   CLOCK_Start(worker->timer);
@@ -91,12 +83,6 @@ void WORK_load_indexes_by_name(WORKER* worker) {
   F_INDEX_Sort_by_Name(worker->q_index);
   CLOCK_Stop(worker->timer);
   worker->times->load_query_index = CLOCK_Duration(worker->timer);
-  /* report index */
-  // if ( args->verbose_level >= VERBOSE_HIGH )
-  // {
-  //    printf("=== QUERY F_INDEX ===\n");
-  //    F_INDEX_Dump( worker->q_index, stdout );
-  // }
 }
 
 /*! FUNCTION:  	WORK_load_target_index()

@@ -7,20 +7,13 @@
  *             - Add thread subworkers.
  *******************************************************************************/
 
-/* imports */
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
-#include <math.h>
 
-/* local imports */
 #include "structs.h"
 #include "../utilities/_utilities.h"
 #include "_objects.h"
 
-/* header */
 #include "worker.h"
 
 /*! FUNCTION:  WORKER_Create()
@@ -185,37 +178,11 @@ WORKER_Init(WORKER* worker) {
   worker->tasks = ERROR_malloc(sizeof(TASKS));
   worker->times = ERROR_malloc(sizeof(TIMES));
   worker->times_totals = ERROR_malloc(sizeof(TIMES));
-  // worker->scores          = ERROR_malloc( sizeof(ALL_SCORES) );
   /* initialize all values to zero */
   memset(worker->stats, 0, sizeof(STATS));
   memset(worker->tasks, 0, sizeof(TASKS));
   memset(worker->times, 0, sizeof(TIMES));
   memset(worker->times_totals, 0, sizeof(TIMES));
-  // memset( worker->scores,       0, sizeof(ALL_SCORES ) );
-}
-
-/*! FUNCTION:  WORKER_Create_with_Args()
- *  SYNOPSIS:  Create new WORKER object and adds <args> to worker.
- */
-WORKER*
-WORKER_Create_with_Args(ARGS* args) {
-  WORKER* worker;
-  worker = WORKER_Create();
-  worker->args = args;
-
-  return worker;
-}
-
-/*! FUNCTION:  WORKER_Create_Threads()
- *  SYNOPSIS:  Creates {N_threads} WORKER_THREAD objects for {worker}.
- *             Stored in {worker->theads}.
- *             Exact number of threads are allocated (should not change during program lifetime).
- */
-void WORKER_Create_Threads(WORKER* worker,
-                           int N_threads) {
-  WORKER_THREAD* threads;
-  threads = worker->threads;
-  threads = ERROR_realloc(threads, sizeof(WORKER_THREAD) * N_threads);
 }
 
 /*! FUNCTION:  WORKER_Destroy()
@@ -226,7 +193,6 @@ WORKER_Destroy(WORKER* worker) {
   if (worker == NULL) {
     return worker;
   }
-
   worker->args = ARGS_Destroy(worker->args);
   worker->cmd = COMMANDLINE_Destroy(worker->cmd);
   worker->arg_opts = ARG_OPTS_Destroy(worker->arg_opts);
@@ -237,7 +203,6 @@ WORKER_Destroy(WORKER* worker) {
   worker->stats = ERROR_free(worker->stats);
   worker->times = ERROR_free(worker->times);
   worker->times_totals = ERROR_free(worker->times_totals);
-  // worker->scores          = ERROR_free( worker->scores );
 
   worker = ERROR_free(worker);
 

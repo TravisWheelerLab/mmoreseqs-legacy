@@ -10,9 +10,16 @@
 #define TRUE 1
 #define FALSE 0
 
+#ifdef __aarch64__
+// include this for ARM platforms
+#include "../sse2neon.h"
+
+#else
 /* vectorization */
 #include <emmintrin.h> /* SSE2 */
 #include <xmmintrin.h> /* SSE  */
+
+#endif
 
 #define MACRO_XSTR(val) MACRO_STR(val)
 #define MACRO_STR(val) #val

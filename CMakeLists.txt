@@ -4,10 +4,8 @@ project(mmoreseqs)
 
 set(CMAKE_C_STANDARD 11)
 
-# C compiler flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -I/opt/homebrew/include -L/opt/homebrew/lib -largp")
-# CPP compiler flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -fPIC -I/opt/homebrew/include -L/opt/homebrew/lib -largp")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY build)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY build)
@@ -16,9 +14,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
 include(ExternalProject)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# -----------
-# Input Files
-# -----------
 set(SOURCE_FOLDER src)
 set(SOURCES
   src/objects/sequence.c
@@ -108,7 +103,6 @@ set(SOURCES
   src/work/work_scripting.c
   src/work/work_threshold.c
   src/work/work_cloud_merge.c
-  src/application.c
   src/parsers/seq_parser.c
   src/parsers/arg_parser.c
   src/parsers/m8_parser.c
@@ -116,7 +110,6 @@ set(SOURCES
   src/parsers/hmm_parser.c
   src/parsers/index_parser.c
   src/algs_naive/bound_fwdbck_naive.c
-  src/algs_vectorized/fwdback_vectorized.c
   src/algs_quad/pruning_quad.c
   src/algs_quad/bound_posterior_quad.c
   src/algs_quad/viterbi_traceback_quad.c
@@ -127,16 +120,7 @@ set(SOURCES
   src/algs_quad/fwdback_quad.c
   src/algs_quad/posterior_quad.c
   src/algs_quad/cloud_search_quad.c
-  src/pipelines/workflow.c
   src/pipelines/pipeline_mmoreseqs_mmore.c
-  src/pipelines/pipeline_mmoreseqs_prepsearch.c
-  src/pipelines/pipeline_mmoreseqs_easysearch.c
-  src/pipelines/pipeline_null.c
-  src/pipelines/pipeline_mmoreseqs_mmseqs.c
-  src/pipelines/pipeline_mmoreseqs_prep.c
-  src/pipelines/pipeline_index.c
-  src/pipelines/pipeline_utest.c
-  src/pipelines/pipeline_mmoreseqs_search.c
   src/algs_sparse/bound_fwdbck_sparse_test.c
   src/algs_sparse/bound_fwdbck_sparse.c
   src/algs_sparse/viterbi_traceback_sparse.c
@@ -160,32 +144,6 @@ set(SOURCES
   src/utilities/statistics.c
 )
 
-set(SCRIPT_FOLDER scripts)
-set(SCRIPTS
-  scripts/workflows/mmoreseqs-prep.sh
-  scripts/workflows/mmoreseqs-prepsearch.sh
-  scripts/workflows/mmoreseqs-mmseqssearch.sh
-  scripts/workflows/mmoreseqs-mmoresearch.sh
-  scripts/workflows/mmoreseqs-easysearch.sh
-  scripts/workflows/helpers/translate_ids.sh
-  scripts/workflows/helpers/translate_ids/make_dummy_align_mmdb.py
-  scripts/workflows/helpers/mmore_functions.sh
-  scripts/workflows/helpers/convert_fasta-to-hmm.sh
-  scripts/workflows/mmoreseqs-search.sh
-)
-
-# ----------
-# Copy Files
-# ----------
-# Python and Bash workflow scripts
-add_subdirectory(${SCRIPT_FOLDER})
-file(COPY ${SCRIPT_FOLDER} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
-
-# ------------
-# Dependencies
-# ------------
-
-# Easel library
 ExternalProject_Add(easel
   URL https://github.com/EddyRivasLab/easel/archive/Bio-Easel-0.14.tar.gz
   PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/lib/easel
@@ -199,23 +157,11 @@ ExternalProject_Get_property(easel SOURCE_DIR)
 include_directories(BEFORE ${SOURCE_DIR})
 link_libraries(${SOURCE_DIR}/libeasel.a)
 
-# Math library
-#link_libraries(m)
-
-# -----------
-# Executables
-# -----------
-
-# mmoreseqs
 add_executable(mmoreseqs
-  src/mmoreseqs.c
+  src/main.c
   ${SOURCES}
 )
 add_dependencies(mmoreseqs easel)
-
-# --------------------
-# Build Configurations
-# --------------------
 
 # Options for setable macros
 option(SET_BUILD_HASH "Set git commit hash of this build." "NO COMMIT HASH")

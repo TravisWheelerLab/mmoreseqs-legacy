@@ -179,7 +179,7 @@ REPORT_domtblout_footer(WORKER* worker,
   fprintf(fp, "# \n");
   fprintf(fp, "# %*s %s\n", left_pad, "Program:", BUILD_PROGRAM);
   fprintf(fp, "# %*s %s (%s)\n", left_pad, "Version:", BUILD_VERSION, BUILD_DATE);
-  fprintf(fp, "# %*s %s\n", left_pad, "Pipeline mode:", PIPELINES[args->pipeline_mode].name);
+  fprintf(fp, "# %*s %s\n", left_pad, "Pipeline mode:", "pipeline :)");
   fprintf(fp, "# %*s %s\n", left_pad, "Query file:", args->q_filein);
   fprintf(fp, "# %*s %s\n", left_pad, "Target file:", args->t_filein);
   fprintf(fp, "# %*s %s\n", left_pad, "Option settings:", "");

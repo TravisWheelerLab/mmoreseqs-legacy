@@ -6,38 +6,22 @@
 
 /* imports */
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <time.h>
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/_utilities.h"
-#include "../objects/_objects.h"
-#include "../parsers/_parsers.h"
-#include "../algs_linear/_algs_linear.h"
-#include "../algs_quad/_algs_quad.h"
-#include "../algs_naive/_algs_naive.h"
 #include "../work/_work.h"
 
 /* header */
 #include "_pipelines.h"
 
 /* private functions */
-STATUS_FLAG
-mmore_main_SetDefault_Args(ARGS* args);
-STATUS_FLAG
-mmore_main_SetDefault_Tasks(TASKS* tasks);
+STATUS_FLAG mmore_main_SetDefault_Tasks(TASKS* tasks);
 
 /*! FUNCTION:  	mmoreseqs_mmore_pipeline()
  *  SYNOPSIS:  	MMORE step of the MMORESEQS Pipeline.
  */
-STATUS_FLAG
-mmoreseqs_mmore_pipeline(WORKER* worker) {
+STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
   ARGS* args = worker->args;
   printf_vlo("=== MMORESEQS: MMORE SEARCH PIPELINE ===\n");
 
@@ -67,6 +51,9 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
   int i_beg = args->list_range.beg;
   int i_end = args->list_range.end;
   int i_rng = i_end - i_beg;
+
+//  args->verbose_level = 1000;
+
   printf_vall("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
   /* threshold tests */
@@ -85,8 +72,10 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
 
     /* prep for current iteration */
     WORK_preiter(worker);
+
     /* get next mmseqs entry */
     WORK_load_mmseqs_by_id(worker, i_cnt);
+
     /* evaluate mmseqs viterbi scoring filter */
     passed[0] = WORK_viterbi_test_threshold(worker);
 
@@ -94,11 +83,15 @@ mmoreseqs_mmore_pipeline(WORKER* worker) {
     if (passed[0] == true) {
       fprintf_vall(stdout, ":: VITERBI PASSED ::\n");
       /* load target hmm profile from file */
+
       WORK_load_target(worker);
+
       /* load query sequence from file */
       WORK_load_query(worker);
+
       /* clear old data and update data structs for problem size */
       WORK_reuse(worker);
+
       /* get viterbi alignment bounds from mmseqs entry */
       WORK_load_mmseqs_alignment(worker);
     }
@@ -208,12 +201,4 @@ mmore_main_SetDefault_Tasks(TASKS* tasks) {
     tasks->quad_bound_bck = false; /* optional */
     tasks->quad_bias_corr = false; /* optional: requires quadratic forward backward */
   }
-}
-
-// TODO: Set Default Args for this pipeline.
-/*! FUNCTION:  	mmore_SetDefault_Args()
- *  SYNOPSIS:  	Set Default Args for mmore main pipeline.
- */
-STATUS_FLAG
-mmore_main_SetDefault_Args(ARGS* args) {
 }

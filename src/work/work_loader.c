@@ -142,7 +142,6 @@ void WORK_load_mmseqs_alignment(WORKER* worker) {
  */
 void WORK_load_target(WORKER* worker) {
   ARGS* args = worker->args;
-  TASKS* tasks = worker->tasks;
   TIMES* times = worker->times;
   CLOCK* timer = worker->timer;
   HMM_PROFILE* t_prof = worker->t_prof;
@@ -174,11 +173,9 @@ void WORK_load_target(WORKER* worker) {
  */
 void WORK_load_query(WORKER* worker) {
   ARGS* args = worker->args;
-  TASKS* tasks = worker->tasks;
   TIMES* times = worker->times;
   CLOCK* timer = worker->timer;
   SEQUENCE* q_seq = worker->q_seq;
-  STATS* stats = worker->stats;
 
   CLOCK_Start(timer);
 
@@ -208,10 +205,6 @@ void WORK_load_query(WORKER* worker) {
  */
 void WORK_load_target_by_name(WORKER* worker,
                               STR name) {
-  ARGS* args = worker->args;
-  TASKS* tasks = worker->tasks;
-  TIMES* times = worker->times;
-  CLOCK* timer = worker->timer;
 
   /* find target id by searching target name in file index */
   int findex_id = F_INDEX_Search_Name(worker->t_index, name);
@@ -229,11 +222,6 @@ void WORK_load_target_by_name(WORKER* worker,
  */
 void WORK_load_query_by_name(WORKER* worker,
                              STR name) {
-  // printf_vall("==> WORK_load_query_by_name()\n");
-  ARGS* args = worker->args;
-  TASKS* tasks = worker->tasks;
-  TIMES* times = worker->times;
-  CLOCK* timer = worker->timer;
 
   /* find query id by searching query name in file index */
   int findex_id = F_INDEX_Search_Name(worker->q_index, name);
@@ -251,9 +239,6 @@ void WORK_load_query_by_name(WORKER* worker,
 void WORK_load_target_by_findex_id(WORKER* worker,
                                    int index_id) {
   ARGS* args = worker->args;
-  HMM_PROFILE* t_prof = worker->t_prof;
-  SEQUENCE* t_seq = worker->t_seq;
-  SEQUENCE* q_seq = worker->q_seq;
   F_INDEX_NODE* my_idx = &worker->t_index->nodes[index_id];
 
   worker->t_id_prv = worker->t_id;
@@ -262,10 +247,9 @@ void WORK_load_target_by_findex_id(WORKER* worker,
   /* load target profile by file type */
   switch (args->t_filetype) {
     case FILE_HMM: {
-      HMM_PROFILE_Parse(worker->t_prof, args->t_filein, my_idx->offset);
+      HMM_PROFILE_Parse(worker->t_prof, args->t_mmore_filein, my_idx->offset);
       HMM_PROFILE_Convert_NegLog_To_Real(worker->t_prof);
       HMM_PROFILE_Config(worker->t_prof, args->search_mode);
-      // HMM_PROFILE_Dump( worker->t_prof, stdout );
     } break;
     case FILE_FASTA: {
       SEQUENCE_Fasta_Parse(worker->t_seq, args->t_filein, my_idx->offset);
@@ -299,7 +283,7 @@ void WORK_load_query_by_findex_id(WORKER* worker,
   switch (args->q_filetype) {
     /* fasta only supported file type */
     case FILE_FASTA: {
-      SEQUENCE_Fasta_Parse(worker->q_seq, args->q_filein, my_idx->offset);
+      SEQUENCE_Fasta_Parse(worker->q_seq, args->q_mmore_filein, my_idx->offset);
       // SEQUENCE_Dump( worker->q_seq, stdout );
     } break;
     case FILE_HMM: {

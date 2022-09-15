@@ -105,7 +105,7 @@ void REPORT_hmmerout_header(WORKER* worker, FILE* fp) {
   REPORT_horizontal_rule(fp);
   fprintf(fp, "# %s :: %s :: %s\n",
           BUILD_PROGRAM,
-          PIPELINES[args->pipeline_mode].name,
+          "pipeline :)"
           BUILD_DESC);
   fprintf(fp, "# %s (%s): %s\n",
           BUILD_PROGRAM,
