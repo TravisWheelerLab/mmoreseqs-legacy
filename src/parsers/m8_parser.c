@@ -123,7 +123,7 @@ void RESULTS_M8_Parse(M8_RESULTS* results,
     token = strtok_r(line_ptr, " \t", &line_ptr);
     res_tmp.aln_len = atoi(token);
 
-    /* [5] alignment length */
+    /* [5] mismatch */
     token = strtok_r(line_ptr, " \t", &line_ptr);
     res_tmp.mismatch = atoi(token);
 

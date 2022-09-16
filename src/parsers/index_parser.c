@@ -67,9 +67,10 @@ F_INDEX* F_INDEX_Hmm_Build(F_INDEX* f_index,
 
       while ((line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0) {
         if (STR_ComparePrefix(line_buf, "NAME", 4) == 0) {
-          int i = 0;
-          for (i = 4; line_buf[i] != ' '; i++) {
-          } /* skip whitespace after NAME */
+          int i;
+          // skip whitespace after NAME
+          for (i = 4; isspace(line_buf[i]); i++) {
+          }
           name = &line_buf[i];
           name[strlen(name) - 1] = '\0';
 
@@ -246,7 +247,6 @@ F_INDEX* F_INDEX_Load(F_INDEX* f_index,
     node.offset = cur_offset;
     node.mmseqs_id = -1;
     F_INDEX_Pushback(f_index, &node);
-
     line_count++;
   }
 

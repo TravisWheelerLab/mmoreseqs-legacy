@@ -37,22 +37,25 @@ int main(int argc, char* argv[]) {
   ARGS_SetDefaults(worker->args);
 
   worker->args->t_mmore_filein = target_path;
-  worker->args->t_index_filein = target_idx_path;
+  worker->args->t_filein = target_path;
   worker->args->q_mmore_filein = query_path;
-  worker->args->q_index_filein = query_idx_path;
+  worker->args->q_filein = query_path;
   worker->args->mmseqs_m8_filein = m8_path;
-
+  worker->args->q_filetype = FILE_FASTA;
+  worker->args->t_filetype = FILE_HMM;
   worker->args->is_myout = true;
   worker->args->is_m8out = true;
   worker->args->is_myout = true;
   worker->args->is_mydom = true;
   worker->args->is_mytimeout = true;
   worker->args->is_mythreshout = true;
-  worker->args->myout_fileout = "results.out";
-  worker->args->m8out_fileout = "results.m8";
-  worker->args->mydom_fileout = "results.domtbl";
-  worker->args->mytime_fileout = "results.time";
-  worker->args->mythresh_fileout = "results.thresh";
+  worker->args->is_hmmerout = true;
+  worker->args->myout_fileout = "out/results.out";
+  worker->args->m8out_fileout = "out/results.m8";
+  worker->args->mydom_fileout = "out/results.domtbl";
+  worker->args->mytime_fileout = "out/results.time";
+  worker->args->mythresh_fileout = "out/results.thresh";
+  worker->args->hmmerout_fileout = "out/results.hmmerout";
 
 //  ARGS_Dump(worker->args, stdout);
 

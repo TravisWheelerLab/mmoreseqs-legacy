@@ -118,17 +118,17 @@ void WORK_load_target_index(WORKER* worker) {
   else {
     printf_vhi("# building index of file...\n");
     if (args->t_filetype == FILE_HMM) {
-      worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_filein);
+      worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_mmore_filein);
     }
     elif (args->t_filetype == FILE_FASTA) {
-      worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_filein);
+      worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_mmore_filein);
     }
     else {
       fprintf(stderr, "ERROR: target filetype is not supported.\n");
       ERRORCHECK_exit(EXIT_FAILURE);
     }
     /* identify the query file being indexed */
-    worker->t_index->source_path = STR_Create(args->t_filein);
+    worker->t_index->source_path = STR_Create(args->t_mmore_filein);
     args->t_index_filein = STR_Create(t_index_filein_tmp);
 
     /* save index file */
@@ -176,17 +176,17 @@ void WORK_load_query_index(WORKER* worker) {
   else {
     printf_vhi("# building index of file...\n");
     if (args->q_filetype == FILE_HMM) {
-      worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_filein);
+      worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_mmore_filein);
     }
     elif (args->q_filetype == FILE_FASTA) {
-      worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_filein);
+      worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_mmore_filein);
     }
     else {
       fprintf(stderr, "ERROR: query filetype is not supported.\n");
       ERRORCHECK_exit(EXIT_FAILURE);
     }
     /* identify the query file being indexed */
-    worker->q_index->source_path = STR_Create(args->q_filein);
+    worker->q_index->source_path = STR_Create(args->q_mmore_filein);
     args->q_index_filein = STR_Create(q_index_filein_tmp);
 
     /* save index file */
@@ -212,21 +212,21 @@ void WORK_build_target_index(WORKER* worker) {
 
   /* build index on the fly */
   if (args->t_filetype == FILE_HMM) {
-    worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_filein);
+    worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_mmore_filein);
   } else if (args->t_filetype == FILE_FASTA) {
-    worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_filein);
+    worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_mmore_filein);
   } else {
     fprintf(stderr, "ERROR: target filetype is not supported.\n");
     ERRORCHECK_exit(EXIT_FAILURE);
   }
   /* identify the query file being indexed */
-  worker->t_index->source_path = STR_Create(args->t_filein);
+  worker->t_index->source_path = STR_Create(args->t_mmore_filein);
 
   /* if output location not specified, then use default naming scheme */
   /* default index location  (same as main file but with .idx extension) */
   if (args->t_index_filein == NULL) {
     char* ext = ".idx";
-    args->t_index_filein = STR_Concat(args->t_filein, ext);
+    args->t_index_filein = STR_Concat(args->t_mmore_filein, ext);
   }
 
   CLOCK_Stop(worker->timer);
@@ -242,24 +242,23 @@ void WORK_build_query_index(WORKER* worker) {
   TASKS* tasks = worker->tasks;
 
   CLOCK_Start(worker->timer);
-
   /* build index on the fly */
   if (args->q_filetype == FILE_HMM) {
-    worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_filein);
+    worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_mmore_filein);
   } else if (args->q_filetype == FILE_FASTA) {
-    worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_filein);
+    worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_mmore_filein);
   } else {
     fprintf(stderr, "ERROR: query filetype is not supported.\n");
     ERRORCHECK_exit(EXIT_FAILURE);
   }
   /* identify the query file being indexed */
-  worker->q_index->source_path = STR_Create(args->q_filein);
+  worker->q_index->source_path = STR_Create(args->q_mmore_filein);
 
   /* if output location not specified, then use default naming scheme */
   /* default index location  (same as main file but with .idx extension) */
   if (args->q_index_filein == NULL) {
     char* ext = ".idx";
-    args->q_index_filein = STR_Concat(args->q_filein, ext);
+    args->q_index_filein = STR_Concat(args->q_mmore_filein, ext);
   }
 
   CLOCK_Stop(worker->timer);
@@ -279,6 +278,7 @@ void WORK_output_target_index(WORKER* worker) {
     const char* ext = ".idx";
     args->t_index_filein = STR_Concat(args->t_filein, ext);
   }
+
   /* output target index */
   fp = fopen(args->t_index_filein, "w");
   F_INDEX_Dump(worker->t_index, fp);

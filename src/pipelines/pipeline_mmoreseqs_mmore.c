@@ -52,7 +52,7 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
   int i_end = args->list_range.end;
   int i_rng = i_end - i_beg;
 
-//  args->verbose_level = 1000;
+  args->verbose_level = 1000;
 
   printf_vall("# Beginning search through mmseqs-m8 list on range (%d,%d)...\n", i_beg, i_end);
 
@@ -83,7 +83,6 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
     if (passed[0] == true) {
       fprintf_vall(stdout, ":: VITERBI PASSED ::\n");
       /* load target hmm profile from file */
-
       WORK_load_target(worker);
 
       /* load query sequence from file */
@@ -105,7 +104,6 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
 
       passed[1] = WORK_cloud_test_threshold(worker);
     }
-
     /* extra work */
     if (args->is_run_vit_mmore == true) {
       worker->tasks->lin_vit = true;

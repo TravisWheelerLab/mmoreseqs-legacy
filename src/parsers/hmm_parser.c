@@ -46,7 +46,6 @@ void HMM_PROFILE_Parse(HMM_PROFILE* prof,
   const float star_log = NAN;  /* hmm profile stores values as logs, * represents zero b/c ln(0) is undefined */
   const float star_real = 0.f; /* what to convert star(*) into in real space */
 
-  printf(">>> >>> >>> hmm filename: %s\n", filename);
   /* open file */
   fp = fopen(filename, "r");
   /* check for file read error */

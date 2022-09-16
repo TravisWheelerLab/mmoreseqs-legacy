@@ -261,10 +261,9 @@ F_INDEX_Getby_Name(F_INDEX* index,
 int F_INDEX_Search_Name(F_INDEX* index,
                         char* search_term) {
   int lo = 0;
-  int mid = 0;
+  int mid;
   int hi = index->N;
-  int cmp = 0;
-  F_INDEX_NODE node;
+  int cmp;
 
 #if DEBUG
   {
