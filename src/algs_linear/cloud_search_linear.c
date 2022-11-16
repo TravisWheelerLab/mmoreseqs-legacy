@@ -1105,16 +1105,14 @@ run_Cloud_Backward_Linear(const SEQUENCE* query,     /* query sequence */
         // prv_E = XMX(SP_E,i)  + sc_E;     /* from end match state (new alignment) */
         // prv_E = sc_E;
         /* best-to-match */
-        prv_sum = MY_Sum(MY_Sum(prv_M, prv_I),
-                         MY_Sum(prv_D, prv_E));
+        prv_sum = MY_Sum(MY_Sum(prv_M, prv_I), MY_Sum(prv_D, prv_E));
         MMX3(dx0, k_0) = prv_sum;
 
         // printf("(q_0,t_0)=%d,%d => a=%c, A=%d, tsc=%f, msc=%f mmx=%f\n",
         //    q_0, t_0, a, A, TSC(t_1, M2M), MSC(t_0, A), MMX3(dx0, k_0) );
 
         /* FIND SUM OF PATHS FROM MATCH OR INSERT STATE (TO PREVIOUS INSERT) */
-        prv_M = MY_Prod(MMX3(dx2, k_1),
-                        MY_Prod(TSC(t_0, I2M), sc_M));
+        prv_M = MY_Prod(MMX3(dx2, k_1), MY_Prod(TSC(t_0, I2M), sc_M));
         prv_I = MY_Prod(IMX3(dx1, k_1),
                         MY_Prod(TSC(t_0, I2I), sc_I));
         /* best-to-insert */

@@ -7,20 +7,17 @@
 #include "pipelines/_pipelines.h"
 #include "objects/_objects.h"
 
-
 int main(int argc, char* argv[]) {
-
   if (argc < 3) {
-    printf("usage: mmoreseqs <target> <query> <m8>\n");
+    printf("usage: mmoreseqs <query> <target> <m8>\n");
     return EXIT_SUCCESS;
   }
-
   char* target_path = argv[1];
   char* query_path = argv[2];
   char* m8_path = argv[3];
 
-  char* target_idx_path = malloc(sizeof(char) * strlen(target_path) + 4);
-  char* query_idx_path = malloc(sizeof(char) * (strlen(query_path) + 4));
+  char* target_idx_path = malloc(sizeof(char) * strlen(target_path) + 5);
+  char* query_idx_path = malloc(sizeof(char) * (strlen(query_path) + 5));
 
   strcpy(target_idx_path, target_path);
   strcpy(query_idx_path, query_path);
@@ -41,8 +38,8 @@ int main(int argc, char* argv[]) {
   worker->args->q_mmore_filein = query_path;
   worker->args->q_filein = query_path;
   worker->args->mmseqs_m8_filein = m8_path;
-  worker->args->q_filetype = FILE_FASTA;
-  worker->args->t_filetype = FILE_HMM;
+  worker->args->q_filetype = FILE_HMM;
+  worker->args->t_filetype = FILE_FASTA;
   worker->args->is_myout = true;
   worker->args->is_m8out = true;
   worker->args->is_myout = true;
@@ -50,20 +47,19 @@ int main(int argc, char* argv[]) {
   worker->args->is_mytimeout = true;
   worker->args->is_mythreshout = true;
   worker->args->is_hmmerout = true;
-  worker->args->myout_fileout = "out/results.out";
-  worker->args->m8out_fileout = "out/results.m8";
-  worker->args->mydom_fileout = "out/results.domtbl";
-  worker->args->mytime_fileout = "out/results.time";
-  worker->args->mythresh_fileout = "out/results.thresh";
-  worker->args->hmmerout_fileout = "out/results.hmmerout";
+  worker->args->myout_fileout = "results.out";
+  worker->args->m8out_fileout = "results.m8";
+  worker->args->mydom_fileout = "results.domtbl";
+  worker->args->mytime_fileout = "results.time";
+  worker->args->mythresh_fileout = "results.thresh";
+  worker->args->hmmerout_fileout = "results.hmmerout";
 
-//  ARGS_Dump(worker->args, stdout);
+  //  ARGS_Dump(worker->args, stdout);
 
   mmoreseqs_mmore_pipeline(worker);
 
   // TODO: fix ARGS_Destroy so we can still use WORKER_Destroy
-//  WORKER_Destroy(worker);
+  //  WORKER_Destroy(worker);
 
   return STATUS_SUCCESS;
 }
-

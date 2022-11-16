@@ -66,8 +66,6 @@ void WORK_load_mmseqs_file(WORKER* worker) {
   RESULTS_M8_Parse(
       worker->mmseqs_data, args->mmseqs_m8_filein, args->list_range.beg, args->list_range.end);
   /* this is a fix because query and target are cross-labeled between MMSEQS and MMORE */
-
-
   M8_RESULTS_Swap_Target_and_Query(worker->mmseqs_data);
 
   /* Truncate or extract valid result range */
@@ -147,7 +145,6 @@ void WORK_load_target(WORKER* worker) {
   TIMES* times = worker->times;
   CLOCK* timer = worker->timer;
   HMM_PROFILE* t_prof = worker->t_prof;
-
 
   CLOCK_Start(timer);
 

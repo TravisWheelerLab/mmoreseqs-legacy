@@ -60,6 +60,7 @@ void SEQUENCE_Fasta_Parse(SEQUENCE* seq,
       if (num_seqs > 0) {
         break;
       }
+
       /* increment number of sequences captured */
       num_seqs += 1;
 
