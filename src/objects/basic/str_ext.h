@@ -114,13 +114,6 @@ STR STR_Replace_Char(STR str, const char ch_old, const char ch_new);
  */
 STR STR_Replace_Substring(STR str, STR substr_old, STR substr_new);
 
-/*! FUNCTION:  STR_ComparePrefix()
- *  SYNOPSIS:  Compare first <L> characters of <a> and <b>.
- *    RETURN:  POS if (a > b),
- *             0 if equal,
- *             NEG if (a < b)
- */
-int STR_ComparePrefix(const STR a, const STR b, const size_t L);
 
 /*! FUNCTION:  STR_Swap()
  *  SYNOPSIS:  Swap strings pointed to by <str_a> and <str_b>.

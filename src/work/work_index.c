@@ -69,7 +69,6 @@ void WORK_load_indexes_by_id(WORKER* worker) {
  *                Then sorts index by name.
  */
 void WORK_load_indexes_by_name(WORKER* worker) {
-
   /* load target index */
   CLOCK_Start(worker->timer);
   WORK_load_target_index(worker);
@@ -98,44 +97,44 @@ void WORK_load_target_index(WORKER* worker) {
   /* default index location  (same as main file but with .idx extension) */
   char* t_index_filein_tmp = NULL;
   if (args->t_index_filein == NULL) {
-    /* index file extension */
     char* ext = ".idx";
     t_index_filein_tmp = STR_Concat(args->t_filein, ext);
   }
 
   /* if target index path was given at the command line, load that */
-  if (args->t_index_filein != NULL) {
-    printf_vhi("# loading indexpath from commandline: '%s'...\n", args->t_index_filein);
-    worker->t_index = F_INDEX_Load(worker->t_index, args->t_index_filein);
-  }
-  /* else, check if index exists at default file location */
-  else if (access(t_index_filein_tmp, F_OK) == 0) {
-    printf_vhi("# found index at database location: '%s'...\n", t_index_filein_tmp);
-    args->t_index_filein = STR_Create(t_index_filein_tmp);
-    worker->t_index = F_INDEX_Load(worker->t_index, t_index_filein_tmp);
-  }
-  /* else, build index on the fly */
-  else {
-    printf_vhi("# building index of file...\n");
-    if (args->t_filetype == FILE_HMM) {
-      worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_mmore_filein);
-    }
-    elif (args->t_filetype == FILE_FASTA) {
-      worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_mmore_filein);
-    }
-    else {
-      fprintf(stderr, "ERROR: target filetype is not supported.\n");
-      ERRORCHECK_exit(EXIT_FAILURE);
-    }
-    /* identify the query file being indexed */
-    worker->t_index->source_path = STR_Create(args->t_mmore_filein);
-    args->t_index_filein = STR_Create(t_index_filein_tmp);
+  // if (args->t_index_filein != NULL) {
+  //   printf_vhi("# loading indexpath from commandline: '%s'...\n", args->t_index_filein);
+  //   worker->t_index = F_INDEX_Load(worker->t_index, args->t_index_filein);
+  // }
 
-    /* save index file */
-    fp = fopen(t_index_filein_tmp, "w+");
-    F_INDEX_Dump(worker->t_index, fp);
-    fclose(fp);
+  // /* else, check if index exists at default file location */
+  // else if (access(t_index_filein_tmp, F_OK) == 0) {
+  //   printf_vhi("# found index at database location: '%s'...\n", t_index_filein_tmp);
+  //   args->t_index_filein = STR_Create(t_index_filein_tmp);
+  //   worker->t_index = F_INDEX_Load(worker->t_index, t_index_filein_tmp);
+  // }
+  // /* else, build index on the fly */
+  // else {
+  printf("# building index of file\n");
+  if (args->t_filetype == FILE_HMM) {
+    worker->t_index = F_INDEX_Hmm_Build(worker->t_index, args->t_mmore_filein);
   }
+  elif (args->t_filetype == FILE_FASTA) {
+    worker->t_index = F_INDEX_Fasta_Build(worker->t_index, args->t_mmore_filein);
+  }
+  else {
+    fprintf(stderr, "ERROR: target filetype is not supported.\n");
+    ERRORCHECK_exit(EXIT_FAILURE);
+  }
+  /* identify the query file being indexed */
+  worker->t_index->source_path = STR_Create(args->t_mmore_filein);
+  args->t_index_filein = STR_Create(t_index_filein_tmp);
+
+  /* save index file */
+  fp = fopen(t_index_filein_tmp, "w+");
+  F_INDEX_Dump(worker->t_index, fp);
+  fclose(fp);
+  // }
   STR_Destroy(t_index_filein_tmp);
 
   CLOCK_Stop(worker->timer);
@@ -160,40 +159,40 @@ void WORK_load_query_index(WORKER* worker) {
     q_index_filein_tmp = STR_Concat(args->q_filein, ext);
   }
 
-  /* if query index path was given at the command line, load that */
-  if (args->q_index_filein != NULL) {
-    /* load file passed by commandline */
-    printf_vhi("# loading indexpath from commandline: '%s'...\n", args->q_index_filein);
-    worker->q_index = F_INDEX_Load(worker->q_index, args->q_index_filein);
+  // /* if query index path was given at the command line, load that */
+  // if (args->q_index_filein != NULL) {
+  //   /* load file passed by commandline */
+  //   printf_vhi("# loading indexpath from commandline: '%s'...\n", args->q_index_filein);
+  //   worker->q_index = F_INDEX_Load(worker->q_index, args->q_index_filein);
+  // }
+  // /* else, check if index exists at default file location */
+  // elif (access(q_index_filein_tmp, F_OK) == 0) {
+  //   printf_vhi("# found index at database location: '%s'...\n", q_index_filein_tmp);
+  //   args->q_index_filein = STR_Create(q_index_filein_tmp);
+  //   worker->q_index = F_INDEX_Load(worker->q_index, q_index_filein_tmp);
+  // }
+  // /* else, build index on the fly */
+  // else {
+  printf("# building index of file...\n");
+  if (args->q_filetype == FILE_HMM) {
+    worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_mmore_filein);
   }
-  /* else, check if index exists at default file location */
-  elif (access(q_index_filein_tmp, F_OK) == 0) {
-    printf_vhi("# found index at database location: '%s'...\n", q_index_filein_tmp);
-    args->q_index_filein = STR_Create(q_index_filein_tmp);
-    worker->q_index = F_INDEX_Load(worker->q_index, q_index_filein_tmp);
+  elif (args->q_filetype == FILE_FASTA) {
+    worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_mmore_filein);
   }
-  /* else, build index on the fly */
   else {
-    printf_vhi("# building index of file...\n");
-    if (args->q_filetype == FILE_HMM) {
-      worker->q_index = F_INDEX_Hmm_Build(worker->q_index, args->q_mmore_filein);
-    }
-    elif (args->q_filetype == FILE_FASTA) {
-      worker->q_index = F_INDEX_Fasta_Build(worker->q_index, args->q_mmore_filein);
-    }
-    else {
-      fprintf(stderr, "ERROR: query filetype is not supported.\n");
-      ERRORCHECK_exit(EXIT_FAILURE);
-    }
-    /* identify the query file being indexed */
-    worker->q_index->source_path = STR_Create(args->q_mmore_filein);
-    args->q_index_filein = STR_Create(q_index_filein_tmp);
-
-    /* save index file */
-    fp = fopen(q_index_filein_tmp, "w+");
-    F_INDEX_Dump(worker->q_index, fp);
-    fclose(fp);
+    fprintf(stderr, "ERROR: query filetype is not supported.\n");
+    ERRORCHECK_exit(EXIT_FAILURE);
   }
+  /* identify the query file being indexed */
+  worker->q_index->source_path = STR_Create(args->q_mmore_filein);
+  args->q_index_filein = STR_Create(q_index_filein_tmp);
+
+  /* save index file */
+  fp = fopen(q_index_filein_tmp, "w+");
+  F_INDEX_Dump(worker->q_index, fp);
+  fclose(fp);
+  // }
   STR_Destroy(q_index_filein_tmp);
 
   CLOCK_Stop(worker->timer);

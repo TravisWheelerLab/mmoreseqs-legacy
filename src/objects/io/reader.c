@@ -68,7 +68,13 @@ READER_Destroy(READER* reader) {
  */
 STATUS_FLAG
 READER_Open(READER* reader) {
-  reader->fp = ERROR_fopen(reader->filename, "r");
+  reader->fp = fopen(reader->filename, "r");
+
+  if (reader->fp == NULL) {
+    fprintf(stderr, "NULL FILEPOINTER IN INDEX READER_Open\n");
+    exit(1);
+  }
+
   reader->is_open = true;
   reader->is_eof = false;
 

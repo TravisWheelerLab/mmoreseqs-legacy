@@ -8,6 +8,7 @@
 
 /* imports */
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -407,7 +408,7 @@ int VECTOR_STR_Search(VECTOR_STR* vec,
   int found = -1;
 
   for (int i = N / 4; i >= 1; i /= 2) {
-    int cmp = STR_Compare(val, vec->data[i]);
+    int cmp = strcmp(val, vec->data[i]);
 
     if (cmp > 0) {
       idx += i;
@@ -435,7 +436,7 @@ int VECTOR_STR_Search_First(VECTOR_STR* vec,
   int found = -1;
 
   for (int i = N / 4; i >= 1; i /= 2) {
-    int cmp = STR_Compare(val, vec->data[i]);
+    int cmp = strcmp(val, vec->data[i]);
 
     if (cmp > 0) {
       idx += i;
@@ -463,7 +464,7 @@ int VECTOR_STR_Search_Last(VECTOR_STR* vec,
   int found = -1;
 
   for (int i = N / 4; i >= 1; i /= 2) {
-    int cmp = STR_Compare(val, vec->data[i]);
+    int cmp = strcmp(val, vec->data[i]);
 
     if (cmp > 0) {
       idx += i;
@@ -486,8 +487,8 @@ int VECTOR_STR_Search_Last(VECTOR_STR* vec,
 int VECTOR_STR_Compare(VECTOR_STR* vec_A,
                        VECTOR_STR* vec_B) {
   for (int i = 0; i < vec_A->N; i++) {
-    if (STR_Compare(vec_A->data[i], vec_B->data[i]) != 0) {
-      return STR_Compare(vec_A->data[i], vec_B->data[i]);
+    if (strcmp(vec_A->data[i], vec_B->data[i]) != 0) {
+      return strcmp(vec_A->data[i], vec_B->data[i]);
     }
   }
   return 0;
@@ -499,9 +500,7 @@ int VECTOR_STR_Compare(VECTOR_STR* vec_A,
 STATUS_FLAG
 VECTOR_STR_Sort(VECTOR_STR* vec) {
   int N = VECTOR_STR_GetSize(vec);
-  qsort(vec->data, N, sizeof(STR), STR_CompareTo);
-
-  // VECTOR_STR_Sort_Sub( vec, 0, N );
+  qsort(vec->data, N, sizeof(STR), strcmp);
 
 #if DEBUG
   {
@@ -510,7 +509,7 @@ VECTOR_STR_Sort(VECTOR_STR* vec) {
       STR nxt = vec->data[i + 1];
       char s_cur[50];
       char s_nxt[50];
-      int cmp = STR_Compare(cur, nxt);
+      int cmp = strcmp(cur, nxt);
       if ((cmp <= 0) == false) {
         fprintf(stderr, "ERROR: bad sort. %d, %d v %d: %s vs %s\n",
                 cmp, i, i + 1, STR_ToString(cur, s_cur), STR_ToString(nxt, s_nxt));
@@ -562,7 +561,7 @@ VECTOR_STR_Sort_Sub_Selectsort(VECTOR_STR* vec,
     STR min_val = vec->data[i];
     for (int j = i + 1; j < end; j++) {
       /* if new minimum found, update value and index */
-      int cmp = STR_Compare(min_val, vec->data[j]);
+      int cmp = strcmp(min_val, vec->data[j]);
       if (cmp > 0) {
         min_idx = j;
         min_val = vec->data[j];
@@ -595,11 +594,11 @@ VECTOR_STR_Sort_Sub_Quicksort(VECTOR_STR* vec,
   /* partition on pivot */
   while (l_idx <= r_idx) {
     /* find next right partition element that is less than pivot element */
-    while ((l_idx <= r_idx) && (STR_Compare(pivot_val, vec->data[r_idx]) < 0)) {
+    while ((l_idx <= r_idx) && (strcmp(pivot_val, vec->data[r_idx]) < 0)) {
       r_idx--;
     }
     /* find next left partition element that is greater than pivot element */
-    while ((l_idx <= r_idx) && (STR_Compare(pivot_val, vec->data[l_idx]) >= 0)) {
+    while ((l_idx <= r_idx) && (strcmp(pivot_val, vec->data[l_idx]) >= 0)) {
       l_idx++;
     }
     /* if left and right index have not crossed, then swap elements */

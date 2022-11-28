@@ -92,7 +92,7 @@ STR_Equals(const STR data_1,
            const STR data_2) {
   int cmp;
   bool is_equal;
-  cmp = STR_Compare(data_1, data_2);
+  cmp = strcmp(data_1, data_2);
   is_equal = (cmp == 0);
   return is_equal;
 }
@@ -276,18 +276,6 @@ STR_Replace_Substring(STR str,
     str_find = STR_Find_Substring(str_find, substr_old);
   }
   return str;
-}
-
-/*! FUNCTION:  STR_ComparePrefix()
- *  SYNOPSIS:  Compare first <L> characters of <a> and <b>.
- *    RETURN:  POS if (a > b),
- *             0 if equal,
- *             NEG if (a < b)
- */
-int STR_ComparePrefix(const STR a,
-                      const STR b,
-                      const size_t L) {
-  return strncmp(a, b, L);
 }
 
 /*! FUNCTION:  STR_Swap()

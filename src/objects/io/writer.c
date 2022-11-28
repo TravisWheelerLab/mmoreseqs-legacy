@@ -68,7 +68,12 @@ WRITER_Destroy(WRITER* writer) {
  */
 STATUS_FLAG
 WRITER_Open(WRITER* writer) {
-  writer->fp = ERROR_fopen(writer->filename, "r");
+  writer->fp = fopen(writer->filename, "r");
+  if (writer->fp == NULL) {
+    fprintf(stderr, "NULL FILEPOINTER IN INDEX WRITER_Open\n");
+    exit(1);
+  }
+
   writer->is_open = true;
   writer->is_eof = false;
 

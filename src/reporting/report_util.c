@@ -31,8 +31,7 @@
 /*!  FUNCTION:    REPORT_horizontal_rule()
  *   SYNOPSIS:    Print a horizontal rule.
  */
-inline STATUS_FLAG
-REPORT_horizontal_rule(FILE* fp) {
+inline STATUS_FLAG REPORT_horizontal_rule(FILE* fp) {
   fprintf(fp, "# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\n");
 }
 

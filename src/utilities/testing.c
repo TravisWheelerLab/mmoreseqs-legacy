@@ -49,7 +49,7 @@ void TEST_set_color(char* color,
   char* colors[7] = {"default", "red", "green", "yellow", "blue", "magenta", "cyan"};
 
   for (int i = 0; i < tbl_size; i++) {
-    if (STR_Compare(color, colors[i]) == 0) {
+    if (strcmp(color, colors[i]) == 0) {
       TEST_set_color_num(i, bold);
       return;
     }

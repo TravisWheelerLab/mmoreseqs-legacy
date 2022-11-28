@@ -37,20 +37,6 @@ char* STR_ToString(const STR data, char* buf);
  */
 STR STR_FromString(char* str);
 
-/*! FUNCTION:  STR_Compare()
- *  SYNOPSIS:  Compare <a> and <b>.
- *    RETURN:  POS if (a > b),
- *             0 if equal,
- *             NEG if (a < b)
- */
-int STR_Compare(const STR a, const STR b);
 
-/*! FUNCTION:  STR_CompareTo()
- *  SYNOPSIS:  Generic compare. Casts then compares <a> and <b>.
- *    RETURN:  POS if (a > b),
- *             0 if equal,
- *             NEG if (a < b)
- */
-int STR_CompareTo(const void* a, const void* b);
 
 #endif /* _STR_H */

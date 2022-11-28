@@ -63,7 +63,7 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
   /* Look through each input result (i = index in full list, i_cnt = index relative to search range) */
   for (int i = i_beg; i < i_end; i++, i_cnt++) {
     printf_vall("\n# (%d/%d): Running cloud search for result (%d of %d)...\n",
-               i_cnt, i_rng, i + 1, i_end);
+                i_cnt, i_rng, i + 1, i_end);
 
     passed[0] = false;
     passed[1] = false;
@@ -93,12 +93,10 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
 
       /* get viterbi alignment bounds from mmseqs entry */
       WORK_load_mmseqs_alignment(worker);
-    }
 
-    /* check if mmseqs viterbi passes threshold */
-    if (passed[0] == true) {
       /* run cloud search */
       WORK_cloud_search_linear(worker);
+
       /* evaluate cloud search scoring filter */
       WORK_cloud_natsc_to_eval(worker);
 
@@ -141,7 +139,7 @@ STATUS_FLAG mmoreseqs_mmore_pipeline(WORKER* worker) {
     /* print thresholds which passed */
     if (worker->args->verbose_level >= VERBOSE_HIGH) {
       printf_vall("THRESHOLDS PASSED: %d => %d => %d => %d\n",
-                 passed[0], passed[1], passed[2], passed[3]);
+                  passed[0], passed[1], passed[2], passed[3]);
     }
 
     /* cleanup for current iteration */

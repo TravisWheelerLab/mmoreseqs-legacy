@@ -68,28 +68,28 @@ void HMM_PROFILE_Parse(HMM_PROFILE* prof,
     header = strtok(line_buf, delim);
 
     /* check which <header> data is being filled */
-    if (STR_Compare(header, "NAME") == 0) {
+    if (strcmp(header, "NAME") == 0) {
       field = strtok(NULL, delim);
       // STRING_Replace(field, ' ', '_');
       HMM_PROFILE_SetTextField(&prof->name, field);
-    } else if (STR_Compare(header, "ACC") == 0) {
+    } else if (strcmp(header, "ACC") == 0) {
       field = strtok(NULL, delim);
       HMM_PROFILE_SetTextField(&prof->acc, field);
-    } else if (STR_Compare(header, "DESC") == 0) {
+    } else if (strcmp(header, "DESC") == 0) {
       field = strtok(NULL, delim);
       HMM_PROFILE_SetTextField(&prof->acc, field);
-    } else if (STR_Compare(header, "LENG") == 0) {
+    } else if (strcmp(header, "LENG") == 0) {
       field = strtok(NULL, delim);
       int num_nodes = atoi(field);
       HMM_PROFILE_SetModel_Length(prof, num_nodes);
-    } else if (STR_Compare(header, "ALPH") == 0) {
+    } else if (strcmp(header, "ALPH") == 0) {
       field = strtok(NULL, delim);
       HMM_PROFILE_SetAlphabet(prof, field);
-    } else if (STR_Compare(header, "RF") == 0) {
-    } else if (STR_Compare(header, "MM") == 0) {
+    } else if (strcmp(header, "RF") == 0) {
+    } else if (strcmp(header, "MM") == 0) {
     }
     /* */
-    else if (STR_Compare(header, "STATS") == 0) {
+    else if (strcmp(header, "STATS") == 0) {
       field = strtok(NULL, delim); /* LOCAL */
       field = strtok(NULL, delim); /* distribution type */
 
@@ -99,7 +99,7 @@ void HMM_PROFILE_Parse(HMM_PROFILE* prof,
       HMM_PROFILE_SetDistribution_Params(prof, param1, param2, field);
     }
     /* COMPO is the background composition of the hmm model */
-    else if (STR_Compare(header, "COMPO") == 0) {
+    else if (strcmp(header, "COMPO") == 0) {
       /* LINE 1: optional args (do nothing) */
       token = strtok(NULL, delim);
       for (int j = 0; j < NUM_AMINO && token != NULL; j++) {

@@ -61,8 +61,7 @@ F_INDEX_Create() {
 /*!  FUNCTION:    F_INDEX_Create()
  *   SYNOPSIS:    Destroys instance of F_INDEX and frees memory.
  */
-F_INDEX*
-F_INDEX_Destroy(F_INDEX* index) {
+F_INDEX* F_INDEX_Destroy(F_INDEX* index) {
   if (index == NULL)
     return index;
 
@@ -201,10 +200,7 @@ void F_INDEX_Quiksort(F_INDEX_NODE* arr, /* F_INDEX node array to be sorted */
 /*  FUNCTION:    F_INDEX_Swap()
  *  SYNOPSIS:    Swap the ith and jth node in the array.
  */
-inline void
-F_INDEX_Swap(F_INDEX_NODE* arr,
-             int i,
-             int j) {
+inline void F_INDEX_Swap(F_INDEX_NODE* arr, int i, int j) {
   F_INDEX_NODE tmp;
   tmp = arr[i];
   arr[i] = arr[j];
@@ -214,21 +210,17 @@ F_INDEX_Swap(F_INDEX_NODE* arr,
 /*!  FUNCTION:    F_INDEX_Compare_by_Name()
  *   SYNOPSIS:    Compare <a> and <b> node in the array by NAME.
  */
-inline int
-F_INDEX_Compare_by_Name(const void* a,
-                        const void* b) {
+inline int F_INDEX_Compare_by_Name(const void* a, const void* b) {
   F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
   F_INDEX_NODE* node_b = (F_INDEX_NODE*)b;
-  int cmp = STR_Compare(node_a->name, node_b->name);
+  int cmp = strcmp(node_a->name, node_b->name);
   return cmp;
 }
 
 /*!  FUNCTION:    F_INDEX_Compare_by_Id()
  *   SYNOPSIS:    Compare <a> and <b> node in the array by ID.
  */
-inline int
-F_INDEX_Compare_by_Id(const void* a,
-                      const void* b) {
+inline int F_INDEX_Compare_by_Id(const void* a, const void* b) {
   F_INDEX_NODE* node_a = (F_INDEX_NODE*)a;
   F_INDEX_NODE* node_b = (F_INDEX_NODE*)b;
   int cmp = node_a->id - node_b->id;
@@ -239,9 +231,7 @@ F_INDEX_Compare_by_Id(const void* a,
  *   SYNOPSIS:   Runs NAME Search for <search_term> and returns node.
  *     RETURN:   Search result; NULL if no result found.
  */
-F_INDEX_NODE*
-F_INDEX_Getby_Name(F_INDEX* index,
-                   char* search_term) {
+F_INDEX_NODE* F_INDEX_Getby_Name(F_INDEX* index, char* search_term) {
   int idx;
   F_INDEX_NODE* node;
 
@@ -258,8 +248,7 @@ F_INDEX_Getby_Name(F_INDEX* index,
  *               Assumes F_INDEX is sorted by Name.
  *     RETURN:   index of search result; -1 if no result found.
  */
-int F_INDEX_Search_Name(F_INDEX* index,
-                        char* search_term) {
+int F_INDEX_Search_Name(F_INDEX* index, char* search_term) {
   int lo = 0;
   int mid;
   int hi = index->N;
@@ -276,7 +265,7 @@ int F_INDEX_Search_Name(F_INDEX* index,
 
   while (lo <= hi) {
     mid = (lo + hi) / 2;
-    cmp = STR_Compare(search_term, index->nodes[mid].name);
+    cmp = strcmp(search_term, index->nodes[mid].name);
 
     if (cmp < 0) {
       hi = mid - 1;

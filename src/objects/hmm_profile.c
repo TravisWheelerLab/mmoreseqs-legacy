@@ -148,10 +148,10 @@ void HMM_PROFILE_SetAlphabet(HMM_PROFILE* prof,
   prof->alph = STR_Create(alph_name);
   prof->alph = STR_ToLower(prof->alph);
 
-  if (STR_Compare(alph_name, "amino") == 0) {
+  if (strcmp(alph_name, "amino") == 0) {
     prof->alph_leng = NUM_AMINO;
   }
-  elif (STR_Compare(alph_name, "dna") == 0) {
+  elif (strcmp(alph_name, "dna") == 0) {
     prof->alph_leng = NUM_DNA;
   }
   else {
@@ -222,13 +222,13 @@ void HMM_PROFILE_SetDistribution_Params(HMM_PROFILE* prof,
   float* parPtr1 = NULL;
   float* parPtr2 = NULL;
 
-  if (STR_Compare(dist_name, "MSV") == 0) {
+  if (strcmp(dist_name, "MSV") == 0) {
     prof->msv_dist.param1 = param1;
     prof->msv_dist.param2 = param2;
-  } else if (STR_Compare(dist_name, "VITERBI") == 0) {
+  } else if (strcmp(dist_name, "VITERBI") == 0) {
     prof->viterbi_dist.param1 = param1;
     prof->viterbi_dist.param2 = param2;
-  } else if (STR_Compare(dist_name, "FORWARD") == 0) {
+  } else if (strcmp(dist_name, "FORWARD") == 0) {
     prof->forward_dist.param1 = param1;
     prof->forward_dist.param2 = param2;
   } else {

@@ -31,11 +31,13 @@
 /*!  FUNCTION:  ERRORCHECK_handler()
  *   SYNOPSIS:  Handles errors.
  */
-void ERRORCHECK_handler(const ERROR_FLAG error_code,
-                        const char* _file_,
-                        const int _line_,
-                        const char* _func_,
-                        const char* err_msg) {
+void ERRORCHECK_handler(
+  const ERROR_FLAG error_code,
+  const char* _file_,
+  const int _line_,
+  const char* _func_,
+  const char* err_msg
+) {
   /* if no message, output default message according to error code */
   if (err_msg == NULL) {
     fprintf(stderr, "ERROR (%d): ", error_code);
@@ -73,12 +75,13 @@ void ERRORCHECK_handler(const ERROR_FLAG error_code,
 /*!  FUNCTION:  ERRORCHECK_fopen()
  *   SYNOPSIS:  Opens file <fp> and handles potential errors.
  */
-inline FILE*
-ERRORCHECK_fopen(const char* filename,
-                 const char* permission,
-                 const char* _file_,
-                 const int _line_,
-                 const char* _func_) {
+inline FILE* ERRORCHECK_fopen(
+  const char* filename,
+  const char* permission,
+  const char* _file_,
+  const int _line_,
+  const char* _func_
+) {
   FILE* fp = fopen(filename, permission);
   if (fp == NULL) {
     ERRORCHECK_handler(ERROR_FILE_IO, _file_, _line_, _func_, filename);

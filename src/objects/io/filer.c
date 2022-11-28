@@ -126,7 +126,13 @@ FILER_Open(FILER* filer) {
   if (filer->is_open || filer->fp == stdout) {
     return STATUS_FAILURE; /* need flag for double-open/double-close */
   }
-  filer->fp = ERROR_fopen(filer->filename, filer->mode);
+
+  filer->fp = fopen(filer->filename, filer->mode);
+  if (filer->fp == NULL) {
+    fprintf(stderr, "NULL FILEPOINTER IN INDEX READER_Open\n");
+    exit(1);
+  }
+
   filer->is_open = true;
   filer->is_eof = false;
 

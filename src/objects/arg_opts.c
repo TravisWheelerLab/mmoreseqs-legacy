@@ -178,7 +178,7 @@ INT ARG_OPTS_GetOption_byName(ARG_OPTS* arg_opts,
   opt_id = -1;
   for (int i = 0; i < N_opts; i++) {
     STR search_name = VECTOR_STR_Get(arg_opts->opt_names, i);
-    if (STR_Compare(opt_name, search_name) == 0) {
+    if (strcmp(opt_name, search_name) == 0) {
       opt_id = i;
       break;
     }

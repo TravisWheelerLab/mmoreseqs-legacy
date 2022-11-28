@@ -24,24 +24,21 @@
 /*! FUNCTION:  PTR_Create()
  *  SYNOPSIS:  Create an instance of <data>.
  */
-inline PTR
-PTR_Create(const PTR data) {
+inline PTR PTR_Create(const PTR data) {
   return data;
 }
 
 /*! FUNCTION:  PTR_Destroy()
  *  SYNOPSIS:  Destroy instance of <data>.
  */
-inline PTR
-PTR_Destroy(PTR data) {
+inline PTR PTR_Destroy(PTR data) {
   return data;
 }
 
 /*! FUNCTION:  PTR_Empty()
  *  SYNOPSIS:  Clear <data>.  If pointer data, sets to null. Otherwise, do nothing.
  */
-inline PTR
-PTR_Clear(PTR data) {
+inline PTR PTR_Clear(PTR data) {
   return NULL;
 }
 
@@ -74,9 +71,7 @@ PTR_FromString(char* str) {
  *             0 if equal,
  *             NEG if (a < b)
  */
-inline int
-PTR_Compare(const PTR a,
-            const PTR b) {
+inline int PTR_Compare(const PTR a, const PTR b) {
   return (a - b);
 }
 

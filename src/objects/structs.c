@@ -6,6 +6,7 @@
 /* imports */
 #include <time.h>
 #include <stdio.h>
+#include <string.h>
 
 /* local imports */
 #include "_objects.h"
@@ -189,10 +190,10 @@ STR_TO_INT FILETYPE_EXTS[] = {
     {".pmmdb", FILE_MMDB_P}};
 const int NUM_FILETYPE_EXTS = 8;
 
-int FILETYPE_EXT_Get(STR filetype_ext) {
+int FILETYPE_EXT_Get(char* filetype_ext) {
   for (int i = 0; i < NUM_FILETYPE_EXTS; i++) {
     STR_TO_INT filetype_map = FILETYPE_EXTS[i];
-    if (STR_Compare(filetype_ext, filetype_map.s) == 0) {
+    if (strcmp(filetype_ext, filetype_map.s) == 0) {
       return filetype_map.i;
     }
   }

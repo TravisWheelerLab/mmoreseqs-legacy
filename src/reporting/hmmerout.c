@@ -100,7 +100,6 @@
 void REPORT_hmmerout_header(WORKER* worker, FILE* fp) {
   ARGS* args = worker->args;
   int left_pad = 30;
-
   /* header info */
   REPORT_horizontal_rule(fp);
   fprintf(fp, "# %s :: %s :: %s\n",

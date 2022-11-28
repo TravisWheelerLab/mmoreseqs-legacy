@@ -18,8 +18,7 @@
 /* header */
 #include "_parsers.h"
 
-F_INDEX* F_INDEX_Hmm_Build(F_INDEX* f_index,
-                           const char* filename) {
+F_INDEX* F_INDEX_Hmm_Build(F_INDEX* f_index, const char* filename) {
   FILE* fp = NULL;
   F_INDEX_NODE node;
 
@@ -62,11 +61,11 @@ F_INDEX* F_INDEX_Hmm_Build(F_INDEX* f_index,
       continue;
 
     /* if starts new header, add to index */
-    if (STR_ComparePrefix(line_buf, "HMMER", 5) == 0) {
+    if (strncmp(line_buf, "HMMER", 5) == 0) {
       cur_offset = prv_offset;
 
       while ((line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0) {
-        if (STR_ComparePrefix(line_buf, "NAME", 4) == 0) {
+        if (strncmp(line_buf, "NAME", 4) == 0) {
           int i;
           // skip whitespace after NAME
           for (i = 4; isspace(line_buf[i]); i++) {
@@ -190,8 +189,10 @@ F_INDEX* F_INDEX_Load(F_INDEX* f_index,
 
   int line_count = 0;
   size_t line_buf_size = 0;
+  // size_t line_buf_size = 128;
   ssize_t line_size = 0;
   char* line_buf = NULL;
+  // char* line_buf = malloc(sizeof(char) * line_buf_size);
   char* token = NULL;
   char* delim = "\t\n";
 
@@ -212,8 +213,12 @@ F_INDEX* F_INDEX_Load(F_INDEX* f_index,
   f_index->index_path = STR_Create(filename);
 
   /* file open */
-  fp = ERROR_fopen(filename, "r");
-
+  fp = fopen(filename, "r");
+  if (fp == NULL) {
+    fprintf(stderr, "NULL FILEPOINTER IN INDEX PARSER\n");
+    exit(1);
+  }
+    
   /* read file line-by-line */
   while ((line_size = getline(&line_buf, &line_buf_size, fp)), line_size >= 0) {
     /* ignore commented lines */
