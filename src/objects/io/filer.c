@@ -23,20 +23,8 @@
 #include "../_objects.h"
 
 /* header */
-#include "_io.h"
 #include "filer.h"
 
-/* all valid modes */
-STR modes[] = {
-    "a",  /* append (file need not exist) */
-    "a+", /* read or write (append if file exists) */
-    "r",  /* read (from beginning of file) */
-    "r+", /* read or write, starts at beginning */
-    "w",  /* write (file need not exist) */
-    "w+", /* read or write (overwrite file) */
-    "rb", /* read file as bytes */
-    "wb", /* write file as bytes */
-};
 
 /*!  FUNCTION:  FILER_Create()
  *   SYNOPSIS:  Create <filer>, allocate memory and return pointer.
@@ -55,24 +43,6 @@ FILER_Create(STR filename,
   filer->mode = STR_Create(mode);
   filer->is_eof = false;
   filer->is_open = false;
-
-  return filer;
-}
-
-/*!  FUNCTION:  FILER_Create()
- *   SYNOPSIS:  Create <filer>, allocate memory and return pointer.
- */
-FILER*
-FILER_Create_Stdout() {
-  FILER* filer;
-  filer = ERROR_malloc(sizeof(FILER));
-
-  filer->fp = stdout;
-  filer->filename = STR_Create("stdout");
-  /* TODO: need safe check if mode is valid */
-  filer->mode = STR_Create("w+");
-  filer->is_eof = false;
-  filer->is_open = true;
 
   return filer;
 }
@@ -96,20 +66,6 @@ FILER_Destroy(FILER* filer) {
   filer = ERROR_free(filer);
 
   return filer;
-}
-
-/*!  FUNCTION:  FILER_SetFile()
- *   SYNOPSIS:  Open <filer> file pointer.
- */
-STATUS_FLAG
-FILER_SetFile(FILER* filer,
-              STR filename,
-              STR mode) {
-  if (filer->is_open == true) {
-    return STATUS_FAILURE;
-  }
-  filer->filename = STR_Set(filer->filename, filename);
-  filer->mode = STR_Set(filer->mode, mode);
 }
 
 /*!  FUNCTION:  FILER_Open()
@@ -154,40 +110,13 @@ FILER_Close(FILER* filer) {
   return STATUS_SUCCESS;
 }
 
-/*!  FUNCTION:  FILER_Rewind()
- *   SYNOPSIS:  Sets <filer> file pointer to beginning of file.
- */
-STATUS_FLAG
-FILER_Rewind(FILER* filer) {
-  STATUS_FLAG status;
-  status = fseek(filer->fp, 0, SEEK_SET);
-  return status;
-}
-
-/*!  FUNCTION:  FILER_JumpTo()
- *   SYNOPSIS:  Jump <filer> file pointer to <offset>th byte of file.
- */
-STATUS_FLAG
-FILER_JumpTo(FILER* filer,
-             long int offset) {
-  STATUS_FLAG status;
-  status = fseek(filer->fp, offset, SEEK_SET);
-  return status;
-}
-
 /*!  FUNCTION:  FILER_Is_EndOfFile()
  *   SYNOPSIS:  Check if <filer> is at END_OF_FILE.
  */
-bool FILER_Is_EndOfFile(FILER* filer) {
-  return filer->is_eof;
-}
 
 /*!  FUNCTION:  FILER_Is_Open()
  *   SYNOPSIS:  Check if <filer> is at open or closed.
  */
-bool FILER_Is_Open(FILER* filer) {
-  return filer->is_open;
-}
 
 /*!  FUNCTION:  FILER_Is_StandardOutput()
  *   SYNOPSIS:  Check if <filer> is to standard output (either stdout or stderr).

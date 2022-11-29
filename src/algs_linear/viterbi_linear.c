@@ -4,20 +4,14 @@
  *******************************************************************************/
 
 /* imports */
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
 #include <math.h>
 
 /* local imports */
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
-#include "../objects/_objects.h"
 
 /* header */
-#include "_algs_linear.h"
 #include "viterbi_linear.h"
 
 int run_Viterbi_Linear(const SEQUENCE* query,
@@ -31,58 +25,35 @@ int run_Viterbi_Linear(const SEQUENCE* query,
   char a;        /* store current character in sequence */
   int A;         /* store int value of character */
   char* seq;     /* alias for getting seq */
-  int N;         /* length of edgebound list */
   bool is_local; /* whether using local or global alignments */
 
   /* vars for indexing into data matrices by row-col */
-  int b, d, i, j, k; /* antidiagonal, row, column indices */
   int q_0, q_1;      /* real index of current and previous rows (query) */
   int qx0, qx1;      /* mod mapping of column index into data matrix (query) */
   int t_0, t_1;      /* real index of current and previous columns (target) */
 
-  /* vars for indexing into data matrices by anti-diag */
-  int d_0, d_1, d_2;         /* real index of current and previous antidiagonals */
-  int dx0, dx1, dx2;         /* mod mapping of antidiagonal index into data matrix */
-  int k_0, k_1;              /* offset into antidiagonal */
-  int d_st, d_end, d_cnt;    /* starting and ending diagonal indices */
-  int dim_T, dim_Q, dim_TOT; /* dimensions of submatrix being searched */
-  int dim_min, dim_max;      /* diagonal index where num cells reaches highest point and diminishing point */
-  int num_cells;             /* number of cells in current diagonal */
-
-  /* vars for indexing into edgebound lists */
-  BOUND* bnd;     /* current bound */
-  int id;         /* id in edgebound list (row/diag) */
-  int r_0;        /* current index for current row */
-  int r_0b, r_0e; /* begin and end indices for current row in edgebound list */
-  int r_1;        /* current index for previous row */
-  int r_1b, r_1e; /* begin and end indices for current row in edgebound list */
-  int le_0, re_0; /* right/left matrix bounds of current diag */
-  int lb_0, rb_0; /* bounds of current search space on current diag */
-  int lb_1, rb_1; /* bounds of current search space on previous diag */
-  int lb_2, rb_2; /* bounds of current search space on 2-back diag */
-  bool rb_T;      /* checks if edge touches right bound of matrix */
 
   /* vars for recurrance scores */
   float prv_M, prv_I, prv_D;    /* previous (M) match, (I) insert, (D) delete states */
   float prv_B, prv_E;           /* previous (B) begin and (E) end states */
   float prv_J, prv_N, prv_C;    /* previous (J) jump, (N) initial, and (C) terminal states */
-  float prv_loop, prv_move;     /* previous loop and move for special states */
-  float prv_sum, prv_best;      /* temp subtotaling vars */
+  float prv_best;      /* temp subtotaling vars */
   float sc_best;                /* final best scores */
-  float sc_M, sc_I, sc_D, sc_E; /* match, insert, delete, end scores */
+  float sc_E; /* match, insert, delete, end scores */
 
-  /* debugger tools */
-  FILE* dbfp;
-  MATRIX_2D* cloud_MX;
-  MATRIX_2D* cloud_MX3;
-  MATRIX_3D* test_MX;
-  MATRIX_3D* test_MX3;
-  int num_writes;
-  int num_clears;
 
 /* initialize debugging matrix */
 #if DEBUG
   {
+    /* debugger tools */
+    FILE* dbfp;
+    MATRIX_2D* cloud_MX;
+    MATRIX_2D* cloud_MX3;
+    MATRIX_3D* test_MX;
+    MATRIX_3D* test_MX3;
+    int num_writes;
+    int num_clears;
+
     cloud_MX = debugger->cloud_MX;
     cloud_MX3 = debugger->cloud_MX3;
     test_MX = debugger->test_MX;

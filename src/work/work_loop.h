@@ -8,11 +8,6 @@
 #ifndef _WORK_LOOP
 #define _WORK_LOOP
 
-/*! FUNCTION:  	WORK_preloop()
- *  SYNOPSIS:  	Prep <worker> for main loop.
- */
-void WORK_preloop(WORKER* worker);
-
 /*! FUNCTION:  	WORK_preiter()
  *  SYNOPSIS:  	Prep <worker> for next main loop iteration.
  */

@@ -1355,8 +1355,6 @@ typedef struct {
 
 /* worker contains the necessary data structures to conduct search */
 typedef struct {
-  /* --- pipeline --- */
-  // PIPELINE*            pipeline;
   /* --- pipeline settings --- */
   COMMANDLINE* cmd;   /* parsed commandline */
   ARGS* args;         /* arguments set by pipeline defaults and set by user */
@@ -1369,7 +1367,6 @@ typedef struct {
 
   /* --- reader/writer & buffer --- */
   READER* reader; /* general use reader */
-  // WRITER*              writer;              /* general use writer */
   BUFFER* buffer; /* general use read buffer */
 
   /* --- input files --- */
@@ -1391,7 +1388,6 @@ typedef struct {
   FILER* hmmerout_file;    /* HMMER-style output */
 
   /* --- input data --- */
-  /* m8 results from mmseqs */
   M8_RESULTS* mmseqs_data;       /* mmseqs .m8 data  */
   HITLIST_RESULTS* hitlist_data; /* simple list of target/query pairs (not implemented) */
   /* indexes of query and target data files */
@@ -1407,9 +1403,6 @@ typedef struct {
   /* times for tasks */
   TIMES* times;        /* current result section runtimes */
   TIMES* times_totals; /* cumulative section runtimes */
-  /* scores (moved to results) */
-  // ALL_SCORES*          scores;        /* scores in NATS */
-  // ALL_SCORES*          evals;         /* scores in evals */
 
   /* --- working data --- */
   /* current query and target data */
@@ -1495,8 +1488,6 @@ typedef struct {
 
 
 /* === GLOBAL VARIABLES === */
-/* pipeline */
-extern char* VERBOSITY_NAMES[];
 extern char* STATE_NAMES[];
 extern char* STATE_CHARS[];
 extern char STATE_CHAR[];
@@ -1518,11 +1509,6 @@ extern SCORE_MATRIX* bld;
 
 /* script locations */
 extern char* SCRIPT_DIR;
-extern char* PREP_SCRIPT;
-extern char* PREPSEARCH_SCRIPT;
-extern char* SEARCH_SCRIPT;
-extern char* EASYSEARCH_SCRIPT;
-
 
 /* debugging data */
 extern DEBUG_KIT* debugger;

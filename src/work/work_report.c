@@ -146,13 +146,6 @@ void WORK_report_result_current(WORKER* worker) {
   }
 }
 
-/*! FUNCTION:  	WORK_report_result_all()
- *  SYNOPSIS:  	Write all result entries in queue to all open files in <worker>.
- */
-void WORK_report_result_all(WORKER* worker) {
-  ARGS* args = worker->args;
-}
-
 /*! FUNCTION:  	WORK_report_footer()
  *  SYNOPSIS:  	Write all report footers to all open files in <worker>.
  */

@@ -7,27 +7,13 @@
 
 /* imports */
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-#include <time.h>
+
 
 /* local imports */
 #include "../objects/structs.h"
-#include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
-#include "../parsers/_parsers.h"
-#include "../algs_linear/_algs_linear.h"
-#include "../algs_quad/_algs_quad.h"
-#include "../algs_naive/_algs_naive.h"
-#include "../algs_sparse/_algs_sparse.h"
-#include "../reporting/_reporting.h"
 
 /* header */
-#include "_work.h"
 #include "work_cloud_merge.h"
 
 /*! FUNCTION:  	WORK_cloud_merge()
@@ -53,8 +39,6 @@ void WORK_cloud_merge_and_reorient(WORKER* worker) {
   /* output data */
   TIMES* times = worker->times;
   RESULT* result = worker->result;
-  ALL_SCORES* scores = &result->scores;
-  SCORES* final = &result->final_scores;
 
   /* if performing linear fb-pruner, run cloud search  */
   if (tasks->lin_cloud_fwd || tasks->lin_cloud_bck) {

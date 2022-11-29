@@ -33,9 +33,6 @@ SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_lin
 #include "../utilities/_utilities.h"
 #include "../objects/_objects.h"
 
-/* for debugging / unit tests */
-#include "../algs_quad/_algs_quad.h"
-
 /* header */
 #include "_algs_linear.h"
 #include "cloud_search_linear.h"
@@ -61,10 +58,10 @@ SUMMARY: AddressSanitizer: heap-buffer-overflow src/algs_linear/cloud_search_lin
 /* private functions */
 /* Math functions */
 static inline float
-MY_Sum(const float x, const float y);
+MY_Sum(float x, float y);
 
 static inline float
-MY_Prod(const float x, const float y);
+MY_Prod(float x, float y);
 
 static inline float
 MY_Zero();
@@ -72,20 +69,21 @@ MY_Zero();
 static inline float
 MY_One();
 
-STATUS_FLAG
-run_Cloud_Forward_Linear(const SEQUENCE* query,     /* query sequence */
-                         const HMM_PROFILE* target, /* target hmm model */
-                         const int Q,               /* query length */
-                         const int T,               /* target length */
-                         MATRIX_3D* st_MX3,         /* normal state matrix */
-                         MATRIX_2D* sp_MX,          /* special state matrix */
-                         const ALIGNMENT* tr,       /* viterbi traceback */
-                         EDGEBOUND_ROWS* rows,      /* temporary edgebounds by-row vector */
-                         EDGEBOUNDS* edg,           /* OUTPUT: edgebounds of cloud search space */
-                         CLOUD_PARAMS* params,      /* pruning parameters */
-                         float* inner_sc,           /* OUTPUT: maximum score inside viterbi bounds */
-                         float* max_sc)             /* OUTPUT: highest score found during search */
-{
+STATUS_FLAG run_Cloud_Forward_Linear(
+  const SEQUENCE* query,     /* query sequence */
+  const HMM_PROFILE* target, /* target hmm model */
+  const int Q,               /* query length */
+  const int T,               /* target length */
+  MATRIX_3D* st_MX3,         /* normal state matrix */
+  MATRIX_2D* sp_MX,          /* special state matrix */
+  const ALIGNMENT* tr,       /* viterbi traceback */
+  EDGEBOUND_ROWS* rows,      /* temporary edgebounds by-row vector */
+  EDGEBOUNDS* edg,           /* OUTPUT: edgebounds of cloud search space */
+  CLOUD_PARAMS* params,      /* pruning parameters */
+  float* inner_sc,           /* OUTPUT: maximum score inside viterbi bounds */
+  float* max_sc              /* OUTPUT: highest score found during search */
+) {
+
   /* vars for accessing query/target data structs */
   char a;        /* store current character in sequence */
   int A;         /* store int value of character */

@@ -158,14 +158,6 @@ char* MODE_NAMES[] = {
     "Uni-glocal",
 };
 
-/* Verbosity Level Names */
-char* VERBOSITY_NAMES[] = {
-    "Errors+",
-    "Warnings+",
-    "Info+",
-    "Debug+",
-};
-
 /* Alphabet Names (for hmm files) */
 char* ALPHABET_NAMES[] = {
     "AMINO",
@@ -240,9 +232,5 @@ char* MMORE_BIN = MACRO_XSTR(PROJECT_LOC) "/" MACRO_XSTR(MMORE_BIN_LOC);
 // char*    SCRIPT_DIR           = MACRO_XSTR(SCRIPT_LOC);
 char* SCRIPT_DIR = MACRO_XSTR(SCRIPT_LOC);
 
-char* PREP_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-prepare.sh";
-char* PREPSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-prep-search.sh";
-char* SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search.sh";
 char* MMORE_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search-mmore.sh";
 char* MMSEQS_SEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-search-mmseqs.sh";
-char* EASYSEARCH_SCRIPT = MACRO_XSTR(SCRIPT_LOC) "/scripts/workflows/mmoreseqs-easy-search.sh";

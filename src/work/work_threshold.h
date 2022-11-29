@@ -17,11 +17,6 @@ void WORK_thresholds_pval_to_eval(WORKER* worker);
  */
 void WORK_viterbi_mmore_natsc_to_eval(WORKER* worker);
 
-/*! FUNCTION:  	WORK_viterbi_natsc_to_eval()
- *  SYNOPSIS:  	Converts Viterbi natscore to e-value.
- */
-void WORK_viterbi_natsc_to_eval(WORKER* worker);
-
 /*! FUNCTION:  	WORK_viterbi_test_threshold()
  *  SYNOPSIS:  	Tests viterbi score against threshold.
  *  RETURN:       If passed threshold.

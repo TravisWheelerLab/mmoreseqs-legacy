@@ -30,28 +30,11 @@
 #include "_work.h"
 #include "work_loop.h"
 
-/*! FUNCTION:  	WORK_preloop()
- *  SYNOPSIS:  	Prep <worker> for main loop.
- */
-void WORK_preloop(WORKER* worker) {
-  FILE* fp = NULL;
-  CLOCK* timer = worker->timer;
-  TIMES* times = worker->times;
-  TIMES* times_totals = worker->times_totals;
-  RESULT* result = worker->result;
-  ALL_SCORES* scores = &result->scores;
-  SCORES* final = &result->final_scores;
-}
-
 /*! FUNCTION:  	WORK_preiter()
  *  SYNOPSIS:  	Prep <worker> for next main loop iteration.
  */
 void WORK_preiter(WORKER* worker) {
-  FILE* fp = NULL;
-  ARGS* args = worker->args;
-  CLOCK* timer = worker->timer;
   TIMES* times = worker->times;
-  TIMES* times_totals = worker->times_totals;
   RESULT* result = worker->result;
   ALL_SCORES* scores = &result->scores;
   SCORES* final = &result->final_scores;
@@ -95,13 +78,7 @@ void WORK_preiter(WORKER* worker) {
  *  SYNOPSIS:  	Clean up <worker> at end of main loop iteration.
  */
 void WORK_postiter(WORKER* worker) {
-  FILE* fp = NULL;
-  CLOCK* timer = worker->timer;
   TIMES* times = worker->times;
-  TIMES* times_totals = worker->times_totals;
-  RESULT* result = worker->result;
-  ALL_SCORES* scores = &result->scores;
-  SCORES* final = &result->final_scores;
 
   /* capture total runtime for current iteration */
   times->loop_end = CLOCK_GetTime(worker->timer);
@@ -115,13 +92,8 @@ void WORK_postiter(WORKER* worker) {
  *  SYNOPSIS:  	Clean up <worker> at end of main loop.
  */
 void WORK_postloop(WORKER* worker) {
-  FILE* fp = NULL;
-  CLOCK* timer = worker->timer;
-  TIMES* times = worker->times;
   TIMES* times_totals = worker->times_totals;
   RESULT* result = worker->result;
-  ALL_SCORES* scores = &result->scores;
-  SCORES* final = &result->final_scores;
 
   /* capture total-ish program runtime (from clock init to end of main loop) */
   times_totals->program_end = CLOCK_GetTime(worker->timer);

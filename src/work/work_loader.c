@@ -33,20 +33,7 @@
 #include "../reporting/_reporting.h"
 
 /* header */
-#include "_work.h"
 #include "work_loader.h"
-
-/*! FUNCTION:  	WORK_load_args()
- *  SYNOPSIS:  	Updates <worker> object to reflect <args>.
- */
-void WORK_load_args(WORKER* worker) {
-  ARGS* args = worker->args;
-  RESULT* result = worker->result;
-
-  result->threshold_viterbi = args->threshold_vit;
-  result->threshold_cloud = args->threshold_cloud;
-  result->threshold_fwdback = args->threshold_fwd;
-}
 
 /*! FUNCTION:  	WORK_load_mmseqs_file()
  *  SYNOPSIS:  	Loads mmseqs input m8 file into <results_in>, located at <mmseqs_m8_filein>.
@@ -84,7 +71,6 @@ void WORK_load_mmseqs_by_id(WORKER* worker,
                             int id) {
   ARGS* args = worker->args;
   RESULT* result = worker->result;
-  ALL_SCORES* scores = &result->scores;
   SCORES* finalsc = &result->final_scores;
 
   /* load mmseqs data */
@@ -271,8 +257,6 @@ void WORK_load_query_by_findex_id(WORKER* worker,
                                   int index_id) {
   ARGS* args = worker->args;
   HMM_PROFILE* t_prof = worker->t_prof;
-  SEQUENCE* t_seq = worker->t_seq;
-  SEQUENCE* q_seq = worker->q_seq;
   F_INDEX_NODE* my_idx = &worker->q_index->nodes[index_id];
 
   worker->q_id_prv = worker->q_id;

@@ -28,11 +28,6 @@ void WORK_report_header(WORKER* worker);
  */
 void WORK_report_result_current(WORKER* worker);
 
-/*! FUNCTION:  	WORK_report_result_all()
- *  SYNOPSIS:  	Write all result entries to all open files in <worker>.
- */
-void WORK_report_result_all(WORKER* worker);
-
 /* print header for results file (default) */
 /*! FUNCTION:  	WORK_report_footer()
  *  SYNOPSIS:  	Write all report footers to all open files in <worker>.

@@ -35,7 +35,6 @@
  *                Allocate data structs according to settings in its <args> and <tasks>.
  */
 void WORK_init(WORKER* worker) {
-  TASKS* tasks = worker->tasks;
   ARGS* args = worker->args;
 
   /* initialize logrithmic sum table */
@@ -43,14 +42,13 @@ void WORK_init(WORKER* worker) {
 
   STR read_mode = "r";
   STR write_mode = "w";
-  STR append_mode = "a";
   /* input files */
   worker->q_seq_file = FILER_Create(args->q_filein, read_mode);
   worker->t_prof_file = FILER_Create(args->t_filein, read_mode);
   worker->q_index_file = FILER_Create(args->q_index_filein, read_mode);
   worker->t_index_file = FILER_Create(args->t_index_filein, read_mode);
   worker->mmseqs_file = FILER_Create(args->mmseqs_m8_filein, read_mode);
-  // worker->hitlist_file       = FILER_Create( args->hitlist_filein, read_mode );
+
   /* output files */
   worker->output_file = FILER_Create(args->stdout_fileout, write_mode);
   if (args->is_redirect_stdout == false) {

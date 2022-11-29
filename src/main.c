@@ -75,11 +75,11 @@ int main(int argc, char* argv[]) {
   worker->args->mythresh_fileout = mythresh_path;
   worker->args->hmmerout_fileout = hmmerout_path;
 
-  //  ARGS_Dump(worker->args, stdout);
 
   mmoreseqs_mmore_pipeline(worker);
 
   // TODO: fix ARGS_Destroy so we can still use WORKER_Destroy
+
   //  WORKER_Destroy(worker);
 
   return STATUS_SUCCESS;

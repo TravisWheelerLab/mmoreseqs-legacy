@@ -16,12 +16,6 @@ FILER* FILER_Create(STR filename, STR mode);
  */
 FILER* FILER_Destroy(FILER* filer);
 
-/*!  FUNCTION:  FILER_SetFile()
- *   SYNOPSIS:  Open <filer> file pointer.
- */
-STATUS_FLAG
-FILER_SetFile(FILER* filer, STR filename, STR mode);
-
 /*!  FUNCTION:  FILER_Open()
  *   SYNOPSIS:  Open <filer> file pointer.
  */
@@ -34,18 +28,6 @@ FILER_Open(FILER* filer);
 STATUS_FLAG
 FILER_Close(FILER* filer);
 
-/*!  FUNCTION:  FILER_Rewind()
- *   SYNOPSIS:  Sets <filer> file pointer to beginning of file.
- */
-STATUS_FLAG
-FILER_Rewind(FILER* filer);
-
-/*!  FUNCTION:  FILER_JumpTo()
- *   SYNOPSIS:  Jump <filer> file pointer to <offset>th byte of file.
- */
-STATUS_FLAG
-FILER_JumpTo(FILER* filer, long int offset);
-
 /*!  FUNCTION:  FILER_NextLine()
  *   SYNOPSIS:  Get next line from file <fp>.
  */
@@ -54,12 +36,10 @@ STR FILER_NextLine(FILER* filer);
 /*!  FUNCTION:  FILER_Is_EndOfFile()
  *   SYNOPSIS:  Check if <filer> is at END_OF_FILE.
  */
-bool FILER_Is_EndOfFile(FILER* filer);
 
 /*!  FUNCTION:  FILER_Is_Open()
  *   SYNOPSIS:  Check if <filer> is at open or closed.
  */
-bool FILER_Is_Open(FILER* filer);
 
 /*!  FUNCTION:  FILER_Is_StandardOutput()
  *   SYNOPSIS:  Check if <filer> is to standard output.

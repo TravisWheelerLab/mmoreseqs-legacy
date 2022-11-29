@@ -12,11 +12,4 @@
  */
 void ARGS_SetDefaults(ARGS* args);
 
-/*! FUNCTION:  ARGS_SetDefaults()
- *  SYNOPSIS:  Output arguments to <fp>.
- */
-void ARGS_Dump(ARGS* args, FILE* fp);
-
-
-
 #endif /* _ARG_PARSER */

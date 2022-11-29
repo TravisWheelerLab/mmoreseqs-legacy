@@ -17,7 +17,6 @@
 #include "../objects/_objects.h"
 
 /* self header */
-#include "_algs_linear.h"
 #include "bound_fwdbck_linear.h"
 
 /*!
