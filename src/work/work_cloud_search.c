@@ -5,7 +5,6 @@
  *             Subroutines for cloud search / pruned / adaptive-banding forward-backward.
  *******************************************************************************/
 
-
 /* local imports */
 #include "../objects/structs.h"
 #include "../utilities/_utilities.h"
@@ -54,8 +53,7 @@ void WORK_cloud_search_linear(WORKER* worker) {
     /* cloud forward */
     CLOCK_Start(worker->timer);
     run_Cloud_Forward_Linear(
-        q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params, &inner_fwdsc, &max_fwdsc
-    );
+        q_seq, t_prof, Q, T, st_MX3, sp_MX, tr, edg_rows_tmp, edg_fwd, cloud_params, &inner_fwdsc, &max_fwdsc);
     CLOCK_Stop(worker->timer);
     times->lin_cloud_fwd = CLOCK_Duration(worker->timer);
     scores->lin_cloud_fwd = max_fwdsc;
